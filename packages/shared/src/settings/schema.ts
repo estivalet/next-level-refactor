@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { checkProfiles, EmulatorProfileSchema, EmulatorSchema } from './emulators.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
 // field has a default, so `{ "schemaVersion": 1 }` is a complete file. Plain objects strip
@@ -82,18 +83,24 @@ export const SystemSettingsSchema = z.object({
     .array(z.string().regex(/^[a-z0-9]+$/))
     .min(1)
     .optional(),
+  /** FR-EMU-4: the profile Play uses; a deleted profile falls through to the first match. */
+  defaultProfileId: z.uuid().optional(),
 });
 
 export type SystemSettings = z.output<typeof SystemSettingsSchema>;
 
-export const SettingsSchema = z.object({
-  schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
-  general: GeneralSchema.prefault({}),
-  storage: z.object({ locations: LocationsSchema.default([]) }).prefault({}),
-  // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.
-  systems: z.record(z.string(), SystemSettingsSchema).default({}),
-  experimental: z.record(z.string(), z.boolean()).default({}),
-});
+export const SettingsSchema = z
+  .object({
+    schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
+    general: GeneralSchema.prefault({}),
+    storage: z.object({ locations: LocationsSchema.default([]) }).prefault({}),
+    // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.
+    systems: z.record(z.string(), SystemSettingsSchema).default({}),
+    emulators: z.array(EmulatorSchema).default([]),
+    profiles: z.array(EmulatorProfileSchema).default([]),
+    experimental: z.record(z.string(), z.boolean()).default({}),
+  })
+  .superRefine(checkProfiles);
 
 export type Settings = z.output<typeof SettingsSchema>;
 

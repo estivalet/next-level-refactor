@@ -9,6 +9,12 @@ export const ERROR_CODES = {
   INVALID_SETTINGS: 'errors.invalidSettings',
   LIBRARY_UNAVAILABLE: 'errors.libraryUnavailable',
   NAME_TAKEN: 'errors.nameTaken',
+  NO_PROFILE: 'errors.noProfile',
+  EMULATOR_MISSING: 'errors.emulatorMissing',
+  ROM_MISSING: 'errors.romMissing',
+  CORE_MISSING: 'errors.coreMissing',
+  LAUNCH_FAILED: 'errors.launchFailed',
+  ALREADY_RUNNING: 'errors.alreadyRunning',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

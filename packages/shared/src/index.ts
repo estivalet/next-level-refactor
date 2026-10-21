@@ -6,6 +6,7 @@ export * from './library/schema.ts';
 export * from './library/games.ts';
 export * from './library/collections.ts';
 export * from './settings/schema.ts';
+export * from './settings/emulators.ts';
 export * from './settings/changedPaths.ts';
 export * from './catalog/schema.ts';
 export * from './launch/template.ts';

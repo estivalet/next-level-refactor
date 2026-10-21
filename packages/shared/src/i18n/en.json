@@ -7,6 +7,12 @@
     "invalidSettings": "Those settings are not valid and were not applied.",
     "libraryUnavailable": "The game library could not be opened.",
     "nameTaken": "That name is already in use.",
+    "noProfile": "No emulator is set up for this system.",
+    "emulatorMissing": "The emulator could not be found. Check its executable in Settings → Emulators.",
+    "romMissing": "The game file could not be found.",
+    "coreMissing": "This profile needs a RetroArch core.",
+    "launchFailed": "The emulator could not be started or stopped with an error.",
+    "alreadyRunning": "A game is already running.",
     "validation": {
       "invalid_type": "This value has the wrong type.",
       "invalid_value": "Choose one of the listed options.",
@@ -15,7 +21,12 @@
       "default": "This value is not valid.",
       "notAbsolute": "Use a full folder path, such as E:\\roms.",
       "duplicatePath": "This folder is already a storage location.",
-      "duplicateName": "Another location already has this name."
+      "duplicateName": "Another location already has this name.",
+      "unknownToken": "Unknown token.",
+      "unclosedBrace": "Unmatched brace. Type a brace twice to use it as text.",
+      "extraArgsAlone": "{extraArgs} must be an argument on its own.",
+      "unknownEmulator": "Choose an emulator.",
+      "notExecutable": "Choose the emulator program (.exe)."
     }
   },
   "shell": {
