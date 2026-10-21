@@ -35,7 +35,8 @@ test('FR-EMU-1/FR-LIB-1/FR-LIB-2: enable a system, override its folder, add stor
     await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
     // DIAGNOSTIC (temporary): what was on disk before and after closing.
     const fsp = await import('node:fs/promises');
-    const { join: joinPath } = await import('node:path');
+    const nodePath = await import('node:path');
+    const joinPath = (...parts: string[]) => nodePath.join(...parts);
     const read = (path: string, encoding: 'utf8') => fsp.readFile(path, encoding);
     const list = (path: string) => fsp.readdir(path);
     const before = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) =>
