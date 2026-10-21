@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+out/
+release/
+*.tsbuildinfo
+
+# env and secrets
+.env
+.env.*
+!.env.example
+*.credentials.json
+
+# local data
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.bak
+
+# logs and tooling
+*.log
+coverage/
+playwright-report/
+test-results/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

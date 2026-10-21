@@ -1,0 +1,140 @@
+# Screen specifications
+
+One section per screen: purpose, layout, contents, actions, states. Visual design for themes
+follows the existing NextLevelOS themes (see `docs/themes.md` in the current repo). Wireframes are
+ASCII; replace with images as screens are built.
+
+Common states every screen must define: **loading**, **empty**, **error**, **offline** (when
+relevant), **populated**.
+
+---
+
+## S1 Splash
+
+- Purpose: show progress while booting (settings load, library open, entitlement check).
+- Contents: logo, step label ("Opening library…"), progress bar.
+- Errors: fatal (library DB unreadable) → "Repair library / Open data folder / Quit".
+
+## S2 Sign-in
+
+```
+┌──────────────────────────────────────────────┐
+│                 NEXTLEVEL                    │
+│                                              │
+│        [ G  Sign in with Google ]            │
+│                                              │
+│   Waiting for your browser…   (Cancel)       │
+│                                              │
+│   Offline? Your access expires in — days     │
+└──────────────────────────────────────────────┘
+```
+- Actions: Sign in, Cancel (while waiting), Quit.
+- States: idle, waiting-for-browser (with timeout 5 min), error (with message + retry), not-allowed ("This Google account isn't authorized" when sign-up is closed).
+- Gamepad: A = sign in.
+
+## S3 Subscribe
+
+- Contents: user avatar/email, plan cards (name, price month/year, device limit, what the catalog includes), "Sign out".
+- Actions: Choose plan → opens browser checkout; "I've already paid" → refresh.
+- States: waiting-for-payment (polling indicator), payment-failed (from `past_due`), suspended (no plans, contact text).
+
+## S4 First-run wizard
+
+Five steps with a stepper, each with **Skip** and **Back**:
+
+1. **Systems**: grid of systems grouped by manufacturer, popular ones pre-checked, search box.
+2. **ROM folders**: list of storage locations (path, priority drag handle, remove), "Add folder", live scan counts per system.
+3. **Emulators**: one row per enabled system that has games — suggested preset, "Locate executable…", status ✓/✗.
+4. **Theme**: gallery of theme previews; select one.
+5. **Done**: summary + "Start" (or "Browse catalog" when the library is empty).
+
+## S5 Front-end (themes)
+
+Each theme is specified by its own doc in `packages/themes/<id>/README.md`, ported from the
+current themes. Common requirements:
+
+- Levels: menu levels (categories/systems) → game list → (optional) details panel.
+- Always-available inputs: back, home, theme menu, key/button help (`?` / gamepad *View*), in-list search, favorite, play.
+- Game list tabs: All · Favorites · Hidden, plus the system's filter tabs when enabled.
+- Status: offline badge, download-in-progress badge, clock.
+- Empty system → "No games yet — Scan / Browse catalog".
+
+## S6 Desktop shell
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ desktop icons                                    widgets     │
+│ [Library] [Catalog] [Settings] …                 (clock)     │
+│                                                              │
+│              ┌ window ───────────────── _ □ × ┐               │
+│              │                                 │              │
+│              └─────────────────────────────────┘              │
+├──────────────────────────────────────────────────────────────┤
+│ [Start] [Front-end] [open windows…]       ⬇ 2  ◉ Online 21:04 │
+└──────────────────────────────────────────────────────────────┘
+```
+- Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock.
+- Start menu: apps, Front-end, Account, Sign out, Quit.
+
+## S7 Library
+
+```
+┌ Library ───────────────────────────────────────────────────────┐
+│ [Search all games…]                       [Scan ▾] [Scrape ▾]  │
+├──────────────┬────────────────────────────────┬────────────────┤
+│ Systems      │ Title            Year  Genre ★ │ [box art]      │
+│ ▸ Nintendo   │ Super Mario 64   1996  Plat. ★ │ Title          │
+│   N64  1,203 │ …  (virtualized)               │ Year · Dev     │
+│   SNES 3,410 │                                │ Description    │
+│ ▸ Sega       │                                │ [Play] [Edit]  │
+├──────────────┴────────────────────────────────┴────────────────┤
+│ 1,203 games · 12 missing · filter: All ▾          N64 · RetroArch│
+└─────────────────────────────────────────────────────────────────┘
+```
+- Context menu on a game: Play, Play with…, Edit details, Scrape…, Add to collection, Favorite, Hide, Open folder, Show missing reason.
+- Bulk select: add to collection, hide, scrape, set launch profile.
+- Missing games shown greyed with a tooltip naming the expected path.
+
+## S8 Catalog
+
+- Tabs: **Browse** (rows: Starter set, New, by system), **Installed**, **Downloads**.
+- Item card: art, title, system, size, license badge; states: available, queued, downloading (progress), installed, update available, failed.
+- Item detail: description, screenshots, license + credit, size, Install/Uninstall/Play.
+- Offline: "Catalog needs a connection — installed games still play".
+
+## S9 Settings
+
+Left navigation of sections (see IA §1), right form pane.
+
+- Forms are generated from the settings schema (labels, help text, defaults) with custom widgets where needed (path picker, token-aware template editor, drag-to-order lists, key/button capture).
+- Save bar: appears when dirty — **Save** / **Discard**; field errors inline; Save disabled while invalid.
+- **Emulator profile editor**: template field with token autocomplete and a live preview of the resolved command for a sample game; **Test launch** shows command, exit code and stderr.
+- **Backups**: table (time, what changed, size) with Restore and Export.
+
+## S10 Menu Editor
+
+Tree on the left (drag/drop + keyboard move up/down/indent/outdent), node form on the right
+(type, target system/collection/filter picker, display name, short name, theme override, visible).
+Menu picker at the top (active ✓, new, duplicate, delete, set active). Live preview button opens
+the current theme on the edited menu without saving.
+
+## S11 Collections
+
+List of collections with counts; detail shows ordered games with drag reorder, sort-by, remove,
+and "Add games…" (search picker across systems).
+
+## S12 Account
+
+Profile (Google name/email/avatar), plan + renewal date + "Manage billing" (opens portal),
+devices list with Revoke, Sign out.
+
+## S13 Admin console screens
+
+| Screen | Contents |
+|---|---|
+| Dashboard | KPI tiles (active subscribers, MRR, downloads 7d), recent signups, failed payments |
+| Users | Table (email, role, plan, status, devices, last seen), filters; detail: grant comp, suspend, role, devices, audit trail |
+| Plans | Table; editor: name, prices (Stripe price IDs), device limit, catalog scopes, archived |
+| Catalog | Table (title, system, scope, license status, published); editor tabs: Metadata · Files (upload with progress, checksum) · Art · License (type, rights holder, permission document upload, terms) · Publish |
+| Audit log | Filterable table: time, admin, action, target, diff |
+| Settings | Grace period days, sign-up mode (open / allow-list / closed), allow-list emails, maintenance banner |
