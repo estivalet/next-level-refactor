@@ -73,6 +73,7 @@ develops it, so it changes independently of this repo.
 | `npm run lint` · `npm run typecheck` · `npm test` | must pass before you say you're done |
 | `npm run test:e2e` | when you touched flows covered by Playwright |
 | `npm run db:generate -w apps/api` | after changing API DB schema; commit the migration |
+| `npm run db:generate -w apps/launcher` | after changing the library schema (`src/main/library/schema.ts`); commit the migration |
 
 ## Definition of done
 

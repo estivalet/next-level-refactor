@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792601982038,
+      "tag": "0000_striped_wong",
+      "breakpoints": true
+    }
+  ]
+}
