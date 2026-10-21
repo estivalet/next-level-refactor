@@ -1,0 +1,9 @@
+{
+  "extends": "@nextlevel/config/tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "${configDir}/dist/node"
+  },
+  "include": ["src/main", "src/preload", "*.ts"],
+  "references": [{ "path": "../../packages/shared" }]
+}

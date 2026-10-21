@@ -2,7 +2,7 @@
   "extends": "./packages/config/tsconfig.base.json",
   "compilerOptions": {
     "types": ["node"],
-    "outDir": "dist/tools"
+    "outDir": "${configDir}/dist/tools"
   },
   "include": ["*.ts"]
 }

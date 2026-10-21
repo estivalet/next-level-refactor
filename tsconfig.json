@@ -7,6 +7,8 @@
     { "path": "./packages/themes" },
     { "path": "./packages/ui" },
     { "path": "./apps/api" },
-    { "path": "./apps/admin" }
+    { "path": "./apps/admin" },
+    { "path": "./apps/launcher/tsconfig.node.json" },
+    { "path": "./apps/launcher/tsconfig.web.json" }
   ]
 }
