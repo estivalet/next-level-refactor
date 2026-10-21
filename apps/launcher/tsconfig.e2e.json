@@ -1,0 +1,9 @@
+{
+  "extends": "@nextlevel/config/tsconfig.react.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "${configDir}/dist/e2e"
+  },
+  "include": ["e2e", "src/renderer/env.d.ts"],
+  "references": [{ "path": "../../packages/shared" }]
+}

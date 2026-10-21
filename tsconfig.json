@@ -1,14 +1,35 @@
 {
   "files": [],
   "references": [
-    { "path": "./tsconfig.tools.json" },
-    { "path": "./packages/shared" },
-    { "path": "./packages/system-catalog" },
-    { "path": "./packages/themes" },
-    { "path": "./packages/ui" },
-    { "path": "./apps/api" },
-    { "path": "./apps/admin" },
-    { "path": "./apps/launcher/tsconfig.node.json" },
-    { "path": "./apps/launcher/tsconfig.web.json" }
+    {
+      "path": "./tsconfig.tools.json"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/system-catalog"
+    },
+    {
+      "path": "./packages/themes"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./apps/admin"
+    },
+    {
+      "path": "./apps/launcher/tsconfig.node.json"
+    },
+    {
+      "path": "./apps/launcher/tsconfig.web.json"
+    },
+    {
+      "path": "./apps/launcher/tsconfig.e2e.json"
+    }
   ]
 }
