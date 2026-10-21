@@ -1,49 +1,48 @@
 import type { Settings } from '@nextlevel/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../library/Modal.tsx';
+import { PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../library/Modal.tsx';
 import { SettingsSection } from '../form/SettingsSection.tsx';
-import { AddEmulatorDialog } from './AddEmulatorDialog.tsx';
 import { EmulatorCard } from './EmulatorCard.tsx';
 import { newId, pickExecutable, usePresets } from './emulatorsApi.ts';
-import { FindEmulatorsDialog } from './FindEmulatorsDialog.tsx';
-import {
-  addEmulator,
-  addPresetProfiles,
-  remainingPresetProfiles,
-  removeEmulator,
-  removeProfile,
-} from './fromPreset.ts';
-import { PresetProfilesDialog } from './PresetProfilesDialog.tsx';
+import { EmulatorDialogs, type Dialog } from './EmulatorDialogs.tsx';
+import { removeProfile } from './fromPreset.ts';
+import { ProfileEditor } from './ProfileEditor.tsx';
 
-type Dialog =
-  | { kind: 'add' }
-  | { kind: 'find' }
-  | { kind: 'preset'; emulatorId: string }
-  | { kind: 'delete'; emulatorId: string };
+/** The errors under `prefix`, keyed by the rest of the path. */
+function scoped(errors: Record<string, string>, prefix: string): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(errors)
+      .filter(([path]) => path.startsWith(prefix))
+      .map(([path, key]) => [path.slice(prefix.length), key]),
+  );
+}
 
 /** Settings → Emulators (FR-EMU-2, FR-EMU-7, US-D1): emulators, their profiles and presets. */
 export function EmulatorsSection() {
   const { t } = useTranslation();
   const presets = usePresets().data ?? [];
   const [dialog, setDialog] = useState<Dialog | null>(null);
-  const [, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const close = () => {
     setDialog(null);
   };
 
   return (
     <SettingsSection>
-      {({ draft, update }) => {
+      {({ draft, update, errors }) => {
         const apply = (change: (settings: Settings) => Settings) => {
           update(change);
           close();
         };
         const emulator = (id: string) => draft.emulators.find((e) => e.id === id);
         const presetOf = (id: string) => presets.find((p) => p.id === emulator(id)?.presetId);
-        const target = dialog && 'emulatorId' in dialog ? emulator(dialog.emulatorId) : undefined;
-        const targetPreset = target ? presetOf(target.id) : undefined;
-        const targetProfiles = draft.profiles.filter((p) => p.emulatorId === target?.id);
+        const editingIndex = draft.profiles.findIndex((p) => p.id === editingId);
+        const editing = draft.profiles[editingIndex];
+        const editingEmulatorIndex = draft.emulators.findIndex((e) => e.id === editing?.emulatorId);
+        const editingEmulator = draft.emulators[editingEmulatorIndex];
+        const profileErrors = scoped(errors, `profiles.${String(editingIndex)}.`);
+        const emulatorErrors = scoped(errors, `emulators.${String(editingEmulatorIndex)}.`);
 
         return (
           <div className="flex flex-col gap-3 py-4">
@@ -68,6 +67,27 @@ export function EmulatorsSection() {
                 {t('settings.emulators.find')}
               </button>
             </div>
+            {editing && editingEmulator && (
+              <ProfileEditor
+                key={editing.id}
+                profile={editing}
+                emulator={editingEmulator}
+                errors={profileErrors}
+                valid={
+                  Object.keys(profileErrors).length === 0 &&
+                  Object.keys(emulatorErrors).length === 0
+                }
+                onChange={(change) => {
+                  update((s) => ({
+                    ...s,
+                    profiles: s.profiles.map((p) => (p.id === editing.id ? change(p) : p)),
+                  }));
+                }}
+                onClose={() => {
+                  setEditingId(null);
+                }}
+              />
+            )}
             {draft.emulators.length === 0 && (
               <p className="text-sm text-slate-400">{t('settings.emulators.empty')}</p>
             )}
@@ -121,71 +141,14 @@ export function EmulatorsSection() {
                 />
               ))}
             </ul>
-            {dialog?.kind === 'add' && (
-              <AddEmulatorDialog
+            {dialog && (
+              <EmulatorDialogs
+                dialog={dialog}
+                draft={draft}
                 presets={presets}
-                onAdd={({ preset, executable }) => {
-                  apply((s) => addEmulator(s, { preset, executable, newId }));
-                }}
+                apply={apply}
                 onClose={close}
               />
-            )}
-            {dialog?.kind === 'find' && (
-              <FindEmulatorsDialog
-                presets={presets}
-                known={draft.emulators.map((e) => e.executable)}
-                onAdd={(found) => {
-                  apply((s) =>
-                    found.reduce(
-                      (next, { presetId, executable }) =>
-                        addEmulator(next, {
-                          preset: presets.find((p) => p.id === presetId),
-                          executable,
-                          newId,
-                        }),
-                      s,
-                    ),
-                  );
-                }}
-                onClose={close}
-              />
-            )}
-            {dialog?.kind === 'preset' && target && targetPreset && (
-              <PresetProfilesDialog
-                presetName={targetPreset.name}
-                profiles={remainingPresetProfiles(targetPreset, target.id, draft.profiles)}
-                onAdd={(ids) => {
-                  apply((s) => addPresetProfiles(s, target.id, ids, targetPreset, newId));
-                }}
-                onClose={close}
-              />
-            )}
-            {dialog?.kind === 'delete' && target && (
-              <Modal
-                title={t('settings.emulators.confirmDelete', {
-                  name: target.name,
-                  count: targetProfiles.length,
-                })}
-                onClose={close}
-                footer={
-                  <>
-                    <button type="button" className={SECONDARY_BUTTON} onClick={close}>
-                      {t('settings.emulators.cancel')}
-                    </button>
-                    <button
-                      type="button"
-                      className={PRIMARY_BUTTON}
-                      onClick={() => {
-                        apply((s) => removeEmulator(s, target.id));
-                      }}
-                    >
-                      {t('settings.emulators.delete', { name: target.name })}
-                    </button>
-                  </>
-                }
-              >
-                {null}
-              </Modal>
             )}
           </div>
         );

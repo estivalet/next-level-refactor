@@ -19,8 +19,8 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function setup(systems: Settings['systems'] = {}) {
-  const settings = { ...defaultSettings(), systems };
+function setup(systems: Settings['systems'] = {}, extra: Partial<Settings> = {}) {
+  const settings = { ...defaultSettings(), systems, ...extra };
   const bridge = installFakeBridge({
     'systems.catalog': () => ok([...systemCatalog()]),
     'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings, revision: 0 } }),
@@ -150,5 +150,47 @@ describe('SystemsSection review fixes', () => {
     const { user, editor } = await openEditor();
     await user.click(editor.getByRole('button', { name: 'Close' }));
     expect(screen.getByRole('button', { name: 'Edit Nintendo 64' })).toHaveFocus();
+  });
+
+  it('FR-EMU-4: the system default profile lists only profiles for that system', async () => {
+    const user = userEvent.setup();
+    const emulatorId = '01900000-0000-7000-8000-0000000000e1';
+    const profile = (id: string, name: string, systems: string[]) => ({
+      id,
+      name,
+      emulatorId,
+      systems,
+      args: ['{rom}'],
+      archives: 'pass' as const,
+      env: {},
+    });
+    const { saved } = setup(
+      {},
+      {
+        emulators: [{ id: emulatorId, name: 'RetroArch', executable: 'C:\\RA\\retroarch.exe' }],
+        profiles: [
+          profile('01900000-0000-7000-8000-000000000001', 'RA SNES', ['snes']),
+          profile('01900000-0000-7000-8000-000000000002', 'RA N64', ['nintendo-64']),
+        ],
+      },
+    );
+    await user.type(
+      await screen.findByRole('searchbox', { name: 'Search systems' }),
+      'nintendo 64',
+    );
+    await user.click(screen.getByRole('button', { name: 'Edit Nintendo 64' }));
+    const editor = within(screen.getByRole('region', { name: 'Nintendo 64' }));
+    const select = editor.getByRole('combobox', { name: 'Emulator profile' });
+    expect(
+      within(select)
+        .getAllByRole('option')
+        .map((o) => o.textContent),
+    ).toEqual(['Automatic (first profile for this system)', 'RA N64']);
+    await user.selectOptions(select, 'RA N64');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(saved()?.['nintendo-64']).toEqual({
+      enabled: false,
+      defaultProfileId: '01900000-0000-7000-8000-000000000002',
+    });
   });
 });

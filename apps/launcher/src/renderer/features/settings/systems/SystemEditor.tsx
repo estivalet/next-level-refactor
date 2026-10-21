@@ -1,4 +1,4 @@
-import type { SystemDefinition, SystemSettings } from '@nextlevel/shared';
+import type { EmulatorProfile, SystemDefinition, SystemSettings } from '@nextlevel/shared';
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,10 +15,11 @@ function parseExtensions(text: string): string[] | undefined {
 const INPUT =
   'w-full rounded-md border border-white/10 bg-black/30 px-2 py-1 text-sm text-white focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
 
-/** Per-system overrides (FR-LIB-2): ROM folder name and file extensions. */
+/** Per-system overrides: ROM folder name and file extensions (FR-LIB-2), default profile (FR-EMU-4). */
 export function SystemEditor({
   system,
   settings,
+  profiles,
   errors,
   onChange,
   onReset,
@@ -26,8 +27,12 @@ export function SystemEditor({
 }: {
   system: SystemDefinition;
   settings: SystemSettings | undefined;
+  /** The profiles that cover this system. */
+  profiles: readonly EmulatorProfile[];
   errors: Record<string, string>;
-  onChange: (patch: Partial<Pick<SystemSettings, 'folderName' | 'extensions'>>) => void;
+  onChange: (
+    patch: Partial<Pick<SystemSettings, 'folderName' | 'extensions' | 'defaultProfileId'>>,
+  ) => void;
   onReset: () => void;
   onClose: () => void;
 }) {
@@ -111,6 +116,28 @@ export function SystemEditor({
         {t('settings.systems.extensionsHelp', { default: system.extensions.join(', ') })}
       </p>
       {extensionsError && <p className="text-xs text-[#ff8a80]">{t(extensionsError)}</p>}
+      <label className="flex flex-col gap-1 text-xs text-slate-200" htmlFor={`${id}-profile`}>
+        {t('settings.systems.defaultProfile')}
+        <select
+          id={`${id}-profile`}
+          value={
+            profiles.some((p) => p.id === settings?.defaultProfileId)
+              ? settings?.defaultProfileId
+              : ''
+          }
+          onChange={(event) => {
+            onChange({ defaultProfileId: event.target.value || undefined });
+          }}
+          className={INPUT}
+        >
+          <option value="">{t('settings.systems.defaultProfileAuto')}</option>
+          {profiles.map((profile) => (
+            <option key={profile.id} value={profile.id}>
+              {profile.name}
+            </option>
+          ))}
+        </select>
+      </label>
       <button
         type="button"
         onClick={() => {
