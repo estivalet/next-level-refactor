@@ -4,6 +4,9 @@ import { z } from 'zod';
 export const ERROR_CODES = {
   VALIDATION_FAILED: 'errors.validationFailed',
   INTERNAL: 'errors.internal',
+  CONFLICT: 'errors.conflict',
+  NOT_FOUND: 'errors.notFound',
+  INVALID_SETTINGS: 'errors.invalidSettings',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;
@@ -18,3 +21,14 @@ export const AppErrorSchema = z.object({
 });
 
 export type AppError = z.infer<typeof AppErrorSchema>;
+
+/** Carries an AppError through code that throws (main handlers, renderer mutations). */
+export class AppErrorException extends Error {
+  readonly error: AppError;
+
+  constructor(error: AppError) {
+    super(error.code);
+    this.name = 'AppErrorException';
+    this.error = error;
+  }
+}

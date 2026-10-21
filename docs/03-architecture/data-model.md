@@ -34,6 +34,12 @@ but never rewrites, except media written by the scraper and games installed from
 Only the app writes this file. Every field has a default, so an empty file `{ "schemaVersion": 1 }`
 is valid and the app fills the rest.
 
+**Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
+(`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1. Each later
+section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
+themes in M4 (owner decision 2026-10-21). Unknown keys are stripped on load; wrong types make the
+file invalid.
+
 ```ts
 type Settings = {
   schemaVersion: 1;

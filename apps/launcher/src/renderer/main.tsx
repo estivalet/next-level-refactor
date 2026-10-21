@@ -1,6 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BootGate } from './features/boot/BootGate.tsx';
 import { Desktop } from './features/shell/Desktop.tsx';
 import { blockFileDrops } from './fileDrop.ts';
 import { ShellProvider } from './features/shell/ShellContext.tsx';
@@ -20,9 +21,11 @@ const initialBounds = { width: window.innerWidth, height: window.innerHeight };
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ShellProvider initialBounds={initialBounds}>
-        <Desktop taskbar={<Taskbar />} />
-      </ShellProvider>
+      <BootGate>
+        <ShellProvider initialBounds={initialBounds}>
+          <Desktop taskbar={<Taskbar />} />
+        </ShellProvider>
+      </BootGate>
     </QueryClientProvider>
   </StrictMode>,
 );

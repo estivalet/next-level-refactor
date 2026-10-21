@@ -157,7 +157,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 | NFR-REL-2 | A crash in a theme never loses library data and the shell can recover (error boundary + restart theme). |
 | NFR-SEC-1 | See [security-and-privacy.md](../06-legal/security-and-privacy.md). Renderer has no Node access; all OS access goes through typed IPC with validated input. |
 | NFR-A11Y-1 | Shell and Settings: full keyboard navigation, visible focus, WCAG AA contrast, screen-reader labels. Themes: focus always visible, reduced-motion setting respected. |
-| NFR-I18N-1 | All UI strings go through a translation layer; v1 ships English, with Portuguese (pt-BR) as the second locale. **(proposed)** |
+| NFR-I18N-1 | All UI strings go through a translation layer; v1 ships English, with Portuguese (pt-BR) as the second locale (confirmed by the owner 2026-10-21; pt-BR ships from M1). |
 | NFR-COMP-1 | Windows 10 22H2+ and Windows 11, x64. |
 | NFR-OBS-1 | Launcher writes rotating local logs; API writes structured JSON logs with request IDs. No telemetry without opt-in. |
 | NFR-MAINT-1 | TypeScript strict everywhere; lint, type-check and tests pass in CI before merge. |

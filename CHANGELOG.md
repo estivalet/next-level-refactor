@@ -6,6 +6,15 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 ## [Unreleased]
 
 ### Added
+- M1b settings (FR-SET-1..4, FR-SET-7, US-D3): `settings.json` validated by one shared Zod schema,
+  atomic saves (NFR-REL-1) with the newest 10 backups, stale saves rejected (`CONFLICT`),
+  restore with a backup of the current state first, export/import with validation, and a recovery
+  screen (restore latest backup / reset to defaults) when the file can't be used.
+- Settings app: schema-driven General section (language, start with Windows) with field-level
+  validation and a Save/Discard bar; Backups (what changed, restore, export, import); Data & logs
+  (paths and open folder). Boot splash while settings load.
+- Portuguese (pt-BR) translation, switching live (NFR-I18N-1); a test keeps both locales in sync.
+- File logging with electron-log in `<data>/logs`.
 - M1a desktop shell (FR-SHELL-1..5, proposed): desktop icons, movable/resizable windows kept
   inside the desktop, minimize/maximize/close, a dock-style taskbar with a clock, and a Start menu
   with app search and Quit (`app.quit` IPC channel). Look follows the current NextLevelOS shell.

@@ -11,7 +11,8 @@ export default defineConfig({
   },
   preload: {
     build: {
-      externalizeDeps: bundleWorkspacePackages,
+      // A sandboxed preload can only require electron, so every dependency is bundled into it.
+      externalizeDeps: false,
       // Sandboxed preloads cannot be ES modules; an ESM preload is silently skipped.
       rolldownOptions: { output: { format: 'cjs' } },
     },

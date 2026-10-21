@@ -1,0 +1,130 @@
+{
+  "errors": {
+    "validationFailed": "A solicitação não é válida.",
+    "internal": "Algo deu errado. Verifique o log para mais detalhes.",
+    "conflict": "As configurações mudaram desde que você as abriu. A versão mais recente foi carregada.",
+    "notFound": "Esse item não existe mais.",
+    "invalidSettings": "Essas configurações não são válidas e não foram aplicadas.",
+    "validation": {
+      "invalid_type": "Este valor tem o tipo errado.",
+      "invalid_value": "Escolha uma das opções da lista.",
+      "too_small": "Este valor é pequeno demais.",
+      "too_big": "Este valor é grande demais.",
+      "default": "Este valor não é válido."
+    }
+  },
+  "shell": {
+    "window": {
+      "close": "Fechar",
+      "minimize": "Minimizar",
+      "maximize": "Maximizar",
+      "restore": "Restaurar"
+    },
+    "desktop": {
+      "label": "Área de trabalho",
+      "apps": "Aplicativos da área de trabalho"
+    },
+    "taskbar": {
+      "label": "Barra de tarefas",
+      "openWindows": "Janelas abertas"
+    },
+    "start": {
+      "button": "Iniciar",
+      "menu": "Menu Iniciar",
+      "search": "Pesquisar aplicativos",
+      "noResults": "Nenhum aplicativo encontrado",
+      "quit": "Sair",
+      "apps": "Aplicativos"
+    },
+    "tray": {
+      "clock": "Relógio"
+    }
+  },
+  "apps": {
+    "settings": {
+      "title": "Configurações"
+    }
+  },
+  "settings": {
+    "sections": {
+      "label": "Seções das configurações",
+      "about": "Sobre",
+      "general": "Geral",
+      "backups": "Backups",
+      "data": "Dados e logs"
+    },
+    "about": {
+      "product": "NextLevel",
+      "version": "Versão {{version}}",
+      "versionUnavailable": "Versão indisponível"
+    },
+    "fields": {
+      "general": {
+        "language": {
+          "label": "Idioma",
+          "help": "O idioma do launcher.",
+          "options": {
+            "en": "English",
+            "pt-BR": "Português (Brasil)"
+          }
+        },
+        "startWithWindows": {
+          "label": "Iniciar com o Windows",
+          "help": "Abrir o NextLevel automaticamente quando você entrar no Windows."
+        }
+      }
+    },
+    "saveBar": {
+      "unsaved": "Você tem alterações não salvas.",
+      "invalid": "Corrija os campos destacados para salvar.",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "discard": "Descartar"
+    },
+    "backups": {
+      "intro": "Um backup das suas configurações é feito sempre que você salva. Os 10 mais recentes são mantidos.",
+      "empty": "Ainda não há backups. Um será feito na próxima vez que você salvar.",
+      "columns": {
+        "time": "Data e hora",
+        "changes": "O que mudou",
+        "size": "Tamanho",
+        "actions": "Ações"
+      },
+      "noChanges": "—",
+      "size": "{{size}} KB",
+      "restore": "Restaurar",
+      "confirmText": "Restaurar o backup de {{time}}? Suas configurações atuais serão salvas em backup antes.",
+      "confirm": "Confirmar restauração",
+      "cancel": "Cancelar",
+      "restored": "Backup restaurado.",
+      "export": "Exportar…",
+      "import": "Importar…",
+      "exported": "Configurações exportadas.",
+      "imported": "Configurações importadas."
+    },
+    "data": {
+      "intro": "Onde o NextLevel guarda seus arquivos neste computador.",
+      "data": "Pasta de dados",
+      "settings": "Arquivo de configurações",
+      "backups": "Pasta de backups",
+      "logs": "Pasta de logs",
+      "open": "Abrir {{name}}"
+    }
+  },
+  "boot": {
+    "loadingSettings": "Carregando configurações…",
+    "recovery": {
+      "title": "Não foi possível carregar as configurações",
+      "reason": {
+        "unreadable": "O arquivo de configurações está danificado e não pôde ser lido.",
+        "invalid": "O arquivo de configurações contém valores que o NextLevel não reconhece.",
+        "newerVersion": "O arquivo de configurações foi salvo por uma versão mais nova do NextLevel.",
+        "unavailable": "O NextLevel não conseguiu acessar o serviço de configurações. Seu arquivo não foi alterado; reinicie o NextLevel e, se continuar acontecendo, verifique o log."
+      },
+      "keep": "Seu arquivo não foi alterado. Escolha como continuar:",
+      "restoreLatest": "Restaurar o backup mais recente",
+      "resetDefaults": "Restaurar padrões",
+      "openDataFolder": "Abrir pasta de dados"
+    }
+  }
+}

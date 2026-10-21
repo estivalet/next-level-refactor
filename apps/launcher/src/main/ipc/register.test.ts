@@ -1,6 +1,7 @@
 import { ipcContract } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import { registerIpcRouter, type IpcRegistrar } from './register.ts';
+import { withUnimplemented } from './withUnimplemented.ts';
 import { createIpcRouter } from './router.ts';
 
 type Handler = Parameters<IpcRegistrar['handle']>[1];
@@ -8,10 +9,9 @@ type Handler = Parameters<IpcRegistrar['handle']>[1];
 function setup() {
   const handlers = new Map<string, Handler>();
   const ipc: IpcRegistrar = { handle: (channel, handler) => handlers.set(channel, handler) };
-  const router = createIpcRouter(
-    { 'app.version': () => '1.2.3', 'app.quit': () => undefined },
-    { error: () => undefined },
-  );
+  const router = createIpcRouter(withUnimplemented({ 'app.version': () => '1.2.3' }), {
+    error: () => undefined,
+  });
   registerIpcRouter(ipc, router);
   return handlers;
 }

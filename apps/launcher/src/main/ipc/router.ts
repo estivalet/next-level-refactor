@@ -1,4 +1,5 @@
 import {
+  AppErrorException,
   ERROR_CODES,
   err,
   ipcContract,
@@ -43,6 +44,8 @@ export function createIpcRouter(handlers: IpcHandlers, log: RouterLogger): IpcRo
       const handler = handlers[channel] as (input: unknown) => unknown;
       value = await handler(input.data);
     } catch (error) {
+      // An expected failure carried as an exception keeps its code (e.g. CONFLICT).
+      if (error instanceof AppErrorException) return { ok: false, error: error.error };
       log.error({ channel, error }, 'IPC handler threw');
       return err('INTERNAL', ERROR_CODES.INTERNAL);
     }

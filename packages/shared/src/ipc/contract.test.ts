@@ -47,3 +47,19 @@ describe('app.quit', () => {
     expect(channel.input.safeParse({}).success).toBe(false);
   });
 });
+
+describe('settings channels', () => {
+  it('FR-SET-2: settings.save rejects unknown keys', () => {
+    const input = ipcContract['settings.save'].input;
+    expect(input.safeParse({ settings: { schemaVersion: 1 }, baseRevision: 0 }).success).toBe(true);
+    expect(
+      input.safeParse({ settings: { schemaVersion: 1 }, baseRevision: 0, extra: 1 }).success,
+    ).toBe(false);
+  });
+
+  it('FR-SET-7: app.openPath only accepts known folder keys', () => {
+    const input = ipcContract['app.openPath'].input;
+    expect(input.safeParse({ key: 'logs' }).success).toBe(true);
+    expect(input.safeParse({ key: '../etc' }).success).toBe(false);
+  });
+});

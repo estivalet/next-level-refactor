@@ -1,9 +1,10 @@
 import en from '@nextlevel/shared/i18n/en.json';
+import ptBR from '@nextlevel/shared/i18n/pt-BR.json';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 void i18n.use(initReactI18next).init({
-  resources: { en: { translation: en } },
+  resources: { en: { translation: en }, 'pt-BR': { translation: ptBR } },
   lng: 'en',
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
