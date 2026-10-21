@@ -3,17 +3,7 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import importPlugin from 'eslint-plugin-import';
 import reactHooks from 'eslint-plugin-react-hooks';
-
-const NODE_ONLY_MODULES = [
-  'fs',
-  'fs/promises',
-  'path',
-  'child_process',
-  'os',
-  'crypto',
-  'url',
-  'worker_threads',
-];
+import { builtinModules } from 'node:module';
 
 const APP_PACKAGE_PATTERN = {
   group: ['launcher', 'api', 'admin'].flatMap((app) => [
@@ -25,6 +15,17 @@ const APP_PACKAGE_PATTERN = {
 
 const BROWSER_SAFE_MESSAGE =
   'themes and ui must not import Node or Electron (architecture §3 dependency rule).';
+
+const RENDERER_MESSAGE =
+  'The renderer talks to main only through window.nextlevel (NFR-SEC-1); no Node or Electron imports.';
+
+/** no-restricted-imports options that ban Node built-ins and Electron, plus any extra patterns. */
+function noNodeOrElectron(message, extraPatterns = []) {
+  return {
+    paths: [...builtinModules, 'electron'].map((name) => ({ name, message })),
+    patterns: [...extraPatterns, { group: ['node:*', 'electron/*'], message }],
+  };
+}
 
 export default tseslint.config(
   { ignores: ['**/out/**', '**/dist/**', '**/coverage/**', '.superpowers/**'] },
@@ -74,15 +75,13 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        {
-          paths: [...NODE_ONLY_MODULES, 'electron'].map((name) => ({
-            name,
-            message: BROWSER_SAFE_MESSAGE,
-          })),
-          patterns: [APP_PACKAGE_PATTERN, { group: ['node:*'], message: BROWSER_SAFE_MESSAGE }],
-        },
+        noNodeOrElectron(BROWSER_SAFE_MESSAGE, [APP_PACKAGE_PATTERN]),
       ],
     },
+  },
+  {
+    files: ['apps/launcher/src/renderer/**'],
+    rules: { 'no-restricted-imports': ['error', noNodeOrElectron(RENDERER_MESSAGE)] },
   },
   {
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
