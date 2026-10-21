@@ -7,5 +7,13 @@
   "errors": {
     "validationFailed": "The request was not valid.",
     "internal": "Something went wrong. Check the log for details."
+  },
+  "shell": {
+    "window": {
+      "close": "Close",
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "restore": "Restore"
+    }
   }
 }
