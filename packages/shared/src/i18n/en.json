@@ -1,0 +1,11 @@
+{
+  "hello": {
+    "title": "Hello",
+    "version": "Version {{version}}",
+    "versionUnavailable": "Version unavailable"
+  },
+  "errors": {
+    "validationFailed": "The request was not valid.",
+    "internal": "Something went wrong. Check the log for details."
+  }
+}

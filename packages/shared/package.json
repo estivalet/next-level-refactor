@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./i18n/en.json": "./src/i18n/en.json"
   },
   "dependencies": {
     "zod": "^4.6.7"

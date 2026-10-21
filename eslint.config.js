@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import importPlugin from 'eslint-plugin-import';
+import reactHooks from 'eslint-plugin-react-hooks';
 
 const NODE_ONLY_MODULES = [
   'fs',
@@ -26,6 +27,11 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
     },
+  },
+  {
+    files: ['**/*.tsx'],
+    ...reactHooks.configs.flat.recommended,
+    languageOptions: { globals: { ...globals.browser } },
   },
   // Architecture §3 dependency rule: packages never depend on apps.
   {
