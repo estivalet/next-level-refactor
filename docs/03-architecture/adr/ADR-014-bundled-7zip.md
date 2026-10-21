@@ -20,6 +20,11 @@ launch service runs it as a separate process with an argv array and `shell: fals
   `node_modules/7zip-bin/win/x64/7za.exe`) and list 7-Zip's LGPL notice in the licenses screen.
 - Extraction needs free temp space up to the archive's uncompressed size. Start-up removes leftovers
   of launches the launcher never saw end.
+- `7zip-bin` 5.2.0 ships 7za **21.07**, older than the 7-Zip fixes for CVE-2025-11001/11002
+  (path traversal through symbolic links in crafted archives, fixed in 7-Zip 25.00). The risk here
+  is low (the user's own archives, extracted into a fresh temp folder), but before the installer
+  ships (M10) we update to a 7za ≥ 25.00 build or bundle one ourselves and note its version in the
+  licenses screen.
 
 ## Alternatives considered
 - **Pure-JS zip (`yauzl`) and pass `.7z` through:** no binary, but `.7z` games would fail with

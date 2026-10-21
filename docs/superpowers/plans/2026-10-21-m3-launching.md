@@ -383,8 +383,8 @@ emulator + profile args `['<fixture>', '--out', '<tmp>/argv.json', '{rom}']`); d
 
 **Files:** Create `features/library/usePlay.ts` (mutation + `launch.started/finished`
 subscription + `launch.running` on mount), `PlayingOverlay.tsx` ("Playing <title>…", shown over
-the Library while running), `LaunchErrorDialog.tsx` (reason by code, stderr tail in a `<pre>`, **Fix in
-Settings**); modify `GameDetails.tsx` (Play button, disabled while running or when the game is
+the Library while running), `LaunchErrorDialog.tsx` (message, reason and path through
+`features/launch/LaunchErrorDetails.tsx` from M3a, stderr tail in a `<pre>`, **Fix in Settings**); modify `GameDetails.tsx` (Play button, disabled while running or when the game is
 missing), `GameRow.tsx`/`GameList.tsx` (Enter and double-click play), `GameContextMenu.tsx`
 (Play), `features/shell/useOpenApp.ts` + `SettingsApp.tsx` (open with `{ section, focusId? }`;
 a second open of the single-instance window switches section).
@@ -404,6 +404,10 @@ default (<name>)" + profiles covering the system), core text field, extra argume
 
 - [ ] **Step 1: Failing test** `FR-EMU-4`: saving profile + core + two extra args calls
   `library.games.setLaunchOverride` with `extraArgs: ['--a', 'b c']`; reset sends empty values.
+- [ ] **Step 1b (M3a review, minor 6):** the standalone presets have no `{extraArgs}`, so a game's
+  extra arguments are silently dropped with them. Add `{extraArgs}` to every standalone preset
+  (before `{rom}`, snapshot test updated), and have the dialog say so when the chosen profile's
+  arguments don't use `{extraArgs}`.
 - [ ] **Step 2–4:** FAIL → implement → PASS. **Step 5:** commit
   `feat(launcher): per-game launch options (FR-EMU-4)`.
 

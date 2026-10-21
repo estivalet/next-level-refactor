@@ -25,10 +25,7 @@ function text(details: unknown, key: 'path' | 'reason'): string | undefined {
 /** A launch error's message, why it happened and the path involved (US-C2: errors say what to fix). */
 export function LaunchErrorDetails({ error }: { error: AppError | null }) {
   const { t } = useTranslation();
-  const message =
-    error && error.code in ERROR_CODES
-      ? ERROR_CODES[error.code as keyof typeof ERROR_CODES]
-      : 'errors.internal';
+  const message = error ? ERROR_CODES[error.code] : 'errors.internal';
   const reason = text(error?.details, 'reason');
   const path = text(error?.details, 'path');
   return (
