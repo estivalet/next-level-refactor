@@ -34,11 +34,17 @@ test('FR-EMU-1/FR-LIB-1/FR-LIB-2: enable a system, override its folder, add stor
     await settings.getByRole('button', { name: 'Save' }).click();
     await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
     // DIAGNOSTIC (temporary): what was on disk before and after closing.
-    const { readFile: read, readdir: list } = await import('node:fs/promises');
+    const fsp = await import('node:fs/promises');
     const { join: joinPath } = await import('node:path');
-    const before = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) => String(e));
+    const read = (path: string, encoding: 'utf8') => fsp.readFile(path, encoding);
+    const list = (path: string) => fsp.readdir(path);
+    const before = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) =>
+      String(e),
+    );
     await app.close();
-    const after = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) => String(e));
+    const after = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) =>
+      String(e),
+    );
     const backups = await list(joinPath(data.dir, 'backups')).catch(() => []);
     const logs = await list(joinPath(data.dir, 'logs')).catch(() => []);
     const logText = logs.length
