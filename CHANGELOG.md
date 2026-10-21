@@ -13,6 +13,16 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   relative paths are rejected.
 - Settings → Systems (FR-EMU-1, FR-LIB-2): searchable, virtualized list of every system; enable
   systems and override a system's ROM folder name and extensions.
+- M2b library (FR-LIB-1, FR-LIB-4, NFR-REL-1): games live in `library.db` (SQLite, WAL), created
+  and migrated at start-up with a backup of the old file first; a library from a newer version is
+  refused instead of overwritten. If it can't be opened the app still starts and says so.
+- Scan for games in Settings → Storage (FR-LIB-3, FR-LIB-5): runs in a background worker with
+  progress and Cancel; finds new, moved (renamed, same size) and missing games across storage
+  locations, first location wins; `.cue`/`.m3u` sets and loose `Disc 1/2` files count as one game.
+  Missing files are flagged, never deleted, and come back when the drive is reconnected. Systems
+  with games that you never set are turned on; systems you switched off are left alone.
+- Settings drafts keep unsaved edits when the settings change underneath them (a scan, a
+  conflict reload) instead of discarding them.
 
 ## [0.1.0] - 2026-10-21
 
