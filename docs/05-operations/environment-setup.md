@@ -8,7 +8,7 @@ How to get the monorepo running on a development machine. Applies once the new r
 | Tool | Version | Notes |
 |---|---|---|
 | Windows | 10 22H2+ / 11, x64 | primary dev and target OS |
-| Node.js | 22 LTS | `nvm-windows` recommended; `.nvmrc` in repo |
+| Node.js | 24 LTS | `nvm-windows` recommended; `.nvmrc` in repo |
 | npm | 10+ | ships with Node |
 | Git | 2.40+ | |
 | Visual Studio Build Tools | 2022, "Desktop development with C++" | needed to rebuild `better-sqlite3` for Electron |
