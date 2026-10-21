@@ -26,9 +26,72 @@ export const GeneralSchema = z.object({
   setupCompletedAt: z.iso.datetime().nullable().default(null),
 });
 
+/** Compares Windows paths: case-insensitive, either slash, no trailing separator. */
+export function normalizePath(path: string): string {
+  return path.trim().toLowerCase().replace(/\//g, '\\').replace(/\\+$/, '');
+}
+
+const ABSOLUTE_PATH = /^([a-zA-Z]:[\\/]|\\\\[^\\]+\\)/;
+
+export const StorageLocationSchema = z.object({
+  id: z.uuid(),
+  name: z.string().trim().min(1).max(40),
+  path: z.string().trim().min(3),
+  /** 1 = searched first; renumbered from the list order on save. */
+  priority: z.number().int().min(1),
+});
+
+export type StorageLocation = z.output<typeof StorageLocationSchema>;
+
+const LocationsSchema = z.array(StorageLocationSchema).superRefine((locations, ctx) => {
+  const paths = new Set<string>();
+  const names = new Set<string>();
+  locations.forEach((location, index) => {
+    const path = normalizePath(location.path);
+    if (!ABSOLUTE_PATH.test(location.path)) {
+      ctx.addIssue({ code: 'custom', path: [index, 'path'], message: 'notAbsolute' });
+    } else if (paths.has(path)) {
+      ctx.addIssue({ code: 'custom', path: [index, 'path'], message: 'duplicatePath' });
+    }
+    const name = location.name.toLowerCase();
+    if (names.has(name)) {
+      ctx.addIssue({ code: 'custom', path: [index, 'name'], message: 'duplicateName' });
+    }
+    paths.add(path);
+    names.add(name);
+  });
+});
+
+/** Storage locations in list order, with priority renumbered 1..n (FR-LIB-1). */
+export function orderedLocations(locations: readonly StorageLocation[]): StorageLocation[] {
+  return locations.map((location, index) => ({ ...location, priority: index + 1 }));
+}
+
+export const SystemSettingsSchema = z.object({
+  enabled: z.boolean().default(false),
+  /** Overrides the catalog's defaultFolderName (FR-LIB-2). */
+  folderName: z
+    .string()
+    .trim()
+    .min(1)
+    .max(120)
+    .regex(/^[^<>:"/\\|?*]+$/)
+    .optional(),
+  /** Overrides the catalog's extensions (FR-LIB-2). */
+  extensions: z
+    .array(z.string().regex(/^[a-z0-9]+$/))
+    .min(1)
+    .optional(),
+});
+
+export type SystemSettings = z.output<typeof SystemSettingsSchema>;
+
 export const SettingsSchema = z.object({
   schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
   general: GeneralSchema.prefault({}),
+  storage: z.object({ locations: LocationsSchema.default([]) }).prefault({}),
+  // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.
+  systems: z.record(z.string(), SystemSettingsSchema).default({}),
   experimental: z.record(z.string(), z.boolean()).default({}),
 });
 

@@ -1,0 +1,8 @@
+{
+  "Nintendo 64": { "command": "x", "rompath": ["%SYSTEMS_BASE_PATH%/Nintendo 64"] },
+  "Nintendo NES": { "command": "x", "rompath": ["%SYSTEMS_BASE_PATH%/Nintendo NES"] },
+  "Apogee BK-01": { "command": "x", "rompath": ["x"], "romext": ["RKA", "rka"] },
+  "Pokémon Mini": { "command": "x", "rompath": ["x"] },
+  "Arcade (MAME)": { "command": "x", "rompath": ["x"] },
+  "Obscure Thing": { "command": "x", "rompath": ["x"] }
+}

@@ -22,7 +22,7 @@ describe('SettingsApp', () => {
     installFakeBridge();
     renderInShell(<SettingsApp />);
     const nav = screen.getByRole('navigation', { name: 'Settings sections' });
-    for (const name of ['General', 'Backups', 'Data & logs', 'About']) {
+    for (const name of ['General', 'Storage', 'Systems', 'Backups', 'Data & logs', 'About']) {
       expect(within(nav).getByRole('button', { name })).toBeInTheDocument();
     }
     expect(screen.getByRole('button', { name: 'General', current: 'page' })).toBeInTheDocument();

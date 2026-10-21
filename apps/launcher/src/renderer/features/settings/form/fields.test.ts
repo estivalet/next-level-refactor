@@ -32,6 +32,25 @@ describe('issuesByPath', () => {
   });
 });
 
+describe('issuesByPath for custom checks', () => {
+  it('FR-LIB-1: a storage location check maps to its own message key', () => {
+    const location = { id: '01928c3e-0000-7000-8000-000000000001', name: 'a', priority: 1 };
+    const result = SettingsSchema.safeParse({
+      schemaVersion: 1,
+      storage: {
+        locations: [
+          { ...location, path: 'E:/roms' },
+          { ...location, id: '01928c3e-0000-7000-8000-000000000002', name: 'b', path: 'e:/ROMS' },
+        ],
+      },
+    });
+    if (result.success) throw new Error('expected failure');
+    expect(issuesByPath(result.error)).toEqual({
+      'storage.locations.1.path': 'errors.validation.duplicatePath',
+    });
+  });
+});
+
 describe('getAt / setAt', () => {
   it('reads and immutably writes dotted paths', () => {
     const before = { a: { b: 1, c: 2 } };

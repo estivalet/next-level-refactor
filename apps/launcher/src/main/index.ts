@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { systemCatalog } from '@nextlevel/system-catalog';
 import { createHandlers } from './handlers.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
@@ -108,6 +109,18 @@ async function start(): Promise<void> {
     openPath: (path) => shell.openPath(path),
     setOpenAtLogin,
     log,
+    catalog: systemCatalog,
+    pickFolder: async (title) => {
+      // End-to-end tests can't drive the native dialog; development builds only.
+      const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];
+      if (e2eFolder) return e2eFolder;
+      const window = BrowserWindow.getFocusedWindow();
+      const options = { properties: ['openDirectory' as const], ...(title ? { title } : {}) };
+      const result = await (window
+        ? dialog.showOpenDialog(window, options)
+        : dialog.showOpenDialog(options));
+      return result.canceled ? null : (result.filePaths[0] ?? null);
+    },
   });
   registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
   createWindow();

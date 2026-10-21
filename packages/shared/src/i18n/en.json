@@ -10,7 +10,10 @@
       "invalid_value": "Choose one of the listed options.",
       "too_small": "This value is too small.",
       "too_big": "This value is too large.",
-      "default": "This value is not valid."
+      "default": "This value is not valid.",
+      "notAbsolute": "Use a full folder path, such as E:\\roms.",
+      "duplicatePath": "This folder is already a storage location.",
+      "duplicateName": "Another location already has this name."
     }
   },
   "shell": {
@@ -51,7 +54,9 @@
       "about": "About",
       "general": "General",
       "backups": "Backups",
-      "data": "Data & logs"
+      "data": "Data & logs",
+      "storage": "Storage",
+      "systems": "Systems"
     },
     "about": {
       "product": "NextLevel",
@@ -109,6 +114,35 @@
       "backups": "Backups folder",
       "logs": "Logs folder",
       "open": "Open {{name}}"
+    },
+    "storage": {
+      "intro": "Folders that contain your systems’ ROM folders. When a game is in several, the first location in this list wins.",
+      "empty": "No storage locations yet. Add the folders that hold your systems’ ROM folders.",
+      "add": "Add location…",
+      "pickTitle": "Choose a storage location",
+      "priority": "{{n}}",
+      "name": "Name of location {{n}}",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "remove": "Remove {{name}}"
+    },
+    "systems": {
+      "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",
+      "list": "Systems",
+      "search": "Search systems",
+      "enabledOnly": "Enabled only",
+      "count": "{{enabled}} of {{total}} enabled",
+      "noResults": "No systems match.",
+      "enable": "Enable {{name}}",
+      "edit": "Edit {{name}}",
+      "folder": "Folder: {{folder}}",
+      "folderName": "ROM folder name",
+      "folderHelp": "Leave empty to use “{{default}}”.",
+      "extensions": "File extensions",
+      "extensionsHelp": "Comma-separated. Leave empty to use: {{default}}",
+      "reset": "Reset to defaults",
+      "close": "Close",
+      "editShort": "Edit"
     }
   },
   "boot": {

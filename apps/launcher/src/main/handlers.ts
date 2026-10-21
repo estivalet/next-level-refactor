@@ -1,5 +1,6 @@
 import {
   AppErrorException,
+  type SystemDefinition,
   type AppPathKey,
   type Result,
   type SettingsSnapshot,
@@ -17,6 +18,9 @@ export interface MainDeps {
   openPath: (path: string) => Promise<string>;
   setOpenAtLogin: (enabled: boolean) => void;
   log: { warn(context: object, msg: string): void };
+  catalog: () => readonly SystemDefinition[];
+  /** Native folder dialog; null when cancelled. */
+  pickFolder: (title?: string) => Promise<string | null>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -52,6 +56,8 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       const failure = await deps.openPath(path);
       if (failure) deps.log.warn({ key, path, failure }, 'could not open folder');
     },
+    'app.pickFolder': ({ title }) => deps.pickFolder(title),
+    'systems.catalog': () => [...deps.catalog()],
     'settings.get': () => settings.get(),
     'settings.save': async ({ settings: next, baseRevision }) =>
       applied(unwrap(await settings.save(next, baseRevision))),

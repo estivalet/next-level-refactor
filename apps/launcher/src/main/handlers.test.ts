@@ -24,10 +24,23 @@ async function setup() {
     openPath: vi.fn(() => Promise.resolve('')),
     setOpenAtLogin: vi.fn(),
     log: { warn },
+    catalog: () => [N64],
+    pickFolder: vi.fn((title?: string) => Promise.resolve(title === 'cancel' ? null : 'E:/roms')),
   };
   const router = createIpcRouter(createHandlers(deps), { error: () => undefined });
   return { deps, router, warn, dir: fixture.dir };
 }
+
+const N64 = {
+  id: 'nintendo-64',
+  name: 'Nintendo 64',
+  kind: 'other' as const,
+  extensions: ['z64'],
+  defaultFolderName: 'Nintendo 64',
+  scraper: {},
+  presetProfiles: [],
+  aliases: [],
+};
 
 const startWithWindows = () => {
   const settings = defaultSettings();
@@ -92,6 +105,24 @@ describe('createHandlers', () => {
     vi.mocked(deps.openPath).mockResolvedValueOnce('Access denied');
     await router.handle('app.openPath', { key: 'data' });
     expect(warn).toHaveBeenCalledOnce();
+  });
+
+  it('FR-EMU-1: systems.catalog returns the catalog', async () => {
+    const { router } = await setup();
+    expect(await router.handle('systems.catalog', undefined)).toEqual({ ok: true, value: [N64] });
+  });
+
+  it('FR-LIB-1: app.pickFolder returns the chosen folder or null', async () => {
+    const { router, deps } = await setup();
+    expect(await router.handle('app.pickFolder', { title: 'Add' })).toEqual({
+      ok: true,
+      value: 'E:/roms',
+    });
+    expect(deps.pickFolder).toHaveBeenCalledWith('Add');
+    expect(await router.handle('app.pickFolder', { title: 'cancel' })).toEqual({
+      ok: true,
+      value: null,
+    });
   });
 
   it('saving startWithWindows applies it to the login items', async () => {

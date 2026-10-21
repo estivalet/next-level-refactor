@@ -93,6 +93,23 @@ export function useAppPaths() {
   });
 }
 
+/** The shipped system catalog (FR-EMU-1); it never changes while the app runs. */
+export function useSystemCatalog() {
+  return useQuery({
+    queryKey: ['systems.catalog'],
+    queryFn: async () => unwrap(await getBridge().invoke('systems.catalog')),
+    staleTime: Infinity,
+  });
+}
+
+/** Native folder picker in main; resolves null when cancelled. */
+export function usePickFolder() {
+  return useMutation({
+    mutationFn: async (title: string) =>
+      unwrap(await getBridge().invoke('app.pickFolder', { title })),
+  });
+}
+
 export function useOpenPath() {
   return useMutation({
     mutationFn: async (key: AppPathKey) => {

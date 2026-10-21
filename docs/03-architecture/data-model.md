@@ -19,7 +19,7 @@ but never rewrites, except media written by the scraper and games installed from
 
 ## 1. Identity rules
 
-- **Systems** have a stable slug `id` (`n64`, `amiga1200`, `arcade-mame`), never a display name.
+- **Systems** have a stable slug `id` (`nintendo-64`, `sega-saturn`, `arcade-mame`), never a display name.
   Display names can change without breaking anything. ([ADR-011](adr/ADR-011-stable-ids.md))
 - **Games** have an integer `id` in the library. Natural key: `(system_id, rel_path)` where
   `rel_path` is relative to the system's ROM folder (so the same game found on drive 1 or drive 2
@@ -35,7 +35,10 @@ Only the app writes this file. Every field has a default, so an empty file `{ "s
 is valid and the app fills the rest.
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
-(`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1. Each later
+(`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2. Storage paths
+must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
+priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
 themes in M4 (owner decision 2026-10-21). Unknown keys are stripped on load; wrong types make the
 file invalid.
@@ -124,7 +127,7 @@ The only tokens allowed in `args`, `cwd` and `env` values. Unknown tokens fail v
 | `{romName}` | File name without extension | `Super Mario 64 (USA)` |
 | `{romFile}` | File name with extension | `Super Mario 64 (USA).z64` |
 | `{romExt}` | Extension without dot | `z64` |
-| `{systemId}` | System id | `n64` |
+| `{systemId}` | System id | `nintendo-64` |
 | `{systemDir}` | System ROM folder on the resolved storage location | `E:\roms\Nintendo 64` |
 | `{emulatorDir}` | Directory of the emulator executable | `E:\NextLevel\emulators\retroarch` |
 | `{core}` | Profile core or game override | `mupen64plus_next_libretro` |
@@ -167,7 +170,7 @@ type SystemDefinition = {
   id: SystemId;                    // 'n64'
   name: string;                    // 'Nintendo 64'
   shortName?: string;              // 'N64'
-  manufacturer: string;            // 'Nintendo'
+  manufacturer?: string;           // 'Nintendo' — only where reliably known
   releaseYear?: number;
   kind: 'console' | 'handheld' | 'arcade' | 'computer' | 'pinball' | 'engine' | 'other';
   extensions: string[];            // ['z64','n64','v64','zip','7z']
@@ -187,8 +190,12 @@ type EmulatorPreset = {
 };
 ```
 
-Seeded from the current `launchers.json` keys, `screenscraper.json` IDs and the per-system logic
-in `nextlevel-launcher.py`. Versioned with the launcher; user overrides live in settings.
+Seeded by `packages/system-catalog/scripts/seed.ts` from the current `launchers.json` keys (all 438
+systems; id = slug of the NextLevelOS name), `screenscraper.json` IDs and ES-DE's `es_systems.xml`
+(MIT) for extensions, falling back to the NextLevelOS per-system `romext`, then the global
+`scanExtensions`. `kind` is `other` where unknown; emulator presets (`presetProfiles`) arrive in M3,
+from `nextlevel-launcher.py`'s per-system logic. Versioned with the launcher; user overrides live in
+settings.
 
 ---
 

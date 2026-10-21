@@ -5,5 +5,12 @@
     "outDir": "${configDir}/dist/node"
   },
   "include": ["src/main", "src/preload", "*.ts"],
-  "references": [{ "path": "../../packages/shared" }]
+  "references": [
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/system-catalog"
+    }
+  ]
 }

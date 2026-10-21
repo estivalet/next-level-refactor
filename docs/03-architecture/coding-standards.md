@@ -26,7 +26,7 @@ document covers the rest. Agent-specific rules are in [CLAUDE.md](../../CLAUDE.m
 | API routes | plural nouns, kebab-case | `/v1/catalog/items/:id/downloads` |
 | DB tables/columns | `snake_case` | `game_user_state.last_played_at` |
 | Error codes | `UPPER_SNAKE` | `NO_PROFILE` |
-| System ids | lowercase slug | `n64`, `amiga1200` |
+| System ids | lowercase slug | `nintendo-64`, `microsoft-msx2-plus` |
 
 ## Structure
 
