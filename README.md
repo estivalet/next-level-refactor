@@ -4,7 +4,7 @@ This repository is a **from-scratch rebuild of NextLevelOS**. The current NextLe
 (`../NextLevelOS`, still in active use and development) is the reference implementation: we keep
 its ideas and port selected, tested pieces (see [CLAUDE.md](CLAUDE.md#the-nextlevelos-reference)).
 
-> **Status:** M0 and M1 done (v0.1.0: desktop shell and settings); M2 (library core) next. Development happens offline first; a public video
+> **Status:** M0–M2 done (v0.2.0: desktop shell, settings, library core and Game Library); M3 (launching) next. Development happens offline first; a public video
 > series may document it later ([series-plan.md](docs/07-series/series-plan.md), optional).
 
 ## What we are building
