@@ -2,10 +2,11 @@
   "errors": {
     "validationFailed": "A solicitação não é válida.",
     "internal": "Algo deu errado. Verifique o log para mais detalhes.",
-    "conflict": "As configurações mudaram desde que você as abriu. A versão mais recente foi carregada.",
+    "conflict": "As configurações mudaram desde que você as abriu. Suas edições não salvas foram mantidas sobre a versão mais recente.",
     "notFound": "Esse item não existe mais.",
     "invalidSettings": "Essas configurações não são válidas e não foram aplicadas.",
     "libraryUnavailable": "Não foi possível abrir a biblioteca de jogos.",
+    "nameTaken": "Esse nome já está em uso.",
     "validation": {
       "invalid_type": "Este valor tem o tipo errado.",
       "invalid_value": "Escolha uma das opções da lista.",

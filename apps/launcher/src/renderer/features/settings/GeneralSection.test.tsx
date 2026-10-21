@@ -72,7 +72,7 @@ describe('GeneralSection', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(
       await screen.findByText(
-        'Settings changed since you opened them. The latest version was loaded.',
+        'Settings changed since you opened them. Your unsaved edits were kept on top of the latest version.',
       ),
     ).toBeVisible();
     expect(bridge.channels().filter((channel) => channel === 'settings.get')).toHaveLength(2);

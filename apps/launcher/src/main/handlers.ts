@@ -8,6 +8,7 @@ import {
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
 import type { IpcHandlers } from './ipc/router.ts';
+import { withUnimplemented } from './ipc/withUnimplemented.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
@@ -58,7 +59,8 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     return deps.library;
   };
 
-  return {
+  // Library and collection channels are wired in M2c Task 7.
+  return withUnimplemented({
     'app.version': () => deps.appVersion(),
     'app.quit': () => {
       deps.quit();
@@ -103,5 +105,5 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       if (result.status === 'imported') applied(result.snapshot);
       return result;
     },
-  };
+  });
 }

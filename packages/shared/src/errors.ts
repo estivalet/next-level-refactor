@@ -8,6 +8,7 @@ export const ERROR_CODES = {
   NOT_FOUND: 'errors.notFound',
   INVALID_SETTINGS: 'errors.invalidSettings',
   LIBRARY_UNAVAILABLE: 'errors.libraryUnavailable',
+  NAME_TAKEN: 'errors.nameTaken',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

@@ -2,10 +2,11 @@
   "errors": {
     "validationFailed": "The request was not valid.",
     "internal": "Something went wrong. Check the log for details.",
-    "conflict": "Settings changed since you opened them. The latest version was loaded.",
+    "conflict": "Settings changed since you opened them. Your unsaved edits were kept on top of the latest version.",
     "notFound": "That item no longer exists.",
     "invalidSettings": "Those settings are not valid and were not applied.",
     "libraryUnavailable": "The game library could not be opened.",
+    "nameTaken": "That name is already in use.",
     "validation": {
       "invalid_type": "This value has the wrong type.",
       "invalid_value": "Choose one of the listed options.",
