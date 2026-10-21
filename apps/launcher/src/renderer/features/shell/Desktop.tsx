@@ -10,6 +10,17 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
   const { t } = useTranslation();
   const { state, dispatch } = useShell();
   const workArea = useRef<HTMLDivElement>(null);
+  const previousFocusedId = useRef(state.focusedId);
+
+  // When the last visible window closes or minimizes, keyboard focus returns to the desktop.
+  useEffect(() => {
+    const hadFocus = previousFocusedId.current !== null;
+    previousFocusedId.current = state.focusedId;
+    if (!hadFocus || state.focusedId !== null) return;
+    const active = document.activeElement;
+    if (active && active !== document.body && !active.closest('[hidden]')) return;
+    workArea.current?.querySelector<HTMLElement>('nav button')?.focus();
+  }, [state.focusedId]);
 
   useEffect(() => {
     const element = workArea.current;

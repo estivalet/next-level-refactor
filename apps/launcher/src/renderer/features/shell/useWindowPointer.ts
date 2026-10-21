@@ -1,4 +1,4 @@
-import { useRef, type PointerEvent } from 'react';
+import { useEffect, useRef, type PointerEvent } from 'react';
 import { dragTo, resizeTo, type Point } from './pointerMath.ts';
 import { useShell } from './ShellContext.tsx';
 import type { ShellWindow } from './windowManager.ts';
@@ -13,6 +13,7 @@ interface Gesture {
 /**
  * Pointer handlers that move (`drag`) or resize a window. The pointer is captured so the gesture
  * keeps working outside the element; updates are batched to one dispatch per animation frame.
+ * A cancelled pointer or lost capture ends the gesture, so a later hover never drags.
  */
 export function useWindowPointer(kind: 'drag' | 'resize', win: ShellWindow) {
   const { dispatch } = useShell();
@@ -28,6 +29,14 @@ export function useWindowPointer(kind: 'drag' | 'resize', win: ShellWindow) {
       dispatch({ type: 'resize', id: win.id, width, height });
     }
   }
+
+  function end() {
+    const g = gesture.current;
+    if (g?.frame != null) cancelAnimationFrame(g.frame);
+    gesture.current = null;
+  }
+
+  useEffect(() => end, []);
 
   return {
     onPointerDown(event: PointerEvent<HTMLElement>) {
@@ -48,10 +57,11 @@ export function useWindowPointer(kind: 'drag' | 'resize', win: ShellWindow) {
     onPointerUp(event: PointerEvent<HTMLElement>) {
       const g = gesture.current;
       if (!g) return;
-      if (g.frame !== null) cancelAnimationFrame(g.frame);
       g.latest = { x: event.clientX, y: event.clientY };
+      end();
       apply(g);
-      gesture.current = null;
     },
+    onPointerCancel: end,
+    onLostPointerCapture: end,
   };
 }

@@ -154,6 +154,11 @@ export function windowReducer(state: WindowState, action: WindowAction): WindowS
         rect: clampRect({ ...w.rect, width: action.width, height: action.height }, state.bounds),
       }));
     case 'setBounds':
+      // A minimized or hidden app window can report a tiny work area; re-clamping to it would
+      // collapse every window for good.
+      if (action.bounds.width < MIN_WINDOW.width || action.bounds.height < MIN_WINDOW.height) {
+        return state;
+      }
       return {
         ...state,
         bounds: action.bounds,

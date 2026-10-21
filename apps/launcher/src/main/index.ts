@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
@@ -15,6 +16,8 @@ const log = {
 };
 
 const devServerUrl = app.isPackaged ? undefined : process.env['ELECTRON_RENDERER_URL'];
+const rendererPage = join(import.meta.dirname, '../renderer/index.html');
+const rendererPageUrl = pathToFileURL(rendererPage).href;
 
 function openExternally(url: string): void {
   if (externalUrlAllowed(url)) {
@@ -44,14 +47,12 @@ function createWindow(): void {
     return { action: 'deny' };
   });
   window.webContents.on('will-navigate', (event, url) => {
-    if (isAllowedNavigation(url, devServerUrl)) return;
+    if (isAllowedNavigation(url, devServerUrl, rendererPageUrl)) return;
     event.preventDefault();
     openExternally(url);
   });
 
-  const loading = devServerUrl
-    ? window.loadURL(devServerUrl)
-    : window.loadFile(join(import.meta.dirname, '../renderer/index.html'));
+  const loading = devServerUrl ? window.loadURL(devServerUrl) : window.loadFile(rendererPage);
   loading.catch((error: unknown) => {
     log.error({ error }, 'could not load the renderer');
   });

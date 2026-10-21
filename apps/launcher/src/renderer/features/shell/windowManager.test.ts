@@ -150,6 +150,12 @@ describe('windowReducer', () => {
     expect(win(shrunk, 'a-1').rect).toMatchObject({ x: 800 - 80, y: 600 - TITLE_BAR_HEIGHT });
   });
 
+  it('FR-SHELL-2: a degenerate desktop size (e.g. while minimized) is ignored', () => {
+    const before = run(open('a'));
+    const after = windowReducer(before, { type: 'setBounds', bounds: { width: 0, height: 0 } });
+    expect(after).toBe(before);
+  });
+
   it('ignores actions for unknown windows', () => {
     const before = run(open('a'));
     expect(windowReducer(before, { type: 'close', id: 'nope' })).toEqual(before);
