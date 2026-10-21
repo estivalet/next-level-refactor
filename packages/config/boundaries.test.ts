@@ -1,6 +1,6 @@
 import { ESLint } from 'eslint';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const eslint = new ESLint({ cwd: repoRoot });
@@ -13,6 +13,13 @@ async function boundaryErrors(file: string, code: string): Promise<string[]> {
     )
     .map((m) => m.message);
 }
+
+// The first lint builds the TypeScript program for type-aware rules, which can take several
+// seconds on a CI runner; do it once here so each test only measures its own lint.
+beforeAll(async () => {
+  await boundaryErrors('packages/shared/src/index.ts', '');
+  await boundaryErrors('apps/launcher/src/renderer/main.tsx', '');
+}, 60_000);
 
 describe('architecture §3 dependency rule', () => {
   it.each([
