@@ -181,6 +181,20 @@ describe('LaunchService.play (FR-EMU-6, US-C2)', () => {
     await h.service.cleanupStaleExtractions();
     expect(existsSync(stale)).toBe(false);
   });
+
+  it('FR-EMU-8: start-up cleanup leaves the folder of a game that is running', async () => {
+    const stale = join(h.tempDir, 'nextlevel-launch', 'old');
+    await mkdir(stale, { recursive: true });
+    h.setArchives('extract');
+    h.extractor.files = { 'Racer.z64': 10 };
+    await h.service.play(h.gameId);
+    const launched = h.spawn.calls[0]?.args.at(-1) ?? '';
+    await h.service.cleanupStaleExtractions();
+    expect(existsSync(stale)).toBe(false);
+    expect(existsSync(launched)).toBe(true);
+    h.spawn.exit(0);
+    await waitFinished();
+  });
 });
 
 describe('LaunchService.test and preview (FR-EMU-5)', () => {

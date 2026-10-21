@@ -12,7 +12,7 @@ import {
   type TestLaunchResult,
 } from '@nextlevel/shared';
 import { randomUUID } from 'node:crypto';
-import { rm } from 'node:fs/promises';
+import { readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { EmitEvent } from '../ipc/events.ts';
 import type { LaunchGame, LaunchRepository } from '../library/LaunchRepository.ts';
@@ -87,6 +87,8 @@ const errorCode = (error: unknown) =>
 export class LaunchService {
   private busy = false;
   private current: { gameId: number; launchId: number } | null = null;
+  /** Extraction folders this run created; start-up cleanup must leave them alone. */
+  private readonly ownExtractions = new Set<string>();
 
   constructor(private readonly deps: LaunchServiceDeps) {}
 
@@ -190,13 +192,15 @@ export class LaunchService {
     }
   }
 
-  /** Removes extraction folders of launches the launcher never saw end. */
+  /** Removes extraction folders of launches the launcher never saw end, not this run's own. */
   async cleanupStaleExtractions(): Promise<void> {
-    await rm(join(this.deps.tempDir, EXTRACT_ROOT), {
-      recursive: true,
-      force: true,
-      maxRetries: 5,
-    });
+    const root = join(this.deps.tempDir, EXTRACT_ROOT);
+    const names = await readdir(root).catch(() => [] as string[]);
+    await Promise.all(
+      names
+        .filter((name) => !this.ownExtractions.has(name))
+        .map((name) => rm(join(root, name), { recursive: true, force: true, maxRetries: 5 })),
+    );
   }
 
   private async watch(
@@ -308,6 +312,8 @@ export class LaunchService {
 
   private prepare(profile: EmulatorProfile, target: Target): Promise<PreparedRom> {
     const settings = this.deps.settings();
+    const folder = randomUUID();
+    this.ownExtractions.add(folder);
     return prepareRom({
       romPath: target.romPath,
       mode: profile.archives,
@@ -315,7 +321,7 @@ export class LaunchService {
         settings.systems[target.systemId]?.extensions ??
         this.deps.system(target.systemId)?.extensions ??
         [],
-      dest: join(this.deps.tempDir, EXTRACT_ROOT, randomUUID()),
+      dest: join(this.deps.tempDir, EXTRACT_ROOT, folder),
       extractor: this.deps.extractor,
     });
   }
