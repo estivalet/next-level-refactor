@@ -5,6 +5,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-21
+
+M1 — Shell: desktop shell and settings.
+
 ### Added
 - M1b settings (FR-SET-1..4, FR-SET-7, US-D3): `settings.json` validated by one shared Zod schema,
   atomic saves (NFR-REL-1) with the newest 10 backups, stale saves rejected (`CONFLICT`),
