@@ -1,0 +1,68 @@
+{
+  "errors": {
+    "validationFailed": "A solicitação não é válida.",
+    "internal": "Algo deu errado. Verifique o log para mais detalhes.",
+    "conflict": "As configurações mudaram desde que você as abriu. A versão mais recente foi carregada.",
+    "notFound": "Esse item não existe mais.",
+    "invalidSettings": "Essas configurações não são válidas e não foram aplicadas."
+  },
+  "shell": {
+    "window": {
+      "close": "Fechar",
+      "minimize": "Minimizar",
+      "maximize": "Maximizar",
+      "restore": "Restaurar"
+    },
+    "desktop": {
+      "label": "Área de trabalho",
+      "apps": "Aplicativos da área de trabalho"
+    },
+    "taskbar": {
+      "label": "Barra de tarefas",
+      "openWindows": "Janelas abertas"
+    },
+    "start": {
+      "button": "Iniciar",
+      "menu": "Menu Iniciar",
+      "search": "Pesquisar aplicativos",
+      "noResults": "Nenhum aplicativo encontrado",
+      "quit": "Sair",
+      "apps": "Aplicativos"
+    },
+    "tray": {
+      "clock": "Relógio"
+    }
+  },
+  "apps": {
+    "settings": {
+      "title": "Configurações"
+    }
+  },
+  "settings": {
+    "sections": {
+      "label": "Seções das configurações",
+      "about": "Sobre"
+    },
+    "about": {
+      "product": "NextLevel",
+      "version": "Versão {{version}}",
+      "versionUnavailable": "Versão indisponível"
+    },
+    "fields": {
+      "general": {
+        "language": {
+          "label": "Idioma",
+          "help": "O idioma do launcher.",
+          "options": {
+            "en": "English",
+            "pt-BR": "Português (Brasil)"
+          }
+        },
+        "startWithWindows": {
+          "label": "Iniciar com o Windows",
+          "help": "Abrir o NextLevel automaticamente quando você entrar no Windows."
+        }
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
+import { withUnimplemented } from './ipc/withUnimplemented.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
 import { userDataDirName } from './userData.ts';
 
@@ -65,7 +66,7 @@ void app.whenReady().then(() => {
       app.quit();
     },
   };
-  registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
+  registerIpcRouter(ipcMain, createIpcRouter(withUnimplemented(handlers), log));
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

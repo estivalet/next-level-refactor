@@ -1,7 +1,10 @@
 {
   "errors": {
     "validationFailed": "The request was not valid.",
-    "internal": "Something went wrong. Check the log for details."
+    "internal": "Something went wrong. Check the log for details.",
+    "conflict": "Settings changed since you opened them. The latest version was loaded.",
+    "notFound": "That item no longer exists.",
+    "invalidSettings": "Those settings are not valid and were not applied."
   },
   "shell": {
     "window": {
@@ -44,6 +47,22 @@
       "product": "NextLevel",
       "version": "Version {{version}}",
       "versionUnavailable": "Version unavailable"
+    },
+    "fields": {
+      "general": {
+        "language": {
+          "label": "Language",
+          "help": "The language of the launcher.",
+          "options": {
+            "en": "English",
+            "pt-BR": "Português (Brasil)"
+          }
+        },
+        "startWithWindows": {
+          "label": "Start with Windows",
+          "help": "Open NextLevel automatically when you sign in to Windows."
+        }
+      }
     }
   }
 }

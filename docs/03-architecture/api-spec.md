@@ -134,7 +134,7 @@ channels also return `VALIDATION_FAILED`.
 
 | Area | Channels |
 |---|---|
-| Settings | `settings.get`, `settings.save`, `settings.validate`, `settings.backups.list`, `settings.backups.restore`, `settings.export`, `settings.import` |
+| Settings | `settings.get` (`ok` snapshot or `invalid` + latest backup id), `settings.save` (`baseRevision`; stale → `CONFLICT`), `settings.reset`, `settings.backups.list`, `settings.backups.restore`, `settings.export`, `settings.import`. No `settings.validate`: both processes validate with the shared schema |
 | Systems | `systems.catalog` (definitions + presets), `systems.list` (merged with settings + game counts) |
 | Library | `library.menu.get`, `library.games.list` (node + query + paging), `library.games.get`, `library.games.updateMetadata`, `library.games.setFlags`, `library.games.setLaunchOverride`, `library.search` |
 | Collections | `collections.list`, `collections.get`, `collections.create`, `collections.update`, `collections.delete`, `collections.addGames`, `collections.removeGames`, `collections.reorder` |
@@ -146,7 +146,7 @@ channels also return `VALIDATION_FAILED`.
 | Catalog | `catalog.list`, `catalog.get`, `catalog.install`, `catalog.uninstall`, `downloads.list`, `downloads.pause`, `downloads.resume`, `downloads.cancel` |
 | Auth | `auth.state`, `auth.signIn`, `auth.cancelSignIn`, `auth.signOut`, `auth.refreshEntitlement`, `auth.openCheckout`, `auth.openPortal` |
 | Import | `import.nextlevelos.dryRun`, `import.nextlevelos.run` |
-| System | `app.paths`, `app.openPath`, `app.pickFolder`, `app.pickFile`, `app.version`, `app.quit`, `app.setKioskUnlocked` |
+| System | `app.paths`, `app.openPath` (takes a folder key `data`/`backups`/`logs`, never a path), `app.pickFolder`, `app.pickFile`, `app.version`, `app.quit`, `app.setKioskUnlocked` |
 
 **Events (main → renderer):** `settings.changed`, `scan.progress`, `scan.finished`,
 `launch.started`, `launch.finished`, `downloads.progress`, `downloads.finished`,

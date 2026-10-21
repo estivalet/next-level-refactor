@@ -1,14 +1,14 @@
 import { ipcContract } from '@nextlevel/shared';
 import { describe, expect, it, vi } from 'vitest';
+import { withUnimplemented } from './withUnimplemented.ts';
 import { createIpcRouter, type IpcHandlers, type RouterLogger } from './router.ts';
 
 function setup(appVersion: IpcHandlers['app.version']) {
   const logError = vi.fn<RouterLogger['error']>();
   const handler = vi.fn(appVersion);
-  const router = createIpcRouter(
-    { 'app.version': handler, 'app.quit': () => undefined },
-    { error: logError },
-  );
+  const router = createIpcRouter(withUnimplemented({ 'app.version': handler }), {
+    error: logError,
+  });
   return { router, handler, logError };
 }
 
