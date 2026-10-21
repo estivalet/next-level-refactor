@@ -1,0 +1,83 @@
+import type { CollectionSort, GameListQuery, GameRow, GameSort, GameTab } from '@nextlevel/shared';
+
+/** The columns of a game list row, before mapping. */
+export interface RawRow {
+  id: number;
+  systemId: string;
+  relPath: string;
+  locationId: string | null;
+  missing: number;
+  title: string;
+  year: number | null;
+  genre: string | null;
+  players: string | null;
+  favorite: number;
+  hidden: number;
+  userRating: number | null;
+}
+
+export const ROW_COLUMNS = `g.id as id, g.system_id as systemId, g.rel_path as relPath,
+  g.location_id as locationId, g.missing as missing, m.title as title, m.year as year,
+  m.genre as genre, m.players as players, coalesce(u.favorite, 0) as favorite,
+  coalesce(u.hidden, 0) as hidden, u.user_rating as userRating`;
+
+export const ROW_JOINS = `join game_metadata m on m.game_id = g.id
+  left join game_user_state u on u.game_id = g.id`;
+
+const TABS: Record<GameTab, string> = {
+  all: 'coalesce(u.hidden, 0) = 0',
+  favorites: 'coalesce(u.favorite, 0) = 1 and coalesce(u.hidden, 0) = 0',
+  hidden: 'coalesce(u.hidden, 0) = 1',
+  missing: 'g.missing = 1 and coalesce(u.hidden, 0) = 0',
+};
+
+const ORDERS: Record<GameSort | CollectionSort, string> = {
+  title: 'm.sort_title, g.id',
+  year: 'm.year is null, m.year, m.sort_title, g.id',
+  rating: 'u.user_rating is null, u.user_rating desc, m.sort_title, g.id',
+  added: 'g.added_at desc, g.id desc',
+  manual: 'cg.position, g.id',
+};
+
+/**
+ * The FROM/WHERE/ORDER parts of a list query, built only from fixed fragments (never from input),
+ * so each distinct shape can be prepared once. Parameters: @systemId or @collectionId, @match.
+ */
+export function listShape(
+  query: Pick<GameListQuery, 'scope' | 'tab' | 'sort'>,
+  collectionSort: CollectionSort | null,
+  hasText: boolean,
+) {
+  const scope =
+    query.scope.kind === 'system'
+      ? { join: '', where: 'g.system_id = @systemId' }
+      : {
+          join: 'join collection_games cg on cg.game_id = g.id and cg.collection_id = @collectionId',
+          where: '1 = 1',
+        };
+  const where = [scope.where, TABS[query.tab]];
+  if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
+  const sort =
+    query.scope.kind === 'collection' ? (collectionSort ?? 'manual') : (query.sort ?? 'title');
+  return {
+    from: `from games g ${ROW_JOINS} ${scope.join} where ${where.join(' and ')}`,
+    order: ORDERS[sort],
+  };
+}
+
+export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRow {
+  const missing = raw.missing === 1;
+  return {
+    id: raw.id,
+    systemId: raw.systemId,
+    title: raw.title,
+    year: raw.year,
+    genre: raw.genre,
+    players: raw.players,
+    favorite: raw.favorite === 1,
+    hidden: raw.hidden === 1,
+    userRating: raw.userRating,
+    missing,
+    expectedPath: missing ? resolvePath(raw) : null,
+  };
+}
