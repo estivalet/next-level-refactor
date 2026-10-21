@@ -32,7 +32,8 @@ describe('game contracts', () => {
     expect(GameListQuerySchema.parse({ scope, offset: 0, limit: 200 }).tab).toBe('all');
     expect(GameListQuerySchema.safeParse({ scope, offset: 0, limit: 1001 }).success).toBe(false);
     expect(
-      GameListQuerySchema.safeParse({ scope: { kind: 'everything' }, offset: 0, limit: 10 }).success,
+      GameListQuerySchema.safeParse({ scope: { kind: 'everything' }, offset: 0, limit: 10 })
+        .success,
     ).toBe(false);
     expect(
       GameListQuerySchema.safeParse({
