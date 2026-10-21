@@ -87,7 +87,8 @@ const ARCADE = /arcade|mame|naomi|atomiswave|model [23]|\bcps\b|neo ?geo mvs/i;
 const PINBALL = /pinball/i;
 
 function ascii(text: string): string {
-  return text.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // NFD splits accents into combining marks (Unicode category M), which are then dropped: é → e.
+  return text.normalize('NFD').replace(/\p{M}/gu, '');
 }
 
 /** Permanent system id from a display name: lowercase ascii, runs of other characters → '-'. */
@@ -145,6 +146,19 @@ function kindOf(name: string): SystemDefinition['kind'] {
   if (PINBALL.test(name)) return 'pinball';
   if (ARCADE.test(name)) return 'arcade';
   return 'other';
+}
+
+/**
+ * ADR-011: ids are permanent once released. Fails when a released id is missing from `catalog`
+ * (a rename or a slug change); otherwise returns the released ids plus any new ones, sorted.
+ */
+export function checkReleasedIds(catalog: SystemCatalog, released: readonly string[]): string[] {
+  const ids = new Set(catalog.systems.map((s) => s.id));
+  const removed = released.filter((id) => !ids.has(id));
+  if (removed.length > 0) {
+    throw new Error(`released system ids removed: ${removed.join(', ')}`);
+  }
+  return [...ids].sort();
 }
 
 export function buildCatalog(input: SeedInput): { catalog: SystemCatalog; report: SeedReport } {

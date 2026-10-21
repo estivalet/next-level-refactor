@@ -1,5 +1,7 @@
 import { orderedLocations, type Settings, type StorageLocation } from '@nextlevel/shared';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
+import { useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { v7 as uuidv7 } from 'uuid';
 import { SettingsSection } from './form/SettingsSection.tsx';
@@ -28,6 +30,23 @@ function move<T>(items: readonly T[], from: number, to: number): T[] {
 export function StorageSection() {
   const { t } = useTranslation();
   const pickFolder = usePickFolder();
+  const container = useRef<HTMLDivElement>(null);
+
+  // Keyboard focus survives reordering and removal (NFR-A11Y-1). flushSync applies the draft
+  // change to the DOM first, so the element to focus already exists.
+  const focusAfterMove = (id: string, action: 'up' | 'down') => {
+    const row = container.current?.querySelector(`li[data-location-id="${CSS.escape(id)}"]`);
+    const same = row?.querySelector<HTMLButtonElement>(`[data-action="${action}"]`);
+    const other = row?.querySelector<HTMLButtonElement>(
+      `[data-action="${action === 'up' ? 'down' : 'up'}"]`,
+    );
+    (same && !same.disabled ? same : other)?.focus();
+  };
+  const focusAfterRemove = (index: number) => {
+    const names = container.current?.querySelectorAll<HTMLInputElement>('li input') ?? [];
+    const next = names[index] ?? names[index - 1];
+    (next ?? container.current?.querySelector<HTMLButtonElement>('[data-action="add"]'))?.focus();
+  };
 
   return (
     <SettingsSection>
@@ -47,7 +66,7 @@ export function StorageSection() {
         };
 
         return (
-          <div className="flex flex-col gap-4 py-4">
+          <div ref={container} className="flex flex-col gap-4 py-4">
             <p className="text-sm text-slate-300">{t('settings.storage.intro')}</p>
             {locations.length === 0 && (
               <p className="text-sm text-slate-400">{t('settings.storage.empty')}</p>
@@ -61,6 +80,7 @@ export function StorageSection() {
                 return (
                   <li
                     key={location.id}
+                    data-location-id={location.id}
                     className="flex items-start gap-3 rounded-lg border border-white/10 p-3"
                   >
                     <span className="mt-1.5 w-5 text-center text-xs text-slate-400">
@@ -90,10 +110,14 @@ export function StorageSection() {
                     <button
                       type="button"
                       className={ICON_BUTTON}
+                      data-action="up"
                       disabled={index === 0}
                       aria-label={t('settings.storage.moveUp', { name: label })}
                       onClick={() => {
-                        set(move(locations, index, index - 1));
+                        flushSync(() => {
+                          set(move(locations, index, index - 1));
+                        });
+                        focusAfterMove(location.id, 'up');
                       }}
                     >
                       <ArrowUp aria-hidden="true" className="h-4 w-4" />
@@ -101,10 +125,14 @@ export function StorageSection() {
                     <button
                       type="button"
                       className={ICON_BUTTON}
+                      data-action="down"
                       disabled={index === locations.length - 1}
                       aria-label={t('settings.storage.moveDown', { name: label })}
                       onClick={() => {
-                        set(move(locations, index, index + 1));
+                        flushSync(() => {
+                          set(move(locations, index, index + 1));
+                        });
+                        focusAfterMove(location.id, 'down');
                       }}
                     >
                       <ArrowDown aria-hidden="true" className="h-4 w-4" />
@@ -114,7 +142,10 @@ export function StorageSection() {
                       className={ICON_BUTTON}
                       aria-label={t('settings.storage.remove', { name: label })}
                       onClick={() => {
-                        set(locations.filter((l) => l.id !== location.id));
+                        flushSync(() => {
+                          set(locations.filter((l) => l.id !== location.id));
+                        });
+                        focusAfterRemove(index);
                       }}
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
@@ -125,6 +156,7 @@ export function StorageSection() {
             </ol>
             <button
               type="button"
+              data-action="add"
               onClick={add}
               disabled={pickFolder.isPending}
               className="flex w-fit items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"

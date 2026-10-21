@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { SettingsSection } from '../form/SettingsSection.tsx';
 import { useSystemCatalog } from '../settingsApi.ts';
@@ -14,6 +15,7 @@ export function SystemsSection() {
   const [enabledOnly, setEnabledOnly] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const systems = catalog.data ?? [];
+  const container = useRef<HTMLDivElement>(null);
 
   return (
     <SettingsSection>
@@ -21,9 +23,29 @@ export function SystemsSection() {
         const shown = filterSystems(systems, query, draft.systems, enabledOnly ? 'enabled' : 'all');
         const enabledCount = systems.filter((s) => draft.systems[s.id]?.enabled === true).length;
         const editing = systems.find((s) => s.id === editingId);
+        // An editor with invalid values stays open: closing it would hide the only error message
+        // while Save stays disabled.
+        const editingHasErrors =
+          editingId !== null &&
+          Object.keys(errors).some((path) => path.startsWith(`systems.${editingId}.`));
+        const openEditor = (id: string) => {
+          if (!editingHasErrors) setEditingId(id);
+        };
+        const closeEditor = () => {
+          if (editingHasErrors || !editing) return;
+          flushSync(() => {
+            setEditingId(null);
+          });
+          // Back to the row the editor was opened from (NFR-A11Y-1).
+          container.current
+            ?.querySelector<HTMLButtonElement>(
+              `[data-system-id="${CSS.escape(editing.id)}"] [data-action="edit"]`,
+            )
+            ?.focus();
+        };
 
         return (
-          <div className="flex flex-col gap-3 py-4">
+          <div ref={container} className="flex flex-col gap-3 py-4">
             <p className="text-sm text-slate-300">{t('settings.systems.intro')}</p>
             <div className="flex flex-wrap items-center gap-3">
               <input
@@ -67,9 +89,7 @@ export function SystemsSection() {
                     }),
                   );
                 }}
-                onClose={() => {
-                  setEditingId(null);
-                }}
+                onClose={closeEditor}
               />
             )}
             <SystemList
@@ -78,7 +98,7 @@ export function SystemsSection() {
               onToggle={(id, enabled) => {
                 update((current) => withSystem(current, id, { enabled }));
               }}
-              onEdit={setEditingId}
+              onEdit={openEditor}
             />
           </div>
         );

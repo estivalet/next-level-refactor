@@ -14,7 +14,7 @@ import { SystemCatalogSchema } from '@nextlevel/shared';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
-import { buildCatalog, parseEsSystems, type SeedInput } from './mapping.ts';
+import { buildCatalog, checkReleasedIds, parseEsSystems, type SeedInput } from './mapping.ts';
 
 /**
  * NextLevelOS names whose ES-DE fullname differs; value = ES-DE system `name`. Built from the
@@ -73,6 +73,24 @@ const ES_ALIASES: Record<string, string> = {
   Uzebox: 'uzebox',
   Vircon32: 'vircon32',
   'WASM-4': 'wasm4',
+  // Variants and model names of a platform ES-DE knows under one entry.
+  'Texas Instruments TI 99-4A': 'ti99',
+  'Thomson MO5': 'moto',
+  'Thomson MO6': 'moto',
+  'Thomson TO7': 'moto',
+  'Thomson TO8': 'moto',
+  'Fujitsu FM Towns': 'fmtowns',
+  'Fujitsu FM Towns Marty': 'fmtowns',
+  'Sega SG-1000 II': 'sg-1000',
+  'SNK Neo Geo AES': 'neogeo',
+  'SNK Neo Geo MVS': 'neogeo',
+  'Nintendo NES MSU-1': 'nes',
+  'Nintendo NES HD': 'nes',
+  'Nintendo NES 3D': 'nes',
+  'Sega Mega Drive MSU-1': 'megadrive',
+  'Nintendo Game Boy 2 Players': 'gb',
+  'Nintendo Game Boy Color 2 Players': 'gbc',
+  'Nintendo Game Boy Advance 2 Players': 'gba',
 };
 
 const { values } = parseArgs({
@@ -104,7 +122,11 @@ const { catalog, report } = buildCatalog({
 });
 
 SystemCatalogSchema.parse(catalog);
+// ADR-011: refuse to drop a released id; record any new ones.
+const releasedPath = join(import.meta.dirname, '..', 'data', 'released-ids.json');
+const released = checkReleasedIds(catalog, readJson(releasedPath) as string[]);
 writeFileSync(required('out'), `${JSON.stringify(catalog, null, 2)}\n`);
+writeFileSync(releasedPath, `${JSON.stringify(released, null, 2)}\n`);
 
 const matched = catalog.systems.length - report.unmatchedEs.length;
 console.log(`systems: ${String(catalog.systems.length)}`);

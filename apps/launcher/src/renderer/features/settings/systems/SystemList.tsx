@@ -82,6 +82,7 @@ export function SystemList({
               </div>
               <button
                 type="button"
+                data-action="edit"
                 aria-label={t('settings.systems.edit', { name: system.name })}
                 onClick={() => {
                   onEdit(system.id);

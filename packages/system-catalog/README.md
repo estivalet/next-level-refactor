@@ -14,7 +14,7 @@ are permanent once released (ADR-011).
 
 Extensions: ES-DE's `es_systems.xml` where the name matches (directly or through `ES_ALIASES` in
 `scripts/seed.ts`), else the NextLevelOS per-system `romext`, else its global `scanExtensions`.
-Seed of 2026-10-21: 157 ES-DE matches, 20 from `romext`, 261 from the global list. Users can
+Seed of 2026-10-21: 172 ES-DE matches, 20 from `romext`, 246 from the global list. Users can
 override any system's extensions in Settings → Systems.
 
 ## Regenerating
@@ -33,7 +33,12 @@ npm run seed -w packages/system-catalog -- \
 ```
 
 3. Read the printed report; add `ES_ALIASES` for clear name mismatches and run again.
-4. Ids must never change for released systems: the seed fails on slug collisions, and the
-   catalog tests check the count.
+4. Ids must never change for released systems: see "Id permanence" below.
 
 Third-party notices: [NOTICE.md](NOTICE.md).
+
+## Id permanence
+
+`data/released-ids.json` lists every id ever released. The seed fails if one would disappear
+(a rename in NextLevelOS or a change to `slugify`) and appends new ids; a test checks that every
+listed id is still in the catalog. To retire a system, keep its entry (ADR-011).

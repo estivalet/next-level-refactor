@@ -109,3 +109,26 @@ describe('StorageSection', () => {
     expect(savedLocations()).toEqual([{ ...A, name: 'Main' }]);
   });
 });
+
+describe('StorageSection keyboard focus (NFR-A11Y-1)', () => {
+  it('moving a location to the top keeps focus on that location', async () => {
+    const user = userEvent.setup();
+    setup([A, B]);
+    await user.click(await screen.findByRole('button', { name: 'Move 16TB up' }));
+    expect(screen.getByRole('button', { name: 'Move 16TB down' })).toHaveFocus();
+  });
+
+  it('removing the last location moves focus to Add location', async () => {
+    const user = userEvent.setup();
+    setup([A]);
+    await user.click(await screen.findByRole('button', { name: 'Remove 2TB' }));
+    expect(screen.getByRole('button', { name: 'Add location…' })).toHaveFocus();
+  });
+
+  it('removing a location moves focus to the next one', async () => {
+    const user = userEvent.setup();
+    setup([A, B]);
+    await user.click(await screen.findByRole('button', { name: 'Remove 2TB' }));
+    expect(screen.getByRole('textbox', { name: 'Name of location 1' })).toHaveFocus();
+  });
+});

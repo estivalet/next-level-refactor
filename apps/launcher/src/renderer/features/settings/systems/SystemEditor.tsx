@@ -35,6 +35,16 @@ export function SystemEditor({
   const id = useId();
   const folderInput = useRef<HTMLInputElement>(null);
   const [extensionsText, setExtensionsText] = useState(settings?.extensions?.join(', ') ?? '');
+  // The box keeps what the user typed, but follows the draft when it changes elsewhere
+  // (Discard, Reset): adjust state during render when the draft value moved under it.
+  const [shownFor, setShownFor] = useState(settings?.extensions);
+  if (settings?.extensions !== shownFor) {
+    setShownFor(settings?.extensions);
+    const typed = parseExtensions(extensionsText);
+    if (typed?.join(',') !== settings?.extensions?.join(',')) {
+      setExtensionsText(settings?.extensions?.join(', ') ?? '');
+    }
+  }
   const base = `systems.${system.id}`;
   const folderError = errors[`${base}.folderName`];
   const extensionsError = Object.entries(errors).find(([path]) =>

@@ -19,7 +19,7 @@ but never rewrites, except media written by the scraper and games installed from
 
 ## 1. Identity rules
 
-- **Systems** have a stable slug `id` (`n64`, `amiga1200`, `arcade-mame`), never a display name.
+- **Systems** have a stable slug `id` (`nintendo-64`, `sega-saturn`, `arcade-mame`), never a display name.
   Display names can change without breaking anything. ([ADR-011](adr/ADR-011-stable-ids.md))
 - **Games** have an integer `id` in the library. Natural key: `(system_id, rel_path)` where
   `rel_path` is relative to the system's ROM folder (so the same game found on drive 1 or drive 2
@@ -127,7 +127,7 @@ The only tokens allowed in `args`, `cwd` and `env` values. Unknown tokens fail v
 | `{romName}` | File name without extension | `Super Mario 64 (USA)` |
 | `{romFile}` | File name with extension | `Super Mario 64 (USA).z64` |
 | `{romExt}` | Extension without dot | `z64` |
-| `{systemId}` | System id | `n64` |
+| `{systemId}` | System id | `nintendo-64` |
 | `{systemDir}` | System ROM folder on the resolved storage location | `E:\roms\Nintendo 64` |
 | `{emulatorDir}` | Directory of the emulator executable | `E:\NextLevel\emulators\retroarch` |
 | `{core}` | Profile core or game override | `mupen64plus_next_libretro` |

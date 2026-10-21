@@ -2,7 +2,13 @@ import { SystemCatalogSchema } from '@nextlevel/shared';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildCatalog, parseEsSystems, slugify, type SeedInput } from './mapping.ts';
+import {
+  buildCatalog,
+  checkReleasedIds,
+  parseEsSystems,
+  slugify,
+  type SeedInput,
+} from './mapping.ts';
 
 const fixture = (name: string) => readFileSync(join(import.meta.dirname, 'fixtures', name), 'utf8');
 
@@ -131,5 +137,21 @@ describe('buildCatalog', () => {
 
   it('the result validates against SystemCatalogSchema', () => {
     expect(SystemCatalogSchema.safeParse(buildCatalog(input()).catalog).success).toBe(true);
+  });
+});
+
+describe('checkReleasedIds', () => {
+  it('ADR-011: fails when a released id would disappear', () => {
+    const { catalog } = buildCatalog(input());
+    expect(() => checkReleasedIds(catalog, ['nintendo-64', 'sega-pico'])).toThrow(
+      /released system ids removed: sega-pico/,
+    );
+  });
+
+  it('ADR-011: returns the released ids plus new ones, sorted', () => {
+    const { catalog } = buildCatalog(input());
+    expect(checkReleasedIds(catalog, ['nintendo-64'])).toEqual(
+      catalog.systems.map((s) => s.id).sort(),
+    );
   });
 });

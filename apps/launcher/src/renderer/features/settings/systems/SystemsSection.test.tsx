@@ -116,3 +116,38 @@ describe('SystemsSection', () => {
     expect(saved()).toEqual({});
   });
 });
+
+describe('SystemsSection review fixes', () => {
+  async function openEditor() {
+    const user = userEvent.setup();
+    setup();
+    await user.type(
+      await screen.findByRole('searchbox', { name: 'Search systems' }),
+      'nintendo 64',
+    );
+    await user.click(screen.getByRole('button', { name: 'Edit Nintendo 64' }));
+    const editor = within(screen.getByRole('region', { name: 'Nintendo 64' }));
+    return { user, editor };
+  }
+
+  it('FR-SET-2: the editor stays open while its values are invalid', async () => {
+    const { user, editor } = await openEditor();
+    await user.type(editor.getByRole('textbox', { name: 'File extensions' }), 'z*64');
+    await user.click(editor.getByRole('button', { name: 'Close' }));
+    expect(screen.getByRole('region', { name: 'Nintendo 64' })).toBeVisible();
+    expect(screen.getByText('This value is not valid.')).toBeVisible();
+  });
+
+  it('Discard also clears the extensions box', async () => {
+    const { user, editor } = await openEditor();
+    await user.type(editor.getByRole('textbox', { name: 'File extensions' }), 'z*64');
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
+    expect(editor.getByRole('textbox', { name: 'File extensions' })).toHaveValue('');
+  });
+
+  it('NFR-A11Y-1: closing the editor returns focus to the row Edit button', async () => {
+    const { user, editor } = await openEditor();
+    await user.click(editor.getByRole('button', { name: 'Close' }));
+    expect(screen.getByRole('button', { name: 'Edit Nintendo 64' })).toHaveFocus();
+  });
+});
