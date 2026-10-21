@@ -1,8 +1,9 @@
-import { Settings, type LucideIcon } from 'lucide-react';
+import { Library, Settings, type LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { LibraryApp } from '../features/library/LibraryApp.tsx';
 import { SettingsApp } from '../features/settings/SettingsApp.tsx';
 
-export type AppId = 'settings';
+export type AppId = 'library' | 'settings';
 
 export interface AppDefinition {
   id: AppId;
@@ -16,6 +17,14 @@ export interface AppDefinition {
 
 /** Every app the shell can open, in desktop and Start menu order. */
 export const apps: readonly AppDefinition[] = [
+  {
+    id: 'library',
+    titleKey: 'apps.library.title',
+    icon: Library,
+    defaultSize: { width: 1200, height: 720 },
+    singleInstance: true,
+    Component: LibraryApp,
+  },
   {
     id: 'settings',
     titleKey: 'apps.settings.title',

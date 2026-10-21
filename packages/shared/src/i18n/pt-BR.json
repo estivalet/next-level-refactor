@@ -48,6 +48,9 @@
   "apps": {
     "settings": {
       "title": "Configurações"
+    },
+    "library": {
+      "title": "Biblioteca de jogos"
     }
   },
   "settings": {
@@ -193,6 +196,51 @@
       "restoreLatest": "Restaurar o backup mais recente",
       "resetDefaults": "Restaurar padrões",
       "openDataFolder": "Abrir pasta de dados"
+    }
+  },
+  "library": {
+    "tree": {
+      "label": "Sistemas e coleções",
+      "other": "Outros",
+      "collections": "Coleções",
+      "noCollections": "Nenhuma coleção ainda"
+    },
+    "list": {
+      "label": "Jogos",
+      "loading": "Carregando jogos…",
+      "empty": "Nenhum jogo aqui."
+    },
+    "missingAt": "Ausente — esperado em {{path}}",
+    "status": {
+      "games_one": "{{count}} jogo",
+      "games_other": "{{count}} jogos",
+      "missing_one": "{{count}} ausente",
+      "missing_other": "{{count}} ausentes"
+    },
+    "tabs": {
+      "label": "Filtro",
+      "all": "Todos",
+      "favorites": "Favoritos",
+      "hidden": "Ocultos",
+      "missing": "Ausentes"
+    },
+    "sort": {
+      "label": "Ordenar",
+      "title": "Título",
+      "year": "Ano",
+      "rating": "Avaliação",
+      "added": "Adicionados recentemente",
+      "manual": "Manual"
+    },
+    "empty": {
+      "title": "Nenhum jogo ainda",
+      "hint": "Adicione um local de armazenamento em Configurações → Armazenamento e procure jogos.",
+      "scan": "Procurar jogos"
+    },
+    "openData": "Abrir pasta de dados",
+    "details": {
+      "label": "Detalhes do jogo",
+      "none": "Selecione um jogo para ver os detalhes."
     }
   }
 }

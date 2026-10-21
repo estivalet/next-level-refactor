@@ -48,6 +48,9 @@
   "apps": {
     "settings": {
       "title": "Settings"
+    },
+    "library": {
+      "title": "Game Library"
     }
   },
   "settings": {
@@ -193,6 +196,51 @@
       "restoreLatest": "Restore latest backup",
       "resetDefaults": "Reset to defaults",
       "openDataFolder": "Open data folder"
+    }
+  },
+  "library": {
+    "tree": {
+      "label": "Systems and collections",
+      "other": "Other",
+      "collections": "Collections",
+      "noCollections": "No collections yet"
+    },
+    "list": {
+      "label": "Games",
+      "loading": "Loading games…",
+      "empty": "No games here."
+    },
+    "missingAt": "Missing — expected at {{path}}",
+    "status": {
+      "games_one": "{{count}} game",
+      "games_other": "{{count}} games",
+      "missing_one": "{{count}} missing",
+      "missing_other": "{{count}} missing"
+    },
+    "tabs": {
+      "label": "Filter",
+      "all": "All",
+      "favorites": "Favorites",
+      "hidden": "Hidden",
+      "missing": "Missing"
+    },
+    "sort": {
+      "label": "Sort",
+      "title": "Title",
+      "year": "Year",
+      "rating": "Rating",
+      "added": "Recently added",
+      "manual": "Manual"
+    },
+    "empty": {
+      "title": "No games yet",
+      "hint": "Add a storage location in Settings → Storage, then scan for games.",
+      "scan": "Scan for games"
+    },
+    "openData": "Open data folder",
+    "details": {
+      "label": "Game details",
+      "none": "Select a game to see its details."
     }
   }
 }
