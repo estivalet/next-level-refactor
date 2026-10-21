@@ -3,9 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
-import '../../i18n.ts';
+import { renderInShell } from '../../test-utils.tsx';
 import { Desktop } from './Desktop.tsx';
-import { ShellProvider } from './ShellContext.tsx';
 import { Taskbar } from './Taskbar.tsx';
 import { TrayClock } from './TrayClock.tsx';
 
@@ -14,11 +13,7 @@ afterEach(() => {
 });
 
 function renderShell() {
-  return render(
-    <ShellProvider initialBounds={{ width: 1200, height: 800 }}>
-      <Desktop taskbar={<Taskbar />} />
-    </ShellProvider>,
-  );
+  return renderInShell(<Desktop taskbar={<Taskbar />} />);
 }
 
 const taskbar = () => within(screen.getByRole('navigation', { name: 'Taskbar' }));

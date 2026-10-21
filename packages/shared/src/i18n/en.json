@@ -1,9 +1,4 @@
 {
-  "hello": {
-    "title": "Hello",
-    "version": "Version {{version}}",
-    "versionUnavailable": "Version unavailable"
-  },
   "errors": {
     "validationFailed": "The request was not valid.",
     "internal": "Something went wrong. Check the log for details."
@@ -38,6 +33,17 @@
   "apps": {
     "settings": {
       "title": "Settings"
+    }
+  },
+  "settings": {
+    "sections": {
+      "label": "Settings sections",
+      "about": "About"
+    },
+    "about": {
+      "product": "NextLevel",
+      "version": "Version {{version}}",
+      "versionUnavailable": "Version unavailable"
     }
   }
 }

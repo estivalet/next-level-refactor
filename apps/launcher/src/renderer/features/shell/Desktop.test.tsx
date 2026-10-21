@@ -1,16 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import '../../i18n.ts';
+import { renderInShell } from '../../test-utils.tsx';
 import { Desktop } from './Desktop.tsx';
-import { ShellProvider } from './ShellContext.tsx';
 
 function renderDesktop() {
-  return render(
-    <ShellProvider initialBounds={{ width: 1200, height: 800 }}>
-      <Desktop />
-    </ShellProvider>,
-  );
+  return renderInShell(<Desktop />);
 }
 
 function settingsIcon() {
