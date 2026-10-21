@@ -3,8 +3,10 @@ import {
   ERROR_CODES,
   type CollectionSort,
   type GameDetails,
+  type GameFlags,
   type GameListPage,
   type GameListQuery,
+  type MetadataChanges,
   type SearchResult,
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
@@ -31,6 +33,41 @@ interface RawDetails extends RawRow {
   lockedFields: string;
   playCount: number | null;
   lastPlayedAt: string | null;
+}
+
+/** Metadata columns an edit may set; keys come from the shared schema, never raw input. */
+const METADATA_COLUMNS = {
+  title: 'title',
+  year: 'year',
+  developer: 'developer',
+  publisher: 'publisher',
+  genre: 'genre',
+  players: 'players',
+  description: 'description',
+  region: 'region',
+} as const;
+
+const FLAG_COLUMNS = { favorite: 'favorite', hidden: 'hidden', userRating: 'user_rating' } as const;
+
+interface FileRow {
+  id: number;
+  systemId: string;
+  missing: number;
+  relPath: string;
+  locationId: string | null;
+  size: number;
+  mtime: number;
+  discGroup: string | null;
+}
+
+type RelinkRefusal = 'same' | 'notMissing' | 'replacementMissing' | 'otherSystem';
+
+function refuseRelink(reason: RelinkRefusal): AppErrorException {
+  return new AppErrorException({
+    code: 'VALIDATION_FAILED',
+    message: ERROR_CODES.VALIDATION_FAILED,
+    details: { reason },
+  });
 }
 
 export function notFound(details?: unknown): AppErrorException {
@@ -144,6 +181,106 @@ export class GameRepository {
       games: rows.slice(0, limit).map((row) => toRow(row, this.resolvePath)),
       more: rows.length > limit,
     };
+  }
+
+  /**
+   * Saves the user's edits (FR-LIB-6) in one transaction. Every edited field joins
+   * `locked_fields`, so later scrapes leave it alone; the FTS index follows the title by trigger.
+   */
+  updateMetadata(gameId: number, changes: MetadataChanges, now: Date): GameDetails {
+    this.db.$client.transaction(() => {
+      const locked = this.statement('select locked_fields from game_metadata where game_id = ?')
+        .pluck()
+        .get(gameId) as string | undefined;
+      if (locked === undefined) throw notFound({ gameId });
+      const sets: string[] = [];
+      const params: Record<string, unknown> = { gameId, updatedAt: now.toISOString() };
+      for (const [field, column] of Object.entries(METADATA_COLUMNS)) {
+        const value = changes[field as keyof typeof METADATA_COLUMNS];
+        if (value === undefined) continue;
+        sets.push(`${column} = @${field}`);
+        params[field] = value;
+      }
+      if (changes.title !== undefined) {
+        sets.push('sort_title = @sortTitle');
+        params.sortTitle = changes.title.toLowerCase();
+      }
+      if (changes.filters !== undefined) {
+        this.statement('delete from game_filters where game_id = ?').run(gameId);
+        const insert = this.statement('insert into game_filters (game_id, filter) values (?, ?)');
+        for (const filter of new Set(changes.filters)) insert.run(gameId, filter);
+      }
+      const fields = new Set([...(JSON.parse(locked) as string[]), ...Object.keys(changes)]);
+      params.lockedFields = JSON.stringify([...fields].sort());
+      sets.push('locked_fields = @lockedFields', 'updated_at = @updatedAt');
+      this.statement(`update game_metadata set ${sets.join(', ')} where game_id = @gameId`).run(
+        params,
+      );
+    })();
+    return this.get(gameId);
+  }
+
+  /** Favorite, hidden and the user's rating for several games at once (FR-LIB-7). */
+  setFlags(gameIds: readonly number[], flags: GameFlags): void {
+    const ids = [...new Set(gameIds)];
+    const sets = Object.entries(FLAG_COLUMNS)
+      .filter(([flag]) => flags[flag as keyof GameFlags] !== undefined)
+      .map(([flag, column]) => `${column} = @${flag}`);
+    const params = {
+      favorite: flags.favorite === undefined ? undefined : Number(flags.favorite),
+      hidden: flags.hidden === undefined ? undefined : Number(flags.hidden),
+      userRating: flags.userRating,
+    };
+    this.db.$client.transaction(() => {
+      const known = this.statement(
+        'select count(*) from games where id in (select value from json_each(?))',
+      )
+        .pluck()
+        .get(JSON.stringify(ids)) as number;
+      if (known !== ids.length) throw notFound({ gameIds: ids });
+      const ensure = this.statement(
+        'insert into game_user_state (game_id) values (?) on conflict do nothing',
+      );
+      const update = this.statement(
+        `update game_user_state set ${sets.join(', ')} where game_id = @gameId`,
+      );
+      for (const gameId of ids) {
+        ensure.run(gameId);
+        update.run(
+          Object.fromEntries(
+            Object.entries({ ...params, gameId }).filter(([, value]) => value !== undefined),
+          ),
+        );
+      }
+    })();
+  }
+
+  /**
+   * Moves a missing game onto another game's file (FR-LIB-3, owner decision 2026-10-21): the
+   * missing row keeps its id, metadata, flags and collections; the other row is deleted.
+   */
+  relink(missingGameId: number, replacementGameId: number): GameDetails {
+    this.db.$client.transaction(() => {
+      const read = this.statement(
+        `select id, system_id as systemId, missing, rel_path as relPath, location_id as locationId,
+           size, mtime, disc_group as discGroup from games where id = ?`,
+      );
+      const missing = read.get(missingGameId) as FileRow | undefined;
+      const replacement = read.get(replacementGameId) as FileRow | undefined;
+      if (!missing || !replacement) throw notFound({ missingGameId, replacementGameId });
+      if (missing.id === replacement.id) throw refuseRelink('same');
+      if (missing.missing !== 1) throw refuseRelink('notMissing');
+      if (replacement.missing === 1) throw refuseRelink('replacementMissing');
+      if (missing.systemId !== replacement.systemId) throw refuseRelink('otherSystem');
+      // Delete first: the rel_path is unique per system.
+      this.statement('delete from games where id = ?').run(replacement.id);
+      this.statement(
+        `update games set rel_path = @relPath, location_id = @locationId, size = @size,
+           mtime = @mtime, disc_group = @discGroup, missing = 0, missing_since = null
+         where id = @id`,
+      ).run({ ...replacement, id: missing.id });
+    })();
+    return this.get(missingGameId);
   }
 
   /** The distinct systems of some games, for `library.changed`. */
