@@ -5,6 +5,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-21
+
+M2 — Library core: system catalog, storage, background scan and the Game Library app.
+
 ### Added
 - M2a system catalog (FR-EMU-1): all 438 NextLevelOS systems with permanent ids, default folder
   names, extensions (ES-DE v3.5.0 where names match — MIT, see `packages/system-catalog/NOTICE.md`
