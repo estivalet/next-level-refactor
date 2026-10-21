@@ -120,6 +120,7 @@ export class LaunchService {
       });
       try {
         this.checkExecutable(draft.emulator, draft.profile);
+        this.checkCwd(command, draft.profile);
       } catch (error) {
         if (error instanceof AppErrorException) return failed(error);
         throw error;
@@ -169,6 +170,7 @@ export class LaunchService {
         ...target,
         romPath: prepared.path,
       });
+      this.checkCwd(command, profile);
       const started = this.deps.clock();
       logId = this.logStart(command, profile, game, started, false);
       this.deps.window.minimize();
@@ -260,6 +262,17 @@ export class LaunchService {
     // shell: false can't run scripts; they need hooks (FR-EMU-9, after 1.0).
     if (/\.(bat|cmd)$/i.test(emulator.executable)) {
       throw launchError('LAUNCH_FAILED', { path: emulator.executable, reason: 'script', fix });
+    }
+  }
+
+  /** The rendered working folder must exist, or the spawn fails with a misleading ENOENT. */
+  private checkCwd(command: LaunchCommand, profile: EmulatorProfile): void {
+    if (!this.deps.exists(command.cwd)) {
+      throw launchError('LAUNCH_FAILED', {
+        path: command.cwd,
+        reason: 'cwdMissing',
+        fix: { section: 'emulators', id: profile.id },
+      });
     }
   }
 

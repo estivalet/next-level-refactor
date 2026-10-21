@@ -2,8 +2,9 @@ import type { Emulator, EmulatorProfile } from '@nextlevel/shared';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getBridge } from '../../../bridge.ts';
+import { LaunchErrorDetails, launchAppError } from '../../launch/LaunchErrorDetails.tsx';
 import { PRIMARY_BUTTON } from '../../library/Modal.tsx';
-import { errorMessageKey, unwrap } from '../settingsApi.ts';
+import { unwrap } from '../settingsApi.ts';
 
 /** Test launch (FR-EMU-5): runs the draft profile and shows command, exit code and stderr. */
 export function TestLaunchPanel({
@@ -48,11 +49,11 @@ export function TestLaunchPanel({
           </span>
         )}
       </div>
-      {test.error && <p className="text-xs text-red-300">{t(errorMessageKey(test.error))}</p>}
+      {test.error && <LaunchErrorDetails error={launchAppError(test.error)} />}
       {result && (
         <div role="status" className="flex flex-col gap-1 rounded-lg bg-black/40 p-3 text-xs">
           <code className="break-all text-emerald-200">{result.commandLine}</code>
-          {result.error && <p className="text-red-300">{t(result.error.message)}</p>}
+          {result.error && <LaunchErrorDetails error={result.error} />}
           <p className="flex gap-2 text-slate-300">
             <span>
               {result.exitCode === null

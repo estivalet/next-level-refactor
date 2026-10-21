@@ -1,4 +1,11 @@
-import { defaultSettings, ok, type Settings, type TestLaunchResult } from '@nextlevel/shared';
+import {
+  defaultSettings,
+  err,
+  ok,
+  type Result,
+  type Settings,
+  type TestLaunchResult,
+} from '@nextlevel/shared';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -29,7 +36,10 @@ const RESULT: TestLaunchResult = {
   durationMs: 1500,
 };
 
-function setup(testResult: TestLaunchResult = RESULT) {
+function setup(
+  testResult: TestLaunchResult = RESULT,
+  testReply: () => Result<TestLaunchResult> = () => ok(testResult),
+) {
   const settings: Settings = {
     ...defaultSettings(),
     emulators: [{ id: EMULATOR, name: 'RetroArch', executable: 'C:\\RA\\retroarch.exe' }],
@@ -53,7 +63,7 @@ function setup(testResult: TestLaunchResult = RESULT) {
     'launch.preview': () =>
       ok({ executable: 'x', args: [], cwd: 'x', commandLine: 'C:\\RA\\retroarch.exe -L PREVIEW' }),
     'library.search': () => ok({ games: [gameRow(7, 'Racer')], more: false }),
-    'launch.test': () => ok(testResult),
+    'launch.test': testReply,
   });
   renderInShell(<EmulatorsSection />);
   return { bridge };
@@ -122,6 +132,37 @@ describe('ProfileEditor (FR-EMU-3, FR-EMU-5, US-D1)', () => {
     await user.click(await editor.findByRole('button', { name: /Racer/ }));
     await user.click(editor.getByRole('button', { name: 'Test launch' }));
     expect(await editor.findByText(/The emulator could not be found/)).toBeVisible();
+  });
+
+  it('FR-EMU-5: a Test launch failure names the path and the translated reason', async () => {
+    const user = userEvent.setup();
+    setup({
+      ...RESULT,
+      exitCode: null,
+      stderrTail: '',
+      error: {
+        code: 'LAUNCH_FAILED',
+        message: 'errors.launchFailed',
+        details: { path: 'D:\\missing\\folder', reason: 'cwdMissing' },
+      },
+    });
+    const editor = await openEditor(user);
+    await user.type(editor.getByRole('searchbox', { name: 'Search a game' }), 'rac');
+    await user.click(await editor.findByRole('button', { name: /Racer/ }));
+    await user.click(editor.getByRole('button', { name: 'Test launch' }));
+    expect(await editor.findByText('The working folder does not exist.')).toBeVisible();
+    expect(editor.getByText('D:\\missing\\folder')).toBeVisible();
+  });
+
+  it('FR-EMU-5: a missing ROM before Test launch shows the path where it was expected', async () => {
+    const user = userEvent.setup();
+    setup(RESULT, () => err('ROM_MISSING', 'errors.romMissing', { path: 'E:\\roms\\Racer.z64' }));
+    const editor = await openEditor(user);
+    await user.type(editor.getByRole('searchbox', { name: 'Search a game' }), 'rac');
+    await user.click(await editor.findByRole('button', { name: /Racer/ }));
+    await user.click(editor.getByRole('button', { name: 'Test launch' }));
+    expect(await editor.findByText('The game file could not be found.')).toBeVisible();
+    expect(editor.getByText('E:\\roms\\Racer.z64')).toBeVisible();
   });
 
   it('FR-EMU-2: a new profile needs a system before it can be saved', async () => {

@@ -140,6 +140,17 @@ describe('LaunchService.play (FR-EMU-6, US-C2)', () => {
     expect(h.spawn.calls).toEqual([]);
   });
 
+  it('US-C2: a working folder that doesn’t exist → LAUNCH_FAILED naming it, nothing starts', async () => {
+    h.files.delete('E:\\emu');
+    const error = await errorOf(() => h.service.play(h.gameId));
+    expect(error).toMatchObject({
+      code: 'LAUNCH_FAILED',
+      details: { path: 'E:\\emu', reason: 'cwdMissing', fix: { section: 'emulators' } },
+    });
+    expect(h.spawn.calls).toEqual([]);
+    expect(h.window.calls).toEqual([]);
+  });
+
   it('FR-EMU-4: the game override’s core and extra args are used', async () => {
     h.launches.setOverride(h.gameId, {
       profileId: null,
@@ -200,6 +211,17 @@ describe('LaunchService.test and preview (FR-EMU-5)', () => {
     const result = await h.service.test({ ...h.draft(), gameId: h.gameId });
     expect(result).toMatchObject({ exitCode: null, error: { code: 'EMULATOR_MISSING' } });
     expect(result.commandLine).toContain('retroarch.exe');
+  });
+
+  it('FR-EMU-5: Test launch reports a missing working folder in the result', async () => {
+    h.files.delete('E:\\emu');
+    const result = await h.service.test({ ...h.draft(), gameId: h.gameId });
+    expect(result).toMatchObject({
+      cwd: 'E:\\emu',
+      exitCode: null,
+      error: { code: 'LAUNCH_FAILED', details: { path: 'E:\\emu', reason: 'cwdMissing' } },
+    });
+    expect(h.spawn.calls).toEqual([]);
   });
 
   it('FR-EMU-5: preview without a game uses an example ROM path', () => {

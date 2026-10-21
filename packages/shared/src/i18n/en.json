@@ -13,6 +13,16 @@
     "coreMissing": "This profile needs a RetroArch core.",
     "launchFailed": "The emulator could not be started or stopped with an error.",
     "alreadyRunning": "A game is already running.",
+    "launchReason": {
+      "script": "Scripts (.bat, .cmd) can’t be run. Choose the emulator program (.exe).",
+      "emptyArchive": "The archive has no file this system can run.",
+      "cwdMissing": "The working folder does not exist.",
+      "ENOENT": "Windows could not find the program.",
+      "EACCES": "Windows denied access to the program.",
+      "EPERM": "Windows denied access to the program.",
+      "other": "Reason: {{reason}}"
+    },
+    "pathLabel": "Path:",
     "validation": {
       "invalid_type": "This value has the wrong type.",
       "invalid_value": "Choose one of the listed options.",

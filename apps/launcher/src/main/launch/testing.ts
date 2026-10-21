@@ -7,7 +7,7 @@ import {
 } from '@nextlevel/shared';
 import { getSystem } from '@nextlevel/system-catalog';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, win32 } from 'node:path';
 import { LaunchRepository } from '../library/LaunchRepository.ts';
 import { seedGames, tempDir, tempLibrary } from '../library/testing.ts';
 import type { Extractor } from './archives.ts';
@@ -88,7 +88,7 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     ],
   };
   const romPath = `E:\\roms\\Nintendo 64\\${options.romFile ?? 'Racer (USA).zip'}`;
-  const files = new Set(['E:\\emu\\retroarch.exe', romPath]);
+  const files = new Set(['E:\\emu', 'E:\\emu\\retroarch.exe', romPath]);
   let now = Date.UTC(2026, 9, 21, 12);
   const clock = { advance: (ms: number) => (now += ms) };
   const window = { calls: [] as string[] };
@@ -142,6 +142,7 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     setEmulatorExe(path: string) {
       emulator().executable = path;
       files.add(path);
+      files.add(win32.dirname(path));
     },
     setProfileArgs(args: string[]) {
       profile().args = args;
