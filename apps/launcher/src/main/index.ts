@@ -1,21 +1,29 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
+import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
 import { userDataDirName } from './userData.ts';
 
 app.setPath('userData', join(app.getPath('appData'), userDataDirName(app.isPackaged)));
 
-// Replaced by electron-log in M1.
+// Replaced by electron-log in M1b.
 const log = {
   error(context: Record<string, unknown>, msg: string): void {
     console.error(msg, context);
   },
 };
 
-function registerIpc(): void {
-  const router = createIpcRouter({ 'app.version': () => app.getVersion() }, log);
-  for (const channel of router.channels) {
-    ipcMain.handle(channel, (_event, input: unknown) => router.handle(channel, input));
+const devServerUrl = app.isPackaged ? undefined : process.env['ELECTRON_RENDERER_URL'];
+const rendererPage = join(import.meta.dirname, '../renderer/index.html');
+const rendererPageUrl = pathToFileURL(rendererPage).href;
+
+function openExternally(url: string): void {
+  if (externalUrlAllowed(url)) {
+    shell.openExternal(url).catch((error: unknown) => {
+      log.error({ url, error }, 'could not open external URL');
+    });
   }
 }
 
@@ -29,19 +37,35 @@ function createWindow(): void {
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
+      webSecurity: true,
     },
   });
 
-  const devServerUrl = process.env['ELECTRON_RENDERER_URL'];
-  if (!app.isPackaged && devServerUrl) {
-    void window.loadURL(devServerUrl);
-  } else {
-    void window.loadFile(join(import.meta.dirname, '../renderer/index.html'));
-  }
+  // Security doc §3: no remote content in app windows; https links go to the system browser.
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    openExternally(url);
+    return { action: 'deny' };
+  });
+  window.webContents.on('will-navigate', (event, url) => {
+    if (isAllowedNavigation(url, devServerUrl, rendererPageUrl)) return;
+    event.preventDefault();
+    openExternally(url);
+  });
+
+  const loading = devServerUrl ? window.loadURL(devServerUrl) : window.loadFile(rendererPage);
+  loading.catch((error: unknown) => {
+    log.error({ error }, 'could not load the renderer');
+  });
 }
 
 void app.whenReady().then(() => {
-  registerIpc();
+  const handlers = {
+    'app.version': () => app.getVersion(),
+    'app.quit': () => {
+      app.quit();
+    },
+  };
+  registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

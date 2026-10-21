@@ -25,12 +25,28 @@ describe('architecture §3 dependency rule', () => {
     expect(await boundaryErrors('packages/ui/src/index.ts', code)).toHaveLength(1);
   });
 
-  it.each(["import 'node:fs';", "import 'fs';", "import 'electron';"])(
-    'themes and ui never import Node or Electron: %s',
+  it.each([
+    "import 'node:fs';",
+    "import 'fs';",
+    "import 'electron';",
+    "import 'http';",
+    "import 'node:stream';",
+  ])('themes and ui never import Node or Electron: %s', async (code) => {
+    expect(await boundaryErrors('packages/themes/src/index.ts', code)).toHaveLength(1);
+    expect(await boundaryErrors('packages/ui/src/index.ts', code)).toHaveLength(1);
+  });
+
+  it.each(["import 'electron';", "import 'node:fs';", "import 'http';"])(
+    'NFR-SEC-1: the renderer never imports Node or Electron: %s',
     async (code) => {
-      expect(await boundaryErrors('packages/themes/src/index.ts', code)).toHaveLength(1);
+      expect(await boundaryErrors('apps/launcher/src/renderer/main.tsx', code)).toHaveLength(1);
     },
   );
+
+  it('the renderer may import shared packages', async () => {
+    const code = "import '@nextlevel/shared';";
+    expect(await boundaryErrors('apps/launcher/src/renderer/main.tsx', code)).toEqual([]);
+  });
 
   it('packages may import other packages, including subpaths', async () => {
     const code = "import '@nextlevel/shared/i18n/en.json';";

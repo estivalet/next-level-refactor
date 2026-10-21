@@ -14,7 +14,7 @@ release/
 *.credentials.json
 
 # local data
-data/
+/data/
 *.db
 *.db-journal
 *.db-wal

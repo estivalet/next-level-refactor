@@ -4,6 +4,7 @@ import type { Result } from '../result.ts';
 /** Every IPC channel between renderer and main, with its input and output schemas. */
 export const ipcContract = {
   'app.version': { input: z.void(), output: z.string() },
+  'app.quit': { input: z.void(), output: z.void() },
 } as const;
 
 export type IpcContract = typeof ipcContract;

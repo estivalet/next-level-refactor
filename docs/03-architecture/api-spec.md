@@ -129,6 +129,8 @@ process router registers one handler per key and validates `input`. All calls re
 Input that fails the schema returns `VALIDATION_FAILED` (with the Zod issues in `details`); a
 handler that throws, or returns data that breaks the output schema, returns `INTERNAL` and is
 logged in main. Codes and their message keys live in `packages/shared/src/errors.ts`.
+Object inputs use `z.strictObject` so unknown keys fail validation; extra arguments and unknown
+channels also return `VALIDATION_FAILED`.
 
 | Area | Channels |
 |---|---|

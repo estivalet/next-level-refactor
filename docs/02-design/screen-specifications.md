@@ -73,6 +73,9 @@ current themes. Common requirements:
 │ [Start] [Front-end] [open windows…]       ⬇ 2  ◉ Online 21:04 │
 └──────────────────────────────────────────────────────────────┘
 ```
+- Visual style follows the current NextLevelOS shell (owner decision 2026-10-21): floating
+  centered dock-style taskbar, macOS-style window buttons, dark glass Start menu with search. The
+  wireframe above shows contents, not style. Requirements: FR-SHELL-1..5.
 - Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock.
 - Start menu: apps, Front-end, Account, Sign out, Quit.
 
