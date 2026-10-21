@@ -27,7 +27,7 @@ export function Taskbar() {
   return (
     <nav
       aria-label={t('shell.taskbar.label')}
-      className="relative mx-auto mb-3 flex items-center gap-2 rounded-3xl border border-white/10 bg-black/40 px-3 py-2 shadow-2xl backdrop-blur-2xl"
+      className="relative z-10 mx-auto mb-3 flex items-center gap-2 rounded-3xl border border-white/10 bg-black/40 px-3 py-2 shadow-2xl backdrop-blur-2xl"
     >
       {startOpen && <StartMenu onClose={closeStart} startButton={startButton} />}
       <button

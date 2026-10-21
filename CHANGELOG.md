@@ -6,6 +6,13 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 ## [Unreleased]
 
 ### Added
+- M1a desktop shell (FR-SHELL-1..5, proposed): desktop icons, movable/resizable windows kept
+  inside the desktop, minimize/maximize/close, a dock-style taskbar with a clock, and a Start menu
+  with app search and Quit (`app.quit` IPC channel). Look follows the current NextLevelOS shell.
+- Settings app skeleton with an About section (version via TanStack Query).
+- Hardening (NFR-SEC-1): no remote navigation in app windows (https links open in the system
+  browser), CSP per the security doc, extra IPC arguments and unknown channels rejected, renderer
+  and themes/ui import guards built from Node's full built-in list.
 - M0 foundations (NFR-MAINT-1): npm-workspaces monorepo (`apps/launcher`, `apps/api` and
   `apps/admin` stubs, `packages/shared`, `system-catalog`, `themes`, `ui`, `config`); strict
   TypeScript with project references; ESLint (incl. package boundary rules), Prettier, Vitest.

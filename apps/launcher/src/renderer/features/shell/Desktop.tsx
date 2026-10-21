@@ -27,7 +27,11 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e1b4b] font-sans text-slate-200 select-none">
-      <main ref={workArea} aria-label={t('shell.desktop.label')} className="relative flex-1">
+      <main
+        ref={workArea}
+        aria-label={t('shell.desktop.label')}
+        className="relative isolate flex-1 overflow-hidden"
+      >
         <DesktopIcons />
         {state.windows.map((win) => {
           const app = getApp(win.appId);
