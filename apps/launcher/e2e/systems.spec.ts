@@ -33,7 +33,21 @@ test('FR-EMU-1/FR-LIB-1/FR-LIB-2: enable a system, override its folder, add stor
     await expect(settings.getByText(roms.dir)).toBeVisible();
     await settings.getByRole('button', { name: 'Save' }).click();
     await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
+    // DIAGNOSTIC (temporary): what was on disk before and after closing.
+    const { readFile: read, readdir: list } = await import('node:fs/promises');
+    const { join: joinPath } = await import('node:path');
+    const before = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) => String(e));
     await app.close();
+    const after = await read(joinPath(data.dir, 'settings.json'), 'utf8').catch((e: unknown) => String(e));
+    const backups = await list(joinPath(data.dir, 'backups')).catch(() => []);
+    const logs = await list(joinPath(data.dir, 'logs')).catch(() => []);
+    const logText = logs.length
+      ? await read(joinPath(data.dir, 'logs', logs[0] ?? ''), 'utf8').catch(() => '')
+      : '';
+    await test.info().attach('diagnostic.txt', {
+      body: `BEFORE CLOSE\n${before}\n\nAFTER CLOSE\n${after}\n\nBACKUPS ${backups.join(', ')}\n\nLOG\n${logText}`,
+      contentType: 'text/plain',
+    });
 
     // Restart: everything was read back from settings.json.
     app = await launch(data.dir);
