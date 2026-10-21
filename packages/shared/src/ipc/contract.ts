@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Result } from '../result.ts';
+import { SystemDefinitionSchema } from '../catalog/schema.ts';
 import { SettingsSchema } from '../settings/schema.ts';
 
 export const SettingsSnapshotSchema = z.object({
@@ -44,6 +45,11 @@ export const ipcContract = {
     }),
   },
   'app.openPath': { input: z.strictObject({ key: z.enum(APP_PATH_KEYS) }), output: z.void() },
+  'app.pickFolder': {
+    input: z.strictObject({ title: z.string().max(200).optional() }),
+    output: z.string().nullable(),
+  },
+  'systems.catalog': { input: z.void(), output: z.array(SystemDefinitionSchema) },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),

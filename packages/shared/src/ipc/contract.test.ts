@@ -63,3 +63,17 @@ describe('settings channels', () => {
     expect(input.safeParse({ key: '../etc' }).success).toBe(false);
   });
 });
+
+describe('catalog and folder channels', () => {
+  it('FR-LIB-1: app.pickFolder takes an optional title only', () => {
+    const input = ipcContract['app.pickFolder'].input;
+    expect(input.safeParse({}).success).toBe(true);
+    expect(input.safeParse({ title: 'Pick' }).success).toBe(true);
+    expect(input.safeParse({ path: 'C:/' }).success).toBe(false);
+    expect(ipcContract['app.pickFolder'].output.safeParse(null).success).toBe(true);
+  });
+
+  it('FR-EMU-1: systems.catalog returns system definitions', () => {
+    expect(ipcContract['systems.catalog'].output.safeParse([]).success).toBe(true);
+  });
+});

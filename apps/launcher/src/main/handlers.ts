@@ -52,6 +52,9 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       const failure = await deps.openPath(path);
       if (failure) deps.log.warn({ key, path, failure }, 'could not open folder');
     },
+    // Replaced by the catalog and folder picker in M2a Task 4.
+    'app.pickFolder': () => null,
+    'systems.catalog': () => [],
     'settings.get': () => settings.get(),
     'settings.save': async ({ settings: next, baseRevision }) =>
       applied(unwrap(await settings.save(next, baseRevision))),
