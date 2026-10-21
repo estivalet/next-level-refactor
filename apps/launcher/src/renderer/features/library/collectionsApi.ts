@@ -2,9 +2,7 @@ import type { CollectionSort } from '@nextlevel/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { unwrap } from '../settings/settingsApi.ts';
-import { invalidateGames } from './libraryApi.ts';
-
-const COLLECTIONS_KEY = ['collections.list'] as const;
+import { COLLECTIONS_KEY, invalidateGames } from './libraryApi.ts';
 
 /** Collections with their game counts (FR-LIB-8). */
 export function useCollections() {
@@ -19,11 +17,8 @@ function useCollectionMutation<Input, Output>(run: (input: Input) => Promise<Out
   const client = useQueryClient();
   return useMutation({
     mutationFn: run,
-    onSuccess: () =>
-      Promise.all([
-        client.invalidateQueries({ queryKey: COLLECTIONS_KEY }),
-        invalidateGames(client),
-      ]),
+    // invalidateGames covers the collection list too.
+    onSuccess: () => invalidateGames(client),
   });
 }
 

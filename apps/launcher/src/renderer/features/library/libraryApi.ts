@@ -9,15 +9,20 @@ import { GAMES_KEY } from './usePagedGames.ts';
 export const GAME_KEY = 'library.game';
 export const SEARCH_KEY = 'library.search';
 export const SYSTEMS_KEY = ['systems.list'] as const;
+export const COLLECTIONS_KEY = ['collections.list'] as const;
 const SEARCH_DELAY_MS = 120;
 
-/** Everything a game change can make stale: lists, details, search and system counts. */
+/**
+ * Everything a game change can make stale: lists, details, search, system counts and collection
+ * counts (a relink deletes the other game and its memberships).
+ */
 export function invalidateGames(client: QueryClient) {
   return Promise.all([
     client.invalidateQueries({ queryKey: [GAMES_KEY] }),
     client.invalidateQueries({ queryKey: [GAME_KEY] }),
     client.invalidateQueries({ queryKey: [SEARCH_KEY] }),
     client.invalidateQueries({ queryKey: SYSTEMS_KEY }),
+    client.invalidateQueries({ queryKey: COLLECTIONS_KEY }),
   ]);
 }
 

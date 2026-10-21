@@ -127,4 +127,16 @@ describe('collections in the Library', () => {
       'true',
     );
   });
+
+  it('FR-LIB-8: a library change (e.g. a relink) refreshes collection counts', async () => {
+    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
+    await screen.findByRole('treeitem', { name: /Picks/ });
+    const before = bridge.channels().filter((c) => c === 'collections.list').length;
+    bridge.emit('library.changed', { systems: ['nintendo-64'], gameIds: [1] });
+    await waitFor(() => {
+      expect(bridge.channels().filter((c) => c === 'collections.list').length).toBeGreaterThan(
+        before,
+      );
+    });
+  });
 });
