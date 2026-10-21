@@ -5,6 +5,7 @@
     "conflict": "Settings changed since you opened them. The latest version was loaded.",
     "notFound": "That item no longer exists.",
     "invalidSettings": "Those settings are not valid and were not applied.",
+    "libraryUnavailable": "The game library could not be opened.",
     "validation": {
       "invalid_type": "This value has the wrong type.",
       "invalid_value": "Choose one of the listed options.",

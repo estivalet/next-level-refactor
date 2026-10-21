@@ -74,7 +74,7 @@ describe('Taskbar', () => {
       calls.push(channel);
       return Promise.resolve({ ok: true, value: undefined });
     }) as NextLevelBridge['invoke'];
-    setBridgeForTests({ invoke });
+    setBridgeForTests({ invoke, on: () => () => undefined });
     const user = userEvent.setup();
     renderShell();
     await user.click(taskbar().getByRole('button', { name: 'Start' }));

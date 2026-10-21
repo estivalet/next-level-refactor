@@ -53,6 +53,6 @@ export function installFakeBridge(responses: FakeResponses = {}) {
     }
     return Promise.resolve(respond(input));
   }) as NextLevelBridge['invoke'];
-  setBridgeForTests({ invoke });
+  setBridgeForTests({ invoke, on: () => () => undefined });
   return { calls, channels: () => calls.map((call) => call.channel) };
 }

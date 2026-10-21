@@ -1,5 +1,6 @@
 import {
   AppErrorException,
+  ERROR_CODES,
   type SystemDefinition,
   type AppPathKey,
   type Result,
@@ -43,6 +44,13 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     return snapshot;
   };
 
+  const libraryUnavailable = (): never => {
+    throw new AppErrorException({
+      code: 'LIBRARY_UNAVAILABLE',
+      message: ERROR_CODES.LIBRARY_UNAVAILABLE,
+    });
+  };
+
   return {
     'app.version': () => deps.appVersion(),
     'app.quit': () => {
@@ -58,6 +66,10 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     },
     'app.pickFolder': ({ title }) => deps.pickFolder(title),
     'systems.catalog': () => [...deps.catalog()],
+    'systems.list': libraryUnavailable,
+    'scan.start': libraryUnavailable,
+    'scan.cancel': libraryUnavailable,
+    'scan.status': libraryUnavailable,
     'settings.get': () => settings.get(),
     'settings.save': async ({ settings: next, baseRevision }) =>
       applied(unwrap(await settings.save(next, baseRevision))),

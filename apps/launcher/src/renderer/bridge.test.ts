@@ -12,7 +12,10 @@ describe('getBridge', () => {
   });
 
   it('uses the bridge set for tests', async () => {
-    setBridgeForTests({ invoke: (() => Promise.resolve({ ok: true, value: '9.9.9' })) as never });
+    setBridgeForTests({
+      invoke: (() => Promise.resolve({ ok: true, value: '9.9.9' })) as never,
+      on: () => () => undefined,
+    });
     await expect(getBridge().invoke('app.version')).resolves.toEqual({ ok: true, value: '9.9.9' });
   });
 });

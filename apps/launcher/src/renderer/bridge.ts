@@ -4,6 +4,7 @@ import { ERROR_CODES, err, type NextLevelBridge } from '@nextlevel/shared';
 const missingBridge: NextLevelBridge = {
   invoke: () =>
     Promise.resolve(err('INTERNAL', ERROR_CODES.INTERNAL, { reason: 'bridge unavailable' })),
+  on: () => () => undefined,
 };
 
 let testBridge: NextLevelBridge | null = null;

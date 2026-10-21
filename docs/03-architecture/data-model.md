@@ -203,6 +203,18 @@ settings.
 
 SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_version`.
 
+**Implemented so far** (`apps/launcher/src/main/library/`): `meta`, `games` and `game_metadata`
+since M2b; the other tables arrive with the milestones that use them, each as a new migration.
+- `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
+- `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the
+  natural key ignores case like Windows does.
+- `disc_group` is the set's name without the disc tag (`Saga (USA)`) when loose `Disc 1/2` files
+  were collapsed into one game (the row points at the first disc); `null` otherwise.
+- New games get `game_metadata.title` from the file name (extension and disc tag removed, tags such
+  as `(USA)` kept) and `sort_title` = lowercase title; a scan never changes existing metadata.
+- Before a migration the existing file is copied to `backups/library-<ISO>-v<old>.db`. A library
+  from a newer app version is refused (`LIBRARY_UNAVAILABLE`) and left untouched.
+
 ```mermaid
 erDiagram
   games ||--o| game_metadata : has
