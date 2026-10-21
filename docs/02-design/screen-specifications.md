@@ -111,6 +111,15 @@ Left navigation of sections (see IA §1), right form pane.
 
 - Forms are generated from the settings schema (labels, help text, defaults) with custom widgets where needed (path picker, token-aware template editor, drag-to-order lists, key/button capture).
 - Save bar: appears when dirty — **Save** / **Discard**; field errors inline; Save disabled while invalid.
+- Drafts survive outside changes: when the settings change underneath an open section (a scan
+  turning systems on, a conflict reload), the draft is rebased; the user's unsaved edits win.
+- **Storage → Scan for games** (M2b, FR-LIB-3): **Scan now** (disabled with a hint while the
+  section has unsaved changes or no storage location), then a progress bar (systems done / total,
+  current system, files found) with **Cancel scan**, then the last result: "N games in N systems ·
+  N new · N moved · N restored · N missing · N systems turned on" (zero counts omitted), a
+  cancelled/failed line, and a virtualized per-system list. If the library can't be opened, the
+  panel shows that error with **Open data folder**. The Library app's Scan ▾ (S7, M2c) uses the
+  same channels.
 - **Emulator profile editor**: template field with token autocomplete and a live preview of the resolved command for a sample game; **Test launch** shows command, exit code and stderr.
 - **Backups**: table (time, what changed, size) with Restore and Export.
 

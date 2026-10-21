@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { errorCode, useSaveSettings } from '../settingsApi.ts';
 import { issuesByPath } from './fields.ts';
+import { rebase } from './rebase.ts';
 
 export interface SettingsDraft {
   draft: Settings;
@@ -23,7 +24,9 @@ export interface SettingsDraft {
 
 /**
  * A local copy of the settings that a section edits, validated on every change with the shared
- * schema. Saving sends the base revision; a CONFLICT reloads the settings (and so the draft).
+ * schema. Saving sends the base revision; a CONFLICT reloads the settings. Whenever a newer
+ * snapshot arrives (own save, reload, a change made by main), the draft is rebased onto it, so
+ * unsaved edits survive.
  */
 export function useSettingsDraft(
   snapshot: SettingsSnapshot,
@@ -31,7 +34,19 @@ export function useSettingsDraft(
 ): SettingsDraft {
   const client = useQueryClient();
   const mutation = useSaveSettings();
-  const [draft, setDraft] = useState<Settings>(snapshot.settings);
+  const [state, setState] = useState({ base: snapshot, draft: snapshot.settings });
+  let { draft } = state;
+  if (state.base.revision !== snapshot.revision) {
+    // The schema validates the merged draft below, like any other edit.
+    draft = rebase(state.base.settings, state.draft, snapshot.settings) as Settings;
+    setState({ base: snapshot, draft });
+  }
+  const setDraft = (change: Settings | ((settings: Settings) => Settings)) => {
+    setState((current) => ({
+      ...current,
+      draft: typeof change === 'function' ? change(current.draft) : change,
+    }));
+  };
   const validation = SettingsSchema.safeParse(draft);
 
   return {

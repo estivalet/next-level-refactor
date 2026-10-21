@@ -8,6 +8,7 @@ import {
 } from '@nextlevel/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
+import { useIpcEvent } from '../../events.ts';
 
 const SETTINGS = ['settings'] as const;
 const BACKUPS = ['settings.backups'] as const;
@@ -25,7 +26,16 @@ export function errorCode(error: unknown): string | undefined {
   return error instanceof AppErrorException ? error.error.code : undefined;
 }
 
+/** The settings, kept current by `settings.changed` events from main (e.g. a scan enabling systems). */
 export function useSettings() {
+  const client = useQueryClient();
+  useIpcEvent('settings.changed', (snapshot) => {
+    client.setQueryData<SettingsLoad>(SETTINGS, (current) =>
+      current?.kind === 'ok' && current.snapshot.revision >= snapshot.revision
+        ? current
+        : loaded(snapshot),
+    );
+  });
   return useQuery({
     queryKey: SETTINGS,
     queryFn: async (): Promise<SettingsLoad> => unwrap(await getBridge().invoke('settings.get')),
