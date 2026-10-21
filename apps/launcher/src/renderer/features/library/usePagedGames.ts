@@ -47,6 +47,14 @@ export function usePagedGames(
     /** First row index of the loaded pages, and one past the last. */
     firstLoaded: Math.min(...loadedPages) * PAGE_SIZE,
     lastLoaded: (Math.max(...loadedPages) + 1) * PAGE_SIZE,
+    /** The row index of a game in the loaded pages, or -1. */
+    indexOf(gameId: number): number {
+      for (const [page, data] of loaded) {
+        const at = data.games.findIndex((game) => game.id === gameId);
+        if (at >= 0) return page * PAGE_SIZE + at;
+      }
+      return -1;
+    },
     rowAt(index: number): GameRow | undefined {
       return loaded.get(Math.floor(index / PAGE_SIZE))?.games[index % PAGE_SIZE];
     },

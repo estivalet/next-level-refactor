@@ -117,4 +117,25 @@ describe('GameDetails', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(screen.getByRole('listbox', { name: 'Games' })).toHaveFocus();
   });
+
+  it('FR-LIB-6: the focused game stays focused when a change re-sorts the list', async () => {
+    const user = userEvent.setup();
+    const games: GameRow[] = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo'), gameRow(3, 'Charlie')];
+    const bridge = installFakeBridge({
+      ...libraryResponses(games),
+      'library.games.list': (query) => {
+        const rows = [...games].sort((a, b) => a.title.localeCompare(b.title));
+        return ok({ total: rows.length, offset: query.offset, games: rows });
+      },
+    });
+    renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('option', { name: /Charlie/ }));
+    expect(await within(details()).findByRole('heading', { name: 'Charlie' })).toBeVisible();
+
+    games[2] = gameRow(3, 'Aaron');
+    bridge.emit('library.changed', { systems: ['nintendo-64'], gameIds: [3] });
+    await screen.findByRole('option', { name: /Aaron/ });
+    expect(selectedTitles()).toEqual(['Aaron']);
+    expect(await within(details()).findByRole('heading', { name: 'Aaron' })).toBeVisible();
+  });
 });

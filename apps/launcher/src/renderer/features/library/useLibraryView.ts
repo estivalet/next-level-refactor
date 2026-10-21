@@ -37,16 +37,15 @@ export function useLibraryView() {
 
   const [range, setRange] = useState({ key: viewKey, ...NOTHING_VISIBLE });
   const games = usePagedGames(params, range.key === viewKey ? range : NOTHING_VISIBLE);
-  const [picked, setPicked] = useState({
-    key: viewKey,
-    selection: EMPTY_SELECTION,
-    focused: -1,
-  });
-  const current = picked.key === viewKey ? picked : { selection: EMPTY_SELECTION, focused: -1 };
+  const nothing = { selection: EMPTY_SELECTION, focused: -1, focusedId: null as number | null };
+  const [picked, setPicked] = useState({ key: viewKey, ...nothing });
+  const current = picked.key === viewKey ? picked : nothing;
   const idAt = (index: number) => games.rowAt(index)?.id;
+  // Focus follows its game when a change re-sorts the list (an edited title, a new rating).
+  const moved = current.focusedId === null ? -1 : games.indexOf(current.focusedId);
+  const wanted = moved >= 0 ? moved : current.focused;
   // Rows can disappear under the focus (hidden, relinked): stay on the last row.
-  const focused =
-    games.total !== null && current.focused >= games.total ? games.total - 1 : current.focused;
+  const focused = games.total !== null && wanted >= games.total ? games.total - 1 : wanted;
   const focusedGame = games.rowAt(focused) ?? null;
   // With nothing picked, the focused row is the selection (after a hide, the next row).
   const selection =
@@ -104,11 +103,12 @@ export function useLibraryView() {
         key: viewKey,
         selection: select(selection, index, mode, idAt),
         focused: index,
+        focusedId: idAt(index) ?? null,
       });
     },
     /** Rows are about to leave the list: drop the selection, keep the focus on row `index`. */
     focusRow: (index: number) => {
-      setPicked({ key: viewKey, selection: EMPTY_SELECTION, focused: index });
+      setPicked({ key: viewKey, selection: EMPTY_SELECTION, focused: index, focusedId: null });
     },
   };
 }
