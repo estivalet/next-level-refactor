@@ -1,0 +1,143 @@
+import { defaultSettings, type Settings } from '@nextlevel/shared';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
+import { SettingsService } from './SettingsService.ts';
+import { settingsFixture } from './testing.ts';
+
+let cleanup: () => Promise<void> = () => Promise.resolve();
+afterEach(() => cleanup());
+
+async function setup(fileContent?: string) {
+  const fixture = await settingsFixture();
+  cleanup = fixture.cleanup;
+  const file = join(fixture.dir, 'settings.json');
+  if (fileContent !== undefined) await writeFile(file, fileContent);
+  const service = new SettingsService(fixture.deps);
+  return { service, file, dir: fixture.dir };
+}
+
+const backups = async (dir: string) =>
+  (await readdir(join(dir, 'backups')).catch(() => [] as string[])).sort();
+
+function withLanguage(language: Settings['general']['language']): Settings {
+  const settings = defaultSettings();
+  return { ...settings, general: { ...settings.general, language } };
+}
+
+async function saveOk(service: SettingsService, settings: Settings) {
+  const current = service.get();
+  if (current.kind !== 'ok') throw new Error('not ok');
+  const result = await service.save(settings, current.snapshot.revision);
+  if (!result.ok) throw new Error(result.error.code);
+  return result.value;
+}
+
+describe('SettingsService', () => {
+  it('FR-SET-2: missing file loads defaults without writing', async () => {
+    const { service, dir } = await setup();
+    expect(await service.load()).toEqual({
+      kind: 'ok',
+      snapshot: { settings: defaultSettings(), revision: 0 },
+    });
+    expect(await readdir(dir)).toEqual([]);
+  });
+
+  it('FR-SET-2: invalid JSON loads as invalid/unreadable and the file is untouched', async () => {
+    const { service, file } = await setup('{ not json');
+    expect(await service.load()).toEqual({
+      kind: 'invalid',
+      reason: 'unreadable',
+      latestBackupId: null,
+    });
+    expect(await readFile(file, 'utf8')).toBe('{ not json');
+  });
+
+  it('FR-SET-2: a wrong type loads as invalid/invalid', async () => {
+    const { service } = await setup('{"schemaVersion":1,"general":{"language":42}}');
+    expect(await service.load()).toMatchObject({ kind: 'invalid', reason: 'invalid' });
+  });
+
+  it('schemaVersion 99 loads as invalid/newerVersion', async () => {
+    const { service } = await setup('{"schemaVersion":99}');
+    expect(await service.load()).toMatchObject({ kind: 'invalid', reason: 'newerVersion' });
+  });
+
+  it('loads a valid file with unknown keys stripped', async () => {
+    const { service } = await setup('{"schemaVersion":1,"general":{"language":"pt-BR","x":1}}');
+    expect(await service.load()).toEqual({
+      kind: 'ok',
+      snapshot: { settings: withLanguage('pt-BR'), revision: 0 },
+    });
+  });
+
+  it('FR-SET-2: save rejects invalid settings and writes nothing', async () => {
+    const { service, dir } = await setup();
+    await service.load();
+    const bad = { schemaVersion: 1, general: { language: 'xx' } } as unknown as Settings;
+    const result = await service.save(bad, 0);
+    expect(result).toMatchObject({ ok: false, error: { code: 'INVALID_SETTINGS' } });
+    expect(await readdir(dir)).toEqual([]);
+  });
+
+  it('FR-SET-1: save writes the file and bumps the revision', async () => {
+    const { service, file } = await setup();
+    await service.load();
+    const snapshot = await saveOk(service, withLanguage('pt-BR'));
+    expect(snapshot.revision).toBe(1);
+    expect(JSON.parse(await readFile(file, 'utf8'))).toEqual(withLanguage('pt-BR'));
+  });
+
+  it('save with a stale revision returns CONFLICT', async () => {
+    const { service } = await setup();
+    await service.load();
+    await saveOk(service, withLanguage('pt-BR'));
+    const result = await service.save(withLanguage('en'), 0);
+    expect(result).toMatchObject({ ok: false, error: { code: 'CONFLICT' } });
+  });
+
+  it('FR-SET-3: each save backs up the previous file', async () => {
+    const { service, dir } = await setup();
+    await service.load();
+    for (const language of ['pt-BR', 'en', 'pt-BR'] as const) {
+      await saveOk(service, withLanguage(language));
+    }
+    expect(await backups(dir)).toHaveLength(2);
+  });
+
+  it('FR-SET-3: only the newest 10 backups are kept', async () => {
+    const { service, dir } = await setup();
+    await service.load();
+    for (let i = 0; i < 13; i += 1) await saveOk(service, withLanguage(i % 2 ? 'en' : 'pt-BR'));
+    const kept = await backups(dir);
+    expect(kept).toHaveLength(10);
+    expect(kept[0]).toBe('settings-2026-10-21T12-00-03-000Z.json');
+  });
+
+  it('save is refused while the file is invalid; reset backs up the bad file and writes defaults', async () => {
+    const { service, file, dir } = await setup('{ not json');
+    await service.load();
+    expect(await service.save(defaultSettings(), 0)).toMatchObject({
+      ok: false,
+      error: { code: 'INVALID_SETTINGS' },
+    });
+    const snapshot = await service.reset();
+    expect(snapshot).toEqual({ settings: defaultSettings(), revision: 1 });
+    expect(JSON.parse(await readFile(file, 'utf8'))).toEqual(defaultSettings());
+    const [backup] = await backups(dir);
+    expect(await readFile(join(dir, 'backups', backup ?? ''), 'utf8')).toBe('{ not json');
+  });
+
+  it('latestBackupId is reported when invalid', async () => {
+    const { service, file } = await setup();
+    await service.load();
+    await saveOk(service, withLanguage('pt-BR'));
+    await saveOk(service, withLanguage('en'));
+    await writeFile(file, 'broken');
+    expect(await service.load()).toEqual({
+      kind: 'invalid',
+      reason: 'unreadable',
+      latestBackupId: 'settings-2026-10-21T12-00-01-000Z.json',
+    });
+  });
+});
