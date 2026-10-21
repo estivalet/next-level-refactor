@@ -64,5 +64,20 @@
         }
       }
     }
+  },
+  "boot": {
+    "loadingSettings": "Carregando configurações…",
+    "recovery": {
+      "title": "Não foi possível carregar as configurações",
+      "reason": {
+        "unreadable": "O arquivo de configurações está danificado e não pôde ser lido.",
+        "invalid": "O arquivo de configurações contém valores que o NextLevel não reconhece.",
+        "newerVersion": "O arquivo de configurações foi salvo por uma versão mais nova do NextLevel."
+      },
+      "keep": "Seu arquivo não foi alterado. Escolha como continuar:",
+      "restoreLatest": "Restaurar o backup mais recente",
+      "resetDefaults": "Restaurar padrões",
+      "openDataFolder": "Abrir pasta de dados"
+    }
   }
 }

@@ -64,5 +64,20 @@
         }
       }
     }
+  },
+  "boot": {
+    "loadingSettings": "Loading settings…",
+    "recovery": {
+      "title": "Settings could not be loaded",
+      "reason": {
+        "unreadable": "The settings file is damaged and could not be read.",
+        "invalid": "The settings file contains values NextLevel does not understand.",
+        "newerVersion": "The settings file was saved by a newer version of NextLevel."
+      },
+      "keep": "Your file has not been changed. Choose how to continue:",
+      "restoreLatest": "Restore latest backup",
+      "resetDefaults": "Reset to defaults",
+      "openDataFolder": "Open data folder"
+    }
   }
 }
