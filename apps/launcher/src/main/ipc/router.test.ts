@@ -1,4 +1,4 @@
-import { ipcContract } from '@nextlevel/shared';
+import { AppErrorException, ipcContract } from '@nextlevel/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { withUnimplemented } from './withUnimplemented.ts';
 import { createIpcRouter, type IpcHandlers, type RouterLogger } from './router.ts';
@@ -58,5 +58,22 @@ describe('createIpcRouter', () => {
   it('NFR-MAINT-1: channels lists every contract key', () => {
     const { router } = setup(() => '1.2.3');
     expect(router.channels).toEqual(Object.keys(ipcContract));
+  });
+});
+
+describe('createIpcRouter with AppErrorException', () => {
+  it('NFR-MAINT-1: a handler that throws AppErrorException returns that error', async () => {
+    const router = createIpcRouter(
+      withUnimplemented({
+        'app.version': () => {
+          throw new AppErrorException({ code: 'CONFLICT', message: 'errors.conflict' });
+        },
+      }),
+      { error: () => undefined },
+    );
+    expect(await router.handle('app.version', undefined)).toEqual({
+      ok: false,
+      error: { code: 'CONFLICT', message: 'errors.conflict' },
+    });
   });
 });

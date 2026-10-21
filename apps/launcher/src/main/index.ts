@@ -1,24 +1,23 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createHandlers } from './handlers.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
-import { withUnimplemented } from './ipc/withUnimplemented.ts';
+import { initLogger, logger as log } from './log.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
+import { SettingsService } from './settings/SettingsService.ts';
 import { userDataDirName } from './userData.ts';
 
 app.setPath('userData', join(app.getPath('appData'), userDataDirName(app.isPackaged)));
-
-// Replaced by electron-log in M1b.
-const log = {
-  error(context: Record<string, unknown>, msg: string): void {
-    console.error(msg, context);
-  },
-};
+const dataDir = app.getPath('userData');
+const logsDir = join(dataDir, 'logs');
+initLogger(logsDir);
 
 const devServerUrl = app.isPackaged ? undefined : process.env['ELECTRON_RENDERER_URL'];
 const rendererPage = join(import.meta.dirname, '../renderer/index.html');
 const rendererPageUrl = pathToFileURL(rendererPage).href;
+const JSON_FILES = [{ name: 'JSON', extensions: ['json'] }];
 
 function openExternally(url: string): void {
   if (externalUrlAllowed(url)) {
@@ -28,7 +27,13 @@ function openExternally(url: string): void {
   }
 }
 
-function createWindow(): void {
+function setOpenAtLogin(openAtLogin: boolean): void {
+  // In development this would register electron.exe itself, so it only applies when packaged.
+  if (app.isPackaged) app.setLoginItemSettings({ openAtLogin });
+  else log.info({ openAtLogin }, 'start with Windows skipped in development');
+}
+
+function createWindow(): BrowserWindow {
   const window = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -57,21 +62,60 @@ function createWindow(): void {
   loading.catch((error: unknown) => {
     log.error({ error }, 'could not load the renderer');
   });
+  return window;
 }
 
-void app.whenReady().then(() => {
-  const handlers = {
-    'app.version': () => app.getVersion(),
-    'app.quit': () => {
+async function start(): Promise<void> {
+  const settings = new SettingsService({
+    dir: dataDir,
+    clock: () => new Date(),
+    log,
+    dialogs: {
+      pickExportPath: async (defaultName) => {
+        const window = BrowserWindow.getFocusedWindow();
+        const options = { defaultPath: defaultName, filters: JSON_FILES };
+        const result = await (window
+          ? dialog.showSaveDialog(window, options)
+          : dialog.showSaveDialog(options));
+        return result.canceled || !result.filePath ? null : result.filePath;
+      },
+      pickImportPath: async () => {
+        const window = BrowserWindow.getFocusedWindow();
+        const options = { filters: JSON_FILES, properties: ['openFile' as const] };
+        const result = await (window
+          ? dialog.showOpenDialog(window, options)
+          : dialog.showOpenDialog(options));
+        return result.canceled ? null : (result.filePaths[0] ?? null);
+      },
+    },
+  });
+  await settings.load();
+
+  const handlers = createHandlers({
+    settings,
+    appVersion: () => app.getVersion(),
+    quit: () => {
       app.quit();
     },
-  };
-  registerIpcRouter(ipcMain, createIpcRouter(withUnimplemented(handlers), log));
+    paths: { data: dataDir, logs: logsDir },
+    openPath: (path) => shell.openPath(path),
+    setOpenAtLogin,
+    log,
+  });
+  registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-});
+}
+
+app
+  .whenReady()
+  .then(start)
+  .catch((error: unknown) => {
+    log.error({ error }, 'launcher failed to start');
+    app.exit(1);
+  });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
