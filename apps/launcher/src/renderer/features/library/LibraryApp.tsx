@@ -63,6 +63,11 @@ export function LibraryApp() {
             setSearchText(text);
             setSearchPick(null);
           }}
+          onArrowDown={() => {
+            list.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus();
+            const first = search.data?.games[0];
+            if (searchPick === null && first) setSearchPick(first.id);
+          }}
         />
         <ScanMenu
           system={

@@ -3,6 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search } from 'lucide-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { keyStep } from './selection.ts';
 
 const ROW_HEIGHT = 44;
 
@@ -28,6 +29,7 @@ export function SearchResults({ result, selectedId, onSelect, systemName }: Sear
     overscan: 10,
     initialRect: { width: 640, height: 480 },
   });
+  const selectedIndex = games.findIndex((game) => game.id === selectedId);
   if (!result) return <p className="p-6 text-sm text-slate-500">{t('library.list.loading')}</p>;
   if (games.length === 0)
     return <p className="p-6 text-sm text-slate-500">{t('library.search.none')}</p>;
@@ -41,8 +43,20 @@ export function SearchResults({ result, selectedId, onSelect, systemName }: Sear
       <div ref={scroller} className="flex-1 overflow-y-auto p-2">
         <div
           role="listbox"
+          tabIndex={0}
           aria-label={t('library.search.results')}
-          className="relative"
+          aria-activedescendant={
+            selectedIndex >= 0 ? `search-result-${String(selectedIndex)}` : undefined
+          }
+          onKeyDown={(event) => {
+            const next = keyStep(event.key, selectedIndex, games.length);
+            const game = next === null ? undefined : games[next];
+            if (next === null || !game) return;
+            event.preventDefault();
+            onSelect(game.id);
+            virtualizer.scrollToIndex(next);
+          }}
+          className="relative focus-visible:outline-none"
           style={{ height: virtualizer.getTotalSize() }}
         >
           {virtualizer.getVirtualItems().map((item) => {
@@ -52,6 +66,7 @@ export function SearchResults({ result, selectedId, onSelect, systemName }: Sear
             return (
               <div
                 key={game.id}
+                id={`search-result-${String(item.index)}`}
                 role="option"
                 aria-selected={selected}
                 onClick={() => {

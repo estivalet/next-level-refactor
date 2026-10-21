@@ -35,3 +35,13 @@ export function select(
   }
   return { anchor: index, ids: new Set(id === undefined ? [] : [id]) };
 }
+
+/** The row a list key moves to (arrows, Home, End), or null for other keys or an empty list. */
+export function keyStep(key: string, index: number, count: number): number | null {
+  if (count === 0) return null;
+  if (key === 'Home') return 0;
+  if (key === 'End') return count - 1;
+  if (key === 'ArrowDown') return Math.min(count - 1, index + 1);
+  if (key === 'ArrowUp') return Math.max(0, index - 1);
+  return null;
+}

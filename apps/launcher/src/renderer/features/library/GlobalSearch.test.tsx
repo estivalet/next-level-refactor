@@ -57,4 +57,33 @@ describe('GlobalSearch', () => {
     });
     expect(screen.getByRole('listbox', { name: 'Games' })).toBeVisible();
   });
+
+  it('NFR-A11Y-1: search results are reachable with the keyboard', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      ...libraryResponses([gameRow(1, 'Homebrew Demo')]),
+      'library.search': () =>
+        ok({ games: [gameRow(7, 'Zelda One'), gameRow(8, 'Zelda Two')], more: false }),
+    });
+    renderInShell(<LibraryApp />);
+    await user.type(await screen.findByRole('searchbox', { name: 'Search all games' }), 'zel');
+    const results = await screen.findByRole('listbox', { name: 'Search results' });
+    await within(results).findAllByRole('option');
+    await user.keyboard('{ArrowDown}');
+    expect(results).toHaveFocus();
+    expect(within(results).getByRole('option', { name: /Zelda One/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await user.keyboard('{ArrowDown}');
+    expect(within(results).getByRole('option', { name: /Zelda Two/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await user.keyboard('{Home}');
+    expect(within(results).getByRole('option', { name: /Zelda One/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
 });

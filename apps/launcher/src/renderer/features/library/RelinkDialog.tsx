@@ -2,6 +2,7 @@ import type { GameDetails, GameRow } from '@nextlevel/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { keyStep } from './selection.ts';
 import { getBridge } from '../../bridge.ts';
 import { unwrap } from '../settings/settingsApi.ts';
 import { useGameDetails, useRelink } from './libraryApi.ts';
@@ -81,12 +82,22 @@ function RelinkForm({ game, onClose }: { game: GameDetails; onClose: () => void 
         ) : (
           <ul
             role="listbox"
+            tabIndex={0}
             aria-label={t('library.relink.candidates')}
+            aria-activedescendant={chosen ? `relink-${String(chosen.id)}` : undefined}
+            onKeyDown={(event) => {
+              const at = present.findIndex((row) => row.id === chosen?.id);
+              const next = keyStep(event.key, at, present.length);
+              if (next === null) return;
+              event.preventDefault();
+              setChosen(present[next] ?? null);
+            }}
             className="max-h-56 overflow-y-auto rounded-lg border border-white/5"
           >
             {present.map((row) => (
               <li
                 key={row.id}
+                id={`relink-${String(row.id)}`}
                 role="option"
                 aria-selected={chosen?.id === row.id}
                 onClick={() => {

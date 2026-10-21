@@ -76,4 +76,30 @@ describe('RelinkDialog', () => {
     expect(relinks).toEqual([{ missingGameId: 1, replacementGameId: 9 }]);
     expect(closed).toBe(true);
   });
+
+  it('NFR-A11Y-1: a relink candidate can be chosen with the keyboard', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'library.games.get': () => ok(LOST),
+      'library.games.list': () =>
+        ok({ total: 2, offset: 0, games: [gameRow(9, 'Game (USA)'), gameRow(10, 'Game (EU)')] }),
+    });
+    renderInShell(
+      <div className="relative">
+        <RelinkDialog gameId={1} onClose={() => undefined} />
+      </div>,
+    );
+    const dialog = await screen.findByRole('dialog', { name: 'Relink Game' });
+    const candidates = await within(dialog).findByRole('listbox', {
+      name: 'Games found in this system',
+    });
+    await user.tab();
+    expect(candidates).toHaveFocus();
+    await user.keyboard('{ArrowDown}{ArrowDown}');
+    expect(within(candidates).getByRole('option', { name: 'Game (EU)' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(within(dialog).getByRole('button', { name: 'Relink' })).toBeEnabled();
+  });
 });

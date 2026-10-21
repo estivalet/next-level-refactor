@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 interface GlobalSearchProps {
   text: string;
   onText: (text: string) => void;
+  /** ArrowDown leaves the field for the results. */
+  onArrowDown: () => void;
 }
 
 /** "Search all games…" in the Library header (FR-LIB-10); Esc clears it. */
-export function GlobalSearch({ text, onText }: GlobalSearchProps) {
+export function GlobalSearch({ text, onText, onArrowDown }: GlobalSearchProps) {
   const { t } = useTranslation();
   return (
     <div className="relative w-80 max-w-full">
@@ -25,6 +27,10 @@ export function GlobalSearch({ text, onText }: GlobalSearchProps) {
         }}
         onKeyDown={(event) => {
           if (event.key === 'Escape') onText('');
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            onArrowDown();
+          }
         }}
         className="w-full rounded-lg border border-violet-500/30 bg-black/40 py-1.5 pr-8 pl-8 text-xs text-white placeholder:text-slate-600 focus:border-violet-500/60 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
