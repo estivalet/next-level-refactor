@@ -24,7 +24,8 @@ test('FR-LIB-3, FR-LIB-4: scan finds games, then marks them missing when the fol
     await settings.getByRole('button', { name: 'Storage' }).click();
     await settings.getByRole('button', { name: 'Add location…' }).click();
     await settings.getByRole('button', { name: 'Save' }).click();
-    await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
+    // While saving the button reads "Saving…"; the bar itself goes only once main has written.
+    await expect(settings.getByRole('region', { name: 'You have unsaved changes.' })).toBeHidden();
 
     await settings.getByRole('button', { name: 'Scan now' }).click();
     await expect(
