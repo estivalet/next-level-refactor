@@ -93,6 +93,14 @@ export function useAppPaths() {
   });
 }
 
+/** Native folder picker in main; resolves null when cancelled. */
+export function usePickFolder() {
+  return useMutation({
+    mutationFn: async (title: string) =>
+      unwrap(await getBridge().invoke('app.pickFolder', { title })),
+  });
+}
+
 export function useOpenPath() {
   return useMutation({
     mutationFn: async (key: AppPathKey) => {

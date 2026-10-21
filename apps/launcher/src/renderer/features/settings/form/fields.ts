@@ -11,6 +11,13 @@ export type FieldDescriptor =
   (FieldBase & { kind: 'boolean' }) | (FieldBase & { kind: 'enum'; options: readonly string[] });
 
 const KNOWN_ISSUES = new Set(['invalid_type', 'invalid_value', 'too_small', 'too_big']);
+/** Custom schema checks carry their message key as the issue message. */
+const CUSTOM_ISSUES = new Set(['notAbsolute', 'duplicatePath', 'duplicateName']);
+
+function messageKey(issue: z.core.$ZodIssue): string {
+  if (issue.code === 'custom' && CUSTOM_ISSUES.has(issue.message)) return issue.message;
+  return KNOWN_ISSUES.has(issue.code) ? issue.code : 'default';
+}
 
 /**
  * The editable fields of a settings section, from schema metadata (FR-SET-1). A field kind
@@ -36,7 +43,7 @@ export function issuesByPath(error: z.ZodError): Record<string, string> {
   const byPath: Record<string, string> = {};
   for (const issue of error.issues) {
     const path = issue.path.join('.');
-    byPath[path] ??= `errors.validation.${KNOWN_ISSUES.has(issue.code) ? issue.code : 'default'}`;
+    byPath[path] ??= `errors.validation.${messageKey(issue)}`;
   }
   return byPath;
 }

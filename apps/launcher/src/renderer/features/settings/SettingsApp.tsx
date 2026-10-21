@@ -1,10 +1,18 @@
-import { Archive, FolderOpen, Info, SlidersHorizontal, type LucideIcon } from 'lucide-react';
+import {
+  Archive,
+  FolderOpen,
+  HardDrive,
+  Info,
+  SlidersHorizontal,
+  type LucideIcon,
+} from 'lucide-react';
 import { useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AboutSection } from './AboutSection.tsx';
 import { BackupsSection } from './BackupsSection.tsx';
 import { DataSection } from './DataSection.tsx';
 import { GeneralSection } from './GeneralSection.tsx';
+import { StorageSection } from './StorageSection.tsx';
 
 interface Section {
   id: string;
@@ -20,6 +28,12 @@ const SECTIONS: readonly Section[] = [
     labelKey: 'settings.sections.general',
     icon: SlidersHorizontal,
     Component: GeneralSection,
+  },
+  {
+    id: 'storage',
+    labelKey: 'settings.sections.storage',
+    icon: HardDrive,
+    Component: StorageSection,
   },
   {
     id: 'backups',

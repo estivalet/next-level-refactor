@@ -10,7 +10,10 @@
       "invalid_value": "Choose one of the listed options.",
       "too_small": "This value is too small.",
       "too_big": "This value is too large.",
-      "default": "This value is not valid."
+      "default": "This value is not valid.",
+      "notAbsolute": "Use a full folder path, such as E:\\roms.",
+      "duplicatePath": "This folder is already a storage location.",
+      "duplicateName": "Another location already has this name."
     }
   },
   "shell": {
@@ -51,7 +54,8 @@
       "about": "About",
       "general": "General",
       "backups": "Backups",
-      "data": "Data & logs"
+      "data": "Data & logs",
+      "storage": "Storage"
     },
     "about": {
       "product": "NextLevel",
@@ -109,6 +113,17 @@
       "backups": "Backups folder",
       "logs": "Logs folder",
       "open": "Open {{name}}"
+    },
+    "storage": {
+      "intro": "Folders that contain your systems’ ROM folders. When a game is in several, the first location in this list wins.",
+      "empty": "No storage locations yet. Add the folders that hold your systems’ ROM folders.",
+      "add": "Add location…",
+      "pickTitle": "Choose a storage location",
+      "priority": "{{n}}",
+      "name": "Name of location {{n}}",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "remove": "Remove {{name}}"
     }
   },
   "boot": {

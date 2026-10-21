@@ -10,7 +10,10 @@
       "invalid_value": "Escolha uma das opções da lista.",
       "too_small": "Este valor é pequeno demais.",
       "too_big": "Este valor é grande demais.",
-      "default": "Este valor não é válido."
+      "default": "Este valor não é válido.",
+      "notAbsolute": "Use o caminho completo da pasta, como E:\\roms.",
+      "duplicatePath": "Esta pasta já é um local de armazenamento.",
+      "duplicateName": "Outro local já tem este nome."
     }
   },
   "shell": {
@@ -51,7 +54,8 @@
       "about": "Sobre",
       "general": "Geral",
       "backups": "Backups",
-      "data": "Dados e logs"
+      "data": "Dados e logs",
+      "storage": "Armazenamento"
     },
     "about": {
       "product": "NextLevel",
@@ -109,6 +113,17 @@
       "backups": "Pasta de backups",
       "logs": "Pasta de logs",
       "open": "Abrir {{name}}"
+    },
+    "storage": {
+      "intro": "Pastas que contêm as pastas de ROMs dos seus sistemas. Quando um jogo está em várias, vale o primeiro local desta lista.",
+      "empty": "Ainda não há locais de armazenamento. Adicione as pastas que guardam as pastas de ROMs dos seus sistemas.",
+      "add": "Adicionar local…",
+      "pickTitle": "Escolha um local de armazenamento",
+      "priority": "{{n}}",
+      "name": "Nome do local {{n}}",
+      "moveUp": "Mover {{name}} para cima",
+      "moveDown": "Mover {{name}} para baixo",
+      "remove": "Remover {{name}}"
     }
   },
   "boot": {
