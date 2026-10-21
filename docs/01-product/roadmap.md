@@ -9,7 +9,7 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 
 | # | Milestone | Outcome (demo) | Key requirements | Status |
 |---|---|---|---|---|
-| M0 | **Foundations** | Empty monorepo builds, lints, tests in CI; Electron window shows "Hello"; docs in place | NFR-MAINT-1 | ◐ |
+| M0 | **Foundations** | Empty monorepo builds, lints, tests in CI; Electron window shows "Hello"; docs in place | NFR-MAINT-1 | ☑ |
 | M1 | **Shell** | Desktop, windows, taskbar, start menu; Settings app skeleton with schema-driven forms, validation, backups | FR-SHELL-1..5, FR-SET-1..4, FR-SET-7 | ◐ |
 | M2 | **Library core** | System catalog; add storage locations; background scan; SQLite library; Game Library app with virtualized lists and global search | FR-LIB-1..8, FR-LIB-10, FR-EMU-1, NFR-PERF | ☐ |
 | M3 | **Launching** | Emulators + profiles + presets in Settings; Test launch; Play a game and return to it; launch log | FR-EMU-2..8, FR-EMU-10 | ☐ |

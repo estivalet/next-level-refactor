@@ -13,6 +13,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - Hardening (NFR-SEC-1): no remote navigation in app windows (https links open in the system
   browser), CSP per the security doc, extra IPC arguments and unknown channels rejected, renderer
   and themes/ui import guards built from Node's full built-in list.
+
+## [0.0.0] - 2026-10-21
+
+M0 — Foundations.
+
+### Added
 - M0 foundations (NFR-MAINT-1): npm-workspaces monorepo (`apps/launcher`, `apps/api` and
   `apps/admin` stubs, `packages/shared`, `system-catalog`, `themes`, `ui`, `config`); strict
   TypeScript with project references; ESLint (incl. package boundary rules), Prettier, Vitest.
