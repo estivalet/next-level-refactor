@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { systemCatalog } from '@nextlevel/system-catalog';
 import { createHandlers } from './handlers.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
@@ -108,6 +109,15 @@ async function start(): Promise<void> {
     openPath: (path) => shell.openPath(path),
     setOpenAtLogin,
     log,
+    catalog: systemCatalog,
+    pickFolder: async (title) => {
+      const window = BrowserWindow.getFocusedWindow();
+      const options = { properties: ['openDirectory' as const], ...(title ? { title } : {}) };
+      const result = await (window
+        ? dialog.showOpenDialog(window, options)
+        : dialog.showOpenDialog(options));
+      return result.canceled ? null : (result.filePaths[0] ?? null);
+    },
   });
   registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
   createWindow();

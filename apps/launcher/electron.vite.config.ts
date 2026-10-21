@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'electron-vite';
 
 // Workspace packages are TypeScript source, so they are bundled rather than required at runtime.
-const bundleWorkspacePackages = { exclude: ['@nextlevel/shared'] };
+const bundleWorkspacePackages = { exclude: ['@nextlevel/shared', '@nextlevel/system-catalog'] };
 
 export default defineConfig({
   main: {

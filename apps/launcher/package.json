@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@nextlevel/shared": "*",
+    "@nextlevel/system-catalog": "*",
     "@tanstack/react-query": "^5.104.5",
     "electron-log": "^5.4.4",
     "i18next": "^26.5.4",

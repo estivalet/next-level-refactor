@@ -4,5 +4,12 @@
     "outDir": "${configDir}/dist/web"
   },
   "include": ["src/renderer"],
-  "references": [{ "path": "../../packages/shared" }]
+  "references": [
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/system-catalog"
+    }
+  ]
 }
