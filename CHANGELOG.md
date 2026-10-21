@@ -23,6 +23,29 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   with games that you never set are turned on; systems you switched off are left alone.
 - Settings drafts keep unsaved edits when the settings change underneath them (a scan, a
   conflict reload) instead of discarding them.
+- M2c Game Library app (FR-LIB-6..8, FR-LIB-10, NFR-PERF-2/3), in the NextLevelOS look:
+  - Systems grouped by manufacturer with game counts, and collections, in a virtualized tree; a
+    virtualized game list that loads only the pages on screen; a details panel.
+  - Missing games are greyed and name the path where the file was expected.
+  - Filter All / Favorites / Hidden / Missing and sort by title, year, rating or recently added.
+    Hidden games show only under Hidden and are left out of global search.
+  - Global search across all systems (SQLite FTS5): about 50 ms for 200k games.
+  - Favorite, hide (also for several selected games) and rate 1–5 stars.
+  - Edit details (title, year, developer, publisher, genre, players, description, region,
+    filters). Edited fields are locked, so a later scrape keeps them.
+  - Collections: create, rename, delete, add games from any system, remove, order by hand or by
+    title or year.
+  - Scan ▾ scans all systems or the one shown, with progress and Cancel.
+  - Relink a missing game to the file it was renamed or moved to; it keeps its details,
+    favorite and collections.
+- A scan now also recognises a renamed file (same extension, size and modified time), so
+  `Game.zip` → `Game (USA).zip` keeps the game's details.
+
+### Fixed
+- Settings → Storage: a scan that fails to start now says why, and scan results show each
+  system's total missing games, not only the ones that went missing in that scan.
+- An unreadable system folder (for example access denied) is now logged instead of looking
+  empty.
 
 ## [0.1.0] - 2026-10-21
 

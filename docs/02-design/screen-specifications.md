@@ -97,6 +97,28 @@ current themes. Common requirements:
 - Context menu on a game: Play, Play with…, Edit details, Scrape…, Add to collection, Favorite, Hide, Open folder, Show missing reason.
 - Bulk select: add to collection, hide, scrape, set launch profile.
 - Missing games shown greyed with a tooltip naming the expected path.
+- **As built in M2c** (look of the current NextLevelOS Game Library, owner decision):
+  - Header: global search (≥ 2 characters replaces the list with results from every system,
+    each with its system name; Esc clears) and **Scan ▾** (Scan all systems / Scan <system>;
+    while running it shows "Scanning n/m" and offers Cancel; the last summary or a start error
+    sits next to it).
+  - Left: virtualized tree of systems with games, grouped by manufacturer (Other last), then
+    Collections with **+** (New collection).
+  - Middle: virtualized multi-select list (click, Ctrl/⌘-click, Shift-click, arrows, Home/End,
+    PageUp/PageDown; ContextMenu key or Shift+F10 opens the menu). A collection adds a toolbar:
+    sort (manual / title / year), Move up / Move down (manual), Rename, Delete (asks first).
+  - Right: details (title, system, facts, filters, description), Favorite, 1–5 stars (choosing
+    the same star clears), Edit details, Open folder; a missing game shows since when, the
+    expected path and **Relink…**.
+  - Status bar: "N games · N missing", Filter (All, Favorites, Hidden, Missing), Sort (title,
+    year, rating, recently added) for systems, and what is shown.
+  - Context menu as built: Edit details…, Add to / Remove from favorites, Hide / Unhide, Add to
+    collection…, Remove from collection (in a collection), Open folder, Show missing reason…
+    (opens Relink). **Play, Play with… and Scrape… are left out until M3 / M6** (owner decision
+    2026-10-21). Add to collection opens a dialog listing the collections.
+  - States: loading; empty ("No games yet" + Scan for games); library unavailable (message +
+    Open data folder); no games in a tab.
+  - Collections are managed here; S11 stays the M5 app for menus.
 
 ## S8 Catalog
 
