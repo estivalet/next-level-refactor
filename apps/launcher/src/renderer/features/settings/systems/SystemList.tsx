@@ -19,8 +19,9 @@ export function SystemList({
 }) {
   const { t } = useTranslation();
   const scroller = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual returns
-  // functions that can't be auto-memoized; nothing here relies on the React Compiler.
+  // TanStack Virtual returns functions that can't be auto-memoized; nothing here relies on the
+  // React Compiler, so its "incompatible library" notice doesn't apply.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: systems.length,
     getScrollElement: () => scroller.current,
