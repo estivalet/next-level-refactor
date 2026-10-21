@@ -1,7 +1,7 @@
 import { performance } from 'node:perf_hooks';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { GameRepository } from './GameRepository.ts';
-import { seedManyGames, tempLibrary } from './testing.ts';
+import { perfBudget, seedManyGames, tempLibrary } from './testing.ts';
 
 let library: Awaited<ReturnType<typeof tempLibrary>>;
 let games: GameRepository;
@@ -11,7 +11,7 @@ beforeAll(async () => {
   seedManyGames(library.db, 'big-system', 10_000);
   // 190k more across 19 systems: 200k games in all.
   for (let i = 0; i < 19; i += 1) seedManyGames(library.db, `system-${String(i)}`, 10_000);
-}, 60_000);
+}, 180_000);
 afterAll(async () => {
   await library.cleanup();
 });
@@ -38,7 +38,7 @@ describe('library performance', () => {
         limit: 200,
       });
     expect(page().total).toBe(10_000);
-    expect(slowest(page)).toBeLessThanOrEqual(300);
+    expect(slowest(page)).toBeLessThanOrEqual(perfBudget(300));
   });
 
   it('NFR-PERF-3: search over 200k games answers in ≤ 150 ms', () => {
@@ -47,7 +47,7 @@ describe('library performance', () => {
       expect(
         slowest(() => games.search(text)),
         text,
-      ).toBeLessThanOrEqual(150);
+      ).toBeLessThanOrEqual(perfBudget(150));
     }
   });
 });

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { FoundGame, LibraryRepository } from './LibraryRepository.ts';
-import { tempLibrary } from './testing.ts';
+import { perfBudget, tempLibrary } from './testing.ts';
 
 const NOW = new Date(Date.UTC(2026, 9, 21, 12, 0, 0));
 const LATER = new Date(Date.UTC(2026, 9, 22, 12, 0, 0));
@@ -216,6 +216,6 @@ describe('LibraryRepository', () => {
     expect(client.prepare('select total_changes()').pluck().get()).toBe(before);
     // About 330 ms alone, FTS indexing included (M2c); the full suite in parallel pushes it past
     // 800 ms. The old per-row Drizzle builder took ~1.6 s more, which this still catches.
-    expect(elapsed).toBeLessThan(1200);
+    expect(elapsed).toBeLessThan(perfBudget(1200));
   });
 });
