@@ -48,7 +48,7 @@ export interface LaunchServiceDeps {
 export interface LaunchDraft {
   emulator: Emulator;
   profile: EmulatorProfile;
-  gameId?: number;
+  gameId?: number | undefined;
 }
 
 interface Target {
@@ -264,7 +264,10 @@ export class LaunchService {
   }
 
   /** The ROM to launch: the game's file (checked when `check`), or an example for previews. */
-  private target(draft: { profile: EmulatorProfile; gameId?: number }, check: boolean): Target {
+  private target(
+    draft: { profile: EmulatorProfile; gameId?: number | undefined },
+    check: boolean,
+  ): Target {
     const settings = this.deps.settings();
     if (draft.gameId === undefined) {
       const systemId = draft.profile.systems[0] ?? 'unknown';

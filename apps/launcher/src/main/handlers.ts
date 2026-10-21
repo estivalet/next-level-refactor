@@ -1,6 +1,7 @@
 import {
   AppErrorException,
   ERROR_CODES,
+  type EmulatorPreset,
   type SystemDefinition,
   type AppPathKey,
   type Result,
@@ -9,8 +10,11 @@ import {
 import { mkdir } from 'node:fs/promises';
 import type { EmitEvent } from './ipc/events.ts';
 import type { IpcHandlers } from './ipc/router.ts';
+import type { LaunchService } from './launch/LaunchService.ts';
+import { createLaunchHandlers } from './launchHandlers.ts';
 import type { CollectionRepository } from './library/CollectionRepository.ts';
 import type { GameRepository } from './library/GameRepository.ts';
+import type { LaunchRepository } from './library/LaunchRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import type { ScanService } from './scan/ScanService.ts';
@@ -28,12 +32,17 @@ export interface MainDeps {
   catalog: () => readonly SystemDefinition[];
   /** Native folder dialog; null when cancelled. */
   pickFolder: (title?: string) => Promise<string | null>;
+  /** Native file dialog for an emulator executable; null when cancelled. */
+  pickFile: (title?: string) => Promise<string | null>;
+  presets: () => readonly EmulatorPreset[];
   /** null when `library.db` could not be opened; library channels then fail. */
   library: {
     repo: LibraryRepository;
     scan: ScanService;
     games: GameRepository;
     collections: CollectionRepository;
+    launches: LaunchRepository;
+    launch: LaunchService;
   } | null;
   clock: () => Date;
   emit: EmitEvent;
@@ -74,6 +83,15 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
 
   return {
     ...createLibraryHandlers(deps),
+    ...createLaunchHandlers({
+      launch: () => {
+        const { launch, launches } = library();
+        return { service: launch, launches };
+      },
+      emit: deps.emit,
+      presets: deps.presets,
+      pickFile: deps.pickFile,
+    }),
     'app.version': () => deps.appVersion(),
     'app.quit': () => {
       deps.quit();

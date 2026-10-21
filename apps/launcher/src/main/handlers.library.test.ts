@@ -4,7 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
+import { LaunchService } from './launch/LaunchService.ts';
 import { GameRepository } from './library/GameRepository.ts';
+import { LaunchRepository } from './library/LaunchRepository.ts';
 import { seedGames, tempLibrary } from './library/testing.ts';
 import { ScanService } from './scan/ScanService.ts';
 import { system } from './scan/testing.ts';
@@ -32,6 +34,7 @@ async function setup(withLibrary: boolean) {
     const temp = await tempLibrary();
     cleanups.push(temp.cleanup);
     db = temp.db;
+    const launches = new LaunchRepository(temp.db);
     const scan = new ScanService({
       repo: temp.repo,
       settings,
@@ -48,6 +51,21 @@ async function setup(withLibrary: boolean) {
       scan,
       games: new GameRepository(temp.db, (row) => join('X:', 'roms', row.systemId, row.relPath)),
       collections: new CollectionRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21))),
+      launches,
+      launch: new LaunchService({
+        settings: defaultSettings,
+        system: () => undefined,
+        launches,
+        spawn: () => Promise.reject(new Error('no spawn in this test')),
+        exists: () => false,
+        clock: () => new Date(Date.UTC(2026, 9, 21)),
+        emit: () => undefined,
+        window: { minimize: () => undefined, restore: () => undefined },
+        extractor: { extract: () => Promise.resolve() },
+        tempDir: temp.dir,
+        baseEnv: {},
+        log: { warn: () => undefined, error: () => undefined },
+      }),
     };
   }
   const deps: MainDeps = {
@@ -60,6 +78,8 @@ async function setup(withLibrary: boolean) {
     log: { warn: vi.fn() },
     catalog: () => CATALOG,
     pickFolder: vi.fn(() => Promise.resolve(null)),
+    pickFile: vi.fn(() => Promise.resolve(null)),
+    presets: () => [],
     library,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
     emit: (event, payload) => {
