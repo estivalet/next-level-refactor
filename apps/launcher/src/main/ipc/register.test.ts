@@ -8,7 +8,10 @@ type Handler = Parameters<IpcRegistrar['handle']>[1];
 function setup() {
   const handlers = new Map<string, Handler>();
   const ipc: IpcRegistrar = { handle: (channel, handler) => handlers.set(channel, handler) };
-  const router = createIpcRouter({ 'app.version': () => '1.2.3' }, { error: () => undefined });
+  const router = createIpcRouter(
+    { 'app.version': () => '1.2.3', 'app.quit': () => undefined },
+    { error: () => undefined },
+  );
   registerIpcRouter(ipc, router);
   return handlers;
 }

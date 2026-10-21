@@ -39,3 +39,11 @@ describe('error messages', () => {
     }
   });
 });
+
+describe('app.quit', () => {
+  it('FR-SHELL-5: takes no input', () => {
+    const channel = ipcContract['app.quit'];
+    expect(channel.input.safeParse(undefined).success).toBe(true);
+    expect(channel.input.safeParse({}).success).toBe(false);
+  });
+});

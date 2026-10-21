@@ -5,7 +5,10 @@ import { createIpcRouter, type IpcHandlers, type RouterLogger } from './router.t
 function setup(appVersion: IpcHandlers['app.version']) {
   const logError = vi.fn<RouterLogger['error']>();
   const handler = vi.fn(appVersion);
-  const router = createIpcRouter({ 'app.version': handler }, { error: logError });
+  const router = createIpcRouter(
+    { 'app.version': handler, 'app.quit': () => undefined },
+    { error: logError },
+  );
   return { router, handler, logError };
 }
 

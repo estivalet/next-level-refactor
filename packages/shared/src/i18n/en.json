@@ -18,6 +18,21 @@
     "desktop": {
       "label": "Desktop",
       "apps": "Desktop apps"
+    },
+    "taskbar": {
+      "label": "Taskbar",
+      "openWindows": "Open windows"
+    },
+    "start": {
+      "button": "Start",
+      "menu": "Start menu",
+      "search": "Search apps",
+      "noResults": "No apps match",
+      "quit": "Quit",
+      "apps": "Apps"
+    },
+    "tray": {
+      "clock": "Clock"
     }
   },
   "apps": {

@@ -58,7 +58,13 @@ function createWindow(): void {
 }
 
 void app.whenReady().then(() => {
-  registerIpcRouter(ipcMain, createIpcRouter({ 'app.version': () => app.getVersion() }, log));
+  const handlers = {
+    'app.version': () => app.getVersion(),
+    'app.quit': () => {
+      app.quit();
+    },
+  };
+  registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
