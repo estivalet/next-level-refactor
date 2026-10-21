@@ -1,7 +1,7 @@
 import { defaultSettings, err, ok, type Settings } from '@nextlevel/shared';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { GeneralSection } from './GeneralSection.tsx';
@@ -36,6 +36,20 @@ describe('GeneralSection', () => {
     });
     expect(await screen.findByRole('switch', { name: 'Start with Windows' })).toBeChecked();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+  });
+
+  it('NFR-A11Y-1: after a save, keyboard focus returns to the first field', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+    });
+    renderInShell(<GeneralSection />);
+    await user.click(await screen.findByRole('switch', { name: 'Start with Windows' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const language = await screen.findByRole('combobox', { name: 'Language' });
+    await vi.waitFor(() => {
+      expect(language).toHaveFocus();
+    });
   });
 
   it('Discard restores the saved values and hides the save bar', async () => {

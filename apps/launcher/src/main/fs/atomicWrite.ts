@@ -6,12 +6,16 @@ export type AtomicFs = Pick<typeof fsp, 'open' | 'rename' | 'rm'>;
  * Writes `data` to `file` so the file is always either the old or the new full content
  * (NFR-REL-1): write `<file>.tmp`, flush it to disk, then rename over the target.
  */
-export async function atomicWrite(file: string, data: string, fs: AtomicFs = fsp): Promise<void> {
+export async function atomicWrite(
+  file: string,
+  data: string | Uint8Array,
+  fs: AtomicFs = fsp,
+): Promise<void> {
   const tmp = `${file}.tmp`;
   try {
     const handle = await fs.open(tmp, 'w');
     try {
-      await handle.writeFile(data, 'utf8');
+      await handle.writeFile(data);
       await handle.sync();
     } finally {
       await handle.close();

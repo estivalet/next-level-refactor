@@ -1,11 +1,13 @@
-import { defaultSettings, ok } from '@nextlevel/shared';
-import { screen } from '@testing-library/react';
+import { defaultSettings, err, ok } from '@nextlevel/shared';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import i18n from '../../i18n.ts';
+import { createQueryClient } from '../../queryClient.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { GeneralSection } from '../settings/GeneralSection.tsx';
 import { BootGate } from './BootGate.tsx';
@@ -142,5 +144,52 @@ describe('BootGate after boot', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(await screen.findByRole('combobox', { name: 'Idioma' })).toHaveValue('pt-BR');
     expect(mounts).toBe(1);
+  });
+});
+
+describe('BootGate review fixes', () => {
+  it('US-D3: a failed restore on the recovery screen says why', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'settings.get': invalid('settings-1.json'),
+      'settings.backups.restore': () => err('INVALID_SETTINGS', 'errors.invalidSettings'),
+    });
+    renderInShell(
+      <BootGate>
+        <DesktopProbe />
+      </BootGate>,
+    );
+    await user.click(await screen.findByRole('button', { name: 'Restore latest backup' }));
+    expect(
+      await screen.findByText('Those settings are not valid and were not applied.'),
+    ).toBeVisible();
+  });
+
+  it('a failed background refresh keeps the shell open', async () => {
+    let fail = false;
+    installFakeBridge({
+      'settings.get': () =>
+        fail
+          ? Promise.reject(new Error('ipc down'))
+          : ok({ kind: 'ok' as const, snapshot: snapshot() }),
+    });
+    const client = createQueryClient();
+    render(
+      <QueryClientProvider client={client}>
+        <BootGate>
+          <DesktopProbe />
+        </BootGate>
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByText('Desktop apps')).toBeVisible();
+    fail = true;
+    await act(() => client.refetchQueries({ queryKey: ['settings'] }));
+    await vi.waitFor(() => {
+      expect(client.getQueryState(['settings'])?.status).toBe('error');
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.getByText('Desktop apps')).toBeVisible();
   });
 });

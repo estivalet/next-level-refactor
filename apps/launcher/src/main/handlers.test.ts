@@ -1,4 +1,5 @@
 import { defaultSettings } from '@nextlevel/shared';
+import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHandlers, type MainDeps } from './handlers.ts';
@@ -77,6 +78,13 @@ describe('createHandlers', () => {
       ok: false,
       error: { code: 'VALIDATION_FAILED' },
     });
+  });
+
+  it('FR-SET-7: opening a folder that does not exist yet creates it first', async () => {
+    const { router, deps, dir } = await setup();
+    await router.handle('app.openPath', { key: 'backups' });
+    expect((await stat(join(dir, 'backups'))).isDirectory()).toBe(true);
+    expect(deps.openPath).toHaveBeenCalledWith(join(dir, 'backups'));
   });
 
   it('a failure to open a folder is logged', async () => {

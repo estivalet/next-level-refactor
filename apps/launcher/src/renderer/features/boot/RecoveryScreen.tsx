@@ -1,5 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { useOpenPath, useResetSettings, useRestoreBackup } from '../settings/settingsApi.ts';
+import { ERROR_CODES, type ErrorCode } from '@nextlevel/shared';
+import {
+  errorCode,
+  useOpenPath,
+  useResetSettings,
+  useRestoreBackup,
+} from '../settings/settingsApi.ts';
 
 type Reason = 'unreadable' | 'invalid' | 'newerVersion' | 'unavailable';
 
@@ -22,6 +28,10 @@ export function RecoveryScreen({
   const reset = useResetSettings();
   const openPath = useOpenPath();
   const busy = restore.isPending || reset.isPending;
+  const failure = restore.error ?? reset.error;
+  const code = errorCode(failure);
+  const failureKey =
+    code && code in ERROR_CODES ? ERROR_CODES[code as ErrorCode] : 'errors.internal';
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e1b4b] p-6 text-slate-200">
@@ -34,6 +44,11 @@ export function RecoveryScreen({
         </h1>
         <p className="text-sm text-slate-300">{t(`boot.recovery.reason.${reason}`)}</p>
         <p className="text-sm text-slate-300">{t('boot.recovery.keep')}</p>
+        {failure && (
+          <p role="alert" className="text-sm text-[#ff8a80]">
+            {t(failureKey)}
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"

@@ -46,8 +46,11 @@ describe('BackupsSection', () => {
     const user = userEvent.setup();
     const bridge = installFakeBridge({ 'settings.backups.list': () => ok([BACKUP]) });
     renderInShell(<BackupsSection />);
-    await user.click(await screen.findByRole('button', { name: 'Restore' }));
+    const restore = await screen.findByRole('button', { name: 'Restore' });
+    await user.click(restore);
+    expect(screen.getByRole('button', { name: 'Confirm restore' })).toHaveFocus();
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByRole('button', { name: 'Restore' })).toHaveFocus();
     expect(screen.queryByRole('button', { name: 'Confirm restore' })).not.toBeInTheDocument();
     expect(bridge.channels()).not.toContain('settings.backups.restore');
   });

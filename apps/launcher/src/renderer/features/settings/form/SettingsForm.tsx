@@ -6,7 +6,7 @@ import {
   type SettingsSnapshot,
 } from '@nextlevel/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode, useSaveSettings, useSettings } from '../settingsApi.ts';
 import { FieldControl } from './FieldControl.tsx';
@@ -22,6 +22,8 @@ export function SettingsForm({ sectionKey }: { sectionKey: FormSectionKey }) {
   const { t } = useTranslation();
   const settings = useSettings();
   const [notice, setNotice] = useState<string | null>(null);
+  // After this form saves, the fresh draft takes keyboard focus (the save bar it came from is gone).
+  const [focusAfterSave, setFocusAfterSave] = useState(false);
   if (settings.data?.kind !== 'ok') return null;
   const { snapshot } = settings.data;
 
@@ -38,6 +40,10 @@ export function SettingsForm({ sectionKey }: { sectionKey: FormSectionKey }) {
         sectionKey={sectionKey}
         snapshot={snapshot}
         onNotice={setNotice}
+        focusFirstField={focusAfterSave}
+        onSaved={() => {
+          setFocusAfterSave(true);
+        }}
       />
     </div>
   );
@@ -47,11 +53,19 @@ function FormBody({
   sectionKey,
   snapshot,
   onNotice,
+  focusFirstField,
+  onSaved,
 }: {
   sectionKey: FormSectionKey;
   snapshot: SettingsSnapshot;
   onNotice: (key: string | null) => void;
+  focusFirstField: boolean;
+  onSaved: () => void;
 }) {
+  const fieldsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (focusFirstField) fieldsRef.current?.querySelector<HTMLElement>('select, button')?.focus();
+  }, [focusFirstField]);
   const client = useQueryClient();
   const save = useSaveSettings();
   const [draft, setDraft] = useState<Settings>(snapshot.settings);
@@ -65,6 +79,7 @@ function FormBody({
     save.mutate(
       { settings: draft, baseRevision: snapshot.revision },
       {
+        onSuccess: onSaved,
         onError: (error) => {
           const code = errorCode(error);
           onNotice(code === 'CONFLICT' ? 'errors.conflict' : 'errors.internal');
@@ -76,7 +91,7 @@ function FormBody({
 
   return (
     <>
-      <div className="flex-1 px-6">
+      <div ref={fieldsRef} className="flex-1 px-6">
         {fields.map((field) => (
           <FieldControl
             key={field.path}

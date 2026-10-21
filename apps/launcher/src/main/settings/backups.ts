@@ -1,5 +1,6 @@
-import { copyFile, mkdir, readdir, rm } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { atomicWrite } from '../fs/atomicWrite.ts';
 
 export const MAX_BACKUPS = 10;
 const BACKUP_NAME = /^settings-(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)(?:-(\d+))?\.json$/;
@@ -32,7 +33,8 @@ export async function createBackup(dir: string, file: string, now: Date): Promis
   const existing = new Set(await listBackupIds(dir));
   let id = `settings-${stamp}.json`;
   for (let n = 1; existing.has(id); n += 1) id = `settings-${stamp}-${String(n)}.json`;
-  await copyFile(file, join(dir, id));
+  // Exact bytes, written atomically so a crash never leaves a truncated backup.
+  await atomicWrite(join(dir, id), await readFile(file));
   return id;
 }
 

@@ -1,5 +1,5 @@
 import type { BackupInfo } from '@nextlevel/shared';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   errorCode,
@@ -21,6 +21,24 @@ export function BackupsSection() {
   const importSettings = useImportSettings();
   const [confirming, setConfirming] = useState<BackupInfo | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const section = useRef<HTMLElement>(null);
+  const confirmButton = useRef<HTMLButtonElement>(null);
+  const noticeRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (confirming) confirmButton.current?.focus();
+  }, [confirming]);
+  useEffect(() => {
+    if (notice) noticeRef.current?.focus();
+  }, [notice]);
+
+  function cancelConfirm(backup: BackupInfo) {
+    setConfirming(null);
+    // Back to the Restore button that opened the confirmation (rows are always rendered).
+    section.current
+      ?.querySelector<HTMLButtonElement>(`[data-backup-id="${CSS.escape(backup.id)}"]`)
+      ?.focus();
+  }
 
   const formatTime = (iso: string) =>
     new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(
@@ -46,7 +64,7 @@ export function BackupsSection() {
   };
 
   return (
-    <section className="flex flex-col gap-4 p-6">
+    <section ref={section} className="flex flex-col gap-4 p-6">
       <p className="text-sm text-slate-300">{t('settings.backups.intro')}</p>
       <div className="flex gap-2">
         <button
@@ -79,7 +97,12 @@ export function BackupsSection() {
         </button>
       </div>
       {notice && (
-        <p role="status" className="rounded-lg bg-white/10 px-3 py-2 text-xs text-white">
+        <p
+          ref={noticeRef}
+          role="status"
+          tabIndex={-1}
+          className="rounded-lg bg-white/10 px-3 py-2 text-xs text-white outline-none"
+        >
           {t(notice)}
         </p>
       )}
@@ -90,6 +113,7 @@ export function BackupsSection() {
           </p>
           <div className="flex gap-2">
             <button
+              ref={confirmButton}
               type="button"
               disabled={restore.isPending}
               className={`${BUTTON} bg-[#990033] text-white hover:bg-[#b3003c]`}
@@ -109,7 +133,7 @@ export function BackupsSection() {
               type="button"
               className={`${BUTTON} text-slate-200 hover:bg-white/10`}
               onClick={() => {
-                setConfirming(null);
+                cancelConfirm(confirming);
               }}
             >
               {t('settings.backups.cancel')}
@@ -141,6 +165,7 @@ export function BackupsSection() {
                 <td className="py-2 text-right">
                   <button
                     type="button"
+                    data-backup-id={backup.id}
                     className={`${BUTTON} text-white hover:bg-white/10`}
                     onClick={() => {
                       setNotice(null);

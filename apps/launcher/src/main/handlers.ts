@@ -4,6 +4,7 @@ import {
   type Result,
   type SettingsSnapshot,
 } from '@nextlevel/shared';
+import { mkdir } from 'node:fs/promises';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
@@ -46,6 +47,8 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     'app.paths': () => ({ ...folders(), settings: settings.paths.settings }),
     'app.openPath': async ({ key }) => {
       const path = folders()[key];
+      // The backups and logs folders only appear after the first backup or log line.
+      await mkdir(path, { recursive: true });
       const failure = await deps.openPath(path);
       if (failure) deps.log.warn({ key, path, failure }, 'could not open folder');
     },

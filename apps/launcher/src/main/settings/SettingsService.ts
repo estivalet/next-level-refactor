@@ -47,7 +47,8 @@ export function parseSettings(
 ): { kind: 'ok'; settings: Settings } | { kind: 'invalid'; reason: Invalid['reason'] } {
   let raw: unknown;
   try {
-    raw = JSON.parse(text);
+    // Notepad and PowerShell 5 write UTF-8 with a byte-order mark; JSON.parse rejects it.
+    raw = JSON.parse(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text);
   } catch {
     return { kind: 'invalid', reason: 'unreadable' };
   }
@@ -70,6 +71,7 @@ export class SettingsService {
     snapshot: { settings: defaultSettings(), revision: 0 },
   };
   protected revision = 0;
+  private queue: Promise<unknown> = Promise.resolve();
 
   constructor(protected readonly deps: SettingsDeps) {
     this.paths = { settings: join(deps.dir, 'settings.json'), backups: join(deps.dir, 'backups') };
@@ -84,18 +86,25 @@ export class SettingsService {
     try {
       text = await readFile(this.paths.settings, 'utf8');
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-      return this.setOk(defaultSettings());
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return this.setOk(defaultSettings());
+      // Locked, a folder, no permission…: show recovery rather than exiting.
+      this.deps.log.warn({ error }, 'settings file could not be read');
+      return this.setInvalid('unreadable');
     }
     const parsed = parseSettings(text);
     if (parsed.kind === 'ok') return this.setOk(parsed.settings);
-    const [latestBackupId = null] = await listBackupIds(this.paths.backups);
     this.deps.log.warn({ reason: parsed.reason }, 'settings file is not usable');
-    this.state = { kind: 'invalid', reason: parsed.reason, latestBackupId };
-    return this.state;
+    return this.setInvalid(parsed.reason);
   }
 
-  async save(settings: Settings, baseRevision: number): Promise<Result<SettingsSnapshot>> {
+  save(settings: Settings, baseRevision: number): Promise<Result<SettingsSnapshot>> {
+    return this.exclusive(() => this.saveNow(settings, baseRevision));
+  }
+
+  private async saveNow(
+    settings: Settings,
+    baseRevision: number,
+  ): Promise<Result<SettingsSnapshot>> {
     if (this.state.kind === 'invalid') {
       return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: 'file is invalid' });
     }
@@ -107,8 +116,8 @@ export class SettingsService {
     return ok(await this.write(parsed.data));
   }
 
-  async reset(): Promise<SettingsSnapshot> {
-    return this.write(defaultSettings());
+  reset(): Promise<SettingsSnapshot> {
+    return this.exclusive(() => this.write(defaultSettings()));
   }
 
   /** Backups newest first, each with what the next newer state changed (US-D3). */
@@ -130,7 +139,11 @@ export class SettingsService {
   }
 
   /** Restores a backup by id; the current file is backed up first. Works from the invalid state. */
-  async restore(id: string): Promise<Result<SettingsSnapshot>> {
+  restore(id: string): Promise<Result<SettingsSnapshot>> {
+    return this.exclusive(() => this.restoreNow(id));
+  }
+
+  private async restoreNow(id: string): Promise<Result<SettingsSnapshot>> {
     // Only ids that exist in the backups folder are accepted, so no path can escape it.
     if (!(await listBackupIds(this.paths.backups)).includes(id)) {
       return err('NOT_FOUND', ERROR_CODES.NOT_FOUND);
@@ -156,6 +169,10 @@ export class SettingsService {
   async importFrom(): Promise<Result<ImportResult>> {
     const path = await this.deps.dialogs.pickImportPath();
     if (!path) return ok({ status: 'cancelled' });
+    return this.exclusive(() => this.importNow(path));
+  }
+
+  private async importNow(path: string): Promise<Result<ImportResult>> {
     if ((await stat(path)).size > MAX_IMPORT_BYTES) {
       return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: 'tooLarge' });
     }
@@ -175,6 +192,27 @@ export class SettingsService {
     await pruneBackups(this.paths.backups);
     this.revision += 1;
     return this.setOk(settings).snapshot;
+  }
+
+  /** Enters the invalid state, pointing at the newest backup that is itself usable. */
+  private async setInvalid(reason: Invalid['reason']): Promise<SettingsLoad> {
+    let latestBackupId: string | null = null;
+    for (const id of await listBackupIds(this.paths.backups)) {
+      const text = await readFile(join(this.paths.backups, id), 'utf8').catch(() => '');
+      if (parseSettings(text).kind === 'ok') {
+        latestBackupId = id;
+        break;
+      }
+    }
+    this.state = { kind: 'invalid', reason, latestBackupId };
+    return this.state;
+  }
+
+  /** Runs writes one at a time so the revision check and the file stay consistent. */
+  private exclusive<T>(task: () => Promise<T>): Promise<T> {
+    const run = this.queue.then(task, task);
+    this.queue = run.catch(() => undefined);
+    return run;
   }
 
   private setOk(settings: Settings): Extract<SettingsLoad, { kind: 'ok' }> {
