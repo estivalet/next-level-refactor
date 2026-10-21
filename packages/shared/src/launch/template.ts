@@ -82,6 +82,11 @@ export function templateIssues(template: string, where: 'arg' | 'value'): Templa
   return issues.sort((a, b) => a.index - b.index);
 }
 
+/** Whether a template uses a token (literal `{{token}}` doesn't count). */
+export function usesToken(template: string, token: TemplateToken): boolean {
+  return scan(template).parts.some((part) => part.kind === 'token' && part.name === token);
+}
+
 /** Renders a template that has no issues; `{extraArgs}` is not allowed here. */
 export function renderValue(template: string, ctx: TokenContext): string {
   return scan(template)

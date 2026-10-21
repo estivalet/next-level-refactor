@@ -5,6 +5,7 @@ import {
   renderValue,
   TEMPLATE_TOKENS,
   templateIssues,
+  usesToken,
   type TokenContext,
 } from './template.ts';
 
@@ -103,5 +104,11 @@ describe('launch template (FR-EMU-3)', () => {
       '"C:\\Program Files\\x.exe" C:\\d\\',
     );
     expect(formatCommandLine('x.exe', ['C:\\my dir\\'])).toBe('x.exe "C:\\my dir\\\\"');
+  });
+
+  it('usesToken finds a token but not a literal one', () => {
+    expect(usesToken('{emulatorDir}/cores/{core}.dll', 'core')).toBe(true);
+    expect(usesToken('{{core}}', 'core')).toBe(false);
+    expect(usesToken('{rom}', 'core')).toBe(false);
   });
 });
