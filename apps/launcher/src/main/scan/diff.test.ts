@@ -14,6 +14,9 @@ const row = (id: number, relPath: string, size = 10, missing = false): ExistingG
   relPath,
   size,
   missing,
+  locationId: 'a',
+  mtime: 1,
+  discGroup: null,
 });
 
 describe('diffSystem', () => {
@@ -31,10 +34,11 @@ describe('diffSystem', () => {
       moved: [],
       restored: [2],
       missing: [],
+      unchanged: 0,
     });
   });
 
-  it('FR-LIB-3: a renamed or moved file keeps its id', () => {
+  it('FR-LIB-3: a file moved to another folder keeps its id', () => {
     const diff = diffSystem([row(1, 'Game.zip')], [found('Sub/game.zip')]);
     expect(diff).toEqual({
       added: [],
@@ -42,6 +46,7 @@ describe('diffSystem', () => {
       moved: [{ id: 1, game: found('Sub/game.zip') }],
       restored: [],
       missing: [],
+      unchanged: 0,
     });
   });
 
@@ -66,10 +71,30 @@ describe('diffSystem', () => {
 
   it('FR-LIB-4: an already missing game stays missing without a new missing_since', () => {
     const diff = diffSystem([row(1, 'Gone.zip', 10, true)], []);
-    expect(diff).toEqual({ added: [], present: [], moved: [], restored: [], missing: [] });
+    expect(diff).toEqual({
+      added: [],
+      present: [],
+      moved: [],
+      restored: [],
+      missing: [],
+      unchanged: 0,
+    });
   });
 
   it('FR-LIB-4: a present game that is not found goes missing', () => {
     expect(diffSystem([row(1, 'Gone.zip')], []).missing).toEqual([1]);
+  });
+
+  it('FR-LIB-3: a game found exactly as stored is counted, not rewritten', () => {
+    const diff = diffSystem(
+      [row(1, 'Same.zip'), row(2, 'Touched.zip'), row(3, 'Moved drive.zip')],
+      [
+        found('Same.zip'),
+        { ...found('Touched.zip'), mtime: 2 },
+        { ...found('Moved drive.zip'), locationId: 'b' },
+      ],
+    );
+    expect(diff.unchanged).toBe(1);
+    expect(diff.present.map((p) => p.id)).toEqual([2, 3]);
   });
 });

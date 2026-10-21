@@ -5,15 +5,15 @@ import {
   type ScanStatus,
   type ScanSummary,
   type ScanSystemResult,
+  type Settings,
   type SystemDefinition,
 } from '@nextlevel/shared';
 import type { EmitEvent } from '../ipc/events.ts';
 import type { LibraryRepository } from '../library/LibraryRepository.ts';
 import type { SettingsService } from '../settings/SettingsService.ts';
 import { diffSystem } from './diff.ts';
-import { planScan } from './plan.ts';
+import { assertKnownSystems, planScan } from './plan.ts';
 import { changesLibrary, systemResult } from './summary.ts';
-import type { WalkJob } from './types.ts';
 import { ScanCancelled, type Walker } from './walker.ts';
 
 export interface ScanDeps {
@@ -56,7 +56,16 @@ export class ScanService {
     };
   }
 
-  async start(systemIds?: string[]): Promise<ScanStatus> {
+  /**
+   * Starts a scan in the background and returns at once. Planning (checking which system folders
+   * exist) is part of the scan, so a slow or offline drive shows "Starting…" and can be cancelled.
+   */
+  start(systemIds?: string[]): Promise<ScanStatus> {
+    // Validation errors reject the promise instead of throwing at the call site.
+    return Promise.resolve().then(() => this.begin(systemIds));
+  }
+
+  private begin(systemIds: string[] | undefined): ScanStatus {
     if (this.running) return this.status();
     const loaded = this.deps.settings.get();
     if (loaded.kind !== 'ok') {
@@ -65,34 +74,27 @@ export class ScanService {
         message: ERROR_CODES.INVALID_SETTINGS,
       });
     }
-    const jobs = await planScan(
-      loaded.snapshot.settings,
-      this.deps.catalog(),
-      systemIds,
-      this.deps.folderExists,
-    );
-    // Planning awaited the file system; another start may have won meanwhile.
-    if (this.busy()) return this.status();
-    const progress = {
-      scanId: this.deps.newId(),
-      systemsDone: 0,
-      systemsTotal: jobs.length,
-      systemId: null,
-      filesSeen: 0,
-    };
+    if (systemIds) assertKnownSystems(this.deps.catalog(), systemIds);
     const running: Running = {
-      progress,
+      progress: {
+        scanId: this.deps.newId(),
+        systemsDone: 0,
+        systemsTotal: 0,
+        systemId: null,
+        filesSeen: 0,
+      },
       walker: this.deps.createWalker(),
       cancelled: false,
       done: Promise.resolve(),
     };
     this.running = running;
-    running.done = this.run(running, jobs, this.deps.clock().toISOString());
+    const startedAt = this.deps.clock().toISOString();
+    running.done = this.run(running, loaded.snapshot.settings, systemIds, startedAt).catch(
+      (error: unknown) => {
+        this.deps.log.error({ error }, 'scan did not finish cleanly');
+      },
+    );
     return this.status();
-  }
-
-  private busy(): boolean {
-    return this.running !== null;
   }
 
   cancel(): ScanStatus {
@@ -109,10 +111,17 @@ export class ScanService {
     return this.running?.done ?? Promise.resolve();
   }
 
-  private async run(running: Running, jobs: WalkJob[], startedAt: string): Promise<void> {
+  private async run(
+    running: Running,
+    settings: Settings,
+    systemIds: string[] | undefined,
+    startedAt: string,
+  ): Promise<void> {
     const results: ScanSystemResult[] = [];
     let outcome: ScanSummary['outcome'] = 'completed';
     try {
+      const jobs = await planScan(settings, this.deps.catalog(), systemIds, this.deps.folderExists);
+      this.progress(running, { systemsTotal: jobs.length });
       for (const job of jobs) {
         if (running.cancelled) break;
         this.progress(running, { systemId: job.systemId });
@@ -139,7 +148,13 @@ export class ScanService {
     }
     if (outcome === 'completed' && running.cancelled) outcome = 'cancelled';
 
-    const enabledSystemIds = await this.enableFound(results);
+    let enabledSystemIds: string[] = [];
+    try {
+      enabledSystemIds = await this.enableFound(results);
+    } catch (error) {
+      // A locked settings file must not leave the scan "running" forever.
+      this.deps.log.error({ error }, 'could not enable scanned systems');
+    }
     this.last = {
       scanId: running.progress.scanId,
       startedAt,
@@ -157,23 +172,23 @@ export class ScanService {
     this.deps.emit('scan.progress', running.progress);
   }
 
-  /** Enables systems with games that the user never set either way, in one settings write. */
+  /**
+   * Enables systems with games that the user never set either way, in one settings write. The
+   * ids are chosen inside the update, against the latest settings, so a save that landed first
+   * always wins.
+   */
   private async enableFound(results: readonly ScanSystemResult[]): Promise<string[]> {
+    const found = results.filter((r) => r.present > 0).map((r) => r.systemId);
     const loaded = this.deps.settings.get();
     if (loaded.kind !== 'ok') return [];
-    const systems = loaded.snapshot.settings.systems;
-    const ids = results
-      .filter((r) => r.present > 0 && systems[r.systemId] === undefined)
-      .map((r) => r.systemId);
-    if (ids.length === 0) return [];
-    const saved = await this.deps.settings.update((settings) => ({
-      ...settings,
-      systems: {
-        ...settings.systems,
-        ...Object.fromEntries(ids.map((id) => [id, { enabled: true }])),
-      },
-    }));
-    if (saved.ok) return ids;
+    if (found.every((id) => loaded.snapshot.settings.systems[id] !== undefined)) return [];
+    let enabled: string[] = [];
+    const saved = await this.deps.settings.update((current) => {
+      enabled = found.filter((id) => current.systems[id] === undefined);
+      const additions = Object.fromEntries(enabled.map((id) => [id, { enabled: true }]));
+      return { ...current, systems: { ...current.systems, ...additions } };
+    });
+    if (saved.ok) return enabled;
     this.deps.log.error({ error: saved.error }, 'could not enable scanned systems');
     return [];
   }

@@ -21,6 +21,22 @@ function jobFor(settings: Settings, system: SystemDefinition): WalkJob {
   };
 }
 
+/** Rejects explicit scan ids that are not in the catalog (`VALIDATION_FAILED`). */
+export function assertKnownSystems(
+  catalog: readonly SystemDefinition[],
+  systemIds: readonly string[],
+): void {
+  const known = new Set(catalog.map((system) => system.id));
+  const unknownSystemIds = systemIds.filter((id) => !known.has(id));
+  if (unknownSystemIds.length > 0) {
+    throw new AppErrorException({
+      code: 'VALIDATION_FAILED',
+      message: ERROR_CODES.VALIDATION_FAILED,
+      details: { unknownSystemIds },
+    });
+  }
+}
+
 /**
  * Which systems a scan walks (owner decision 2026-10-21). Without ids: enabled systems plus
  * systems the user never touched whose folder exists in a storage location. With ids: exactly
@@ -33,15 +49,8 @@ export async function planScan(
   folderExists: (dir: string) => Promise<boolean>,
 ): Promise<WalkJob[]> {
   if (systemIds) {
+    assertKnownSystems(catalog, systemIds);
     const byId = new Map(catalog.map((system) => [system.id, system]));
-    const unknownSystemIds = systemIds.filter((id) => !byId.has(id));
-    if (unknownSystemIds.length > 0) {
-      throw new AppErrorException({
-        code: 'VALIDATION_FAILED',
-        message: ERROR_CODES.VALIDATION_FAILED,
-        details: { unknownSystemIds },
-      });
-    }
     return systemIds.flatMap((id) => {
       const system = byId.get(id);
       return system ? [jobFor(settings, system)] : [];

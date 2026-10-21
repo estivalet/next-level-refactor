@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { tempDir, tempLibrary } from '../library/testing.ts';
 import { SettingsService } from '../settings/SettingsService.ts';
 import { settingsFixture } from '../settings/testing.ts';
-import { ScanService } from './ScanService.ts';
+import { ScanService, type ScanDeps } from './ScanService.ts';
 import { system } from './testing.ts';
 import { ScanCancelled, inProcessWalker, type Walker } from './walker.ts';
 
@@ -30,6 +30,8 @@ interface Options {
   systems?: Settings['systems'];
   catalog?: SystemDefinition[];
   createWalker?: () => Walker;
+  wrapSettings?: (settings: SettingsService) => ScanDeps['settings'];
+  folderExists?: ScanDeps['folderExists'];
 }
 
 async function setup(options: Options = {}) {
@@ -62,14 +64,16 @@ async function setup(options: Options = {}) {
   cleanups.push(library.cleanup);
   const scan = new ScanService({
     repo: library.repo,
-    settings,
+    settings: options.wrapSettings?.(settings) ?? settings,
     catalog: () => options.catalog ?? CATALOG,
     createWalker: options.createWalker ?? inProcessWalker,
-    folderExists: (dir) =>
-      stat(dir).then(
-        (info) => info.isDirectory(),
-        () => false,
-      ),
+    folderExists:
+      options.folderExists ??
+      ((dir) =>
+        stat(dir).then(
+          (info) => info.isDirectory(),
+          () => false,
+        )),
     clock: () => new Date(Date.UTC(2026, 9, 21, 12, 0, 0)),
     emit,
     log: { error: () => undefined },
@@ -106,11 +110,13 @@ describe('ScanService', () => {
     });
     expect(events.map((e) => e.event)).toEqual([
       'scan.progress',
+      'scan.progress',
       'library.changed',
       'scan.progress',
       'scan.finished',
     ]);
-    expect(events[2]?.payload).toMatchObject({ systemsDone: 1, systemsTotal: 1, filesSeen: 2 });
+    expect(events[0]?.payload).toMatchObject({ systemsTotal: 1, systemId: null });
+    expect(events[3]?.payload).toMatchObject({ systemsDone: 1, systemsTotal: 1, filesSeen: 2 });
     expect(library.repo.systemCounts()).toEqual([
       { systemId: 'nintendo-64', games: 2, missing: 0 },
     ]);
@@ -241,5 +247,66 @@ describe('ScanService', () => {
     });
     const { run } = await setup({ createWalker });
     expect((await run()).outcome).toBe('failed');
+  });
+
+  it('NFR-REL-1: a failed settings write still finishes the scan', async () => {
+    const { write, run, scan, events } = await setup({
+      systems: {},
+      wrapSettings: (settings) => ({
+        get: () => settings.get(),
+        update: () => Promise.reject(new Error('EPERM: file locked')),
+      }),
+    });
+    await write('Sega Genesis/Demo.md');
+    const summary = await run();
+    expect(summary).toMatchObject({ outcome: 'completed', enabledSystemIds: [] });
+    expect(scan.status().running).toBe(false);
+    expect(events.at(-1)?.event).toBe('scan.finished');
+  });
+
+  it('FR-LIB-3: enabling found systems never overwrites an entry saved meanwhile', async () => {
+    const { write, run, settings } = await setup({
+      systems: {},
+      wrapSettings: (real) => ({
+        get: () => real.get(),
+        // The user's save lands in the queue just before the scan's update.
+        update: async (change) => {
+          const current = real.get();
+          if (current.kind !== 'ok') throw new Error('not ok');
+          await real.save(
+            {
+              ...current.snapshot.settings,
+              systems: { 'sega-genesis': { enabled: false, folderName: 'Sega Genesis' } },
+            },
+            current.snapshot.revision,
+          );
+          return real.update(change);
+        },
+      }),
+    });
+    await write('Sega Genesis/Demo.md');
+    expect((await run()).enabledSystemIds).toEqual([]);
+    const current = settings.get();
+    expect(current.kind === 'ok' && current.snapshot.settings.systems).toEqual({
+      'sega-genesis': { enabled: false, folderName: 'Sega Genesis' },
+    });
+  });
+
+  it('FR-LIB-3: a scan is running and cancellable while folders are still being checked', async () => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    const { scan } = await setup({
+      systems: {},
+      folderExists: async () => {
+        await gate;
+        return true;
+      },
+    });
+    const started = await scan.start();
+    expect(started).toMatchObject({ running: true, progress: { systemId: null } });
+    expect(scan.cancel().running).toBe(true);
+    release();
+    await scan.whenIdle();
+    expect(scan.status().last).toMatchObject({ outcome: 'cancelled', systems: [] });
   });
 });

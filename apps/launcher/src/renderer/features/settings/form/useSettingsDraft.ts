@@ -34,11 +34,17 @@ export function useSettingsDraft(
 ): SettingsDraft {
   const client = useQueryClient();
   const mutation = useSaveSettings();
-  const [state, setState] = useState({ base: snapshot, draft: snapshot.settings });
+  // `sent` is the draft of a save in flight: when its snapshot arrives, the rebase starts from
+  // what was sent, so values main normalized (trimmed names) don't count as unsaved edits.
+  const [state, setState] = useState<{ base: SettingsSnapshot; draft: Settings; sent?: Settings }>({
+    base: snapshot,
+    draft: snapshot.settings,
+  });
   let { draft } = state;
   if (state.base.revision !== snapshot.revision) {
     // The schema validates the merged draft below, like any other edit.
-    draft = rebase(state.base.settings, state.draft, snapshot.settings) as Settings;
+    const from = state.sent ?? state.base.settings;
+    draft = rebase(from, state.draft, snapshot.settings) as Settings;
     setState({ base: snapshot, draft });
   }
   const setDraft = (change: Settings | ((settings: Settings) => Settings)) => {
@@ -58,11 +64,14 @@ export function useSettingsDraft(
     saving: mutation.isPending,
     save: () => {
       onNotice(null);
+      const sent = draft;
+      setState((current) => ({ ...current, sent }));
       mutation.mutate(
         { settings: draft, baseRevision: snapshot.revision },
         {
           onSuccess: onSaved,
           onError: (error) => {
+            setState((current) => ({ base: current.base, draft: current.draft }));
             const code = errorCode(error);
             onNotice(code === 'CONFLICT' ? 'errors.conflict' : 'errors.internal');
             if (code === 'CONFLICT') void client.invalidateQueries({ queryKey: ['settings'] });

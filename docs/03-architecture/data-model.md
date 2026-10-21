@@ -38,7 +38,7 @@ is valid and the app fills the rest.
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
 `storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
-priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. Each later
+priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
 themes in M4 (owner decision 2026-10-21). Unknown keys are stripped on load; wrong types make the
 file invalid.

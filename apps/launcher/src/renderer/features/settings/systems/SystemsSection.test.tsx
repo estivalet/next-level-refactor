@@ -113,7 +113,8 @@ describe('SystemsSection', () => {
     await user.click(screen.getByRole('button', { name: 'Edit Nintendo 64' }));
     await user.click(screen.getByRole('button', { name: 'Reset to defaults' }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
-    expect(saved()).toEqual({});
+    // The overrides go; the user's "off" stays so a scan won't turn the system on (FR-LIB-3).
+    expect(saved()).toEqual({ 'nintendo-64': { enabled: false } });
   });
 });
 

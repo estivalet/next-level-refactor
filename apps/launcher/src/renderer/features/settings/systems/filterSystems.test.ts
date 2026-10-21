@@ -46,13 +46,17 @@ describe('withSystem', () => {
     expect(next.systems).toEqual({ 'nintendo-64': { enabled: true } });
   });
 
-  it('removes the entry again when it is back to the defaults', () => {
+  it('FR-LIB-3: switching a system off keeps the entry, so a scan never turns it back on', () => {
     const enabled = withSystem(defaultSettings(), 'nintendo-64', { enabled: true });
-    expect(withSystem(enabled, 'nintendo-64', { enabled: false }).systems).toEqual({});
+    expect(withSystem(enabled, 'nintendo-64', { enabled: false }).systems).toEqual({
+      'nintendo-64': { enabled: false },
+    });
   });
 
   it('FR-LIB-2: clearing an override removes that key', () => {
     const custom = withSystem(defaultSettings(), 'nintendo-64', { folderName: 'N64' });
-    expect(withSystem(custom, 'nintendo-64', { folderName: undefined }).systems).toEqual({});
+    expect(withSystem(custom, 'nintendo-64', { folderName: undefined }).systems).toEqual({
+      'nintendo-64': { enabled: false },
+    });
   });
 });

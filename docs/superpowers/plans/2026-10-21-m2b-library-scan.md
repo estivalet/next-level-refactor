@@ -83,7 +83,7 @@
 ## Review Focus
 
 1. **A disconnected drive, then reconnected** (C4). Games on it go missing, and nothing is deleted. On reconnect the same rows (same ids, same metadata) are restored, not re-added. Pinned in Task 4.
-2. **A file renamed or moved into a sub-folder** keeps its id and metadata (moved, not missing + new). When two candidates share a basename and size, nothing is guessed. Pinned in Task 3.
+2. **A file moved into a sub-folder** (same name and size) keeps its id and metadata (moved, not missing + new). When two candidates share a basename and size, nothing is guessed. Pinned in Task 3.
 3. **A system the user switched off** (`enabled: false`) whose folder holds games. "Scan all" neither scans nor re-enables it. Pinned in Task 4.
 4. **Unsaved edits in Settings → Systems while a scan enables systems.** The draft rebases onto the new settings, so the user's edits and the newly enabled systems both survive. Pinned in Task 6.
 5. **Cancel in the middle of a large system.** The worker stops, that system's rows are unchanged, and earlier systems stay applied. Status returns to idle with outcome `cancelled`. Pinned in Task 4.

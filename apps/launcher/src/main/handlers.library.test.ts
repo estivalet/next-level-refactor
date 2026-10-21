@@ -87,6 +87,7 @@ describe('library handlers', () => {
         moved: [],
         restored: [],
         missing: [],
+        unchanged: 0,
       },
       new Date(),
     );

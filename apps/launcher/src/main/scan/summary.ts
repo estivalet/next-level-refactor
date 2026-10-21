@@ -5,7 +5,7 @@ import type { SystemDiff } from '../library/LibraryRepository.ts';
 export function systemResult(systemId: string, diff: SystemDiff): ScanSystemResult {
   return {
     systemId,
-    present: diff.added.length + diff.present.length + diff.moved.length,
+    present: diff.added.length + diff.present.length + diff.moved.length + diff.unchanged,
     added: diff.added.length,
     moved: diff.moved.length,
     restored: diff.restored.length,

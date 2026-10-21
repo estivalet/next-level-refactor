@@ -3,6 +3,17 @@ import type { ExistingGame, FoundGame, SystemDiff } from '../library/LibraryRepo
 const basename = (relPath: string) => (relPath.split('/').pop() ?? relPath).toLowerCase();
 const moveKey = (relPath: string, size: number) => `${basename(relPath)}|${String(size)}`;
 
+/** Same path (including case), place, size, time and disc set: nothing to write. */
+function storedAsFound(row: ExistingGame, game: FoundGame): boolean {
+  return (
+    row.relPath === game.relPath &&
+    row.locationId === game.locationId &&
+    row.size === game.size &&
+    row.mtime === game.mtime &&
+    row.discGroup === game.discGroup
+  );
+}
+
 function countBy<T>(items: readonly T[], key: (item: T) => string): Map<string, number> {
   const counts = new Map<string, number>();
   for (const item of items) counts.set(key(item), (counts.get(key(item)) ?? 0) + 1);
@@ -19,7 +30,14 @@ export function diffSystem(
   found: readonly FoundGame[],
 ): SystemDiff {
   const byPath = new Map(existing.map((row) => [row.relPath.toLowerCase(), row]));
-  const diff: SystemDiff = { added: [], present: [], moved: [], restored: [], missing: [] };
+  const diff: SystemDiff = {
+    added: [],
+    present: [],
+    moved: [],
+    restored: [],
+    missing: [],
+    unchanged: 0,
+  };
   const matched = new Set<number>();
   const unmatchedFound: FoundGame[] = [];
 
@@ -30,8 +48,9 @@ export function diffSystem(
       continue;
     }
     matched.add(row.id);
-    diff.present.push({ id: row.id, game });
     if (row.missing) diff.restored.push(row.id);
+    if (!row.missing && storedAsFound(row, game)) diff.unchanged += 1;
+    else diff.present.push({ id: row.id, game });
   }
 
   const unmatchedRows = existing.filter((row) => !matched.has(row.id));
