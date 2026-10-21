@@ -2,11 +2,16 @@ import { defaultSettings, ok } from '@nextlevel/shared';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useTranslation } from 'react-i18next';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import i18n from '../../i18n.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { BootGate } from './BootGate.tsx';
+
+// changeLanguage is async; a switch started by one test can land after the previous reset.
+beforeEach(async () => {
+  await i18n.changeLanguage('en');
+});
 
 afterEach(async () => {
   setBridgeForTests(null);
@@ -96,5 +101,18 @@ describe('BootGate', () => {
     );
     expect(await screen.findByText('Aplicativos da área de trabalho')).toBeVisible();
     expect(document.documentElement.lang).toBe('pt-BR');
+  });
+});
+
+describe('BootGate when the settings service is unreachable', () => {
+  it('says the service is unavailable rather than that the file is damaged', async () => {
+    installFakeBridge({ 'settings.get': () => Promise.reject(new Error('no bridge')) });
+    renderInShell(
+      <BootGate>
+        <DesktopProbe />
+      </BootGate>,
+    );
+    expect(await screen.findByText(/could not reach its settings service/)).toBeVisible();
+    expect(screen.queryByText(/damaged/)).not.toBeInTheDocument();
   });
 });

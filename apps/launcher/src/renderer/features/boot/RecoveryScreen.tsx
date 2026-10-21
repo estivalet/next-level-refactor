@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useOpenPath, useResetSettings, useRestoreBackup } from '../settings/settingsApi.ts';
 
-type Reason = 'unreadable' | 'invalid' | 'newerVersion';
+type Reason = 'unreadable' | 'invalid' | 'newerVersion' | 'unavailable';
 
 const BUTTON =
   'rounded-lg px-4 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50';

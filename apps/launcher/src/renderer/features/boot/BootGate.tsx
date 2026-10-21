@@ -22,7 +22,8 @@ export function BootGate({ children }: { children: ReactNode }) {
   }, [i18n, language]);
 
   if (settings.isPending) return <Splash />;
-  if (settings.isError) return <RecoveryScreen reason="unreadable" latestBackupId={null} />;
+  // The settings service itself could not be reached; the file may be fine.
+  if (settings.isError) return <RecoveryScreen reason="unavailable" latestBackupId={null} />;
   if (settings.data.kind === 'invalid') {
     return (
       <RecoveryScreen reason={settings.data.reason} latestBackupId={settings.data.latestBackupId} />

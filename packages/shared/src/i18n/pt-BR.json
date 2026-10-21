@@ -4,7 +4,14 @@
     "internal": "Algo deu errado. Verifique o log para mais detalhes.",
     "conflict": "As configurações mudaram desde que você as abriu. A versão mais recente foi carregada.",
     "notFound": "Esse item não existe mais.",
-    "invalidSettings": "Essas configurações não são válidas e não foram aplicadas."
+    "invalidSettings": "Essas configurações não são válidas e não foram aplicadas.",
+    "validation": {
+      "invalid_type": "Este valor tem o tipo errado.",
+      "invalid_value": "Escolha uma das opções da lista.",
+      "too_small": "Este valor é pequeno demais.",
+      "too_big": "Este valor é grande demais.",
+      "default": "Este valor não é válido."
+    }
   },
   "shell": {
     "window": {
@@ -41,7 +48,8 @@
   "settings": {
     "sections": {
       "label": "Seções das configurações",
-      "about": "Sobre"
+      "about": "Sobre",
+      "general": "Geral"
     },
     "about": {
       "product": "NextLevel",
@@ -63,6 +71,13 @@
           "help": "Abrir o NextLevel automaticamente quando você entrar no Windows."
         }
       }
+    },
+    "saveBar": {
+      "unsaved": "Você tem alterações não salvas.",
+      "invalid": "Corrija os campos destacados para salvar.",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "discard": "Descartar"
     }
   },
   "boot": {
@@ -72,7 +87,8 @@
       "reason": {
         "unreadable": "O arquivo de configurações está danificado e não pôde ser lido.",
         "invalid": "O arquivo de configurações contém valores que o NextLevel não reconhece.",
-        "newerVersion": "O arquivo de configurações foi salvo por uma versão mais nova do NextLevel."
+        "newerVersion": "O arquivo de configurações foi salvo por uma versão mais nova do NextLevel.",
+        "unavailable": "O NextLevel não conseguiu acessar o serviço de configurações. Seu arquivo não foi alterado; reinicie o NextLevel e, se continuar acontecendo, verifique o log."
       },
       "keep": "Seu arquivo não foi alterado. Escolha como continuar:",
       "restoreLatest": "Restaurar o backup mais recente",

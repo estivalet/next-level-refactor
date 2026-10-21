@@ -4,7 +4,14 @@
     "internal": "Something went wrong. Check the log for details.",
     "conflict": "Settings changed since you opened them. The latest version was loaded.",
     "notFound": "That item no longer exists.",
-    "invalidSettings": "Those settings are not valid and were not applied."
+    "invalidSettings": "Those settings are not valid and were not applied.",
+    "validation": {
+      "invalid_type": "This value has the wrong type.",
+      "invalid_value": "Choose one of the listed options.",
+      "too_small": "This value is too small.",
+      "too_big": "This value is too large.",
+      "default": "This value is not valid."
+    }
   },
   "shell": {
     "window": {
@@ -41,7 +48,8 @@
   "settings": {
     "sections": {
       "label": "Settings sections",
-      "about": "About"
+      "about": "About",
+      "general": "General"
     },
     "about": {
       "product": "NextLevel",
@@ -63,6 +71,13 @@
           "help": "Open NextLevel automatically when you sign in to Windows."
         }
       }
+    },
+    "saveBar": {
+      "unsaved": "You have unsaved changes.",
+      "invalid": "Fix the highlighted fields to save.",
+      "save": "Save",
+      "saving": "Saving…",
+      "discard": "Discard"
     }
   },
   "boot": {
@@ -72,7 +87,8 @@
       "reason": {
         "unreadable": "The settings file is damaged and could not be read.",
         "invalid": "The settings file contains values NextLevel does not understand.",
-        "newerVersion": "The settings file was saved by a newer version of NextLevel."
+        "newerVersion": "The settings file was saved by a newer version of NextLevel.",
+        "unavailable": "NextLevel could not reach its settings service. Your settings file was not changed; restart NextLevel, and if this keeps happening, check the log."
       },
       "keep": "Your file has not been changed. Choose how to continue:",
       "restoreLatest": "Restore latest backup",

@@ -24,6 +24,7 @@ test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the 
     .dblclick();
   const settings = page.getByRole('dialog', { name: 'Settings' });
   await expect(settings).toBeVisible();
+  await settings.getByRole('button', { name: 'About' }).click();
   await expect(settings.getByText(`Version ${version}`)).toBeVisible();
 
   // Measure after the open animation (scale 0.96 → 1) has finished.
