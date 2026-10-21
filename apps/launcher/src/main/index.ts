@@ -111,6 +111,9 @@ async function start(): Promise<void> {
     log,
     catalog: systemCatalog,
     pickFolder: async (title) => {
+      // End-to-end tests can't drive the native dialog; development builds only.
+      const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];
+      if (e2eFolder) return e2eFolder;
       const window = BrowserWindow.getFocusedWindow();
       const options = { properties: ['openDirectory' as const], ...(title ? { title } : {}) };
       const result = await (window

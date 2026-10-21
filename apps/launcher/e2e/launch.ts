@@ -24,8 +24,11 @@ export async function freshDataDir(): Promise<{ dir: string; remove: () => Promi
   return { dir, remove };
 }
 
-/** Launches the built launcher against `dataDir`. */
-export function launch(dataDir: string): Promise<ElectronApplication> {
+/** Launches the built launcher against `dataDir`, with extra environment variables. */
+export function launch(
+  dataDir: string,
+  extraEnv: Record<string, string> = {},
+): Promise<ElectronApplication> {
   // VS Code terminals set ELECTRON_RUN_AS_NODE, which would start Electron as plain Node.
   const env = Object.fromEntries(
     Object.entries(process.env).filter(
@@ -33,5 +36,8 @@ export function launch(dataDir: string): Promise<ElectronApplication> {
         entry[0] !== 'ELECTRON_RUN_AS_NODE' && entry[1] !== undefined,
     ),
   );
-  return electron.launch({ args: [appDir], env: { ...env, NEXTLEVEL_USER_DATA: dataDir } });
+  return electron.launch({
+    args: [appDir],
+    env: { ...env, ...extraEnv, NEXTLEVEL_USER_DATA: dataDir },
+  });
 }
