@@ -110,4 +110,16 @@ describe('LaunchRepository', () => {
     launches.finish(done, { endedAt: 'x', exitCode: 0, errorCode: null, stderrTail: null });
     expect(launches.unfinished()).toEqual([open]);
   });
+
+  it('US-C2: gameInfo has what a launch needs, and unknown ids are NOT_FOUND', () => {
+    expect(launches.gameInfo(gameId)).toEqual({
+      gameId,
+      systemId: 'nintendo-64',
+      relPath: 'Racer.zip',
+      locationId: 'loc-1',
+      title: 'Racer',
+      missing: false,
+    });
+    expect(() => launches.gameInfo(9999)).toThrow(/NOT_FOUND/);
+  });
 });

@@ -11,6 +11,8 @@ export interface LaunchErrorDetails {
   path?: string;
   stderrTail?: string;
   exitCode?: number;
+  /** A short machine reason, e.g. the spawn error code (ENOENT). */
+  reason?: string;
 }
 
 export function launchError(code: ErrorCode, details: LaunchErrorDetails = {}): AppErrorException {

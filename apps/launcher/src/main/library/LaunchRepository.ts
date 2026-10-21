@@ -4,6 +4,7 @@ import {
   type LaunchLogPage,
   type LaunchOverride,
 } from '@nextlevel/shared';
+import { notFound } from './GameRepository.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
 /** Launch log rows kept (data model §4). */
@@ -13,6 +14,16 @@ export type LaunchStart = Omit<
   LaunchLogEntry,
   'id' | 'endedAt' | 'exitCode' | 'errorCode' | 'stderrTail'
 >;
+/** What a launch needs to know about a game, read from the library (never from the renderer). */
+export interface LaunchGame {
+  gameId: number;
+  systemId: string;
+  relPath: string;
+  locationId: string | null;
+  title: string;
+  missing: boolean;
+}
+
 export type LaunchEnd = Pick<LaunchLogEntry, 'endedAt' | 'exitCode' | 'errorCode' | 'stderrTail'>;
 
 interface LogRow {
@@ -41,6 +52,18 @@ export class LaunchRepository {
 
   private get client() {
     return this.db.$client;
+  }
+
+  gameInfo(gameId: number): LaunchGame {
+    const row = this.client
+      .prepare(
+        `select g.id as gameId, g.system_id as systemId, g.rel_path as relPath,
+         g.location_id as locationId, m.title as title, g.missing as missing
+         from games g join game_metadata m on m.game_id = g.id where g.id = ?`,
+      )
+      .get(gameId) as (Omit<LaunchGame, 'missing'> & { missing: number }) | undefined;
+    if (!row) throw notFound({ gameId });
+    return { ...row, missing: row.missing === 1 };
   }
 
   getOverride(gameId: number): LaunchOverride {
