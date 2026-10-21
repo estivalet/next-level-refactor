@@ -13,7 +13,9 @@ export interface MenuItem {
 }
 
 interface GameContextMenuProps {
-  /** The games the menu acts on: the selection, or the row right-clicked. */
+  /** Every selected game id: the menu acts on all of them. */
+  gameIds: readonly number[];
+  /** The selected rows that are loaded, for labels and single-game items. */
   games: readonly GameRow[];
   point: { x: number; y: number };
   onClose: () => void;
@@ -37,10 +39,12 @@ export function GameContextMenu(props: GameContextMenuProps) {
   const [active, setActive] = useState(0);
   const [position, setPosition] = useState(props.point);
   const { games, onClose } = props;
-  const ids = games.map((game) => game.id);
-  const single = games.length === 1 ? games[0] : undefined;
-  const allFavorite = games.every((game) => game.favorite);
-  const allHidden = games.every((game) => game.hidden);
+  const ids = [...props.gameIds];
+  const single = ids.length === 1 ? games.find((game) => game.id === ids[0]) : undefined;
+  // Rows not loaded are unknown: treat the selection as mixed, so the action sets the flag.
+  const allKnown = games.length === ids.length;
+  const allFavorite = allKnown && games.every((game) => game.favorite);
+  const allHidden = allKnown && games.every((game) => game.hidden);
 
   const flag = (flags: GameFlags) => {
     setFlags.mutate({ gameIds: ids, flags });

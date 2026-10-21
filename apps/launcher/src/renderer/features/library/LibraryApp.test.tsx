@@ -106,4 +106,25 @@ describe('LibraryApp', () => {
     await user.click(screen.getByRole('button', { name: 'Open data folder' }));
     expect(bridge.calls).toContainEqual({ channel: 'app.openPath', input: { key: 'data' } });
   });
+
+  it('FR-LIB-7: a Shift range over pages not loaded yet still acts on every game in it', async () => {
+    const user = userEvent.setup();
+    const many = Array.from({ length: 500 }, (_, i) =>
+      gameRow(i + 1, `Game ${String(i).padStart(3, '0')}`),
+    );
+    const flagged: number[][] = [];
+    installFakeBridge({
+      ...libraryResponses(many),
+      'library.games.setFlags': ({ gameIds }) => {
+        flagged.push(gameIds);
+        return ok(undefined);
+      },
+    });
+    renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('option', { name: /Game 000/ }));
+    await user.keyboard('{Shift>}{End}{F10}{/Shift}');
+    await user.click(await screen.findByRole('menuitem', { name: 'Hide' }));
+    expect(flagged).toHaveLength(1);
+    expect(flagged[0]).toHaveLength(500);
+  });
 });

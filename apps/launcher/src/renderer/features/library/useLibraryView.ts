@@ -99,6 +99,20 @@ export function useLibraryView() {
       );
     },
     selectRow: (index: number, mode: SelectMode) => {
+      const { anchor } = selection;
+      if (mode === 'range' && anchor !== null) {
+        // The rows between may sit on pages never loaded: fetch them, then select every id.
+        const [from, to] = [Math.min(anchor, index), Math.max(anchor, index)];
+        void games.idsInRange(from, to).then((ids) => {
+          setPicked({
+            key: viewKey,
+            selection: { anchor, ids: new Set(ids) },
+            focused: index,
+            focusedId: null,
+          });
+        });
+        return;
+      }
       setPicked({
         key: viewKey,
         selection: select(selection, index, mode, idAt),

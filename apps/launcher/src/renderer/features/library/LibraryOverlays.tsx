@@ -54,7 +54,7 @@ export function LibraryOverlays({ view, overlays, onFlags, onMenuClosed }: Libra
   const { t } = useTranslation();
   const removeFromCollection = useRemoveFromCollection();
   const targets = overlays.menu ? view.selectedGames() : [];
-  const ids = targets.map((game) => game.id);
+  const ids = overlays.menu ? [...view.selection.ids] : [];
   const scope = view.scope;
   const shown =
     scope?.kind === 'collection'
@@ -84,8 +84,9 @@ export function LibraryOverlays({ view, overlays, onFlags, onMenuClosed }: Libra
 
   return (
     <>
-      {overlays.menu && targets.length > 0 && (
+      {overlays.menu && ids.length > 0 && (
         <GameContextMenu
+          gameIds={ids}
           games={targets}
           point={overlays.menu}
           onClose={() => {
