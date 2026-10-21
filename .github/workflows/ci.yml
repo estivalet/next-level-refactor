@@ -20,3 +20,10 @@ jobs:
       - run: npm test
       # Electron tests drive the Electron binary installed by npm ci; no browser download needed.
       - run: npm run test:e2e
+      # Playwright writes a page snapshot per failure; keep it so CI-only failures can be read.
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: apps/launcher/test-results
+          retention-days: 7
