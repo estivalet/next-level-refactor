@@ -240,7 +240,57 @@
     "openData": "Abrir pasta de dados",
     "details": {
       "label": "Detalhes do jogo",
-      "none": "Selecione um jogo para ver os detalhes."
-    }
+      "none": "Selecione um jogo para ver os detalhes.",
+      "favorite": "Favorito",
+      "rating": "Sua avaliação",
+      "rate_one": "{{count}} estrela",
+      "rate_other": "{{count}} estrelas",
+      "edit": "Editar detalhes",
+      "openFolder": "Abrir pasta",
+      "missingSince": "Ausente desde {{date}}",
+      "expectedAt": "Esperado em {{path}}",
+      "relink": "Religar…",
+      "file": "Arquivo"
+    },
+    "fields": {
+      "title": "Título",
+      "year": "Ano",
+      "developer": "Desenvolvedora",
+      "publisher": "Distribuidora",
+      "genre": "Gênero",
+      "players": "Jogadores",
+      "description": "Descrição",
+      "region": "Região",
+      "filters": "Filtros"
+    },
+    "menu": {
+      "label": "Ações do jogo",
+      "edit": "Editar detalhes…",
+      "favorite": "Adicionar aos favoritos",
+      "unfavorite": "Remover dos favoritos",
+      "hide": "Ocultar",
+      "unhide": "Mostrar",
+      "openFolder": "Abrir pasta",
+      "missingReason": "Mostrar motivo da ausência…"
+    },
+    "edit": {
+      "title": "Editar detalhes",
+      "filtersHint": "Separados por vírgula, por exemplo: homebrew, hack",
+      "locked": "Editado por você; uma busca de dados mantém este valor.",
+      "invalid": "Verifique este valor.",
+      "save": "Salvar",
+      "cancel": "Cancelar"
+    },
+    "relink": {
+      "title": "Religar {{title}}",
+      "intro": "{{title}} está ausente. Escolha o jogo para o qual o arquivo foi renomeado ou movido.",
+      "search": "Buscar jogos deste sistema",
+      "candidates": "Jogos encontrados neste sistema",
+      "none": "Nenhum jogo deste sistema corresponde.",
+      "warning": "{{title}} mantém seus detalhes, favorito e coleções e recebe o arquivo de {{replacement}}. {{replacement}} é removido da biblioteca.",
+      "confirm": "Religar",
+      "cancel": "Cancelar"
+    },
+    "close": "Fechar"
   }
 }

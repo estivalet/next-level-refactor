@@ -4,7 +4,7 @@ import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { buildTree } from './buildTree.ts';
 import { useCollections } from './collectionsApi.ts';
 import { useSystemSummaries } from './libraryApi.ts';
-import { EMPTY_SELECTION, select, type SelectMode, type Selection } from './selection.ts';
+import { EMPTY_SELECTION, select, type SelectMode } from './selection.ts';
 import { usePagedGames, type GameListParams } from './usePagedGames.ts';
 
 const NOTHING_VISIBLE = { first: 0, last: -1 };
@@ -44,6 +44,15 @@ export function useLibraryView() {
   });
   const current = picked.key === viewKey ? picked : { selection: EMPTY_SELECTION, focused: -1 };
   const idAt = (index: number) => games.rowAt(index)?.id;
+  // Rows can disappear under the focus (hidden, relinked): stay on the last row.
+  const focused =
+    games.total !== null && current.focused >= games.total ? games.total - 1 : current.focused;
+  const focusedGame = games.rowAt(focused) ?? null;
+  // With nothing picked, the focused row is the selection (after a hide, the next row).
+  const selection =
+    current.selection.ids.size === 0 && focusedGame
+      ? { anchor: focused, ids: new Set([focusedGame.id]) }
+      : current.selection;
 
   return {
     systems,
@@ -55,9 +64,18 @@ export function useLibraryView() {
     sort,
     params,
     games,
-    selection: current.selection,
-    focused: current.focused,
-    focusedGame: games.rowAt(current.focused) ?? null,
+    selection,
+    focused,
+    focusedGame,
+    /** The loaded rows that are selected, in list order. */
+    selectedGames: () => {
+      const rows = [];
+      for (let index = Math.max(0, games.firstLoaded); index < games.lastLoaded; index += 1) {
+        const row = games.rowAt(index);
+        if (row && selection.ids.has(row.id)) rows.push(row);
+      }
+      return rows;
+    },
     setScope: (next: GameScope) => {
       setScope(next);
     },
@@ -80,13 +98,13 @@ export function useLibraryView() {
     selectRow: (index: number, mode: SelectMode) => {
       setPicked({
         key: viewKey,
-        selection: select(current.selection, index, mode, idAt),
+        selection: select(selection, index, mode, idAt),
         focused: index,
       });
     },
-    /** Keeps the selection on the same row index after the list changed under it. */
-    replaceSelection: (selection: Selection, focused: number) => {
-      setPicked({ key: viewKey, selection, focused });
+    /** Rows are about to leave the list: drop the selection, keep the focus on row `index`. */
+    focusRow: (index: number) => {
+      setPicked({ key: viewKey, selection: EMPTY_SELECTION, focused: index });
     },
   };
 }

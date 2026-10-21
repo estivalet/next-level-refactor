@@ -41,8 +41,12 @@ export function usePagedGames(
   });
   const first = results[0];
   const failed = results.find((result) => result.isError);
+  const loadedPages = [...loaded.keys()];
   return {
     total: loaded.get(0)?.total ?? null,
+    /** First row index of the loaded pages, and one past the last. */
+    firstLoaded: Math.min(...loadedPages) * PAGE_SIZE,
+    lastLoaded: (Math.max(...loadedPages) + 1) * PAGE_SIZE,
     rowAt(index: number): GameRow | undefined {
       return loaded.get(Math.floor(index / PAGE_SIZE))?.games[index % PAGE_SIZE];
     },

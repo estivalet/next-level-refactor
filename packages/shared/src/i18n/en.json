@@ -240,7 +240,57 @@
     "openData": "Open data folder",
     "details": {
       "label": "Game details",
-      "none": "Select a game to see its details."
-    }
+      "none": "Select a game to see its details.",
+      "favorite": "Favorite",
+      "rating": "Your rating",
+      "rate_one": "{{count}} star",
+      "rate_other": "{{count}} stars",
+      "edit": "Edit details",
+      "openFolder": "Open folder",
+      "missingSince": "Missing since {{date}}",
+      "expectedAt": "Expected at {{path}}",
+      "relink": "Relink…",
+      "file": "File"
+    },
+    "fields": {
+      "title": "Title",
+      "year": "Year",
+      "developer": "Developer",
+      "publisher": "Publisher",
+      "genre": "Genre",
+      "players": "Players",
+      "description": "Description",
+      "region": "Region",
+      "filters": "Filters"
+    },
+    "menu": {
+      "label": "Game actions",
+      "edit": "Edit details…",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
+      "hide": "Hide",
+      "unhide": "Unhide",
+      "openFolder": "Open folder",
+      "missingReason": "Show missing reason…"
+    },
+    "edit": {
+      "title": "Edit details",
+      "filtersHint": "Comma-separated, for example: homebrew, hack",
+      "locked": "Edited by you; a scrape keeps this value.",
+      "invalid": "Check this value.",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "relink": {
+      "title": "Relink {{title}}",
+      "intro": "{{title}} is missing. Pick the game its file was renamed or moved to.",
+      "search": "Search this system's games",
+      "candidates": "Games found in this system",
+      "none": "No game in this system matches.",
+      "warning": "{{title}} keeps its details, favorite and collections and takes the file of {{replacement}}. {{replacement}} is removed from the library.",
+      "confirm": "Relink",
+      "cancel": "Cancel"
+    },
+    "close": "Close"
   }
 }
