@@ -33,6 +33,8 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
     await settings.getByRole('button', { name: 'Add location…' }).click();
     await settings.getByRole('button', { name: 'Save' }).click();
     await expect(settings.getByRole('region', { name: 'You have unsaved changes.' })).toBeHidden();
+    // On smaller screens the Settings window covers the desktop icons.
+    await settings.getByRole('button', { name: 'Close' }).click();
 
     let library = await openLibrary(page);
     await library.getByRole('button', { name: 'Scan for games' }).click();
