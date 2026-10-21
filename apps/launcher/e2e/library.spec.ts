@@ -12,6 +12,8 @@ async function openLibrary(page: Page) {
 }
 
 test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async () => {
+  // Two app launches and a long flow: CI runners need more than the default 30 s.
+  test.setTimeout(90_000);
   const data = await freshDataDir();
   const roms = await freshDataDir();
   try {
