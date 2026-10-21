@@ -49,7 +49,9 @@
     "sections": {
       "label": "Settings sections",
       "about": "About",
-      "general": "General"
+      "general": "General",
+      "backups": "Backups",
+      "data": "Data & logs"
     },
     "about": {
       "product": "NextLevel",
@@ -78,6 +80,35 @@
       "save": "Save",
       "saving": "Saving…",
       "discard": "Discard"
+    },
+    "backups": {
+      "intro": "A backup of your settings is made every time you save. The newest 10 are kept.",
+      "empty": "No backups yet. One is made the next time you save.",
+      "columns": {
+        "time": "Time",
+        "changes": "What changed",
+        "size": "Size",
+        "actions": "Actions"
+      },
+      "noChanges": "—",
+      "size": "{{size}} KB",
+      "restore": "Restore",
+      "confirmText": "Restore the backup from {{time}}? Your current settings are backed up first.",
+      "confirm": "Confirm restore",
+      "cancel": "Cancel",
+      "restored": "Backup restored.",
+      "export": "Export…",
+      "import": "Import…",
+      "exported": "Settings exported.",
+      "imported": "Settings imported."
+    },
+    "data": {
+      "intro": "Where NextLevel keeps its files on this computer.",
+      "data": "Data folder",
+      "settings": "Settings file",
+      "backups": "Backups folder",
+      "logs": "Logs folder",
+      "open": "Open {{name}}"
     }
   },
   "boot": {

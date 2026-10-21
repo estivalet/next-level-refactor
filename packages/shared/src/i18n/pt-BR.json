@@ -49,7 +49,9 @@
     "sections": {
       "label": "Seções das configurações",
       "about": "Sobre",
-      "general": "Geral"
+      "general": "Geral",
+      "backups": "Backups",
+      "data": "Dados e logs"
     },
     "about": {
       "product": "NextLevel",
@@ -78,6 +80,35 @@
       "save": "Salvar",
       "saving": "Salvando…",
       "discard": "Descartar"
+    },
+    "backups": {
+      "intro": "Um backup das suas configurações é feito sempre que você salva. Os 10 mais recentes são mantidos.",
+      "empty": "Ainda não há backups. Um será feito na próxima vez que você salvar.",
+      "columns": {
+        "time": "Data e hora",
+        "changes": "O que mudou",
+        "size": "Tamanho",
+        "actions": "Ações"
+      },
+      "noChanges": "—",
+      "size": "{{size}} KB",
+      "restore": "Restaurar",
+      "confirmText": "Restaurar o backup de {{time}}? Suas configurações atuais serão salvas em backup antes.",
+      "confirm": "Confirmar restauração",
+      "cancel": "Cancelar",
+      "restored": "Backup restaurado.",
+      "export": "Exportar…",
+      "import": "Importar…",
+      "exported": "Configurações exportadas.",
+      "imported": "Configurações importadas."
+    },
+    "data": {
+      "intro": "Onde o NextLevel guarda seus arquivos neste computador.",
+      "data": "Pasta de dados",
+      "settings": "Arquivo de configurações",
+      "backups": "Pasta de backups",
+      "logs": "Pasta de logs",
+      "open": "Abrir {{name}}"
     }
   },
   "boot": {

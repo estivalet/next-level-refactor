@@ -1,5 +1,5 @@
 import { err } from '@nextlevel/shared';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -22,7 +22,9 @@ describe('SettingsApp', () => {
     installFakeBridge();
     renderInShell(<SettingsApp />);
     const nav = screen.getByRole('navigation', { name: 'Settings sections' });
-    expect(nav).toBeInTheDocument();
+    for (const name of ['General', 'Backups', 'Data & logs', 'About']) {
+      expect(within(nav).getByRole('button', { name })).toBeInTheDocument();
+    }
     expect(screen.getByRole('button', { name: 'General', current: 'page' })).toBeInTheDocument();
   });
 
