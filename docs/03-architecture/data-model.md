@@ -204,7 +204,8 @@ settings.
 SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_version`.
 
 **Implemented so far** (`apps/launcher/src/main/library/`): `meta`, `games` and `game_metadata`
-since M2b; the other tables arrive with the milestones that use them, each as a new migration.
+since M2b; `game_user_state`, `game_filters`, `collections`, `collection_games` and `games_fts`
+since M2c; the other tables arrive with the milestones that use them, each as a new migration.
 - `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
 - `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the
   natural key ignores case like Windows does.
@@ -214,6 +215,20 @@ since M2b; the other tables arrive with the milestones that use them, each as a 
   as `(USA)` kept) and `sort_title` = lowercase title; a scan never changes existing metadata.
 - Before a migration the existing file is copied to `backups/library-<ISO>-v<old>.db`. A library
   from a newer app version is refused (`LIBRARY_UNAVAILABLE`) and left untouched.
+- A scan matches a vanished row to a new file of the same system by basename and size (moved),
+  then by extension, size and mtime (renamed, owner decision 2026-10-21), each only when it is
+  the single candidate on both sides. **Relink** does the same by hand: the missing row takes the
+  other row's file fields and that row is deleted.
+- `games_fts` indexes `game_metadata.title` only (`sort_title` is its lowercase copy), as an
+  external-content FTS5 table (`unicode61 remove_diacritics 2`, prefix indexes 2 and 3) kept in
+  sync by triggers in the hand-written migration `0002_games_fts.sql`. Search text becomes quoted
+  prefix terms (`"zel"*`), so typed characters are never FTS syntax.
+- No `game_user_state` row means not favorite, not hidden, no rating, never played. Edited
+  metadata fields are added to `locked_fields` (sorted JSON array).
+- `collections.name` is `COLLATE NOCASE` and unique; `collection_games.position` is dense
+  (0..n-1) and only used for the `manual` sort.
+- The `games_system` index from M2b was dropped: the `(system_id, rel_path)` unique index serves
+  lookups by system.
 
 ```mermaid
 erDiagram
@@ -233,7 +248,7 @@ erDiagram
 
 | Table | Columns (type) | Notes |
 |---|---|---|
-| `games` | `id` int PK, `system_id` text, `rel_path` text, `source` text (`local`/`catalog`), `catalog_item_id` text?, `location_id` text?, `size` int, `mtime` int, `missing` bool, `missing_since` text?, `disc_group` text?, `added_at` text | UNIQUE(`system_id`,`rel_path`); index `system_id` |
+| `games` | `id` int PK, `system_id` text, `rel_path` text, `source` text (`local`/`catalog`), `catalog_item_id` text?, `location_id` text?, `size` int, `mtime` int, `missing` bool, `missing_since` text?, `disc_group` text?, `added_at` text | UNIQUE(`system_id`,`rel_path`) |
 | `game_metadata` | `game_id` PK FK, `title`, `sort_title`, `year` int?, `developer`, `publisher`, `genre`, `players`, `description`, `region`, `rating` real?, `locked_fields` json, `updated_at` | `locked_fields` = fields edited by the user; scrapes don't overwrite them |
 | `game_filters` | `game_id` FK, `filter` text | PK(`game_id`,`filter`); values: `official`, `homebrew`, `hack`, `translation`, `prototype`, `unlicensed`, … |
 | `game_user_state` | `game_id` PK FK, `favorite` bool, `hidden` bool, `user_rating` int?, `play_count` int, `last_played_at` text?, `play_seconds` int | |
@@ -247,7 +262,7 @@ erDiagram
 | `menus` | `id` PK, `title`, `active` bool | exactly one active (partial unique index) |
 | `menu_nodes` | `id` PK, `menu_id` FK, `parent_id` FK?, `position` int, `type` (`category`/`system`/`collection`/`smartFilter`), `ref_id` text?, `name` text, `display_name`?, `short_name`?, `theme_id`?, `filter_tabs` bool?, `visible` bool | `name` is also the menu-art key (current convention) |
 | `launch_log` | `id` PK, `game_id` FK, `profile_id`, `argv` json, `started_at`, `ended_at`?, `exit_code` int?, `stderr_tail` text? | keep last 1,000 |
-| `games_fts` | FTS5(`title`, `sort_title`, content=`game_metadata`) | global search |
+| `games_fts` | FTS5(`title`, content=`game_metadata`, content_rowid=`game_id`) | global search; triggers keep it in sync |
 | `meta` | `key` PK, `value` | `schema_version` |
 
 **Deleting:** games are never deleted by a scan, only marked `missing`. Uninstalling a catalog

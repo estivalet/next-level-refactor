@@ -21,6 +21,13 @@ export function createEventSink(
       log.error({ event, issues: parsed.error.issues }, 'event payload broke the contract');
       return;
     }
-    for (const target of targets()) target.send(eventChannel(event), parsed.data);
+    for (const target of targets()) {
+      // One closing window must not stop the event reaching the others.
+      try {
+        target.send(eventChannel(event), parsed.data);
+      } catch (error) {
+        log.error({ event, error }, 'could not send event');
+      }
+    }
   };
 }

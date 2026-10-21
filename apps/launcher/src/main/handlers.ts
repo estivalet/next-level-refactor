@@ -7,8 +7,12 @@ import {
   type SettingsSnapshot,
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
+import type { EmitEvent } from './ipc/events.ts';
 import type { IpcHandlers } from './ipc/router.ts';
+import type { CollectionRepository } from './library/CollectionRepository.ts';
+import type { GameRepository } from './library/GameRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
+import { createLibraryHandlers } from './libraryHandlers.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
@@ -25,7 +29,17 @@ export interface MainDeps {
   /** Native folder dialog; null when cancelled. */
   pickFolder: (title?: string) => Promise<string | null>;
   /** null when `library.db` could not be opened; library channels then fail. */
-  library: { repo: LibraryRepository; scan: ScanService } | null;
+  library: {
+    repo: LibraryRepository;
+    scan: ScanService;
+    games: GameRepository;
+    collections: CollectionRepository;
+  } | null;
+  clock: () => Date;
+  emit: EmitEvent;
+  /** Shows a file (or folder) selected in the OS file manager. */
+  revealFile: (path: string) => void;
+  pathExists: (path: string) => boolean;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -59,6 +73,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
   };
 
   return {
+    ...createLibraryHandlers(deps),
     'app.version': () => deps.appVersion(),
     'app.quit': () => {
       deps.quit();

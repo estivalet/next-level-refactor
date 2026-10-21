@@ -1,7 +1,9 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { defaultSettings } from '@nextlevel/shared';
 import { systemCatalog } from '@nextlevel/system-catalog';
 import { v7 as uuidv7 } from 'uuid';
 import { createHandlers, type MainDeps } from './handlers.ts';
@@ -10,6 +12,9 @@ import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { initLogger, logger as log } from './log.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
+import { CollectionRepository } from './library/CollectionRepository.ts';
+import { expectedGamePath } from './library/expectedPath.ts';
+import { GameRepository } from './library/GameRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
 import { ScanService } from './scan/ScanService.ts';
@@ -117,11 +122,21 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     log,
     newId: uuidv7,
   });
+  // Paths follow the current settings, so a changed folder name or location applies at once.
+  const games = new GameRepository(db, (row) => {
+    const loaded = settings.get();
+    return expectedGamePath({
+      settings: loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings(),
+      system: systemCatalog().find((system) => system.id === row.systemId),
+      ...row,
+    });
+  });
+  const collections = new CollectionRepository(db, () => new Date());
   app.on('before-quit', () => {
     scan.cancel();
     db.$client.close();
   });
-  return { repo, scan };
+  return { repo, scan, games, collections };
 }
 
 async function start(): Promise<void> {
@@ -165,6 +180,12 @@ async function start(): Promise<void> {
     log,
     catalog: systemCatalog,
     library: startLibrary(settings),
+    clock: () => new Date(),
+    emit,
+    revealFile: (path) => {
+      shell.showItemInFolder(path);
+    },
+    pathExists: existsSync,
     pickFolder: async (title) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];

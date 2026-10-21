@@ -37,6 +37,8 @@ export function createWorkerWalker(workerPath: string | URL): Walker {
       });
     });
     created.on('exit', () => {
+      // A worker terminated by stop() can exit after a new one started.
+      if (worker !== created) return;
       worker = null;
       settle((current) => {
         current.reject(new ScanCancelled());

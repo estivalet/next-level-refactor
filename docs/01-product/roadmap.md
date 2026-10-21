@@ -11,7 +11,7 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 |---|---|---|---|---|
 | M0 | **Foundations** | Empty monorepo builds, lints, tests in CI; Electron window shows "Hello"; docs in place | NFR-MAINT-1 | ☑ |
 | M1 | **Shell** | Desktop, windows, taskbar, start menu; Settings app skeleton with schema-driven forms, validation, backups | FR-SHELL-1..5, FR-SET-1..4, FR-SET-7 | ☑ |
-| M2 | **Library core** | System catalog; add storage locations; background scan; SQLite library; Game Library app with virtualized lists and global search | FR-LIB-1..8, FR-LIB-10, FR-EMU-1, NFR-PERF | ◐ M2a catalog + storage, M2b library DB + scan done; M2c Game Library next |
+| M2 | **Library core** | System catalog; add storage locations; background scan; SQLite library; Game Library app with virtualized lists and global search | FR-LIB-1..8, FR-LIB-10, FR-EMU-1, NFR-PERF | ☑ M2a catalog + storage, M2b library DB + scan, M2c Game Library |
 | M3 | **Launching** | Emulators + profiles + presets in Settings; Test launch; Play a game and return to it; launch log | FR-EMU-2..8, FR-EMU-10 | ☐ |
 | M4 | **Themes engine** | `packages/themes` engine; Big Box theme first, then the other five; gamepad input; theme packs + coverage | FR-THM-1..6 | ☐ |
 | M5 | **Menus, collections & import** | Menu editor; collections; smart filters; NextLevelOS importer with dry run; owner's library migrated | FR-MENU-*, FR-LIB-9, FR-IMP-* | ☐ |

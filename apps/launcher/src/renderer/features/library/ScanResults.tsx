@@ -5,13 +5,16 @@ import { useTranslation } from 'react-i18next';
 
 const ROW_HEIGHT = 36;
 
-/** Virtualized per-system lines of the last scan: games present and newly missing. */
+/** Virtualized per-system lines of the last scan: games present and missing. */
 export function ScanResults({
   results,
   nameOf,
+  missingOf = (_id, fallback) => fallback,
 }: {
   results: readonly ScanSystemResult[];
   nameOf: (systemId: string) => string;
+  /** A system's missing games in the library; defaults to those that went missing in this scan. */
+  missingOf?: (systemId: string, fallback: number) => number;
 }) {
   const { t } = useTranslation();
   const scroller = useRef<HTMLDivElement>(null);
@@ -38,9 +41,8 @@ export function ScanResults({
           const result = results[item.index];
           if (!result) return null;
           const counts = [t('settings.storage.scan.rowGames', { count: result.present })];
-          if (result.missing > 0) {
-            counts.push(t('settings.storage.scan.missing', { count: result.missing }));
-          }
+          const missing = missingOf(result.systemId, result.missing);
+          if (missing > 0) counts.push(t('settings.storage.scan.missing', { count: missing }));
           return (
             <li
               key={result.systemId}

@@ -1,5 +1,6 @@
 import {
   AppErrorException,
+  ERROR_CODES,
   type AppPathKey,
   type Result,
   type Settings,
@@ -24,6 +25,14 @@ export function unwrap<T>(result: Result<T>): T {
 /** The code of a failed query or mutation, when it came from main. */
 export function errorCode(error: unknown): string | undefined {
   return error instanceof AppErrorException ? error.error.code : undefined;
+}
+
+/** The i18n key of an error's message; anything not from main reads as internal. */
+export function errorMessageKey(error: unknown): string {
+  const code = errorCode(error);
+  return code && code in ERROR_CODES
+    ? ERROR_CODES[code as keyof typeof ERROR_CODES]
+    : 'errors.internal';
 }
 
 /** The settings, kept current by `settings.changed` events from main (e.g. a scan enabling systems). */

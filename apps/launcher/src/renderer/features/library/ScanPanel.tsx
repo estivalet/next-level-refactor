@@ -1,33 +1,18 @@
-import type { ScanSummary } from '@nextlevel/shared';
 import { FolderOpen, ScanSearch, X } from 'lucide-react';
-import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { errorCode, useOpenPath, useSystemCatalog } from '../settings/settingsApi.ts';
+import {
+  errorCode,
+  errorMessageKey,
+  useOpenPath,
+  useSystemCatalog,
+} from '../settings/settingsApi.ts';
+import { useLibraryEvents, useSystemSummaries } from './libraryApi.ts';
+import { summaryLine } from './scanSummary.ts';
 import { ScanResults } from './ScanResults.tsx';
 import { useCancelScan, useScanStatus, useStartScan } from './scanApi.ts';
 
 const BUTTON =
   'flex w-fit items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-40';
-
-/** "2 games in 1 system · 1 new · 1 missing · 1 system turned on" (zero counts are left out). */
-function summaryLine(t: TFunction, summary: ScanSummary): string {
-  const total = (key: 'present' | 'added' | 'moved' | 'restored' | 'missing') =>
-    summary.systems.reduce((sum, system) => sum + system[key], 0);
-  const parts = [
-    `${t('settings.storage.scan.games', { count: total('present') })} ${t(
-      'settings.storage.scan.inSystems',
-      { count: summary.systems.length },
-    )}`,
-  ];
-  for (const key of ['added', 'moved', 'restored', 'missing'] as const) {
-    const count = total(key);
-    if (count > 0) parts.push(t(`settings.storage.scan.${key}`, { count }));
-  }
-  if (summary.enabledSystemIds.length > 0) {
-    parts.push(t('settings.storage.scan.enabled', { count: summary.enabledSystemIds.length }));
-  }
-  return parts.join(' · ');
-}
 
 /**
  * Settings → Storage scan (S9, FR-LIB-3): start, progress with cancel, and the last result.
@@ -40,6 +25,11 @@ export function ScanPanel({ dirty, hasLocations }: { dirty: boolean; hasLocation
   const cancel = useCancelScan();
   const openPath = useOpenPath();
   const catalog = useSystemCatalog();
+  // Totals per system, so systems still missing games from earlier scans show them (FR-LIB-4).
+  useLibraryEvents();
+  const summaries = useSystemSummaries();
+  const missingOf = (id: string, fallback: number) =>
+    summaries.data?.find((system) => system.id === id)?.missing ?? fallback;
   const nameOf = (id: string) => catalog.data?.find((system) => system.id === id)?.name ?? id;
 
   if (errorCode(status.error) === 'LIBRARY_UNAVAILABLE') {
@@ -120,6 +110,11 @@ export function ScanPanel({ dirty, hasLocations }: { dirty: boolean; hasLocation
             {t('settings.storage.scan.start')}
           </button>
           {hint && <p className="text-xs text-slate-400">{hint}</p>}
+          {start.isError && (
+            <p role="alert" className="text-xs text-[#ff8a80]">
+              {t(errorMessageKey(start.error))}
+            </p>
+          )}
         </>
       )}
       {last && (
@@ -129,8 +124,11 @@ export function ScanPanel({ dirty, hasLocations }: { dirty: boolean; hasLocation
           )}
           <p className="text-xs text-white">{summaryLine(t, last)}</p>
           <ScanResults
-            results={last.systems.filter((system) => system.present + system.missing > 0)}
+            results={last.systems.filter(
+              (system) => system.present + missingOf(system.systemId, system.missing) > 0,
+            )}
             nameOf={nameOf}
+            missingOf={missingOf}
           />
         </div>
       )}

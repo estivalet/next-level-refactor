@@ -7,7 +7,11 @@ export const ipcEvents = {
   'scan.progress': ScanProgressSchema,
   'scan.finished': ScanSummarySchema,
   'settings.changed': SettingsSnapshotSchema,
-  'library.changed': z.object({ systems: z.array(z.string()) }),
+  'library.changed': z.object({
+    systems: z.array(z.string()),
+    /** The games a metadata or flag change touched; absent after a scan. */
+    gameIds: z.array(z.number().int().positive()).optional(),
+  }),
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;

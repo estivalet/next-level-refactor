@@ -1,6 +1,20 @@
 import { z } from 'zod';
 import type { Result } from '../result.ts';
 import { SystemDefinitionSchema } from '../catalog/schema.ts';
+import {
+  COLLECTION_SORTS,
+  CollectionNameSchema,
+  CollectionSummarySchema,
+} from '../library/collections.ts';
+import {
+  GameDetailsSchema,
+  GameFlagsSchema,
+  GameIdsSchema,
+  GameListPageSchema,
+  GameListQuerySchema,
+  MetadataChangesSchema,
+  SearchResultSchema,
+} from '../library/games.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
 import { SettingsSchema } from '../settings/schema.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
@@ -23,6 +37,9 @@ export const BackupInfoSchema = z.object({
   size: z.number(),
   changes: z.array(z.string()),
 });
+
+const gameId = z.number().int().positive();
+const collectionId = z.number().int().positive();
 
 export const APP_PATH_KEYS = ['data', 'backups', 'logs'] as const;
 
@@ -56,6 +73,55 @@ export const ipcContract = {
   },
   'scan.cancel': { input: z.void(), output: ScanStatusSchema },
   'scan.status': { input: z.void(), output: ScanStatusSchema },
+  'library.games.list': { input: GameListQuerySchema, output: GameListPageSchema },
+  'library.games.get': { input: z.strictObject({ gameId }), output: GameDetailsSchema },
+  'library.games.updateMetadata': {
+    input: z.strictObject({ gameId, changes: MetadataChangesSchema }),
+    output: GameDetailsSchema,
+  },
+  'library.games.setFlags': {
+    input: z.strictObject({ gameIds: GameIdsSchema, flags: GameFlagsSchema }),
+    output: z.void(),
+  },
+  'library.games.relink': {
+    input: z.strictObject({ missingGameId: gameId, replacementGameId: gameId }),
+    output: GameDetailsSchema,
+  },
+  'library.games.reveal': { input: z.strictObject({ gameId }), output: z.void() },
+  'library.search': {
+    input: z.strictObject({
+      text: z.string().max(200),
+      limit: z.number().int().min(1).max(200).optional(),
+    }),
+    output: SearchResultSchema,
+  },
+  'collections.list': { input: z.void(), output: z.array(CollectionSummarySchema) },
+  'collections.create': {
+    input: z.strictObject({ name: CollectionNameSchema }),
+    output: CollectionSummarySchema,
+  },
+  'collections.update': {
+    input: z.strictObject({
+      id: collectionId,
+      name: CollectionNameSchema.optional(),
+      sort: z.enum(COLLECTION_SORTS).optional(),
+    }),
+    output: CollectionSummarySchema,
+  },
+  'collections.delete': { input: z.strictObject({ id: collectionId }), output: z.void() },
+  'collections.addGames': {
+    input: z.strictObject({ id: collectionId, gameIds: GameIdsSchema }),
+    output: CollectionSummarySchema,
+  },
+  'collections.removeGames': {
+    input: z.strictObject({ id: collectionId, gameIds: GameIdsSchema }),
+    output: CollectionSummarySchema,
+  },
+  'collections.reorder': {
+    // Swaps two members, so a move works on the rows the user sees whatever is filtered out.
+    input: z.strictObject({ id: collectionId, gameId, swapWithGameId: gameId }),
+    output: z.void(),
+  },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),

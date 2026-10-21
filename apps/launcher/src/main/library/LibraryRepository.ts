@@ -3,6 +3,8 @@ import { titleFromRelPath } from '../scan/discs.ts';
 import type { LibraryDb } from './openLibrary.ts';
 import { games } from './schema.ts';
 
+const baseName = (relPath: string) => (relPath.split('/').pop() ?? relPath).toLowerCase();
+
 /** A library row as the scan diff sees it. */
 export interface ExistingGame {
   id: number;
@@ -77,12 +79,27 @@ export class LibraryRepository {
           updatedAt: at,
         });
       }
+      for (const { id, game } of diff.moved) this.retitleRenamed(id, game.relPath);
       for (const { id, game } of [...diff.present, ...diff.moved]) {
         statements.updateFound.run({ id, ...game });
       }
       for (const id of diff.restored) statements.restore.run(id);
       for (const id of diff.missing) statements.markMissing.run({ id, at });
     })();
+  }
+
+  /**
+   * A renamed file (a move that changed the file name) shows its new name, unless the user edited
+   * the title (owner decision 2026-10-21). Runs before the row takes the new rel_path.
+   */
+  private retitleRenamed(id: number, relPath: string): void {
+    const statements = this.statements();
+    const row = statements.renameFacts.get(id) as
+      { relPath: string; lockedFields: string } | undefined;
+    if (!row || baseName(row.relPath) === baseName(relPath)) return;
+    if ((JSON.parse(row.lockedFields) as string[]).includes('title')) return;
+    const title = titleFromRelPath(relPath);
+    statements.retitle.run({ id, title, sortTitle: title.toLowerCase() });
   }
 
   private prepared: ReturnType<LibraryRepository['prepare']> | null = null;
@@ -120,6 +137,13 @@ export class LibraryRepository {
       updateFound: client.prepare<FoundGame & { id: number }>(
         `update games set rel_path = @relPath, location_id = @locationId, size = @size,
          mtime = @mtime, disc_group = @discGroup where id = @id`,
+      ),
+      renameFacts: client.prepare<[number]>(
+        `select g.rel_path as relPath, m.locked_fields as lockedFields
+         from games g join game_metadata m on m.game_id = g.id where g.id = ?`,
+      ),
+      retitle: client.prepare<{ id: number; title: string; sortTitle: string }>(
+        'update game_metadata set title = @title, sort_title = @sortTitle where game_id = @id',
       ),
       restore: client.prepare<[number]>(
         'update games set missing = 0, missing_since = null where id = ?',

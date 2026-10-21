@@ -2,10 +2,11 @@
   "errors": {
     "validationFailed": "A solicitação não é válida.",
     "internal": "Algo deu errado. Verifique o log para mais detalhes.",
-    "conflict": "As configurações mudaram desde que você as abriu. A versão mais recente foi carregada.",
+    "conflict": "As configurações mudaram desde que você as abriu. Suas edições não salvas foram mantidas sobre a versão mais recente.",
     "notFound": "Esse item não existe mais.",
     "invalidSettings": "Essas configurações não são válidas e não foram aplicadas.",
     "libraryUnavailable": "Não foi possível abrir a biblioteca de jogos.",
+    "nameTaken": "Esse nome já está em uso.",
     "validation": {
       "invalid_type": "Este valor tem o tipo errado.",
       "invalid_value": "Escolha uma das opções da lista.",
@@ -47,6 +48,9 @@
   "apps": {
     "settings": {
       "title": "Configurações"
+    },
+    "library": {
+      "title": "Biblioteca de jogos"
     }
   },
   "settings": {
@@ -192,6 +196,140 @@
       "restoreLatest": "Restaurar o backup mais recente",
       "resetDefaults": "Restaurar padrões",
       "openDataFolder": "Abrir pasta de dados"
+    }
+  },
+  "library": {
+    "tree": {
+      "label": "Sistemas e coleções",
+      "other": "Outros",
+      "collections": "Coleções",
+      "noCollections": "Nenhuma coleção ainda"
+    },
+    "list": {
+      "label": "Jogos",
+      "loading": "Carregando jogos…",
+      "empty": "Nenhum jogo aqui."
+    },
+    "missingAt": "Ausente — esperado em {{path}}",
+    "status": {
+      "games_one": "{{count}} jogo",
+      "games_other": "{{count}} jogos",
+      "missing_one": "{{count}} ausente",
+      "missing_other": "{{count}} ausentes"
+    },
+    "tabs": {
+      "label": "Filtro",
+      "all": "Todos",
+      "favorites": "Favoritos",
+      "hidden": "Ocultos",
+      "missing": "Ausentes"
+    },
+    "sort": {
+      "label": "Ordenar",
+      "title": "Título",
+      "year": "Ano",
+      "rating": "Avaliação",
+      "added": "Adicionados recentemente",
+      "manual": "Manual"
+    },
+    "empty": {
+      "title": "Nenhum jogo ainda",
+      "hint": "Adicione um local de armazenamento em Configurações → Armazenamento e procure jogos.",
+      "scan": "Procurar jogos"
+    },
+    "openData": "Abrir pasta de dados",
+    "details": {
+      "label": "Detalhes do jogo",
+      "none": "Selecione um jogo para ver os detalhes.",
+      "favorite": "Favorito",
+      "rating": "Sua avaliação",
+      "rate_one": "{{count}} estrela",
+      "rate_other": "{{count}} estrelas",
+      "edit": "Editar detalhes",
+      "openFolder": "Abrir pasta",
+      "missingSince": "Ausente desde {{date}}",
+      "expectedAt": "Esperado em {{path}}",
+      "relink": "Religar…",
+      "file": "Arquivo"
+    },
+    "fields": {
+      "title": "Título",
+      "year": "Ano",
+      "developer": "Desenvolvedora",
+      "publisher": "Distribuidora",
+      "genre": "Gênero",
+      "players": "Jogadores",
+      "description": "Descrição",
+      "region": "Região",
+      "filters": "Filtros"
+    },
+    "menu": {
+      "label": "Ações do jogo",
+      "edit": "Editar detalhes…",
+      "favorite": "Adicionar aos favoritos",
+      "unfavorite": "Remover dos favoritos",
+      "hide": "Ocultar",
+      "unhide": "Mostrar",
+      "openFolder": "Abrir pasta",
+      "missingReason": "Mostrar motivo da ausência…"
+    },
+    "edit": {
+      "title": "Editar detalhes",
+      "filtersHint": "Separados por vírgula, por exemplo: homebrew, hack",
+      "locked": "Editado por você; uma busca de dados mantém este valor.",
+      "invalid": "Verifique este valor.",
+      "save": "Salvar",
+      "cancel": "Cancelar"
+    },
+    "relink": {
+      "title": "Religar {{title}}",
+      "intro": "{{title}} está ausente. Escolha o jogo para o qual o arquivo foi renomeado ou movido.",
+      "search": "Buscar jogos deste sistema",
+      "candidates": "Jogos encontrados neste sistema",
+      "none": "Nenhum jogo deste sistema corresponde.",
+      "warning": "{{title}} mantém seus detalhes, favorito e coleções e recebe o arquivo de {{replacement}}. {{replacement}} é removido da biblioteca.",
+      "confirm": "Religar",
+      "cancel": "Cancelar"
+    },
+    "close": "Fechar",
+    "collections": {
+      "new": "Nova coleção",
+      "newTitle": "Nova coleção",
+      "name": "Nome",
+      "create": "Criar",
+      "rename": "Renomear",
+      "renameTitle": "Renomear coleção",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir {{name}}?",
+      "deleteBody": "A coleção é excluída. Seus jogos continuam na biblioteca.",
+      "add": "Adicionar à coleção…",
+      "addTitle_one": "Adicionar {{count}} jogo a uma coleção",
+      "addTitle_other": "Adicionar {{count}} jogos a uma coleção",
+      "none": "Nenhuma coleção ainda. Use Nova coleção na lista à esquerda.",
+      "remove": "Remover da coleção",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "toolbar": "Coleção"
+    },
+    "search": {
+      "label": "Buscar em todos os jogos",
+      "placeholder": "Buscar em todos os jogos…",
+      "clear": "Limpar busca",
+      "results": "Resultados da busca",
+      "count_one": "{{count}} resultado",
+      "count_other": "{{count}} resultados",
+      "more": "Mostrando os primeiros {{count}} resultados",
+      "none": "Nenhum jogo corresponde."
+    },
+    "scan": {
+      "button": "Procurar",
+      "menu": "Opções de busca de jogos",
+      "all": "Procurar em todos os sistemas",
+      "system": "Procurar em {{system}}",
+      "cancel": "Cancelar busca",
+      "progress": "Procurando {{done}}/{{total}}"
     }
   }
 }

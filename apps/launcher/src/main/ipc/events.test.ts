@@ -11,6 +11,20 @@ describe('createEventSink', () => {
     expect(second.send).toHaveBeenCalledWith('event:library.changed', { systems: ['nintendo-64'] });
   });
 
+  it('FR-LIB-3: the event sink keeps sending when one window fails', () => {
+    const broken = {
+      send: vi.fn(() => {
+        throw new Error('destroyed');
+      }),
+    };
+    const working = { send: vi.fn() };
+    const error = vi.fn();
+    const emit = createEventSink(() => [broken, working], { error });
+    emit('library.changed', { systems: [] });
+    expect(working.send).toHaveBeenCalledOnce();
+    expect(error).toHaveBeenCalledOnce();
+  });
+
   it('FR-LIB-3: the event sink drops payloads that break the contract', () => {
     const target = { send: vi.fn() };
     const error = vi.fn();

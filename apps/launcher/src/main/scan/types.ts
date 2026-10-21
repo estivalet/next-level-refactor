@@ -7,9 +7,13 @@ export interface WalkJob {
   extensions: string[];
 }
 
-/** The games found for a system; `foldersFound` counts locations where its folder exists. */
+/**
+ * The games found for a system; `foldersFound` counts locations where its folder exists, and
+ * `unreadable` lists folders that exist but could not be read (not ENOENT).
+ */
 export interface WalkResult {
   systemId: string;
   files: FoundGame[];
   foldersFound: number;
+  unreadable: string[];
 }

@@ -128,6 +128,12 @@ export class ScanService {
         const walked = await running.walker.walk(job);
         // cancel() may have run while the walk was awaited.
         if (isCancelled(running)) break;
+        if (walked.unreadable.length > 0) {
+          this.deps.log.error(
+            { systemId: job.systemId, dirs: walked.unreadable },
+            'could not read system folders',
+          );
+        }
         const diff = diffSystem(this.deps.repo.listSystemGames(job.systemId), walked.files);
         this.deps.repo.applySystemDiff(job.systemId, diff, this.deps.clock());
         const result = systemResult(job.systemId, diff);

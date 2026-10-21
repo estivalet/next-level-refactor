@@ -2,10 +2,11 @@
   "errors": {
     "validationFailed": "The request was not valid.",
     "internal": "Something went wrong. Check the log for details.",
-    "conflict": "Settings changed since you opened them. The latest version was loaded.",
+    "conflict": "Settings changed since you opened them. Your unsaved edits were kept on top of the latest version.",
     "notFound": "That item no longer exists.",
     "invalidSettings": "Those settings are not valid and were not applied.",
     "libraryUnavailable": "The game library could not be opened.",
+    "nameTaken": "That name is already in use.",
     "validation": {
       "invalid_type": "This value has the wrong type.",
       "invalid_value": "Choose one of the listed options.",
@@ -47,6 +48,9 @@
   "apps": {
     "settings": {
       "title": "Settings"
+    },
+    "library": {
+      "title": "Game Library"
     }
   },
   "settings": {
@@ -192,6 +196,140 @@
       "restoreLatest": "Restore latest backup",
       "resetDefaults": "Reset to defaults",
       "openDataFolder": "Open data folder"
+    }
+  },
+  "library": {
+    "tree": {
+      "label": "Systems and collections",
+      "other": "Other",
+      "collections": "Collections",
+      "noCollections": "No collections yet"
+    },
+    "list": {
+      "label": "Games",
+      "loading": "Loading games…",
+      "empty": "No games here."
+    },
+    "missingAt": "Missing — expected at {{path}}",
+    "status": {
+      "games_one": "{{count}} game",
+      "games_other": "{{count}} games",
+      "missing_one": "{{count}} missing",
+      "missing_other": "{{count}} missing"
+    },
+    "tabs": {
+      "label": "Filter",
+      "all": "All",
+      "favorites": "Favorites",
+      "hidden": "Hidden",
+      "missing": "Missing"
+    },
+    "sort": {
+      "label": "Sort",
+      "title": "Title",
+      "year": "Year",
+      "rating": "Rating",
+      "added": "Recently added",
+      "manual": "Manual"
+    },
+    "empty": {
+      "title": "No games yet",
+      "hint": "Add a storage location in Settings → Storage, then scan for games.",
+      "scan": "Scan for games"
+    },
+    "openData": "Open data folder",
+    "details": {
+      "label": "Game details",
+      "none": "Select a game to see its details.",
+      "favorite": "Favorite",
+      "rating": "Your rating",
+      "rate_one": "{{count}} star",
+      "rate_other": "{{count}} stars",
+      "edit": "Edit details",
+      "openFolder": "Open folder",
+      "missingSince": "Missing since {{date}}",
+      "expectedAt": "Expected at {{path}}",
+      "relink": "Relink…",
+      "file": "File"
+    },
+    "fields": {
+      "title": "Title",
+      "year": "Year",
+      "developer": "Developer",
+      "publisher": "Publisher",
+      "genre": "Genre",
+      "players": "Players",
+      "description": "Description",
+      "region": "Region",
+      "filters": "Filters"
+    },
+    "menu": {
+      "label": "Game actions",
+      "edit": "Edit details…",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
+      "hide": "Hide",
+      "unhide": "Unhide",
+      "openFolder": "Open folder",
+      "missingReason": "Show missing reason…"
+    },
+    "edit": {
+      "title": "Edit details",
+      "filtersHint": "Comma-separated, for example: homebrew, hack",
+      "locked": "Edited by you; a scrape keeps this value.",
+      "invalid": "Check this value.",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "relink": {
+      "title": "Relink {{title}}",
+      "intro": "{{title}} is missing. Pick the game its file was renamed or moved to.",
+      "search": "Search this system's games",
+      "candidates": "Games found in this system",
+      "none": "No game in this system matches.",
+      "warning": "{{title}} keeps its details, favorite and collections and takes the file of {{replacement}}. {{replacement}} is removed from the library.",
+      "confirm": "Relink",
+      "cancel": "Cancel"
+    },
+    "close": "Close",
+    "collections": {
+      "new": "New collection",
+      "newTitle": "New collection",
+      "name": "Name",
+      "create": "Create",
+      "rename": "Rename",
+      "renameTitle": "Rename collection",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteBody": "The collection is deleted. Its games stay in the library.",
+      "add": "Add to collection…",
+      "addTitle_one": "Add {{count}} game to a collection",
+      "addTitle_other": "Add {{count}} games to a collection",
+      "none": "No collections yet. Use New collection in the list on the left.",
+      "remove": "Remove from collection",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "toolbar": "Collection"
+    },
+    "search": {
+      "label": "Search all games",
+      "placeholder": "Search all games…",
+      "clear": "Clear search",
+      "results": "Search results",
+      "count_one": "{{count}} match",
+      "count_other": "{{count}} matches",
+      "more": "Showing the first {{count}} matches",
+      "none": "No games match."
+    },
+    "scan": {
+      "button": "Scan",
+      "menu": "Scan options",
+      "all": "Scan all systems",
+      "system": "Scan {{system}}",
+      "cancel": "Cancel scan",
+      "progress": "Scanning {{done}}/{{total}}"
     }
   }
 }

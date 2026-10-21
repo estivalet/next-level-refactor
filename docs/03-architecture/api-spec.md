@@ -136,8 +136,8 @@ channels also return `VALIDATION_FAILED`.
 |---|---|
 | Settings | `settings.get` (`ok` snapshot or `invalid` + latest backup id), `settings.save` (`baseRevision`; stale → `CONFLICT`), `settings.reset`, `settings.backups.list`, `settings.backups.restore`, `settings.export`, `settings.import`. No `settings.validate`: both processes validate with the shared schema |
 | Systems | `systems.catalog` (definitions; presets from M3), `systems.list` (one `{ id, enabled, games, missing }` per catalog system; `games` includes missing ones) |
-| Library | `library.menu.get`, `library.games.list` (node + query + paging), `library.games.get`, `library.games.updateMetadata`, `library.games.setFlags`, `library.games.setLaunchOverride`, `library.search` |
-| Collections | `collections.list`, `collections.get`, `collections.create`, `collections.update`, `collections.delete`, `collections.addGames`, `collections.removeGames`, `collections.reorder` |
+| Library | Since M2c: `library.games.list` (`{ scope: { kind: 'system', systemId } \| { kind: 'collection', collectionId }, tab: all\|favorites\|hidden\|missing, sort?, text?, offset, limit ≤ 1000 }` → `{ total, offset, games }`; All leaves hidden games out; missing rows carry `expectedPath`), `library.games.get` (`{ gameId }` → details with `lockedFields`, `filters`, `collectionIds`), `library.games.updateMetadata` (`{ gameId, changes }`; edited fields join `lockedFields`), `library.games.setFlags` (`{ gameIds, flags: { favorite?, hidden?, userRating? } }`), `library.games.relink` (`{ missingGameId, replacementGameId }`: the missing row takes the other game's file, the other row is deleted), `library.games.reveal` (`{ gameId }`; path resolved from the library, never from input), `library.search` (`{ text, limit? ≤ 200 }` → `{ games, more }`; FTS5 prefix match, hidden games excluded, < 2 characters → empty). Later: `library.menu.get`, `library.games.setLaunchOverride` |
+| Collections | Since M2c: `collections.list`, `collections.create` (`{ name }`), `collections.update` (`{ id, name?, sort?: manual\|title\|year }`), `collections.delete`, `collections.addGames` / `collections.removeGames` (`{ id, gameIds }` → summary), `collections.reorder` (`{ id, gameId, swapWithGameId }` swaps two members, so Move up / Move down act on the rows shown even when hidden members sit between them). Names are unique ignoring case (`NAME_TAKEN`); unknown ids → `NOT_FOUND` |
 | Menus | `menus.list`, `menus.get`, `menus.save` (whole tree + base revision), `menus.create`, `menus.delete`, `menus.setActive` |
 | Scan | `scan.start` (`{ systemIds? }`; while a scan runs it returns that scan's status), `scan.cancel`, `scan.status`; all return `{ running, progress, last }` (`last` = summary with per-system present/added/moved/restored/missing and `enabledSystemIds`). Without a library they fail with `LIBRARY_UNAVAILABLE` |
 | Launch | `launch.game`, `launch.test` (profile + game → command + result), `launch.preview` (rendered argv, no spawn), `launch.log` |
@@ -150,7 +150,7 @@ channels also return `VALIDATION_FAILED`.
 
 **Events (main → renderer):** `settings.changed`, `scan.progress`, `scan.finished`,
 `launch.started`, `launch.finished`, `downloads.progress`, `downloads.finished`,
-`auth.changed`, `library.changed` (`{ gameIds?, systems? }`). Since M2b
+`auth.changed`, `library.changed` (`{ systems, gameIds? }`; `gameIds` names the games a metadata, flag or relink change touched). Since M2b
 `scan.progress`, `scan.finished`, `settings.changed` and `library.changed` exist: schemas in
 `packages/shared/src/ipc/events.ts`, sent on `event:<name>` channels after main validates the
 payload, received with `window.nextlevel.on(event, listener)` (returns an unsubscribe function;

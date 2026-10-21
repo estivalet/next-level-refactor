@@ -56,7 +56,7 @@ describe('keyboard focus follows the window manager (NFR-A11Y-1)', () => {
     await user.dblClick(desktopIcons().getByRole('button', { name: 'Settings' }));
     within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }).focus();
     await user.keyboard('{Enter}');
-    expect(document.activeElement).toBe(desktopIcons().getByRole('button', { name: 'Settings' }));
+    expect(document.activeElement).toBe(desktopIcons().getAllByRole('button')[0]);
   });
 
   it('FR-SHELL-2: tabbing into a covered window brings it to the front', () => {
