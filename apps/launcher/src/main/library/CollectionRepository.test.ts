@@ -42,7 +42,11 @@ describe('CollectionRepository', () => {
     expect(collections.list().map((c) => c.name)).toEqual(['arcade', 'Best']);
     collections.delete(picks.id);
     expect(collections.list().map((c) => c.name)).toEqual(['arcade']);
-    expect(appErrorOf(() => collections.delete(picks.id)).code).toBe('NOT_FOUND');
+    expect(
+      appErrorOf(() => {
+        collections.delete(picks.id);
+      }).code,
+    ).toBe('NOT_FOUND');
     expect(appErrorOf(() => collections.update(picks.id, { sort: 'year' })).code).toBe('NOT_FOUND');
     expect(appErrorOf(() => listed(picks.id)).code).toBe('NOT_FOUND');
   });
@@ -94,7 +98,11 @@ describe('CollectionRepository', () => {
       .pluck()
       .all(id);
     expect(positions).toEqual([0, 1]);
-    expect(appErrorOf(() => collections.reorder(id, c, 0)).code).toBe('NOT_FOUND');
+    expect(
+      appErrorOf(() => {
+        collections.reorder(id, c, 0);
+      }).code,
+    ).toBe('NOT_FOUND');
   });
 
   it('FR-LIB-8: deleting a collection or a game removes the memberships', () => {
