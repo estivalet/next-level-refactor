@@ -14,7 +14,7 @@ import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
 import { ROW_COLUMNS, ROW_JOINS, listShape, toRow, type RawRow } from './gameSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
-/** Where a game's file is expected; used only for missing games (FR-LIB-4). */
+/** Where a game's file is (or, when missing, was expected: FR-LIB-4), from library and settings. */
 export type ResolvePath = (row: {
   systemId: string;
   locationId: string | null;
@@ -281,6 +281,17 @@ export class GameRepository {
       ).run({ ...replacement, id: missing.id });
     })();
     return this.get(missingGameId);
+  }
+
+  /** The file of a game, resolved from the library only (never from renderer input). */
+  filePath(gameId: number): { path: string; missing: boolean } {
+    const row = this.statement(
+      `select system_id as systemId, location_id as locationId, rel_path as relPath, missing
+       from games where id = ?`,
+    ).get(gameId) as
+      { systemId: string; locationId: string | null; relPath: string; missing: number } | undefined;
+    if (!row) throw notFound({ gameId });
+    return { path: this.resolvePath(row), missing: row.missing === 1 };
   }
 
   /** The distinct systems of some games, for `library.changed`. */

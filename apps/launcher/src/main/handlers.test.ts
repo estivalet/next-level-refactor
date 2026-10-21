@@ -27,6 +27,10 @@ async function setup() {
     catalog: () => [N64],
     pickFolder: vi.fn((title?: string) => Promise.resolve(title === 'cancel' ? null : 'E:/roms')),
     library: null,
+    clock: () => new Date(Date.UTC(2026, 9, 21)),
+    emit: vi.fn(),
+    revealFile: vi.fn(),
+    pathExists: () => false,
   };
   const router = createIpcRouter(createHandlers(deps), { error: () => undefined });
   return { deps, router, warn, dir: fixture.dir };
