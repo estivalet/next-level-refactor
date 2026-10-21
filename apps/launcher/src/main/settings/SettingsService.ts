@@ -31,6 +31,8 @@ export interface SettingsDeps {
     pickExportPath(defaultName: string): Promise<string | null>;
     pickImportPath(): Promise<string | null>;
   };
+  /** Called after every successful write, e.g. to tell the renderer (`settings.changed`). */
+  onChanged?: (snapshot: SettingsSnapshot) => void;
 }
 
 type Invalid = Extract<SettingsLoad, { kind: 'invalid' }>;
@@ -116,6 +118,23 @@ export class SettingsService {
     return ok(await this.write(parsed.data));
   }
 
+  /**
+   * Applies `change` to the latest saved settings, for writes main makes itself (the scan enabling
+   * systems) where there is no base revision to check.
+   */
+  update(change: (settings: Settings) => Settings): Promise<Result<SettingsSnapshot>> {
+    return this.exclusive(async () => {
+      if (this.state.kind === 'invalid') {
+        return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: 'file is invalid' });
+      }
+      const parsed = SettingsSchema.safeParse(change(this.state.snapshot.settings));
+      if (!parsed.success) {
+        return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, parsed.error.issues);
+      }
+      return ok(await this.write(parsed.data));
+    });
+  }
+
   reset(): Promise<SettingsSnapshot> {
     return this.exclusive(() => this.write(defaultSettings()));
   }
@@ -191,7 +210,9 @@ export class SettingsService {
     await atomicWrite(this.paths.settings, `${JSON.stringify(settings, null, 2)}\n`);
     await pruneBackups(this.paths.backups);
     this.revision += 1;
-    return this.setOk(settings).snapshot;
+    const { snapshot } = this.setOk(settings);
+    this.deps.onChanged?.(snapshot);
+    return snapshot;
   }
 
   /** Enters the invalid state, pointing at the newest backup that is itself usable. */
