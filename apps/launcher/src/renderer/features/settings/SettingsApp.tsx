@@ -1,6 +1,7 @@
 import {
   Archive,
   FolderOpen,
+  Gamepad2,
   HardDrive,
   Info,
   SlidersHorizontal,
@@ -13,6 +14,7 @@ import { BackupsSection } from './BackupsSection.tsx';
 import { DataSection } from './DataSection.tsx';
 import { GeneralSection } from './GeneralSection.tsx';
 import { StorageSection } from './StorageSection.tsx';
+import { SystemsSection } from './systems/SystemsSection.tsx';
 
 interface Section {
   id: string;
@@ -34,6 +36,12 @@ const SECTIONS: readonly Section[] = [
     labelKey: 'settings.sections.storage',
     icon: HardDrive,
     Component: StorageSection,
+  },
+  {
+    id: 'systems',
+    labelKey: 'settings.sections.systems',
+    icon: Gamepad2,
+    Component: SystemsSection,
   },
   {
     id: 'backups',

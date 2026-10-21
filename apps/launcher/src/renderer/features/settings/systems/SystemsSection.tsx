@@ -1,0 +1,88 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { SettingsSection } from '../form/SettingsSection.tsx';
+import { useSystemCatalog } from '../settingsApi.ts';
+import { filterSystems, withSystem } from './filterSystems.ts';
+import { SystemEditor } from './SystemEditor.tsx';
+import { SystemList } from './SystemList.tsx';
+
+/** Settings → Systems (FR-EMU-1, FR-LIB-2): enable systems and override folder/extensions. */
+export function SystemsSection() {
+  const { t } = useTranslation();
+  const catalog = useSystemCatalog();
+  const [query, setQuery] = useState('');
+  const [enabledOnly, setEnabledOnly] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const systems = catalog.data ?? [];
+
+  return (
+    <SettingsSection>
+      {({ draft, update, errors }) => {
+        const shown = filterSystems(systems, query, draft.systems, enabledOnly ? 'enabled' : 'all');
+        const enabledCount = systems.filter((s) => draft.systems[s.id]?.enabled === true).length;
+        const editing = systems.find((s) => s.id === editingId);
+
+        return (
+          <div className="flex flex-col gap-3 py-4">
+            <p className="text-sm text-slate-300">{t('settings.systems.intro')}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                type="search"
+                value={query}
+                aria-label={t('settings.systems.search')}
+                placeholder={t('settings.systems.search')}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                }}
+                className="w-64 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none"
+              />
+              <label className="flex items-center gap-2 text-xs text-slate-200">
+                <input
+                  type="checkbox"
+                  checked={enabledOnly}
+                  onChange={(event) => {
+                    setEnabledOnly(event.target.checked);
+                  }}
+                />
+                {t('settings.systems.enabledOnly')}
+              </label>
+              <span role="status" className="ml-auto text-xs text-slate-300">
+                {t('settings.systems.count', { enabled: enabledCount, total: systems.length })}
+              </span>
+            </div>
+            {editing && (
+              <SystemEditor
+                key={editing.id}
+                system={editing}
+                settings={draft.systems[editing.id]}
+                errors={errors}
+                onChange={(patch) => {
+                  update((current) => withSystem(current, editing.id, patch));
+                }}
+                onReset={() => {
+                  update((current) =>
+                    withSystem(current, editing.id, {
+                      folderName: undefined,
+                      extensions: undefined,
+                    }),
+                  );
+                }}
+                onClose={() => {
+                  setEditingId(null);
+                }}
+              />
+            )}
+            <SystemList
+              systems={shown}
+              settings={draft.systems}
+              onToggle={(id, enabled) => {
+                update((current) => withSystem(current, id, { enabled }));
+              }}
+              onEdit={setEditingId}
+            />
+          </div>
+        );
+      }}
+    </SettingsSection>
+  );
+}

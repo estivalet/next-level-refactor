@@ -55,7 +55,8 @@
       "general": "General",
       "backups": "Backups",
       "data": "Data & logs",
-      "storage": "Storage"
+      "storage": "Storage",
+      "systems": "Systems"
     },
     "about": {
       "product": "NextLevel",
@@ -124,6 +125,24 @@
       "moveUp": "Move {{name}} up",
       "moveDown": "Move {{name}} down",
       "remove": "Remove {{name}}"
+    },
+    "systems": {
+      "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",
+      "list": "Systems",
+      "search": "Search systems",
+      "enabledOnly": "Enabled only",
+      "count": "{{enabled}} of {{total}} enabled",
+      "noResults": "No systems match.",
+      "enable": "Enable {{name}}",
+      "edit": "Edit {{name}}",
+      "folder": "Folder: {{folder}}",
+      "folderName": "ROM folder name",
+      "folderHelp": "Leave empty to use “{{default}}”.",
+      "extensions": "File extensions",
+      "extensionsHelp": "Comma-separated. Leave empty to use: {{default}}",
+      "reset": "Reset to defaults",
+      "close": "Close",
+      "editShort": "Edit"
     }
   },
   "boot": {

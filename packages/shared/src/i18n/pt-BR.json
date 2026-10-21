@@ -55,7 +55,8 @@
       "general": "Geral",
       "backups": "Backups",
       "data": "Dados e logs",
-      "storage": "Armazenamento"
+      "storage": "Armazenamento",
+      "systems": "Sistemas"
     },
     "about": {
       "product": "NextLevel",
@@ -124,6 +125,24 @@
       "moveUp": "Mover {{name}} para cima",
       "moveDown": "Mover {{name}} para baixo",
       "remove": "Remover {{name}}"
+    },
+    "systems": {
+      "intro": "Ative os sistemas que você joga. Cada um é procurado como uma pasta dentro dos seus locais de armazenamento.",
+      "list": "Sistemas",
+      "search": "Pesquisar sistemas",
+      "enabledOnly": "Somente ativos",
+      "count": "{{enabled}} de {{total}} ativos",
+      "noResults": "Nenhum sistema encontrado.",
+      "enable": "Ativar {{name}}",
+      "edit": "Editar {{name}}",
+      "folder": "Pasta: {{folder}}",
+      "folderName": "Nome da pasta de ROMs",
+      "folderHelp": "Deixe vazio para usar “{{default}}”.",
+      "extensions": "Extensões de arquivo",
+      "extensionsHelp": "Separadas por vírgula. Deixe vazio para usar: {{default}}",
+      "reset": "Restaurar padrões",
+      "close": "Fechar",
+      "editShort": "Editar"
     }
   },
   "boot": {
