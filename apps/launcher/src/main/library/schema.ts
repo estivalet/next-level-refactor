@@ -126,3 +126,36 @@ export const collectionGames = sqliteTable(
 
 // games_fts (FTS5 over game_metadata.title) is created by the hand-written migration
 // 0002_games_fts.sql: Drizzle Kit can't describe virtual tables or triggers.
+
+/** A game's own profile, core and extra args (FR-EMU-4); no row = use the system's profile. */
+export const gameLaunchOverride = sqliteTable('game_launch_override', {
+  gameId: integer('game_id')
+    .primaryKey()
+    .references(() => games.id, { onDelete: 'cascade' }),
+  profileId: text('profile_id'),
+  core: text('core'),
+  extraArgs: text('extra_args')
+    .notNull()
+    .default(sql`'[]'`),
+});
+
+/** Every launch (FR-EMU-10), newest 1,000 kept; titles and names are copies so rows outlive them. */
+export const launchLog = sqliteTable(
+  'launch_log',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    gameId: integer('game_id').references(() => games.id, { onDelete: 'set null' }),
+    gameTitle: text('game_title').notNull(),
+    profileId: text('profile_id').notNull(),
+    profileName: text('profile_name').notNull(),
+    argv: text('argv').notNull(),
+    cwd: text('cwd').notNull(),
+    test: integer('test', { mode: 'boolean' }).notNull().default(false),
+    startedAt: text('started_at').notNull(),
+    endedAt: text('ended_at'),
+    exitCode: integer('exit_code'),
+    errorCode: text('error_code'),
+    stderrTail: text('stderr_tail'),
+  },
+  (table) => [index('launch_log_started').on(table.startedAt)],
+);
