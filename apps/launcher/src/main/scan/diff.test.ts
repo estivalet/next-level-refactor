@@ -53,14 +53,14 @@ describe('diffSystem renames', () => {
     expect(diff.missing).toEqual([1]);
   });
 
-  it('FR-LIB-3: an already missing row is restored by its renamed file', () => {
+  it('FR-LIB-3: a row missing since an earlier scan is never paired by size and mtime', () => {
     const diff = diffSystem(
       [timedRow(1, 'Game.zip', 10, 5, true)],
-      [timed('Game (USA).zip', 10, 5)],
+      [timed('Other Game.zip', 10, 5)],
     );
-    expect(diff.moved).toEqual([{ id: 1, game: timed('Game (USA).zip', 10, 5) }]);
-    expect(diff.restored).toEqual([1]);
-    expect(diff.missing).toEqual([]);
+    expect(diff.moved).toEqual([]);
+    expect(diff.restored).toEqual([]);
+    expect(diff.added).toEqual([timed('Other Game.zip', 10, 5)]);
   });
 });
 

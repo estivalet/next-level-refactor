@@ -95,9 +95,11 @@ export function diffSystem(
     (row) => moveKey(row.relPath, row.size),
     move,
   );
+  // Renames pair only with rows present until now: a row missing since an earlier scan has no
+  // reliable mtime link to today's files.
   const notRenamed = pairUnique(
     notMoved,
-    unmatchedRows(),
+    unmatchedRows().filter((row) => !row.missing),
     (game) => renameKey(game.relPath, game.size, game.mtime),
     (row) => renameKey(row.relPath, row.size, row.mtime),
     move,

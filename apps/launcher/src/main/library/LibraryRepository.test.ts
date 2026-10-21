@@ -25,6 +25,55 @@ afterEach(async () => {
 
 const empty = { added: [], present: [], moved: [], restored: [], missing: [], unchanged: 0 };
 
+describe('LibraryRepository renames', () => {
+  const titleOf = (id: number) =>
+    library.db.$client
+      .prepare('select title, sort_title from game_metadata where game_id = ?')
+      .get(id);
+
+  it('FR-LIB-3: a renamed game takes the new file name as its title unless the user edited it', () => {
+    repo.applySystemDiff('snes', { ...empty, added: [found('Game.zip'), found('Mine.zip')] }, NOW);
+    const [game, mine] = repo.listSystemGames('snes');
+    if (!game || !mine) throw new Error('rows missing');
+    library.db.$client
+      .prepare(
+        `update game_metadata set title = 'My Title', locked_fields = '["title"]' where game_id = ?`,
+      )
+      .run(mine.id);
+    repo.applySystemDiff(
+      'snes',
+      {
+        ...empty,
+        moved: [
+          { id: game.id, game: found('Game (USA) (Rev 1).zip') },
+          { id: mine.id, game: found('Mine (USA).zip') },
+        ],
+      },
+      LATER,
+    );
+    expect(titleOf(game.id)).toEqual({
+      title: 'Game (USA) (Rev 1)',
+      sort_title: 'game (usa) (rev 1)',
+    });
+    expect(titleOf(mine.id)).toMatchObject({ title: 'My Title' });
+  });
+
+  it('FR-LIB-3: a game moved to another folder under the same name keeps its title', () => {
+    repo.applySystemDiff('snes', { ...empty, added: [found('Game.zip')] }, NOW);
+    const [game] = repo.listSystemGames('snes');
+    if (!game) throw new Error('row missing');
+    library.db.$client
+      .prepare(`update game_metadata set title = 'Scraped Title' where game_id = ?`)
+      .run(game.id);
+    repo.applySystemDiff(
+      'snes',
+      { ...empty, moved: [{ id: game.id, game: found('Sub/Game.zip') }] },
+      LATER,
+    );
+    expect(titleOf(game.id)).toMatchObject({ title: 'Scraped Title' });
+  });
+});
+
 describe('LibraryRepository', () => {
   it('FR-LIB-1: rel_path is unique per system regardless of case', () => {
     repo.applySystemDiff('nintendo-64', { ...empty, added: [found('Game.zip')] }, NOW);
