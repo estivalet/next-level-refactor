@@ -49,7 +49,7 @@ or zero-filled dummy files.
 | # | Scenario | Refs |
 |---|---|---|
 | C1 | Settings save is atomic; corrupt file → restore backup offered; never silently overwritten | FR-SET-2/3, NFR-REL-1 |
-| C2 | Launch builds the exact argv for each preset (snapshot per preset) and never uses a shell | FR-EMU-3/7, ADR-004 |
+| C2 | Launch builds the exact argv for each preset (snapshot per preset) and never uses a shell (`packages/system-catalog/src/presets.test.ts`, `spawnProcess.test.ts`, `LaunchService.integration.test.ts`) | FR-EMU-3/7, ADR-004 |
 | C3 | Storage priority picks the right copy when a game exists on two locations | FR-LIB-1 |
 | C4 | Scan never deletes data; disconnected drive marks games missing, reconnect restores them (`ScanService.test.ts`, `e2e/scan.spec.ts`) | FR-LIB-4 |
 | C5 | Import of the legacy fixture is idempotent and matches expected counts | FR-IMP-1/2 |
