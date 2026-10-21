@@ -15,6 +15,17 @@ const NODE_ONLY_MODULES = [
   'worker_threads',
 ];
 
+const APP_PACKAGE_PATTERN = {
+  group: ['launcher', 'api', 'admin'].flatMap((app) => [
+    `@nextlevel/${app}`,
+    `@nextlevel/${app}/**`,
+  ]),
+  message: 'packages/* must not import from apps/* (architecture §3 dependency rule).',
+};
+
+const BROWSER_SAFE_MESSAGE =
+  'themes and ui must not import Node or Electron (architecture §3 dependency rule).';
+
 export default tseslint.config(
   { ignores: ['**/out/**', '**/dist/**', '**/coverage/**', '.superpowers/**'] },
   js.configs.recommended,
@@ -51,7 +62,13 @@ export default tseslint.config(
       ],
     },
   },
-  // Themes and UI run in the browser too, so they never touch Node or Electron.
+  // The path rule above only sees relative imports; workspace symlinks make apps importable by name.
+  {
+    files: ['packages/**'],
+    rules: { 'no-restricted-imports': ['error', { patterns: [APP_PACKAGE_PATTERN] }] },
+  },
+  // Themes and UI run in the browser too, so they never touch Node or Electron. This block
+  // replaces the rule options above for these files, so it repeats the app pattern.
   {
     files: ['packages/themes/**', 'packages/ui/**'],
     rules: {
@@ -60,16 +77,9 @@ export default tseslint.config(
         {
           paths: [...NODE_ONLY_MODULES, 'electron'].map((name) => ({
             name,
-            message:
-              'themes and ui must not import Node or Electron (architecture §3 dependency rule).',
+            message: BROWSER_SAFE_MESSAGE,
           })),
-          patterns: [
-            {
-              group: ['node:*'],
-              message:
-                'themes and ui must not import Node or Electron (architecture §3 dependency rule).',
-            },
-          ],
+          patterns: [APP_PACKAGE_PATTERN, { group: ['node:*'], message: BROWSER_SAFE_MESSAGE }],
         },
       ],
     },

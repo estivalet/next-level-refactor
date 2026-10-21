@@ -5,6 +5,9 @@
       "path": "./tsconfig.tools.json"
     },
     {
+      "path": "./packages/config"
+    },
+    {
       "path": "./packages/shared"
     },
     {
