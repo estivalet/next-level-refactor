@@ -8,3 +8,4 @@ export * from './library/collections.ts';
 export * from './settings/schema.ts';
 export * from './settings/changedPaths.ts';
 export * from './catalog/schema.ts';
+export * from './launch/template.ts';
