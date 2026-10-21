@@ -1,0 +1,4929 @@
+{
+  "source": "nextlevelos@3d530b7 + es-de v3.5.0",
+  "presets": [
+    {
+      "id": "retroarch",
+      "name": "RetroArch",
+      "executableNames": [
+        "retroarch.exe"
+      ],
+      "homepage": "https://www.retroarch.com/",
+      "profiles": [
+        {
+          "id": "retroarch:81_libretro",
+          "name": "RetroArch – 81",
+          "systems": [
+            "sinclair-zx81"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "81_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:arduous_libretro",
+          "name": "RetroArch – arduous",
+          "systems": [
+            "arduboy"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "arduous_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:atari800_libretro",
+          "name": "RetroArch – atari800",
+          "systems": [
+            "atari-5200",
+            "atari-800",
+            "atari-xegs"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "atari800_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:bluemsx_libretro",
+          "name": "RetroArch – bluemsx",
+          "systems": [
+            "coleco-colecovision",
+            "microsoft-msx",
+            "spectravideo"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "bluemsx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:cap32_libretro",
+          "name": "RetroArch – cap32",
+          "systems": [
+            "amstrad-cpc",
+            "amstrad-gx4000"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "cap32_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:chailove_libretro",
+          "name": "RetroArch – chailove",
+          "systems": [
+            "chailove"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "chailove_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:desmume_libretro",
+          "name": "RetroArch – desmume",
+          "systems": [
+            "nintendo-ds"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "desmume_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:dosbox_pure_libretro",
+          "name": "RetroArch – dosbox_pure",
+          "systems": [
+            "microsoft-dos"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "dosbox_pure_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:duckstation_libretro",
+          "name": "RetroArch – duckstation",
+          "systems": [
+            "sony-playstation"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "duckstation_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:easyrpg_libretro",
+          "name": "RetroArch – easyrpg",
+          "systems": [
+            "easyrpg"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "easyrpg_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:emuscv_libretro",
+          "name": "RetroArch – emuscv",
+          "systems": [
+            "epoch-super-cassette-vision"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "emuscv_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:fbneo_libretro",
+          "name": "RetroArch – fbneo",
+          "systems": [
+            "arcade",
+            "final-burn-neo",
+            "snk-neo-geo",
+            "snk-neo-geo-aes",
+            "snk-neo-geo-mvs"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "fbneo_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:fceumm_libretro",
+          "name": "RetroArch – fceumm",
+          "systems": [
+            "bandai-datach"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "fceumm_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:flycast_libretro",
+          "name": "RetroArch – flycast",
+          "systems": [
+            "sammy-atomiswave",
+            "sega-dreamcast",
+            "sega-naomi",
+            "sega-naomi-2",
+            "sega-naomi-gd-rom"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "flycast_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:fmsx_libretro",
+          "name": "RetroArch – fmsx",
+          "systems": [
+            "zemmix",
+            "zemmix-neo"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "fmsx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:freechaf_libretro",
+          "name": "RetroArch – freechaf",
+          "systems": [
+            "fairchild-channel-f"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "freechaf_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:freeintv_libretro",
+          "name": "RetroArch – freeintv",
+          "systems": [
+            "mattel-intellivision"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "freeintv_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:fuse_libretro",
+          "name": "RetroArch – fuse",
+          "systems": [
+            "sinclair-zx-spectrum"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "fuse_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:gambatte_libretro",
+          "name": "RetroArch – gambatte",
+          "systems": [
+            "nintendo-game-boy",
+            "nintendo-game-boy-color"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "gambatte_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:gearsystem_libretro",
+          "name": "RetroArch – gearsystem",
+          "systems": [
+            "othello-multivision"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "gearsystem_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:genesis_plus_gx_libretro",
+          "name": "RetroArch – genesis_plus_gx",
+          "systems": [
+            "samsung-gamboy",
+            "sega-cd",
+            "sega-channel",
+            "sega-game-gear",
+            "sega-genesis",
+            "sega-mark-iii",
+            "sega-master-system",
+            "sega-mega-cd",
+            "sega-mega-drive",
+            "sega-mega-drive-msu-1",
+            "sega-pico",
+            "sega-sc-3000",
+            "sega-sg-1000"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "genesis_plus_gx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:gw_libretro",
+          "name": "RetroArch – gw",
+          "systems": [
+            "game-watch"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "gw_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:hatarib_libretro",
+          "name": "RetroArch – hatarib",
+          "systems": [
+            "atari-st"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "hatarib_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:jaxe_libretro",
+          "name": "RetroArch – jaxe",
+          "systems": [
+            "chip8"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "jaxe_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:kronos_libretro",
+          "name": "RetroArch – kronos",
+          "systems": [
+            "sega-saturn",
+            "sega-st-v"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "kronos_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:lowresnx_libretro",
+          "name": "RetroArch – lowresnx",
+          "systems": [
+            "lowres-nx"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "lowresnx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:lutro_libretro",
+          "name": "RetroArch – lutro",
+          "systems": [
+            "lutro"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "lutro_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mame_libretro",
+          "name": "RetroArch – mame",
+          "systems": [
+            "acorn-bbc-micro",
+            "brainchild-pls-1000",
+            "mame",
+            "philips-p2000t",
+            "sharp-mz-2200",
+            "snk-hyper-neogeo-64",
+            "vtech-socrates"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mame_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_lynx_libretro",
+          "name": "RetroArch – mednafen_lynx",
+          "systems": [
+            "atari-lynx"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_lynx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_ngp_libretro",
+          "name": "RetroArch – mednafen_ngp",
+          "systems": [
+            "snk-neo-geo-pocket",
+            "snk-neo-geo-pocket-color"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_ngp_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_pce_fast_libretro",
+          "name": "RetroArch – mednafen_pce_fast",
+          "systems": [
+            "nec-pc-engine",
+            "nec-pc-engine-cd",
+            "nec-turbografx-16",
+            "nec-turbografx-cd"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_pce_fast_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_pcfx_libretro",
+          "name": "RetroArch – mednafen_pcfx",
+          "systems": [
+            "nec-pc-fx"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_pcfx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_supergrafx_libretro",
+          "name": "RetroArch – mednafen_supergrafx",
+          "systems": [
+            "nec-supergrafx"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_supergrafx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_vb_libretro",
+          "name": "RetroArch – mednafen_vb",
+          "systems": [
+            "nintendo-virtual-boy"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_vb_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mednafen_wswan_libretro",
+          "name": "RetroArch – mednafen_wswan",
+          "systems": [
+            "bandai-wonderswan",
+            "bandai-wonderswan-color"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mednafen_wswan_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mojozork_libretro",
+          "name": "RetroArch – mojozork",
+          "systems": [
+            "infocom-z-machine"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mojozork_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mu_libretro",
+          "name": "RetroArch – mu",
+          "systems": [
+            "palm-os"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mu_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:mupen64plus_next_libretro",
+          "name": "RetroArch – mupen64plus_next",
+          "systems": [
+            "ique-player",
+            "nintendo-64",
+            "nintendo-64dd",
+            "seta-aleck-64"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "mupen64plus_next_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:nekop2_libretro",
+          "name": "RetroArch – nekop2",
+          "systems": [
+            "nec-pc-9801"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "nekop2_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:neocd_libretro",
+          "name": "RetroArch – neocd",
+          "systems": [
+            "snk-neo-geo-cd"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "neocd_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:nestopia_libretro",
+          "name": "RetroArch – nestopia",
+          "systems": [
+            "handy-vision",
+            "nintendo-famicom",
+            "nintendo-famicom-disk-system",
+            "nintendo-nes"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "nestopia_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:o2em_libretro",
+          "name": "RetroArch – o2em",
+          "systems": [
+            "magnavox-odyssey-2"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "o2em_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:opera_libretro",
+          "name": "RetroArch – opera",
+          "systems": [
+            "panasonic-3do"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "opera_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:pd777_libretro",
+          "name": "RetroArch – pd777",
+          "systems": [
+            "epoch-tv-game-cassette-vision"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "pd777_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:picodrive_libretro",
+          "name": "RetroArch – picodrive",
+          "systems": [
+            "sega-32x",
+            "sega-32x-cd"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "picodrive_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:pokemini_libretro",
+          "name": "RetroArch – pokemini",
+          "systems": [
+            "nintendo-pokemon-mini"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "pokemini_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:potator_libretro",
+          "name": "RetroArch – potator",
+          "systems": [
+            "watara-supervision"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "potator_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:ppsspp_libretro",
+          "name": "RetroArch – ppsspp",
+          "systems": [
+            "sony-psp"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "ppsspp_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:prosystem_libretro",
+          "name": "RetroArch – prosystem",
+          "systems": [
+            "atari-7800"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "prosystem_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:puae_libretro",
+          "name": "RetroArch – puae",
+          "systems": [
+            "commodore-amiga",
+            "commodore-amiga-1200",
+            "commodore-amiga-cd32",
+            "commodore-cdtv"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "puae_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:px68k_libretro",
+          "name": "RetroArch – px68k",
+          "systems": [
+            "sharp-x68000"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "px68k_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:quasi88_libretro",
+          "name": "RetroArch – quasi88",
+          "systems": [
+            "nec-pc-8801"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "quasi88_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:retro8_libretro",
+          "name": "RetroArch – retro8",
+          "systems": [
+            "pico-8-fantasy-console"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "retro8_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:scummvm_libretro",
+          "name": "RetroArch – scummvm",
+          "systems": [
+            "scummvm"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "scummvm_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:snes9x_libretro",
+          "name": "RetroArch – snes9x",
+          "systems": [
+            "bandai-sufami-turbo",
+            "nintendo-nes-msu-1",
+            "nintendo-satellaview-bsx",
+            "nintendo-snes",
+            "nintendo-snes-msu-1",
+            "nintendo-super-famicom"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "snes9x_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:stella_libretro",
+          "name": "RetroArch – stella",
+          "systems": [
+            "atari-2600"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "stella_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:tgbdual_libretro",
+          "name": "RetroArch – tgbdual",
+          "systems": [
+            "nintendo-game-boy-2-players",
+            "nintendo-game-boy-color-2-players"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "tgbdual_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:theodore_libretro",
+          "name": "RetroArch – theodore",
+          "systems": [
+            "thomson-to8"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "theodore_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:tic80_libretro",
+          "name": "RetroArch – tic80",
+          "systems": [
+            "tic-80-tiny-computer"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "tic80_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:uzem_libretro",
+          "name": "RetroArch – uzem",
+          "systems": [
+            "uzebox"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "uzem_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vaporspec_libretro",
+          "name": "RetroArch – vaporspec",
+          "systems": [
+            "vaporspec"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vaporspec_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vba_next_libretro",
+          "name": "RetroArch – vba_next",
+          "systems": [
+            "nintendo-game-boy-advance"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vba_next_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vecx_libretro",
+          "name": "RetroArch – vecx",
+          "systems": [
+            "gce-vectrex"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vecx_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vice_x64_libretro",
+          "name": "RetroArch – vice_x64",
+          "systems": [
+            "commodore-64"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vice_x64_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vice_xpet_libretro",
+          "name": "RetroArch – vice_xpet",
+          "systems": [
+            "commodore-pet"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vice_xpet_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vice_xplus4_libretro",
+          "name": "RetroArch – vice_xplus4",
+          "systems": [
+            "commodore-16",
+            "commodore-plus4"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vice_xplus4_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vice_xvic_libretro",
+          "name": "RetroArch – vice_xvic",
+          "systems": [
+            "commodore-vic-20"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vice_xvic_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:vircon32_libretro",
+          "name": "RetroArch – vircon32",
+          "systems": [
+            "vircon32"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "vircon32_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:virtualjaguar_libretro",
+          "name": "RetroArch – virtualjaguar",
+          "systems": [
+            "atari-jaguar"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "virtualjaguar_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:wasm4_libretro",
+          "name": "RetroArch – wasm4",
+          "systems": [
+            "wasm-4"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "wasm4_libretro",
+          "archives": "pass"
+        },
+        {
+          "id": "retroarch:x1_libretro",
+          "name": "RetroArch – x1",
+          "systems": [
+            "sharp-x1"
+          ],
+          "args": [
+            "-L",
+            "{emulatorDir}\\cores\\{core}.dll",
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "core": "x1_libretro",
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "mame",
+      "name": "MAME",
+      "executableNames": [
+        "mame.exe",
+        "mame64.exe"
+      ],
+      "homepage": "https://www.mamedev.org/",
+      "profiles": [
+        {
+          "id": "mame:aamber-pegasus",
+          "name": "MAME – Aamber Pegasus",
+          "systems": [
+            "aamber-pegasus"
+          ],
+          "args": [
+            "pegasus",
+            "-rom1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:acetronic-mpu-1000",
+          "name": "MAME – Acetronic MPU-1000",
+          "systems": [
+            "acetronic-mpu-1000"
+          ],
+          "args": [
+            "mpu1000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:acorn-archimedes",
+          "name": "MAME – Acorn Archimedes",
+          "systems": [
+            "acorn-archimedes"
+          ],
+          "args": [
+            "aa4401",
+            "-bios",
+            "319",
+            "-flop",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:acorn-atom",
+          "name": "MAME – Acorn Atom",
+          "systems": [
+            "acorn-atom"
+          ],
+          "args": [
+            "atom",
+            "-cass",
+            "{rom}",
+            "-keyboardprovider",
+            "dinput",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:acorn-atom:flop1",
+          "name": "MAME – Acorn Atom (flop1)",
+          "systems": [
+            "acorn-atom"
+          ],
+          "args": [
+            "atom",
+            "-flop1",
+            "{rom}",
+            "-keyboardprovider",
+            "dinput",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:acorn-bbc-micro",
+          "name": "MAME – Acorn BBC Micro",
+          "systems": [
+            "acorn-bbc-micro"
+          ],
+          "args": [
+            "bbcb",
+            "-rp",
+            "{systemDir}",
+            "-artpath",
+            "{systemDir}/media/mame/artwork",
+            "-flop1",
+            "{rom}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:acorn-electron",
+          "name": "MAME – Acorn Electron",
+          "systems": [
+            "acorn-electron"
+          ],
+          "args": [
+            "electron",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "*TAPE\\nCHAIN\"\"\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:amstrad-cpc-plus",
+          "name": "MAME – Amstrad CPC Plus",
+          "systems": [
+            "amstrad-cpc-plus"
+          ],
+          "args": [
+            "cpc6128p",
+            "-cart",
+            "{systemDir}\\ENGPADOS.CPR",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:amstrad-gx4000",
+          "name": "MAME – Amstrad GX4000",
+          "systems": [
+            "amstrad-gx4000"
+          ],
+          "args": [
+            "gx4000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:amstrad-pcw",
+          "name": "MAME – Amstrad PCW",
+          "systems": [
+            "amstrad-pcw"
+          ],
+          "args": [
+            "pcw8256",
+            "-flop",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apf-imagination-machine",
+          "name": "MAME – APF Imagination Machine",
+          "systems": [
+            "apf-imagination-machine"
+          ],
+          "args": [
+            "apfimag",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apf-mp-1000",
+          "name": "MAME – APF MP-1000",
+          "systems": [
+            "apf-mp-1000"
+          ],
+          "args": [
+            "apfm1000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apogee-bk-01",
+          "name": "MAME – Apogee BK-01",
+          "systems": [
+            "apogee-bk-01"
+          ],
+          "args": [
+            "apogee",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apple-ii",
+          "name": "MAME – Apple II",
+          "systems": [
+            "apple-ii"
+          ],
+          "args": [
+            "apple2ee",
+            "-gameio",
+            "joy",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apple-iigs",
+          "name": "MAME – Apple IIGS",
+          "systems": [
+            "apple-iigs"
+          ],
+          "args": [
+            "apple2gs",
+            "-flop3",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apple-iii",
+          "name": "MAME – Apple III",
+          "systems": [
+            "apple-iii"
+          ],
+          "args": [
+            "apple3",
+            "-ram",
+            "512k",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apple-macintosh",
+          "name": "MAME – Apple Macintosh",
+          "systems": [
+            "apple-macintosh"
+          ],
+          "args": [
+            "mac512k",
+            "-ramsize",
+            "512k",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:applied-technology-microbee",
+          "name": "MAME – Applied Technology MicroBee",
+          "systems": [
+            "applied-technology-microbee"
+          ],
+          "args": [
+            "mbeepc85b",
+            "-quik",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:apricot-pc",
+          "name": "MAME – Apricot PC",
+          "systems": [
+            "apricot-pc"
+          ],
+          "args": [
+            "apricot",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:arcade",
+          "name": "MAME – Arcade",
+          "systems": [
+            "arcade"
+          ],
+          "args": [
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:atari-xegs",
+          "name": "MAME – Atari XEGS",
+          "systems": [
+            "atari-xegs"
+          ],
+          "args": [
+            "xegs",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bally-astrocade",
+          "name": "MAME – Bally Astrocade",
+          "systems": [
+            "bally-astrocade"
+          ],
+          "args": [
+            "astrocde",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bandai-gundam-rx-78",
+          "name": "MAME – Bandai Gundam RX-78",
+          "systems": [
+            "bandai-gundam-rx-78"
+          ],
+          "args": [
+            "rx78",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bandai-let-s-tv-play-classic",
+          "name": "MAME – Bandai Let's TV Play Classic",
+          "systems": [
+            "bandai-let-s-tv-play-classic"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bandai-super-note-club",
+          "name": "MAME – Bandai Super Note Club",
+          "systems": [
+            "bandai-super-note-club"
+          ],
+          "args": [
+            "snotecex",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bandai-super-vision-8000",
+          "name": "MAME – Bandai Super Vision 8000",
+          "systems": [
+            "bandai-super-vision-8000"
+          ],
+          "args": [
+            "sv8000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bandai-tamagochi",
+          "name": "MAME – Bandai Tamagochi",
+          "systems": [
+            "bandai-tamagochi"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:benesse-pocket-challenge-v2",
+          "name": "MAME – Benesse Pocket Challenge V2",
+          "systems": [
+            "benesse-pocket-challenge-v2"
+          ],
+          "args": [
+            "pockchv2",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:benesse-pocket-challenge-w",
+          "name": "MAME – Benesse Pocket Challenge W",
+          "systems": [
+            "benesse-pocket-challenge-w"
+          ],
+          "args": [
+            "pockchal",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:bit-corporation-bit-90",
+          "name": "MAME – Bit Corporation BIT 90",
+          "systems": [
+            "bit-corporation-bit-90"
+          ],
+          "args": [
+            "bit90",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:brainchild-pls-1000",
+          "name": "MAME – Brainchild PLS-1000",
+          "systems": [
+            "brainchild-pls-1000"
+          ],
+          "args": [
+            "pls1000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:cambridge-z88",
+          "name": "MAME – Cambridge Z88",
+          "systems": [
+            "cambridge-z88"
+          ],
+          "args": [
+            "z88",
+            "-ramsize",
+            "128k",
+            "-cart1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:camputers-lynx",
+          "name": "MAME – Camputers Lynx",
+          "systems": [
+            "camputers-lynx"
+          ],
+          "args": [
+            "lynx48k",
+            "-cass1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:canon-x-07",
+          "name": "MAME – Canon X-07",
+          "systems": [
+            "canon-x-07"
+          ],
+          "args": [
+            "x07",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:casio-loopy",
+          "name": "MAME – Casio Loopy",
+          "systems": [
+            "casio-loopy"
+          ],
+          "args": [
+            "casloopy",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:casio-pv-1000",
+          "name": "MAME – Casio PV-1000",
+          "systems": [
+            "casio-pv-1000"
+          ],
+          "args": [
+            "pv1000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:casio-pv-2000",
+          "name": "MAME – Casio PV-2000",
+          "systems": [
+            "casio-pv-2000"
+          ],
+          "args": [
+            "pv2000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:cce-mc-1000",
+          "name": "MAME – CCE MC-1000",
+          "systems": [
+            "cce-mc-1000"
+          ],
+          "args": [
+            "mc1000",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:china-education-computer",
+          "name": "MAME – China Education Computer",
+          "systems": [
+            "china-education-computer"
+          ],
+          "args": [
+            "cec2000",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:coleco-adam",
+          "name": "MAME – Coleco Adam",
+          "systems": [
+            "coleco-adam"
+          ],
+          "args": [
+            "adam",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:compucolor-ii",
+          "name": "MAME – Compucolor II",
+          "systems": [
+            "compucolor-ii"
+          ],
+          "args": [
+            "compclr2",
+            "-ram",
+            "32k",
+            "-flop",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:creatronic-mega-duck",
+          "name": "MAME – Creatronic Mega Duck",
+          "systems": [
+            "creatronic-mega-duck"
+          ],
+          "args": [
+            "megaduck",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dec-pdp-1",
+          "name": "MAME – DEC PDP-1",
+          "systems": [
+            "dec-pdp-1"
+          ],
+          "args": [
+            "pdp1",
+            "-ptap1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dick-smith-super-80",
+          "name": "MAME – Dick Smith Super-80",
+          "systems": [
+            "dick-smith-super-80"
+          ],
+          "args": [
+            "super80v",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dick-smith-vz-200",
+          "name": "MAME – Dick Smith VZ-200",
+          "systems": [
+            "dick-smith-vz-200"
+          ],
+          "args": [
+            "vz200",
+            "-dump",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "RUN\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:digital-ez-lg",
+          "name": "MAME – Digital ez LG",
+          "systems": [
+            "digital-ez-lg"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dragon-data-dragon",
+          "name": "MAME – Dragon Data Dragon",
+          "systems": [
+            "dragon-data-dragon"
+          ],
+          "args": [
+            "dragon32",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "4",
+            "-autoboot_command",
+            "CLOADM\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dream-6800",
+          "name": "MAME – Dream 6800",
+          "systems": [
+            "dream-6800"
+          ],
+          "args": [
+            "d6800",
+            "-quik",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dreamgear-my-arcade",
+          "name": "MAME – dreamGEAR My Arcade",
+          "systems": [
+            "dreamgear-my-arcade"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:dreamgear-plug-and-play",
+          "name": "MAME – dreamGEAR Plug and Play",
+          "systems": [
+            "dreamgear-plug-and-play"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:eaca-eg2000-colour-genie",
+          "name": "MAME – EACA EG2000 Colour Genie",
+          "systems": [
+            "eaca-eg2000-colour-genie"
+          ],
+          "args": [
+            "cgenie",
+            "-ramsize",
+            "32k",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:elektronika-bk",
+          "name": "MAME – Elektronika BK",
+          "systems": [
+            "elektronika-bk"
+          ],
+          "args": [
+            "bk001001",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:emerson-arcadia-2001",
+          "name": "MAME – Emerson Arcadia 2001",
+          "systems": [
+            "emerson-arcadia-2001"
+          ],
+          "args": [
+            "arcadia",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:enterprise-64",
+          "name": "MAME – Enterprise 64",
+          "systems": [
+            "enterprise-64"
+          ],
+          "args": [
+            "ep128",
+            "-cart",
+            "{systemDir}\\basic.zip",
+            "-exp",
+            "exdos",
+            "-flop",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:entex-adventure-vision",
+          "name": "MAME – Entex Adventure Vision",
+          "systems": [
+            "entex-adventure-vision"
+          ],
+          "args": [
+            "advision",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:epoch-game-pocket-computer",
+          "name": "MAME – Epoch Game Pocket Computer",
+          "systems": [
+            "epoch-game-pocket-computer"
+          ],
+          "args": [
+            "gamepock",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:epoch-super-cassette-vision",
+          "name": "MAME – Epoch Super Cassette Vision",
+          "systems": [
+            "epoch-super-cassette-vision"
+          ],
+          "args": [
+            "scv",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:eti-660-learners-microcomputer",
+          "name": "MAME – ETI-660 Learners Microcomputer",
+          "systems": [
+            "eti-660-learners-microcomputer"
+          ],
+          "args": [
+            "eti660",
+            "-quik",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:exelvision-exl-100",
+          "name": "MAME – Exelvision EXL 100",
+          "systems": [
+            "exelvision-exl-100"
+          ],
+          "args": [
+            "exl100",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:exidy-sorcerer",
+          "name": "MAME – Exidy Sorcerer",
+          "systems": [
+            "exidy-sorcerer"
+          ],
+          "args": [
+            "sorcerer",
+            "-cass1",
+            "{rom}",
+            "-cart",
+            "{systemDir}\\basicpac.zip",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fairchild-channel-f",
+          "name": "MAME – Fairchild Channel F",
+          "systems": [
+            "fairchild-channel-f"
+          ],
+          "args": [
+            "channelf",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fisher-price-i-can-play-guitar",
+          "name": "MAME – Fisher-Price I Can Play Guitar",
+          "systems": [
+            "fisher-price-i-can-play-guitar"
+          ],
+          "args": [
+            "icanguit",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fisher-price-i-can-play-piano",
+          "name": "MAME – Fisher-Price I Can Play Piano",
+          "systems": [
+            "fisher-price-i-can-play-piano"
+          ],
+          "args": [
+            "icanpian",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fujitsu-fm-7",
+          "name": "MAME – Fujitsu FM-7",
+          "systems": [
+            "fujitsu-fm-7"
+          ],
+          "args": [
+            "fm7",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fujitsu-fm-towns",
+          "name": "MAME – Fujitsu FM Towns",
+          "systems": [
+            "fujitsu-fm-towns"
+          ],
+          "args": [
+            "fmtowns",
+            "-ram",
+            "4M",
+            "-cdrm",
+            "{rom}",
+            "-flop1",
+            "{systemDir}\\empty_disk.bin",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fujitsu-fm-towns-marty",
+          "name": "MAME – Fujitsu FM Towns Marty",
+          "systems": [
+            "fujitsu-fm-towns-marty"
+          ],
+          "args": [
+            "fmtmarty",
+            "-cdrm",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:fujitsu-fm77-av",
+          "name": "MAME – Fujitsu FM77 AV",
+          "systems": [
+            "fujitsu-fm77-av"
+          ],
+          "args": [
+            "fm77av",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:gakken-compact-vision-tv-boy",
+          "name": "MAME – Gakken Compact Vision TV Boy",
+          "systems": [
+            "gakken-compact-vision-tv-boy"
+          ],
+          "args": [
+            "ctvboy",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:galaksija-plus",
+          "name": "MAME – Galaksija Plus",
+          "systems": [
+            "galaksija-plus"
+          ],
+          "args": [
+            "galaxyp",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "OLD\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:gamate",
+          "name": "MAME – Gamate",
+          "systems": [
+            "gamate"
+          ],
+          "args": [
+            "gamate",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:game-watch",
+          "name": "MAME – Game & Watch",
+          "systems": [
+            "game-watch"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:gamepark-32",
+          "name": "MAME – GamePark 32",
+          "systems": [
+            "gamepark-32"
+          ],
+          "args": [
+            "gp32",
+            "-memc",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:hartung-game-master",
+          "name": "MAME – Hartung Game Master",
+          "systems": [
+            "hartung-game-master"
+          ],
+          "args": [
+            "gmaster",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:hasbro-tv-board-games",
+          "name": "MAME – Hasbro TV Board Games",
+          "systems": [
+            "hasbro-tv-board-games"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:hector-hrx",
+          "name": "MAME – Hector HRX",
+          "systems": [
+            "hector-hrx"
+          ],
+          "args": [
+            "hec2hrx",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:ibm-pc-5150",
+          "name": "MAME – IBM PC 5150",
+          "systems": [
+            "ibm-pc-5150"
+          ],
+          "args": [
+            "ibm5150",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:ibm-pc-jr",
+          "name": "MAME – IBM PC Jr",
+          "systems": [
+            "ibm-pc-jr"
+          ],
+          "args": [
+            "ibmpcjr",
+            "-flop",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:intec-interact",
+          "name": "MAME – Intec InterAct",
+          "systems": [
+            "intec-interact"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:interact-home-computer",
+          "name": "MAME – Interact Home Computer",
+          "systems": [
+            "interact-home-computer"
+          ],
+          "args": [
+            "interact",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:interton-vc-4000",
+          "name": "MAME – Interton VC 4000",
+          "systems": [
+            "interton-vc-4000"
+          ],
+          "args": [
+            "vc4000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:jakks-pacific-game-key",
+          "name": "MAME – Jakks Pacific Game Key",
+          "systems": [
+            "jakks-pacific-game-key"
+          ],
+          "args": [
+            "{core}",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:jakks-pacific-inc",
+          "name": "MAME – Jakks Pacific Inc",
+          "systems": [
+            "jakks-pacific-inc"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:jumping-popira",
+          "name": "MAME – Jumping Popira",
+          "systems": [
+            "jumping-popira"
+          ],
+          "args": [
+            "jpopira",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:jungle-sport-vii",
+          "name": "MAME – Jungle Sport Vii",
+          "systems": [
+            "jungle-sport-vii"
+          ],
+          "args": [
+            "vii",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:jupiter-ace",
+          "name": "MAME – Jupiter Ace",
+          "systems": [
+            "jupiter-ace"
+          ],
+          "args": [
+            "jupace",
+            "-ram",
+            "48k",
+            "-dump",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:koei-pasogo",
+          "name": "MAME – KOEI PasoGo",
+          "systems": [
+            "koei-pasogo"
+          ],
+          "args": [
+            "pasogo",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:konami-handheld",
+          "name": "MAME – Konami Handheld",
+          "systems": [
+            "konami-handheld"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:lcd-games",
+          "name": "MAME – LCD Games",
+          "systems": [
+            "lcd-games"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:ljn-videoart",
+          "name": "MAME – LJN VideoArt",
+          "systems": [
+            "ljn-videoart"
+          ],
+          "args": [
+            "videoart",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:lucas-nascom-2",
+          "name": "MAME – Lucas Nascom 2",
+          "systems": [
+            "lucas-nascom-2"
+          ],
+          "args": [
+            "nascom2",
+            "-snapshot1",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "E1000\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:lviv-pc-01",
+          "name": "MAME – Lviv PC-01",
+          "systems": [
+            "lviv-pc-01"
+          ],
+          "args": [
+            "lviv",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "5",
+            "-autoboot_command",
+            "CLOAD\"\"\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:mame",
+          "name": "MAME – MAME",
+          "systems": [
+            "mame"
+          ],
+          "args": [
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:matra-and-hachette-alice",
+          "name": "MAME – Matra and Hachette Alice",
+          "systems": [
+            "matra-and-hachette-alice"
+          ],
+          "args": [
+            "alice32",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:mattel-aquarius",
+          "name": "MAME – Mattel Aquarius",
+          "systems": [
+            "mattel-aquarius"
+          ],
+          "args": [
+            "aquarius",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:mattel-aquarius:cass",
+          "name": "MAME – Mattel Aquarius (cass)",
+          "systems": [
+            "mattel-aquarius"
+          ],
+          "args": [
+            "aquarius",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:mattel-hyperscan",
+          "name": "MAME – Mattel HyperScan",
+          "systems": [
+            "mattel-hyperscan"
+          ],
+          "args": [
+            "hyprscan",
+            "-cdrm",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:memotech-mtx",
+          "name": "MAME – Memotech MTX",
+          "systems": [
+            "memotech-mtx"
+          ],
+          "args": [
+            "mtx512",
+            "-dump",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:mgt-sam-coupe",
+          "name": "MAME – MGT Sam Coupe",
+          "systems": [
+            "mgt-sam-coupe"
+          ],
+          "args": [
+            "samcoupe",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:microkey-primo",
+          "name": "MAME – Microkey Primo",
+          "systems": [
+            "microkey-primo"
+          ],
+          "args": [
+            "primob64",
+            "-snapshot",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:millennium",
+          "name": "MAME – Millennium",
+          "systems": [
+            "millennium"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:milton-bradley-microvision",
+          "name": "MAME – Milton Bradley Microvision",
+          "systems": [
+            "milton-bradley-microvision"
+          ],
+          "args": [
+            "microvsn",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:mindset-personal-computer",
+          "name": "MAME – Mindset Personal Computer",
+          "systems": [
+            "mindset-personal-computer"
+          ],
+          "args": [
+            "mindset",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:monon-color",
+          "name": "MAME – Monon Color",
+          "systems": [
+            "monon-color"
+          ],
+          "args": [
+            "mononcol",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:nec-pc-6001",
+          "name": "MAME – NEC PC-6001",
+          "systems": [
+            "nec-pc-6001"
+          ],
+          "args": [
+            "pc6001",
+            "-cart1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:nec-pc-6001-mkii",
+          "name": "MAME – NEC PC-6001 MKII",
+          "systems": [
+            "nec-pc-6001-mkii"
+          ],
+          "args": [
+            "pc6001mk2",
+            "-cart2",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:nec-pc-6001:cass",
+          "name": "MAME – NEC PC-6001 (cass)",
+          "systems": [
+            "nec-pc-6001"
+          ],
+          "args": [
+            "pc6001",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:nec-pc-8001",
+          "name": "MAME – NEC PC-8001",
+          "systems": [
+            "nec-pc-8001"
+          ],
+          "args": [
+            "pc8001mk2",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:nintendo-family-basic",
+          "name": "MAME – Nintendo Family Basic",
+          "systems": [
+            "nintendo-family-basic"
+          ],
+          "args": [
+            "famicom",
+            "-cart",
+            "{systemDir}\\fambas3b.zip",
+            "-exp",
+            "fc_keyboard",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:north-star-horizon",
+          "name": "MAME – North Star Horizon",
+          "systems": [
+            "north-star-horizon"
+          ],
+          "args": [
+            "nshrz2mhz",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:orion-128",
+          "name": "MAME – Orion 128",
+          "systems": [
+            "orion-128"
+          ],
+          "args": [
+            "orion128",
+            "-cart",
+            "{systemDir}\\romdisk.zip",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:palson-cx-3000-tele-computer",
+          "name": "MAME – Palson CX 3000 Tele Computer",
+          "systems": [
+            "palson-cx-3000-tele-computer"
+          ],
+          "args": [
+            "cx3000tc",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:partner",
+          "name": "MAME – Partner",
+          "systems": [
+            "partner"
+          ],
+          "args": [
+            "partner",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:pdp-vg-pocket",
+          "name": "MAME – PDP VG Pocket",
+          "systems": [
+            "pdp-vg-pocket"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:pel-varazdin-orao",
+          "name": "MAME – PEL Varazdin ORAO",
+          "systems": [
+            "pel-varazdin-orao"
+          ],
+          "args": [
+            "orao103",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:philips-cd-i",
+          "name": "MAME – Philips CD-i",
+          "systems": [
+            "philips-cd-i"
+          ],
+          "args": [
+            "cdimono1",
+            "-cdrom",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:philips-p2000t",
+          "name": "MAME – Philips P2000T",
+          "systems": [
+            "philips-p2000t"
+          ],
+          "args": [
+            "p2000t",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:philips-vg5000",
+          "name": "MAME – Philips VG5000",
+          "systems": [
+            "philips-vg5000"
+          ],
+          "args": [
+            "vg5k",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "CLOAD\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:radica-arcade-legends",
+          "name": "MAME – Radica Arcade Legends",
+          "systems": [
+            "radica-arcade-legends"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:radica-play-tv",
+          "name": "MAME – Radica Play TV",
+          "systems": [
+            "radica-play-tv"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:radio-86rk",
+          "name": "MAME – Radio-86RK",
+          "systems": [
+            "radio-86rk"
+          ],
+          "args": [
+            "radio86",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:radio-86rk-mikrosha",
+          "name": "MAME – Radio-86RK Mikrosha",
+          "systems": [
+            "radio-86rk-mikrosha"
+          ],
+          "args": [
+            "mikrosha",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:rca-studio-ii",
+          "name": "MAME – RCA Studio II",
+          "systems": [
+            "rca-studio-ii"
+          ],
+          "args": [
+            "studio2",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:retro-game-systems",
+          "name": "MAME – Retro Game Systems",
+          "systems": [
+            "retro-game-systems"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:rm-nimbus",
+          "name": "MAME – RM Nimbus",
+          "systems": [
+            "rm-nimbus"
+          ],
+          "args": [
+            "nimbus",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:rowtron-television-computer-system",
+          "name": "MAME – Rowtron Television Computer System",
+          "systems": [
+            "rowtron-television-computer-system"
+          ],
+          "args": [
+            "rwtrntcs",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:salter-fitness-pro-cardioline",
+          "name": "MAME – Salter Fitness Pro Cardioline",
+          "systems": [
+            "salter-fitness-pro-cardioline"
+          ],
+          "args": [
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:samsung-spc-1000",
+          "name": "MAME – Samsung SPC-1000",
+          "systems": [
+            "samsung-spc-1000"
+          ],
+          "args": [
+            "spc1000",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "5",
+            "-autoboot_command",
+            "LOAD\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:samsung-spc-1500",
+          "name": "MAME – Samsung SPC-1500",
+          "systems": [
+            "samsung-spc-1500"
+          ],
+          "args": [
+            "spc1500",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "5",
+            "-autoboot_command",
+            "LOAD\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sanyo-mbc-55",
+          "name": "MAME – Sanyo MBC-55",
+          "systems": [
+            "sanyo-mbc-55"
+          ],
+          "args": [
+            "mbc55x",
+            "-gameio",
+            "joy",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sanyo-phc-25",
+          "name": "MAME – Sanyo PHC-25",
+          "systems": [
+            "sanyo-phc-25"
+          ],
+          "args": [
+            "phc25",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sega-beena",
+          "name": "MAME – Sega Beena",
+          "systems": [
+            "sega-beena"
+          ],
+          "args": [
+            "beena",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sega-sc-3000",
+          "name": "MAME – Sega SC-3000",
+          "systems": [
+            "sega-sc-3000"
+          ],
+          "args": [
+            "sc3000",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sega-sc-3000:cass",
+          "name": "MAME – Sega SC-3000 (cass)",
+          "systems": [
+            "sega-sc-3000"
+          ],
+          "args": [
+            "sc3000",
+            "-cart",
+            "{systemDir}\\basic3e.zip",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sega-sg-1000-ii",
+          "name": "MAME – Sega SG-1000 II",
+          "systems": [
+            "sega-sg-1000-ii"
+          ],
+          "args": [
+            "sg1000m2",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sega-vmu",
+          "name": "MAME – Sega VMU",
+          "systems": [
+            "sega-vmu"
+          ],
+          "args": [
+            "svmu",
+            "-quik",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:senario",
+          "name": "MAME – Senario",
+          "systems": [
+            "senario"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:senario-vs-maxx",
+          "name": "MAME – Senario Vs Maxx",
+          "systems": [
+            "senario-vs-maxx"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sharp-mz-2000",
+          "name": "MAME – Sharp MZ-2000",
+          "systems": [
+            "sharp-mz-2000"
+          ],
+          "args": [
+            "mz2000",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sharp-mz-2200",
+          "name": "MAME – Sharp MZ-2200",
+          "systems": [
+            "sharp-mz-2200"
+          ],
+          "args": [
+            "mz2200",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sharp-mz-2500",
+          "name": "MAME – Sharp MZ-2500",
+          "systems": [
+            "sharp-mz-2500"
+          ],
+          "args": [
+            "mz2500",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sharp-mz-700",
+          "name": "MAME – Sharp MZ-700",
+          "systems": [
+            "sharp-mz-700"
+          ],
+          "args": [
+            "mz700",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "LOAD\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sharp-mz-800",
+          "name": "MAME – Sharp MZ-800",
+          "systems": [
+            "sharp-mz-800"
+          ],
+          "args": [
+            "mz800",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sony-pocketstation",
+          "name": "MAME – Sony Pocketstation",
+          "systems": [
+            "sony-pocketstation"
+          ],
+          "args": [
+            "pockstat",
+            "-cart1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sony-smc-777",
+          "name": "MAME – Sony SMC-777",
+          "systems": [
+            "sony-smc-777"
+          ],
+          "args": [
+            "smc777",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:sord-m5",
+          "name": "MAME – Sord M5",
+          "systems": [
+            "sord-m5"
+          ],
+          "args": [
+            "m5",
+            "-cart1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:soundic-victory-mpt-02",
+          "name": "MAME – Soundic Victory MPT-02",
+          "systems": [
+            "soundic-victory-mpt-02"
+          ],
+          "args": [
+            "mpt02",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:spectravideo-sv-318",
+          "name": "MAME – Spectravideo SV-318",
+          "systems": [
+            "spectravideo-sv-318"
+          ],
+          "args": [
+            "svi318",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:ssem",
+          "name": "MAME – SSEM",
+          "systems": [
+            "ssem"
+          ],
+          "args": [
+            "ssem",
+            "-quik",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:super-control-station-sf-7000",
+          "name": "MAME – Super Control Station SF-7000",
+          "systems": [
+            "super-control-station-sf-7000"
+          ],
+          "args": [
+            "sf7000",
+            "-flop",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:takara-ddr-family-mat",
+          "name": "MAME – Takara DDR Family Mat",
+          "systems": [
+            "takara-ddr-family-mat"
+          ],
+          "args": [
+            "ddrfammt",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:takara-e-pitch",
+          "name": "MAME – Takara e-pitch",
+          "systems": [
+            "takara-e-pitch"
+          ],
+          "args": [
+            "epitch",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:takara-popira",
+          "name": "MAME – Takara Popira",
+          "systems": [
+            "takara-popira"
+          ],
+          "args": [
+            "popira",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:takara-popira-2",
+          "name": "MAME – Takara Popira 2",
+          "systems": [
+            "takara-popira-2"
+          ],
+          "args": [
+            "popira2",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-memorex-vis",
+          "name": "MAME – Tandy Memorex VIS",
+          "systems": [
+            "tandy-memorex-vis"
+          ],
+          "args": [
+            "vis",
+            "-cdrm",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80",
+          "name": "MAME – Tandy TRS-80",
+          "systems": [
+            "tandy-trs-80"
+          ],
+          "args": [
+            "trs80m3",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80-color-computer",
+          "name": "MAME – Tandy TRS-80 Color Computer",
+          "systems": [
+            "tandy-trs-80-color-computer"
+          ],
+          "args": [
+            "coco3",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80-color-computer:cass",
+          "name": "MAME – Tandy TRS-80 Color Computer (cass)",
+          "systems": [
+            "tandy-trs-80-color-computer"
+          ],
+          "args": [
+            "coco3",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80-color-computer:flop1",
+          "name": "MAME – Tandy TRS-80 Color Computer (flop1)",
+          "systems": [
+            "tandy-trs-80-color-computer"
+          ],
+          "args": [
+            "coco3",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80-mc-10",
+          "name": "MAME – Tandy TRS-80 MC-10",
+          "systems": [
+            "tandy-trs-80-mc-10"
+          ],
+          "args": [
+            "mc10",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "2",
+            "-autoboot_command",
+            "CLOAD\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80:flop1",
+          "name": "MAME – Tandy TRS-80 (flop1)",
+          "systems": [
+            "tandy-trs-80"
+          ],
+          "args": [
+            "trs80m3",
+            "-flop1",
+            "{systemDir}\\MULTIDOS.DSK",
+            "-flop2",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tandy-trs-80:quik",
+          "name": "MAME – Tandy TRS-80 (quik)",
+          "systems": [
+            "tandy-trs-80"
+          ],
+          "args": [
+            "trs80m3",
+            "-quik",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tangerine-microtan-65",
+          "name": "MAME – Tangerine Microtan 65",
+          "systems": [
+            "tangerine-microtan-65"
+          ],
+          "args": [
+            "mt65",
+            "-dump",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tangerine-oric",
+          "name": "MAME – Tangerine Oric",
+          "systems": [
+            "tangerine-oric"
+          ],
+          "args": [
+            "orica",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tangerine-oric-atmos",
+          "name": "MAME – Tangerine Oric Atmos",
+          "systems": [
+            "tangerine-oric-atmos"
+          ],
+          "args": [
+            "orica",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tatung-einstein-tc-01",
+          "name": "MAME – Tatung Einstein TC-01",
+          "systems": [
+            "tatung-einstein-tc-01"
+          ],
+          "args": [
+            "einstein",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tesla-ondra",
+          "name": "MAME – Tesla Ondra",
+          "systems": [
+            "tesla-ondra"
+          ],
+          "args": [
+            "ondrav",
+            "-ramsize",
+            "64k",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tesla-pmd-85",
+          "name": "MAME – Tesla PMD-85",
+          "systems": [
+            "tesla-pmd-85"
+          ],
+          "args": [
+            "pmd852b",
+            "-ramsize",
+            "64k",
+            "-cass1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:texas-instruments-ti-99-4a",
+          "name": "MAME – Texas Instruments TI 99-4A",
+          "systems": [
+            "texas-instruments-ti-99-4a"
+          ],
+          "args": [
+            "ti99_4a",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:thomson-mo5",
+          "name": "MAME – Thomson MO5",
+          "systems": [
+            "thomson-mo5"
+          ],
+          "args": [
+            "mo5",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "5",
+            "-autoboot_command",
+            "RUN\"\"\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:thomson-mo6",
+          "name": "MAME – Thomson MO6",
+          "systems": [
+            "thomson-mo6"
+          ],
+          "args": [
+            "mo6",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:thomson-to7",
+          "name": "MAME – Thomson TO7",
+          "systems": [
+            "thomson-to7"
+          ],
+          "args": [
+            "to7",
+            "-cass",
+            "{rom}",
+            "-cart",
+            "{systemDir}\\basic.m7",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tiger-game-com",
+          "name": "MAME – Tiger Game.com",
+          "systems": [
+            "tiger-game-com"
+          ],
+          "args": [
+            "gamecom",
+            "-cart1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tiger-handheld-electronics",
+          "name": "MAME – Tiger Handheld Electronics",
+          "systems": [
+            "tiger-handheld-electronics"
+          ],
+          "args": [
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tiger-r-zone",
+          "name": "MAME – Tiger R-Zone",
+          "systems": [
+            "tiger-r-zone"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:timetop-gameking",
+          "name": "MAME – TimeTop Gameking",
+          "systems": [
+            "timetop-gameking"
+          ],
+          "args": [
+            "gameking",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:timetop-gameking-3",
+          "name": "MAME – TimeTop GameKing 3",
+          "systems": [
+            "timetop-gameking-3"
+          ],
+          "args": [
+            "gamekin3",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:timex-sinclair-2068",
+          "name": "MAME – Timex Sinclair 2068",
+          "systems": [
+            "timex-sinclair-2068"
+          ],
+          "args": [
+            "ts2068",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tomy-tutor",
+          "name": "MAME – Tomy Tutor",
+          "systems": [
+            "tomy-tutor"
+          ],
+          "args": [
+            "tutor",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:toshiba-visicom",
+          "name": "MAME – Toshiba Visicom",
+          "systems": [
+            "toshiba-visicom"
+          ],
+          "args": [
+            "visicom",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:tronica",
+          "name": "MAME – Tronica",
+          "systems": [
+            "tronica"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:ultimate-products-zone",
+          "name": "MAME – Ultimate Products Zone",
+          "systems": [
+            "ultimate-products-zone"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:unisonic-champion-2711",
+          "name": "MAME – Unisonic Champion 2711",
+          "systems": [
+            "unisonic-champion-2711"
+          ],
+          "args": [
+            "unichamp",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:veb-mikroelektronik",
+          "name": "MAME – VEB Mikroelektronik",
+          "systems": [
+            "veb-mikroelektronik"
+          ],
+          "args": [
+            "kc85_3",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vector-06c",
+          "name": "MAME – Vector-06C",
+          "systems": [
+            "vector-06c"
+          ],
+          "args": [
+            "vector06",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:victory-mpt-02-home-tv-programmer",
+          "name": "MAME – Victory MPT-02 Home TV Programmer",
+          "systems": [
+            "victory-mpt-02-home-tv-programmer"
+          ],
+          "args": [
+            "mpt02",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:videobrain-family-computer",
+          "name": "MAME – VideoBrain Family Computer",
+          "systems": [
+            "videobrain-family-computer"
+          ],
+          "args": [
+            "vidbrain",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:videojet-pocket-dream-console",
+          "name": "MAME – VideoJet Pocket Dream Console",
+          "systems": [
+            "videojet-pocket-dream-console"
+          ],
+          "args": [
+            "{core}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:videoton-tv-computer",
+          "name": "MAME – Videoton TV Computer",
+          "systems": [
+            "videoton-tv-computer"
+          ],
+          "args": [
+            "tvc64",
+            "-cass",
+            "{rom}",
+            "-autoboot_delay",
+            "5",
+            "-autoboot_command",
+            "LOAD\"\"\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:videoton-tv-computer:flop1",
+          "name": "MAME – Videoton TV Computer (flop1)",
+          "systems": [
+            "videoton-tv-computer"
+          ],
+          "args": [
+            "tvc64",
+            "-exp1",
+            "hbf",
+            "-flop1",
+            "{rom}",
+            "-autoboot_delay",
+            "5",
+            "-autoboot_command",
+            "LOAD\"\"\\n",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:voltmace-database",
+          "name": "MAME – Voltmace Database",
+          "systems": [
+            "voltmace-database"
+          ],
+          "args": [
+            "database",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-creativision",
+          "name": "MAME – VTech Creativision",
+          "systems": [
+            "vtech-creativision"
+          ],
+          "args": [
+            "crvision",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-laser-128",
+          "name": "MAME – VTech Laser 128",
+          "systems": [
+            "vtech-laser-128"
+          ],
+          "args": [
+            "laser128",
+            "-flop1",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-laser-200",
+          "name": "MAME – VTech Laser 200",
+          "systems": [
+            "vtech-laser-200"
+          ],
+          "args": [
+            "laser210",
+            "-io",
+            "joystick",
+            "-dump",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-laser-310",
+          "name": "MAME – VTech Laser 310",
+          "systems": [
+            "vtech-laser-310"
+          ],
+          "args": [
+            "laser310",
+            "-io",
+            "joystick",
+            "-dump",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-laser-500",
+          "name": "MAME – VTech Laser 500",
+          "systems": [
+            "vtech-laser-500"
+          ],
+          "args": [
+            "laser500",
+            "-io",
+            "joystick",
+            "-cass",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-socrates",
+          "name": "MAME – VTech Socrates",
+          "systems": [
+            "vtech-socrates"
+          ],
+          "args": [
+            "socrates",
+            "-rp",
+            "{systemDir}",
+            "-cart1",
+            "{rom}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-v-smile",
+          "name": "MAME – VTech V.Smile",
+          "systems": [
+            "vtech-v-smile"
+          ],
+          "args": [
+            "vsmile",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-v-smile-baby",
+          "name": "MAME – VTech V.Smile Baby",
+          "systems": [
+            "vtech-v-smile-baby"
+          ],
+          "args": [
+            "vsmileb",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:vtech-v-smile-motion",
+          "name": "MAME – VTech V.Smile Motion",
+          "systems": [
+            "vtech-v-smile-motion"
+          ],
+          "args": [
+            "vsmilem",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:watara-supervision",
+          "name": "MAME – Watara Supervision",
+          "systems": [
+            "watara-supervision"
+          ],
+          "args": [
+            "svision",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:yamaha-copera",
+          "name": "MAME – Yamaha Copera",
+          "systems": [
+            "yamaha-copera"
+          ],
+          "args": [
+            "copera",
+            "-cart",
+            "{rom}",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        },
+        {
+          "id": "mame:z80-tv-game-system",
+          "name": "MAME – Z80 TV Game System",
+          "systems": [
+            "z80-tv-game-system"
+          ],
+          "args": [
+            "tvgame",
+            "-uimodekey",
+            "DEL",
+            "-skip_gameinfo",
+            "-nowindow",
+            "-rompath",
+            "{systemDir}",
+            "-skip_gameinfo",
+            "{extraArgs}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "dolphin",
+      "name": "Dolphin",
+      "executableNames": [
+        "Dolphin.exe"
+      ],
+      "homepage": "https://dolphin-emu.org/",
+      "profiles": [
+        {
+          "id": "dolphin:default",
+          "name": "Dolphin",
+          "systems": [
+            "nintendo-gamecube",
+            "nintendo-wii",
+            "nintendo-wiiware"
+          ],
+          "args": [
+            "-b",
+            "-e",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "pcsx2",
+      "name": "PCSX2",
+      "executableNames": [
+        "pcsx2-qt.exe",
+        "pcsx2.exe"
+      ],
+      "homepage": "https://pcsx2.net/",
+      "profiles": [
+        {
+          "id": "pcsx2:default",
+          "name": "PCSX2",
+          "systems": [
+            "sony-playstation-2"
+          ],
+          "args": [
+            "-fullscreen",
+            "--",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "duckstation",
+      "name": "DuckStation",
+      "executableNames": [
+        "duckstation-qt-x64-ReleaseLTCG.exe",
+        "duckstation-qt.exe"
+      ],
+      "homepage": "https://www.duckstation.org/",
+      "profiles": [
+        {
+          "id": "duckstation:default",
+          "name": "DuckStation",
+          "systems": [
+            "sony-playstation"
+          ],
+          "args": [
+            "-fullscreen",
+            "-batch",
+            "--",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "ppsspp",
+      "name": "PPSSPP",
+      "executableNames": [
+        "PPSSPPWindows64.exe",
+        "PPSSPPWindows.exe"
+      ],
+      "homepage": "https://www.ppsspp.org/",
+      "profiles": [
+        {
+          "id": "ppsspp:default",
+          "name": "PPSSPP",
+          "systems": [
+            "sony-psp"
+          ],
+          "args": [
+            "--fullscreen",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "cemu",
+      "name": "Cemu",
+      "executableNames": [
+        "Cemu.exe"
+      ],
+      "homepage": "https://cemu.info/",
+      "profiles": [
+        {
+          "id": "cemu:default",
+          "name": "Cemu",
+          "systems": [
+            "nintendo-wii-u"
+          ],
+          "args": [
+            "-f",
+            "-g",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "ryujinx",
+      "name": "Ryujinx",
+      "executableNames": [
+        "Ryujinx.exe"
+      ],
+      "homepage": "https://ryujinx.app/",
+      "profiles": [
+        {
+          "id": "ryujinx:default",
+          "name": "Ryujinx",
+          "systems": [
+            "nintendo-switch"
+          ],
+          "args": [
+            "-f",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "azahar",
+      "name": "Azahar",
+      "executableNames": [
+        "azahar.exe"
+      ],
+      "homepage": "https://azahar-emu.org/",
+      "profiles": [
+        {
+          "id": "azahar:default",
+          "name": "Azahar",
+          "systems": [
+            "nintendo-3ds"
+          ],
+          "args": [
+            "-f",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "xemu",
+      "name": "xemu",
+      "executableNames": [
+        "xemu.exe"
+      ],
+      "homepage": "https://xemu.app/",
+      "profiles": [
+        {
+          "id": "xemu:default",
+          "name": "xemu",
+          "systems": [
+            "microsoft-xbox"
+          ],
+          "args": [
+            "-full-screen",
+            "-dvd_path",
+            "{rom}"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "xenia-canary",
+      "name": "Xenia Canary",
+      "executableNames": [
+        "xenia_canary.exe"
+      ],
+      "homepage": "https://xenia.jp/",
+      "profiles": [
+        {
+          "id": "xenia-canary:default",
+          "name": "Xenia Canary",
+          "systems": [
+            "microsoft-xbla",
+            "microsoft-xbox-360"
+          ],
+          "args": [
+            "{rom}",
+            "--fullscreen"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "dosbox",
+      "name": "DOSBox",
+      "executableNames": [
+        "dosbox.exe"
+      ],
+      "homepage": "https://www.dosbox.com/",
+      "profiles": [
+        {
+          "id": "dosbox:default",
+          "name": "DOSBox",
+          "systems": [
+            "microsoft-dos"
+          ],
+          "args": [
+            "{rom}",
+            "-fullscreen",
+            "-exit"
+          ],
+          "archives": "extract"
+        }
+      ]
+    },
+    {
+      "id": "scummvm",
+      "name": "ScummVM",
+      "executableNames": [
+        "scummvm.exe"
+      ],
+      "homepage": "https://www.scummvm.org/",
+      "profiles": [
+        {
+          "id": "scummvm:default",
+          "name": "ScummVM",
+          "systems": [
+            "adventure-game-studio",
+            "scummvm"
+          ],
+          "args": [
+            "--fullscreen",
+            "--auto-detect",
+            "--path={romDir}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "flycast",
+      "name": "Flycast",
+      "executableNames": [
+        "flycast.exe"
+      ],
+      "homepage": "https://github.com/flyinghead/flycast",
+      "profiles": [
+        {
+          "id": "flycast:default",
+          "name": "Flycast",
+          "systems": [
+            "sammy-atomiswave",
+            "sega-dreamcast",
+            "sega-naomi",
+            "sega-naomi-2",
+            "sega-naomi-gd-rom"
+          ],
+          "args": [
+            "{rom}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    }
+  ]
+}
