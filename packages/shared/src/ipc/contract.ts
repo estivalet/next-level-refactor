@@ -118,7 +118,8 @@ export const ipcContract = {
     output: CollectionSummarySchema,
   },
   'collections.reorder': {
-    input: z.strictObject({ id: collectionId, gameId, position: z.number().int().min(0) }),
+    // Swaps two members, so a move works on the rows the user sees whatever is filtered out.
+    input: z.strictObject({ id: collectionId, gameId, swapWithGameId: gameId }),
     output: z.void(),
   },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },

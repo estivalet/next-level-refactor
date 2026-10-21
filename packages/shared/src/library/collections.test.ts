@@ -11,7 +11,7 @@ describe('collection contracts', () => {
     expect(update.safeParse({ id: 1, sort: 'year' }).success).toBe(true);
     expect(update.safeParse({ id: 1, sort: 'rating' }).success).toBe(false);
     const reorder = ipcContract['collections.reorder'].input;
-    expect(reorder.safeParse({ id: 1, gameId: 2, position: 0 }).success).toBe(true);
-    expect(reorder.safeParse({ id: 1, gameId: 2, position: -1 }).success).toBe(false);
+    expect(reorder.safeParse({ id: 1, gameId: 2, swapWithGameId: 3 }).success).toBe(true);
+    expect(reorder.safeParse({ id: 1, gameId: 2, position: 0 }).success).toBe(false);
   });
 });

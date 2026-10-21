@@ -59,7 +59,9 @@ export function useRemoveFromCollection() {
 }
 
 export function useReorderCollection() {
-  return useCollectionMutation(async (input: { id: number; gameId: number; position: number }) => {
-    unwrap(await getBridge().invoke('collections.reorder', input));
-  });
+  return useCollectionMutation(
+    async (input: { id: number; gameId: number; swapWithGameId: number }) => {
+      unwrap(await getBridge().invoke('collections.reorder', input));
+    },
+  );
 }

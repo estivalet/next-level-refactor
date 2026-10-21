@@ -73,10 +73,8 @@ describe('CollectionRepository', () => {
     const [charlie = 0, alpha = 0, bravo = 0] = ids;
     const { id } = collections.create('Picks');
     collections.addGames(id, ids);
-    collections.reorder(id, bravo, 0);
-    expect(listed(id)).toEqual(['Bravo', 'Charlie', 'Alpha']);
-    collections.reorder(id, bravo, 99);
-    expect(listed(id)).toEqual(['Charlie', 'Alpha', 'Bravo']);
+    collections.reorder(id, bravo, alpha);
+    expect(listed(id)).toEqual(['Charlie', 'Bravo', 'Alpha']);
     collections.update(id, { sort: 'title' });
     expect(listed(id)).toEqual(['Alpha', 'Bravo', 'Charlie']);
     expect(collections.update(id, { sort: 'year' }).sort).toBe('year');
@@ -84,23 +82,25 @@ describe('CollectionRepository', () => {
     collections.removeGames(id, [alpha]);
     collections.update(id, { sort: 'manual' });
     expect(listed(id)).toEqual(['Charlie', 'Bravo']);
-    collections.reorder(id, charlie, 1);
+    collections.reorder(id, charlie, bravo);
     expect(listed(id)).toEqual(['Bravo', 'Charlie']);
   });
 
-  it('FR-LIB-8: moving a member renumbers positions; a non-member is NOT_FOUND', () => {
-    const [a = 0, b = 0, c = 0] = seedGames(library.db, 'snes', ['A1', 'B1', 'C1']);
+  it('FR-LIB-8: moving swaps with the neighbour shown, even past hidden members', () => {
+    const [b = 0, a = 0, c = 0] = seedGames(library.db, 'snes', [
+      'Bravo',
+      { title: 'Alpha', hidden: true },
+      'Charlie',
+    ]);
     const { id } = collections.create('Picks');
-    collections.addGames(id, [a, b]);
-    collections.reorder(id, b, 0);
-    const positions = library.db.$client
-      .prepare('select position from collection_games where collection_id = ? order by position')
-      .pluck()
-      .all(id);
-    expect(positions).toEqual([0, 1]);
+    collections.addGames(id, [b, a, c]);
+    expect(listed(id)).toEqual(['Bravo', 'Charlie']);
+    collections.reorder(id, b, c);
+    expect(listed(id)).toEqual(['Charlie', 'Bravo']);
+    expect(listed(id, { tab: 'hidden' })).toEqual(['Alpha']);
     expect(
       appErrorOf(() => {
-        collections.reorder(id, c, 0);
+        collections.reorder(id, b, 999);
       }).code,
     ).toBe('NOT_FOUND');
   });

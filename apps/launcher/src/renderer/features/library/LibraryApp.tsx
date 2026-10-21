@@ -107,7 +107,7 @@ export function LibraryApp() {
                   focused={
                     view.focusedGame ? { index: view.focused, gameId: view.focusedGame.id } : null
                   }
-                  total={view.games.total ?? 0}
+                  gameIdAt={(index) => view.games.rowAt(index)?.id}
                   onMoved={view.focusRow}
                   onRename={() => {
                     overlays.openCollection({ kind: 'rename', collection });

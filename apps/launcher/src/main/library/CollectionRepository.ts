@@ -120,15 +120,19 @@ export class CollectionRepository {
     return this.summary(id);
   }
 
-  /** Moves one member to `position` (clamped to the end) and renumbers the rest. */
-  reorder(id: number, gameId: number, position: number): void {
+  /**
+   * Swaps the places of two members (Move up / Move down with the neighbour shown). Hidden or
+   * filtered-out members between them keep theirs.
+   */
+  reorder(id: number, gameId: number, swapWithGameId: number): void {
     this.client.transaction(() => {
       this.summary(id);
       const members = this.members(id);
       const from = members.indexOf(gameId);
-      if (from === -1) throw notFound({ collectionId: id, gameId });
-      members.splice(from, 1);
-      members.splice(Math.min(position, members.length), 0, gameId);
+      const to = members.indexOf(swapWithGameId);
+      if (from === -1 || to === -1) throw notFound({ collectionId: id, gameId, swapWithGameId });
+      members[from] = swapWithGameId;
+      members[to] = gameId;
       this.renumber(id, members);
     })();
   }

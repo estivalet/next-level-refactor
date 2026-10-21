@@ -71,8 +71,8 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
     },
     'collections.addGames': ({ id, gameIds }) => library().collections.addGames(id, gameIds),
     'collections.removeGames': ({ id, gameIds }) => library().collections.removeGames(id, gameIds),
-    'collections.reorder': ({ id, gameId, position }) => {
-      library().collections.reorder(id, gameId, position);
+    'collections.reorder': ({ id, gameId, swapWithGameId }) => {
+      library().collections.reorder(id, gameId, swapWithGameId);
     },
   };
 }

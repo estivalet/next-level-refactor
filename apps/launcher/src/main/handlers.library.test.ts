@@ -159,7 +159,7 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['collections.delete', { id: 1 }],
   ['collections.addGames', { id: 1, gameIds: [1] }],
   ['collections.removeGames', { id: 1, gameIds: [1] }],
-  ['collections.reorder', { id: 1, gameId: 1, position: 0 }],
+  ['collections.reorder', { id: 1, gameId: 1, swapWithGameId: 2 }],
 ];
 
 describe('game library handlers', () => {

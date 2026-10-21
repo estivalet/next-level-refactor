@@ -10,7 +10,8 @@ interface CollectionToolbarProps {
   collection: CollectionSummary;
   /** The focused row and its game, for Move up / Move down. */
   focused: { index: number; gameId: number } | null;
-  total: number;
+  /** The game shown at a row, if loaded: the neighbour a move swaps with. */
+  gameIdAt: (index: number) => number | undefined;
   onMoved: (index: number) => void;
   onRename: () => void;
   onDelete: () => void;
@@ -23,11 +24,12 @@ export function CollectionToolbar(props: CollectionToolbarProps) {
   const reorder = useReorderCollection();
   const { collection, focused } = props;
   const manual = collection.sort === 'manual';
+  const neighbour = (step: number) => (focused ? props.gameIdAt(focused.index + step) : undefined);
   const move = (step: number) => {
-    if (!focused) return;
-    const position = focused.index + step;
-    reorder.mutate({ id: collection.id, gameId: focused.gameId, position });
-    props.onMoved(position);
+    const swapWithGameId = neighbour(step);
+    if (!focused || swapWithGameId === undefined) return;
+    reorder.mutate({ id: collection.id, gameId: focused.gameId, swapWithGameId });
+    props.onMoved(focused.index + step);
   };
   return (
     <div
@@ -57,7 +59,7 @@ export function CollectionToolbar(props: CollectionToolbarProps) {
           <button
             type="button"
             className={BUTTON}
-            disabled={!focused || focused.index === 0 || reorder.isPending}
+            disabled={neighbour(-1) === undefined || reorder.isPending}
             onClick={() => {
               move(-1);
             }}
@@ -68,7 +70,7 @@ export function CollectionToolbar(props: CollectionToolbarProps) {
           <button
             type="button"
             className={BUTTON}
-            disabled={!focused || focused.index >= props.total - 1 || reorder.isPending}
+            disabled={neighbour(1) === undefined || reorder.isPending}
             onClick={() => {
               move(1);
             }}

@@ -107,7 +107,7 @@ describe('collections in the Library', () => {
     await user.click(screen.getByRole('button', { name: 'Move down' }));
     expect(bridge.calls).toContainEqual({
       channel: 'collections.reorder',
-      input: { id: 1, gameId: 1, position: 1 },
+      input: { id: 1, gameId: 1, swapWithGameId: 2 },
     });
   });
 
