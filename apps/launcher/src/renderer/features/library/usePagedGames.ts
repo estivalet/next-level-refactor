@@ -61,7 +61,7 @@ export function usePagedGames(
       const fetched = await Promise.all(
         pagesForRange(first, last).map(async (page) => ({
           page,
-          data: await client.fetchQuery({
+          data: await client.query({
             queryKey: [GAMES_KEY, params, page],
             queryFn: fetchPage(params, page),
           }),
