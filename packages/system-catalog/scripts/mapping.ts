@@ -92,16 +92,31 @@ function ascii(text: string): string {
 
 /** Permanent system id from a display name: lowercase ascii, runs of other characters → '-'. */
 export function slugify(name: string): string {
-  return ascii(name)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+  return (
+    ascii(name)
+      .toLowerCase()
+      // "MSX2" and "MSX2+" are different systems.
+      .replace(/\+/g, ' plus ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+  );
 }
 
 function matchKey(name: string): string {
   return ascii(name)
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * ES-DE also launches Windows shortcuts and scripts. A scan would then list stray shortcuts as
+ * games, so they are kept only for systems that have nothing else (PC game engines).
+ */
+const LAUNCHER_FILES = new Set(['lnk', 'url', 'bat']);
+
+function withoutLauncherFiles(extensions: string[]): string[] {
+  const roms = extensions.filter((e) => !LAUNCHER_FILES.has(e));
+  return roms.length > 0 ? roms : extensions;
 }
 
 function normalizeExtensions(extensions: readonly string[]): string[] {
@@ -149,7 +164,7 @@ export function buildCatalog(input: SeedInput): { catalog: SystemCatalog; report
       (aliasTarget ? byEsName.get(aliasTarget) : undefined) ?? byFullname.get(matchKey(name));
     if (!es) report.unmatchedEs.push(name);
     const romext = normalizeExtensions(input.launchers[name]?.romext ?? []);
-    let extensions = es?.extensions ?? romext;
+    let extensions = es ? withoutLauncherFiles(es.extensions) : romext;
     if (extensions.length === 0) {
       extensions = normalizeExtensions(input.globalExtensions);
       report.fallbackExtensions.push(name);

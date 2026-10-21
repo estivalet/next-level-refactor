@@ -32,6 +32,12 @@ describe('slugify', () => {
     expect(slugify('Pokémon Mini')).toBe('pokemon-mini');
     expect(slugify('Arcade (MAME)')).toBe('arcade-mame');
   });
+
+  it('FR-EMU-1: "+" is spelled out, so MSX2 and MSX2+ get different ids', () => {
+    expect(slugify('Microsoft MSX2+')).toBe('microsoft-msx2-plus');
+    expect(slugify('Taito Type X+')).toBe('taito-type-x-plus');
+    expect(slugify('Microsoft MSX2')).toBe('microsoft-msx2');
+  });
 });
 
 describe('parseEsSystems', () => {
@@ -88,6 +94,19 @@ describe('buildCatalog', () => {
     expect(aliased.catalog.systems.find((s) => s.id === 'pokemon-mini')?.extensions).toEqual([
       'min',
       'zip',
+    ]);
+  });
+
+  it('Windows shortcut/script extensions are dropped unless they are all a system has', () => {
+    const esSystems = [
+      { name: 'n64', fullname: 'Nintendo 64', extensions: ['n64', 'z64', 'lnk', 'bat', 'url'] },
+      { name: 'ags', fullname: 'Adventure Game Studio', extensions: ['bat', 'lnk'] },
+    ];
+    const launchers = { 'Nintendo 64': {}, 'Adventure Game Studio': {} };
+    const { catalog } = buildCatalog(input({ launchers, esSystems, aliases: {} }));
+    expect(catalog.systems.map((s) => s.extensions)).toEqual([
+      ['bat', 'lnk'],
+      ['n64', 'z64'],
     ]);
   });
 
