@@ -291,6 +291,27 @@
       "confirm": "Religar",
       "cancel": "Cancelar"
     },
-    "close": "Fechar"
+    "close": "Fechar",
+    "collections": {
+      "new": "Nova coleção",
+      "newTitle": "Nova coleção",
+      "name": "Nome",
+      "create": "Criar",
+      "rename": "Renomear",
+      "renameTitle": "Renomear coleção",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir {{name}}?",
+      "deleteBody": "A coleção é excluída. Seus jogos continuam na biblioteca.",
+      "add": "Adicionar à coleção…",
+      "addTitle_one": "Adicionar {{count}} jogo a uma coleção",
+      "addTitle_other": "Adicionar {{count}} jogos a uma coleção",
+      "none": "Nenhuma coleção ainda. Use Nova coleção na lista à esquerda.",
+      "remove": "Remover da coleção",
+      "moveUp": "Mover para cima",
+      "moveDown": "Mover para baixo",
+      "toolbar": "Coleção"
+    }
   }
 }

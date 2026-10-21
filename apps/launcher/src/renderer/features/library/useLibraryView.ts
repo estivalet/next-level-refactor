@@ -79,6 +79,10 @@ export function useLibraryView() {
     setScope: (next: GameScope) => {
       setScope(next);
     },
+    /** Back to the first system, e.g. after the shown collection was deleted. */
+    resetScope: () => {
+      setScope(null);
+    },
     setTab,
     setSort,
     toggleGroup: (key: string) => {

@@ -1,9 +1,13 @@
-import type { GameFlags, GameTab } from '@nextlevel/shared';
+import type { GameFlags } from '@nextlevel/shared';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
+import { FolderMinus, FolderPlus } from 'lucide-react';
+import { CollectionDialogs, type CollectionDialogState } from './CollectionDialog.tsx';
+import { CollectionToolbar, NewCollectionButton } from './CollectionToolbar.tsx';
 import { EditMetadataDialog } from './EditMetadataDialog.tsx';
-import { GameContextMenu } from './GameContextMenu.tsx';
+import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
+import { useRemoveFromCollection } from './collectionsApi.ts';
 import { GameDetails } from './GameDetails.tsx';
 import { GameList } from './GameList.tsx';
 import { LibraryEmpty, LibraryUnavailable } from './LibraryEmpty.tsx';
@@ -11,27 +15,8 @@ import { LibraryStatusBar } from './LibraryStatusBar.tsx';
 import { useLibraryEvents } from './libraryApi.ts';
 import { RelinkDialog } from './RelinkDialog.tsx';
 import { SystemTree } from './SystemTree.tsx';
-import { useLibraryView, type LibraryView } from './useLibraryView.ts';
-
-/** Counts and name of what the list shows, for the status bar. */
-function scopeFacts(view: LibraryView) {
-  const { scope } = view;
-  if (scope?.kind === 'system') {
-    const summary = view.systems.data?.find((system) => system.id === scope.systemId);
-    return { games: summary?.games ?? 0, missing: summary?.missing ?? 0 };
-  }
-  if (scope?.kind === 'collection') {
-    const collection = view.collections.data?.find((c) => c.id === scope.collectionId);
-    return { games: collection?.games ?? 0, missing: 0, name: collection?.name ?? '' };
-  }
-  return { games: 0, missing: 0 };
-}
-
-/** Whether a flag change takes games out of the list shown on this tab. */
-function leavesTab(tab: GameTab, flags: GameFlags): boolean {
-  if (flags.hidden !== undefined) return (tab === 'hidden') !== flags.hidden;
-  return tab === 'favorites' && flags.favorite === false;
-}
+import { leavesTab, scopeFacts } from './scopeFacts.ts';
+import { useLibraryView } from './useLibraryView.ts';
 
 /** The Game Library app (S7): system tree, virtualized game list, details panel, status bar. */
 export function LibraryApp() {
@@ -42,6 +27,8 @@ export function LibraryApp() {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [relinking, setRelinking] = useState<number | null>(null);
+  const [collectionDialog, setCollectionDialog] = useState<CollectionDialogState | null>(null);
+  const removeFromCollection = useRemoveFromCollection();
   const { setRange } = view;
   const onRange = useCallback(
     (first: number, last: number) => {
@@ -59,6 +46,32 @@ export function LibraryApp() {
 
   const facts = scopeFacts(view);
   const targets = menu ? view.selectedGames() : [];
+  const scope = view.scope;
+  const collection =
+    scope.kind === 'collection'
+      ? view.collections.data?.find((c) => c.id === scope.collectionId)
+      : undefined;
+  const collectionItems: MenuItem[] = [
+    {
+      key: 'add',
+      label: t('library.collections.add'),
+      icon: FolderPlus,
+      run: () => {
+        setCollectionDialog({ kind: 'add', gameIds: targets.map((game) => game.id) });
+      },
+    },
+  ];
+  if (collection) {
+    collectionItems.push({
+      key: 'remove',
+      label: t('library.collections.remove'),
+      icon: FolderMinus,
+      run: () => {
+        removeFromCollection.mutate({ id: collection.id, gameIds: targets.map((game) => game.id) });
+        view.focusRow(Math.min(view.focused, view.selection.anchor ?? view.focused));
+      },
+    });
+  }
   const onFlags = (flags: GameFlags) => {
     if (!leavesTab(view.tab, flags)) return;
     // The next row moves up into place: keep the focus on the top of the selection.
@@ -74,9 +87,32 @@ export function LibraryApp() {
             scope={view.scope}
             onSelectScope={view.setScope}
             onToggleGroup={view.toggleGroup}
+            collectionsAction={
+              <NewCollectionButton
+                onClick={() => {
+                  setCollectionDialog({ kind: 'new' });
+                }}
+              />
+            }
           />
         </aside>
         <main ref={list} className="flex min-w-0 flex-1 flex-col">
+          {collection && (
+            <CollectionToolbar
+              collection={collection}
+              focused={
+                view.focusedGame ? { index: view.focused, gameId: view.focusedGame.id } : null
+              }
+              total={view.games.total ?? 0}
+              onMoved={view.focusRow}
+              onRename={() => {
+                setCollectionDialog({ kind: 'rename', collection });
+              }}
+              onDelete={() => {
+                setCollectionDialog({ kind: 'delete', collection });
+              }}
+            />
+          )}
           <GameList
             games={view.games}
             selection={view.selection}
@@ -122,6 +158,16 @@ export function LibraryApp() {
           onEdit={setEditing}
           onMissingReason={setRelinking}
           onFlags={onFlags}
+          extraItems={collectionItems}
+        />
+      )}
+      {collectionDialog && (
+        <CollectionDialogs
+          state={collectionDialog}
+          onClose={() => {
+            setCollectionDialog(null);
+          }}
+          onDeleted={view.resetScope}
         />
       )}
       {editing !== null && (

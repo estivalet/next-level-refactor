@@ -291,6 +291,27 @@
       "confirm": "Relink",
       "cancel": "Cancel"
     },
-    "close": "Close"
+    "close": "Close",
+    "collections": {
+      "new": "New collection",
+      "newTitle": "New collection",
+      "name": "Name",
+      "create": "Create",
+      "rename": "Rename",
+      "renameTitle": "Rename collection",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteBody": "The collection is deleted. Its games stay in the library.",
+      "add": "Add to collection…",
+      "addTitle_one": "Add {{count}} game to a collection",
+      "addTitle_other": "Add {{count}} games to a collection",
+      "none": "No collections yet. Use New collection in the list on the left.",
+      "remove": "Remove from collection",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "toolbar": "Collection"
+    }
   }
 }
