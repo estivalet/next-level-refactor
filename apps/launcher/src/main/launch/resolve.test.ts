@@ -55,9 +55,9 @@ describe('resolveProfile (data model §2.3)', () => {
 
   it('FR-EMU-4: a game override beats the system default', () => {
     const s = settings({ systems: { 'nintendo-64': { enabled: true, defaultProfileId: P3 } } });
-    const override = { ...EMPTY_LAUNCH_OVERRIDE, profileId: P1 };
+    const override = { ...EMPTY_LAUNCH_OVERRIDE, profileId: P2 };
     expect(resolveProfile(s, 'nintendo-64', override)).toMatchObject({
-      profile: { id: P1 },
+      profile: { id: P2 },
       emulator: { id: EMU },
     });
   });
@@ -66,6 +66,13 @@ describe('resolveProfile (data model §2.3)', () => {
     const s = settings({ systems: { 'nintendo-64': { enabled: true, defaultProfileId: GONE } } });
     const override = { ...EMPTY_LAUNCH_OVERRIDE, profileId: GONE };
     expect(resolveProfile(s, 'nintendo-64', override).profile.id).toBe(P2);
+  });
+
+  it('FR-EMU-4: a default or override profile that no longer covers the system falls through', () => {
+    const s = settings({ systems: { 'nintendo-64': { enabled: true, defaultProfileId: P1 } } });
+    expect(resolveProfile(s, 'nintendo-64', EMPTY_LAUNCH_OVERRIDE).profile.id).toBe(P2);
+    const override = { ...EMPTY_LAUNCH_OVERRIDE, profileId: P1 };
+    expect(resolveProfile(settings(), 'nintendo-64', override).profile.id).toBe(P2);
   });
 
   it('US-C2: no profile for the system → NO_PROFILE with a fix link to the system', () => {
