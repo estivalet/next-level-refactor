@@ -22,9 +22,21 @@ async function entries(dir: string) {
   }
 }
 
+/** A folder that isn't there (ENOENT) is normal; any other failure is worth a log line. */
+class UnreadableFolder extends Error {}
+
+async function topEntries(dir: string) {
+  try {
+    return await readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw new UnreadableFolder(dir);
+  }
+}
+
 /** Files in the system folder and one sub-folder level, skipping the `media` art folder. */
 async function listFolder(dir: string): Promise<Candidate[] | null> {
-  const top = await entries(dir);
+  const top = await topEntries(dir);
   if (!top) return null;
   const found: Candidate[] = [];
   for (const entry of top) {
@@ -85,8 +97,16 @@ export async function walkSystem(job: WalkJob): Promise<WalkResult> {
   const accepted = new Set(job.extensions);
   const byKey = new Map<string, FoundGame>();
   let foldersFound = 0;
+  const unreadable: string[] = [];
   for (const { locationId, dir } of job.dirs) {
-    const games = await scanLocation(dir, locationId, accepted);
+    let games: FoundGame[] | null;
+    try {
+      games = await scanLocation(dir, locationId, accepted);
+    } catch (error) {
+      if (!(error instanceof UnreadableFolder)) throw error;
+      unreadable.push(dir);
+      continue;
+    }
     if (!games) continue;
     foldersFound += 1;
     for (const game of games) {
@@ -94,5 +114,10 @@ export async function walkSystem(job: WalkJob): Promise<WalkResult> {
       if (!byKey.has(key)) byKey.set(key, game);
     }
   }
-  return { systemId: job.systemId, files: groupDiscs([...byKey.values()]), foldersFound };
+  return {
+    systemId: job.systemId,
+    files: groupDiscs([...byKey.values()]),
+    foldersFound,
+    unreadable,
+  };
 }

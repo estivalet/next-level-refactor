@@ -99,7 +99,22 @@ describe('walkSystem', () => {
       dirs: [{ locationId: 'a', dir: join(root, 'nope') }],
       extensions: ['zip'],
     });
-    expect(result).toEqual({ systemId: 'test', files: [], foldersFound: 0 });
+    expect(result).toEqual({ systemId: 'test', files: [], foldersFound: 0, unreadable: [] });
+  });
+
+  it('FR-LIB-3: unreadable folders are reported, absent ones are not', async () => {
+    await write('not-a-folder');
+    const blocked = join(root, 'not-a-folder');
+    const result = await walkSystem({
+      systemId: 'test',
+      dirs: [
+        { locationId: 'a', dir: blocked },
+        { locationId: 'b', dir: join(root, 'nope') },
+      ],
+      extensions: ['zip'],
+    });
+    expect(result.unreadable).toEqual([blocked]);
+    expect(result.foldersFound).toBe(0);
   });
 
   it('FR-LIB-1: the first location containing a game wins', async () => {

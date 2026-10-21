@@ -32,6 +32,7 @@ interface Options {
   createWalker?: () => Walker;
   wrapSettings?: (settings: SettingsService) => ScanDeps['settings'];
   folderExists?: ScanDeps['folderExists'];
+  log?: ScanDeps['log'];
 }
 
 async function setup(options: Options = {}) {
@@ -76,7 +77,7 @@ async function setup(options: Options = {}) {
         )),
     clock: () => new Date(Date.UTC(2026, 9, 21, 12, 0, 0)),
     emit,
-    log: { error: () => undefined },
+    log: options.log ?? { error: () => undefined },
     newId: () => 'scan-1',
   });
   const write = async (rel: string, content = '') => {
@@ -95,6 +96,17 @@ async function setup(options: Options = {}) {
 }
 
 describe('ScanService', () => {
+  it('FR-LIB-3: a scan logs system folders it could not read', async () => {
+    const logged: unknown[] = [];
+    const { write, run, roms } = await setup({
+      log: { error: (context) => logged.push(context) },
+    });
+    await write('Nintendo 64');
+    const summary = await run(['nintendo-64']);
+    expect(summary.outcome).toBe('completed');
+    expect(logged).toEqual([{ systemId: 'nintendo-64', dirs: [join(roms, 'Nintendo 64')] }]);
+  });
+
   it('FR-LIB-3: a scan adds the games of every enabled system and reports progress', async () => {
     const { write, run, events, library } = await setup();
     await write('Nintendo 64/Demo One.z64');

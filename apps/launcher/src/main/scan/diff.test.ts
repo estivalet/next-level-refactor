@@ -19,6 +19,51 @@ const row = (id: number, relPath: string, size = 10, missing = false): ExistingG
   discGroup: null,
 });
 
+const timed = (relPath: string, size: number, mtime: number): FoundGame => ({
+  ...found(relPath, size),
+  mtime,
+});
+const timedRow = (id: number, relPath: string, size: number, mtime: number, missing = false) => ({
+  ...row(id, relPath, size, missing),
+  mtime,
+});
+
+describe('diffSystem renames', () => {
+  it('FR-LIB-3: a renamed file with the same extension, size and mtime keeps its id', () => {
+    const diff = diffSystem([timedRow(1, 'Game.zip', 10, 5)], [timed('Game (USA).zip', 10, 5)]);
+    expect(diff.moved).toEqual([{ id: 1, game: timed('Game (USA).zip', 10, 5) }]);
+    expect(diff.added).toEqual([]);
+    expect(diff.missing).toEqual([]);
+  });
+
+  it('FR-LIB-3: a rename is not guessed when two files share size and mtime', () => {
+    const diff = diffSystem(
+      [timedRow(1, 'Game.zip', 10, 5)],
+      [timed('Game (USA).zip', 10, 5), timed('Game (Europe).zip', 10, 5)],
+    );
+    expect(diff.moved).toEqual([]);
+    expect(diff.added).toHaveLength(2);
+    expect(diff.missing).toEqual([1]);
+  });
+
+  it('FR-LIB-3: a rename to another extension is not a rename', () => {
+    const diff = diffSystem([timedRow(1, 'Game.zip', 10, 5)], [timed('Game.7z', 10, 5)]);
+    expect(diff.moved).toEqual([]);
+    expect(diff.added).toEqual([timed('Game.7z', 10, 5)]);
+    expect(diff.missing).toEqual([1]);
+  });
+
+  it('FR-LIB-3: an already missing row is restored by its renamed file', () => {
+    const diff = diffSystem(
+      [timedRow(1, 'Game.zip', 10, 5, true)],
+      [timed('Game (USA).zip', 10, 5)],
+    );
+    expect(diff.moved).toEqual([{ id: 1, game: timed('Game (USA).zip', 10, 5) }]);
+    expect(diff.restored).toEqual([1]);
+    expect(diff.missing).toEqual([]);
+  });
+});
+
 describe('diffSystem', () => {
   it('FR-LIB-3: diff finds new, present and restored games by case-insensitive rel_path', () => {
     const diff = diffSystem(
