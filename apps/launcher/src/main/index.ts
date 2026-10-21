@@ -130,6 +130,15 @@ async function start(): Promise<void> {
     clock: () => new Date(),
     log,
     onChanged: (snapshot) => {
+      // DIAGNOSTIC (temporary)
+      log.info(
+        {
+          revision: snapshot.revision,
+          locations: snapshot.settings.storage.locations.length,
+          stack: new Error('trace').stack,
+        },
+        'DIAG settings written',
+      );
       emit('settings.changed', snapshot);
     },
     dialogs: {
