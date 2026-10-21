@@ -1,0 +1,7 @@
+docs/
+*.md
+package-lock.json
+**/out/
+**/dist/
+coverage/
+.superpowers/
