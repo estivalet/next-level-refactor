@@ -72,7 +72,8 @@
       "backups": "Backups",
       "data": "Data & logs",
       "storage": "Storage",
-      "systems": "Systems"
+      "systems": "Systems",
+      "emulators": "Emulators"
     },
     "about": {
       "product": "NextLevel",
@@ -191,6 +192,54 @@
       "reset": "Reset to defaults",
       "close": "Close",
       "editShort": "Edit"
+    },
+    "emulators": {
+      "intro": "Add the emulators you use. A preset fills in the launch options, so you only choose the program.",
+      "add": "Add emulator…",
+      "find": "Find emulators in a folder…",
+      "empty": "No emulators yet.",
+      "list": "Emulators",
+      "profiles": "Profiles of {{name}}",
+      "systemCount_one": "{{count}} system",
+      "systemCount_other": "{{count}} systems",
+      "noProfiles": "No profiles yet. Add them from the preset or create a new one.",
+      "changeProgram": "Change program…",
+      "addFromPreset": "Add from preset…",
+      "newProfile": "New profile",
+      "editProfile": "Edit {{name}}",
+      "deleteProfile": "Delete profile {{name}}",
+      "delete": "Delete {{name}}",
+      "confirmDelete_one": "Delete {{name}} and its {{count}} profile?",
+      "confirmDelete_other": "Delete {{name}} and its {{count}} profiles?",
+      "cancel": "Cancel",
+      "pickTitle": "Choose the emulator program",
+      "addDialog": {
+        "title": "Add emulator",
+        "preset": "Preset",
+        "custom": "Custom (you fill in the launch options)",
+        "program": "Program",
+        "choose": "Choose program…",
+        "none": "No program chosen yet.",
+        "suggest": "This looks like {{name}}.",
+        "usePreset": "Use the {{name}} preset",
+        "submit": "Add"
+      },
+      "findDialog": {
+        "title": "Find emulators",
+        "choose": "Choose folder…",
+        "searching": "Searching…",
+        "none": "No known emulators in that folder.",
+        "added": "already added",
+        "submit_one": "Add {{count}} emulator",
+        "submit_other": "Add {{count}} emulators"
+      },
+      "presetDialog": {
+        "title": "Add profiles from {{name}}",
+        "search": "Search profiles",
+        "none": "Every profile of this preset is already added.",
+        "submit_one": "Add {{count}} profile",
+        "submit_other": "Add {{count}} profiles"
+      }
     }
   },
   "boot": {

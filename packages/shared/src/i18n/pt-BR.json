@@ -72,7 +72,8 @@
       "backups": "Backups",
       "data": "Dados e logs",
       "storage": "Armazenamento",
-      "systems": "Sistemas"
+      "systems": "Sistemas",
+      "emulators": "Emuladores"
     },
     "about": {
       "product": "NextLevel",
@@ -191,6 +192,54 @@
       "reset": "Restaurar padrões",
       "close": "Fechar",
       "editShort": "Editar"
+    },
+    "emulators": {
+      "intro": "Adicione os emuladores que você usa. Uma predefinição preenche as opções de execução; você só escolhe o programa.",
+      "add": "Adicionar emulador…",
+      "find": "Procurar emuladores em uma pasta…",
+      "empty": "Nenhum emulador ainda.",
+      "list": "Emuladores",
+      "profiles": "Perfis de {{name}}",
+      "systemCount_one": "{{count}} sistema",
+      "systemCount_other": "{{count}} sistemas",
+      "noProfiles": "Nenhum perfil ainda. Adicione da predefinição ou crie um novo.",
+      "changeProgram": "Trocar programa…",
+      "addFromPreset": "Adicionar da predefinição…",
+      "newProfile": "Novo perfil",
+      "editProfile": "Editar {{name}}",
+      "deleteProfile": "Excluir perfil {{name}}",
+      "delete": "Excluir {{name}}",
+      "confirmDelete_one": "Excluir {{name}} e seu {{count}} perfil?",
+      "confirmDelete_other": "Excluir {{name}} e seus {{count}} perfis?",
+      "cancel": "Cancelar",
+      "pickTitle": "Escolha o programa do emulador",
+      "addDialog": {
+        "title": "Adicionar emulador",
+        "preset": "Predefinição",
+        "custom": "Personalizado (você preenche as opções de execução)",
+        "program": "Programa",
+        "choose": "Escolher programa…",
+        "none": "Nenhum programa escolhido ainda.",
+        "suggest": "Parece ser o {{name}}.",
+        "usePreset": "Usar a predefinição {{name}}",
+        "submit": "Adicionar"
+      },
+      "findDialog": {
+        "title": "Procurar emuladores",
+        "choose": "Escolher pasta…",
+        "searching": "Procurando…",
+        "none": "Nenhum emulador conhecido nessa pasta.",
+        "added": "já adicionado",
+        "submit_one": "Adicionar {{count}} emulador",
+        "submit_other": "Adicionar {{count}} emuladores"
+      },
+      "presetDialog": {
+        "title": "Adicionar perfis de {{name}}",
+        "search": "Buscar perfis",
+        "none": "Todos os perfis desta predefinição já foram adicionados.",
+        "submit_one": "Adicionar {{count}} perfil",
+        "submit_other": "Adicionar {{count}} perfis"
+      }
     }
   },
   "boot": {
