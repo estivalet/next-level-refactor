@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<systemList>
+    <system>
+        <name>n64</name>
+        <fullname>Nintendo 64</fullname>
+        <extension>.n64 .N64 .z64 .Z64 .7z .7Z .zip .ZIP</extension>
+    </system>
+    <system>
+        <name>nes</name>
+        <fullname>Nintendo Entertainment System</fullname>
+        <extension>.nes .NES .zip .ZIP</extension>
+    </system>
+    <system>
+        <name>pokemini</name>
+        <fullname>Nintendo Pokémon Mini</fullname>
+        <extension>.min .MIN .zip .ZIP</extension>
+    </system>
+</systemList>

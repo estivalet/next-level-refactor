@@ -5,5 +5,12 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "fast-xml-parser": "^5.11.2"
+  },
+  "dependencies": {
+    "@nextlevel/shared": "*",
+    "zod": "^4.6.7"
   }
 }
