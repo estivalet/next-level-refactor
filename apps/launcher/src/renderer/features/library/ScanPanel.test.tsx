@@ -138,4 +138,33 @@ describe('ScanPanel', () => {
     await user.click(screen.getByRole('button', { name: 'Open data folder' }));
     expect(bridge.calls).toContainEqual({ channel: 'app.openPath', input: { key: 'data' } });
   });
+
+  it('FR-LIB-3: a failed scan.start is shown', async () => {
+    const user = userEvent.setup();
+    setup({ 'scan.start': () => err('INTERNAL', 'errors.internal') });
+    await user.click(await screen.findByRole('button', { name: 'Scan now' }));
+    expect(
+      await screen.findByText('Something went wrong. Check the log for details.'),
+    ).toBeVisible();
+  });
+
+  it("FR-LIB-4: scan results show a system's total missing games", async () => {
+    const bridge = setup({
+      'systems.list': () => ok([{ id: 'nintendo-64', enabled: true, games: 7, missing: 5 }]),
+    });
+    await screen.findByRole('button', { name: 'Scan now' });
+    bridge.emit('scan.finished', {
+      scanId: 's',
+      startedAt: '2026-10-21T12:00:00.000Z',
+      finishedAt: '2026-10-21T12:00:05.000Z',
+      outcome: 'completed',
+      systems: [
+        { systemId: 'nintendo-64', present: 2, added: 0, moved: 0, restored: 0, missing: 0 },
+      ],
+      enabledSystemIds: [],
+    });
+    expect(await screen.findByRole('list', { name: 'Scan results' })).toHaveTextContent(
+      'Nintendo 642 games · 5 missing',
+    );
+  });
 });

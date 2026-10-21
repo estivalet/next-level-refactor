@@ -27,13 +27,14 @@ export function useScanStatus() {
 }
 
 /**
- * Starts a scan of every eligible system. The reply is not written to the cache: a fast scan can
+ * Starts a scan of the given systems, or of every eligible one. The reply is not written to the cache: a fast scan can
  * finish before it arrives, so the status is fetched again instead.
  */
 export function useStartScan() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: async () => unwrap(await getBridge().invoke('scan.start', {})),
+    mutationFn: async (systemIds?: string[]) =>
+      unwrap(await getBridge().invoke('scan.start', systemIds ? { systemIds } : {})),
     onSettled: () => client.invalidateQueries({ queryKey: STATUS }),
   });
 }

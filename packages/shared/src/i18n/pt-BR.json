@@ -312,6 +312,24 @@
       "moveUp": "Mover para cima",
       "moveDown": "Mover para baixo",
       "toolbar": "Coleção"
+    },
+    "search": {
+      "label": "Buscar em todos os jogos",
+      "placeholder": "Buscar em todos os jogos…",
+      "clear": "Limpar busca",
+      "results": "Resultados da busca",
+      "count_one": "{{count}} resultado",
+      "count_other": "{{count}} resultados",
+      "more": "Mostrando os primeiros {{count}} resultados",
+      "none": "Nenhum jogo corresponde."
+    },
+    "scan": {
+      "button": "Procurar",
+      "menu": "Opções de busca de jogos",
+      "all": "Procurar em todos os sistemas",
+      "system": "Procurar em {{system}}",
+      "cancel": "Cancelar busca",
+      "progress": "Procurando {{done}}/{{total}}"
     }
   }
 }

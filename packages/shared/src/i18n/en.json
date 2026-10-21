@@ -312,6 +312,24 @@
       "moveUp": "Move up",
       "moveDown": "Move down",
       "toolbar": "Collection"
+    },
+    "search": {
+      "label": "Search all games",
+      "placeholder": "Search all games…",
+      "clear": "Clear search",
+      "results": "Search results",
+      "count_one": "{{count}} match",
+      "count_other": "{{count}} matches",
+      "more": "Showing the first {{count}} matches",
+      "none": "No games match."
+    },
+    "scan": {
+      "button": "Scan",
+      "menu": "Scan options",
+      "all": "Scan all systems",
+      "system": "Scan {{system}}",
+      "cancel": "Cancel scan",
+      "progress": "Scanning {{done}}/{{total}}"
     }
   }
 }
