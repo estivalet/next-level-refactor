@@ -29,7 +29,7 @@ flowchart LR
 | Desktop | Electron (current major), built with `electron-vite` | ADR-002 |
 | UI | React 19, Vite, Tailwind CSS 4, Motion, Lucide, TanStack Virtual, TanStack Query | ADR-002 |
 | Validation & contracts | Zod (settings, IPC, API) | [ADR-005](adr/ADR-005-zod-contracts.md) |
-| Local data | `better-sqlite3` + Drizzle ORM (library), JSON file (settings) | [ADR-003](adr/ADR-003-local-storage.md) |
+| Local data | `better-sqlite3` 13 + Drizzle ORM (library), JSON file (settings). v13 ships N-API prebuilds, so one binary serves Node (tests) and Electron with no native rebuild | [ADR-003](adr/ADR-003-local-storage.md) |
 | Backend | Node 24 LTS, Fastify, Drizzle ORM, SQLite (Postgres later) | [ADR-007](adr/ADR-007-backend.md) |
 | Auth | Google OAuth 2.0 / OIDC; API-issued JWT access + rotating refresh tokens | [ADR-006](adr/ADR-006-google-sign-in.md) |
 | Billing | Stripe Checkout + Customer Portal + webhooks | [ADR-009](adr/ADR-009-stripe.md) |

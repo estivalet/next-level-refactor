@@ -38,7 +38,7 @@ is valid and the app fills the rest.
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
 `storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
-priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. Each later
+priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
 themes in M4 (owner decision 2026-10-21). Unknown keys are stripped on load; wrong types make the
 file invalid.
@@ -202,6 +202,18 @@ settings.
 ## 4. Library (`library.db`)
 
 SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_version`.
+
+**Implemented so far** (`apps/launcher/src/main/library/`): `meta`, `games` and `game_metadata`
+since M2b; the other tables arrive with the milestones that use them, each as a new migration.
+- `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
+- `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the
+  natural key ignores case like Windows does.
+- `disc_group` is the set's name without the disc tag (`Saga (USA)`) when loose `Disc 1/2` files
+  were collapsed into one game (the row points at the first disc); `null` otherwise.
+- New games get `game_metadata.title` from the file name (extension and disc tag removed, tags such
+  as `(USA)` kept) and `sort_title` = lowercase title; a scan never changes existing metadata.
+- Before a migration the existing file is copied to `backups/library-<ISO>-v<old>.db`. A library
+  from a newer app version is refused (`LIBRARY_UNAVAILABLE`) and left untouched.
 
 ```mermaid
 erDiagram

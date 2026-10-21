@@ -135,11 +135,11 @@ channels also return `VALIDATION_FAILED`.
 | Area | Channels |
 |---|---|
 | Settings | `settings.get` (`ok` snapshot or `invalid` + latest backup id), `settings.save` (`baseRevision`; stale → `CONFLICT`), `settings.reset`, `settings.backups.list`, `settings.backups.restore`, `settings.export`, `settings.import`. No `settings.validate`: both processes validate with the shared schema |
-| Systems | `systems.catalog` (definitions; presets from M3), `systems.list` (merged with settings + game counts) |
+| Systems | `systems.catalog` (definitions; presets from M3), `systems.list` (one `{ id, enabled, games, missing }` per catalog system; `games` includes missing ones) |
 | Library | `library.menu.get`, `library.games.list` (node + query + paging), `library.games.get`, `library.games.updateMetadata`, `library.games.setFlags`, `library.games.setLaunchOverride`, `library.search` |
 | Collections | `collections.list`, `collections.get`, `collections.create`, `collections.update`, `collections.delete`, `collections.addGames`, `collections.removeGames`, `collections.reorder` |
 | Menus | `menus.list`, `menus.get`, `menus.save` (whole tree + base revision), `menus.create`, `menus.delete`, `menus.setActive` |
-| Scan | `scan.start` (systems?), `scan.cancel`, `scan.status` |
+| Scan | `scan.start` (`{ systemIds? }`; while a scan runs it returns that scan's status), `scan.cancel`, `scan.status`; all return `{ running, progress, last }` (`last` = summary with per-system present/added/moved/restored/missing and `enabledSystemIds`). Without a library they fail with `LIBRARY_UNAVAILABLE` |
 | Launch | `launch.game`, `launch.test` (profile + game → command + result), `launch.preview` (rendered argv, no spawn), `launch.log` |
 | Emulators | `emulators.detect` (search common folders for preset executables) |
 | Scraper | `scraper.search`, `scraper.preview`, `scraper.apply`, `scraper.batch.start`, `scraper.batch.cancel`, `scraper.credentials.set` |
@@ -150,7 +150,11 @@ channels also return `VALIDATION_FAILED`.
 
 **Events (main → renderer):** `settings.changed`, `scan.progress`, `scan.finished`,
 `launch.started`, `launch.finished`, `downloads.progress`, `downloads.finished`,
-`auth.changed`, `library.changed` (`{ gameIds?, systems? }`).
+`auth.changed`, `library.changed` (`{ gameIds?, systems? }`). Since M2b
+`scan.progress`, `scan.finished`, `settings.changed` and `library.changed` exist: schemas in
+`packages/shared/src/ipc/events.ts`, sent on `event:<name>` channels after main validates the
+payload, received with `window.nextlevel.on(event, listener)` (returns an unsubscribe function;
+unknown events are ignored).
 
 **Media:** `nextlevel://media/<gameId>/<kind>`, `nextlevel://menu-art/<themeId>/<kind>/<name>`,
 `nextlevel://pack/<themeId>/<path>`. Only paths resolved from the library or settings are served;

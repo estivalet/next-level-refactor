@@ -13,8 +13,8 @@ export function SettingsSection({ children }: { children: (draft: SettingsDraft)
   const { t } = useTranslation();
   const settings = useSettings();
   const [notice, setNotice] = useState<string | null>(null);
-  // After this section saves, the fresh draft takes keyboard focus (the save bar is gone).
-  const [focusAfterSave, setFocusAfterSave] = useState(false);
+  // After this section saves, the first field takes keyboard focus (the save bar is gone).
+  const [saves, setSaves] = useState(0);
   if (settings.data?.kind !== 'ok') return null;
   const { snapshot } = settings.data;
 
@@ -25,14 +25,13 @@ export function SettingsSection({ children }: { children: (draft: SettingsDraft)
           {t(notice)}
         </p>
       )}
-      {/* A new revision (save, conflict reload, restore) starts a fresh draft. */}
+      {/* A new revision rebases the draft instead of remounting it (useSettingsDraft). */}
       <DraftBody
-        key={snapshot.revision}
         snapshot={snapshot}
         onNotice={setNotice}
-        focusFirstField={focusAfterSave}
+        saves={saves}
         onSaved={() => {
-          setFocusAfterSave(true);
+          setSaves((count) => count + 1);
         }}
       >
         {children}
@@ -44,13 +43,13 @@ export function SettingsSection({ children }: { children: (draft: SettingsDraft)
 function DraftBody({
   snapshot,
   onNotice,
-  focusFirstField,
+  saves,
   onSaved,
   children,
 }: {
   snapshot: SettingsSnapshot;
   onNotice: (key: string | null) => void;
-  focusFirstField: boolean;
+  saves: number;
   onSaved: () => void;
   children: (draft: SettingsDraft) => ReactNode;
 }) {
@@ -58,9 +57,9 @@ function DraftBody({
   const draft = useSettingsDraft(snapshot, { onSaved, onNotice });
 
   useEffect(() => {
-    if (!focusFirstField) return;
+    if (saves === 0) return;
     fieldsRef.current?.querySelector<HTMLElement>('input, select, button')?.focus();
-  }, [focusFirstField]);
+  }, [saves]);
 
   return (
     <>

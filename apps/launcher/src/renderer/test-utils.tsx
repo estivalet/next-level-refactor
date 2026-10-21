@@ -2,13 +2,15 @@ import {
   defaultSettings,
   ok,
   type IpcChannel,
+  type IpcEvent,
+  type IpcEventPayload,
   type IpcInput,
   type IpcOutput,
   type NextLevelBridge,
   type Result,
 } from '@nextlevel/shared';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { setBridgeForTests } from './bridge.ts';
 import { ShellProvider } from './features/shell/ShellContext.tsx';
@@ -53,6 +55,21 @@ export function installFakeBridge(responses: FakeResponses = {}) {
     }
     return Promise.resolve(respond(input));
   }) as NextLevelBridge['invoke'];
-  setBridgeForTests({ invoke });
-  return { calls, channels: () => calls.map((call) => call.channel) };
+  const listeners = new Map<IpcEvent, Set<(payload: unknown) => void>>();
+  const on = ((event: IpcEvent, listener: (payload: unknown) => void) => {
+    const set = listeners.get(event) ?? new Set();
+    set.add(listener);
+    listeners.set(event, set);
+    return () => {
+      set.delete(listener);
+    };
+  }) as NextLevelBridge['on'];
+  setBridgeForTests({ invoke, on });
+  /** Delivers a main → renderer event to the subscribed listeners. */
+  const emit = <E extends IpcEvent>(event: E, payload: IpcEventPayload<E>) => {
+    act(() => {
+      for (const listener of listeners.get(event) ?? []) listener(payload);
+    });
+  };
+  return { calls, channels: () => calls.map((call) => call.channel), emit };
 }

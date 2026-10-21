@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { v7 as uuidv7 } from 'uuid';
+import { ScanPanel } from '../library/ScanPanel.tsx';
 import { SettingsSection } from './form/SettingsSection.tsx';
 import { usePickFolder } from './settingsApi.ts';
 
@@ -50,7 +51,7 @@ export function StorageSection() {
 
   return (
     <SettingsSection>
-      {({ draft, update, errors }) => {
+      {({ draft, update, errors, dirty }) => {
         const locations = draft.storage.locations;
         const set = (next: StorageLocation[]) => {
           update((current) => withLocations(current, next));
@@ -164,6 +165,7 @@ export function StorageSection() {
               <Plus aria-hidden="true" className="h-4 w-4" />
               {t('settings.storage.add')}
             </button>
+            <ScanPanel dirty={dirty} hasLocations={locations.length > 0} />
           </div>
         );
       }}

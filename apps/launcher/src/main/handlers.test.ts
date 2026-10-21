@@ -26,6 +26,7 @@ async function setup() {
     log: { warn },
     catalog: () => [N64],
     pickFolder: vi.fn((title?: string) => Promise.resolve(title === 'cancel' ? null : 'E:/roms')),
+    library: null,
   };
   const router = createIpcRouter(createHandlers(deps), { error: () => undefined });
   return { deps, router, warn, dir: fixture.dir };

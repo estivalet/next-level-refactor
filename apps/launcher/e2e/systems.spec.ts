@@ -25,14 +25,16 @@ test('FR-EMU-1/FR-LIB-1/FR-LIB-2: enable a system, override its folder, add stor
     await settings.getByRole('button', { name: 'Edit Nintendo 64', exact: true }).click();
     await settings.getByRole('textbox', { name: 'ROM folder name' }).fill('N64');
     await settings.getByRole('button', { name: 'Save' }).click();
-    await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
+    // While saving the button reads "Saving…"; the bar itself goes only once main has written.
+    await expect(settings.getByRole('region', { name: 'You have unsaved changes.' })).toBeHidden();
 
     // Storage: add the (stubbed) picked folder.
     await settings.getByRole('button', { name: 'Storage' }).click();
     await settings.getByRole('button', { name: 'Add location…' }).click();
     await expect(settings.getByText(roms.dir)).toBeVisible();
     await settings.getByRole('button', { name: 'Save' }).click();
-    await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
+    // While saving the button reads "Saving…"; the bar itself goes only once main has written.
+    await expect(settings.getByRole('region', { name: 'You have unsaved changes.' })).toBeHidden();
     await app.close();
 
     // Restart: everything was read back from settings.json.

@@ -7,6 +7,7 @@ export const ERROR_CODES = {
   CONFLICT: 'errors.conflict',
   NOT_FOUND: 'errors.notFound',
   INVALID_SETTINGS: 'errors.invalidSettings',
+  LIBRARY_UNAVAILABLE: 'errors.libraryUnavailable',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

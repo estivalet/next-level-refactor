@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import type { Result } from '../result.ts';
 import { SystemDefinitionSchema } from '../catalog/schema.ts';
+import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
 import { SettingsSchema } from '../settings/schema.ts';
+import type { IpcEvent, IpcEventPayload } from './events.ts';
+import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
 
-export const SettingsSnapshotSchema = z.object({
-  settings: SettingsSchema,
-  revision: z.number().int(),
-});
+export { SettingsSnapshotSchema, type SettingsSnapshot };
 
 export const SettingsLoadSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('ok'), snapshot: SettingsSnapshotSchema }),
@@ -26,7 +26,6 @@ export const BackupInfoSchema = z.object({
 
 export const APP_PATH_KEYS = ['data', 'backups', 'logs'] as const;
 
-export type SettingsSnapshot = z.output<typeof SettingsSnapshotSchema>;
 export type SettingsLoad = z.output<typeof SettingsLoadSchema>;
 export type BackupInfo = z.output<typeof BackupInfoSchema>;
 export type AppPathKey = (typeof APP_PATH_KEYS)[number];
@@ -50,6 +49,13 @@ export const ipcContract = {
     output: z.string().nullable(),
   },
   'systems.catalog': { input: z.void(), output: z.array(SystemDefinitionSchema) },
+  'systems.list': { input: z.void(), output: z.array(SystemSummarySchema) },
+  'scan.start': {
+    input: z.strictObject({ systemIds: z.array(z.string()).min(1).optional() }),
+    output: ScanStatusSchema,
+  },
+  'scan.cancel': { input: z.void(), output: ScanStatusSchema },
+  'scan.status': { input: z.void(), output: ScanStatusSchema },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),
@@ -85,4 +91,6 @@ export interface NextLevelBridge {
     channel: C,
     ...args: undefined extends IpcInput<C> ? [input?: IpcInput<C>] : [input: IpcInput<C>]
   ): Promise<Result<IpcOutput<C>>>;
+  /** Subscribes to a main → renderer event; returns the unsubscribe function. */
+  on<E extends IpcEvent>(event: E, listener: (payload: IpcEventPayload<E>) => void): () => void;
 }

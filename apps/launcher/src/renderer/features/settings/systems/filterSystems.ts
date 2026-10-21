@@ -20,8 +20,9 @@ export function filterSystems(
 type SystemPatch = { [K in keyof SystemSettings]?: SystemSettings[K] | undefined };
 
 /**
- * Applies a change to one system's settings. Keys set to undefined are removed, and an entry
- * that is back to the defaults (disabled, no overrides) is dropped so settings stay small.
+ * Applies a change to one system's settings; keys set to undefined are removed. The entry is
+ * kept even when it is back to `{ enabled: false }`: an entry records that the user decided, so
+ * a scan never turns that system back on (FR-LIB-3).
  */
 export function withSystem(settings: Settings, id: string, patch: SystemPatch): Settings {
   const merged = Object.fromEntries(
@@ -29,10 +30,5 @@ export function withSystem(settings: Settings, id: string, patch: SystemPatch): 
       ([, value]) => value !== undefined,
     ),
   );
-  const others = Object.fromEntries(Object.entries(settings.systems).filter(([key]) => key !== id));
-  const isDefault = merged['enabled'] === false && Object.keys(merged).length === 1;
-  return {
-    ...settings,
-    systems: isDefault ? others : { ...others, [id]: merged as SystemSettings },
-  };
+  return { ...settings, systems: { ...settings.systems, [id]: merged as SystemSettings } };
 }
