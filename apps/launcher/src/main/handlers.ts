@@ -8,6 +8,8 @@ import {
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
 import type { IpcHandlers } from './ipc/router.ts';
+import type { LibraryRepository } from './library/LibraryRepository.ts';
+import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
 export interface MainDeps {
@@ -22,6 +24,8 @@ export interface MainDeps {
   catalog: () => readonly SystemDefinition[];
   /** Native folder dialog; null when cancelled. */
   pickFolder: (title?: string) => Promise<string | null>;
+  /** null when `library.db` could not be opened; library channels then fail. */
+  library: { repo: LibraryRepository; scan: ScanService } | null;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -44,11 +48,14 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     return snapshot;
   };
 
-  const libraryUnavailable = (): never => {
-    throw new AppErrorException({
-      code: 'LIBRARY_UNAVAILABLE',
-      message: ERROR_CODES.LIBRARY_UNAVAILABLE,
-    });
+  const library = () => {
+    if (!deps.library) {
+      throw new AppErrorException({
+        code: 'LIBRARY_UNAVAILABLE',
+        message: ERROR_CODES.LIBRARY_UNAVAILABLE,
+      });
+    }
+    return deps.library;
   };
 
   return {
@@ -66,10 +73,24 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     },
     'app.pickFolder': ({ title }) => deps.pickFolder(title),
     'systems.catalog': () => [...deps.catalog()],
-    'systems.list': libraryUnavailable,
-    'scan.start': libraryUnavailable,
-    'scan.cancel': libraryUnavailable,
-    'scan.status': libraryUnavailable,
+    'systems.list': () => {
+      const counts = new Map(
+        library()
+          .repo.systemCounts()
+          .map((row) => [row.systemId, row]),
+      );
+      const loaded = settings.get();
+      const own = loaded.kind === 'ok' ? loaded.snapshot.settings.systems : {};
+      return deps.catalog().map((system) => ({
+        id: system.id,
+        enabled: own[system.id]?.enabled ?? false,
+        games: counts.get(system.id)?.games ?? 0,
+        missing: counts.get(system.id)?.missing ?? 0,
+      }));
+    },
+    'scan.start': ({ systemIds }) => library().scan.start(systemIds),
+    'scan.cancel': () => library().scan.cancel(),
+    'scan.status': () => library().scan.status(),
     'settings.get': () => settings.get(),
     'settings.save': async ({ settings: next, baseRevision }) =>
       applied(unwrap(await settings.save(next, baseRevision))),

@@ -1,12 +1,20 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { systemCatalog } from '@nextlevel/system-catalog';
-import { createHandlers } from './handlers.ts';
+import { v7 as uuidv7 } from 'uuid';
+import { createHandlers, type MainDeps } from './handlers.ts';
+import { createEventSink } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { initLogger, logger as log } from './log.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
+import { LibraryRepository } from './library/LibraryRepository.ts';
+import { openLibrary } from './library/openLibrary.ts';
+import { ScanService } from './scan/ScanService.ts';
+import scanWorkerPath from './scan/scanWorker.ts?modulePath';
+import { createWorkerWalker } from './scan/workerWalker.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { userDataPath } from './userData.ts';
 
@@ -73,11 +81,57 @@ function createWindow(): BrowserWindow {
   return window;
 }
 
+const emit = createEventSink(
+  () =>
+    BrowserWindow.getAllWindows()
+      .map((window) => window.webContents)
+      .filter((contents) => !contents.isDestroyed()),
+  log,
+);
+
+/** Opens `library.db`; without it the app still runs and library channels fail (M2b). */
+function startLibrary(settings: SettingsService): MainDeps['library'] {
+  let db: ReturnType<typeof openLibrary>;
+  try {
+    db = openLibrary(join(dataDir, 'library.db'), {
+      backupsDir: join(dataDir, 'backups'),
+      clock: () => new Date(),
+    });
+  } catch (error) {
+    log.error({ error }, 'library could not be opened');
+    return null;
+  }
+  const repo = new LibraryRepository(db);
+  const scan = new ScanService({
+    repo,
+    settings,
+    catalog: systemCatalog,
+    createWalker: () => createWorkerWalker(scanWorkerPath),
+    folderExists: (dir) =>
+      stat(dir).then(
+        (info) => info.isDirectory(),
+        () => false,
+      ),
+    clock: () => new Date(),
+    emit,
+    log,
+    newId: uuidv7,
+  });
+  app.on('before-quit', () => {
+    scan.cancel();
+    db.$client.close();
+  });
+  return { repo, scan };
+}
+
 async function start(): Promise<void> {
   const settings = new SettingsService({
     dir: dataDir,
     clock: () => new Date(),
     log,
+    onChanged: (snapshot) => {
+      emit('settings.changed', snapshot);
+    },
     dialogs: {
       pickExportPath: async (defaultName) => {
         const window = BrowserWindow.getFocusedWindow();
@@ -110,6 +164,7 @@ async function start(): Promise<void> {
     setOpenAtLogin,
     log,
     catalog: systemCatalog,
+    library: startLibrary(settings),
     pickFolder: async (title) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];
