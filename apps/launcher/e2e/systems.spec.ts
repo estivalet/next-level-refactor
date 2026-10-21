@@ -51,10 +51,19 @@ test('FR-EMU-1/FR-LIB-1/FR-LIB-2: enable a system, override its folder, add stor
     const logText = logs.length
       ? await read(joinPath(data.dir, 'logs', logs[0] ?? ''), 'utf8').catch(() => '')
       : '';
-    await test.info().attach('diagnostic.txt', {
-      body: `BEFORE CLOSE\n${before}\n\nAFTER CLOSE\n${after}\n\nBACKUPS ${backups.join(', ')}\n\nLOG\n${logText}`,
-      contentType: 'text/plain',
-    });
+    await fsp.writeFile(
+      test.info().outputPath('diagnostic.txt'),
+      `BEFORE CLOSE
+${before}
+
+AFTER CLOSE
+${after}
+
+BACKUPS ${backups.join(', ')}
+
+LOG
+${logText}`,
+    );
 
     // Restart: everything was read back from settings.json.
     app = await launch(data.dir);
