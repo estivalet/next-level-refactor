@@ -1,9 +1,11 @@
 import {
   ERROR_CODES,
   SettingsSchema,
+  changedPaths,
   defaultSettings,
   err,
   ok,
+  type BackupInfo,
   type Result,
   type Settings,
   type SettingsLoad,
@@ -12,8 +14,14 @@ import {
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { atomicWrite } from '../fs/atomicWrite.ts';
-import { createBackup, listBackupIds, pruneBackups } from './backups.ts';
+import { backupCreatedAt, createBackup, listBackupIds, pruneBackups } from './backups.ts';
 import { migrate } from './migrate.ts';
+
+/** Larger files are rejected before parsing; real settings files are a few KB. */
+const MAX_IMPORT_BYTES = 1024 * 1024;
+const EXPORT_NAME = 'nextlevel-settings.json';
+
+type ImportResult = { status: 'cancelled' } | { status: 'imported'; snapshot: SettingsSnapshot };
 
 export interface SettingsDeps {
   dir: string;
@@ -101,6 +109,61 @@ export class SettingsService {
 
   async reset(): Promise<SettingsSnapshot> {
     return this.write(defaultSettings());
+  }
+
+  /** Backups newest first, each with what the next newer state changed (US-D3). */
+  async listBackups(): Promise<BackupInfo[]> {
+    const ids = await listBackupIds(this.paths.backups);
+    const newest = this.state.kind === 'ok' ? this.state.snapshot.settings : null;
+    const infos: BackupInfo[] = [];
+    let newer: Settings | null = newest;
+    for (const id of ids) {
+      const file = join(this.paths.backups, id);
+      const [text, info] = await Promise.all([readFile(file, 'utf8'), stat(file)]);
+      const parsed = parseSettings(text);
+      const settings = parsed.kind === 'ok' ? parsed.settings : null;
+      const changes = settings && newer ? changedPaths(settings, newer) : [];
+      infos.push({ id, createdAt: backupCreatedAt(id), size: info.size, changes });
+      newer = settings;
+    }
+    return infos;
+  }
+
+  /** Restores a backup by id; the current file is backed up first. Works from the invalid state. */
+  async restore(id: string): Promise<Result<SettingsSnapshot>> {
+    // Only ids that exist in the backups folder are accepted, so no path can escape it.
+    if (!(await listBackupIds(this.paths.backups)).includes(id)) {
+      return err('NOT_FOUND', ERROR_CODES.NOT_FOUND);
+    }
+    // Read before writing: the write's own backup may prune the very file being restored.
+    const parsed = parseSettings(await readFile(join(this.paths.backups, id), 'utf8'));
+    if (parsed.kind === 'invalid') {
+      return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: parsed.reason });
+    }
+    return ok(await this.write(parsed.settings));
+  }
+
+  /** Writes the current settings to a file the user picks (FR-SET-4). */
+  async exportTo(): Promise<Result<{ status: 'saved' | 'cancelled' }>> {
+    if (this.state.kind !== 'ok') return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS);
+    const path = await this.deps.dialogs.pickExportPath(EXPORT_NAME);
+    if (!path) return ok({ status: 'cancelled' });
+    await atomicWrite(path, `${JSON.stringify(this.state.snapshot.settings, null, 2)}\n`);
+    return ok({ status: 'saved' });
+  }
+
+  /** Replaces the settings with a file the user picks, validated like a load (FR-SET-4). */
+  async importFrom(): Promise<Result<ImportResult>> {
+    const path = await this.deps.dialogs.pickImportPath();
+    if (!path) return ok({ status: 'cancelled' });
+    if ((await stat(path)).size > MAX_IMPORT_BYTES) {
+      return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: 'tooLarge' });
+    }
+    const parsed = parseSettings(await readFile(path, 'utf8'));
+    if (parsed.kind === 'invalid') {
+      return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: parsed.reason });
+    }
+    return ok({ status: 'imported', snapshot: await this.write(parsed.settings) });
   }
 
   /** Backs up the current file (if any), writes `settings`, prunes backups, bumps the revision. */

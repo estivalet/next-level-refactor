@@ -9,6 +9,14 @@ function sortKey(id: string): string {
   return match ? `${match[1] ?? ''}#${(match[2] ?? '0').padStart(6, '0')}` : '';
 }
 
+/** The ISO time a backup was taken, recovered from its id. */
+export function backupCreatedAt(id: string): string {
+  const stamp = BACKUP_NAME.exec(id)?.[1] ?? '';
+  const [date = '', time = ''] = stamp.split('T');
+  const [h, m, s, ms] = time.replace('Z', '').split('-');
+  return `${date}T${h ?? '00'}:${m ?? '00'}:${s ?? '00'}.${ms ?? '000'}Z`;
+}
+
 /** Backup ids (file names) in `dir`, newest first. Files that don't look like backups are ignored. */
 export async function listBackupIds(dir: string): Promise<string[]> {
   const names = await readdir(dir).catch(() => [] as string[]);
