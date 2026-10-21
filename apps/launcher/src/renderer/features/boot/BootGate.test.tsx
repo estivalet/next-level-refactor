@@ -1,11 +1,13 @@
 import { defaultSettings, ok } from '@nextlevel/shared';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import i18n from '../../i18n.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
+import { GeneralSection } from '../settings/GeneralSection.tsx';
 import { BootGate } from './BootGate.tsx';
 
 // changeLanguage is async; a switch started by one test can land after the previous reset.
@@ -114,5 +116,31 @@ describe('BootGate when the settings service is unreachable', () => {
     );
     expect(await screen.findByText(/could not reach its settings service/)).toBeVisible();
     expect(screen.queryByText(/damaged/)).not.toBeInTheDocument();
+  });
+});
+
+describe('BootGate after boot', () => {
+  it('NFR-I18N-1: saving a new language switches the UI without remounting the shell', async () => {
+    const user = userEvent.setup();
+    let mounts = 0;
+    function MountProbe() {
+      useEffect(() => {
+        mounts += 1;
+      }, []);
+      return null;
+    }
+    installFakeBridge({
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+    });
+    renderInShell(
+      <BootGate>
+        <MountProbe />
+        <GeneralSection />
+      </BootGate>,
+    );
+    await user.selectOptions(await screen.findByRole('combobox', { name: 'Language' }), 'pt-BR');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('combobox', { name: 'Idioma' })).toHaveValue('pt-BR');
+    expect(mounts).toBe(1);
   });
 });

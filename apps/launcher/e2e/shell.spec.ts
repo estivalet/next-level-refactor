@@ -1,21 +1,9 @@
-import { _electron as electron, expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
-const appDir = join(import.meta.dirname, '..');
-const { version } = JSON.parse(readFileSync(join(appDir, 'package.json'), 'utf8')) as {
-  version: string;
-};
+import { expect, test } from '@playwright/test';
+import { appVersion, freshDataDir, launch } from './launch.ts';
 
 test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the window, quit from Start', async () => {
-  // VS Code terminals set ELECTRON_RUN_AS_NODE, which would start Electron as plain Node.
-  const env = Object.fromEntries(
-    Object.entries(process.env).filter(
-      (entry): entry is [string, string] =>
-        entry[0] !== 'ELECTRON_RUN_AS_NODE' && entry[1] !== undefined,
-    ),
-  );
-  const app = await electron.launch({ args: [appDir], env });
+  const data = await freshDataDir();
+  const app = await launch(data.dir);
   const page = await app.firstWindow();
 
   await page
@@ -25,7 +13,7 @@ test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the 
   const settings = page.getByRole('dialog', { name: 'Settings' });
   await expect(settings).toBeVisible();
   await settings.getByRole('button', { name: 'About' }).click();
-  await expect(settings.getByText(`Version ${version}`)).toBeVisible();
+  await expect(settings.getByText(`Version ${await appVersion()}`)).toBeVisible();
 
   // Measure after the open animation (scale 0.96 → 1) has finished.
   await expect.poll(async () => (await settings.boundingBox())?.width).toBe(900);
@@ -48,4 +36,5 @@ test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the 
   await page.getByRole('button', { name: 'Start' }).click();
   await page.getByRole('button', { name: 'Quit' }).click();
   await closed;
+  await data.remove();
 });

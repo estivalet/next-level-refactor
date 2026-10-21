@@ -7,9 +7,16 @@ import { createIpcRouter } from './ipc/router.ts';
 import { initLogger, logger as log } from './log.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
 import { SettingsService } from './settings/SettingsService.ts';
-import { userDataDirName } from './userData.ts';
+import { userDataPath } from './userData.ts';
 
-app.setPath('userData', join(app.getPath('appData'), userDataDirName(app.isPackaged)));
+app.setPath(
+  'userData',
+  userDataPath({
+    appData: app.getPath('appData'),
+    isPackaged: app.isPackaged,
+    override: process.env['NEXTLEVEL_USER_DATA'],
+  }),
+);
 const dataDir = app.getPath('userData');
 const logsDir = join(dataDir, 'logs');
 initLogger(logsDir);

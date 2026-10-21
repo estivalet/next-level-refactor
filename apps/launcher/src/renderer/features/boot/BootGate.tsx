@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../settings/settingsApi.ts';
 import { RecoveryScreen } from './RecoveryScreen.tsx';
@@ -14,6 +14,10 @@ export function BootGate({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
   const language =
     settings.data?.kind === 'ok' ? settings.data.snapshot.settings.general.language : null;
+  // Wait for the saved language only at boot; later language changes must not unmount the shell
+  // (that would close every window).
+  const [booted, setBooted] = useState(false);
+  if (!booted && language !== null && i18n.language === language) setBooted(true);
 
   useEffect(() => {
     if (!language) return;
@@ -29,7 +33,7 @@ export function BootGate({ children }: { children: ReactNode }) {
       <RecoveryScreen reason={settings.data.reason} latestBackupId={settings.data.latestBackupId} />
     );
   }
-  // Render only once the language matches, so the shell never flashes in the wrong language.
-  if (i18n.language !== language) return <Splash />;
+  // At boot, show the shell only once the language matches, so it never flashes in English.
+  if (!booted) return <Splash />;
   return children;
 }
