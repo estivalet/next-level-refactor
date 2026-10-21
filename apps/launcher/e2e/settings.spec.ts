@@ -53,3 +53,32 @@ test('FR-SET-1/3, US-D3: a setting persists across restart, and a backup restore
     await data.remove();
   }
 });
+
+test('NFR-A11Y-1: the settings switch knob sits inside its track in both states', async () => {
+  const data = await freshDataDir();
+  try {
+    const app = await launch(data.dir);
+    const page = await app.firstWindow();
+    const settings = await openSettings(page, 'Settings');
+    const track = settings.getByRole('switch', { name: 'Start with Windows' });
+    const knob = track.locator('span');
+
+    for (const state of ['off', 'on'] as const) {
+      if (state === 'on') await track.click();
+      // Let the slide transition finish before measuring.
+      await expect(track).toHaveAttribute('aria-checked', state === 'on' ? 'true' : 'false');
+      await page.waitForTimeout(300);
+      const t = await track.boundingBox();
+      const k = await knob.boundingBox();
+      if (!t || !k) throw new Error('no box');
+      const gapLeft = k.x - t.x;
+      const gapRight = t.x + t.width - (k.x + k.width);
+      expect(Math.min(gapLeft, gapRight), `${state}: knob inside track`).toBeGreaterThanOrEqual(0);
+      // Flush against the correct end (2px padding), never floating in the middle.
+      expect(Math.round(state === 'on' ? gapRight : gapLeft), `${state}: knob at its end`).toBe(2);
+    }
+    await app.close();
+  } finally {
+    await data.remove();
+  }
+});
