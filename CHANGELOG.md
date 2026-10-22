@@ -5,6 +5,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-22
+
+M4 — Themes: the fullscreen front-end with the six themes on one engine, gamepad and keyboard
+input (remappable), theme options and sounds in Settings, theme packs with art coverage, and
+starting straight into a theme. User guide: [docs/02-design/themes-guide.md](docs/02-design/themes-guide.md).
+
 ### Added
 - M4a themes engine (FR-THM-2, FR-THM-3, FR-THM-6, ADR-010): `packages/themes` holds the engine
   ported from NextLevelOS (navigation, levels, art paths, pack merge, coverage) behind a
