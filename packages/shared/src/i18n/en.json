@@ -85,7 +85,8 @@
       "storage": "Storage",
       "systems": "Systems",
       "emulators": "Emulators",
-      "input": "Input"
+      "input": "Input",
+      "themes": "Themes"
     },
     "about": {
       "product": "NextLevel",
@@ -354,6 +355,23 @@
         "toDesktop": "Go to desktop",
         "switchTheme": "Switch theme"
       }
+    },
+    "general": {
+      "bootTarget": {
+        "label": "Start in",
+        "help": "What the launcher opens when it starts. While the library has no games it opens the desktop.",
+        "theme": "Theme",
+        "options": {
+          "lastTheme": "Last theme",
+          "theme": "A chosen theme",
+          "desktop": "Desktop"
+        }
+      }
+    },
+    "themes": {
+      "help": "The front-end opens the theme in use. Options for each theme and art coverage come in a later version.",
+      "inUse": "In use",
+      "use": "Use this theme"
     }
   },
   "boot": {

@@ -1,4 +1,4 @@
-import { defaultSettings, type Settings } from '@nextlevel/shared';
+import { defaultSettings } from '@nextlevel/shared';
 import {
   resolveTheme,
   ThemeArtProvider,
@@ -12,14 +12,10 @@ import { getBridge } from '../../bridge.ts';
 import { useSettings } from '../settings/settingsApi.ts';
 import { useOpenApp } from '../shell/useOpenApp.ts';
 import { FrontendLaunchError } from './FrontendLaunchError.tsx';
+import { frontendThemeId } from './frontendTheme.ts';
 import { useFrontend } from './useFrontend.ts';
 import { useFrontendSession } from './useFrontendSession.ts';
 import { useLauncherThemeHost } from './useLauncherThemeHost.ts';
-
-/** The theme the front-end shows: the last one used, else the default; unknown ids → Big Box. */
-export function frontendThemeId(settings: Settings): string {
-  return resolveTheme(settings.themes.lastUsed ?? settings.themes.activeDefault).id;
-}
 
 /**
  * Front-end mode (IA §1, FR-THM-1): the theme fullscreen above the shell. It stays mounted while

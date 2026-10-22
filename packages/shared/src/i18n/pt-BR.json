@@ -85,7 +85,8 @@
       "storage": "Armazenamento",
       "systems": "Sistemas",
       "emulators": "Emuladores",
-      "input": "Controles"
+      "input": "Controles",
+      "themes": "Temas"
     },
     "about": {
       "product": "NextLevel",
@@ -354,6 +355,23 @@
         "toDesktop": "Ir para a área de trabalho",
         "switchTheme": "Trocar tema"
       }
+    },
+    "general": {
+      "bootTarget": {
+        "label": "Iniciar em",
+        "help": "O que o launcher abre ao iniciar. Enquanto a biblioteca não tiver jogos, abre a área de trabalho.",
+        "theme": "Tema",
+        "options": {
+          "lastTheme": "Último tema",
+          "theme": "Um tema escolhido",
+          "desktop": "Área de trabalho"
+        }
+      }
+    },
+    "themes": {
+      "help": "O front-end abre o tema em uso. Opções de cada tema e cobertura de arte chegam numa versão futura.",
+      "inUse": "Em uso",
+      "use": "Usar este tema"
     }
   },
   "boot": {
