@@ -20,6 +20,8 @@ import type { GameRepository } from './library/GameRepository.ts';
 import type { LaunchRepository } from './library/LaunchRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
 import type { MediaRepository } from './library/MediaRepository.ts';
+import type { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
@@ -49,6 +51,8 @@ export interface MainDeps {
     collections: CollectionRepository;
     launches: LaunchRepository;
     launch: LaunchService;
+    menus: MenuRepository;
+    smartFilters: SmartFilterRepository;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;

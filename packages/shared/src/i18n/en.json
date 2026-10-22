@@ -792,5 +792,8 @@
       "label": "Switch theme",
       "current": "Current"
     }
+  },
+  "menus": {
+    "defaultTitle": "Default"
   }
 }

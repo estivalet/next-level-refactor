@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
+import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import { MenuRepository } from './menus/MenuRepository.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { LaunchService } from './launch/LaunchService.ts';
 import { GameRepository } from './library/GameRepository.ts';
@@ -51,6 +53,12 @@ async function setup(withLibrary: boolean) {
       newId: () => 'scan-1',
     });
     const collections = new CollectionRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21)));
+    const menus = new MenuRepository(
+      temp.db,
+      () => new Date(Date.UTC(2026, 9, 21)),
+      () => 'm-1',
+    );
+    const smartFilters = new SmartFilterRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21)));
     library = {
       repo: temp.repo,
       media,
@@ -59,6 +67,8 @@ async function setup(withLibrary: boolean) {
         catalog: () => CATALOG,
         settings: defaultSettings,
         collections,
+        menus,
+        smartFilters,
       }),
       scan,
       games: new GameRepository(temp.db, (row) => join('X:', 'roms', row.systemId, row.relPath)),
@@ -78,6 +88,8 @@ async function setup(withLibrary: boolean) {
         baseEnv: {},
         log: { warn: () => undefined, error: () => undefined },
       }),
+      menus,
+      smartFilters,
     };
   }
   const deps: MainDeps = {

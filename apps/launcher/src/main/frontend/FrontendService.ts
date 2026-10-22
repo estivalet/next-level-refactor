@@ -1,13 +1,19 @@
 import {
   AppErrorException,
   ERROR_CODES,
+  type MenuDraft,
   type MenuTree,
   type Settings,
   type SystemDefinition,
   type ThemeGame,
 } from '@nextlevel/shared';
+import { mainText } from '../i18n/mainText.ts';
 import type { CollectionRepository } from '../library/CollectionRepository.ts';
 import type { LibraryDb } from '../library/openLibrary.ts';
+import type { SmartFilterRepository } from '../library/SmartFilterRepository.ts';
+import { generatedNodes } from '../menus/generatedDocument.ts';
+import type { MenuRepository } from '../menus/MenuRepository.ts';
+import { resolveMenu, type ResolveContext } from '../menus/resolveMenu.ts';
 import { buildMenuTree } from './menuTree.ts';
 
 export interface FrontendDeps {
@@ -15,6 +21,8 @@ export interface FrontendDeps {
   catalog: () => readonly SystemDefinition[];
   settings: () => Settings;
   collections: Pick<CollectionRepository, 'list'>;
+  menus: Pick<MenuRepository, 'active'>;
+  smartFilters: Pick<SmartFilterRepository, 'list' | 'gameIds'>;
 }
 
 interface RawThemeGame {
@@ -46,6 +54,11 @@ const COLUMNS = `g.id as id, g.system_id as systemId, m.title as title, m.year a
 
 const FROM = `from games g join game_metadata m on m.game_id = g.id
   left join game_user_state u on u.game_id = g.id`;
+
+/** A smart filter's games in its order: ids arrive as a JSON array, `j.key` is the position. */
+const SMART_SQL = `select ${COLUMNS} from json_each(@ids) j join games g on g.id = j.value
+  join game_metadata m on m.game_id = g.id left join game_user_state u on u.game_id = g.id
+  order by j.key`;
 
 const SQL = {
   system: `select ${COLUMNS} ${FROM} where g.missing = 0 and g.system_id = @systemId
@@ -84,8 +97,27 @@ export class FrontendService {
     return this.deps.db.$client;
   }
 
+  /** The active menu resolved for themes, or the generated one while no menu is stored. */
   menu(): MenuTree {
-    const own = this.deps.settings().systems;
+    const active = this.deps.menus.active();
+    return active ? resolveMenu(active, this.resolveContext()) : this.generatedTree();
+  }
+
+  /** An unsaved menu resolved like the active one (Menu Editor preview). */
+  resolveDraft(draft: MenuDraft): MenuTree {
+    return resolveMenu(draft, this.resolveContext());
+  }
+
+  /** The generated menu as an editable draft (FR-MENU-3). */
+  generatedDraft(newId: () => string = () => crypto.randomUUID()): MenuDraft {
+    const language = this.deps.settings().general.language;
+    return {
+      title: mainText(language, 'menus.defaultTitle'),
+      nodes: generatedNodes(this.generatedTree(), newId, (key) => mainText(language, key)),
+    };
+  }
+
+  private libraryCounts() {
     const counts = this.client
       .prepare(
         'select system_id as id, count(*) as n from games where missing = 0 group by system_id',
@@ -101,19 +133,55 @@ export class FrontendService {
     for (const row of filters) {
       filtersBySystem.set(row.id, [...(filtersBySystem.get(row.id) ?? []), row.filter]);
     }
+    return { gameCounts: new Map(counts.map((row) => [row.id, row.n])), filtersBySystem };
+  }
+
+  private enabledSystems() {
+    const own = this.deps.settings().systems;
+    return this.deps.catalog().filter((system) => own[system.id]?.enabled === true);
+  }
+
+  private generatedTree(): MenuTree {
     return buildMenuTree({
-      systems: this.deps.catalog().filter((system) => own[system.id]?.enabled === true),
-      gameCounts: new Map(counts.map((row) => [row.id, row.n])),
-      filtersBySystem,
+      systems: this.enabledSystems(),
+      ...this.libraryCounts(),
       collections: this.deps.collections.list(),
     });
   }
 
+  private resolveContext(): ResolveContext {
+    const present = (id: number) =>
+      this.client
+        .prepare(
+          `select count(*) from collection_games cg join games g on g.id = cg.game_id
+           where cg.collection_id = ? and g.missing = 0`,
+        )
+        .pluck()
+        .get(id) as number;
+    return {
+      systems: new Map(this.deps.catalog().map((system) => [system.id, system])),
+      enabled: new Set(this.enabledSystems().map((system) => system.id)),
+      ...this.libraryCounts(),
+      collections: new Map(
+        this.deps.collections
+          .list()
+          .map((collection) => [
+            collection.id,
+            { name: collection.name, games: present(collection.id) },
+          ]),
+      ),
+      smartFilters: new Map(this.deps.smartFilters.list().map((filter) => [filter.id, filter])),
+    };
+  }
+
   /** Every present game of a system, a system filter or a collection, in display order. */
   games(nodeId: string): ThemeGame[] {
-    const system = /^s:([a-z0-9-]+)$/.exec(nodeId);
-    const filter = /^s:([a-z0-9-]+):f:([a-z0-9-]+)$/.exec(nodeId);
-    const collection = /^c:([1-9]\d*)$/.exec(nodeId);
+    // `s:snes~2` is the second menu entry for SNES (resolveMenu): same games.
+    const id = nodeId.replace(/~[1-9]\d*(?=$|:)/, '');
+    const system = /^s:([a-z0-9-]+)$/.exec(id);
+    const filter = /^s:([a-z0-9-]+):f:([a-z0-9-]+)$/.exec(id);
+    const collection = /^c:([1-9]\d*)$/.exec(id);
+    const smart = /^sf:([1-9]\d*)$/.exec(id);
     let rows: RawThemeGame[];
     if (system?.[1] || filter?.[1]) {
       const systemId = system?.[1] ?? filter?.[1] ?? '';
@@ -127,6 +195,14 @@ export class FrontendService {
         throw notFound(nodeId);
       }
       rows = this.client.prepare(SQL.collection).all({ collectionId }) as RawThemeGame[];
+    } else if (smart?.[1]) {
+      let ids: number[];
+      try {
+        ids = this.deps.smartFilters.gameIds(Number(smart[1]));
+      } catch {
+        throw notFound(nodeId);
+      }
+      rows = this.client.prepare(SMART_SQL).all({ ids: JSON.stringify(ids) }) as RawThemeGame[];
     } else {
       throw notFound(nodeId);
     }

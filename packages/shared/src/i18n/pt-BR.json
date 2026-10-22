@@ -792,5 +792,8 @@
       "label": "Trocar tema",
       "current": "Atual"
     }
+  },
+  "menus": {
+    "defaultTitle": "Padrão"
   }
 }
