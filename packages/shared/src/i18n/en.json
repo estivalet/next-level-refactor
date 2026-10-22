@@ -369,7 +369,8 @@
       "file": "File",
       "play": "Play",
       "playCount_one": "Played {{count}} time",
-      "playCount_other": "Played {{count}} times"
+      "playCount_other": "Played {{count}} times",
+      "launchOptions": "Launch options…"
     },
     "fields": {
       "title": "Title",
@@ -391,7 +392,8 @@
       "unhide": "Unhide",
       "openFolder": "Open folder",
       "missingReason": "Show missing reason…",
-      "play": "Play"
+      "play": "Play",
+      "launchOptions": "Launch options…"
     },
     "edit": {
       "title": "Edit details",
@@ -461,6 +463,17 @@
       "close": "Close",
       "exitCode": "Exit code {{code}}",
       "stderr": "Emulator output"
+    },
+    "launchOptions": {
+      "title": "Launch options – {{title}}",
+      "profile": "Emulator profile",
+      "systemDefault": "System default ({{name}})",
+      "none": "none",
+      "core": "Core",
+      "extraArgs": "Extra arguments",
+      "extraHelp": "One argument per line. They go where the profile has {extraArgs}.",
+      "extraIgnored": "{{name}} doesn’t use {extraArgs}, so these arguments are left out. Add {extraArgs} to its arguments in Settings → Emulators.",
+      "reset": "Reset to system default"
     }
   }
 }

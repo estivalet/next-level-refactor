@@ -1,5 +1,5 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderOpen, Gamepad2, Link2, Pencil, Play, Star } from 'lucide-react';
+import { FolderOpen, Gamepad2, Link2, Pencil, Play, SlidersHorizontal, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGameDetails, useRevealGame, useSetFlags } from './libraryApi.ts';
 import { PRIMARY_BUTTON } from './Modal.tsx';
@@ -16,6 +16,7 @@ interface GameDetailsProps {
   /** Told about flag changes, so the list can move the selection when a game leaves it. */
   onFlags: (flags: GameFlags) => void;
   onPlay: (gameId: number) => void;
+  onLaunchOptions: (gameId: number) => void;
   /** A game is starting or running (D4: one at a time). */
   playBusy: boolean;
 }
@@ -157,6 +158,16 @@ export function GameDetails(props: GameDetailsProps) {
         >
           <FolderOpen aria-hidden="true" className="h-3.5 w-3.5" />
           {t('library.details.openFolder')}
+        </button>
+        <button
+          type="button"
+          className={ACTION}
+          onClick={() => {
+            props.onLaunchOptions(game.id);
+          }}
+        >
+          <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
+          {t('library.details.launchOptions')}
         </button>
       </div>
     </div>

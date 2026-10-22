@@ -1,5 +1,15 @@
 import type { GameFlags, GameRow } from '@nextlevel/shared';
-import { Eye, EyeOff, FolderOpen, Link2, Pencil, Play, Star, type LucideIcon } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  FolderOpen,
+  Link2,
+  Pencil,
+  Play,
+  SlidersHorizontal,
+  Star,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +32,7 @@ interface GameContextMenuProps {
   onEdit: (gameId: number) => void;
   /** Play the game (US-C2); offered for one present game when nothing is starting or running. */
   onPlay?: (gameId: number) => void;
+  onLaunchOptions: (gameId: number) => void;
   onMissingReason: (gameId: number) => void;
   /** Told about flag changes, so the list can move the selection when games leave it. */
   onFlags: (flags: GameFlags) => void;
@@ -94,6 +105,14 @@ export function GameContextMenu(props: GameContextMenuProps) {
     ...(props.extraItems ?? []),
   );
   if (single) {
+    items.push({
+      key: 'launchOptions',
+      label: t('library.menu.launchOptions'),
+      icon: SlidersHorizontal,
+      run: () => {
+        props.onLaunchOptions(single.id);
+      },
+    });
     items.push({
       key: 'reveal',
       label: t('library.menu.openFolder'),

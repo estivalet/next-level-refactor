@@ -6,6 +6,7 @@ import { CollectionDialogs, type CollectionDialogState } from './CollectionDialo
 import { useRemoveFromCollection } from './collectionsApi.ts';
 import { EditMetadataDialog } from './EditMetadataDialog.tsx';
 import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
+import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
 import type { LibraryView } from './useLibraryView.ts';
 
@@ -14,15 +15,18 @@ export function useOverlays() {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [relinking, setRelinking] = useState<number | null>(null);
+  const [launchOptions, setLaunchOptions] = useState<number | null>(null);
   const [collection, setCollection] = useState<CollectionDialogState | null>(null);
   return {
     menu,
     editing,
     relinking,
+    launchOptions,
     collection,
     openMenu: setMenu,
     edit: setEditing,
     relink: setRelinking,
+    openLaunchOptions: setLaunchOptions,
     openCollection: setCollection,
     closeMenu: () => {
       setMenu(null);
@@ -32,6 +36,9 @@ export function useOverlays() {
     },
     closeRelink: () => {
       setRelinking(null);
+    },
+    closeLaunchOptions: () => {
+      setLaunchOptions(null);
     },
     closeCollection: () => {
       setCollection(null);
@@ -97,6 +104,7 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
             onMenuClosed();
           }}
           onEdit={overlays.edit}
+          onLaunchOptions={overlays.openLaunchOptions}
           {...(props.onPlay ? { onPlay: props.onPlay } : {})}
           onMissingReason={overlays.relink}
           onFlags={onFlags}
@@ -115,6 +123,12 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
       {overlays.relinking !== null && (
         <RelinkDialog gameId={overlays.relinking} onClose={overlays.closeRelink} />
+      )}
+      {overlays.launchOptions !== null && (
+        <LaunchOptionsDialog
+          gameId={overlays.launchOptions}
+          onClose={overlays.closeLaunchOptions}
+        />
       )}
     </>
   );

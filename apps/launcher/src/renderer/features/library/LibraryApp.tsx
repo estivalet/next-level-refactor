@@ -158,6 +158,7 @@ export function LibraryApp() {
             onFlags={onFlags}
             onPlay={play.play}
             playBusy={play.busy}
+            onLaunchOptions={overlays.openLaunchOptions}
           />
         </aside>
       </div>

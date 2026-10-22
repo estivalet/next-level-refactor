@@ -369,7 +369,8 @@
       "file": "Arquivo",
       "play": "Jogar",
       "playCount_one": "Jogado {{count}} vez",
-      "playCount_other": "Jogado {{count}} vezes"
+      "playCount_other": "Jogado {{count}} vezes",
+      "launchOptions": "Opções de execução…"
     },
     "fields": {
       "title": "Título",
@@ -391,7 +392,8 @@
       "unhide": "Mostrar",
       "openFolder": "Abrir pasta",
       "missingReason": "Mostrar motivo da ausência…",
-      "play": "Jogar"
+      "play": "Jogar",
+      "launchOptions": "Opções de execução…"
     },
     "edit": {
       "title": "Editar detalhes",
@@ -461,6 +463,17 @@
       "close": "Fechar",
       "exitCode": "Código de saída {{code}}",
       "stderr": "Saída do emulador"
+    },
+    "launchOptions": {
+      "title": "Opções de execução – {{title}}",
+      "profile": "Perfil do emulador",
+      "systemDefault": "Padrão do sistema ({{name}})",
+      "none": "nenhum",
+      "core": "Core",
+      "extraArgs": "Argumentos extras",
+      "extraHelp": "Um argumento por linha. Eles entram onde o perfil tem {extraArgs}.",
+      "extraIgnored": "{{name}} não usa {extraArgs}, então estes argumentos ficam de fora. Adicione {extraArgs} aos argumentos dele em Configurações → Emuladores.",
+      "reset": "Voltar ao padrão do sistema"
     }
   }
 }
