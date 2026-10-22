@@ -49,7 +49,10 @@ Shell (desktop)   (reached with M / Start "Desktop", hidden in kiosk mode)
 ### Navigation rules
 
 - **Front-end ↔ shell:** `M` / gamepad *View + Start* minimizes the theme to the desktop; the
-  taskbar entry or *Start → Front-end* returns to the exact same focus.
+  taskbar entry or *Start → Front-end* returns to the exact same focus. As built (M4b): the
+  front-end is a fullscreen layer above the shell that stays mounted while hidden; the shell is
+  inert while it shows. Boot routing (F2) ends in the boot target, or the desktop while the
+  library has no games; the first-run wizard joins it in M9.
 - **Errors link to their fix:** any failure that has a setting behind it (missing emulator, bad
   path) offers a deep link `settings://emulators/<id>` that opens Settings on that field. As
   built (M3): launch errors carry `details.fix = { section, id? }`, and **Fix in Settings** opens

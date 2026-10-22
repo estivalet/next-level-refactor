@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch } from './launch.ts';
+import { freshDataDir, launch, leaveFrontend } from './launch.ts';
 
 async function openLibrary(page: Page) {
   await page
@@ -85,9 +85,10 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
     await expect(games.getByRole('option')).toHaveCount(1);
     await app.close();
 
-    // Everything survives a restart.
+    // Everything survives a restart (which now opens the front-end: there are games).
     app = await launch(data.dir);
     page = await app.firstWindow();
+    await leaveFrontend(page);
     library = await openLibrary(page);
     await library.getByRole('treeitem', { name: /Picks/ }).click();
     const picks = library.getByRole('listbox', { name: 'Games' });

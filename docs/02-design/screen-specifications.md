@@ -50,14 +50,17 @@ Five steps with a stepper, each with **Skip** and **Back**:
 
 ## S5 Front-end (themes)
 
-Each theme is specified by its own doc in `packages/themes/<id>/README.md`, ported from the
-current themes. Common requirements:
+Each theme is specified by its own doc in `packages/themes/src/<id>/README.md`, ported from the
+current themes (Big Box since M4b). Common requirements:
 
 - Levels: menu levels (categories/systems) → game list → (optional) details panel.
 - Always-available inputs: back, home, theme menu, key/button help (`?` / gamepad *View*), in-list search, favorite, play.
 - Game list tabs: All · Favorites · Hidden, plus the system's filter tabs when enabled.
 - Status: offline badge, download-in-progress badge, clock.
 - Empty system → "No games yet — Scan / Browse catalog".
+- As built (M4b): the theme menu is Desktop · Resume (Switch theme arrives with the switcher in
+  M4c); while a game runs the front-end shows "Playing…" and ignores input; a launch failure shows
+  its reason with Fix in Settings and Close, driven by the same input actions.
 
 ## S6 Desktop shell
 
