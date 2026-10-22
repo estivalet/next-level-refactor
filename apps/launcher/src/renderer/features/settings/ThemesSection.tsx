@@ -1,25 +1,61 @@
 import type { Settings } from '@nextlevel/shared';
-import { THEMES } from '@nextlevel/themes';
+import { getTheme, THEMES } from '@nextlevel/themes';
+import { useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { frontendThemeId } from '../frontend/frontendTheme.ts';
 import { SettingsSection } from './form/SettingsSection.tsx';
+import { ThemePage } from './themes/ThemePage.tsx';
+
+const BUTTON =
+  'w-fit rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none';
 
 function withTheme(settings: Settings, themeId: string): Settings {
   return { ...settings, themes: { ...settings.themes, activeDefault: themeId, lastUsed: themeId } };
 }
 
 /**
- * Settings → Themes (IA §1, FR-THM-1): the bundled themes; the one in use is what the front-end
- * opens. Per-theme options and pack coverage join this page in M4d.
+ * Settings → Themes (IA §1, FR-THM-1, FR-THM-4): the bundled themes; the one in use is what the
+ * front-end opens. Each theme's Options open its page of options.
  */
 export function ThemesSection() {
   const { t } = useTranslation();
+  const [openId, setOpenId] = useState<string | null>(null);
+  const container = useRef<HTMLDivElement>(null);
+  const open = openId ? getTheme(openId) : undefined;
+
   return (
     <SettingsSection>
-      {({ draft, update }) => {
+      {(form) => {
+        const { draft, update, errors } = form;
+        if (open) {
+          // A page with invalid values stays open: leaving it would hide the only messages
+          // while Save stays disabled.
+          const hasErrors = Object.keys(errors).some((path) =>
+            path.startsWith(`themes.entries.${open.id}.`),
+          );
+          return (
+            <ThemePage
+              theme={open}
+              form={form}
+              onBack={() => {
+                if (hasErrors) return;
+                flushSync(() => {
+                  setOpenId(null);
+                });
+                // Back to the card the page was opened from (NFR-A11Y-1).
+                container.current
+                  ?.querySelector<HTMLButtonElement>(
+                    `[data-theme-id="${CSS.escape(open.id)}"] [data-action="options"]`,
+                  )
+                  ?.focus();
+              }}
+            />
+          );
+        }
         const inUse = frontendThemeId(draft);
         return (
-          <div className="flex flex-col gap-3 py-4">
+          <div ref={container} className="flex flex-col gap-3 py-4">
             <p className="text-xs text-slate-400">{t('settings.themes.help')}</p>
             <div className="grid grid-cols-2 gap-3">
               {THEMES.map((theme) => {
@@ -34,6 +70,7 @@ export function ThemesSection() {
                   <article
                     key={theme.id}
                     aria-label={name}
+                    data-theme-id={theme.id}
                     className={`flex flex-col gap-2 rounded-xl border p-4 ${
                       active ? 'border-white/40 bg-white/10' : 'border-white/10'
                     }`}
@@ -47,17 +84,29 @@ export function ThemesSection() {
                         {t('settings.themes.inUse')}
                       </span>
                     )}
-                    {!named && (
+                    <div className="flex flex-wrap gap-2">
+                      {!named && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            update((current) => withTheme(current, theme.id));
+                          }}
+                          className={BUTTON}
+                        >
+                          {t('settings.themes.use')}
+                        </button>
+                      )}
                       <button
                         type="button"
+                        data-action="options"
                         onClick={() => {
-                          update((current) => withTheme(current, theme.id));
+                          setOpenId(theme.id);
                         }}
-                        className="w-fit rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                        className={BUTTON}
                       >
-                        {t('settings.themes.use')}
+                        {t('settings.themes.options.open')}
                       </button>
-                    )}
+                    </div>
                   </article>
                 );
               })}

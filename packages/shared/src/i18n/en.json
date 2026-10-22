@@ -375,9 +375,74 @@
       }
     },
     "themes": {
-      "help": "The front-end opens the theme in use. Options for each theme and art coverage come in a later version.",
+      "help": "The front-end opens the theme in use. Options sets each theme's art and settings; a save reaches an open theme at once.",
       "inUse": "In use",
-      "use": "Use this theme"
+      "use": "Use this theme",
+      "options": {
+        "open": "Options",
+        "back": "All themes",
+        "reset": "Reset to defaults",
+        "artHeading": "Art",
+        "settingsHeading": "Theme settings",
+        "default": "Default: {{value}}",
+        "packDefault": "Pack default: {{value}}",
+        "useDefault": "Use default",
+        "useDefaultFor": "Use default for {{label}}",
+        "on": "On",
+        "off": "Off",
+        "logoVariant": "Logo style",
+        "backgroundVariants": "Backgrounds",
+        "useVideoBackground": "Video backgrounds",
+        "backgroundZoom": "Background zoom",
+        "gameBackgroundSources": "Game backgrounds",
+        "gameArt": "Game art",
+        "gameArtSystem": "System",
+        "allSystems": "All systems",
+        "sources": {
+          "fanart": "Fanart",
+          "video": "Video",
+          "screenshot": "Screenshot"
+        },
+        "kinds": {
+          "box-front": "Box front",
+          "box-back": "Box back",
+          "fanart": "Fanart",
+          "video": "Video",
+          "screenshot-game-play": "Gameplay screenshot",
+          "screenshot-title": "Title screenshot",
+          "screenshot-select": "Select screenshot",
+          "logo-clear": "Clear logo",
+          "marquee": "Marquee"
+        },
+        "moveUp": "Move {{item}} up",
+        "moveDown": "Move {{item}} down",
+        "remove": "Remove {{item}}",
+        "addTo": "Add to {{label}}",
+        "add": "Add",
+        "filtersInMenu": "Filters in the menu",
+        "wheel": "Game list wheel",
+        "menuWheel": "Menu wheel",
+        "wheelKeys": {
+          "width": "Width",
+          "itemHeight": "Item height",
+          "spacing": "Spacing",
+          "focusScale": "Focus size",
+          "shrink": "Shrink per step",
+          "minScale": "Smallest size",
+          "focusOffset": "Focus offset",
+          "curve": "Curve",
+          "padding": "Logo padding",
+          "paddingtop": "Top padding",
+          "paddingright": "Right padding",
+          "paddingbottom": "Bottom padding",
+          "paddingleft": "Left padding",
+          "pointerHeight": "Pointer height"
+        },
+        "range": "Use a value from {{min}}–{{max}}.",
+        "wheelErrors": {
+          "width": "Use a CSS length such as 34%, 520px or 30vw."
+        }
+      }
     }
   },
   "boot": {

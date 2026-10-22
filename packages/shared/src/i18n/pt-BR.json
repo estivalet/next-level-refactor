@@ -375,9 +375,74 @@
       }
     },
     "themes": {
-      "help": "O front-end abre o tema em uso. Opções de cada tema e cobertura de arte chegam numa versão futura.",
+      "help": "O front-end abre o tema em uso. Opções define a arte e as configurações de cada tema; ao salvar, um tema aberto muda na hora.",
       "inUse": "Em uso",
-      "use": "Usar este tema"
+      "use": "Usar este tema",
+      "options": {
+        "open": "Opções",
+        "back": "Todos os temas",
+        "reset": "Restaurar padrões",
+        "artHeading": "Arte",
+        "settingsHeading": "Configurações do tema",
+        "default": "Padrão: {{value}}",
+        "packDefault": "Padrão do pacote: {{value}}",
+        "useDefault": "Usar o padrão",
+        "useDefaultFor": "Usar o padrão em {{label}}",
+        "on": "Ligado",
+        "off": "Desligado",
+        "logoVariant": "Estilo do logotipo",
+        "backgroundVariants": "Fundos",
+        "useVideoBackground": "Fundos em vídeo",
+        "backgroundZoom": "Zoom do fundo",
+        "gameBackgroundSources": "Fundos dos jogos",
+        "gameArt": "Arte dos jogos",
+        "gameArtSystem": "Sistema",
+        "allSystems": "Todos os sistemas",
+        "sources": {
+          "fanart": "Fanart",
+          "video": "Vídeo",
+          "screenshot": "Captura de tela"
+        },
+        "kinds": {
+          "box-front": "Capa",
+          "box-back": "Contracapa",
+          "fanart": "Fanart",
+          "video": "Vídeo",
+          "screenshot-game-play": "Captura do jogo",
+          "screenshot-title": "Captura da tela-título",
+          "screenshot-select": "Captura de seleção",
+          "logo-clear": "Logotipo transparente",
+          "marquee": "Marquee"
+        },
+        "moveUp": "Subir {{item}}",
+        "moveDown": "Descer {{item}}",
+        "remove": "Remover {{item}}",
+        "addTo": "Adicionar a {{label}}",
+        "add": "Adicionar",
+        "filtersInMenu": "Filtros no menu",
+        "wheel": "Roda da lista de jogos",
+        "menuWheel": "Roda dos menus",
+        "wheelKeys": {
+          "width": "Largura",
+          "itemHeight": "Altura do item",
+          "spacing": "Espaçamento",
+          "focusScale": "Tamanho do foco",
+          "shrink": "Redução por passo",
+          "minScale": "Menor tamanho",
+          "focusOffset": "Deslocamento do foco",
+          "curve": "Curva",
+          "padding": "Margem do logotipo",
+          "paddingtop": "Margem superior",
+          "paddingright": "Margem direita",
+          "paddingbottom": "Margem inferior",
+          "paddingleft": "Margem esquerda",
+          "pointerHeight": "Altura do ponteiro"
+        },
+        "range": "Use um valor de {{min}} a {{max}}.",
+        "wheelErrors": {
+          "width": "Use uma medida CSS como 34%, 520px ou 30vw."
+        }
+      }
     }
   },
   "boot": {

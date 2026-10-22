@@ -36,7 +36,7 @@ is valid and the app fills the rest.
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
-`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b. Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
@@ -66,6 +66,7 @@ type Settings = {
     activeDefault: string;                    // theme id
     lastUsed: string | null;
     entries: Record<string, ThemeOptions>;    // per-theme option overrides (see §2.5)
+    sound: { enabled: boolean; volume: number }; // every theme's navigation sounds, 0–100 (D7)
   };
   input: InputSettings;
   scraper: {
@@ -164,6 +165,10 @@ Same shape as the current `themes.json` theme entry (`art.logoVariant`, `art.bac
 such as `filtersInMenu` and wheel options). Precedence: theme defaults (in code) → theme pack
 `theme.json` → `settings.themes.entries[id]`. Pack `theme.json` keeps the current schema (see
 the current repo's `docs/themes.md`).
+HyperSpin `wheel` / `menuWheel` keys and ranges: `width` (`%`, `px` or `vw`), `itemHeight`
+24–400, `spacing` 0.3–2, `focusScale` 0.5–3, `shrink` 0–0.5, `minScale` 0.1–1, `focusOffset`
+−400–400, `curve` 1–100, `padding` 4 × 0–400, `pointerHeight` 16–1200. Settings edits every
+option on a theme page (S9); a value left unset uses the pack's, then the module's.
 
 ---
 

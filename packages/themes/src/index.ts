@@ -51,3 +51,4 @@ export * from './components/useSettledFocus.ts';
 export * from './components/useTabbedGames.ts';
 export * from './components/useThemeRootFocus.ts';
 export * from './registry.ts';
+export * from './hyperspin/wheelSettings.ts';

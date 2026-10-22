@@ -40,6 +40,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - Showcase (FR-THM-1): big system tiles with a description from `system-info/<name>.json`, and a
   cover strip under the focused game's details, last-played time and video. A system's filters
   are game-list tabs (opening on Official) unless the theme option puts them in the menu.
+- Theme options in Settings (FR-THM-4): Settings → Themes → Options opens a page per theme for
+  its logo style, background order, video backgrounds, background zoom, game background order,
+  game art per system, filters in the menu and HyperSpin's wheels, each showing its default (or
+  the pack's) with Use default and Reset to defaults; an open theme follows a save at once.
+- Settings → General → Theme sounds: on/off and volume for every theme's navigation sounds.
 
 ### Changed
 - The Library no longer shows a failure for a game started from the front-end; the front-end
