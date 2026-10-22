@@ -90,6 +90,8 @@ export type NavIntent =
   | { kind: 'open-menu' }
   | { kind: 'jump-prev' }
   | { kind: 'jump-next' }
+  | { kind: 'page-prev' }
+  | { kind: 'page-next' }
   | { kind: 'random' };
 
 export type NavIntentKind = NavIntent['kind'];

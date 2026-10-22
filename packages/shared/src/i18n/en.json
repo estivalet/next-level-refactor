@@ -593,6 +593,8 @@
       "open-menu": "Theme menu",
       "jump-prev": "Previous letter",
       "jump-next": "Next letter",
+      "page-prev": "Page up",
+      "page-next": "Page down",
       "random": "Random game"
     },
     "common": {

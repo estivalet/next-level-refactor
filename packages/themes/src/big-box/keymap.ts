@@ -2,7 +2,7 @@ import type { KeyMap } from '../engine/types.ts';
 
 /**
  * Big Box bindings (US-C1, screen spec S5): left/right move along the carousel, up or select
- * opens, LB/RB switch the game-list tabs, Start opens the theme menu, View shows every key.
+ * opens, LB/RB switch the game-list tabs, LT/RT jump a page (D5), Start opens the theme menu, View shows every key.
  */
 export const BIG_BOX_KEYMAP: KeyMap = {
   left: 'focus-prev',
@@ -16,6 +16,8 @@ export const BIG_BOX_KEYMAP: KeyMap = {
   hide: 'toggle-hidden',
   tabPrev: 'tab-prev',
   tabNext: 'tab-next',
+  pageUp: 'page-prev',
+  pageDown: 'page-next',
   help: 'show-help',
   menu: 'open-menu',
 };

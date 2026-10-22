@@ -155,6 +155,20 @@ describe('Big Box navigation (FR-THM-3, US-C1)', () => {
     expect(launch?.args).toEqual([12]);
   });
 
+  it('D5: PageDown / PageUp jump seven tiles and stop at the ends', async () => {
+    await openN64();
+    press('PageDown');
+    await waitFor(() => {
+      expect(card()).toHaveTextContent('N64 H');
+    });
+    press('PageDown');
+    expect(card()).toHaveTextContent('N64 H');
+    press('PageUp');
+    await waitFor(() => {
+      expect(card()).toHaveTextContent('N64 A');
+    });
+  });
+
   it('favorite toggles the focused game and the Favorites tab shows it', async () => {
     const { host } = await openN64();
     press('KeyX');
@@ -242,6 +256,8 @@ describe('Big Box keymap (US-C1)', () => {
         'toggle-hidden',
         'tab-prev',
         'tab-next',
+        'page-prev',
+        'page-next',
       ]),
     );
   });

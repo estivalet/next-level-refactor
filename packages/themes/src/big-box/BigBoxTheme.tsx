@@ -23,6 +23,9 @@ import { BIG_BOX_KEYMAP } from './keymap.ts';
 import { MenuView } from './MenuView.tsx';
 import { accentFor } from './palette.ts';
 
+/** Carousel tiles one page jump moves (D5): about one screen. */
+const PAGE_SIZE = 7;
+
 export function BigBoxTheme({ onExit, inputEnabled = true, active = true }: ThemeComponentProps) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -38,6 +41,7 @@ export function BigBoxTheme({ onExit, inputEnabled = true, active = true }: Them
     rootRef,
     columns: Number.MAX_SAFE_INTEGER,
     wrap: true,
+    pageSize: PAGE_SIZE,
   });
   const { tabbed } = controller;
   const listening = inputEnabled && !helpOpen;
