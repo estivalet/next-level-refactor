@@ -184,6 +184,11 @@ export const ipcContract = {
     input: z.strictObject({ themeId: z.string().regex(THEME_ID), refresh: z.boolean().optional() }),
     output: ArtIndexSchema,
   },
+  /** FR-THM-5: the front-end opened this theme; saved as `themes.lastUsed`. */
+  'frontend.themeOpened': {
+    input: z.strictObject({ themeId: z.string().regex(THEME_ID) }),
+    output: z.void(),
+  },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),

@@ -1,8 +1,9 @@
-import { Power, Search } from 'lucide-react';
+import { MonitorPlay, Power, Search } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apps, type AppId } from '../../apps/registry.ts';
+import { useFrontend } from '../frontend/useFrontend.ts';
 import { useQuitApp } from './api.ts';
 import { filterApps } from './filterApps.ts';
 import { useOpenApp } from './useOpenApp.ts';
@@ -22,6 +23,7 @@ export function StartMenu({
   const reduceMotion = useReducedMotion();
   const openApp = useOpenApp();
   const quit = useQuitApp();
+  const frontend = useFrontend();
   const [query, setQuery] = useState('');
   const panel = useRef<HTMLDivElement>(null);
   const matches = filterApps(apps, query, t);
@@ -76,6 +78,19 @@ export function StartMenu({
           }}
           className="w-full rounded-full border border-white/10 bg-black/20 py-1.5 pr-4 pl-9 text-xs text-white placeholder-slate-500 focus:border-white/30 focus:outline-none"
         />
+      </div>
+      <div className="border-b border-white/5 p-2">
+        <button
+          type="button"
+          className={ROW}
+          onClick={() => {
+            frontend.show();
+            onClose();
+          }}
+        >
+          <MonitorPlay aria-hidden="true" className="h-4 w-4 text-[#ff4d7a]" />
+          {t('frontend.open')}
+        </button>
       </div>
       <ul aria-label={t('shell.start.apps')} className="flex-1 overflow-y-auto p-2">
         {matches.map((app) => (

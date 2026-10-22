@@ -7,6 +7,7 @@ import { ThemeEngineProvider } from '../engine/ThemeEngineProvider.tsx';
 import type { NavIntentKind } from '../engine/types.ts';
 import { useThemeNavigation } from '../engine/useThemeNavigation.ts';
 import { FakeThemeHost } from '../host/FakeThemeHost.ts';
+import type { LaunchOutcome } from '../host/ThemeHost.ts';
 import { buildFilterTabs } from './gameTabs.ts';
 import { useGamesLevelController } from './useGamesLevelController.ts';
 
@@ -134,6 +135,18 @@ describe('useGamesLevelController (FR-THM-1, FR-THM-3)', () => {
     await waitFor(() => {
       expect(text('toast')).toBe('Emulator not found');
     });
+  });
+
+  it('US-C2: a failure the host already reported is not shown twice', async () => {
+    class ReportingHost extends FakeThemeHost {
+      override launch(): Promise<LaunchOutcome> {
+        return Promise.resolve({ ok: false, message: 'Emulator not found', reported: true });
+      }
+    }
+    await openN64(new ReportingHost());
+    click('enter');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(text('toast')).toBe('');
   });
 
   it('back closes an open search instead of navigating', async () => {

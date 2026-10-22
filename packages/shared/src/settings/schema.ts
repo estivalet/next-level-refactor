@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { checkProfiles, EmulatorProfileSchema, EmulatorSchema } from './emulators.ts';
+import { THEME_ID, ThemeOptionsSchema } from '../frontend/schema.ts';
 import { checkInput, InputSettingsSchema } from './input.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
@@ -21,8 +22,21 @@ function field(path: string): FieldMeta {
   return { labelKey: `settings.fields.${path}.label`, helpKey: `settings.fields.${path}.help` };
 }
 
+const ThemeIdSchema = z.string().regex(THEME_ID);
+
+/** Where the launcher opens after setup (FR-THM-5, owner decision D1). */
+export const BootTargetSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('lastTheme') }),
+  z.object({ kind: z.literal('theme'), themeId: ThemeIdSchema }),
+  z.object({ kind: z.literal('desktop') }),
+]);
+
+export type BootTarget = z.output<typeof BootTargetSchema>;
+
 export const GeneralSchema = z.object({
   language: z.enum(LANGUAGES).default('en').meta(field('general.language')),
+  /** Edited by its own control in Settings → General (a choice plus a theme). */
+  bootTarget: BootTargetSchema.default({ kind: 'lastTheme' }),
   startWithWindows: z.boolean().default(false).meta(field('general.startWithWindows')),
   /** ISO time the first-run wizard finished; null sends the user to the wizard (M9). */
   setupCompletedAt: z.iso.datetime().nullable().default(null),
@@ -115,6 +129,18 @@ export const SettingsSchema = z
     systems: z.record(z.string(), SystemSettingsSchema).default({}),
     emulators: z.array(EmulatorSchema).default([]),
     profiles: z.array(EmulatorProfileSchema).default([]),
+    // Theme ids are kept even when unknown (a newer launcher's theme); they fall back to Big Box
+    // where they are used.
+    themes: z
+      .object({
+        /** The theme the front-end opens when none was used yet. */
+        activeDefault: ThemeIdSchema.default('big-box'),
+        /** The theme open last (boot target `lastTheme`). */
+        lastUsed: ThemeIdSchema.nullable().default(null),
+        /** Per-theme option overrides (data model §2.5). */
+        entries: z.record(ThemeIdSchema, ThemeOptionsSchema).default({}),
+      })
+      .prefault({}),
     input: InputSettingsSchema.prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),
   })

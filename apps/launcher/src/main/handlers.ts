@@ -91,7 +91,21 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
 
   return {
     ...createLibraryHandlers(deps),
-    ...createFrontendHandlers({ frontend: () => library().frontend, artIndex: deps.artIndex }),
+    ...createFrontendHandlers({
+      frontend: () => library().frontend,
+      artIndex: deps.artIndex,
+      // A write only when the theme changed: each write keeps a settings backup.
+      rememberTheme: async (themeId) => {
+        const current = settings.get();
+        if (current.kind === 'ok' && current.snapshot.settings.themes.lastUsed === themeId) return;
+        unwrap(
+          await settings.update((next) => ({
+            ...next,
+            themes: { ...next.themes, lastUsed: themeId },
+          })),
+        );
+      },
+    }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();

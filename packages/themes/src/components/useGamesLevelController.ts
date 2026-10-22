@@ -122,7 +122,7 @@ export function useGamesLevelController({
   const play = useCallback(
     async (game: ThemeGame) => {
       const outcome = await launch(game);
-      if (!outcome.ok) showToast(outcome.message);
+      if (!outcome.ok && !outcome.reported) showToast(outcome.message);
     },
     [launch, showToast],
   );

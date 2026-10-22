@@ -59,6 +59,22 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
     expect(await host.launch(3)).toEqual({ ok: false, message: 'T(errors.noProfile)' });
   });
 
+  it('US-C2: with onLaunchError the failure goes to the launcher, which reports it', async () => {
+    installFakeBridge({ 'launch.game': () => err('NO_PROFILE', 'errors.noProfile') });
+    const reported: unknown[] = [];
+    const host = createLauncherThemeHost(getBridge(), {
+      settings: () => defaultSettings(),
+      t,
+      onLaunchError: (gameId, error) => reported.push([gameId, error.code]),
+    });
+    expect(await host.launch(3)).toEqual({
+      ok: false,
+      message: 'T(errors.noProfile)',
+      reported: true,
+    });
+    expect(reported).toEqual([[3, 'NO_PROFILE']]);
+  });
+
   it('favorite and hidden are saved for one game; a failure resolves false', async () => {
     const saved = setup({ 'library.games.setFlags': () => ok(undefined) });
     expect(await saved.host.setGameFlags(5, { hidden: true })).toBe(true);

@@ -13,6 +13,7 @@ describe('front-end handlers', () => {
         index: (themeId) =>
           Promise.resolve({ packFiles: [themeId], assetsFiles: [], manifest: null, warnings: [] }),
       },
+      rememberTheme: () => Promise.resolve(),
     });
     expect((await handlers['frontend.artIndex']({ themeId: 'ps5' })).packFiles).toEqual(['ps5']);
     expect(await handlers['frontend.menu']()).toEqual({ title: 'NextLevel', items: [] });
@@ -25,6 +26,7 @@ describe('front-end handlers', () => {
         throw new AppErrorException({ code: 'LIBRARY_UNAVAILABLE', message: 'x' });
       },
       artIndex: { index: () => Promise.reject(new Error('unused')) },
+      rememberTheme: () => Promise.resolve(),
     });
     expect(() => handlers['frontend.menu']()).toThrow(AppErrorException);
   });

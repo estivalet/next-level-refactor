@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell, type FakeResponses } from '../../test-utils.tsx';
+import { useEffect } from 'react';
+import { useFrontend } from '../frontend/useFrontend.ts';
 import { useShell } from '../shell/ShellContext.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
 import { gameDetails, gameRow, libraryResponses } from './testing.ts';
@@ -31,6 +33,13 @@ function WindowsProbe() {
       {JSON.stringify(state.windows.map((w) => ({ appId: w.appId, params: w.params })))}
     </output>
   );
+}
+
+/** Opens the front-end (without rendering it), as if the user were in a theme. */
+function ShowFrontend() {
+  const { show } = useFrontend();
+  useEffect(show, [show]);
+  return null;
 }
 
 function setup(responses: FakeResponses = {}) {
@@ -197,6 +206,30 @@ describe('Play from the Library (FR-EMU-6, US-C2)', () => {
       error: { code: 'LAUNCH_FAILED', message: 'errors.launchFailed' },
     });
     expect(await screen.findByRole('dialog', { name: 'The game didn’t start' })).toBeVisible();
+  });
+
+  it('US-C2: a run that ends while the front-end shows is reported there, not in the Library', async () => {
+    const bridge = installFakeBridge({
+      ...libraryResponses(GAMES),
+      'launch.running': () => ok(null),
+    });
+    renderInShell(
+      <>
+        <LibraryApp />
+        <ShowFrontend />
+      </>,
+    );
+    await screen.findByRole('option', { name: /Homebrew Demo/ });
+    bridge.emit('launch.finished', {
+      launchId: 10,
+      gameId: 1,
+      exitCode: 2,
+      durationMs: 300,
+      counted: false,
+      error: { code: 'LAUNCH_FAILED', message: 'errors.launchFailed' },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('US-C2: ALREADY_RUNNING shows its message without a fix link', async () => {

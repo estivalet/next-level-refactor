@@ -78,6 +78,23 @@ describe('createHandlers', () => {
     expect(result).toMatchObject({ ok: false, error: { code: 'CONFLICT' } });
   });
 
+  it('FR-THM-5: frontend.themeOpened remembers the theme once, without a base revision', async () => {
+    const { router } = await setup();
+    expect(await router.handle('frontend.themeOpened', { themeId: 'big-box' })).toEqual({
+      ok: true,
+      value: undefined,
+    });
+    await router.handle('frontend.themeOpened', { themeId: 'big-box' });
+    const loaded = await router.handle('settings.get', undefined);
+    expect(loaded).toMatchObject({
+      ok: true,
+      value: {
+        kind: 'ok',
+        snapshot: { revision: 1, settings: { themes: { lastUsed: 'big-box' } } },
+      },
+    });
+  });
+
   it('FR-SET-7: app.paths returns data, settings, backups and logs', async () => {
     const { router, dir } = await setup();
     expect(await router.handle('app.paths', undefined)).toEqual({

@@ -1,8 +1,9 @@
 import type { AppError } from '@nextlevel/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
+import { FrontendContext } from '../frontend/useFrontend.ts';
 import { launchAppError } from '../launch/LaunchErrorDetails.tsx';
 import { unwrap } from '../settings/settingsApi.ts';
 import { GAME_KEY } from './libraryApi.ts';
@@ -22,6 +23,8 @@ export interface PlayFailure {
 export function usePlay({ onFinished }: { onFinished: () => void }) {
   const client = useQueryClient();
   const [failure, setFailure] = useState<PlayFailure | null>(null);
+  // A run that ends while the front-end shows started there, and the front-end reports it.
+  const frontendVisible = useContext(FrontendContext)?.visible ?? false;
   const running = useQuery({
     queryKey: RUNNING_KEY,
     queryFn: async () => unwrap(await getBridge().invoke('launch.running')),
@@ -33,7 +36,9 @@ export function usePlay({ onFinished }: { onFinished: () => void }) {
     client.setQueryData(RUNNING_KEY, null);
     // The play count and last played changed (D5: only counted runs).
     if (finished.counted) void client.invalidateQueries({ queryKey: [GAME_KEY, finished.gameId] });
-    if (finished.error) setFailure({ gameId: finished.gameId, error: finished.error });
+    if (finished.error && !frontendVisible) {
+      setFailure({ gameId: finished.gameId, error: finished.error });
+    }
     onFinished();
   });
   const launch = useMutation({

@@ -551,7 +551,11 @@
       "translation": "Traduções",
       "prototype": "Protótipos",
       "unlicensed": "Não licenciados"
-    }
+    },
+    "open": "Front-end",
+    "label": "Front-end",
+    "playing": "Jogando",
+    "playingHint": "Jogando… O front-end volta quando o jogo fechar."
   },
   "themes": {
     "intents": {

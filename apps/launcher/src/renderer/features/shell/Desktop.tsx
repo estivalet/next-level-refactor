@@ -1,14 +1,20 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApp } from '../../apps/registry.ts';
+import { FrontendLayer } from '../frontend/FrontendLayer.tsx';
+import { useFrontend } from '../frontend/useFrontend.ts';
 import { DesktopIcons } from './DesktopIcons.tsx';
 import { useShell } from './ShellContext.tsx';
 import { ShellWindow } from './ShellWindow.tsx';
 
-/** The desktop: icons and windows in the work area, with an optional taskbar below. */
+/**
+ * The desktop: icons and windows in the work area, with an optional taskbar below, and the
+ * front-end layer above it all once opened (the shell is inert while the front-end shows).
+ */
 export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
   const { t } = useTranslation();
   const { state, dispatch } = useShell();
+  const frontend = useFrontend();
   const workArea = useRef<HTMLDivElement>(null);
   const previousFocusedId = useRef(state.focusedId);
 
@@ -40,6 +46,7 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e1b4b] font-sans text-slate-200 select-none">
       <main
         ref={workArea}
+        inert={frontend.visible}
         aria-label={t('shell.desktop.label')}
         className="relative isolate flex-1 overflow-hidden"
       >
@@ -54,7 +61,12 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
           );
         })}
       </main>
-      {taskbar}
+      {taskbar && (
+        <div inert={frontend.visible} className="contents">
+          {taskbar}
+        </div>
+      )}
+      {frontend.mounted && <FrontendLayer />}
     </div>
   );
 }
