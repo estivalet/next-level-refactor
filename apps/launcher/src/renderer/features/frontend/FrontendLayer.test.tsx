@@ -1,5 +1,6 @@
 import { err, ok } from '@nextlevel/shared';
 import { FakeThemeHost, FIXTURE_MENU } from '@nextlevel/themes/testing';
+import { THEMES } from '@nextlevel/themes';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -167,7 +168,7 @@ describe('theme switcher (FR-THM-1)', () => {
     });
     press('KeyT');
     const switcher = await screen.findByRole('dialog', { name: 'Switch theme' });
-    expect(within(switcher).getAllByRole('button')).toHaveLength(4);
+    expect(within(switcher).getAllByRole('button')).toHaveLength(THEMES.length); // D6
     press('ArrowRight');
     press('Enter');
     await waitFor(() => {
