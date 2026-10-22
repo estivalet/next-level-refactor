@@ -1,5 +1,6 @@
 import type { AppPathKey } from '@nextlevel/shared';
 import { useTranslation } from 'react-i18next';
+import { LaunchLog } from './LaunchLog.tsx';
 import { useAppPaths, useOpenPath } from './settingsApi.ts';
 
 // The settings file is shown but not opened: only folders can be opened (app.openPath keys).
@@ -10,7 +11,7 @@ const ROWS: readonly { key: 'data' | 'settings' | 'backups' | 'logs'; openable: 
   { key: 'logs', openable: true },
 ];
 
-/** Settings → Data & logs (FR-SET-7): where data lives, with "open folder" buttons. */
+/** Settings → Data & logs (FR-SET-7, FR-EMU-10): where data lives, and the launch log. */
 export function DataSection() {
   const { t } = useTranslation();
   const paths = useAppPaths();
@@ -51,6 +52,11 @@ export function DataSection() {
           );
         })}
       </dl>
+      <h3 className="mt-4 text-sm font-semibold text-white">
+        {t('settings.data.launchLog.title')}
+      </h3>
+      <p className="text-xs text-slate-400">{t('settings.data.launchLog.intro')}</p>
+      <LaunchLog />
     </section>
   );
 }

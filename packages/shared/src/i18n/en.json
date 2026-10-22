@@ -140,7 +140,17 @@
       "settings": "Settings file",
       "backups": "Backups folder",
       "logs": "Logs folder",
-      "open": "Open {{name}}"
+      "open": "Open {{name}}",
+      "launchLog": {
+        "title": "Launch log",
+        "intro": "The last 1,000 launches, newest first. Select one to see its command and emulator output.",
+        "empty": "No launches yet.",
+        "test": "Test",
+        "unknown": "Unknown",
+        "failed": "Failed",
+        "exitCode": "Exit code {{code}}",
+        "cwd": "Working folder:"
+      }
     },
     "storage": {
       "intro": "Folders that contain your systems’ ROM folders. When a game is in several, the first location in this list wins.",

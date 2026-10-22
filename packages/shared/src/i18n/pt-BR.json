@@ -140,7 +140,17 @@
       "settings": "Arquivo de configurações",
       "backups": "Pasta de backups",
       "logs": "Pasta de logs",
-      "open": "Abrir {{name}}"
+      "open": "Abrir {{name}}",
+      "launchLog": {
+        "title": "Registro de execuções",
+        "intro": "As últimas 1.000 execuções, das mais novas para as mais antigas. Selecione uma para ver o comando e a saída do emulador.",
+        "empty": "Nenhuma execução ainda.",
+        "test": "Teste",
+        "unknown": "Desconhecida",
+        "failed": "Falhou",
+        "exitCode": "Código de saída {{code}}",
+        "cwd": "Pasta de trabalho:"
+      }
     },
     "storage": {
       "intro": "Pastas que contêm as pastas de ROMs dos seus sistemas. Quando um jogo está em várias, vale o primeiro local desta lista.",
