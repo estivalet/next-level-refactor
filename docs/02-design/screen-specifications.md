@@ -186,13 +186,13 @@ Left navigation of sections (see IA §1), right form pane.
   are off. An open theme follows a save at once.
 - **Themes** (M4b–M4d, FR-THM-1, FR-THM-2, FR-THM-4): a card per bundled theme (name, description,
   pack status, **In use**, **Use this theme**, **Options**). The pack status reads `No pack` (the pack
-  folder has no file) or `Art NN%` (menu art the pack covers itself: logo, background and, with
+  folder has no art and no valid `theme.json`) or `Art NN%` (menu art the pack covers itself: logo, background and, with
   video backgrounds on, video per menu item; wallpaper shown but optional). A click opens the
   coverage panel: the pack's version · author · description, per slot `have / total` with the
   missing menu items, the pack's warnings, **Preview without fallback** (the front-end shows that
   theme with pack art only, until the launcher closes; never saved) and **Rescan art** (re-reads
-  the folders; an open theme uses the new files). **Options** opens the theme's page; **All themes** goes
-  back to the card (blocked while the page has an invalid value). The page has **Reset to
+  the folders; an open theme uses the new files; a failure is shown in the panel). **Options** opens the theme's page; **All themes** goes
+  back to the card (with an invalid value the page stays, says why and moves focus to the value). The page has **Reset to
   defaults** (clears the theme's entry) and two groups:
   - **Art**: logo style (text with the `logo/<variant>` folders found in the art as suggestions),
     background order (ordered list of `background/<style>` folders: add, move up/down, remove),

@@ -14,7 +14,7 @@ import { artIndexKey, useThemeArtIndex } from './useThemeArtIndex.ts';
 
 export interface ThemeCoverageInfo {
   status: 'loading' | 'ready';
-  /** The pack folder has at least one file. */
+  /** The pack folder has a file or a valid theme.json. */
   hasPack: boolean;
   coverage: ThemeCoverage | null;
   index: ArtIndex | undefined;
@@ -43,7 +43,8 @@ export function useThemeCoverage(
   const art = mergeThemeArt(theme.art, index.manifest?.art, userArt);
   return {
     status: 'ready',
-    hasPack: index.packFiles.length > 0,
+    // A pack may hold only theme.json (options, or fallback: false) and still be a pack.
+    hasPack: index.packFiles.length > 0 || index.manifest !== null,
     coverage: computeCoverage(names, art, index.packFiles),
     index,
   };

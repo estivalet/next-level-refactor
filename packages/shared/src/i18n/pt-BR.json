@@ -441,7 +441,8 @@
         "range": "Use um valor de {{min}} a {{max}}.",
         "wheelErrors": {
           "width": "Use uma medida CSS como 34%, 520px ou 30vw."
-        }
+        },
+        "blocked": "Corrija os valores marcados em vermelho, ou escolha Usar o padrão, antes de sair desta página."
       },
       "coverage": {
         "loading": "Arte …",
@@ -470,7 +471,8 @@
           "manifestArtNotObject": "theme.json: art deve ser um objeto e foi ignorado.",
           "manifestArtWrongType": "theme.json: art.{{field}} tem o tipo errado e foi ignorado.",
           "manifestSettingsNotObject": "theme.json: settings deve ser um objeto e foi ignorado."
-        }
+        },
+        "rescanFailed": "Não foi possível reler as pastas de arte."
       }
     }
   },

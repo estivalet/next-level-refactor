@@ -196,7 +196,7 @@ A pack is a folder named after the theme id in the theme packs folder, using the
 
 ## Checking a pack
 
-Each theme card shows **No pack** (the pack folder is missing or empty) or **Art NN%**: how much
+Each theme card shows **No pack** (the pack folder has no art and no `theme.json`) or **Art NN%**: how much
 of the menu's logo, background and (with video backgrounds on) video art the pack has itself.
 Click it for the coverage panel:
 

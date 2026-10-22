@@ -1,7 +1,7 @@
 import type { Settings } from '@nextlevel/shared';
 import type { ThemeModule } from '@nextlevel/themes';
 import { ArrowLeft } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SettingsDraft } from '../form/useSettingsDraft.ts';
 import { useSystemCatalog } from '../settingsApi.ts';
@@ -44,7 +44,8 @@ export function ThemePage({
 }: {
   theme: ThemeModule;
   form: Pick<SettingsDraft, 'draft' | 'update' | 'errors'>;
-  onBack: () => void;
+  /** False when the page has to stay (an invalid value). */
+  onBack: () => boolean;
 }) {
   const { t } = useTranslation();
   const { draft, update, errors } = form;
@@ -60,14 +61,22 @@ export function ThemePage({
     update(change);
   };
   const heading = useRef<HTMLHeadingElement>(null);
+  const page = useRef<HTMLDivElement>(null);
+  const [blocked, setBlocked] = useState(false);
+  const back = () => {
+    if (onBack()) return;
+    // Say why the page stays, and go to the first value to fix (NFR-A11Y-1).
+    setBlocked(true);
+    page.current?.querySelector<HTMLElement>('[aria-invalid="true"], [role="alert"]')?.focus();
+  };
   useEffect(() => {
     heading.current?.focus();
   }, []);
 
   return (
-    <div className="flex flex-col py-4">
+    <div ref={page} className="flex flex-col py-4">
       <div className="flex items-center gap-3">
-        <button type="button" onClick={onBack} className={BUTTON}>
+        <button type="button" onClick={back} className={BUTTON}>
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           {t('settings.themes.options.back')}
         </button>
@@ -85,6 +94,11 @@ export function ThemePage({
           {t('settings.themes.options.reset')}
         </button>
       </div>
+      {blocked && Object.keys(errors).some((path) => path.startsWith(base)) && (
+        <p role="status" className="mt-3 rounded-lg bg-white/10 px-3 py-2 text-xs text-white">
+          {t('settings.themes.options.blocked')}
+        </p>
+      )}
       <ArtOptions
         theme={theme}
         index={index}

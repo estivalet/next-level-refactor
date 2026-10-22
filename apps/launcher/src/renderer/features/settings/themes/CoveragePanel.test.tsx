@@ -1,4 +1,4 @@
-import { ok, type ArtIndex, type MenuTree } from '@nextlevel/shared';
+import { err, ok, type ArtIndex, type MenuTree } from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -124,5 +124,30 @@ describe('Settings → Themes → pack coverage (FR-THM-2)', () => {
     await waitFor(() => {
       expect(screen.getByText('Logo 2 / 2')).toBeVisible();
     });
+  });
+
+  it('a failed Rescan art says so in the panel', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'frontend.menu': () => ok(MENU),
+      'frontend.artIndex': (input) =>
+        input.refresh ? err('INTERNAL', 'errors.internal') : ok(NO_PACK),
+    });
+    renderInShell(<ThemesSection />);
+    await user.click(await within(await card('Big Box')).findByRole('button', { name: 'No pack' }));
+    await user.click(screen.getByRole('button', { name: 'Rescan art' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Couldn’t read the art folders again.',
+    );
+    expect(screen.getByRole('button', { name: 'Rescan art' })).toBeEnabled();
+  });
+
+  it('a pack with only theme.json is a pack: its percentage, not "No pack"', async () => {
+    const user = userEvent.setup();
+    setup(() => ({ ...NO_PACK, manifest: { id: 'big-box', version: '2.0' } }));
+    await user.click(await within(await card('Big Box')).findByRole('button', { name: 'Art 0%' }));
+    const panel = screen.getByRole('dialog', { name: 'Art coverage: Big Box' });
+    expect(within(panel).getByText('v2.0')).toBeVisible();
+    expect(within(panel).queryByText(/No theme pack folder found/)).toBeNull();
   });
 });

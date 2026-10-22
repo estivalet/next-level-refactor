@@ -34,6 +34,7 @@ export function CoveragePanel({
   const preview = useThemeArtSession().preview.has(theme.id);
   const rescan = useRescanArt(theme.id);
   const [rescanning, setRescanning] = useState(false);
+  const [rescanFailed, setRescanFailed] = useState(false);
   const manifest = info.index?.manifest;
   const meta = [
     manifest?.version && `v${manifest.version}`,
@@ -107,15 +108,27 @@ export function CoveragePanel({
           />
           {t('settings.themes.coverage.preview')}
         </label>
+        {rescanFailed && (
+          <p role="alert" className="text-xs text-[#ff8a80]">
+            {t('settings.themes.coverage.rescanFailed')}
+          </p>
+        )}
         <div className="flex justify-end gap-2">
           <button
             type="button"
             disabled={rescanning}
             onClick={() => {
               setRescanning(true);
-              void rescan().finally(() => {
-                setRescanning(false);
-              });
+              rescan().then(
+                () => {
+                  setRescanFailed(false);
+                  setRescanning(false);
+                },
+                () => {
+                  setRescanFailed(true);
+                  setRescanning(false);
+                },
+              );
             }}
             className={BUTTON}
           >

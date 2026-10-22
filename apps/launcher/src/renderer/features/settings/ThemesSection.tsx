@@ -41,7 +41,7 @@ export function ThemesSection() {
               theme={open}
               form={form}
               onBack={() => {
-                if (hasErrors) return;
+                if (hasErrors) return false;
                 flushSync(() => {
                   setOpenId(null);
                 });
@@ -51,6 +51,7 @@ export function ThemesSection() {
                     `[data-theme-id="${CSS.escape(open.id)}"] [data-action="options"]`,
                   )
                   ?.focus();
+                return true;
               }}
             />
           );

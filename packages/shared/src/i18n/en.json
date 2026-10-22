@@ -441,7 +441,8 @@
         "range": "Use a value from {{min}}–{{max}}.",
         "wheelErrors": {
           "width": "Use a CSS length such as 34%, 520px or 30vw."
-        }
+        },
+        "blocked": "Fix the values marked in red, or choose Use default, before leaving this page."
       },
       "coverage": {
         "loading": "Art …",
@@ -470,7 +471,8 @@
           "manifestArtNotObject": "theme.json: art must be an object and is ignored.",
           "manifestArtWrongType": "theme.json: art.{{field}} has the wrong type and is ignored.",
           "manifestSettingsNotObject": "theme.json: settings must be an object and is ignored."
-        }
+        },
+        "rescanFailed": "Couldn’t read the art folders again."
       }
     }
   },

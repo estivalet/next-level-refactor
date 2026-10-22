@@ -183,4 +183,20 @@ describe('Settings → Themes → a theme’s options (FR-THM-4)', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(saved(bridge).themes.entries['ps5']).toBeUndefined();
   });
+
+  it('All themes with an invalid value says why it stays and goes to the value', async () => {
+    setup();
+    const user = await open('HyperSpin Classic');
+    const height = within(screen.getByRole('group', { name: 'Game list wheel' })).getByRole(
+      'spinbutton',
+      { name: 'Item height' },
+    );
+    fireEvent.change(height, { target: { value: '9000' } });
+    await user.click(screen.getByRole('button', { name: 'All themes' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'HyperSpin Classic' })).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Fix the values marked in red, or choose Use default, before leaving this page.',
+    );
+    expect(height).toHaveFocus();
+  });
 });
