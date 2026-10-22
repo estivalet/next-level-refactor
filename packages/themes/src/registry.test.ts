@@ -31,7 +31,7 @@ describe('theme registry (FR-THM-1)', () => {
   });
 
   it('lists the M4c themes after Big Box', () => {
-    expect(THEME_IDS.slice(0, 3)).toEqual(['big-box', 'big-box-list', 'console-home']);
+    expect(THEME_IDS.slice(0, 4)).toEqual(['big-box', 'big-box-list', 'console-home', 'ps5']);
   });
 
   it('every theme name and description is translated', () => {

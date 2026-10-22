@@ -653,6 +653,11 @@
     "consoleHome": {
       "name": "Console Home",
       "description": "Home-menu tiles with a tabbed game grid"
+    },
+    "ps5": {
+      "name": "PS5 Style",
+      "description": "Category tabs, icon shelf and a dark game library",
+      "explore": "Explore"
     }
   }
 }

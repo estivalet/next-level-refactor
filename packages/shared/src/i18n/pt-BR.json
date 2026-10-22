@@ -653,6 +653,11 @@
     "consoleHome": {
       "name": "Console Home",
       "description": "Blocos de menu inicial com grade de jogos em abas"
+    },
+    "ps5": {
+      "name": "Estilo PS5",
+      "description": "Abas de categoria, prateleira de ícones e biblioteca escura",
+      "explore": "Explorar"
     }
   }
 }
