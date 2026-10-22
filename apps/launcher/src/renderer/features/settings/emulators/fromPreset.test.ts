@@ -45,7 +45,7 @@ describe('adding emulators (FR-EMU-2, FR-EMU-7)', () => {
       expect.objectContaining({
         name: 'Dolphin',
         emulatorId: settings.emulators[0]?.id,
-        args: ['-b', '-e', '{rom}'],
+        args: ['{extraArgs}', '-b', '-e', '{rom}'],
         presetProfileId: 'dolphin:default',
         archives: 'extract',
         env: {},

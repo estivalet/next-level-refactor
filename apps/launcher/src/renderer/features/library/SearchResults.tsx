@@ -1,4 +1,4 @@
-import type { SearchResult } from '@nextlevel/shared';
+import type { GameRow, SearchResult } from '@nextlevel/shared';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search } from 'lucide-react';
 import { useRef } from 'react';
@@ -11,11 +11,14 @@ interface SearchResultsProps {
   result: SearchResult | undefined;
   selectedId: number | null;
   onSelect: (gameId: number) => void;
+  /** Enter or double-click on a hit (US-C2: Play). */
+  onActivate: (game: GameRow) => void;
   systemName: (systemId: string) => string;
 }
 
 /** Global search hits from every system (US-C3), virtualized, with each game's system. */
-export function SearchResults({ result, selectedId, onSelect, systemName }: SearchResultsProps) {
+export function SearchResults(props: SearchResultsProps) {
+  const { result, selectedId, onSelect, onActivate, systemName } = props;
   const { t } = useTranslation();
   const scroller = useRef<HTMLDivElement>(null);
   const games = result?.games ?? [];
@@ -49,6 +52,12 @@ export function SearchResults({ result, selectedId, onSelect, systemName }: Sear
             selectedIndex >= 0 ? `search-result-${String(selectedIndex)}` : undefined
           }
           onKeyDown={(event) => {
+            const current = games[selectedIndex];
+            if (event.key === 'Enter' && current) {
+              event.preventDefault();
+              onActivate(current);
+              return;
+            }
             const next = keyStep(event.key, selectedIndex, games.length);
             const game = next === null ? undefined : games[next];
             if (next === null || !game) return;
@@ -71,6 +80,9 @@ export function SearchResults({ result, selectedId, onSelect, systemName }: Sear
                 aria-selected={selected}
                 onClick={() => {
                   onSelect(game.id);
+                }}
+                onDoubleClick={() => {
+                  onActivate(game);
                 }}
                 className={`absolute left-0 flex w-full cursor-default items-center gap-3 rounded-lg border px-4 ${
                   selected

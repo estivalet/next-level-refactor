@@ -140,7 +140,17 @@
       "settings": "Settings file",
       "backups": "Backups folder",
       "logs": "Logs folder",
-      "open": "Open {{name}}"
+      "open": "Open {{name}}",
+      "launchLog": {
+        "title": "Launch log",
+        "intro": "The last 1,000 launches, newest first. Select one to see its command and emulator output.",
+        "empty": "No launches yet.",
+        "test": "Test",
+        "unknown": "Unknown",
+        "failed": "Failed",
+        "exitCode": "Exit code {{code}}",
+        "cwd": "Working folder:"
+      }
     },
     "storage": {
       "intro": "Folders that contain your systems’ ROM folders. When a game is in several, the first location in this list wins.",
@@ -366,7 +376,11 @@
       "missingSince": "Missing since {{date}}",
       "expectedAt": "Expected at {{path}}",
       "relink": "Relink…",
-      "file": "File"
+      "file": "File",
+      "play": "Play",
+      "playCount_one": "Played {{count}} time",
+      "playCount_other": "Played {{count}} times",
+      "launchOptions": "Launch options…"
     },
     "fields": {
       "title": "Title",
@@ -387,7 +401,9 @@
       "hide": "Hide",
       "unhide": "Unhide",
       "openFolder": "Open folder",
-      "missingReason": "Show missing reason…"
+      "missingReason": "Show missing reason…",
+      "play": "Play",
+      "launchOptions": "Launch options…"
     },
     "edit": {
       "title": "Edit details",
@@ -446,6 +462,33 @@
       "system": "Scan {{system}}",
       "cancel": "Cancel scan",
       "progress": "Scanning {{done}}/{{total}}"
+    },
+    "playing": {
+      "title": "Playing {{title}}…",
+      "hint": "The Library comes back when the game closes.",
+      "untitled": "Playing a game…"
+    },
+    "launchError": {
+      "title": "{{title}} didn’t start",
+      "fix": "Fix in Settings",
+      "close": "Close",
+      "exitCode": "Exit code {{code}}",
+      "stderr": "Emulator output",
+      "untitled": "The game didn’t start"
+    },
+    "launchOptions": {
+      "title": "Launch options – {{title}}",
+      "profile": "Emulator profile",
+      "systemDefault": "System default ({{name}})",
+      "none": "none",
+      "core": "Core",
+      "extraArgs": "Extra arguments",
+      "extraHelp": "One argument per line. They go where the profile has {extraArgs}.",
+      "extraIgnored": "{{name}} doesn’t use {extraArgs}, so these arguments are left out. Add {extraArgs} to its arguments in Settings → Emulators.",
+      "reset": "Reset to system default",
+      "coreTooLong": "Use a core name of at most {{core}} characters.",
+      "tooManyArgs": "Use at most {{extraArgs}} extra arguments.",
+      "argTooLong": "Each extra argument can have at most {{extraArg}} characters."
     }
   }
 }

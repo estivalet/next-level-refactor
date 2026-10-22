@@ -110,9 +110,9 @@ describe('GameDetails', () => {
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     await user.keyboard('{Shift>}{F10}{/Shift}');
     const menu = screen.getByRole('menu', { name: 'Game actions' });
-    expect(within(menu).getByRole('menuitem', { name: 'Edit details…' })).toHaveFocus();
+    expect(within(menu).getByRole('menuitem', { name: 'Play' })).toHaveFocus();
     await user.keyboard('{ArrowDown}');
-    expect(within(menu).getByRole('menuitem', { name: 'Add to favorites' })).toHaveFocus();
+    expect(within(menu).getByRole('menuitem', { name: 'Edit details…' })).toHaveFocus();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     expect(screen.getByRole('listbox', { name: 'Games' })).toHaveFocus();

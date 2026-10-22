@@ -1,17 +1,42 @@
 import { z } from 'zod';
 import { AppErrorSchema } from '../errors.ts';
 
+/** Limits of a game's launch options, shared with the Launch options dialog. */
+export const LAUNCH_OVERRIDE_LIMITS = { core: 120, extraArgs: 50, extraArg: 1000 } as const;
+
 /** A game's own launch settings (FR-EMU-4); empty fields fall back to the system's profile. */
 export const LaunchOverrideSchema = z.object({
   profileId: z.uuid().nullable(),
-  core: z.string().trim().max(120).nullable(),
+  core: z.string().trim().max(LAUNCH_OVERRIDE_LIMITS.core).nullable(),
   /** Extra argv elements, inserted where the profile has `{extraArgs}`. */
-  extraArgs: z.array(z.string().max(1000)).max(50),
+  extraArgs: z
+    .array(z.string().max(LAUNCH_OVERRIDE_LIMITS.extraArg))
+    .max(LAUNCH_OVERRIDE_LIMITS.extraArgs),
 });
 
 export type LaunchOverride = z.output<typeof LaunchOverrideSchema>;
 
 export const EMPTY_LAUNCH_OVERRIDE: LaunchOverride = { profileId: null, core: null, extraArgs: [] };
+
+/** The Settings section (and item) that fixes a launch error (IA: errors link to their fix). */
+export const LaunchFixSchema = z.object({
+  section: z.enum(['emulators', 'systems', 'storage']),
+  id: z.string().optional(),
+});
+
+export type LaunchFix = z.output<typeof LaunchFixSchema>;
+
+/** `AppError.details` of launch errors (US-C2): what failed, why, and where to fix it. */
+export const LaunchErrorDetailsSchema = z.object({
+  fix: LaunchFixSchema.optional(),
+  path: z.string().optional(),
+  stderrTail: z.string().optional(),
+  exitCode: z.number().int().optional(),
+  /** A short machine reason, e.g. the spawn error code (ENOENT) or `cwdMissing`. */
+  reason: z.string().optional(),
+});
+
+export type LaunchErrorDetails = z.output<typeof LaunchErrorDetailsSchema>;
 
 /** One row of the launch log (FR-EMU-10). Names are copies, so the log survives renames. */
 export const LaunchLogEntrySchema = z.object({

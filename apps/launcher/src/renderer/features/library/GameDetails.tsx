@@ -1,7 +1,8 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderOpen, Gamepad2, Link2, Pencil, Star } from 'lucide-react';
+import { FolderOpen, Gamepad2, Link2, Pencil, Play, SlidersHorizontal, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useGameDetails, useRevealGame, useSetFlags } from './libraryApi.ts';
+import { PRIMARY_BUTTON } from './Modal.tsx';
 import { RatingStars } from './RatingStars.tsx';
 
 const ACTION =
@@ -14,10 +15,15 @@ interface GameDetailsProps {
   onRelink: (gameId: number) => void;
   /** Told about flag changes, so the list can move the selection when a game leaves it. */
   onFlags: (flags: GameFlags) => void;
+  onPlay: (gameId: number) => void;
+  onLaunchOptions: (gameId: number) => void;
+  /** A game is starting or running (D4: one at a time). */
+  playBusy: boolean;
 }
 
 /** The right panel (S7): one game's metadata, favorite, rating and actions. */
-export function GameDetails({ gameId, systemName, onEdit, onRelink, onFlags }: GameDetailsProps) {
+export function GameDetails(props: GameDetailsProps) {
+  const { gameId, systemName, onEdit, onRelink, onFlags } = props;
   const { t, i18n } = useTranslation();
   const details = useGameDetails(gameId);
   const setFlags = useSetFlags();
@@ -42,7 +48,23 @@ export function GameDetails({ gameId, systemName, onEdit, onRelink, onFlags }: G
       <div>
         <h3 className="text-sm font-bold text-white">{game.title}</h3>
         <p className="text-xs text-slate-500">{systemName(game.systemId)}</p>
+        {game.playCount > 0 && (
+          <p className="text-xs text-slate-500">
+            {t('library.details.playCount', { count: game.playCount })}
+          </p>
+        )}
       </div>
+      <button
+        type="button"
+        className={`${PRIMARY_BUTTON} flex items-center justify-center gap-2`}
+        disabled={game.missing || props.playBusy}
+        onClick={() => {
+          props.onPlay(game.id);
+        }}
+      >
+        <Play aria-hidden="true" className="h-3.5 w-3.5" />
+        {t('library.details.play')}
+      </button>
       {game.missing && (
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
           <p>
@@ -136,6 +158,16 @@ export function GameDetails({ gameId, systemName, onEdit, onRelink, onFlags }: G
         >
           <FolderOpen aria-hidden="true" className="h-3.5 w-3.5" />
           {t('library.details.openFolder')}
+        </button>
+        <button
+          type="button"
+          className={ACTION}
+          onClick={() => {
+            props.onLaunchOptions(game.id);
+          }}
+        >
+          <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
+          {t('library.details.launchOptions')}
         </button>
       </div>
     </div>

@@ -1,4 +1,10 @@
-import type { Emulator, EmulatorProfile, LaunchOverride, Settings } from '@nextlevel/shared';
+import {
+  defaultProfileFor,
+  type Emulator,
+  type EmulatorProfile,
+  type LaunchOverride,
+  type Settings,
+} from '@nextlevel/shared';
 import { launchError } from './errors.ts';
 
 /**
@@ -11,14 +17,12 @@ export function resolveProfile(
   systemId: string,
   override: LaunchOverride,
 ): { profile: EmulatorProfile; emulator: Emulator } {
-  const byId = (id: string | null | undefined) =>
-    id
-      ? settings.profiles.find((profile) => profile.id === id && profile.systems.includes(systemId))
-      : undefined;
-  const profile =
-    byId(override.profileId) ??
-    byId(settings.systems[systemId]?.defaultProfileId) ??
-    settings.profiles.find((candidate) => candidate.systems.includes(systemId));
+  const overridden = override.profileId
+    ? settings.profiles.find(
+        (profile) => profile.id === override.profileId && profile.systems.includes(systemId),
+      )
+    : undefined;
+  const profile = overridden ?? defaultProfileFor(settings, systemId);
   if (!profile) throw launchError('NO_PROFILE', { fix: { section: 'systems', id: systemId } });
   const emulator = settings.emulators.find((candidate) => candidate.id === profile.emulatorId);
   if (!emulator) {

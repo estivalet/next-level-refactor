@@ -49,7 +49,7 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
           if (!app) return null;
           return (
             <ShellWindow key={win.id} win={win} title={t(app.titleKey)}>
-              <app.Component />
+              <app.Component {...(win.params ? { params: win.params } : {})} />
             </ShellWindow>
           );
         })}

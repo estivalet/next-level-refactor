@@ -16,7 +16,7 @@ function run(...actions: WindowAction[]): WindowState {
   return actions.reduce(windowReducer, initialWindowState(BOUNDS));
 }
 
-function open(appId: string, singleInstance = false): WindowAction {
+function open(appId: string, singleInstance = false): Extract<WindowAction, { type: 'open' }> {
   return { type: 'open', appId, size: SIZE, singleInstance };
 }
 
@@ -154,6 +154,21 @@ describe('windowReducer', () => {
     const before = run(open('a'));
     const after = windowReducer(before, { type: 'setBounds', bounds: { width: 0, height: 0 } });
     expect(after).toBe(before);
+  });
+
+  it('US-C2: opening a single-instance app with params passes them on, also to its open window', () => {
+    const params = { section: 'systems', focusId: 'snes' };
+    const first = run({ ...open('settings', true), params });
+    expect(win(first, 'settings-1').params).toEqual(params);
+    const again = windowReducer(first, {
+      ...open('settings', true),
+      params: { section: 'emulators' },
+    });
+    expect(again.windows).toHaveLength(1);
+    expect(win(again, 'settings-1').params).toEqual({ section: 'emulators' });
+    expect(win(windowReducer(again, open('settings', true)), 'settings-1').params).toEqual({
+      section: 'emulators',
+    });
   });
 
   it('ignores actions for unknown windows', () => {

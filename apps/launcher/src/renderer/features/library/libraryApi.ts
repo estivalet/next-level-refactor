@@ -1,4 +1,4 @@
-import type { GameFlags, MetadataChanges } from '@nextlevel/shared';
+import type { GameFlags, LaunchOverride, MetadataChanges } from '@nextlevel/shared';
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { getBridge } from '../../bridge.ts';
@@ -111,6 +111,28 @@ export function useRevealGame() {
   return useMutation({
     mutationFn: async (gameId: number) => {
       unwrap(await getBridge().invoke('library.games.reveal', { gameId }));
+    },
+  });
+}
+
+const OVERRIDE_KEY = 'library.games.launchOverride';
+
+/** A game's own launch options (FR-EMU-4). */
+export function useLaunchOverride(gameId: number) {
+  return useQuery({
+    queryKey: [OVERRIDE_KEY, gameId],
+    queryFn: async () =>
+      unwrap(await getBridge().invoke('library.games.launchOverride', { gameId })),
+  });
+}
+
+export function useSetLaunchOverride() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { gameId: number; override: LaunchOverride }) =>
+      unwrap(await getBridge().invoke('library.games.setLaunchOverride', input)),
+    onSuccess: (override, { gameId }) => {
+      client.setQueryData([OVERRIDE_KEY, gameId], override);
     },
   });
 }

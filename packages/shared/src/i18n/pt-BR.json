@@ -140,7 +140,17 @@
       "settings": "Arquivo de configurações",
       "backups": "Pasta de backups",
       "logs": "Pasta de logs",
-      "open": "Abrir {{name}}"
+      "open": "Abrir {{name}}",
+      "launchLog": {
+        "title": "Registro de execuções",
+        "intro": "As últimas 1.000 execuções, das mais novas para as mais antigas. Selecione uma para ver o comando e a saída do emulador.",
+        "empty": "Nenhuma execução ainda.",
+        "test": "Teste",
+        "unknown": "Desconhecida",
+        "failed": "Falhou",
+        "exitCode": "Código de saída {{code}}",
+        "cwd": "Pasta de trabalho:"
+      }
     },
     "storage": {
       "intro": "Pastas que contêm as pastas de ROMs dos seus sistemas. Quando um jogo está em várias, vale o primeiro local desta lista.",
@@ -366,7 +376,11 @@
       "missingSince": "Ausente desde {{date}}",
       "expectedAt": "Esperado em {{path}}",
       "relink": "Religar…",
-      "file": "Arquivo"
+      "file": "Arquivo",
+      "play": "Jogar",
+      "playCount_one": "Jogado {{count}} vez",
+      "playCount_other": "Jogado {{count}} vezes",
+      "launchOptions": "Opções de execução…"
     },
     "fields": {
       "title": "Título",
@@ -387,7 +401,9 @@
       "hide": "Ocultar",
       "unhide": "Mostrar",
       "openFolder": "Abrir pasta",
-      "missingReason": "Mostrar motivo da ausência…"
+      "missingReason": "Mostrar motivo da ausência…",
+      "play": "Jogar",
+      "launchOptions": "Opções de execução…"
     },
     "edit": {
       "title": "Editar detalhes",
@@ -446,6 +462,33 @@
       "system": "Procurar em {{system}}",
       "cancel": "Cancelar busca",
       "progress": "Procurando {{done}}/{{total}}"
+    },
+    "playing": {
+      "title": "Jogando {{title}}…",
+      "hint": "A Biblioteca volta quando o jogo fechar.",
+      "untitled": "Jogando um jogo…"
+    },
+    "launchError": {
+      "title": "{{title}} não iniciou",
+      "fix": "Corrigir nas Configurações",
+      "close": "Fechar",
+      "exitCode": "Código de saída {{code}}",
+      "stderr": "Saída do emulador",
+      "untitled": "O jogo não iniciou"
+    },
+    "launchOptions": {
+      "title": "Opções de execução – {{title}}",
+      "profile": "Perfil do emulador",
+      "systemDefault": "Padrão do sistema ({{name}})",
+      "none": "nenhum",
+      "core": "Core",
+      "extraArgs": "Argumentos extras",
+      "extraHelp": "Um argumento por linha. Eles entram onde o perfil tem {extraArgs}.",
+      "extraIgnored": "{{name}} não usa {extraArgs}, então estes argumentos ficam de fora. Adicione {extraArgs} aos argumentos dele em Configurações → Emuladores.",
+      "reset": "Voltar ao padrão do sistema",
+      "coreTooLong": "Use um nome de core com no máximo {{core}} caracteres.",
+      "tooManyArgs": "Use no máximo {{extraArgs}} argumentos extras.",
+      "argTooLong": "Cada argumento extra pode ter no máximo {{extraArg}} caracteres."
     }
   }
 }

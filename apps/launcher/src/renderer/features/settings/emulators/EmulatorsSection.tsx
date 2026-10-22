@@ -8,6 +8,7 @@ import { newId, pickExecutable, usePresets } from './emulatorsApi.ts';
 import { EmulatorDialogs, type Dialog } from './EmulatorDialogs.tsx';
 import { removeProfile } from './fromPreset.ts';
 import { ProfileEditor } from './ProfileEditor.tsx';
+import { useFocusRequest, type FocusRequest } from '../focusRequest.ts';
 
 /** The errors under `prefix`, keyed by the rest of the path. */
 function scoped(errors: Record<string, string>, prefix: string): Record<string, string> {
@@ -18,12 +19,16 @@ function scoped(errors: Record<string, string>, prefix: string): Record<string, 
   );
 }
 
-/** Settings → Emulators (FR-EMU-2, FR-EMU-7, US-D1): emulators, their profiles and presets. */
-export function EmulatorsSection() {
+/**
+ * Settings → Emulators (FR-EMU-2, FR-EMU-7, US-D1): emulators, their profiles and presets.
+ * `focus` opens that profile's editor (US-C2: "Fix in Settings").
+ */
+export function EmulatorsSection({ focus }: { focus?: FocusRequest }) {
   const { t } = useTranslation();
   const presets = usePresets().data ?? [];
   const [dialog, setDialog] = useState<Dialog | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(focus?.id ?? null);
+  useFocusRequest(focus, setEditingId);
   const close = () => {
     setDialog(null);
   };

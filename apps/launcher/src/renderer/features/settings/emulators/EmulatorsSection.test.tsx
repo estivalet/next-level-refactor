@@ -63,7 +63,7 @@ describe('EmulatorsSection', () => {
     ]);
     expect(saved()?.profiles).toEqual([
       expect.objectContaining({
-        args: ['-b', '-e', '{rom}'],
+        args: ['{extraArgs}', '-b', '-e', '{rom}'],
         systems: expect.arrayContaining(['nintendo-gamecube']) as unknown,
       }),
     ]);

@@ -4660,6 +4660,7 @@
             "nintendo-wiiware"
           ],
           "args": [
+            "{extraArgs}",
             "-b",
             "-e",
             "{rom}"
@@ -4684,6 +4685,7 @@
             "sony-playstation-2"
           ],
           "args": [
+            "{extraArgs}",
             "-fullscreen",
             "--",
             "{rom}"
@@ -4708,6 +4710,7 @@
             "sony-playstation"
           ],
           "args": [
+            "{extraArgs}",
             "-fullscreen",
             "-batch",
             "--",
@@ -4733,6 +4736,7 @@
             "sony-psp"
           ],
           "args": [
+            "{extraArgs}",
             "--fullscreen",
             "{rom}"
           ],
@@ -4755,6 +4759,7 @@
             "nintendo-wii-u"
           ],
           "args": [
+            "{extraArgs}",
             "-f",
             "-g",
             "{rom}"
@@ -4778,6 +4783,7 @@
             "nintendo-switch"
           ],
           "args": [
+            "{extraArgs}",
             "-f",
             "{rom}"
           ],
@@ -4800,6 +4806,7 @@
             "nintendo-3ds"
           ],
           "args": [
+            "{extraArgs}",
             "-f",
             "{rom}"
           ],
@@ -4822,6 +4829,7 @@
             "microsoft-xbox"
           ],
           "args": [
+            "{extraArgs}",
             "-full-screen",
             "-dvd_path",
             "{rom}"
@@ -4846,6 +4854,7 @@
             "microsoft-xbox-360"
           ],
           "args": [
+            "{extraArgs}",
             "{rom}",
             "--fullscreen"
           ],
@@ -4868,6 +4877,7 @@
             "microsoft-dos"
           ],
           "args": [
+            "{extraArgs}",
             "{rom}",
             "-fullscreen",
             "-exit"
@@ -4892,6 +4902,7 @@
             "scummvm"
           ],
           "args": [
+            "{extraArgs}",
             "--fullscreen",
             "--auto-detect",
             "--path={romDir}"
@@ -4919,6 +4930,7 @@
             "sega-naomi-gd-rom"
           ],
           "args": [
+            "{extraArgs}",
             "{rom}"
           ],
           "archives": "pass"
