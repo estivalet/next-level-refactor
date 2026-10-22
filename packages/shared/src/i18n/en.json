@@ -465,14 +465,16 @@
     },
     "playing": {
       "title": "Playing {{title}}…",
-      "hint": "The Library comes back when the game closes."
+      "hint": "The Library comes back when the game closes.",
+      "untitled": "Playing a game…"
     },
     "launchError": {
       "title": "{{title}} didn’t start",
       "fix": "Fix in Settings",
       "close": "Close",
       "exitCode": "Exit code {{code}}",
-      "stderr": "Emulator output"
+      "stderr": "Emulator output",
+      "untitled": "The game didn’t start"
     },
     "launchOptions": {
       "title": "Launch options – {{title}}",

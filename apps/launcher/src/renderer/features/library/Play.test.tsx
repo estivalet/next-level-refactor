@@ -96,6 +96,23 @@ describe('Play from the Library (FR-EMU-6, US-C2)', () => {
     expect(played).toEqual([2, 1]);
   });
 
+  it('US-C2: Enter and double-click play a search result', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup({
+      'library.search': () =>
+        ok({ games: [GAMES[1] as GameRow, GAMES[0] as GameRow], more: false }),
+    });
+    await user.type(await screen.findByRole('searchbox', { name: 'Search all games' }), 'home');
+    const results = await screen.findByRole('listbox', { name: 'Search results' });
+    await user.dblClick(await within(results).findByRole('option', { name: /Homebrew Racer/ }));
+    await user.click(within(results).getByRole('option', { name: /Homebrew Demo/ }));
+    await user.keyboard('{Enter}');
+    const played = bridge.calls
+      .filter((c) => c.channel === 'launch.game')
+      .map((c) => (c.input as { gameId: number }).gameId);
+    expect(played).toEqual([2, 1]);
+  });
+
   it('US-C2: Enter on a missing game does not launch it', async () => {
     const user = userEvent.setup();
     const { bridge } = setup();
@@ -164,6 +181,22 @@ describe('Play from the Library (FR-EMU-6, US-C2)', () => {
     expect(JSON.parse(screen.getByRole('status', { name: 'windows' }).textContent)).toEqual([
       { appId: 'settings', params: { section: 'systems', focusId: 'nintendo-64' } },
     ]);
+  });
+
+  it('US-C2: a failure for a game whose details can’t be read still has a title', async () => {
+    const { bridge } = setup({
+      'library.games.get': () => err('NOT_FOUND', 'errors.notFound'),
+    });
+    await screen.findByRole('option', { name: /Homebrew Demo/ });
+    bridge.emit('launch.finished', {
+      launchId: 10,
+      gameId: 1,
+      exitCode: 2,
+      durationMs: 300,
+      counted: false,
+      error: { code: 'LAUNCH_FAILED', message: 'errors.launchFailed' },
+    });
+    expect(await screen.findByRole('dialog', { name: 'The game didn’t start' })).toBeVisible();
   });
 
   it('US-C2: ALREADY_RUNNING shows its message without a fix link', async () => {

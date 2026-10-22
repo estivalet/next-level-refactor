@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
 import { LaunchLogRow } from './LaunchLogRow.tsx';
-import { unwrap } from './settingsApi.ts';
+import { errorMessageKey, unwrap } from './settingsApi.ts';
 
 const LOG_KEY = ['launch.log'] as const;
 const PAGE_SIZE = 100;
@@ -56,6 +56,9 @@ export function LaunchLog() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, lastShown, entries.length]);
 
   if (log.isPending) return <p className="text-xs text-slate-500">{t('library.list.loading')}</p>;
+  if (log.isError) {
+    return <p className="text-xs text-red-300">{t(errorMessageKey(log.error))}</p>;
+  }
   if (entries.length === 0) {
     return <p className="text-xs text-slate-500">{t('settings.data.launchLog.empty')}</p>;
   }

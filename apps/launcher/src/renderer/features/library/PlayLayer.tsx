@@ -10,14 +10,15 @@ import type { Play, PlayFailure } from './usePlay.ts';
 function PlayingOverlay({ gameId }: { gameId: number }) {
   const { t } = useTranslation();
   const title = useGameDetails(gameId).data?.title;
-  if (!title) return null;
   return (
     <div
       role="status"
       className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 bg-black/70"
     >
       <Gamepad2 aria-hidden="true" className="h-10 w-10 text-emerald-400" />
-      <p className="text-sm font-semibold text-white">{t('library.playing.title', { title })}</p>
+      <p className="text-sm font-semibold text-white">
+        {title ? t('library.playing.title', { title }) : t('library.playing.untitled')}
+      </p>
       <p className="text-xs text-slate-400">{t('library.playing.hint')}</p>
     </div>
   );
@@ -27,11 +28,11 @@ function PlayingOverlay({ gameId }: { gameId: number }) {
 function LaunchErrorDialog({ failure, onClose }: { failure: PlayFailure; onClose: () => void }) {
   const { t } = useTranslation();
   const openApp = useOpenApp();
-  const title = useGameDetails(failure.gameId).data?.title ?? '';
+  const title = useGameDetails(failure.gameId).data?.title;
   const { fix, exitCode, stderrTail } = launchDetails(failure.error);
   return (
     <Modal
-      title={t('library.launchError.title', { title })}
+      title={title ? t('library.launchError.title', { title }) : t('library.launchError.untitled')}
       onClose={onClose}
       footer={
         <>

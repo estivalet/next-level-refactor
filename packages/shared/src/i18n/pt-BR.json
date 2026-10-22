@@ -465,14 +465,16 @@
     },
     "playing": {
       "title": "Jogando {{title}}…",
-      "hint": "A Biblioteca volta quando o jogo fechar."
+      "hint": "A Biblioteca volta quando o jogo fechar.",
+      "untitled": "Jogando um jogo…"
     },
     "launchError": {
       "title": "{{title}} não iniciou",
       "fix": "Corrigir nas Configurações",
       "close": "Fechar",
       "exitCode": "Código de saída {{code}}",
-      "stderr": "Saída do emulador"
+      "stderr": "Saída do emulador",
+      "untitled": "O jogo não iniciou"
     },
     "launchOptions": {
       "title": "Opções de execução – {{title}}",

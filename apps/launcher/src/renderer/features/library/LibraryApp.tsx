@@ -109,6 +109,9 @@ export function LibraryApp() {
               result={search.data}
               selectedId={searchPick}
               onSelect={setSearchPick}
+              onActivate={(game) => {
+                if (!game.missing) play.play(game.id);
+              }}
               systemName={systemName}
             />
           ) : (

@@ -133,6 +133,7 @@ const PROFILE = '01900000-0000-7000-8000-000000000001';
 /** Opens SettingsApp with `steps[0]`; each "reopen" click passes the next params, like a second Fix. */
 function ReopenHarness({ steps }: { steps: AppParams[] }) {
   const [step, setStep] = useState(0);
+  const params = steps[Math.min(step, steps.length - 1)];
   return (
     <>
       <button
@@ -143,7 +144,7 @@ function ReopenHarness({ steps }: { steps: AppParams[] }) {
       >
         reopen
       </button>
-      <SettingsApp params={steps[Math.min(step, steps.length - 1)]} />
+      <SettingsApp {...(params ? { params } : {})} />
     </>
   );
 }

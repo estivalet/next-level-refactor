@@ -118,8 +118,8 @@ current themes. Common requirements:
     until M6** (owner decision 2026-10-21). Add to collection opens a dialog listing the
     collections.
   - **Play (M3, FR-EMU-6, US-C2):** the **Play** button in the details panel, Play in the menu,
-    Enter or double-click on a row. Disabled for missing games and while a game is starting or
-    running (one at a time). While it runs the launcher window is minimized and the Library
+    Enter or double-click on a row or a search result. The button is disabled for missing games
+    and while a game is starting or running (one at a time); the menu leaves Play out then. While it runs the launcher window is minimized and the Library
     shows "Playing <title>…"; afterwards the same row is selected and focused again and the
     details show "Played N times". A failure (before the start, or an exit code other than 0
     within 10 s) opens "<title> didn't start" with the message, the reason, the path, the exit
@@ -170,7 +170,7 @@ Left navigation of sections (see IA §1), right form pane.
   the system) or one of the profiles that cover it.
 - **Data & logs → Launch log** (M3, FR-EMU-10): the last 1,000 launches, newest first, loaded a
   page at a time: time, game (with a **Test** badge for Test launches), profile, duration
-  ("Unknown" when the launcher never saw the end) and outcome (exit code or Failed). A row
+  ("Unknown" while it runs, or when the launcher never saw the end) and outcome (exit code or Failed). A row
   expands to the command line, the working folder and the emulator output. It refreshes when a
   launch ends.
 - **Backups**: table (time, what changed, size) with Restore and Export.

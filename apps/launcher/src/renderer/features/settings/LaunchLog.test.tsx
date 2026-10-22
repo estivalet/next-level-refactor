@@ -1,4 +1,4 @@
-import { ok, type LaunchLogEntry } from '@nextlevel/shared';
+import { err, ok, type LaunchLogEntry } from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -106,6 +106,15 @@ describe('LaunchLog (FR-EMU-10)', () => {
       expect(logCalls(bridge)).toEqual([0, 100]);
     });
     expect(await screen.findByRole('button', { name: /Game 1(?!\d)/ })).toBeInTheDocument();
+  });
+
+  it('FR-EMU-10: a log that can’t be read says so instead of looking empty', async () => {
+    installFakeBridge({
+      'launch.log': () => err('LIBRARY_UNAVAILABLE', 'errors.libraryUnavailable'),
+    });
+    renderInShell(<LaunchLog />);
+    expect(await screen.findByText('The game library could not be opened.')).toBeVisible();
+    expect(screen.queryByText('No launches yet.')).toBeNull();
   });
 
   it('FR-EMU-10: an empty log says so', async () => {
