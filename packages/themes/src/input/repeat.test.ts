@@ -11,7 +11,7 @@ function hold(
 ) {
   const fired: Array<[number, InputAction]> = [];
   for (let now = from; now <= to; now += 10) {
-    for (const action of repeater.step(new Set(held), now)) fired.push([now, action]);
+    for (const { action } of repeater.step(new Set(held), now)) fired.push([now, action]);
   }
   return fired;
 }
@@ -45,6 +45,12 @@ describe('createRepeater (US-C1)', () => {
     const repeater = createRepeater({ delayMs: 400, rateHz: 10 });
     hold(repeater, ['up'], 0, 300);
     repeater.reset();
-    expect(repeater.step(new Set(['up']), 310)).toEqual(['up']);
+    expect(repeater.step(new Set(['up']), 310)).toEqual([{ action: 'up', repeat: false }]);
+  });
+
+  it('marks the press and the repeats apart', () => {
+    const repeater = createRepeater({ delayMs: 400, rateHz: 10 });
+    expect(repeater.step(new Set(['up']), 0)).toEqual([{ action: 'up', repeat: false }]);
+    expect(repeater.step(new Set(['up']), 400)).toEqual([{ action: 'up', repeat: true }]);
   });
 });

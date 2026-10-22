@@ -91,6 +91,30 @@ describe('Big Box navigation (FR-THM-3, US-C1)', () => {
     });
   });
 
+  it('US-C1: holding up opens one level; the hold never repeats into a launch', async () => {
+    const { host } = renderTheme(bigBoxTheme);
+    await shows('Nintendo');
+    const root = document.activeElement as HTMLElement;
+    fireEvent.keyDown(root, { code: 'ArrowUp' });
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    fireEvent.keyUp(root, { code: 'ArrowUp' });
+    expect(card()).toHaveTextContent('Super Nintendo');
+    expect(screen.queryByRole('tab')).toBeNull();
+    expect(host.calls.filter((call) => call.method === 'launch')).toEqual([]);
+  });
+
+  it('US-C1: holding right still repeats along the carousel', async () => {
+    renderTheme(bigBoxTheme);
+    await shows('Nintendo');
+    vi.mocked(useNavigationSound).mockClear();
+    const root = document.activeElement as HTMLElement;
+    fireEvent.keyDown(root, { code: 'ArrowRight' });
+    await new Promise((resolve) => setTimeout(resolve, 650));
+    fireEvent.keyUp(root, { code: 'ArrowRight' });
+    const moves = vi.mocked(useNavigationSound).mock.calls.map(([opts]) => opts.focusKey);
+    expect(new Set(moves).size).toBeGreaterThanOrEqual(3);
+  });
+
   it('back at the root and the menu action both open the theme menu', async () => {
     const { onExit } = renderTheme(bigBoxTheme);
     await shows('Nintendo');

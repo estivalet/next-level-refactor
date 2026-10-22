@@ -5,6 +5,16 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import type { ThemeHost } from '../host/ThemeHost.ts';
 import { useInputActions } from '../input/useInputActions.ts';
 import type { KeyMap, NavIntentKind } from './types.ts';
+
+/** Intents a held input repeats; any other intent fires once per press. */
+const REPEATING_INTENTS = new Set<NavIntentKind>([
+  'focus-prev',
+  'focus-next',
+  'focus-up',
+  'focus-down',
+  'jump-prev',
+  'jump-next',
+]);
 import { useThemeHost, useThemeNavigation } from './useThemeNavigation.ts';
 
 /** The user's input settings, kept current when Settings change. */
@@ -44,9 +54,10 @@ export function useThemeInput(opts: {
     targetRef,
     enabled,
     input,
-    onAction: (action) => {
+    onAction: (action, { repeat }) => {
       const intent = keymap[action];
-      if (!intent) return;
+      // Holding repeats moves only: a held Up bound to "enter" must not dive into a launch.
+      if (!intent || (repeat && !REPEATING_INTENTS.has(intent))) return;
       const { nav: current, opts: options } = latest.current;
       if (options.onIntent?.(intent) === true) return;
       const level = current.currentLevel;

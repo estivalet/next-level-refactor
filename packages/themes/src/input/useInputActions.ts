@@ -31,7 +31,8 @@ export interface UseInputActionsOptions {
   targetRef: RefObject<HTMLElement | null>;
   enabled: boolean;
   input: InputSettings;
-  onAction: (action: InputAction) => void;
+  /** `repeat`: fired by holding the input down, not by a new press. */
+  onAction: (action: InputAction, info: { repeat: boolean }) => void;
   deps?: InputActionsDeps;
 }
 
@@ -74,8 +75,9 @@ export function useInputActions({
       const pad = gate.step(buttons);
       const held = new Set<InputAction>(pad.held);
       for (const actions of keysHeld.values()) actions.forEach((action) => held.add(action));
-      for (const action of [...pad.taps, ...repeater.step(held, api.now())]) {
-        onActionRef.current(action);
+      for (const action of pad.taps) onActionRef.current(action, { repeat: false });
+      for (const fired of repeater.step(held, api.now())) {
+        onActionRef.current(fired.action, { repeat: fired.repeat });
       }
     };
     const reset = () => {
