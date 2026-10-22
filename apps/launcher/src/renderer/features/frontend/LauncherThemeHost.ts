@@ -13,6 +13,8 @@ export interface LauncherHostDeps {
   settings: () => Settings;
   /** Translates an error's message key. */
   t: (key: string) => string;
+  /** A launch was asked for; the launcher waits for it to start or fail (US-C2). */
+  onLaunching?: (gameId: number) => void;
   /** Shows a failed launch to the user (US-C2: the reason and Fix in Settings). */
   onLaunchError?: (gameId: number, error: AppError) => void;
 }
@@ -51,6 +53,7 @@ export function createLauncherThemeHost(
     mediaUrl: (game, kind) => (game.media.includes(kind) ? mediaUrl(game.id, kind) : null),
     artUrl,
     launch: async (gameId) => {
+      deps.onLaunching?.(gameId);
       const result = await bridge.invoke('launch.game', { gameId });
       if (result.ok) return { ok: true };
       const message = deps.t(result.error.message);

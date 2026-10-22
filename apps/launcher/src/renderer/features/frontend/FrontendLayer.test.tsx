@@ -161,6 +161,29 @@ describe('front-end play (US-C2)', () => {
     });
   });
 
+  it('between Play and the game starting, input waits: no second launch, no leaving', async () => {
+    const bridge = setup({ 'launch.game': () => new Promise(() => undefined) });
+    await openN64();
+    press('Enter');
+    expect(await screen.findByRole('status', { name: 'Playing' })).toBeInTheDocument();
+    press('Enter');
+    press('KeyM');
+    expect(bridge.calls.filter((c) => c.channel === 'launch.game')).toHaveLength(1);
+    expect(layer()).toBeVisible();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    bridge.emit('launch.started', { launchId: 1, gameId: 11 });
+    bridge.emit('launch.finished', {
+      launchId: 1,
+      gameId: 11,
+      exitCode: 0,
+      durationMs: 60_000,
+      counted: true,
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('status', { name: 'Playing' })).toBeNull();
+    });
+  });
+
   it('a launch error shows its reason; Fix in Settings goes to the desktop and opens Settings', async () => {
     setup({
       'launch.game': () =>

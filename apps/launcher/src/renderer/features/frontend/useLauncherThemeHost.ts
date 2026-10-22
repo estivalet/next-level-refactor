@@ -12,6 +12,7 @@ export function useLauncherThemeHost(deps: {
   settings: Settings;
   t: (key: string) => string;
   report: (gameId: number, error: AppError) => void;
+  launching: (gameId: number) => void;
 }): ThemeHost {
   const latest = useRef(deps);
   useLayoutEffect(() => {
@@ -21,6 +22,9 @@ export function useLauncherThemeHost(deps: {
     createLauncherThemeHost(getBridge(), {
       settings: () => latest.current.settings,
       t: (key) => latest.current.t(key),
+      onLaunching: (gameId) => {
+        latest.current.launching(gameId);
+      },
       onLaunchError: (gameId, error) => {
         latest.current.report(gameId, error);
       },

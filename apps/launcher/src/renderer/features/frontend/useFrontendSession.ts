@@ -21,22 +21,38 @@ export interface FrontendFailure {
 export function useFrontendSession(visible: boolean) {
   const client = useQueryClient();
   const [failure, setFailure] = useState<FrontendFailure | null>(null);
+  // Asked to launch, not started yet (resolving, extracting, spawning): input waits meanwhile.
+  const [pendingGameId, setPendingGameId] = useState<number | null>(null);
   const running = useQuery({
     queryKey: RUNNING_KEY,
     queryFn: async () => unwrap(await getBridge().invoke('launch.running')),
   });
   useIpcEvent('launch.started', (started) => {
     client.setQueryData(RUNNING_KEY, started);
+    setPendingGameId(null);
   });
   useIpcEvent('launch.finished', (finished) => {
     client.setQueryData(RUNNING_KEY, null);
+    setPendingGameId(null);
     if (finished.error && visible) setFailure({ gameId: finished.gameId, error: finished.error });
   });
   const report = useCallback((gameId: number, error: AppError) => {
+    setPendingGameId(null);
     setFailure({ gameId, error });
+  }, []);
+  const launching = useCallback((gameId: number) => {
+    setPendingGameId(gameId);
   }, []);
   const dismiss = useCallback(() => {
     setFailure(null);
   }, []);
-  return { runningGameId: running.data?.gameId ?? null, failure, report, dismiss };
+  const runningGameId = running.data?.gameId ?? null;
+  return {
+    /** The game being started or running; null when none. */
+    playingGameId: runningGameId ?? pendingGameId,
+    failure,
+    report,
+    launching,
+    dismiss,
+  };
 }

@@ -32,7 +32,12 @@ export function FrontendLayer() {
   const [menuOpen, setMenuOpen] = useState(false);
   const layerRef = useRef<HTMLDivElement>(null);
 
-  const host = useLauncherThemeHost({ settings, t, report: session.report });
+  const host = useLauncherThemeHost({
+    settings,
+    t,
+    report: session.report,
+    launching: session.launching,
+  });
 
   const theme = resolveTheme(frontendThemeId(settings));
   useEffect(() => {
@@ -44,7 +49,7 @@ export function FrontendLayer() {
     hide();
   };
   const themeInput =
-    visible && !menuOpen && session.runningGameId === null && session.failure === null;
+    visible && !menuOpen && session.playingGameId === null && session.failure === null;
   useInputActions({
     targetRef: layerRef,
     enabled: themeInput,
@@ -94,7 +99,7 @@ export function FrontendLayer() {
           }}
         />
       )}
-      {session.runningGameId !== null && (
+      {session.playingGameId !== null && (
         <div
           role="status"
           aria-label={t('frontend.playing')}
