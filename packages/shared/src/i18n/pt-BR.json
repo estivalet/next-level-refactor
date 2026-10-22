@@ -366,6 +366,12 @@
           "theme": "Um tema escolhido",
           "desktop": "Área de trabalho"
         }
+      },
+      "themeSound": {
+        "label": "Sons dos temas",
+        "help": "Os sons que os temas tocam ao navegar por menus e listas de jogos.",
+        "volume": "Volume dos sons dos temas",
+        "volumeValue": "{{volume}} por cento"
       }
     },
     "themes": {

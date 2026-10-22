@@ -1,6 +1,12 @@
 // Ported from NextLevelOS src/themes/hyperspin/wheelSettings.ts @ 3d530b7: instead of console
 // warnings, the fields that fell back come back in `warnings` (Settings validates the same
 // ranges, FR-THM-4).
+import {
+  HYPERSPIN_WHEEL_RANGES,
+  WHEEL_PADDING_MAX,
+  WHEEL_WIDTH_RE,
+  type WheelNumericKey,
+} from '@nextlevel/shared';
 
 /** HyperSpin's `settings.wheel`, after validation. */
 export interface WheelSettings {
@@ -39,21 +45,8 @@ export const DEFAULT_WHEEL_SETTINGS: WheelSettings = {
   pointerHeight: 220,
 };
 
-export type WheelNumericKey = Exclude<keyof WheelSettings, 'width' | 'padding'>;
-
-export const WHEEL_RANGES: Record<WheelNumericKey, readonly [number, number]> = {
-  itemHeight: [24, 400],
-  spacing: [0.3, 2],
-  focusScale: [0.5, 3],
-  shrink: [0, 0.5],
-  minScale: [0.1, 1],
-  focusOffset: [-400, 400],
-  curve: [1, 100],
-  pointerHeight: [16, 1200],
-};
-
-export const WHEEL_PADDING_MAX = 400;
-export const WHEEL_WIDTH_RE = /^\d+(\.\d+)?(%|px|vw)$/;
+/** The ranges Settings validates too (FR-THM-4). */
+export const WHEEL_RANGES = HYPERSPIN_WHEEL_RANGES;
 
 /** The validated settings and the keys whose value was dropped (wrong, out of range, unknown). */
 export interface ParsedWheel {

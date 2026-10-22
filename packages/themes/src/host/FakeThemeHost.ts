@@ -8,6 +8,7 @@ import {
   type MenuTree,
   type ThemeGame,
   type ThemeOptions,
+  type ThemeSound,
 } from '@nextlevel/shared';
 import { FIXTURE_ART, FIXTURE_COLLECTION, FIXTURE_GAMES, FIXTURE_MENU } from './fixtures.ts';
 import type { HostEvent, LaunchOutcome, ThemeHost } from './ThemeHost.ts';
@@ -17,6 +18,8 @@ export interface HostFixture {
   games?: readonly ThemeGame[];
   art?: ArtIndex;
   options?: Record<string, ThemeOptions>;
+  /** Theme sounds; defaults to on at 50. */
+  sound?: ThemeSound;
   /** Input settings; defaults to the US-C1 bindings. */
   input?: InputSettings;
   /** setGameFlags resolves false. */
@@ -35,9 +38,11 @@ export class FakeThemeHost implements ThemeHost {
   readonly calls: HostCall[] = [];
   private readonly listeners = new Set<(event: HostEvent) => void>();
   private games: ThemeGame[];
+  private soundSettings: ThemeSound;
 
   constructor(private readonly fixture: HostFixture = {}) {
     this.games = [...(fixture.games ?? FIXTURE_GAMES)];
+    this.soundSettings = fixture.sound ?? defaultSettings().themes.sound;
   }
 
   getMenu(): Promise<MenuTree> {
@@ -93,6 +98,15 @@ export class FakeThemeHost implements ThemeHost {
   setGameFlags(gameId: number, flags: { favorite?: boolean; hidden?: boolean }): Promise<boolean> {
     this.calls.push({ method: 'setGameFlags', args: [gameId, flags] });
     return Promise.resolve(!this.fixture.failFlags);
+  }
+
+  sound(): ThemeSound {
+    return this.soundSettings;
+  }
+
+  /** Changes what `sound()` returns, e.g. before emitting `settings-changed`. */
+  setSound(sound: ThemeSound): void {
+    this.soundSettings = sound;
   }
 
   themeOptions(themeId: string): ThemeOptions | undefined {

@@ -142,7 +142,12 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
   it('defaults: boot into the last theme, Big Box first, no overrides', () => {
     const settings = defaultSettings();
     expect(settings.general.bootTarget).toEqual({ kind: 'lastTheme' });
-    expect(settings.themes).toEqual({ activeDefault: 'big-box', lastUsed: null, entries: {} });
+    expect(settings.themes).toEqual({
+      activeDefault: 'big-box',
+      lastUsed: null,
+      entries: {},
+      sound: { enabled: true, volume: 50 },
+    });
   });
 
   it('accepts each boot target kind', () => {
@@ -176,6 +181,34 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
     });
     expect(parsed.themes.lastUsed).toBe('future-theme');
     expect(parsed.themes.entries['future-theme']).toEqual({ art: { logoVariant: 'x' } });
+  });
+
+  it('D7: theme sounds default on at volume 50, volume 0–100', () => {
+    expect(defaultSettings().themes.sound).toEqual({ enabled: true, volume: 50 });
+    expect(
+      issuePaths({ schemaVersion: 1, themes: { sound: { enabled: false, volume: 101 } } }),
+    ).toEqual(['themes.sound.volume']);
+    expect(issuePaths({ schemaVersion: 1, themes: { sound: { volume: 2.5 } } })).toEqual([
+      'themes.sound.volume',
+    ]);
+  });
+
+  it('FR-THM-4: a theme’s settings are checked against its own schema', () => {
+    expect(
+      issuePaths({
+        schemaVersion: 1,
+        themes: {
+          entries: {
+            hyperspin: { settings: { filtersInMenu: 'no', wheel: { itemHeight: 9000 } } },
+            'big-box': { settings: { anything: 1 } },
+            'future-theme': { settings: { wheel: 'x' } },
+          },
+        },
+      }),
+    ).toEqual([
+      'themes.entries.hyperspin.settings.filtersInMenu',
+      'themes.entries.hyperspin.settings.wheel.itemHeight',
+    ]);
   });
 
   it('theme option overrides are validated like a pack theme.json', () => {

@@ -67,6 +67,7 @@ export function createLauncherThemeHost(
     },
     themeOptions: (themeId) => settings().themes.entries[themeId],
     input: () => settings().input,
+    sound: () => settings().themes.sound,
     onEvent: (listener: (event: HostEvent) => void) => {
       const offs = [
         bridge.on('library.changed', ({ systems, gameIds }) => {

@@ -1,5 +1,5 @@
 import { defaultSettings, err, ok, type Settings } from '@nextlevel/shared';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -135,5 +135,26 @@ describe('GeneralSection', () => {
     });
     renderInShell(<GeneralSection />);
     expect(await screen.findByRole('combobox', { name: 'Theme' })).toHaveValue('big-box');
+  });
+
+  it('FR-THM-4 (D7): Theme sounds on/off and volume are saved in themes.sound', async () => {
+    const user = userEvent.setup();
+    const bridge = installFakeBridge({
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+    });
+    renderInShell(<GeneralSection />);
+    const toggle = await screen.findByRole('switch', { name: 'Theme sounds' });
+    const volume = screen.getByRole('slider', { name: 'Theme sound volume' });
+    expect(toggle).toBeChecked();
+    expect(volume).toHaveValue('50');
+    fireEvent.change(volume, { target: { value: '30' } });
+    await user.click(toggle);
+    expect(volume).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const saved = bridge.calls.find((call) => call.channel === 'settings.save');
+    expect((saved?.input as { settings: Settings }).settings.themes.sound).toEqual({
+      enabled: false,
+      volume: 30,
+    });
   });
 });

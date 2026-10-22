@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { checkProfiles, EmulatorProfileSchema, EmulatorSchema } from './emulators.ts';
 import { THEME_ID, ThemeOptionsSchema } from '../frontend/schema.ts';
 import { checkInput, InputSettingsSchema } from './input.ts';
+import { checkThemeSettings } from '../frontend/themeSettings.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
 // field has a default, so `{ "schemaVersion": 1 }` is a complete file. Plain objects strip
@@ -139,6 +140,13 @@ export const SettingsSchema = z
         lastUsed: ThemeIdSchema.nullable().default(null),
         /** Per-theme option overrides (data model §2.5). */
         entries: z.record(ThemeIdSchema, ThemeOptionsSchema).default({}),
+        /** Navigation sounds of every theme (FR-THM-4, D7): on/off and volume 0–100. */
+        sound: z
+          .object({
+            enabled: z.boolean().default(true),
+            volume: z.number().int().min(0).max(100).default(50),
+          })
+          .prefault({}),
       })
       .prefault({}),
     input: InputSettingsSchema.prefault({}),
@@ -147,9 +155,12 @@ export const SettingsSchema = z
   .superRefine((settings, ctx) => {
     checkProfiles(settings, ctx);
     checkInput(settings, ctx);
+    checkThemeSettings(settings.themes.entries, ctx);
   });
 
 export type Settings = z.output<typeof SettingsSchema>;
+/** Theme navigation sounds (D7). */
+export type ThemeSound = Settings['themes']['sound'];
 
 /** A complete settings object with every default filled in. */
 export function defaultSettings(): Settings {

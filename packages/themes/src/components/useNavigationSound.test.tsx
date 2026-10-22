@@ -6,6 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
 import type { Level } from '../engine/types.ts';
 import { NO_ART, ThemeArtContext } from '../engine/useThemeArt.ts';
+import { ThemeHostContext } from '../engine/useThemeNavigation.ts';
+import { FakeThemeHost } from '../host/FakeThemeHost.ts';
 import { resetSoundEngine } from './soundEngine.ts';
 import { levelIdentity, useNavigationSound } from './useNavigationSound.ts';
 
@@ -14,6 +16,7 @@ let candidatesFor = (name: string) => [`nl://pack/${name}.wav`, `nl://assets/${n
 /** Files that "exist" (fetch ok); a url containing "bad" fails to decode. */
 let existing = new Set<string>();
 const started: string[] = [];
+const gains: number[] = [];
 const stopped: string[] = [];
 let contexts = 0;
 
@@ -36,6 +39,7 @@ class FakeSource {
 class FakeGain {
   gain = { value: 1 };
   connect() {
+    gains.push(this.gain.value);
     return undefined;
   }
 }
@@ -92,6 +96,7 @@ async function setup(initial: Opts) {
 
 beforeEach(() => {
   started.length = 0;
+  gains.length = 0;
   stopped.length = 0;
   contexts = 0;
   existing = new Set(['nl://pack/move-menu.wav', 'nl://pack/move-games.wav']);
@@ -200,6 +205,60 @@ describe('useNavigationSound (FR-THM-1, FR-THM-4)', () => {
       rerender({ focusKey: 1, levelKey: 'a', levelKind: 'menu' });
     }).not.toThrow();
     expect(started).toEqual([]);
+  });
+});
+
+describe('theme sounds setting (FR-THM-4, D7)', () => {
+  async function withHost(host: FakeThemeHost) {
+    const hook = renderHook(
+      (props: Opts) => {
+        useNavigationSound(props);
+      },
+      {
+        initialProps: { focusKey: 0, levelKey: 'a', levelKind: 'menu' },
+        wrapper: ({ children }: { children: ReactNode }) => (
+          <ThemeHostContext.Provider value={host}>
+            {wrapper({ children })}
+          </ThemeHostContext.Provider>
+        ),
+      },
+    );
+    await flush();
+    return hook;
+  }
+
+  it('plays at the volume from Settings (0–100)', async () => {
+    const { rerender } = await withHost(
+      new FakeThemeHost({ sound: { enabled: true, volume: 20 } }),
+    );
+    rerender({ focusKey: 1, levelKey: 'a', levelKind: 'menu' });
+    expect(started).toEqual(['nl://pack/move-menu.wav']);
+    expect(gains).toEqual([0.2]);
+  });
+
+  it('is silent when theme sounds are off', async () => {
+    const { rerender } = await withHost(
+      new FakeThemeHost({ sound: { enabled: false, volume: 50 } }),
+    );
+    rerender({ focusKey: 1, levelKey: 'a', levelKind: 'menu' });
+    expect(started).toEqual([]);
+  });
+
+  it('follows a settings change without a reload', async () => {
+    const host = new FakeThemeHost({ sound: { enabled: false, volume: 50 } });
+    const { rerender } = await withHost(host);
+    act(() => {
+      host.setSound({ enabled: true, volume: 80 });
+      host.emit({ type: 'settings-changed' });
+    });
+    rerender({ focusKey: 1, levelKey: 'a', levelKind: 'menu' });
+    expect(gains).toEqual([0.8]);
+  });
+
+  it('without a host it plays at the default volume', async () => {
+    const { rerender } = await setup({ focusKey: 0, levelKey: 'a', levelKind: 'menu' });
+    rerender({ focusKey: 1, levelKey: 'a', levelKind: 'menu' });
+    expect(gains).toEqual([0.5]);
   });
 });
 

@@ -366,6 +366,12 @@
           "theme": "A chosen theme",
           "desktop": "Desktop"
         }
+      },
+      "themeSound": {
+        "label": "Theme sounds",
+        "help": "The sounds themes play when you move through menus and game lists.",
+        "volume": "Theme sound volume",
+        "volumeValue": "{{volume}} percent"
       }
     },
     "themes": {
