@@ -99,7 +99,13 @@ describe('walkSystem', () => {
       dirs: [{ locationId: 'a', dir: join(root, 'nope') }],
       extensions: ['zip'],
     });
-    expect(result).toEqual({ systemId: 'test', files: [], foldersFound: 0, unreadable: [] });
+    expect(result).toEqual({
+      systemId: 'test',
+      files: [],
+      media: [],
+      foldersFound: 0,
+      unreadable: [],
+    });
   });
 
   it('FR-LIB-3: unreadable folders are reported, absent ones are not', async () => {
@@ -146,6 +152,26 @@ describe('walkSystem', () => {
     });
     expect(result.files.map((f) => [f.relPath, f.discGroup])).toEqual([
       ['Saga (USA) (Disc 1).chd', 'Saga (USA)'],
+    ]);
+  });
+
+  it('FR-THM-2: lists media/<kind>/ files of every location, one level deep', async () => {
+    await write('a/Game.zip');
+    await write('a/media/Box-Front/Game.png', 'png');
+    await write('a/media/box-front/deeper/Other.png');
+    await write('b/media/video/Game.mp4', 'video');
+    await write('a/media/loose.txt');
+    const result = await walkSystem({
+      systemId: 'test',
+      dirs: [
+        { locationId: 'first', dir: join(root, 'a') },
+        { locationId: 'second', dir: join(root, 'b') },
+      ],
+      extensions: ['zip'],
+    });
+    expect(result.media).toEqual([
+      { kind: 'Box-Front', path: join(root, 'a', 'media', 'Box-Front', 'Game.png'), size: 3 },
+      { kind: 'video', path: join(root, 'b', 'media', 'video', 'Game.mp4'), size: 5 },
     ]);
   });
 });

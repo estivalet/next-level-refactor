@@ -16,6 +16,19 @@ function lookup(path: string): unknown {
 }
 
 describe('ipcContract', () => {
+  it('FR-THM-6: front-end channels take a node id and return menus and games', () => {
+    const games = ipcContract['frontend.games'];
+    expect(games.input.safeParse({ nodeId: 's:snes' }).success).toBe(true);
+    expect(games.input.safeParse({ nodeId: 'x'.repeat(201) }).success).toBe(false);
+    expect(games.output.safeParse([]).success).toBe(true);
+    const art = ipcContract['frontend.artIndex'].input;
+    expect(art.safeParse({ themeId: 'big-box', refresh: true }).success).toBe(true);
+    expect(art.safeParse({ themeId: '../x' }).success).toBe(false);
+    expect(ipcContract['frontend.menu'].output.safeParse({ title: 'T', items: [] }).success).toBe(
+      true,
+    );
+  });
+
   it('NFR-MAINT-1: app.version takes no input and returns a string', () => {
     const channel = ipcContract['app.version'];
     expect(channel.input.safeParse(undefined).success).toBe(true);

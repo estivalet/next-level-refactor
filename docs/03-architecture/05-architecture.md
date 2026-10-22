@@ -136,15 +136,23 @@ player later implements it over HTTP + EmulatorJS.
 ```ts
 interface ThemeHost {
   getMenu(): Promise<MenuTree>;
-  getGameList(nodeId: string, query?: GameQuery): Promise<GameListPage>;
-  mediaUrl(ref: MediaRef): string | null;          // already-resolved URL, no disk probing
-  menuArt(nodeName: string, kind: ArtKind): string[]; // ordered candidates (pack → assets)
-  launch(gameId: string): Promise<LaunchResult>;
-  setGameFlags(gameId: string, flags: Partial<GameFlags>): Promise<void>;
-  themeSettings(themeId: string): ThemeSettings;
-  onEvent(listener: (e: HostEvent) => void): () => void; // focus restore after launch, etc.
+  getGames(nodeId: string): Promise<ThemeGame[]>;          // a whole level, one call
+  getGameDetails(gameId: number): Promise<{ description: string | null }>;
+  loadArtIndex(themeId: string, opts?: { refresh?: boolean }): Promise<ArtIndex>; // pack + shared art, manifest
+  mediaUrl(game: ThemeGame, kind: string): string | null;  // only indexed kinds; no disk probing
+  artUrl(root: ArtRoot, rel: string): string;              // nextlevel://art/…
+  launch(gameId: number): Promise<{ ok: true } | { ok: false; message: string }>;
+  setGameFlags(gameId: number, flags: { favorite?: boolean; hidden?: boolean }): Promise<boolean>;
+  themeOptions(themeId: string): ThemeOptions | undefined; // settings.themes.entries[id]
+  input(): InputSettings;
+  onEvent(listener: (e: HostEvent) => void): () => void;   // library changed, launch finished, settings changed
 }
 ```
+
+Menu art is resolved in the engine against the art index (every pack file before any shared
+file, `fallback: false` drops the shared folder), so themes only build relative paths. Game
+levels are loaded whole (`frontend.games`, ≤ 300 ms for 10k games) so focus, tabs and search stay
+in memory.
 
 The engine (navigation reducer, level model, input mapping incl. Gamepad API) is ported from the
 current `src/themes/engine` with its tests.

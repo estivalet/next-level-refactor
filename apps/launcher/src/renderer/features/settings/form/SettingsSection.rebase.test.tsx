@@ -51,7 +51,10 @@ describe('settings drafts', () => {
       path: 'E:/roms',
       priority: 1,
     };
-    const settings: Settings = { ...defaultSettings(), storage: { locations: [location] } };
+    const settings: Settings = {
+      ...defaultSettings(),
+      storage: { ...defaultSettings().storage, locations: [location] },
+    };
     let revision = 0;
     installFakeBridge({
       'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings, revision: 0 } }),

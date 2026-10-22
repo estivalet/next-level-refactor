@@ -36,7 +36,8 @@
       "unclosedBrace": "Unmatched brace. Type a brace twice to use it as text.",
       "extraArgsAlone": "{extraArgs} must be an argument on its own.",
       "unknownEmulator": "Choose an emulator.",
-      "notExecutable": "Choose the emulator program (.exe)."
+      "notExecutable": "Choose the emulator program (.exe).",
+      "duplicateBinding": "This key or button is already used by another action."
     }
   },
   "shell": {
@@ -83,7 +84,8 @@
       "data": "Data & logs",
       "storage": "Storage",
       "systems": "Systems",
-      "emulators": "Emulators"
+      "emulators": "Emulators",
+      "input": "Input"
     },
     "about": {
       "product": "NextLevel",
@@ -193,6 +195,16 @@
         "rowGames_one": "{{count}} game",
         "rowGames_other": "{{count}} games",
         "openData": "Open data folder"
+      },
+      "art": {
+        "title": "Art",
+        "assetsPath": "Art folder",
+        "assetsPathHelp": "Shared menu art: logos, backgrounds, videos and sounds, named after menu items.",
+        "themesPath": "Theme packs folder",
+        "themesPathHelp": "One folder per theme with its own art and theme.json, used before the art folder.",
+        "notSet": "Not set",
+        "browse": "Browse…",
+        "clear": "Clear"
       }
     },
     "systems": {
@@ -305,6 +317,42 @@
         "duration": "{{seconds}} s",
         "stderr": "Error output",
         "noStderr": "No error output."
+      }
+    },
+    "input": {
+      "intro": "Keys and gamepad buttons for the themes. Hold two buttons together for a combination.",
+      "action": "Action",
+      "keys": "Keys",
+      "buttons": "Gamepad buttons",
+      "add": "Add",
+      "addKey": "Add key for {{action}}",
+      "addButton": "Add button for {{action}}",
+      "pressKey": "Press a key… (Esc cancels)",
+      "pressButton": "Press a button, or two together… (Esc cancels)",
+      "remove": "Remove {{binding}} from {{action}}",
+      "reset": "Reset all to defaults",
+      "repeatDelayMs": "Repeat delay (ms)",
+      "repeatRateHz": "Repeat rate (per second)",
+      "actions": {
+        "up": "Up",
+        "down": "Down",
+        "left": "Left",
+        "right": "Right",
+        "select": "Select / Play",
+        "back": "Back",
+        "home": "Home",
+        "menu": "Theme menu",
+        "help": "Help",
+        "search": "Search",
+        "favorite": "Favorite",
+        "hide": "Hide",
+        "random": "Random game",
+        "tabPrev": "Previous tab",
+        "tabNext": "Next tab",
+        "pageUp": "Page up",
+        "pageDown": "Page down",
+        "toDesktop": "Go to desktop",
+        "switchTheme": "Switch theme"
       }
     }
   },
@@ -489,6 +537,41 @@
       "coreTooLong": "Use a core name of at most {{core}} characters.",
       "tooManyArgs": "Use at most {{extraArgs}} extra arguments.",
       "argTooLong": "Each extra argument can have at most {{extraArg}} characters."
+    }
+  },
+  "frontend": {
+    "menu": {
+      "other": "Other",
+      "collections": "Collections"
+    },
+    "filters": {
+      "official": "Official",
+      "homebrew": "Homebrew",
+      "hack": "Hacks",
+      "translation": "Translations",
+      "prototype": "Prototypes",
+      "unlicensed": "Unlicensed"
+    }
+  },
+  "themes": {
+    "intents": {
+      "focus-prev": "Previous",
+      "focus-next": "Next",
+      "focus-up": "Up",
+      "focus-down": "Down",
+      "enter": "Open / Play",
+      "back": "Back",
+      "home": "Home",
+      "toggle-search": "Search",
+      "tab-prev": "Previous tab",
+      "tab-next": "Next tab",
+      "toggle-favorite": "Toggle favorite",
+      "toggle-hidden": "Toggle hidden",
+      "show-help": "Show all keys",
+      "open-menu": "Theme menu",
+      "jump-prev": "Previous letter",
+      "jump-next": "Next letter",
+      "random": "Random game"
     }
   }
 }

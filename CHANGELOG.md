@@ -5,6 +5,19 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+- M4a themes engine (FR-THM-2, FR-THM-3, FR-THM-6, ADR-010): `packages/themes` holds the engine
+  ported from NextLevelOS (navigation, levels, art paths, pack merge, coverage) behind a
+  `ThemeHost` interface; the launcher implements it over IPC. Themes arrive in M4b.
+- A game media index: every scan records `media/<kind>/<rom>.<ext>` files per game, and
+  `nextlevel://` serves indexed media and theme art (pack before the shared art folder) with
+  ranged requests, never outside the configured folders.
+- The front-end reads a generated menu (manufacturer → system → filters, then collections) and
+  whole game levels in one call each.
+- Settings → Storage gets the art folder and the theme packs folder; Settings → Input maps every
+  action to keys and gamepad buttons (press to bind, View+Start style chords, duplicate check,
+  reset, repeat delay and rate). Held directions repeat after 400 ms at 10 per second by default.
+
 ## [0.3.0] - 2026-10-21
 
 M3 — Launching: emulators, profiles and presets, Test launch, Play from the Library, per-game

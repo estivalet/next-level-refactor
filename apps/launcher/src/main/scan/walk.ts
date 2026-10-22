@@ -3,6 +3,7 @@ import { readdir, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import type { FoundGame } from '../library/LibraryRepository.ts';
 import { groupDiscs } from './discs.ts';
+import type { MediaFile } from './media.ts';
 import { PLAYLIST_EXTENSIONS, playlistReferences } from './playlists.ts';
 import type { WalkJob, WalkResult } from './types.ts';
 
@@ -55,6 +56,28 @@ async function listFolder(dir: string): Promise<Candidate[] | null> {
   return found;
 }
 
+/** Files in `<dir>/media/<kind>/` (one level; the media folder's case is ignored). */
+async function listMedia(dir: string): Promise<MediaFile[]> {
+  const top = (await entries(dir)) ?? [];
+  const mediaDir = top.find((entry) => entry.isDirectory() && entry.name.toLowerCase() === 'media');
+  if (!mediaDir) return [];
+  const found: MediaFile[] = [];
+  for (const kind of (await entries(join(dir, mediaDir.name))) ?? []) {
+    if (!kind.isDirectory()) continue;
+    const kindDir = join(dir, mediaDir.name, kind.name);
+    for (const file of (await entries(kindDir)) ?? []) {
+      if (!file.isFile()) continue;
+      const path = join(kindDir, file.name);
+      try {
+        found.push({ kind: kind.name, path, size: (await stat(path)).size });
+      } catch {
+        // Vanished between listing and stat.
+      }
+    }
+  }
+  return found;
+}
+
 /** Accepted files of one location, minus files a .cue/.m3u in the same location refers to. */
 async function scanLocation(
   dir: string,
@@ -96,6 +119,7 @@ async function scanLocation(
 export async function walkSystem(job: WalkJob): Promise<WalkResult> {
   const accepted = new Set(job.extensions);
   const byKey = new Map<string, FoundGame>();
+  const media: MediaFile[] = [];
   let foldersFound = 0;
   const unreadable: string[] = [];
   for (const { locationId, dir } of job.dirs) {
@@ -109,6 +133,7 @@ export async function walkSystem(job: WalkJob): Promise<WalkResult> {
     }
     if (!games) continue;
     foldersFound += 1;
+    media.push(...(await listMedia(dir)));
     for (const game of games) {
       const key = game.relPath.toLowerCase();
       if (!byKey.has(key)) byKey.set(key, game);
@@ -117,6 +142,7 @@ export async function walkSystem(job: WalkJob): Promise<WalkResult> {
   return {
     systemId: job.systemId,
     files: groupDiscs([...byKey.values()]),
+    media,
     foldersFound,
     unreadable,
   };

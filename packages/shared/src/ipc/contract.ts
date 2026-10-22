@@ -22,6 +22,7 @@ import {
   MetadataChangesSchema,
   SearchResultSchema,
 } from '../library/games.ts';
+import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
 import { EmulatorProfileSchema, EmulatorSchema } from '../settings/emulators.ts';
 import { SettingsSchema } from '../settings/schema.ts';
@@ -173,6 +174,15 @@ export const ipcContract = {
     // Swaps two members, so a move works on the rows the user sees whatever is filtered out.
     input: z.strictObject({ id: collectionId, gameId, swapWithGameId: gameId }),
     output: z.void(),
+  },
+  'frontend.menu': { input: z.void(), output: MenuTreeSchema },
+  'frontend.games': {
+    input: z.strictObject({ nodeId: z.string().min(1).max(200) }),
+    output: ThemeGamesSchema,
+  },
+  'frontend.artIndex': {
+    input: z.strictObject({ themeId: z.string().regex(THEME_ID), refresh: z.boolean().optional() }),
+    output: ArtIndexSchema,
   },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {

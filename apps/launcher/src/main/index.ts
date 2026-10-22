@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, protocol, shell } from 'electron';
 import { existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -21,7 +21,11 @@ import { expectedGamePath } from './library/expectedPath.ts';
 import { GameRepository } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
+import { MediaRepository } from './library/MediaRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
+import { ArtIndexService } from './frontend/ArtIndexService.ts';
+import { FrontendService } from './frontend/FrontendService.ts';
+import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
 import { createWorkerWalker } from './scan/workerWalker.ts';
@@ -37,6 +41,8 @@ app.setPath(
   }),
 );
 const dataDir = app.getPath('userData');
+// Must happen before the app is ready (FR-THM-6).
+protocol.registerSchemesAsPrivileged([NEXTLEVEL_SCHEME]);
 const logsDir = join(dataDir, 'logs');
 initLogger(logsDir);
 
@@ -131,8 +137,10 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     return null;
   }
   const repo = new LibraryRepository(db);
+  const media = new MediaRepository(db);
   const scan = new ScanService({
     repo,
+    media,
     settings,
     catalog: systemCatalog,
     createWalker: () => createWorkerWalker(scanWorkerPath),
@@ -179,7 +187,13 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     scan.cancel();
     db.$client.close();
   });
-  return { repo, scan, games, collections, launches, launch };
+  const frontend = new FrontendService({
+    db,
+    catalog: systemCatalog,
+    settings: () => currentSettings(settings),
+    collections,
+  });
+  return { repo, media, frontend, scan, games, collections, launches, launch };
 }
 
 async function start(): Promise<void> {
@@ -210,6 +224,18 @@ async function start(): Promise<void> {
     },
   });
   await settings.load();
+  const library = startLibrary(settings);
+  const artPaths = () => {
+    const { assetsPath, themesPath } = currentSettings(settings).storage;
+    return { assetsPath, themesPath };
+  };
+  protocol.handle(
+    'nextlevel',
+    createNextlevelHandler({
+      mediaPath: (gameId, kind) => library?.media.path(gameId, kind) ?? null,
+      paths: artPaths,
+    }),
+  );
 
   const handlers = createHandlers({
     settings,
@@ -222,7 +248,8 @@ async function start(): Promise<void> {
     setOpenAtLogin,
     log,
     catalog: systemCatalog,
-    library: startLibrary(settings),
+    library,
+    artIndex: new ArtIndexService({ paths: artPaths }),
     clock: () => new Date(),
     emit,
     revealFile: (path) => {

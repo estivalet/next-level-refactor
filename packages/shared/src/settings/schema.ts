@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { checkProfiles, EmulatorProfileSchema, EmulatorSchema } from './emulators.ts';
+import { checkInput, InputSettingsSchema } from './input.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
 // field has a default, so `{ "schemaVersion": 1 }` is a complete file. Plain objects strip
@@ -63,6 +64,14 @@ const LocationsSchema = z.array(StorageLocationSchema).superRefine((locations, c
   });
 });
 
+/** An optional absolute folder (art, theme packs); null = not set. */
+const OptionalFolderSchema = z
+  .string()
+  .trim()
+  .refine((path) => ABSOLUTE_PATH.test(path), { message: 'notAbsolute' })
+  .nullable()
+  .default(null);
+
 /** Storage locations in list order, with priority renumbered 1..n (FR-LIB-1). */
 export function orderedLocations(locations: readonly StorageLocation[]): StorageLocation[] {
   return locations.map((location, index) => ({ ...location, priority: index + 1 }));
@@ -93,14 +102,26 @@ export const SettingsSchema = z
   .object({
     schemaVersion: z.literal(CURRENT_SCHEMA_VERSION),
     general: GeneralSchema.prefault({}),
-    storage: z.object({ locations: LocationsSchema.default([]) }).prefault({}),
+    storage: z
+      .object({
+        locations: LocationsSchema.default([]),
+        /** Shared menu art (FR-THM-2). */
+        assetsPath: OptionalFolderSchema,
+        /** Theme packs: `<themesPath>/<theme id>/` (FR-THM-2). */
+        themesPath: OptionalFolderSchema,
+      })
+      .prefault({}),
     // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.
     systems: z.record(z.string(), SystemSettingsSchema).default({}),
     emulators: z.array(EmulatorSchema).default([]),
     profiles: z.array(EmulatorProfileSchema).default([]),
+    input: InputSettingsSchema.prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),
   })
-  .superRefine(checkProfiles);
+  .superRefine((settings, ctx) => {
+    checkProfiles(settings, ctx);
+    checkInput(settings, ctx);
+  });
 
 export type Settings = z.output<typeof SettingsSchema>;
 

@@ -72,7 +72,10 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
   ]);
   const settings: Settings = {
     ...defaultSettings(),
-    storage: { locations: [{ id: 'loc-1', name: 'Main', path: 'E:\\roms', priority: 1 }] },
+    storage: {
+      ...defaultSettings().storage,
+      locations: [{ id: 'loc-1', name: 'Main', path: 'E:\\roms', priority: 1 }],
+    },
     emulators: [{ id: EMULATOR_ID, name: 'RetroArch', executable: 'E:\\emu\\retroarch.exe' }],
     profiles: [
       {

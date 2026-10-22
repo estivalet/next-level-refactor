@@ -37,7 +37,10 @@ const CATALOG = [
 ];
 
 function setup(responses: FakeResponses = {}, locations = [LOCATION]) {
-  const settings: Settings = { ...defaultSettings(), storage: { locations } };
+  const settings: Settings = {
+    ...defaultSettings(),
+    storage: { ...defaultSettings().storage, locations },
+  };
   const bridge = installFakeBridge({
     'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings, revision: 0 } }),
     'systems.catalog': () => ok(CATALOG),

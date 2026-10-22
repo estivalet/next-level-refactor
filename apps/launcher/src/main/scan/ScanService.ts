@@ -10,14 +10,17 @@ import {
 } from '@nextlevel/shared';
 import type { EmitEvent } from '../ipc/events.ts';
 import type { LibraryRepository } from '../library/LibraryRepository.ts';
+import type { MediaRepository } from '../library/MediaRepository.ts';
 import type { SettingsService } from '../settings/SettingsService.ts';
 import { diffSystem } from './diff.ts';
+import { matchMedia, type MediaFile } from './media.ts';
 import { assertKnownSystems, planScan } from './plan.ts';
 import { changesLibrary, systemResult } from './summary.ts';
 import { ScanCancelled, type Walker } from './walker.ts';
 
 export interface ScanDeps {
   repo: LibraryRepository;
+  media: Pick<MediaRepository, 'replaceForSystem'>;
   settings: Pick<SettingsService, 'get' | 'update'>;
   catalog: () => readonly SystemDefinition[];
   createWalker: () => Walker;
@@ -136,9 +139,12 @@ export class ScanService {
         }
         const diff = diffSystem(this.deps.repo.listSystemGames(job.systemId), walked.files);
         this.deps.repo.applySystemDiff(job.systemId, diff, this.deps.clock());
+        const mediaChanged = this.indexMedia(job.systemId, walked.media);
         const result = systemResult(job.systemId, diff);
         results.push(result);
-        if (changesLibrary(result)) this.deps.emit('library.changed', { systems: [job.systemId] });
+        if (changesLibrary(result) || mediaChanged) {
+          this.deps.emit('library.changed', { systems: [job.systemId] });
+        }
         this.progress(running, {
           systemsDone: running.progress.systemsDone + 1,
           filesSeen: running.progress.filesSeen + walked.files.length,
@@ -171,6 +177,12 @@ export class ScanService {
     };
     this.running = null;
     this.deps.emit('scan.finished', this.last);
+  }
+
+  /** Re-indexes the media of a system's present games (FR-THM-2); true when it changed. */
+  private indexMedia(systemId: string, files: readonly MediaFile[]): boolean {
+    const present = this.deps.repo.listSystemGames(systemId).filter((game) => !game.missing);
+    return this.deps.media.replaceForSystem(systemId, matchMedia(present, files));
   }
 
   private progress(running: Running, change: Partial<ScanProgress>): void {

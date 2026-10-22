@@ -36,7 +36,8 @@
       "unclosedBrace": "Chave sem par. Digite a chave duas vezes para usá-la como texto.",
       "extraArgsAlone": "{extraArgs} precisa ser um argumento sozinho.",
       "unknownEmulator": "Escolha um emulador.",
-      "notExecutable": "Escolha o programa do emulador (.exe)."
+      "notExecutable": "Escolha o programa do emulador (.exe).",
+      "duplicateBinding": "Esta tecla ou botão já é usado por outra ação."
     }
   },
   "shell": {
@@ -83,7 +84,8 @@
       "data": "Dados e logs",
       "storage": "Armazenamento",
       "systems": "Sistemas",
-      "emulators": "Emuladores"
+      "emulators": "Emuladores",
+      "input": "Controles"
     },
     "about": {
       "product": "NextLevel",
@@ -193,6 +195,16 @@
         "rowGames_one": "{{count}} jogo",
         "rowGames_other": "{{count}} jogos",
         "openData": "Abrir pasta de dados"
+      },
+      "art": {
+        "title": "Arte",
+        "assetsPath": "Pasta de arte",
+        "assetsPathHelp": "Arte compartilhada dos menus: logos, fundos, vídeos e sons, com o nome dos itens do menu.",
+        "themesPath": "Pasta de pacotes de tema",
+        "themesPathHelp": "Uma pasta por tema, com arte própria e theme.json, usada antes da pasta de arte.",
+        "notSet": "Não definida",
+        "browse": "Procurar…",
+        "clear": "Limpar"
       }
     },
     "systems": {
@@ -305,6 +317,42 @@
         "duration": "{{seconds}} s",
         "stderr": "Saída de erro",
         "noStderr": "Sem saída de erro."
+      }
+    },
+    "input": {
+      "intro": "Teclas e botões do controle para os temas. Segure dois botões juntos para uma combinação.",
+      "action": "Ação",
+      "keys": "Teclas",
+      "buttons": "Botões do controle",
+      "add": "Adicionar",
+      "addKey": "Adicionar tecla para {{action}}",
+      "addButton": "Adicionar botão para {{action}}",
+      "pressKey": "Pressione uma tecla… (Esc cancela)",
+      "pressButton": "Pressione um botão, ou dois juntos… (Esc cancela)",
+      "remove": "Remover {{binding}} de {{action}}",
+      "reset": "Restaurar todos os padrões",
+      "repeatDelayMs": "Atraso da repetição (ms)",
+      "repeatRateHz": "Velocidade da repetição (por segundo)",
+      "actions": {
+        "up": "Cima",
+        "down": "Baixo",
+        "left": "Esquerda",
+        "right": "Direita",
+        "select": "Selecionar / Jogar",
+        "back": "Voltar",
+        "home": "Início",
+        "menu": "Menu do tema",
+        "help": "Ajuda",
+        "search": "Buscar",
+        "favorite": "Favorito",
+        "hide": "Ocultar",
+        "random": "Jogo aleatório",
+        "tabPrev": "Aba anterior",
+        "tabNext": "Próxima aba",
+        "pageUp": "Página acima",
+        "pageDown": "Página abaixo",
+        "toDesktop": "Ir para a área de trabalho",
+        "switchTheme": "Trocar tema"
       }
     }
   },
@@ -489,6 +537,41 @@
       "coreTooLong": "Use um nome de core com no máximo {{core}} caracteres.",
       "tooManyArgs": "Use no máximo {{extraArgs}} argumentos extras.",
       "argTooLong": "Cada argumento extra pode ter no máximo {{extraArg}} caracteres."
+    }
+  },
+  "frontend": {
+    "menu": {
+      "other": "Outros",
+      "collections": "Coleções"
+    },
+    "filters": {
+      "official": "Oficiais",
+      "homebrew": "Homebrew",
+      "hack": "Hacks",
+      "translation": "Traduções",
+      "prototype": "Protótipos",
+      "unlicensed": "Não licenciados"
+    }
+  },
+  "themes": {
+    "intents": {
+      "focus-prev": "Anterior",
+      "focus-next": "Próximo",
+      "focus-up": "Cima",
+      "focus-down": "Baixo",
+      "enter": "Abrir / Jogar",
+      "back": "Voltar",
+      "home": "Início",
+      "toggle-search": "Buscar",
+      "tab-prev": "Aba anterior",
+      "tab-next": "Próxima aba",
+      "toggle-favorite": "Favoritar",
+      "toggle-hidden": "Ocultar / mostrar",
+      "show-help": "Mostrar todos os controles",
+      "open-menu": "Menu do tema",
+      "jump-prev": "Letra anterior",
+      "jump-next": "Próxima letra",
+      "random": "Jogo aleatório"
     }
   }
 }

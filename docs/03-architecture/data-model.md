@@ -36,7 +36,7 @@ is valid and the app fills the rest.
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
-`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3. An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a. An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
@@ -114,7 +114,10 @@ type InputSettings = {
   repeatRateHz: number;                      // default 10
 };
 type InputAction = 'up'|'down'|'left'|'right'|'select'|'back'|'home'|'menu'|'help'|'search'
-                 | 'favorite'|'tabPrev'|'tabNext'|'pageUp'|'pageDown'|'toDesktop'|'switchTheme';
+                 | 'favorite'|'hide'|'random'|'tabPrev'|'tabNext'|'pageUp'|'pageDown'|'toDesktop'|'switchTheme';
+// GamepadButton: 'a'|'b'|'x'|'y'|'lb'|'rb'|'lt'|'rt'|'view'|'start'|'ls'|'rs'|'dpadUp'|… |'guide'
+// plus 'lsUp'|'lsDown'|'lsLeft'|'lsRight' (left stick past 0.5). A gamepad binding is one button
+// or a two-button chord ('view+start'). The same binding on two actions is `duplicateBinding`.
 ```
 
 ### 2.1 Template tokens
@@ -253,7 +256,7 @@ erDiagram
 | `game_filters` | `game_id` FK, `filter` text | PK(`game_id`,`filter`); values: `official`, `homebrew`, `hack`, `translation`, `prototype`, `unlicensed`, … |
 | `game_user_state` | `game_id` PK FK, `favorite` bool, `hidden` bool, `user_rating` int?, `play_count` int, `last_played_at` text?, `play_seconds` int | |
 | `game_launch_override` | `game_id` PK FK, `profile_id` text?, `core` text?, `extra_args` json | Replaces gamelist `core`/`config`/`shader`/`emulator` fields |
-| `game_media` | `game_id` FK, `kind` text, `path` text, `size` int | PK(`game_id`,`kind`); written by scan/scrape; themes read only this |
+| `game_media` | `game_id` FK, `kind` text, `path` text, `size` int | PK(`game_id`,`kind`); since M4a every scan rebuilds a system's rows from `media/<kind>/<rom stem>.<ext>` (png > jpg > jpeg > webp > gif; mp4 > webm), scrape adds to it in M6; themes read only this |
 | `scrape_status` | `game_id` PK FK, `provider`, `provider_game_id`, `status`, `candidates` int, `error` text?, `scraped_at` | |
 | `arcade_info` | `game_id` PK FK, `rom`, `parent`, `driver`, `manufacturer` | MAME data |
 | `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `created_at` | |

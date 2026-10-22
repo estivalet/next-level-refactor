@@ -11,11 +11,15 @@ import { mkdir } from 'node:fs/promises';
 import type { EmitEvent } from './ipc/events.ts';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { LaunchService } from './launch/LaunchService.ts';
+import type { ArtIndexService } from './frontend/ArtIndexService.ts';
+import type { FrontendService } from './frontend/FrontendService.ts';
+import { createFrontendHandlers } from './frontendHandlers.ts';
 import { createLaunchHandlers } from './launchHandlers.ts';
 import type { CollectionRepository } from './library/CollectionRepository.ts';
 import type { GameRepository } from './library/GameRepository.ts';
 import type { LaunchRepository } from './library/LaunchRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
+import type { MediaRepository } from './library/MediaRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
@@ -38,12 +42,16 @@ export interface MainDeps {
   /** null when `library.db` could not be opened; library channels then fail. */
   library: {
     repo: LibraryRepository;
+    media: MediaRepository;
+    frontend: FrontendService;
     scan: ScanService;
     games: GameRepository;
     collections: CollectionRepository;
     launches: LaunchRepository;
     launch: LaunchService;
   } | null;
+  /** Theme art lists (FR-THM-2); works without the library. */
+  artIndex: Pick<ArtIndexService, 'index'>;
   clock: () => Date;
   emit: EmitEvent;
   /** Shows a file (or folder) selected in the OS file manager. */
@@ -83,6 +91,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
 
   return {
     ...createLibraryHandlers(deps),
+    ...createFrontendHandlers({ frontend: () => library().frontend, artIndex: deps.artIndex }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();
