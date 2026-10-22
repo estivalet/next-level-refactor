@@ -610,6 +610,16 @@
     },
     "help": {
       "title": "Controles"
+    },
+    "bigBox": {
+      "name": "Big Box",
+      "description": "Carrossel em tela cheia de logos e capas",
+      "types": {
+        "category": "Categoria",
+        "system": "Sistema",
+        "collection": "Coleção",
+        "filter": "Filtro"
+      }
     }
   }
 }

@@ -46,3 +46,4 @@ export * from './components/useNavigationSound.ts';
 export * from './components/useSettledFocus.ts';
 export * from './components/useTabbedGames.ts';
 export * from './components/useThemeRootFocus.ts';
+export * from './registry.ts';

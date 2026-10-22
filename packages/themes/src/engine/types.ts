@@ -118,6 +118,8 @@ export interface ThemeModule {
   art: ThemeArtConfig;
   /** Code defaults for this theme's settings. */
   settings?: ThemeSettings;
+  /** Which intent each input action means in this theme (key help, gamepad reachability). */
+  keymap: KeyMap;
   Component: ComponentType<ThemeComponentProps>;
 }
 

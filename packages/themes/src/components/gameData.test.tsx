@@ -14,10 +14,7 @@ const nintendo = FIXTURE_MENU.items[0] as MenuNode;
 const snes = nintendo.children[0] as MenuNode;
 const n64 = nintendo.children[1] as MenuNode;
 const genesis = (FIXTURE_MENU.items[1] as MenuNode).children[0] as MenuNode;
-const t = (key: string, opts?: Record<string, unknown>) => {
-  const count = opts?.['count'];
-  return `${key}:${typeof count === 'number' ? String(count) : ''}`;
-};
+const t = (key: string, opts: { count: number }) => `${key}:${String(opts.count)}`;
 
 function withHost(host: FakeThemeHost) {
   return ({ children }: { children: ReactNode }) => (

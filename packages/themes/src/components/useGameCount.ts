@@ -47,7 +47,7 @@ function loadCount(host: ThemeHost, nodeId: string): CountEntry {
 /** "N games" / "N items" / "…" for a count; '' when unknown. */
 export function countLabel(
   count: GameCountState,
-  t: (key: string, opts?: Record<string, unknown>) => string,
+  t: (key: string, opts: { count: number }) => string,
 ): string {
   if (!count) return '';
   if (count.kind === 'items') return t('themes.count.items', { count: count.count });

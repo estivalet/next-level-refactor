@@ -610,6 +610,16 @@
     },
     "help": {
       "title": "Controls"
+    },
+    "bigBox": {
+      "name": "Big Box",
+      "description": "Fullscreen carousel of menu logos and box art",
+      "types": {
+        "category": "Category",
+        "system": "System",
+        "collection": "Collection",
+        "filter": "Filter"
+      }
     }
   }
 }
