@@ -2,9 +2,13 @@ import {
   err,
   ok,
   walkMenuNodes,
+  type CollectionSummary,
   type MenuDocNode,
   type MenuDocument,
   type MenuDraft,
+  type SmartFilterSummary,
+  type SystemDefinition,
+  type SystemSummary,
 } from '@nextlevel/shared';
 import { v7 as uuidv7 } from 'uuid';
 import type { FakeResponses } from '../../test-utils.tsx';
@@ -114,4 +118,40 @@ export function menusFake(
 
 export function storedMenu(title: string, nodes: MenuDocNode[], active = false): MenuDocument {
   return { id: uuidv7(), title, nodes, revision: 3, active, source: null };
+}
+
+const SYSTEM: SystemDefinition = {
+  id: 'snes',
+  name: 'Super Nintendo',
+  manufacturer: 'Nintendo',
+  kind: 'console',
+  extensions: ['sfc'],
+  defaultFolderName: 'Super Nintendo',
+  scraper: {},
+  presetProfiles: [],
+  aliases: [],
+};
+
+export const REF_CATALOG: SystemDefinition[] = [
+  SYSTEM,
+  { ...SYSTEM, id: 'nintendo-64', name: 'Nintendo 64', defaultFolderName: 'Nintendo 64' },
+  { ...SYSTEM, id: 'genesis', name: 'Sega Genesis', manufacturer: 'Sega' },
+];
+
+/** What menu nodes can point at: every REF_CATALOG system enabled with 5 games by default. */
+export function refsResponses({
+  systems = REF_CATALOG.map((s) => ({ id: s.id, enabled: true, games: 5, missing: 0 })),
+  collections = [],
+  smartFilters = [],
+}: {
+  systems?: SystemSummary[];
+  collections?: CollectionSummary[];
+  smartFilters?: SmartFilterSummary[];
+} = {}): FakeResponses {
+  return {
+    'systems.catalog': () => ok(REF_CATALOG),
+    'systems.list': () => ok(systems),
+    'collections.list': () => ok(collections),
+    'smartFilters.list': () => ok(smartFilters),
+  };
 }

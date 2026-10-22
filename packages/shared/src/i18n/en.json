@@ -861,6 +861,40 @@
       "system": "System",
       "collection": "Collection",
       "smartFilter": "Smart filter"
+    },
+    "newCategory": "New category",
+    "addCategory": "Add category",
+    "form": {
+      "none": "Select an entry to edit it.",
+      "target": "Target",
+      "findTarget": "Find a target",
+      "deletedTarget": "(deleted)",
+      "name": "Name",
+      "nameHint": "Also the art file name the themes look for.",
+      "nameRequired": "Name is required.",
+      "displayName": "Display name",
+      "shortName": "Short name",
+      "filterTabs": "Filter tabs",
+      "visible": "Visible"
+    },
+    "notInMenu": {
+      "title": "Not in this menu",
+      "none": "Everything is in this menu.",
+      "systems": "Systems",
+      "collections": "Collections",
+      "smartFilters": "Smart filters",
+      "add": "Add {{name}}",
+      "addShort": "Add"
+    },
+    "status": {
+      "systemDisabled": "System turned off",
+      "noGames": "No games",
+      "empty": "Nothing in it shows",
+      "missing": {
+        "system": "System not in the catalog",
+        "collection": "Collection deleted",
+        "smartFilter": "Smart filter deleted"
+      }
     }
   }
 }

@@ -1,19 +1,16 @@
-import { ERROR_CODES, type MenuDocNode } from '@nextlevel/shared';
-import { AlertTriangle } from 'lucide-react';
+import type { MenuDocNode } from '@nextlevel/shared';
 import { useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCloseGuard } from '../shell/closeGuard.ts';
 import { ConfirmDialog } from './ConfirmDialog.tsx';
+import { DraftErrorBanner } from './DraftErrorBanner.tsx';
 import { MenuPicker } from './MenuPicker.tsx';
-import { MenuTreeView } from './MenuTreeView.tsx';
+import { MenuEditorBody } from './MenuEditorBody.tsx';
 import { nodeLabel } from './MenuTreeRow.tsx';
 import { useCreateMenu, useDeleteMenu, useMenuList, useSetActiveMenu } from './menusApi.ts';
 import { NewMenuDialog, type NewMenuSource } from './NewMenuDialog.tsx';
 import { countDescendants, findNode, removeNode } from './treeOps.ts';
 import { useMenuDraft } from './useMenuDraft.ts';
-
-const errorKey = (code: string) =>
-  code in ERROR_CODES ? ERROR_CODES[code as keyof typeof ERROR_CODES] : 'errors.internal';
 
 type Pending =
   | { kind: 'discard'; then: () => void }
@@ -135,28 +132,13 @@ export function MenuEditorApp() {
         onSave={() => void save()}
       />
       {draft.error && (
-        <div
-          role="alert"
-          className="flex items-center gap-2 border-b border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-200"
-        >
-          <AlertTriangle aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
-          <span>{t(draft.conflict ? 'menuEditor.conflict' : errorKey(draft.error))}</span>
-          {draft.conflict && (
-            <button
-              type="button"
-              className="ml-auto rounded-md border border-red-400/30 px-2 py-0.5 hover:bg-red-500/20"
-              onClick={draft.reload}
-            >
-              {t('menuEditor.reload')}
-            </button>
-          )}
-        </div>
+        <DraftErrorBanner code={draft.error} conflict={draft.conflict} onReload={draft.reload} />
       )}
       {nodes === null ? (
         !draft.error && <p className="p-4 text-xs text-slate-500">{t('menuEditor.loading')}</p>
       ) : (
         <div className="min-h-0 flex-1">
-          <MenuTreeView
+          <MenuEditorBody
             nodes={nodes}
             selectedId={selectedId}
             onSelect={setSelectedId}

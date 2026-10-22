@@ -861,6 +861,40 @@
       "system": "Sistema",
       "collection": "Coleção",
       "smartFilter": "Filtro inteligente"
+    },
+    "newCategory": "Nova categoria",
+    "addCategory": "Adicionar categoria",
+    "form": {
+      "none": "Selecione um item para editá-lo.",
+      "target": "Destino",
+      "findTarget": "Procurar destino",
+      "deletedTarget": "(excluído)",
+      "name": "Nome",
+      "nameHint": "Também é o nome do arquivo de arte que os temas procuram.",
+      "nameRequired": "O nome é obrigatório.",
+      "displayName": "Nome de exibição",
+      "shortName": "Nome curto",
+      "filterTabs": "Abas de filtro",
+      "visible": "Visível"
+    },
+    "notInMenu": {
+      "title": "Fora deste menu",
+      "none": "Tudo já está neste menu.",
+      "systems": "Sistemas",
+      "collections": "Coleções",
+      "smartFilters": "Filtros inteligentes",
+      "add": "Adicionar {{name}}",
+      "addShort": "Adicionar"
+    },
+    "status": {
+      "systemDisabled": "Sistema desativado",
+      "noGames": "Sem jogos",
+      "empty": "Nada aqui aparece",
+      "missing": {
+        "system": "Sistema fora do catálogo",
+        "collection": "Coleção excluída",
+        "smartFilter": "Filtro inteligente excluído"
+      }
     }
   }
 }
