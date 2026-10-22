@@ -72,7 +72,8 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
     },
     'library.search': ({ text, limit }) => library().games.search(text, limit),
     'collections.list': () => library().collections.list(),
-    'collections.create': ({ name }) => library().collections.create(name),
+    // The generated menu lists every collection (FR-MENU-3).
+    'collections.create': ({ name }) => menuChanged(library().collections.create(name)),
     'collections.update': ({ id, name, sort }) =>
       menuChanged(
         library().collections.update(id, {
