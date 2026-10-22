@@ -24,7 +24,7 @@ import { useLauncherThemeHost } from './useLauncherThemeHost.ts';
  */
 export function FrontendLayer() {
   const { t } = useTranslation();
-  const { visible, hide } = useFrontend();
+  const { visible, hide, show } = useFrontend();
   const openApp = useOpenApp();
   const loaded = useSettings().data;
   const settings = loaded?.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
@@ -56,6 +56,18 @@ export function FrontendLayer() {
     input: settings.input,
     onAction: (action) => {
       if (action === 'toDesktop') toDesktop();
+    },
+  });
+
+  // Behind the desktop the same toDesktop action (View+Start) brings the front-end back, so a
+  // gamepad alone is never stranded there. Keys are read from the layer, which has no focus
+  // then, so only the gamepad reaches this.
+  useInputActions({
+    targetRef: layerRef,
+    enabled: !visible,
+    input: settings.input,
+    onAction: (action) => {
+      if (action === 'toDesktop') show();
     },
   });
 

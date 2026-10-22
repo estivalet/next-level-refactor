@@ -106,6 +106,31 @@ describe('front-end mode (FR-THM-1, FR-THM-3)', () => {
     });
   });
 
+  it('US-C1: View+Start on a gamepad comes back from the desktop too', async () => {
+    let pressed: number[] = [];
+    const pad = () => ({
+      mapping: 'standard',
+      connected: true,
+      axes: [0, 0, 0, 0],
+      buttons: Array.from({ length: 17 }, (_, i) => ({ pressed: pressed.includes(i), value: 0 })),
+    });
+    Object.defineProperty(navigator, 'getGamepads', { value: () => [pad()], configurable: true });
+    try {
+      setup();
+      await openFromStart();
+      press('KeyM');
+      await waitFor(() => {
+        expect(layer()).not.toBeVisible();
+      });
+      pressed = [8, 9];
+      await waitFor(() => {
+        expect(layer()).toBeVisible();
+      });
+    } finally {
+      Reflect.deleteProperty(navigator, 'getGamepads');
+    }
+  });
+
   it('back at the root opens the theme menu: Resume returns, Desktop leaves', async () => {
     setup();
     await openFromStart();
