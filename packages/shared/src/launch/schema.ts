@@ -1,12 +1,17 @@
 import { z } from 'zod';
 import { AppErrorSchema } from '../errors.ts';
 
+/** Limits of a game's launch options, shared with the Launch options dialog. */
+export const LAUNCH_OVERRIDE_LIMITS = { core: 120, extraArgs: 50, extraArg: 1000 } as const;
+
 /** A game's own launch settings (FR-EMU-4); empty fields fall back to the system's profile. */
 export const LaunchOverrideSchema = z.object({
   profileId: z.uuid().nullable(),
-  core: z.string().trim().max(120).nullable(),
+  core: z.string().trim().max(LAUNCH_OVERRIDE_LIMITS.core).nullable(),
   /** Extra argv elements, inserted where the profile has `{extraArgs}`. */
-  extraArgs: z.array(z.string().max(1000)).max(50),
+  extraArgs: z
+    .array(z.string().max(LAUNCH_OVERRIDE_LIMITS.extraArg))
+    .max(LAUNCH_OVERRIDE_LIMITS.extraArgs),
 });
 
 export type LaunchOverride = z.output<typeof LaunchOverrideSchema>;

@@ -483,7 +483,10 @@
       "extraArgs": "Argumentos extras",
       "extraHelp": "Um argumento por linha. Eles entram onde o perfil tem {extraArgs}.",
       "extraIgnored": "{{name}} não usa {extraArgs}, então estes argumentos ficam de fora. Adicione {extraArgs} aos argumentos dele em Configurações → Emuladores.",
-      "reset": "Voltar ao padrão do sistema"
+      "reset": "Voltar ao padrão do sistema",
+      "coreTooLong": "Use um nome de core com no máximo {{core}} caracteres.",
+      "tooManyArgs": "Use no máximo {{extraArgs}} argumentos extras.",
+      "argTooLong": "Cada argumento extra pode ter no máximo {{extraArg}} caracteres."
     }
   }
 }

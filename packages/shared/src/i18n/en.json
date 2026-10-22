@@ -483,7 +483,10 @@
       "extraArgs": "Extra arguments",
       "extraHelp": "One argument per line. They go where the profile has {extraArgs}.",
       "extraIgnored": "{{name}} doesn’t use {extraArgs}, so these arguments are left out. Add {extraArgs} to its arguments in Settings → Emulators.",
-      "reset": "Reset to system default"
+      "reset": "Reset to system default",
+      "coreTooLong": "Use a core name of at most {{core}} characters.",
+      "tooManyArgs": "Use at most {{extraArgs}} extra arguments.",
+      "argTooLong": "Each extra argument can have at most {{extraArg}} characters."
     }
   }
 }

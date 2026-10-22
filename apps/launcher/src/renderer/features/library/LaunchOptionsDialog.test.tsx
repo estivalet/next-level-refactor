@@ -1,6 +1,7 @@
 import {
   defaultSettings,
   EMPTY_LAUNCH_OVERRIDE,
+  err,
   ok,
   type EmulatorProfile,
   type LaunchOverride,
@@ -123,6 +124,35 @@ describe('LaunchOptionsDialog (FR-EMU-4)', () => {
     expect(
       within(dialog).getByText(/doesn’t use \{extraArgs\}, so these arguments are left out/),
     ).toBeVisible();
+  });
+
+  it('FR-EMU-4: a save that main refuses says so and keeps the dialog open', async () => {
+    const user = userEvent.setup();
+    setup();
+    installFakeBridge({
+      ...libraryResponses([GAME]),
+      'settings.get': () =>
+        ok({ kind: 'ok' as const, snapshot: { settings: SETTINGS, revision: 0 } }),
+      'library.games.get': () => ok(gameDetails(GAME)),
+      'library.games.launchOverride': () => ok(EMPTY_LAUNCH_OVERRIDE),
+      'library.games.setLaunchOverride': () => err('VALIDATION_FAILED', 'errors.validationFailed'),
+    });
+    renderInShell(<LaunchOptionsDialog gameId={1} onClose={() => undefined} />);
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    expect(await within(dialog).findByText('The request was not valid.')).toBeVisible();
+  });
+
+  it('FR-EMU-4: more than 50 extra arguments can’t be saved, and the dialog says why', async () => {
+    const user = userEvent.setup();
+    setup();
+    renderInShell(<LaunchOptionsDialog gameId={1} onClose={() => undefined} />);
+    const dialog = await screen.findByRole('dialog');
+    const box = within(dialog).getByRole('textbox', { name: 'Extra arguments' });
+    await user.click(box);
+    await user.paste(Array.from({ length: 51 }, (_, i) => `-a${String(i)}`).join('\n'));
+    expect(within(dialog).getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(within(dialog).getByText('Use at most 50 extra arguments.')).toBeVisible();
   });
 
   it('FR-EMU-4: the context menu and the details panel open Launch options', async () => {

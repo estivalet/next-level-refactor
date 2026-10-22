@@ -1,6 +1,7 @@
 import {
   defaultProfileFor,
   EMPTY_LAUNCH_OVERRIDE,
+  LAUNCH_OVERRIDE_LIMITS,
   profilesFor,
   usesToken,
   type GameDetails,
@@ -9,12 +10,24 @@ import {
 } from '@nextlevel/shared';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSettings } from '../settings/settingsApi.ts';
+import { errorMessageKey, useSettings } from '../settings/settingsApi.ts';
 import { useGameDetails, useLaunchOverride, useSetLaunchOverride } from './libraryApi.ts';
 import { INPUT, Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from './Modal.tsx';
 
 /** One argument per line; blank lines are dropped. */
 const argsOf = (text: string) => text.split(/\r?\n/).filter((line) => line.trim() !== '');
+
+/** Why the options can't be saved (the limits main checks), or null. */
+function limitProblem(core: string, extraArgs: readonly string[]): string | null {
+  if (core.trim().length > LAUNCH_OVERRIDE_LIMITS.core) return 'library.launchOptions.coreTooLong';
+  if (extraArgs.length > LAUNCH_OVERRIDE_LIMITS.extraArgs) {
+    return 'library.launchOptions.tooManyArgs';
+  }
+  if (extraArgs.some((arg) => arg.length > LAUNCH_OVERRIDE_LIMITS.extraArg)) {
+    return 'library.launchOptions.argTooLong';
+  }
+  return null;
+}
 
 /**
  * Launch options for one game (FR-EMU-4): a profile other than the system default, a RetroArch
@@ -53,6 +66,7 @@ function OptionsForm({ game, initial, settings, onClose }: OptionsFormProps) {
     extraArgs.length > 0 &&
     effective !== undefined &&
     !effective.args.some((arg) => usesToken(arg, 'extraArgs'));
+  const problem = limitProblem(core, extraArgs);
 
   const store = (override: LaunchOverride) => {
     save.mutate({ gameId: game.id, override }, { onSuccess: onClose });
@@ -66,6 +80,7 @@ function OptionsForm({ game, initial, settings, onClose }: OptionsFormProps) {
           <button
             type="button"
             className={`${SECONDARY_BUTTON} mr-auto`}
+            disabled={save.isPending}
             onClick={() => {
               store(EMPTY_LAUNCH_OVERRIDE);
             }}
@@ -78,7 +93,7 @@ function OptionsForm({ game, initial, settings, onClose }: OptionsFormProps) {
           <button
             type="button"
             className={PRIMARY_BUTTON}
-            disabled={save.isPending}
+            disabled={save.isPending || problem !== null}
             onClick={() => {
               store({ profileId: profileId || null, core: core.trim() || null, extraArgs });
             }}
@@ -145,6 +160,16 @@ function OptionsForm({ game, initial, settings, onClose }: OptionsFormProps) {
             ? t('library.launchOptions.extraIgnored', { name: effective.name })
             : t('library.launchOptions.extraHelp')}
         </p>
+        {problem && (
+          <p role="alert" className="text-[11px] text-red-300">
+            {t(problem, LAUNCH_OVERRIDE_LIMITS)}
+          </p>
+        )}
+        {save.isError && (
+          <p role="alert" className="text-[11px] text-red-300">
+            {t(errorMessageKey(save.error))}
+          </p>
+        )}
       </div>
     </Modal>
   );
