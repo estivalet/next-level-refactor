@@ -7,6 +7,7 @@ import { CollectionRepository } from './library/CollectionRepository.ts';
 import { LaunchService } from './launch/LaunchService.ts';
 import { GameRepository } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
+import { MediaRepository } from './library/MediaRepository.ts';
 import { seedGames, tempLibrary } from './library/testing.ts';
 import { ScanService } from './scan/ScanService.ts';
 import { system } from './scan/testing.ts';
@@ -37,6 +38,7 @@ async function setup(withLibrary: boolean) {
     const launches = new LaunchRepository(temp.db);
     const scan = new ScanService({
       repo: temp.repo,
+      media: new MediaRepository(temp.db),
       settings,
       catalog: () => CATALOG,
       createWalker: inProcessWalker,

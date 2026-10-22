@@ -21,6 +21,7 @@ import { expectedGamePath } from './library/expectedPath.ts';
 import { GameRepository } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
+import { MediaRepository } from './library/MediaRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
@@ -131,8 +132,10 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     return null;
   }
   const repo = new LibraryRepository(db);
+  const media = new MediaRepository(db);
   const scan = new ScanService({
     repo,
+    media,
     settings,
     catalog: systemCatalog,
     createWalker: () => createWorkerWalker(scanWorkerPath),

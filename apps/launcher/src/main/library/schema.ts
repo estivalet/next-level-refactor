@@ -159,3 +159,17 @@ export const launchLog = sqliteTable(
   },
   (table) => [index('launch_log_started').on(table.startedAt)],
 );
+
+/** One indexed media file per game and kind (`media/<kind>/<rom stem>.<ext>`), filled by the scan. */
+export const gameMedia = sqliteTable(
+  'game_media',
+  {
+    gameId: integer('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    kind: text('kind').notNull(),
+    path: text('path').notNull(),
+    size: integer('size').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.gameId, table.kind] })],
+);

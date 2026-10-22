@@ -4,9 +4,10 @@ import {
   type Settings,
   type SystemDefinition,
 } from '@nextlevel/shared';
-import { mkdir, rename, stat, writeFile } from 'node:fs/promises';
+import { mkdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import { MediaRepository } from '../library/MediaRepository.ts';
 import { tempDir, tempLibrary } from '../library/testing.ts';
 import { SettingsService } from '../settings/SettingsService.ts';
 import { settingsFixture } from '../settings/testing.ts';
@@ -68,6 +69,7 @@ async function setup(options: Options = {}) {
   cleanups.push(library.cleanup);
   const scan = new ScanService({
     repo: library.repo,
+    media: new MediaRepository(library.db),
     settings: options.wrapSettings?.(settings) ?? settings,
     catalog: () => options.catalog ?? CATALOG,
     createWalker: options.createWalker ?? inProcessWalker,
@@ -135,6 +137,23 @@ describe('ScanService', () => {
     expect(library.repo.systemCounts()).toEqual([
       { systemId: 'nintendo-64', games: 2, missing: 0 },
     ]);
+  });
+
+  it('FR-THM-2: a scan indexes game media and a rescan drops deleted files', async () => {
+    const { write, run, roms, library, events } = await setup();
+    await write('Nintendo 64/Demo.z64');
+    await write('Nintendo 64/media/box-front/Demo.png', 'png');
+    await write('Nintendo 64/media/video/Demo.mp4', 'mp4');
+    await run();
+    const media = new MediaRepository(library.db);
+    const id = library.repo.listSystemGames('nintendo-64')[0]?.id ?? 0;
+    expect(media.kindsByGame([id]).get(id)).toEqual(['box-front', 'video']);
+
+    events.length = 0;
+    await rm(join(roms, 'Nintendo 64', 'media', 'video', 'Demo.mp4'));
+    await run();
+    expect(media.kindsByGame([id]).get(id)).toEqual(['box-front']);
+    expect(events.map((e) => e.event)).toContain('library.changed');
   });
 
   it('FR-LIB-3: scan all includes untouched systems whose folder exists and enables those with games', async () => {
