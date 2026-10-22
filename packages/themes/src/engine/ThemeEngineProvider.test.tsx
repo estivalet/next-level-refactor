@@ -226,7 +226,7 @@ describe('ThemeEngineProvider (FR-THM-1, FR-THM-6)', () => {
   });
 });
 
-describe('game flags and host events', () => {
+describe('game flags and host events (FR-LIB-7, FR-THM-6, US-C2)', () => {
   it('FR-LIB-7: a flag change shows at once and is saved through the host', async () => {
     const ctx = setup();
     await openN64(ctx);

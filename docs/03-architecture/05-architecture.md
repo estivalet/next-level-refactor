@@ -138,7 +138,7 @@ interface ThemeHost {
   getMenu(): Promise<MenuTree>;
   getGames(nodeId: string): Promise<ThemeGame[]>;          // a whole level, one call
   getGameDetails(gameId: number): Promise<{ description: string | null }>;
-  loadArtIndex(themeId: string): Promise<ArtIndex>;        // pack + shared art files, pack manifest
+  loadArtIndex(themeId: string, opts?: { refresh?: boolean }): Promise<ArtIndex>; // pack + shared art, manifest
   mediaUrl(game: ThemeGame, kind: string): string | null;  // only indexed kinds; no disk probing
   artUrl(root: ArtRoot, rel: string): string;              // nextlevel://art/…
   launch(gameId: number): Promise<{ ok: true } | { ok: false; message: string }>;

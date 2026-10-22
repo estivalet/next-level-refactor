@@ -11,6 +11,7 @@ let service: FrontendService;
 beforeAll(async () => {
   library = await tempLibrary();
   seedManyGames(library.db, 'big-system', 10_000);
+  seedManyGames(library.db, 'mame', 40_000);
   const client = library.db.$client;
   // Every game gets a filter and two media kinds, like a scraped library.
   client.exec(`insert into game_filters (game_id, filter) select id, 'official' from games;
@@ -18,8 +19,11 @@ beforeAll(async () => {
     insert into game_media (game_id, kind, path, size) select id, 'video', 'C:\\x.mp4', 1 from games;`);
   service = new FrontendService({
     db: library.db,
-    catalog: () => [system('big-system')],
-    settings: () => ({ ...defaultSettings(), systems: { 'big-system': { enabled: true } } }),
+    catalog: () => [system('big-system'), system('mame')],
+    settings: () => ({
+      ...defaultSettings(),
+      systems: { 'big-system': { enabled: true }, mame: { enabled: true } },
+    }),
     collections: new CollectionRepository(library.db, () => new Date()),
   });
 }, 60_000);
@@ -39,5 +43,12 @@ describe('front-end performance', () => {
       expect(games[0]?.media).toEqual(['box-front', 'video']);
     }
     expect(worst).toBeLessThanOrEqual(perfBudget(300));
+  });
+
+  it('NFR-PERF-2: a 40k-game level (a full MAME set) loads in one call within 1.2 s', () => {
+    service.games('s:mame');
+    const start = performance.now();
+    expect(service.games('s:mame')).toHaveLength(40_000);
+    expect(performance.now() - start).toBeLessThanOrEqual(perfBudget(1200));
   });
 });

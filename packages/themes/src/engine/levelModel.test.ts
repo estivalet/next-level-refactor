@@ -32,7 +32,7 @@ describe('levelKind (FR-THM-1)', () => {
   });
 });
 
-describe('findSystemId', () => {
+describe('findSystemId (FR-THM-1)', () => {
   it('is the nearest system in the chain, or null for a collection', () => {
     expect(findSystemId([neogeo], favorite)).toBe('neogeo');
     expect(findSystemId([consoles], atari)).toBe('atari');
@@ -40,7 +40,7 @@ describe('findSystemId', () => {
   });
 });
 
-describe('resolveLevel', () => {
+describe('resolveLevel (FR-THM-1)', () => {
   it('a category is a menu level of its children', () => {
     const level = resolveLevel(consoles, []);
     expect(level).toMatchObject({ kind: 'menu', title: 'Consoles', lastFocusIndex: 0 });
@@ -76,7 +76,7 @@ describe('resolveLevel', () => {
   });
 });
 
-describe('flattenFilters', () => {
+describe('flattenFilters (FR-THM-1)', () => {
   it('hasOnlyFilterChildren', () => {
     expect(hasOnlyFilterChildren(neogeo)).toBe(true);
     expect(hasOnlyFilterChildren(atari)).toBe(false);
@@ -91,7 +91,7 @@ describe('flattenFilters', () => {
   });
 });
 
-describe('reshapeFilterLevels (theme switch between filter layouts)', () => {
+describe('reshapeFilterLevels (FR-THM-1, theme switch between filter layouts)', () => {
   const tree = category('Consoles', [neogeo, atari]);
   const root: Level = { kind: 'menu', node: null, items: [tree], title: 'Root', lastFocusIndex: 0 };
   const consolesLevel = resolveLevel(tree, []);

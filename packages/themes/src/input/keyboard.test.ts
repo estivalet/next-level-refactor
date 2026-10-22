@@ -18,7 +18,7 @@ describe('keyboardActions (FR-THM-3)', () => {
   });
 });
 
-describe('passesTextInput', () => {
+describe('passesTextInput (FR-THM-3)', () => {
   it('only Escape, Enter and the arrows leave a text field', () => {
     expect(passesTextInput('Escape')).toBe(true);
     expect(passesTextInput('Enter')).toBe(true);

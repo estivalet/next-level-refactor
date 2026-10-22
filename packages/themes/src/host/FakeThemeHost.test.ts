@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FakeThemeHost } from './FakeThemeHost.ts';
 import type { HostEvent, ThemeHost } from './ThemeHost.ts';
 
-describe('FakeThemeHost', () => {
+describe('FakeThemeHost (FR-THM-6)', () => {
   it('FR-THM-6: implements ThemeHost over fixtures', async () => {
     const host: ThemeHost = new FakeThemeHost();
     const menu = await host.getMenu();
