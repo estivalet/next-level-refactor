@@ -5,7 +5,7 @@ import { getBridge } from '../../bridge.ts';
 import { FRONTEND_CLOSED, type FrontendState } from '../frontend/useFrontend.ts';
 import { SETTINGS_KEY } from '../settings/settingsApi.ts';
 
-const OPEN: FrontendState = { mounted: true, visible: true };
+const OPEN: FrontendState = { mounted: true, visible: true, preview: null };
 
 /** True when the menu reaches a system: the generated menu lists only systems with games. */
 export function menuHasGames(menu: MenuTree): boolean {

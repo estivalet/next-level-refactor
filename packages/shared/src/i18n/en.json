@@ -895,6 +895,9 @@
         "collection": "Collection deleted",
         "smartFilter": "Smart filter deleted"
       }
-    }
+    },
+    "previewLabel": "Menu preview",
+    "previewBanner": "Preview of the unsaved menu. Back at the top level, or To desktop, returns to the editor.",
+    "previewNoLaunch": "Games don't start from a menu preview."
   }
 }

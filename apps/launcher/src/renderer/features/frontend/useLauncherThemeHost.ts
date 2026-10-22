@@ -1,4 +1,4 @@
-import type { AppError, Settings } from '@nextlevel/shared';
+import type { AppError, MenuDraft, Settings } from '@nextlevel/shared';
 import type { ThemeHost } from '@nextlevel/themes';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { getBridge } from '../../bridge.ts';
@@ -13,6 +13,8 @@ export function useLauncherThemeHost(deps: {
   t: (key: string) => string;
   report: (gameId: number, error: AppError) => void;
   launching: (gameId: number) => void;
+  /** Menu Editor preview (US-D5): a host over this unsaved menu, for the host's lifetime. */
+  previewDraft?: MenuDraft | undefined;
 }): ThemeHost {
   const latest = useRef(deps);
   useLayoutEffect(() => {
@@ -28,6 +30,9 @@ export function useLauncherThemeHost(deps: {
       onLaunchError: (gameId, error) => {
         latest.current.report(gameId, error);
       },
+      ...(deps.previewDraft
+        ? { previewDraft: () => latest.current.previewDraft ?? { title: '', nodes: [] } }
+        : {}),
     }),
   );
   return host;

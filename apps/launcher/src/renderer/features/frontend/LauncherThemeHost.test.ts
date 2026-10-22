@@ -22,6 +22,21 @@ function setup(
 }
 
 describe('LauncherThemeHost (FR-THM-6)', () => {
+  it('US-D5: a preview host resolves the unsaved draft instead of the active menu', async () => {
+    const draft = { title: 'Draft', nodes: [] };
+    const fake = installFakeBridge({
+      'frontend.resolveMenu': ({ draft: sent }) => ok({ title: sent.title, items: [] }),
+    });
+    const host = createLauncherThemeHost(getBridge(), {
+      settings: () => defaultSettings(),
+      t,
+      previewDraft: () => draft,
+    });
+    expect(await host.getMenu()).toEqual({ title: 'Draft', items: [] });
+    expect(await host.launch(7)).toEqual({ ok: false, message: 'T(menuEditor.previewNoLaunch)' });
+    expect(fake.calls).toEqual([{ channel: 'frontend.resolveMenu', input: { draft } }]);
+  });
+
   it('reads the menu, levels, details and art index over the typed bridge', async () => {
     const menu = { title: 'NextLevel', items: [] };
     const art = { packFiles: [], assetsFiles: ['logo/clear/A.png'], manifest: null, warnings: [] };

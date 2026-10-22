@@ -895,6 +895,9 @@
         "collection": "Coleção excluída",
         "smartFilter": "Filtro inteligente excluído"
       }
-    }
+    },
+    "previewLabel": "Pré-visualização do menu",
+    "previewBanner": "Pré-visualização do menu não salvo. Voltar no nível principal, ou Ir para a área de trabalho, retorna ao editor.",
+    "previewNoLaunch": "Jogos não iniciam na pré-visualização do menu."
   }
 }

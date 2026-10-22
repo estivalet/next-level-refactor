@@ -1,6 +1,7 @@
 import type { MenuDocNode } from '@nextlevel/shared';
 import { useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useFrontend } from '../frontend/useFrontend.ts';
 import { useCloseGuard } from '../shell/closeGuard.ts';
 import { ConfirmDialog } from './ConfirmDialog.tsx';
 import { DraftErrorBanner } from './DraftErrorBanner.tsx';
@@ -29,6 +30,7 @@ export function MenuEditorApp() {
   const createMenu = useCreateMenu();
   const deleteMenu = useDeleteMenu();
   const setActive = useSetActiveMenu();
+  const frontend = useFrontend();
   const nodes = draft.nodes;
   const editingId = draft.saved?.id ?? null;
 
@@ -129,6 +131,9 @@ export function MenuEditorApp() {
           if (editingId !== null) setActive.mutate(editingId);
         }}
         onUndo={draft.undo}
+        onPreview={() => {
+          if (nodes) frontend.show({ previewDraft: { title: draft.title, nodes } });
+        }}
         onSave={() => void save()}
       />
       {draft.error && (

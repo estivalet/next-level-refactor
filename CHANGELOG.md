@@ -13,6 +13,14 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   played are created on first start. An open theme reloads its menu when a menu, collection or
   smart filter changes or a scan finishes, and stays on the same entry. The Menu Editor arrives in
   M5b.
+- M5b Menu Editor (FR-MENU-1..4, US-D5): a new desktop app to keep several menus with one active,
+  edit the tree (drag and drop, keyboard moves, rename, search, undo), point entries at systems,
+  collections and smart filters, and see what isn't in the menu yet (nothing is added on its own).
+  Entries that can't show are greyed with the reason. Preview shows the unsaved menu in the
+  current theme. A save over a newer version asks to reload.
+- Open themes now also reload the menu when a game change makes a menu entry appear or go away
+  (e.g. the first favorite brings in Favorites), when a system is turned on or off, and when a
+  collection is created.
 
 ## [0.4.0] - 2026-10-22
 

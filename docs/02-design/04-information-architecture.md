@@ -23,7 +23,7 @@ Shell (desktop)   (reached with M / Start "Desktop", hidden in kiosk mode)
      ├─ Library          browse/search/edit games, scan, scrape
      ├─ Catalog          browse/install online games; Downloads tab
      ├─ Collections
-     ├─ Menu Editor
+     ├─ Menu Editor      menus (several, one active), tree, node form, Not in this menu, preview
      ├─ Themes           pick theme, pack coverage
      ├─ Settings
      └─ Account          profile, plan, devices, sign out

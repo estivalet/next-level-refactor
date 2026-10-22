@@ -208,10 +208,31 @@ Left navigation of sections (see IA §1), right form pane.
 
 ## S10 Menu Editor
 
-Tree on the left (drag/drop + keyboard move up/down/indent/outdent), node form on the right
-(type, target system/collection/filter picker, display name, short name, theme override, visible).
-Menu picker at the top (active ✓, new, duplicate, delete, set active). Live preview button opens
-the current theme on the edited menu without saving.
+As built in M5b (FR-MENU-1..4, D8, D9):
+
+- **Header:** menu picker (the active menu is marked "(active)"; while no menu is stored the
+  generated one shows as "Default (not saved)" and Save stores it), New menu, Duplicate, Delete
+  menu (asks), Set as active, an unsaved-changes dot, Undo (50 steps), Preview, Save.
+  New/Duplicate open a dialog: name + start from *Copy of current* (new node ids) · *Generated
+  from enabled systems* · *Empty*. Switching menus, New, Duplicate or closing the window with
+  unsaved changes asks to discard them. A save over a newer version shows "This menu was changed
+  elsewhere" with **Reload**.
+- **Left:** virtualized tree with a search box (matches and their categories); drag and drop
+  (upper third before, middle inside a category, lower third after); keyboard: ↑/↓ select, →/←
+  expand/collapse, Alt+↑/↓ move, Alt+→ indent into the previous category, Alt+← outdent, F2
+  rename (categories: name; references: display name), Delete asks; eye button shows/hides.
+  Entries that can't open in themes are greyed with the reason: *System turned off*, *No games*,
+  *Collection deleted*, *Smart filter deleted*, *System not in the catalog*, *Nothing in it
+  shows*. **Add category** below the tree.
+- **Right:** the selected node's form — kind, target picker with search (references; keeps the
+  node id; a name equal to the old target's name follows), name (the art key), display name,
+  short name, filter tabs (systems), visible. No theme override field yet (D9). Below it, **Not
+  in this menu**: enabled systems with games, collections and smart filters no node names, each
+  with **Add** (systems go under the category named after their manufacturer when one exists,
+  otherwise at the end of the selected category or the root). Nothing is added on its own (D8).
+- **Preview** opens the current theme fullscreen on the unsaved menu; Back at the top level or
+  To desktop returns to the editor with the edits intact. It never records the theme as last
+  used and games don't start from it.
 
 ## S11 Collections
 

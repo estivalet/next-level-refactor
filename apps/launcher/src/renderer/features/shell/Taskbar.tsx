@@ -49,7 +49,9 @@ export function Taskbar() {
         type="button"
         aria-label={t('frontend.open')}
         title={t('frontend.open')}
-        onClick={frontend.show}
+        onClick={() => {
+          frontend.show();
+        }}
         className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-white hover:bg-white/10 ${FOCUS_RING}`}
       >
         <MonitorPlay aria-hidden="true" className="h-6 w-6" />
