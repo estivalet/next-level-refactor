@@ -1,4 +1,4 @@
 {
   "extends": "@nextlevel/config/tsconfig.react.json",
-  "include": ["src"]
+  "include": ["src", "vitest.config.ts"]
 }
