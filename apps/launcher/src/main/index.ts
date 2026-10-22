@@ -186,7 +186,8 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
   launch.cleanupStaleExtractions().catch((error: unknown) => {
     log.warn({ error }, 'could not remove old extraction folders');
   });
-  app.on('before-quit', () => {
+  // will-quit: after before-quit has let pending settings writes finish (start()).
+  app.on('will-quit', () => {
     scan.cancel();
     db.$client.close();
   });
@@ -247,6 +248,18 @@ async function start(): Promise<void> {
     },
   });
   await settings.load();
+  // A theme switch right before quitting must still be remembered (FR-THM-5).
+  let settingsSettled = false;
+  app.on('before-quit', (event) => {
+    if (settingsSettled) return;
+    event.preventDefault();
+    // Capped, so a stuck disk can't keep the app from quitting.
+    const capped = new Promise<void>((resolve) => setTimeout(resolve, 3000));
+    void Promise.race([settings.idle(), capped]).finally(() => {
+      settingsSettled = true;
+      app.quit();
+    });
+  });
   const library = startLibrary(settings);
   const artPaths = () => {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
