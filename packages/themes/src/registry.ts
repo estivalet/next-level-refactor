@@ -5,6 +5,7 @@ import { bigBoxListTheme } from './big-box-list/index.ts';
 import { consoleHomeTheme } from './console-home/index.ts';
 import { hyperspinTheme } from './hyperspin/index.ts';
 import { ps5Theme } from './ps5/index.ts';
+import { showcaseTheme } from './showcase/index.ts';
 import type { ThemeModule } from './engine/types.ts';
 
 /** Every bundled theme, in gallery order. Big Box is the default. */
@@ -14,6 +15,7 @@ export const THEMES: readonly ThemeModule[] = [
   consoleHomeTheme,
   ps5Theme,
   hyperspinTheme,
+  showcaseTheme,
 ];
 
 export const THEME_IDS: readonly string[] = THEMES.map((theme) => theme.id);

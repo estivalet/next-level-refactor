@@ -668,6 +668,24 @@
       "previousFilter": "Previous filter",
       "nextFilter": "Next filter"
     },
+    "showcase": {
+      "name": "Showcase",
+      "description": "Big system tiles with descriptions and a box-art game carousel",
+      "start": "Start",
+      "players_one": "{{count, number}} player",
+      "players_other": "{{count, number}} players",
+      "playersRange": "{{players}} players",
+      "lastPlayed": {
+        "now": "Last played just now",
+        "minutes_one": "Last played {{count, number}} minute ago",
+        "minutes_other": "Last played {{count, number}} minutes ago",
+        "hours_one": "Last played {{count, number}} hour ago",
+        "hours_other": "Last played {{count, number}} hours ago",
+        "days_one": "Last played {{count, number}} day ago",
+        "days_other": "Last played {{count, number}} days ago",
+        "date": "Last played on {{date}}"
+      }
+    },
     "switcher": {
       "label": "Switch theme",
       "current": "Current"

@@ -30,13 +30,14 @@ describe('theme registry (FR-THM-1)', () => {
     }
   });
 
-  it('lists the M4c and M4d themes after Big Box', () => {
-    expect(THEME_IDS.slice(0, 5)).toEqual([
+  it('lists the six themes, Big Box first', () => {
+    expect(THEME_IDS).toEqual([
       'big-box',
       'big-box-list',
       'console-home',
       'ps5',
       'hyperspin',
+      'showcase',
     ]);
   });
 
@@ -46,6 +47,10 @@ describe('theme registry (FR-THM-1)', () => {
       logoVariant: 'steel',
       useVideoBackground: true,
     });
+  });
+
+  it('FR-THM-4: Showcase shows filters as game-list tabs by default', () => {
+    expect(getTheme('showcase')?.settings).toEqual({ filtersInMenu: false });
   });
 
   it('every theme name and description is translated', () => {

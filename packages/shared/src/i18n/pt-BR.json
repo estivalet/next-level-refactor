@@ -668,6 +668,24 @@
       "previousFilter": "Filtro anterior",
       "nextFilter": "Próximo filtro"
     },
+    "showcase": {
+      "name": "Vitrine",
+      "description": "Grandes blocos de sistemas com descrições e um carrossel de capas",
+      "start": "Iniciar",
+      "players_one": "{{count, number}} jogador",
+      "players_other": "{{count, number}} jogadores",
+      "playersRange": "{{players}} jogadores",
+      "lastPlayed": {
+        "now": "Jogado agora mesmo",
+        "minutes_one": "Jogado há {{count, number}} minuto",
+        "minutes_other": "Jogado há {{count, number}} minutos",
+        "hours_one": "Jogado há {{count, number}} hora",
+        "hours_other": "Jogado há {{count, number}} horas",
+        "days_one": "Jogado há {{count, number}} dia",
+        "days_other": "Jogado há {{count, number}} dias",
+        "date": "Jogado em {{date}}"
+      }
+    },
     "switcher": {
       "label": "Trocar tema",
       "current": "Atual"

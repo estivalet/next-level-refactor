@@ -1,0 +1,324 @@
+/* Ported from NextLevelOS src/themes/showcase/showcase.css @ 3d530b7 (root, home, chrome; the
+   games level is in showcase-games.css). */
+.sc-root {
+  --sc-ink: #ffffff;
+  --sc-muted: rgba(255, 255, 255, 0.66);
+  --sc-plate: #1a1f2e;
+  --sc-shelf-top: 84px;
+  --sc-strip-bottom: 88px;
+  --sc-strip-h: 44vh;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #07080c;
+  color: var(--sc-ink);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  user-select: none;
+}
+
+.sc-root:focus {
+  outline: none;
+}
+
+.sc-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.7), transparent 65%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent 55%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 25%);
+}
+
+.sc-shade--games {
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.8), transparent 55%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 60%);
+}
+
+.sc-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sc-muted);
+}
+
+.sc-button {
+  padding: 10px 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+}
+
+/* ── Home ─────────────────────────────────────────────────────────────── */
+.sc-home {
+  position: absolute;
+  inset: 0;
+}
+
+.sc-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  padding: 0 56px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.sc-cats-wrap {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  display: flex;
+  align-items: center;
+}
+
+.sc-cats-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.sc-cats {
+  gap: 30px;
+  flex-shrink: 0;
+}
+
+.sc-cat {
+  padding: 6px 0;
+  font-size: 18px;
+  color: var(--sc-muted);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+
+.sc-cat--active {
+  color: var(--sc-ink);
+  font-weight: 700;
+  border-bottom-color: var(--sc-ink);
+}
+
+.sc-trail {
+  margin-left: 16px;
+  font-size: 15px;
+  color: var(--sc-muted);
+  white-space: nowrap;
+}
+
+.sc-clock {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.sc-shelf {
+  position: absolute;
+  top: var(--sc-shelf-top);
+  left: 0;
+  right: 0;
+  height: calc(var(--sc-tile-focused) + var(--sc-bar) + 8px);
+}
+
+.sc-slot {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sc-tile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--sc-plate);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+/* Edge to edge: tile art is square (600x600), so cover only trims non-square art. */
+.sc-tile-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Inset outline: the shelf clips overflow, which cut off an outside one at the top. */
+.sc-slot--focused {
+  position: relative;
+  box-shadow: 0 0 28px rgba(255, 255, 255, 0.3);
+  align-self: flex-start;
+  height: auto;
+}
+
+.sc-slot--focused::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid #fff;
+  pointer-events: none;
+}
+
+.sc-tile-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(160deg, #2b3350, #12162a);
+}
+
+/* A clear logo standing in for missing tile art. */
+.sc-tile-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+
+.sc-start {
+  width: 100%;
+  border: 0;
+  font-family: inherit;
+  height: var(--sc-bar);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 12, 18, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sc-name {
+  position: absolute;
+  left: var(--sc-name-left);
+  right: 360px;
+  top: calc(var(--sc-shelf-top) + var(--sc-tile-focused) + var(--sc-bar));
+  transform: translateY(-100%);
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+}
+
+.sc-desc {
+  position: absolute;
+  left: var(--sc-tile-left);
+  right: 380px;
+  top: calc(var(--sc-shelf-top) + var(--sc-tile-focused) + var(--sc-bar) + 16px);
+  font-size: 22px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.sc-desc--count {
+  color: var(--sc-muted);
+}
+
+.sc-side {
+  position: absolute;
+  right: 56px;
+  bottom: 64px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.sc-hardware {
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.6));
+}
+
+.sc-side-logo {
+  max-width: 100%;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+/* ── Chrome ───────────────────────────────────────────────────────────── */
+.sc-footer {
+  position: absolute;
+  right: 48px;
+  bottom: 10px;
+}
+
+.sc-hints {
+  font-size: 13px;
+  color: var(--sc-muted);
+}
+
+.sc-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.sc-help {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.sc-help-panel {
+  min-width: 420px;
+  padding: 28px 32px;
+  border-radius: 16px;
+  background: #141824;
+  color: #fff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.sc-search {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  z-index: 30;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(10, 12, 20, 0.92);
+  color: #fff;
+  outline: none;
+}
+
+.sc-toast {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b0d14;
+  font-size: 14px;
+}
