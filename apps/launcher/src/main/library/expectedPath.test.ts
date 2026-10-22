@@ -9,6 +9,7 @@ const B = '0192b2a0-0000-7000-8000-00000000000b';
 const settings = (overrides: Partial<Settings> = {}): Settings => ({
   ...defaultSettings(),
   storage: {
+    ...defaultSettings().storage,
     locations: [
       { id: A, name: 'A', path: 'E:\\roms', priority: 1 },
       { id: B, name: 'B', path: 'F:\\more', priority: 2 },

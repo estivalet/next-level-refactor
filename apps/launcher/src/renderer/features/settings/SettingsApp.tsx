@@ -5,6 +5,7 @@ import {
   HardDrive,
   Info,
   Joystick,
+  Keyboard,
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ import { DataSection } from './DataSection.tsx';
 import { EmulatorsSection } from './emulators/EmulatorsSection.tsx';
 import type { FocusRequest } from './focusRequest.ts';
 import { GeneralSection } from './GeneralSection.tsx';
+import { InputSection } from './input/InputSection.tsx';
 import type { AppParams } from '../shell/windowManager.ts';
 import { StorageSection } from './StorageSection.tsx';
 import { SystemsSection } from './systems/SystemsSection.tsx';
@@ -53,6 +55,12 @@ const SECTIONS: readonly Section[] = [
     labelKey: 'settings.sections.emulators',
     icon: Joystick,
     Component: EmulatorsSection,
+  },
+  {
+    id: 'input',
+    labelKey: 'settings.sections.input',
+    icon: Keyboard,
+    Component: InputSection,
   },
   {
     id: 'backups',

@@ -1,5 +1,5 @@
 import { defaultSettings, ok, type Settings, type StorageLocation } from '@nextlevel/shared';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -25,7 +25,7 @@ const B: StorageLocation = {
 
 function withLocations(locations: StorageLocation[]): Settings {
   const settings = defaultSettings();
-  return { ...settings, storage: { locations } };
+  return { ...settings, storage: { ...settings.storage, locations } };
 }
 
 function setup(locations: StorageLocation[], responses: FakeResponses = {}) {
@@ -107,6 +107,38 @@ describe('StorageSection', () => {
     await user.type(name, 'Main');
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(savedLocations()).toEqual([{ ...A, name: 'Main' }]);
+  });
+});
+
+describe('StorageSection art folders', () => {
+  it('FR-THM-2: Browse sets the art folder and Clear removes the theme packs folder', async () => {
+    const user = userEvent.setup();
+    const bridge = installFakeBridge({
+      'settings.get': () =>
+        ok({
+          kind: 'ok' as const,
+          snapshot: {
+            settings: {
+              ...defaultSettings(),
+              storage: { locations: [], assetsPath: null, themesPath: 'E:\\NextLevel\\themes' },
+            },
+            revision: 0,
+          },
+        }),
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+      'app.pickFolder': () => ok('E:\\NextLevel\\assets'),
+    });
+    renderInShell(<StorageSection />);
+    const art = await screen.findByRole('group', { name: 'Art folder' });
+    expect(within(art).getByText('Not set')).toBeVisible();
+    await user.click(within(art).getByRole('button', { name: 'Browse…' }));
+    expect(within(art).getByText('E:\\NextLevel\\assets')).toBeVisible();
+    const packs = screen.getByRole('group', { name: 'Theme packs folder' });
+    await user.click(within(packs).getByRole('button', { name: 'Clear' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const call = bridge.calls.find((c) => c.channel === 'settings.save');
+    const storage = (call?.input as { settings: Settings }).settings.storage;
+    expect(storage).toMatchObject({ assetsPath: 'E:\\NextLevel\\assets', themesPath: null });
   });
 });
 

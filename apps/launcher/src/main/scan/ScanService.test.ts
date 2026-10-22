@@ -55,7 +55,10 @@ async function setup(options: Options = {}) {
   await settings.save(
     {
       ...defaultSettings(),
-      storage: { locations: [{ id: LOCATION, name: 'Roms', path: roms, priority: 1 }] },
+      storage: {
+        ...defaultSettings().storage,
+        locations: [{ id: LOCATION, name: 'Roms', path: roms, priority: 1 }],
+      },
       systems: options.systems ?? { 'nintendo-64': { enabled: true } },
     },
     0,

@@ -59,7 +59,11 @@ function issuePaths(input: unknown): string[] {
 
 describe('storage and systems settings', () => {
   it('FR-LIB-1: storage locations default to none and systems to empty', () => {
-    expect(defaultSettings().storage).toEqual({ locations: [] });
+    expect(defaultSettings().storage).toEqual({
+      locations: [],
+      assetsPath: null,
+      themesPath: null,
+    });
     expect(defaultSettings().systems).toEqual({});
   });
 

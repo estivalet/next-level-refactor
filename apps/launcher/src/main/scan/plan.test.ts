@@ -11,6 +11,7 @@ function settings(systems: Settings['systems']): Settings {
   return {
     ...defaultSettings(),
     storage: {
+      ...defaultSettings().storage,
       locations: [
         { id: LOC_A, name: 'A', path: 'E:\\roms', priority: 1 },
         { id: LOC_B, name: 'B', path: 'F:\\more', priority: 2 },

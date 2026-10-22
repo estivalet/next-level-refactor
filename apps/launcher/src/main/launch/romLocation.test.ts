@@ -6,6 +6,7 @@ import { locateRom, sampleRom } from './romLocation.ts';
 const settings: Settings = {
   ...defaultSettings(),
   storage: {
+    ...defaultSettings().storage,
     locations: [
       { id: 'a', name: 'A', path: 'E:\\roms', priority: 1 },
       { id: 'b', name: 'B', path: 'F:\\more', priority: 2 },
