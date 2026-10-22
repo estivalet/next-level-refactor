@@ -153,4 +153,36 @@ describe('ThemeArtProvider (FR-THM-2, FR-THM-4)', () => {
       expect(ctx.art().logo('SNES')).toHaveLength(2);
     });
   });
+
+  it('FR-THM-2: a new artRevision (Rescan art) reloads the index; preview drops the shared art', async () => {
+    const host = new FakeThemeHost({ art: index({ assetsFiles: [], packFiles: [] }) });
+    const seen: { art: ThemeArtApi | null } = { art: null };
+    function Probe() {
+      seen.art = useThemeArt();
+      return null;
+    }
+    const tree = (revision: number, preview = false) => (
+      <ThemeArtProvider
+        host={host}
+        themeId="big-box"
+        moduleArt={moduleArt}
+        artRevision={revision}
+        preview={preview}
+      >
+        <Probe />
+      </ThemeArtProvider>
+    );
+    const view = render(tree(0));
+    await waitFor(() => {
+      expect(seen.art?.ready).toBe(true);
+    });
+    expect(seen.art?.logo('SNES')).toEqual([]);
+    vi.spyOn(host, 'loadArtIndex').mockResolvedValue(index());
+    view.rerender(tree(1));
+    await waitFor(() => {
+      expect(seen.art?.logo('SNES')).toHaveLength(2);
+    });
+    view.rerender(tree(1, true));
+    expect(seen.art?.logo('SNES')).toEqual(['nextlevel://art/pack/big-box/logo/clear/SNES.png']);
+  });
 });

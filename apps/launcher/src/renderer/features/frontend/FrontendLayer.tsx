@@ -15,6 +15,7 @@ import { FrontendLaunchError } from './FrontendLaunchError.tsx';
 import { useFrontend } from './useFrontend.ts';
 import { useFrontendSession } from './useFrontendSession.ts';
 import { useFrontendTheme } from './useFrontendTheme.ts';
+import { useThemeArtSession } from './themeArtSession.ts';
 import { useLauncherThemeHost } from './useLauncherThemeHost.ts';
 
 /**
@@ -32,6 +33,7 @@ export function FrontendLayer() {
   const settings = loaded?.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
   const session = useFrontendSession(visible);
   const [menuOpen, setMenuOpen] = useState(false);
+  const artSession = useThemeArtSession();
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const layerRef = useRef<HTMLDivElement>(null);
 
@@ -108,6 +110,8 @@ export function FrontendLayer() {
           themeId={theme.id}
           moduleArt={theme.art}
           {...(theme.settings ? { moduleSettings: theme.settings } : {})}
+          preview={artSession.preview.has(theme.id)}
+          artRevision={artSession.rescans[theme.id] ?? 0}
         >
           <Theme
             key={theme.id}

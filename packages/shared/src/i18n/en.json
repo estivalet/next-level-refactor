@@ -442,6 +442,35 @@
         "wheelErrors": {
           "width": "Use a CSS length such as 34%, 520px or 30vw."
         }
+      },
+      "coverage": {
+        "loading": "Art …",
+        "noPack": "No pack",
+        "percent": "Art {{percent}}%",
+        "title": "Art coverage: {{name}}",
+        "heading": "{{name}} — art coverage",
+        "noPackHelp": "No theme pack folder found. All art comes from the shared art folder.",
+        "slots": {
+          "logo": "Logo {{have}} / {{total}}",
+          "background": "Background {{have}} / {{total}}",
+          "video": "Video {{have}} / {{total}}",
+          "wallpaper": "Wallpaper (optional) {{have}} / {{total}}"
+        },
+        "complete": "Complete",
+        "warningsLabel": "Pack warnings",
+        "preview": "Preview without fallback",
+        "rescan": "Rescan art",
+        "close": "Close",
+        "warnings": {
+          "folderUnreadable": "An art folder is missing or can’t be read.",
+          "manifestInvalidJson": "theme.json is not valid JSON and is ignored.",
+          "manifestNotObject": "theme.json is not an object and is ignored.",
+          "manifestIdMismatch": "theme.json names the theme {{field}}, not this folder, and is ignored.",
+          "manifestFallbackInvalid": "theme.json: fallback must be true or false; the file is ignored.",
+          "manifestArtNotObject": "theme.json: art must be an object and is ignored.",
+          "manifestArtWrongType": "theme.json: art.{{field}} has the wrong type and is ignored.",
+          "manifestSettingsNotObject": "theme.json: settings must be an object and is ignored."
+        }
       }
     }
   },

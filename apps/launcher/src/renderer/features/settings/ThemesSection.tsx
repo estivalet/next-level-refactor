@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { frontendThemeId } from '../frontend/frontendTheme.ts';
 import { SettingsSection } from './form/SettingsSection.tsx';
+import { PackBadge } from './themes/PackBadge.tsx';
 import { ThemePage } from './themes/ThemePage.tsx';
 
 const BUTTON =
@@ -16,7 +17,8 @@ function withTheme(settings: Settings, themeId: string): Settings {
 
 /**
  * Settings → Themes (IA §1, FR-THM-1, FR-THM-4): the bundled themes; the one in use is what the
- * front-end opens. Each theme's Options open its page of options.
+ * front-end opens. Each card shows its pack's art coverage (FR-THM-2); Options open the theme's
+ * page of options.
  */
 export function ThemesSection() {
   const { t } = useTranslation();
@@ -79,6 +81,7 @@ export function ThemesSection() {
                     {theme.descriptionKey && (
                       <p className="text-xs text-slate-300">{t(theme.descriptionKey)}</p>
                     )}
+                    <PackBadge theme={theme} userArt={draft.themes.entries[theme.id]?.art} />
                     {active && (
                       <span className="text-xs font-medium text-emerald-300">
                         {t('settings.themes.inUse')}

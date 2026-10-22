@@ -442,6 +442,35 @@
         "wheelErrors": {
           "width": "Use uma medida CSS como 34%, 520px ou 30vw."
         }
+      },
+      "coverage": {
+        "loading": "Arte …",
+        "noPack": "Sem pacote",
+        "percent": "Arte {{percent}}%",
+        "title": "Cobertura de arte: {{name}}",
+        "heading": "{{name}} — cobertura de arte",
+        "noPackHelp": "Nenhuma pasta de pacote do tema encontrada. Toda a arte vem da pasta de arte compartilhada.",
+        "slots": {
+          "logo": "Logotipo {{have}} / {{total}}",
+          "background": "Fundo {{have}} / {{total}}",
+          "video": "Vídeo {{have}} / {{total}}",
+          "wallpaper": "Papel de parede (opcional) {{have}} / {{total}}"
+        },
+        "complete": "Completo",
+        "warningsLabel": "Avisos do pacote",
+        "preview": "Pré-visualizar sem a pasta compartilhada",
+        "rescan": "Reler a arte",
+        "close": "Fechar",
+        "warnings": {
+          "folderUnreadable": "Uma pasta de arte não existe ou não pode ser lida.",
+          "manifestInvalidJson": "theme.json não é um JSON válido e foi ignorado.",
+          "manifestNotObject": "theme.json não é um objeto e foi ignorado.",
+          "manifestIdMismatch": "theme.json indica o tema {{field}}, não esta pasta, e foi ignorado.",
+          "manifestFallbackInvalid": "theme.json: fallback deve ser true ou false; o arquivo foi ignorado.",
+          "manifestArtNotObject": "theme.json: art deve ser um objeto e foi ignorado.",
+          "manifestArtWrongType": "theme.json: art.{{field}} tem o tipo errado e foi ignorado.",
+          "manifestSettingsNotObject": "theme.json: settings deve ser um objeto e foi ignorado."
+        }
       }
     }
   },

@@ -45,6 +45,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   game art per system, filters in the menu and HyperSpin's wheels, each showing its default (or
   the pack's) with Use default and Reset to defaults; an open theme follows a save at once.
 - Settings → General → Theme sounds: on/off and volume for every theme's navigation sounds.
+- Theme pack coverage (FR-THM-2): each theme card in Settings → Themes shows `No pack` or `Art NN%`;
+  its panel lists the art each pack covers and misses, the pack's warnings, Preview without
+  fallback for this session, and Rescan art.
 
 ### Changed
 - The Library no longer shows a failure for a game started from the front-end; the front-end

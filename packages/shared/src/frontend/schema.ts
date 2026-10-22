@@ -110,6 +110,24 @@ export const ThemeManifestSchema = z.object({
   settings: z.record(z.string(), z.unknown()).optional(),
 });
 
+export const ART_INDEX_WARNING_CODES = [
+  'folderUnreadable',
+  'manifestInvalidJson',
+  'manifestNotObject',
+  'manifestIdMismatch',
+  'manifestFallbackInvalid',
+  'manifestArtNotObject',
+  'manifestArtWrongType',
+  'manifestSettingsNotObject',
+] as const;
+
+/** Something about a theme's art folders or pack `theme.json` worth telling the user; `field`
+ * names the offending key or value. Settings shows it through i18n (FR-THM-2). */
+export const ArtIndexWarningSchema = z.object({
+  code: z.enum(ART_INDEX_WARNING_CODES),
+  field: z.string().max(200).optional(),
+});
+
 /** The art files a theme can use: its pack's, then the shared folder's (FR-THM-2). */
 export const ArtIndexSchema = z.object({
   /** Relative `/`-separated paths under `<themesPath>/<themeId>`. */
@@ -117,7 +135,7 @@ export const ArtIndexSchema = z.object({
   /** Relative `/`-separated paths under the shared art folder. */
   assetsFiles: z.array(z.string()),
   manifest: ThemeManifestSchema.nullable(),
-  warnings: z.array(z.string()),
+  warnings: z.array(ArtIndexWarningSchema),
 });
 
 export type MenuTree = z.output<typeof MenuTreeSchema>;
@@ -127,3 +145,4 @@ export type ThemeArtOptions = z.output<typeof ThemeArtOptionsSchema>;
 export type ThemeOptions = z.output<typeof ThemeOptionsSchema>;
 export type ThemeManifest = z.output<typeof ThemeManifestSchema>;
 export type ArtIndex = z.output<typeof ArtIndexSchema>;
+export type ArtIndexWarning = z.output<typeof ArtIndexWarningSchema>;

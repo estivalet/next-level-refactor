@@ -1,16 +1,22 @@
 import { err, ok } from '@nextlevel/shared';
 import { FakeThemeHost, FIXTURE_MENU } from '@nextlevel/themes/testing';
 import { THEMES } from '@nextlevel/themes';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell, type FakeResponses } from '../../test-utils.tsx';
 import { Desktop } from '../shell/Desktop.tsx';
 import { useShell } from '../shell/ShellContext.tsx';
 import { Taskbar } from '../shell/Taskbar.tsx';
+import {
+  markArtRescanned,
+  resetThemeArtSession,
+  setPreviewWithoutFallback,
+} from './themeArtSession.ts';
 
 afterEach(() => {
   setBridgeForTests(null);
+  resetThemeArtSession();
 });
 
 const NO_ART = { packFiles: [], assetsFiles: [], manifest: null, warnings: [] };
@@ -324,5 +330,36 @@ describe('front-end play (US-C2)', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: /didn’t start/ })).toBeNull();
     });
+  });
+});
+
+describe('front-end art from Settings (FR-THM-2)', () => {
+  it('Preview without fallback drops the shared art; Rescan art reloads the index', async () => {
+    let assetsFiles = ['logo/clear/Sega.png'];
+    const bridge = setup({
+      'frontend.artIndex': () => ok({ ...NO_ART, assetsFiles }),
+    });
+    await openFromStart();
+    const logo = () => layer().querySelector('img[src$="Sega.png"]');
+    await waitFor(() => {
+      expect(logo()).not.toBeNull();
+    });
+    act(() => {
+      setPreviewWithoutFallback('big-box', true);
+    });
+    expect(logo()).toBeNull();
+    act(() => {
+      setPreviewWithoutFallback('big-box', false);
+    });
+    expect(logo()).not.toBeNull();
+    assetsFiles = [];
+    const loads = bridge.channels().filter((c) => c === 'frontend.artIndex').length;
+    act(() => {
+      markArtRescanned('big-box');
+    });
+    await waitFor(() => {
+      expect(logo()).toBeNull();
+    });
+    expect(bridge.channels().filter((c) => c === 'frontend.artIndex').length).toBe(loads + 1);
   });
 });

@@ -30,6 +30,7 @@ export function ThemeArtProvider({
   moduleArt,
   moduleSettings,
   preview = false,
+  artRevision = 0,
   children,
 }: {
   host: ThemeHost;
@@ -38,6 +39,8 @@ export function ThemeArtProvider({
   moduleSettings?: ThemeSettings;
   /** "Preview without fallback": ignore the shared art folder this session. */
   preview?: boolean;
+  /** Bumped after Rescan art in Settings: the index loads again. */
+  artRevision?: number;
   children: ReactNode;
 }) {
   const [index, setIndex] = useState<ArtIndex | null>(null);
@@ -59,7 +62,7 @@ export function ThemeArtProvider({
     return () => {
       alive = false;
     };
-  }, [host, themeId, revision]);
+  }, [host, themeId, revision, artRevision]);
 
   useEffect(
     () =>
