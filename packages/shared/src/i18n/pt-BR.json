@@ -593,6 +593,8 @@
       "open-menu": "Menu do tema",
       "jump-prev": "Letra anterior",
       "jump-next": "Próxima letra",
+      "page-prev": "Página anterior",
+      "page-next": "Próxima página",
       "random": "Jogo aleatório"
     },
     "common": {
@@ -607,7 +609,9 @@
       "menuFailed": "Não foi possível carregar o menu",
       "levelFailed": "Não foi possível carregar {{name}}",
       "searchLabel": "Buscar títulos",
-      "searchPlaceholder": "Buscar título…"
+      "searchPlaceholder": "Buscar título…",
+      "noGamesInTab": "Nenhum jogo nesta aba",
+      "brand": "NextLevel"
     },
     "tabs": {
       "all": "Todos",
@@ -642,6 +646,24 @@
         "collection": "Coleção",
         "filter": "Filtro"
       }
+    },
+    "bigBoxList": {
+      "name": "Big Box List",
+      "description": "Menus do Big Box com lista de jogos dividida"
+    },
+    "consoleHome": {
+      "name": "Console Home",
+      "description": "Blocos de menu inicial com grade de jogos em abas"
+    },
+    "ps5": {
+      "name": "Estilo PS5",
+      "description": "Abas de categoria, prateleira de ícones e biblioteca escura",
+      "explore": "Explorar",
+      "tabCount": "{{label}}: {{count, number}}"
+    },
+    "switcher": {
+      "label": "Trocar tema",
+      "current": "Atual"
     }
   }
 }

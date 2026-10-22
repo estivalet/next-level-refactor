@@ -1,26 +1,28 @@
 import { defaultSettings } from '@nextlevel/shared';
 import {
-  resolveTheme,
+  THEMES,
   ThemeArtProvider,
   ThemeEngineProvider,
   ThemeExitMenu,
+  ThemeSwitcher,
   useInputActions,
 } from '@nextlevel/themes';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBridge } from '../../bridge.ts';
 import { useSettings } from '../settings/settingsApi.ts';
 import { useOpenApp } from '../shell/useOpenApp.ts';
 import { FrontendLaunchError } from './FrontendLaunchError.tsx';
-import { frontendThemeId } from './frontendTheme.ts';
 import { useFrontend } from './useFrontend.ts';
 import { useFrontendSession } from './useFrontendSession.ts';
+import { useFrontendTheme } from './useFrontendTheme.ts';
 import { useLauncherThemeHost } from './useLauncherThemeHost.ts';
 
 /**
  * Front-end mode (IA §1, FR-THM-1): the theme fullscreen above the shell. It stays mounted while
  * hidden, so M / View+Start to the desktop and back returns to the same level and focus. Back at
- * the root (or Start) opens the theme menu; theme input pauses while a game runs (US-C2).
+ * the root (or Start) opens the theme menu; T or the menu's Switch theme opens the theme switcher,
+ * which swaps the theme inside the same engine so the level and focus survive. Theme input pauses
+ * while a game runs (US-C2).
  */
 export function FrontendLayer() {
   const { t } = useTranslation();
@@ -30,6 +32,7 @@ export function FrontendLayer() {
   const settings = loaded?.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
   const session = useFrontendSession(visible);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
   const layerRef = useRef<HTMLDivElement>(null);
 
   const host = useLauncherThemeHost({
@@ -39,23 +42,30 @@ export function FrontendLayer() {
     launching: session.launching,
   });
 
-  const theme = resolveTheme(frontendThemeId(settings));
-  useEffect(() => {
-    void getBridge().invoke('frontend.themeOpened', { themeId: theme.id });
-  }, [theme.id]);
+  const { theme, switchTo } = useFrontendTheme(settings);
 
   const toDesktop = () => {
     setMenuOpen(false);
+    setSwitcherOpen(false);
     hide();
   };
+  const openSwitcher = () => {
+    setMenuOpen(false);
+    setSwitcherOpen(true);
+  };
   const themeInput =
-    visible && !menuOpen && session.playingGameId === null && session.failure === null;
+    visible &&
+    !menuOpen &&
+    !switcherOpen &&
+    session.playingGameId === null &&
+    session.failure === null;
   useInputActions({
     targetRef: layerRef,
     enabled: themeInput,
     input: settings.input,
     onAction: (action) => {
       if (action === 'toDesktop') toDesktop();
+      else if (action === 'switchTheme') openSwitcher();
     },
   });
 
@@ -111,8 +121,23 @@ export function FrontendLayer() {
         <ThemeExitMenu
           input={settings.input}
           onDesktop={toDesktop}
+          onSwitchTheme={openSwitcher}
           onClose={() => {
             setMenuOpen(false);
+          }}
+        />
+      )}
+      {switcherOpen && (
+        <ThemeSwitcher
+          themes={THEMES}
+          activeId={theme.id}
+          input={settings.input}
+          onApply={(id) => {
+            setSwitcherOpen(false);
+            switchTo(id);
+          }}
+          onCancel={() => {
+            setSwitcherOpen(false);
           }}
         />
       )}

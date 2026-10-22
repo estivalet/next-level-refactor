@@ -137,6 +137,7 @@ describe('front-end mode (FR-THM-1, FR-THM-3)', () => {
     press('Escape');
     const menu = await screen.findByRole('dialog', { name: 'Theme menu' });
     press('ArrowDown');
+    press('ArrowDown'); // Desktop · Switch theme · Resume
     press('Enter');
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: 'Theme menu' })).toBeNull();
@@ -150,6 +151,80 @@ describe('front-end mode (FR-THM-1, FR-THM-3)', () => {
     press('Enter');
     await waitFor(() => {
       expect(layer()).not.toBeVisible();
+    });
+  });
+});
+
+describe('theme switcher (FR-THM-1)', () => {
+  const focusedRow = () => layer().querySelector('.bbl-row--focused')?.textContent ?? null;
+
+  it('T switches theme in place: same level, same focused game, lastUsed saved', async () => {
+    const bridge = setup();
+    await openN64();
+    press('ArrowRight');
+    await waitFor(() => {
+      expect(card()).toHaveTextContent('N64 B');
+    });
+    press('KeyT');
+    const switcher = await screen.findByRole('dialog', { name: 'Switch theme' });
+    expect(within(switcher).getAllByRole('button')).toHaveLength(4);
+    press('ArrowRight');
+    press('Enter');
+    await waitFor(() => {
+      expect(layer()).toHaveAttribute('data-theme', 'big-box-list');
+    });
+    await waitFor(() => {
+      expect(focusedRow()).toBe('N64 B');
+    });
+    expect(screen.queryByRole('dialog', { name: 'Switch theme' })).toBeNull();
+    expect(bridge.calls).toContainEqual({
+      channel: 'frontend.themeOpened',
+      input: { themeId: 'big-box-list' },
+    });
+    await waitFor(() => {
+      expect(layer().contains(document.activeElement)).toBe(true);
+    });
+    press('ArrowDown');
+    expect(focusedRow()).toBe('N64 C');
+  });
+
+  it('T over the key help, then back: the help has the keyboard again, and closes', async () => {
+    setup();
+    await openFromStart();
+    press('F1');
+    const help = await screen.findByRole('dialog', { name: 'Controls' });
+    press('KeyT');
+    await screen.findByRole('dialog', { name: 'Switch theme' });
+    press('Escape');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Switch theme' })).toBeNull();
+    });
+    await waitFor(() => {
+      expect(help.contains(document.activeElement)).toBe(true);
+    });
+    press('Escape');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Controls' })).toBeNull();
+    });
+    await waitFor(() => {
+      expect(layer().contains(document.activeElement)).toBe(true);
+    });
+  });
+
+  it('the theme menu offers Switch theme; back closes the switcher on the same theme', async () => {
+    setup();
+    await openFromStart();
+    press('Escape');
+    const menu = await screen.findByRole('dialog', { name: 'Theme menu' });
+    fireEvent.click(within(menu).getByRole('button', { name: /Switch theme/ }));
+    await screen.findByRole('dialog', { name: 'Switch theme' });
+    press('Escape');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Switch theme' })).toBeNull();
+    });
+    expect(layer()).toHaveAttribute('data-theme', 'big-box');
+    await waitFor(() => {
+      expect(layer().contains(document.activeElement)).toBe(true);
     });
   });
 });

@@ -31,6 +31,7 @@ bindings.
 | favorite | X | Y | toggle favorite |
 | hide | H | L3 | toggle hidden |
 | tabPrev / tabNext | Q / E | LB / RB | switch game-list tab |
+| pageUp / pageDown | PageUp / PageDown | LT / RT | jump 7 games back / forward |
 | help | F1, / | View | show every key and button |
 | menu | Tab | Start | theme menu (Desktop · Resume) |
 

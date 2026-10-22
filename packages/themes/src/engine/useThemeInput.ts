@@ -14,6 +14,8 @@ const REPEATING_INTENTS = new Set<NavIntentKind>([
   'focus-down',
   'jump-prev',
   'jump-next',
+  'page-prev',
+  'page-next',
 ]);
 import { useThemeHost, useThemeNavigation } from './useThemeNavigation.ts';
 

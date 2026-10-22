@@ -1,0 +1,211 @@
+/* Ported from NextLevelOS src/themes/big-box-list/big-box-list.css @ 3d530b7, plus the S5 tabs.
+   Big Box List games level. The root also carries .bigbox-root, so the
+   Big Box menu (MenuView) styles apply on menu levels. */
+.bbl-root {
+  --bbl-accent: #e0115f;
+  --bbl-panel: rgba(20, 20, 24, 0.95);
+  --bbl-panel-width: 45%;
+  --bbl-slant: 90px;
+  --bbl-boxart-width: 22%;
+}
+
+/* Left panel cut on a slant; the edge element behind it is a few px wider
+   so a magenta stripe shows along the cut. */
+.bbl-panel,
+.bbl-panel-edge {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--bbl-slant)) 100%, 0 100%);
+}
+.bbl-panel {
+  width: var(--bbl-panel-width);
+  background: var(--bbl-panel);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40px;
+}
+.bbl-panel-edge {
+  width: calc(var(--bbl-panel-width) + 6px);
+  background: var(--bbl-accent);
+}
+
+.bbl-header {
+  padding: 22px 40px 12px 24px;
+}
+.bbl-brand {
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bigbox-display-font);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+.bbl-brand-mark {
+  width: 12px;
+  height: 12px;
+  background: var(--bbl-accent);
+}
+.bbl-title {
+  margin-top: 2px;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+}
+.bbl-count {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.bbl-count-filter {
+  color: var(--bbl-accent);
+  font-weight: 700;
+}
+
+.bbl-list {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding-right: var(--bbl-slant);
+}
+.bbl-row {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 3px solid transparent;
+}
+.bbl-row--focused {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--bbl-accent);
+}
+
+.bbl-icon-btn {
+  color: #fff;
+  opacity: 0.85;
+}
+.bbl-icon-btn:hover {
+  opacity: 1;
+}
+.bbl-clock {
+  font-family: var(--bigbox-display-font);
+  font-size: 18px;
+}
+
+/* Game clear logo with the badge + filename under it, at the bottom-left of
+   the art area; ends before the box art so neither runs under it. */
+.bbl-game-info {
+  position: absolute;
+  left: calc(var(--bbl-panel-width) + 24px);
+  right: calc(var(--bbl-boxart-width) + 56px);
+  bottom: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.bbl-game-logo {
+  display: flex;
+  align-items: flex-end;
+  max-width: 100%;
+  height: 26vh;
+}
+.bbl-logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.7));
+}
+.bbl-logo-text {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.85);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bbl-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+.bbl-badge {
+  padding: 2px 6px;
+  background: var(--bbl-accent);
+  font-weight: 700;
+  font-size: 11px;
+}
+.bbl-file {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bbl-boxart {
+  position: absolute;
+  right: 32px;
+  bottom: 48px;
+  max-height: 48%;
+  max-width: var(--bbl-boxart-width);
+  object-fit: contain;
+  border: 2px solid var(--bbl-accent);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+.bbl-hints {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 32px;
+  padding: 0 24px;
+  background: rgba(10, 10, 12, 0.9);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+.bbl-hint-key {
+  color: var(--bbl-accent);
+  font-family: inherit;
+}
+
+.bbl-search {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.bbl-tabs {
+  margin-top: 10px;
+}
+.bbl-tab {
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  border-bottom: 2px solid transparent;
+}
+.bbl-tab--active {
+  color: #fff;
+  border-bottom-color: var(--bbl-accent);
+}
+.bbl-count {
+  text-transform: uppercase;
+}

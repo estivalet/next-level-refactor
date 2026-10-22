@@ -1,6 +1,7 @@
 // Ported from NextLevelOS src/themes/registry.test.ts @ 3d530b7 (themes.json and localStorage are
 // gone: the launcher keeps the active theme in settings.themes).
-import { THEME_ID } from '@nextlevel/shared';
+import { defaultSettings, THEME_ID } from '@nextlevel/shared';
+import i18n from 'i18next';
 import { describe, expect, it } from 'vitest';
 import { getTheme, resolveTheme, THEME_IDS, THEMES } from './registry.ts';
 
@@ -26,6 +27,35 @@ describe('theme registry (FR-THM-1)', () => {
     for (const theme of THEMES) {
       expect(theme.nameKey).toMatch(/^themes\./);
       expect(Object.keys(theme.keymap).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('lists the M4c themes after Big Box', () => {
+    expect(THEME_IDS.slice(0, 4)).toEqual(['big-box', 'big-box-list', 'console-home', 'ps5']);
+  });
+
+  it('every theme name and description is translated', () => {
+    for (const theme of THEMES) {
+      expect(i18n.exists(theme.nameKey), theme.nameKey).toBe(true);
+      if (theme.descriptionKey) expect(i18n.exists(theme.descriptionKey), theme.id).toBe(true);
+    }
+  });
+
+  it('US-C1: every intent of every theme is reachable from a default gamepad button', () => {
+    const pad = defaultSettings().input.gamepad;
+    expect(pad.back.length).toBeGreaterThan(0);
+    for (const theme of THEMES) {
+      // Home has no default button (Guide stays unbound); back walks up to the root instead.
+      const intents = new Set(Object.values(theme.keymap).filter((i) => i !== 'home'));
+      for (const intent of intents) {
+        const actions = Object.entries(theme.keymap)
+          .filter(([, mapped]) => mapped === intent)
+          .map(([action]) => action as keyof typeof pad);
+        expect(
+          actions.some((action) => pad[action].length > 0),
+          `${theme.id}: ${intent}`,
+        ).toBe(true);
+      }
     }
   });
 });

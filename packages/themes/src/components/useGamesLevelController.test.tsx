@@ -20,9 +20,19 @@ const INTENTS: NavIntentKind[] = [
   'toggle-favorite',
   'toggle-hidden',
   'tab-next',
+  'page-prev',
+  'page-next',
 ];
 
-function Harness({ columns = 2, wrap = false }: { columns?: number; wrap?: boolean }) {
+function Harness({
+  columns = 2,
+  wrap = false,
+  pageSize,
+}: {
+  columns?: number;
+  wrap?: boolean;
+  pageSize?: number;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const nav = useThemeNavigation();
   const level = nav.currentLevel;
@@ -33,6 +43,7 @@ function Harness({ columns = 2, wrap = false }: { columns?: number; wrap?: boole
     rootRef,
     columns,
     wrap,
+    pageSize,
     ...(tabs ? { tabs: tabs.tabs, defaultTabId: tabs.defaultTabId } : {}),
   });
   return (
@@ -188,6 +199,33 @@ describe('useGamesLevelController (FR-THM-1, FR-THM-3)', () => {
     expect(text('focused')).toBe('N64 A');
     click('focus-down');
     expect(text('focused')).toBe('N64 A');
+  });
+
+  it('D5: page-next and page-prev jump by the page size and clamp, never wrap', async () => {
+    await openN64(new FakeThemeHost(), {
+      columns: Number.MAX_SAFE_INTEGER,
+      wrap: true,
+      pageSize: 3,
+    });
+    click('page-next');
+    expect(text('focused')).toBe('N64 D');
+    click('page-next');
+    expect(text('focused')).toBe('N64 G');
+    click('page-next');
+    expect(text('focused')).toBe('N64 H');
+    click('page-next');
+    expect(text('focused')).toBe('N64 H');
+    click('page-prev');
+    expect(text('focused')).toBe('N64 E');
+    click('page-prev');
+    click('page-prev');
+    expect(text('focused')).toBe('N64 A');
+  });
+
+  it('D5: without a page size a page jump is one row', async () => {
+    await openN64();
+    click('page-next');
+    expect(text('focused')).toBe('N64 C');
   });
 
   it('clamps at the first game without wrap', async () => {

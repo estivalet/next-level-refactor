@@ -1,0 +1,348 @@
+/* Ported from NextLevelOS src/themes/ps5/ps5.css @ 3d530b7. */
+.ps5-root {
+  --ps5-ink: #ffffff;
+  --ps5-muted: rgba(255, 255, 255, 0.62);
+  --ps5-plate: #1b2240;
+  --ps5-missing: #3b5f8f;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #05070f;
+  color: var(--ps5-ink);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  user-select: none;
+}
+.ps5-root:focus {
+  outline: none;
+}
+
+/* ── Home ─────────────────────────────────────────────────────────────── */
+.ps5-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.75), transparent 60%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent 40%);
+}
+.ps5-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.ps5-cats-wrap {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.ps5-cats-wrap::-webkit-scrollbar {
+  display: none;
+}
+.ps5-cats {
+  gap: 28px;
+  flex-shrink: 0;
+}
+.ps5-cat {
+  padding: 6px 0;
+  font-size: 17px;
+  color: var(--ps5-muted);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+.ps5-cat--active {
+  color: var(--ps5-ink);
+  font-weight: 700;
+  border-bottom-color: var(--ps5-ink);
+}
+.ps5-trail {
+  font-size: 14px;
+  color: var(--ps5-muted);
+  white-space: nowrap;
+}
+.ps5-clock {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ps5-shelf {
+  position: absolute;
+  top: 76px;
+  left: 0;
+  right: 0;
+  height: 210px;
+}
+.ps5-shelf-slot {
+  display: flex;
+  box-sizing: border-box;
+  padding-top: 14px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  height: 100%;
+}
+.ps5-icon {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: var(--ps5-plate);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 160ms ease;
+}
+.ps5-icon--focused {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 24px rgba(255, 255, 255, 0.35),
+    0 8px 22px rgba(0, 0, 0, 0.5);
+}
+.ps5-icon-logo {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+.ps5-icon-fallback {
+  background: linear-gradient(160deg, #2a3561, #141a33);
+}
+.ps5-icon-label {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.ps5-hero {
+  position: absolute;
+  left: 64px;
+  top: 300px;
+  bottom: 96px;
+  max-width: 46%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+.ps5-hero-logo {
+  display: block;
+  max-height: 260px;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+.ps5-hero-count {
+  font-size: 16px;
+  color: var(--ps5-muted);
+}
+.ps5-explore {
+  align-self: flex-start;
+  padding: 12px 44px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  font-size: 16px;
+  font-weight: 600;
+}
+.ps5-explore:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ps5-footer {
+  position: absolute;
+  right: 48px;
+  bottom: 24px;
+}
+.ps5-hints {
+  font-size: 13px;
+  color: var(--ps5-muted);
+}
+.ps5-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+}
+.ps5-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ps5-muted);
+}
+
+/* ── Games ────────────────────────────────────────────────────────────── */
+.ps5-games {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, #0b1020, #141a33);
+}
+.ps5-wave {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60%;
+  height: 55%;
+  pointer-events: none;
+}
+.ps5-games-header {
+  position: relative;
+  padding: 32px 64px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ps5-games-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.ps5-games-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--ps5-plate);
+}
+.ps5-tabs {
+  gap: 28px;
+}
+.ps5-tab {
+  padding: 4px 0;
+  font-size: 16px;
+  color: var(--ps5-muted);
+  border-bottom: 2px solid transparent;
+}
+.ps5-tab--active {
+  color: var(--ps5-ink);
+  font-weight: 600;
+  border-bottom-color: var(--ps5-ink);
+}
+.ps5-games-count {
+  font-size: 14px;
+  font-weight: 600;
+}
+.ps5-games-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.ps5-grid {
+  flex: 1;
+  min-height: 0;
+  padding: 12px 64px 32px;
+}
+.ps5-cell {
+  position: relative;
+  height: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0e1430;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+.ps5-cell--focused {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 3px #fff,
+    0 10px 26px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+.ps5-cell-art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.ps5-cell-fallback {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  text-align: center;
+  font-size: 14px;
+  background: var(--ps5-missing);
+}
+.ps5-cell-badges {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  display: flex;
+  gap: 4px;
+}
+.ps5-badge {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+/* ── Overlays ─────────────────────────────────────────────────────────── */
+.ps5-help {
+  background: rgba(0, 0, 0, 0.45);
+}
+.ps5-help-panel {
+  min-width: 420px;
+  padding: 28px 32px;
+  border-radius: 16px;
+  background: #141a33;
+  color: #fff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.ps5-search {
+  position: absolute;
+  top: 28px;
+  right: 64px;
+  width: 340px;
+  z-index: 30;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(10, 14, 30, 0.9);
+  color: #fff;
+  outline: none;
+}
+.ps5-toast {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b1020;
+  font-size: 14px;
+}

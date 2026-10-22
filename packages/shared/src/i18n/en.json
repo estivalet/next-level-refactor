@@ -593,6 +593,8 @@
       "open-menu": "Theme menu",
       "jump-prev": "Previous letter",
       "jump-next": "Next letter",
+      "page-prev": "Page up",
+      "page-next": "Page down",
       "random": "Random game"
     },
     "common": {
@@ -607,7 +609,9 @@
       "menuFailed": "Couldn’t load the menu",
       "levelFailed": "Couldn’t load {{name}}",
       "searchLabel": "Search titles",
-      "searchPlaceholder": "Search title…"
+      "searchPlaceholder": "Search title…",
+      "noGamesInTab": "No games in this tab",
+      "brand": "NextLevel"
     },
     "tabs": {
       "all": "All",
@@ -642,6 +646,24 @@
         "collection": "Collection",
         "filter": "Filter"
       }
+    },
+    "bigBoxList": {
+      "name": "Big Box List",
+      "description": "Big Box menus with a split game list"
+    },
+    "consoleHome": {
+      "name": "Console Home",
+      "description": "Home-menu tiles with a tabbed game grid"
+    },
+    "ps5": {
+      "name": "PS5 Style",
+      "description": "Category tabs, icon shelf and a dark game library",
+      "explore": "Explore",
+      "tabCount": "{{label}}: {{count, number}}"
+    },
+    "switcher": {
+      "label": "Switch theme",
+      "current": "Current"
     }
   }
 }

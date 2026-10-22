@@ -39,6 +39,7 @@ export function useGamesLevelController({
   rootRef,
   columns,
   wrap = false,
+  pageSize,
   tabs,
   defaultTabId,
 }: {
@@ -46,6 +47,8 @@ export function useGamesLevelController({
   columns: number;
   /** Left on the first game goes to the last, right on the last to the first. */
   wrap?: boolean;
+  /** Games one page jump (LT/RT, D5) moves; default one row. Page jumps clamp, never wrap. */
+  pageSize?: number | undefined;
   /** Tabs for this games level (default: All, Favorites, Hidden). */
   tabs?: readonly GameTab[] | undefined;
   defaultTabId?: string | undefined;
@@ -145,6 +148,17 @@ export function useGamesLevelController({
           else if (dir === 'right' && i === n - 1) next = 0;
         }
         tabbed.setDisplayFocus(next);
+      }
+      return true;
+    }
+    if (intent === 'page-prev' || intent === 'page-next') {
+      const n = tabbed.display.length;
+      if (n > 0) {
+        const step = Math.max(1, pageSize ?? columns);
+        const i = Math.max(0, tabbed.displayFocus);
+        tabbed.setDisplayFocus(
+          intent === 'page-next' ? Math.min(n - 1, i + step) : Math.max(0, i - step),
+        );
       }
       return true;
     }

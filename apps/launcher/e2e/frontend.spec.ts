@@ -109,3 +109,77 @@ test('FR-THM-1, FR-THM-5, US-C2: boot into Big Box, play, back on the same game,
     await roms.remove();
   }
 });
+
+test('FR-THM-1: the switcher goes through four themes keeping the focused game; the last one boots', async () => {
+  test.setTimeout(150_000);
+  const data = await freshDataDir();
+  const roms = await freshDataDir();
+  try {
+    await mkdir(join(roms.dir, 'Nintendo 64'));
+    for (const name of ['Homebrew Alpha', 'Homebrew Beta', 'Homebrew Gamma']) {
+      await writeFile(join(roms.dir, 'Nintendo 64', `${name}.z64`), '');
+    }
+    await writeFile(
+      join(data.dir, 'settings.json'),
+      JSON.stringify({
+        schemaVersion: 1,
+        storage: { locations: [{ id: LOCATION, name: 'Main', path: roms.dir, priority: 1 }] },
+      }),
+    );
+    let app = await launch(data.dir);
+    let page = await app.firstWindow();
+    await page
+      .getByRole('navigation', { name: 'Desktop apps' })
+      .getByRole('button', { name: 'Game Library' })
+      .dblclick();
+    const library = page.getByRole('dialog', { name: 'Game Library' });
+    await library.getByRole('button', { name: 'Scan for games' }).click();
+    await expect(library.getByRole('listbox', { name: 'Games' }).getByRole('option')).toHaveCount(
+      3,
+    );
+    await app.close();
+
+    app = await launch(data.dir);
+    page = await app.firstWindow();
+    const layer = page.getByTestId('frontend-layer');
+    await expect(layer).toHaveAttribute('data-theme', 'big-box');
+    const card = layer.locator('.bigbox-card');
+    await expect(card).toContainText('Nintendo');
+    await page.keyboard.press('Enter');
+    await expect(card).toContainText('Nintendo 64');
+    await page.keyboard.press('Enter');
+    await expect(card).toContainText('Homebrew Alpha');
+    await page.keyboard.press('ArrowRight');
+    await expect(card).toContainText('Homebrew Beta');
+
+    const switcher = page.getByRole('dialog', { name: 'Switch theme' });
+    const next = async (themeId: string) => {
+      await page.keyboard.press('KeyT');
+      await expect(switcher).toBeFocused();
+      await page.keyboard.press('ArrowRight');
+      await page.keyboard.press('Enter');
+      await expect(switcher).toBeHidden();
+      await expect(layer).toHaveAttribute('data-theme', themeId);
+    };
+
+    await next('big-box-list');
+    await expect(layer.locator('.bbl-row--focused')).toHaveText('Homebrew Beta');
+    await next('console-home');
+    await expect(layer.locator('.ch-cell--focused')).toContainText('Homebrew Beta');
+    await next('ps5');
+    await expect(layer.locator('.ps5-cell--focused')).toContainText('Homebrew Beta');
+    // Input stays with the new theme: right moves to the next game.
+    await page.keyboard.press('ArrowRight');
+    await expect(layer.locator('.ps5-cell--focused')).toContainText('Homebrew Gamma');
+    await app.close();
+
+    // FR-THM-5: the theme switched to last is the one the launcher boots into.
+    app = await launch(data.dir);
+    page = await app.firstWindow();
+    await expect(page.getByTestId('frontend-layer')).toHaveAttribute('data-theme', 'ps5');
+    await app.close();
+  } finally {
+    await data.remove();
+    await roms.remove();
+  }
+});
