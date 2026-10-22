@@ -28,6 +28,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - The launcher starts in the last theme (Big Box the first time), a chosen theme or the desktop
   (Settings → General → Start in); it starts on the desktop while the library has no games.
   Settings → Themes lists the themes and the one in use.
+- M4c themes (FR-THM-1): Big Box List (Big Box menus with a split game list), Console Home (light
+  home tiles and a tabbed game grid) and PS5 Style (category tabs, icon shelf, dark game grid),
+  each with the All · Favorites · Hidden tabs, search, favorite and hide on keys and buttons.
+- The theme switcher: T (or Switch theme in the theme menu) picks another theme and opens it on
+  the same level with the same game focused; it is also the theme the launcher starts in next.
+- LT/RT (PageUp/PageDown) jump a page through game lists.
 
 ### Changed
 - The Library no longer shows a failure for a game started from the front-end; the front-end

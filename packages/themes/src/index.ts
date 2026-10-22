@@ -40,6 +40,7 @@ export * from './components/ShelfRow.tsx';
 export * from './components/StatusBar.tsx';
 export * from './components/TabBar.tsx';
 export * from './components/ThemeExitMenu.tsx';
+export * from './components/ThemeSwitcher.tsx';
 export * from './components/VerticalWheel.tsx';
 export * from './components/useFocusBackground.ts';
 export * from './components/useGameCount.ts';

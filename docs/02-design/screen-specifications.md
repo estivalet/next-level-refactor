@@ -51,16 +51,21 @@ Five steps with a stepper, each with **Skip** and **Back**:
 ## S5 Front-end (themes)
 
 Each theme is specified by its own doc in `packages/themes/src/<id>/README.md`, ported from the
-current themes (Big Box since M4b). Common requirements:
+current themes (Big Box since M4b; Big Box List, Console Home and PS5 Style since M4c). Common
+requirements:
 
 - Levels: menu levels (categories/systems) → game list → (optional) details panel.
 - Always-available inputs: back, home, theme menu, key/button help (`?` / gamepad *View*), in-list search, favorite, play.
 - Game list tabs: All · Favorites · Hidden, plus the system's filter tabs when enabled.
 - Status: offline badge, download-in-progress badge, clock.
 - Empty system → "No games yet — Scan / Browse catalog".
-- As built (M4b): the theme menu is Desktop · Resume (Switch theme arrives with the switcher in
-  M4c); while a game runs the front-end shows "Playing…" and ignores input; a launch failure shows
-  its reason with Fix in Settings and Close, driven by the same input actions.
+- As built (M4b): while a game runs the front-end shows "Playing…" and ignores input; a launch
+  failure shows its reason with Fix in Settings and Close, driven by the same input actions.
+- As built (M4c): the theme menu is Desktop · Switch theme · Resume. The theme switcher (T, or
+  Switch theme) shows one card per bundled theme; left/right and select apply one, back cancels.
+  The new theme opens on the same level with the same game focused and becomes the last-used
+  theme. LT/RT (PageUp/PageDown) jump a page in game lists: 7 tiles in Big Box, 10 rows in Big
+  Box List, 3 rows in Console Home, 2 rows in PS5 Style; HyperSpin keeps letter jumps (M4d).
 
 ## S6 Desktop shell
 

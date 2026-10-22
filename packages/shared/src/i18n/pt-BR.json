@@ -658,6 +658,10 @@
       "name": "Estilo PS5",
       "description": "Abas de categoria, prateleira de ícones e biblioteca escura",
       "explore": "Explorar"
+    },
+    "switcher": {
+      "label": "Trocar tema",
+      "current": "Atual"
     }
   }
 }

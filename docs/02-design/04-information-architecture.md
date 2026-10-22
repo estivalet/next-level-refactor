@@ -58,7 +58,8 @@ Shell (desktop)   (reached with M / Start "Desktop", hidden in kiosk mode)
   built (M3): launch errors carry `details.fix = { section, id? }`, and **Fix in Settings** opens
   the Settings window (or switches the open one) on that section with that item's editor open.
 - **Back is always available:** `Esc` / gamepad B goes up one level; at the root it opens the
-  theme menu (Desktop · Switch theme · Resume).
+  theme menu (Desktop · Switch theme · Resume). As built (M4c): *T* opens the theme switcher
+  from any level; switching keeps the level and the focused game.
 
 ## 2. Admin console structure
 

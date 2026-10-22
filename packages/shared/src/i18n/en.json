@@ -658,6 +658,10 @@
       "name": "PS5 Style",
       "description": "Category tabs, icon shelf and a dark game library",
       "explore": "Explore"
+    },
+    "switcher": {
+      "label": "Switch theme",
+      "current": "Current"
     }
   }
 }
