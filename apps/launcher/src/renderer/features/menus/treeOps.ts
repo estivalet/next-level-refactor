@@ -159,3 +159,17 @@ export function findEmptyName(nodes: readonly MenuDocNode[]): string | null {
   }
   return null;
 }
+
+/** The same tree with new ids everywhere (node ids are unique across menus). */
+export function reIdNodes(nodes: readonly MenuDocNode[], newId: () => string): MenuDocNode[] {
+  return nodes.map((n) => ({ ...n, id: newId(), children: reIdNodes(n.children, newId) }));
+}
+
+/** Ids of the categories above `id`, outermost first; empty at the root or when unknown. */
+export function ancestorIds(nodes: readonly MenuDocNode[], id: string): string[] {
+  for (const n of nodes) {
+    if (n.id === id) return [];
+    if (findNode(n.children, id)) return [n.id, ...ancestorIds(n.children, id)];
+  }
+  return [];
+}

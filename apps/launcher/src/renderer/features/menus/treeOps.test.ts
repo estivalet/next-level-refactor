@@ -1,6 +1,7 @@
 import type { MenuDocNode } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import {
+  ancestorIds,
   countDescendants,
   findEmptyName,
   findNode,
@@ -10,6 +11,7 @@ import {
   moveNode,
   moveUp,
   outdent,
+  reIdNodes,
   removeNode,
   updateNode,
 } from './treeOps.ts';
@@ -192,5 +194,24 @@ describe('FR-MENU-1 countDescendants / findEmptyName', () => {
   it('finds the first node with a blank name', () => {
     expect(findEmptyName(make())).toBeNull();
     expect(findEmptyName(updateNode(make(), 'B1', { name: '  ' }))).toBe('B1');
+  });
+});
+
+describe('FR-MENU-1 reIdNodes', () => {
+  it('gives every node a new id and keeps everything else', () => {
+    let n = 0;
+    const out = reIdNodes(make(), () => `new-${String(++n)}`);
+    expect(names(out)).toEqual(['new-1', 'new-5', 'new-7']);
+    expect(get(out, 'new-1').children.map((c) => c.name)).toEqual(['A1', 'A2', 'A3']);
+    expect(get(out, 'new-6')).toMatchObject({ name: 'B1', type: 'collection', refId: 'B1' });
+  });
+});
+
+describe('FR-MENU-1 ancestorIds', () => {
+  it('lists the categories above a node, outermost first', () => {
+    const deep = insertNode(make(), 'A', 0, node('AA', 'category', [node('AA1', 'system')]));
+    expect(ancestorIds(deep, 'AA1')).toEqual(['A', 'AA']);
+    expect(ancestorIds(deep, 'C')).toEqual([]);
+    expect(ancestorIds(deep, 'nope')).toEqual([]);
   });
 });
