@@ -51,7 +51,9 @@ Shell (desktop)   (reached with M / Start "Desktop", hidden in kiosk mode)
 - **Front-end ↔ shell:** `M` / gamepad *View + Start* minimizes the theme to the desktop; the
   taskbar entry or *Start → Front-end* returns to the exact same focus.
 - **Errors link to their fix:** any failure that has a setting behind it (missing emulator, bad
-  path) offers a deep link `settings://emulators/<id>` that opens Settings on that field.
+  path) offers a deep link `settings://emulators/<id>` that opens Settings on that field. As
+  built (M3): launch errors carry `details.fix = { section, id? }`, and **Fix in Settings** opens
+  the Settings window (or switches the open one) on that section with that item's editor open.
 - **Back is always available:** `Esc` / gamepad B goes up one level; at the root it opens the
   theme menu (Desktop · Switch theme · Resume).
 

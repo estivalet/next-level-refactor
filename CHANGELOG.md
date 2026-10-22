@@ -24,6 +24,20 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   folders left by an earlier run.
 - Every launch, including Test launches, is recorded in a launch log (newest 1,000) with its
   command, exit code and the last 4 KiB of stderr.
+- M3b Play from the Library (FR-EMU-6, US-C2): the Play button, Play in the game menu, Enter or
+  double-click. The launcher minimizes while the game runs, says "Playing <title>…", and comes
+  back to the same game, with its play count. If the game doesn't start (or quits with an error
+  within 10 seconds), a dialog says why, shows the emulator's output and has **Fix in Settings**,
+  which opens the setting to change.
+- Launch options per game (FR-EMU-4): another profile, a core and extra arguments, or back to the
+  system default.
+- Settings → Data & logs shows the launch log (FR-EMU-10); a row opens to the command line and
+  the emulator's output.
+
+### Changed
+- The standalone emulator presets pass a game's extra arguments (`{extraArgs}`) first. Profiles
+  you already added keep their arguments; Launch options says when a profile has no
+  `{extraArgs}`.
 
 ## [0.2.0] - 2026-10-21
 

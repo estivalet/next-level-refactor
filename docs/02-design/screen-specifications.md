@@ -112,10 +112,22 @@ current themes. Common requirements:
     expected path and **Relink…**.
   - Status bar: "N games · N missing", Filter (All, Favorites, Hidden, Missing), Sort (title,
     year, rating, recently added) for systems, and what is shown.
-  - Context menu as built: Edit details…, Add to / Remove from favorites, Hide / Unhide, Add to
-    collection…, Remove from collection (in a collection), Open folder, Show missing reason…
-    (opens Relink). **Play, Play with… and Scrape… are left out until M3 / M6** (owner decision
-    2026-10-21). Add to collection opens a dialog listing the collections.
+  - Context menu as built: Play (M3), Edit details…, Add to / Remove from favorites, Hide /
+    Unhide, Add to collection…, Remove from collection (in a collection), Launch options… (M3),
+    Open folder, Show missing reason… (opens Relink). **Play with… and Scrape… are left out
+    until M6** (owner decision 2026-10-21). Add to collection opens a dialog listing the
+    collections.
+  - **Play (M3, FR-EMU-6, US-C2):** the **Play** button in the details panel, Play in the menu,
+    Enter or double-click on a row. Disabled for missing games and while a game is starting or
+    running (one at a time). While it runs the launcher window is minimized and the Library
+    shows "Playing <title>…"; afterwards the same row is selected and focused again and the
+    details show "Played N times". A failure (before the start, or an exit code other than 0
+    within 10 s) opens "<title> didn't start" with the message, the reason, the path, the exit
+    code, the emulator output and **Fix in Settings**, which opens Settings on the section and
+    item that fix it (Systems → the system, Emulators → the profile, Storage).
+  - **Launch options… (M3, FR-EMU-4):** the profile ("System default (<name>)" or one of the
+    profiles covering the system), a core and extra arguments (one per line), **Reset to system
+    default**. A note says when the chosen profile has no `{extraArgs}`.
   - States: loading; empty ("No games yet" + Scan for games); library unavailable (message +
     Open data folder); no games in a tab.
   - Collections are managed here; S11 stays the M5 app for menus.
@@ -156,6 +168,11 @@ Left navigation of sections (see IA §1), right form pane.
   **Test launch** (needs a game) shows command, exit code, duration and stderr, or the error.
 - **Systems → system editor** (M3): the system's emulator profile: Automatic (first profile for
   the system) or one of the profiles that cover it.
+- **Data & logs → Launch log** (M3, FR-EMU-10): the last 1,000 launches, newest first, loaded a
+  page at a time: time, game (with a **Test** badge for Test launches), profile, duration
+  ("Unknown" when the launcher never saw the end) and outcome (exit code or Failed). A row
+  expands to the command line, the working folder and the emulator output. It refreshes when a
+  launch ends.
 - **Backups**: table (time, what changed, size) with Restore and Export.
 
 ## S10 Menu Editor
