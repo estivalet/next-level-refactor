@@ -9,7 +9,8 @@ import type {
 
 /** Something outside the theme changed (FR-THM-6). */
 export type HostEvent =
-  | { type: 'library-changed'; gameIds?: number[] }
+  /** `systems` and `gameIds` say what changed, when main knows. */
+  | { type: 'library-changed'; systems?: string[]; gameIds?: number[] }
   | { type: 'launch-finished'; gameId: number; ok: boolean }
   | { type: 'settings-changed' };
 

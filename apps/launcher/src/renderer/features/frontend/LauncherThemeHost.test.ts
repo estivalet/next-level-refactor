@@ -115,7 +115,7 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
     off();
     fake.emit('library.changed', { systems: ['snes'] });
     expect(events).toEqual([
-      { type: 'library-changed', gameIds: [4] },
+      { type: 'library-changed', systems: ['snes'], gameIds: [4] },
       { type: 'launch-finished', gameId: 4, ok: true },
       { type: 'launch-finished', gameId: 5, ok: false },
     ]);

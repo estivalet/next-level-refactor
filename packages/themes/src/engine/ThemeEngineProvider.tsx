@@ -20,6 +20,7 @@ import {
   type ThemeNavigation,
 } from './useThemeNavigation.ts';
 import { useGameActions } from './useGameActions.ts';
+import { useGamesLoader } from './useGamesLoader.ts';
 import { useHostEvents } from './useHostEvents.ts';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -39,7 +40,6 @@ export function ThemeEngineProvider({
   useLayoutEffect(() => {
     stateRef.current = state;
   });
-  const loadToken = useRef(0);
 
   const loadMenu = useCallback(() => {
     host.getMenu().then(
@@ -53,26 +53,7 @@ export function ThemeEngineProvider({
   }, [host]);
   useEffect(loadMenu, [loadMenu]);
 
-  /** Loads a games level; only the newest request may patch the stack. */
-  const loadGames = useCallback(
-    (level: Extract<Level, { kind: 'games' }>, keepFocusOn?: number) => {
-      const token = ++loadToken.current;
-      host.getGames(level.node.id).then(
-        (games) => {
-          if (loadToken.current !== token) return;
-          dispatch({ type: 'patch-games', games });
-          if (keepFocusOn === undefined) return;
-          const at = games.findIndex((game) => game.id === keepFocusOn);
-          dispatch({ type: 'set-focus', index: at >= 0 ? at : stateRef.current.focusIndex });
-        },
-        (error: unknown) => {
-          if (loadToken.current === token)
-            dispatch({ type: 'patch-games-error', error: message(error) });
-        },
-      );
-    },
-    [host],
-  );
+  const { load: loadGames, cancel: cancelLoad } = useGamesLoader(host, stateRef, dispatch);
 
   const currentLevel = state.stack[state.stack.length - 1] ?? null;
   const ancestors = useMemo(
@@ -92,9 +73,9 @@ export function ThemeEngineProvider({
     (level: Level, action: (level: Level) => void) => {
       action(level);
       if (level.kind === 'games') loadGames(level);
-      else loadToken.current += 1;
+      else cancelLoad();
     },
-    [loadGames],
+    [loadGames, cancelLoad],
   );
 
   const enter = useCallback(
@@ -128,14 +109,14 @@ export function ThemeEngineProvider({
       onExit();
       return;
     }
-    loadToken.current += 1;
+    cancelLoad();
     dispatch({ type: 'back' });
-  }, [onExit]);
+  }, [onExit, cancelLoad]);
 
   const home = useCallback(() => {
-    loadToken.current += 1;
+    cancelLoad();
     dispatch({ type: 'home' });
-  }, []);
+  }, [cancelLoad]);
   const setFocus = useCallback((index: number) => {
     dispatch({ type: 'set-focus', index });
   }, []);

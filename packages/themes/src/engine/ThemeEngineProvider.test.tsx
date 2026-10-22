@@ -310,4 +310,91 @@ describe('game flags and host events', () => {
     });
     expect(ctx.get().state.focusIndex).toBe(4);
   });
+
+  it('focus moved while a reload was in flight stays where the user put it', async () => {
+    const ctx = setup();
+    await openN64(ctx);
+    let release: () => void = () => undefined;
+    const real = ctx.host.getGames.bind(ctx.host);
+    vi.spyOn(ctx.host, 'getGames').mockImplementationOnce(
+      (nodeId) =>
+        new Promise((resolve) => {
+          release = () => {
+            void real(nodeId).then(resolve);
+          };
+        }),
+    );
+    act(() => {
+      ctx.get().setFocus(1);
+    });
+    act(() => {
+      ctx.host.emit({ type: 'library-changed', systems: ['n64'] });
+    });
+    act(() => {
+      ctx.get().setFocus(6);
+    });
+    const chosen = ctx.get().focusedGame?.id;
+    await act(async () => {
+      release();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(ctx.get().focusedGame?.id).toBe(chosen);
+  });
+
+  it('a change in another system does not reload the open level', async () => {
+    const ctx = setup();
+    await openN64(ctx);
+    const before = ctx.host.calls.length;
+    act(() => {
+      ctx.host.emit({ type: 'library-changed', systems: ['genesis'] });
+    });
+    expect(ctx.host.calls.length).toBe(before);
+  });
+
+  it('a change that lands while the level is loading loads it again', async () => {
+    const host = new FakeThemeHost();
+    let release: () => void = () => undefined;
+    const real = host.getGames.bind(host);
+    // The first query reads the library as it is when it starts, and answers late.
+    vi.spyOn(host, 'getGames').mockImplementationOnce((nodeId) => {
+      const snapshot = real(nodeId);
+      return new Promise((resolve) => {
+        release = () => {
+          void snapshot.then(resolve);
+        };
+      });
+    });
+    const ctx = setup(host);
+    await ctx.ready();
+    act(() => {
+      ctx.get().enter(0);
+    });
+    act(() => {
+      ctx.get().enter(1);
+    });
+    // The scan adds a game after the first query started.
+    const n64 = FIXTURE_GAMES[10];
+    if (!n64) throw new Error('fixture');
+    host.setGames([...FIXTURE_GAMES, { ...n64, id: 500, title: 'Zz new' }]);
+    act(() => {
+      host.emit({ type: 'library-changed', systems: ['n64'] });
+    });
+    await act(async () => {
+      release();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    await ctx.loaded();
+    expect(ctx.games().map((game) => game.id)).toContain(500);
+  });
+
+  it('a change in the level system reloads it even when the changed game is not shown yet', async () => {
+    const ctx = setup();
+    await openN64(ctx);
+    const before = ctx.host.calls.filter((call) => call.method === 'getGames').length;
+    // A relinked game was missing (not in the level) and is present now.
+    act(() => {
+      ctx.host.emit({ type: 'library-changed', systems: ['n64'], gameIds: [777] });
+    });
+    expect(ctx.host.calls.filter((call) => call.method === 'getGames').length).toBe(before + 1);
+  });
 });

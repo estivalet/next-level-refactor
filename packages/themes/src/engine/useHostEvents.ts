@@ -1,28 +1,27 @@
 import { useEffect, type Dispatch, type RefObject } from 'react';
 import type { ThemeHost } from '../host/ThemeHost.ts';
-import type { EngineState, Level, NavAction } from './types.ts';
+import type { GamesLevel } from './useGamesLoader.ts';
+import type { EngineState, NavAction } from './types.ts';
 
 /**
- * Keeps the open level in step with the host (FR-THM-6, US-C2): a library change re-fetches the
- * open game list and keeps focus on the same game; a finished launch focuses that game.
+ * Keeps the open level in step with the host (FR-THM-6, US-C2): a library change that touches the
+ * open level's systems or games re-fetches it (even mid-load, so a scan's late write is not
+ * missed) and keeps focus on the same game; a finished launch focuses that game.
  */
 export function useHostEvents(
   host: ThemeHost,
   stateRef: RefObject<EngineState>,
-  loadGames: (level: Extract<Level, { kind: 'games' }>, keepFocusOn?: number) => void,
+  loadGames: (level: GamesLevel, opts?: { refresh?: boolean }) => void,
   dispatch: Dispatch<NavAction>,
 ) {
   useEffect(
     () =>
       host.onEvent((event) => {
-        const { stack, focusIndex } = stateRef.current;
+        const { stack } = stateRef.current;
         const top = stack[stack.length - 1];
-        if (top?.kind !== 'games' || top.loading) return;
+        if (top?.kind !== 'games') return;
         if (event.type === 'library-changed') {
-          const ids = event.gameIds;
-          if (ids && !top.games.some((game) => ids.includes(game.id))) return;
-          const focused = top.games[focusIndex];
-          loadGames(top, focused?.id ?? -1);
+          if (affects(top, event)) loadGames(top, { refresh: true });
         } else if (event.type === 'launch-finished') {
           const at = top.games.findIndex((game) => game.id === event.gameId);
           if (at >= 0) dispatch({ type: 'set-focus', index: at });
@@ -30,4 +29,25 @@ export function useHostEvents(
       }),
     [host, stateRef, loadGames, dispatch],
   );
+}
+
+/**
+ * Whether a library change can touch this level. `systems` decides when main sends it (a game the
+ * level doesn't show yet, e.g. one just relinked, still counts); otherwise `gameIds` does.
+ */
+function affects(level: GamesLevel, event: { systems?: string[]; gameIds?: number[] }): boolean {
+  const { systems, gameIds } = event;
+  if (systems) {
+    const touched = new Set(systems);
+    // A collection level that is still empty can't tell its systems: reload to be safe.
+    if (level.systemId === null && level.games.length === 0) return true;
+    return (
+      (level.systemId !== null && touched.has(level.systemId)) ||
+      level.games.some((game) => touched.has(game.systemId))
+    );
+  }
+  if (gameIds && level.games.length > 0) {
+    return level.games.some((game) => gameIds.includes(game.id));
+  }
+  return true;
 }
