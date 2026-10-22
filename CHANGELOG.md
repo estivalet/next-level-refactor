@@ -5,6 +5,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-21
+
+M3 — Launching: emulators, profiles and presets, Test launch, Play from the Library, per-game
+launch options and the launch log.
+
 ### Added
 - M3a launching engine (FR-EMU-2..5, FR-EMU-7, FR-EMU-8, ADR-004): emulators and launch profiles
   live in settings. Argument templates use a fixed token set (`{rom}`, `{romDir}`, `{core}`,
