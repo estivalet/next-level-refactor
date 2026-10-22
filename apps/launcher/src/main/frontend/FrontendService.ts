@@ -2,6 +2,7 @@ import {
   AppErrorException,
   ERROR_CODES,
   type MenuDraft,
+  walkMenuNodes,
   type MenuTree,
   type Settings,
   type SystemDefinition,
@@ -22,7 +23,7 @@ export interface FrontendDeps {
   settings: () => Settings;
   collections: Pick<CollectionRepository, 'list'>;
   menus: Pick<MenuRepository, 'active'>;
-  smartFilters: Pick<SmartFilterRepository, 'list' | 'gameIds'>;
+  smartFilters: Pick<SmartFilterRepository, 'names' | 'hasGames' | 'gameIds'>;
 }
 
 interface RawThemeGame {
@@ -100,12 +101,12 @@ export class FrontendService {
   /** The active menu resolved for themes, or the generated one while no menu is stored. */
   menu(): MenuTree {
     const active = this.deps.menus.active();
-    return active ? resolveMenu(active, this.resolveContext()) : this.generatedTree();
+    return active ? resolveMenu(active, this.resolveContext(active)) : this.generatedTree();
   }
 
   /** An unsaved menu resolved like the active one (Menu Editor preview). */
   resolveDraft(draft: MenuDraft): MenuTree {
-    return resolveMenu(draft, this.resolveContext());
+    return resolveMenu(draft, this.resolveContext(draft));
   }
 
   /** The generated menu as an editable draft (FR-MENU-3). */
@@ -149,28 +150,56 @@ export class FrontendService {
     });
   }
 
-  private resolveContext(): ResolveContext {
-    const present = (id: number) =>
-      this.client
-        .prepare(
-          `select count(*) from collection_games cg join games g on g.id = cg.game_id
-           where cg.collection_id = ? and g.missing = 0`,
-        )
-        .pluck()
-        .get(id) as number;
+  /**
+   * What `draft` is resolved against. Collections and smart filters are looked at only when the
+   * menu names them, and smart filters only for emptiness (one EXISTS each): the menu is resolved
+   * on every `menus.changed`, so its cost must not grow with the library's lists.
+   */
+  private resolveContext(draft: MenuDraft): ResolveContext {
+    const collectionIds: number[] = [];
+    const smartFilterIds: number[] = [];
+    for (const node of walkMenuNodes(draft.nodes)) {
+      if (node.type === 'collection') collectionIds.push(Number(node.refId));
+      if (node.type === 'smartFilter') smartFilterIds.push(Number(node.refId));
+    }
+    const present = new Map(
+      (
+        this.client
+          .prepare(
+            `select cg.collection_id as id, count(*) as n from collection_games cg
+             join games g on g.id = cg.game_id
+             where g.missing = 0 and cg.collection_id in (select value from json_each(?))
+             group by cg.collection_id`,
+          )
+          .all(JSON.stringify(collectionIds)) as Array<{ id: number; n: number }>
+      ).map((row) => [row.id, row.n]),
+    );
+    const collectionNames = new Map(
+      this.deps.collections.list().map((collection) => [collection.id, collection.name]),
+    );
+    const smartFilterNames = this.deps.smartFilters.names();
+    const referenced = <T>(ids: number[], entry: (id: number) => T | null) =>
+      new Map(
+        [...new Set(ids)].flatMap((id) => {
+          const value = entry(id);
+          return value === null ? [] : [[id, value] as const];
+        }),
+      );
     return {
       systems: new Map(this.deps.catalog().map((system) => [system.id, system])),
       enabled: new Set(this.enabledSystems().map((system) => system.id)),
       ...this.libraryCounts(),
-      collections: new Map(
-        this.deps.collections
-          .list()
-          .map((collection) => [
-            collection.id,
-            { name: collection.name, games: present(collection.id) },
-          ]),
-      ),
-      smartFilters: new Map(this.deps.smartFilters.list().map((filter) => [filter.id, filter])),
+      collections: referenced(collectionIds, (id) => {
+        const name = collectionNames.get(id);
+        return name === undefined ? null : { name, games: present.get(id) ?? 0 };
+      }),
+      // `games` is 0 or 1 here: the resolver only asks whether a smart filter is empty.
+      smartFilters: referenced(smartFilterIds, (id) => {
+        const name = smartFilterNames.get(id);
+        return name === undefined
+          ? null
+          : { name, games: this.deps.smartFilters.hasGames(id) ? 1 : 0 };
+      }),
     };
   }
 

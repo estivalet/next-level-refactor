@@ -194,6 +194,16 @@ describe('FrontendService with menus', () => {
     expect(appErrorOf(() => service.games('sf:99')).code).toBe('NOT_FOUND');
   });
 
+  it('FR-MENU-2: an empty smart filter and a deleted one are left out of the menu', async () => {
+    const { library, service, menus, smartFilters } = await setup();
+    seedGames(library.db, 'snes', [{ title: 'Gone', favorite: true, missing: true }, 'Beta']);
+    const favs = smartFilters.create('Favs', SmartFilterQuerySchema.parse({ favorite: true }));
+    const all = smartFilters.create('All', SmartFilterQuerySchema.parse({ limit: 1 }));
+    const node = (id: number) => docNode(String(id), { type: 'smartFilter', refId: String(id) });
+    menus.create('Mine', [node(favs.id), node(all.id), node(999)]);
+    expect(service.menu().items.map((item) => item.id)).toEqual([`sf:${String(all.id)}`]);
+  });
+
   it('FR-MENU-2: a numbered repeat of a node opens the same games', async () => {
     const { library, service, tag } = await setup();
     const [a, b] = seedGames(library.db, 'snes', ['Alpha', 'Beta']);

@@ -1,4 +1,10 @@
-import type { MenuDocNode, MenuDraft, MenuNode, MenuTree } from '@nextlevel/shared';
+import {
+  walkMenuNodes,
+  type MenuDocNode,
+  type MenuDraft,
+  type MenuNode,
+  type MenuTree,
+} from '@nextlevel/shared';
 import { filterNodes } from '../frontend/menuTree.ts';
 
 /** What a stored menu is resolved against: the catalog, settings and the library, as of now. */
@@ -18,15 +24,20 @@ const REF_PREFIX = { system: 's', collection: 'c', smartFilter: 'sf' } as const;
  * Turns a menu document into the tree themes read (FR-MENU-1..4). Leaves out what can't open:
  * invisible nodes and their subtrees, systems that are disabled, unknown or without present
  * games, deleted or empty collections and smart filters, and categories left empty. A reference
- * that repeats gets `~2`, `~3`… in document order so every id is unique.
+ * that repeats gets `~2`, `~3`… in document order (left-out copies count too) so every id is
+ * unique and showing or hiding one copy never renames another.
  */
 export function resolveMenu(draft: MenuDraft, ctx: ResolveContext): MenuTree {
+  const ids = new Map<string, string>();
   const seen = new Map<string, number>();
-  const uniqueId = (base: string) => {
+  for (const node of walkMenuNodes(draft.nodes)) {
+    if (node.type === 'category') continue;
+    const base = `${REF_PREFIX[node.type]}:${node.refId ?? ''}`;
     const count = (seen.get(base) ?? 0) + 1;
     seen.set(base, count);
-    return count === 1 ? base : `${base}~${String(count)}`;
-  };
+    ids.set(node.id, count === 1 ? base : `${base}~${String(count)}`);
+  }
+  const uniqueId = (node: MenuDocNode) => ids.get(node.id) ?? '';
 
   const resolve = (node: MenuDocNode): MenuNode | null => {
     if (!node.visible) return null;
@@ -52,7 +63,7 @@ export function resolveMenu(draft: MenuDraft, ctx: ResolveContext): MenuTree {
         if (!system || !ctx.enabled.has(systemId) || !(ctx.gameCounts.get(systemId) ?? 0)) {
           return null;
         }
-        const id = uniqueId(`${REF_PREFIX.system}:${systemId}`);
+        const id = uniqueId(node);
         const shortName = node.shortName ?? system.shortName;
         return {
           id,
@@ -77,7 +88,7 @@ export function resolveMenu(draft: MenuDraft, ctx: ResolveContext): MenuTree {
           node.type === 'collection' ? ctx.collections.get(refId) : ctx.smartFilters.get(refId);
         if (!target || target.games === 0) return null;
         return {
-          id: uniqueId(`${REF_PREFIX[node.type]}:${String(refId)}`),
+          id: uniqueId(node),
           ...labels,
           display: node.displayName ?? target.name,
           type: node.type,

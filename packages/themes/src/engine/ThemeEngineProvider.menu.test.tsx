@@ -114,4 +114,48 @@ describe('menu-changed (US-D5, FR-MENU-1)', () => {
     expect(ctx.get().currentLevel?.node?.id).toBe('s:n64');
     expect(ctx.get().state.focusIndex).toBe(3);
   });
+
+  it('a reload that fails while the first load is pending shows the error, with retry', async () => {
+    const host = new ManualMenuHost();
+    const ctx = setup(host);
+    act(() => {
+      host.emit({ type: 'menu-changed' });
+    });
+    await act(async () => {
+      host.pending[1]?.reject(new Error('offline'));
+      host.pending[0]?.resolve(FIXTURE_MENU);
+      await Promise.resolve();
+    });
+    await waitFor(() => {
+      expect(ctx.get().state).toMatchObject({ status: 'error', error: 'offline' });
+    });
+  });
+
+  it('a slow first load never undoes a later reload', async () => {
+    const host = new ManualMenuHost();
+    const ctx = setup(host);
+    act(() => {
+      host.emit({ type: 'menu-changed' });
+    });
+    await act(async () => {
+      host.pending[1]?.resolve(edited);
+      host.pending[0]?.resolve(FIXTURE_MENU);
+      await Promise.resolve();
+    });
+    await waitFor(() => {
+      expect(ctx.get().focusedNode?.display).toBe('SEGA');
+    });
+  });
 });
+
+/** A host whose getMenu calls stay pending until the test settles them, in any order. */
+class ManualMenuHost extends FakeThemeHost {
+  readonly pending: Array<{ resolve: (menu: MenuTree) => void; reject: (error: Error) => void }> =
+    [];
+
+  override getMenu(): Promise<MenuTree> {
+    return new Promise((resolve, reject) => {
+      this.pending.push({ resolve, reject });
+    });
+  }
+}

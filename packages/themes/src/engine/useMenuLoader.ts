@@ -10,14 +10,15 @@ const message = (error: unknown) => (error instanceof Error ? error.message : St
  * Loads the host's menu on mount (and on retry), and reloads it when the host says it changed
  * (US-D5): the open path is kept by node id and a surviving games level is refreshed. Only the
  * newest request may land, so a slow first load can't undo a later reload; a failed reload keeps
- * the menu on screen.
+ * the menu on screen, or shows the error when no menu arrived yet. A reload never cancels a games
+ * load: the ref may not show a level the user just opened, and a games answer for a level that
+ * was popped is dropped by the reducer anyway.
  */
 export function useMenuLoader(
   host: ThemeHost,
   stateRef: RefObject<EngineState>,
   dispatch: Dispatch<NavAction>,
   loadGames: (level: GamesLevel, opts?: { refresh?: boolean }) => void,
-  cancelLoad: () => void,
 ) {
   const token = useRef(0);
 
@@ -46,11 +47,14 @@ export function useMenuLoader(
         dispatch(action);
         const top = next.stack[next.stack.length - 1];
         if (top?.kind === 'games') loadGames(top, top.loading ? {} : { refresh: true });
-        else cancelLoad();
       },
-      () => undefined,
+      (error: unknown) => {
+        if (token.current === mine && stateRef.current.status !== 'ready') {
+          dispatch({ type: 'menu-failed', error: message(error) });
+        }
+      },
     );
-  }, [host, stateRef, dispatch, loadGames, cancelLoad]);
+  }, [host, stateRef, dispatch, loadGames]);
 
   return { loadMenu, reloadMenu };
 }

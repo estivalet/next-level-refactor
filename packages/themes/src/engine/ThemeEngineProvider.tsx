@@ -33,7 +33,7 @@ export function ThemeEngineProvider({
   });
 
   const { load: loadGames, cancel: cancelLoad } = useGamesLoader(host, stateRef, dispatch);
-  const { loadMenu, reloadMenu } = useMenuLoader(host, stateRef, dispatch, loadGames, cancelLoad);
+  const { loadMenu, reloadMenu } = useMenuLoader(host, stateRef, dispatch, loadGames);
 
   const currentLevel = state.stack[state.stack.length - 1] ?? null;
   const ancestors = useMemo(

@@ -6,7 +6,7 @@ import {
 import { nameTaken } from './CollectionRepository.ts';
 import { notFound } from './GameRepository.ts';
 import type { LibraryDb } from './openLibrary.ts';
-import { smartFilterIdsSql } from './smartFilterSql.ts';
+import { smartFilterIdsSql, smartFilterSql } from './smartFilterSql.ts';
 
 const SEEDED_KEY = 'smart_filters_seeded';
 
@@ -73,6 +73,29 @@ export class SmartFilterRepository {
   delete(id: number): void {
     const { changes } = this.client.prepare('delete from smart_filters where id = ?').run(id);
     if (changes === 0) throw notFound({ smartFilterId: id });
+  }
+
+  /** Every smart filter's name by id, without counting games. */
+  names(): Map<number, string> {
+    const rows = this.client.prepare('select id, name from smart_filters').all() as Array<{
+      id: number;
+      name: string;
+    }>;
+    return new Map(rows.map((row) => [row.id, row.name]));
+  }
+
+  /** Whether it matches a present game now; a limit (≥ 1) never makes a match empty. */
+  hasGames(id: number): boolean {
+    const { where, params } = smartFilterSql(this.query(id), this.clock());
+    return (
+      this.client
+        .prepare(
+          `select exists (select 1 from games g join game_metadata m on m.game_id = g.id
+             left join game_user_state u on u.game_id = g.id where ${where})`,
+        )
+        .pluck()
+        .get(params) === 1
+    );
   }
 
   /** The query of a smart filter. */

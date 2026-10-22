@@ -132,4 +132,32 @@ describe('resolveMenu', () => {
     expect(tree.items[1]?.children.map((child) => child.id)).toEqual(['s:snes~2', 's:snes~3']);
     expect(tree.items[1]?.children[0]?.children[0]?.id).toBe('s:snes~2:f:official');
   });
+
+  it('US-D5: the suffix follows document order, so hiding one copy never renames another', () => {
+    const tree = resolveMenu(
+      {
+        title: 'M',
+        nodes: [
+          ref('system', 'snes', 'SNES', { visible: false }),
+          cat('Hidden', [ref('system', 'snes', 'SNES')], { visible: false }),
+          cat('Empty', [ref('system', 'snes', 'SNES'), ref('collection', '99', 'Gone')]),
+          ref('system', 'snes', 'SNES'),
+        ],
+      },
+      ctx({ enabled: new Set(['n64', 'genesis']) }),
+    );
+    expect(tree.items).toEqual([]);
+    const shown = resolveMenu(
+      {
+        title: 'M',
+        nodes: [
+          ref('system', 'snes', 'SNES', { visible: false }),
+          cat('Hidden', [ref('system', 'snes', 'SNES')], { visible: false }),
+          ref('system', 'snes', 'SNES'),
+        ],
+      },
+      ctx(),
+    );
+    expect(shown.items.map((item) => item.id)).toEqual(['s:snes~3']);
+  });
 });
