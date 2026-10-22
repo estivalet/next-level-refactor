@@ -24,6 +24,17 @@ import {
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
+import {
+  SmartFilterNameSchema,
+  SmartFilterQuerySchema,
+  SmartFilterSummarySchema,
+} from '../library/smartFilters.ts';
+import {
+  MenuDocumentSchema,
+  MenuDraftSchema,
+  MenuSummarySchema,
+  MenuTitleSchema,
+} from '../menus/schema.ts';
 import { EmulatorProfileSchema, EmulatorSchema } from '../settings/emulators.ts';
 import { SettingsSchema } from '../settings/schema.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
@@ -49,6 +60,8 @@ export const BackupInfoSchema = z.object({
 
 const gameId = z.number().int().positive();
 const collectionId = z.number().int().positive();
+const smartFilterId = z.number().int().positive();
+const menuId = z.uuid();
 
 /** A profile from Settings, saved or not, for Preview and Test launch (FR-EMU-5). */
 function launchDraft<G extends z.ZodType>(game: G) {
@@ -175,7 +188,46 @@ export const ipcContract = {
     input: z.strictObject({ id: collectionId, gameId, swapWithGameId: gameId }),
     output: z.void(),
   },
+  'smartFilters.list': { input: z.void(), output: z.array(SmartFilterSummarySchema) },
+  'smartFilters.create': {
+    input: z.strictObject({ name: SmartFilterNameSchema, query: SmartFilterQuerySchema }),
+    output: SmartFilterSummarySchema,
+  },
+  'smartFilters.update': {
+    input: z
+      .strictObject({
+        id: smartFilterId,
+        name: SmartFilterNameSchema.optional(),
+        query: SmartFilterQuerySchema.optional(),
+      })
+      .refine((input) => input.name !== undefined || input.query !== undefined, {
+        message: 'empty',
+      }),
+    output: SmartFilterSummarySchema,
+  },
+  'smartFilters.delete': { input: z.strictObject({ id: smartFilterId }), output: z.void() },
+  'menus.list': { input: z.void(), output: z.array(MenuSummarySchema) },
+  'menus.get': { input: z.strictObject({ id: menuId }), output: MenuDocumentSchema },
+  /** FR-MENU-3: the active menu, or the generated one (revision 0, not stored) when none exists. */
+  'menus.draft': { input: z.void(), output: MenuDocumentSchema },
+  /** A generated menu of the enabled systems with games, as of now. */
+  'menus.generated': { input: z.void(), output: MenuDraftSchema },
+  'menus.save': {
+    input: MenuDraftSchema.extend({ id: menuId, baseRevision: z.number().int().min(0) }).strict(),
+    output: MenuDocumentSchema,
+  },
+  'menus.create': {
+    input: z.strictObject({ title: MenuTitleSchema, nodes: MenuDraftSchema.shape.nodes }),
+    output: MenuDocumentSchema,
+  },
+  'menus.delete': { input: z.strictObject({ id: menuId }), output: z.void() },
+  'menus.setActive': { input: z.strictObject({ id: menuId }), output: z.void() },
   'frontend.menu': { input: z.void(), output: MenuTreeSchema },
+  /** The Menu Editor's live preview: an unsaved menu resolved like the active one. */
+  'frontend.resolveMenu': {
+    input: z.strictObject({ draft: MenuDraftSchema }),
+    output: MenuTreeSchema,
+  },
   'frontend.games': {
     input: z.strictObject({ nodeId: z.string().min(1).max(200) }),
     output: ThemeGamesSchema,

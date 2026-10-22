@@ -11,6 +11,7 @@ export const GAME_SORTS = ['title', 'year', 'rating', 'added'] as const;
 export const GameScopeSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('system'), systemId: z.string().min(1) }),
   z.strictObject({ kind: z.literal('collection'), collectionId: id }),
+  z.strictObject({ kind: z.literal('smartFilter'), smartFilterId: id }),
 ]);
 
 export const GameListQuerySchema = z.strictObject({

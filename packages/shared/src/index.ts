@@ -5,6 +5,8 @@ export * from './ipc/events.ts';
 export * from './library/schema.ts';
 export * from './library/games.ts';
 export * from './library/collections.ts';
+export * from './library/smartFilters.ts';
+export * from './menus/schema.ts';
 export * from './settings/schema.ts';
 export * from './settings/emulators.ts';
 export * from './settings/input.ts';

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ArtIndexSchema, MenuTreeSchema, ThemeGameSchema, ThemeOptionsSchema } from './schema.ts';
+import {
+  ArtIndexSchema,
+  MenuNodeSchema,
+  MenuTreeSchema,
+  ThemeGameSchema,
+  ThemeOptionsSchema,
+} from './schema.ts';
 
 const game = {
   id: 1,
@@ -53,6 +59,19 @@ describe('front-end contracts', () => {
     };
     const parsed = MenuTreeSchema.parse(tree);
     expect(parsed.items[0]?.children[0]?.children[0]?.filter).toBe('homebrew');
+  });
+
+  it('FR-LIB-9: a smart filter is a menu node type with its id', () => {
+    const node = {
+      id: 'sf:3',
+      name: 'Favorites',
+      display: 'Favorites',
+      type: 'smartFilter',
+      smartFilterId: 3,
+      children: [],
+    };
+    expect(MenuNodeSchema.safeParse(node).success).toBe(true);
+    expect(MenuNodeSchema.safeParse({ ...node, smartFilterId: 0 }).success).toBe(false);
   });
 
   it('FR-THM-6: theme game media kinds are lowercase slugs', () => {

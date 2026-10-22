@@ -21,7 +21,13 @@ export const GAME_ART_KINDS = [
   'marquee',
 ] as const;
 
-export const MENU_NODE_TYPES = ['category', 'system', 'collection', 'filter'] as const;
+export const MENU_NODE_TYPES = [
+  'category',
+  'system',
+  'collection',
+  'filter',
+  'smartFilter',
+] as const;
 
 export type MenuNode = {
   id: string;
@@ -34,6 +40,7 @@ export type MenuNode = {
   type: (typeof MENU_NODE_TYPES)[number];
   systemId?: string | undefined;
   collectionId?: number | undefined;
+  smartFilterId?: number | undefined;
   filter?: string | undefined;
   children: MenuNode[];
 };
@@ -48,6 +55,7 @@ export const MenuNodeSchema: z.ZodType<MenuNode> = z.lazy(() =>
     type: z.enum(MENU_NODE_TYPES),
     systemId: z.string().optional(),
     collectionId: z.number().int().positive().optional(),
+    smartFilterId: z.number().int().positive().optional(),
     filter: z.string().optional(),
     children: z.array(MenuNodeSchema),
   }),
