@@ -16,6 +16,7 @@ export * from './engine/artEntrances.ts';
 export * from './input/keyboard.ts';
 export * from './input/gamepad.ts';
 export * from './input/repeat.ts';
+export * from './input/padGate.ts';
 export * from './input/useInputActions.ts';
 export * from './engine/ThemeEngineProvider.tsx';
 export * from './engine/ThemeArtProvider.tsx';

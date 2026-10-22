@@ -1,7 +1,8 @@
 import type { GamepadButton, InputAction, InputSettings } from '@nextlevel/shared';
 import { useEffect, useRef, type RefObject } from 'react';
-import { chordActions, firstStandardPad, readPad, type PadSnapshot } from './gamepad.ts';
+import { firstStandardPad, readPad, type PadSnapshot } from './gamepad.ts';
 import { isTextField, keyboardActions, passesTextInput } from './keyboard.ts';
+import { createPadGate } from './padGate.ts';
 import { createRepeater } from './repeat.ts';
 
 /** The browser APIs the hook uses; replaceable in tests. */
@@ -37,7 +38,8 @@ export interface UseInputActionsOptions {
 /**
  * Keyboard and gamepad input as actions (FR-THM-3, US-C1). Keys are read from the target; the
  * first standard gamepad is polled every frame. Held directions repeat per the user's timing.
- * After the window loses focus, the page is hidden, a pad disconnects or input is switched off,
+ * Chord buttons fire on release unless a chord completed (see createPadGate). After the window or
+ * the theme loses focus, the page is hidden, a pad (dis)connects or input is switched off,
  * everything held is forgotten, and pad buttons still down are ignored until released, so a
  * press meant for an overlay never reaches the theme behind it.
  */
@@ -57,6 +59,7 @@ export function useInputActions({
     if (!enabled || !target) return;
     const api = depsRef.current;
     const repeater = createRepeater({ delayMs: input.repeatDelayMs, rateHz: input.repeatRateHz });
+    const gate = createPadGate(input);
     const keysHeld = new Map<string, InputAction[]>();
     let latched = new Set<GamepadButton>();
 
@@ -68,13 +71,17 @@ export function useInputActions({
       const buttons = padHeld();
       latched = new Set([...latched].filter((button) => buttons.has(button)));
       for (const button of latched) buttons.delete(button);
-      const held = new Set<InputAction>(chordActions(buttons, input));
+      const pad = gate.step(buttons);
+      const held = new Set<InputAction>(pad.held);
       for (const actions of keysHeld.values()) actions.forEach((action) => held.add(action));
-      for (const action of repeater.step(held, api.now())) onActionRef.current(action);
+      for (const action of [...pad.taps, ...repeater.step(held, api.now())]) {
+        onActionRef.current(action);
+      }
     };
     const reset = () => {
       keysHeld.clear();
       repeater.reset();
+      gate.reset();
       latched = padHeld();
     };
 
@@ -90,6 +97,12 @@ export function useInputActions({
     const onKeyUp = (event: KeyboardEvent) => {
       if (keysHeld.delete(event.code)) tick();
     };
+    // Focus moving out of the theme (a click on the shell, a dialog) means its keyup may never
+    // reach the target: forget held keys then. Moving between the theme's own elements is fine.
+    const onFocusOut = (event: FocusEvent) => {
+      const next = event.relatedTarget;
+      if (!(next instanceof Node) || !target.contains(next)) reset();
+    };
     const onHidden = () => {
       if (document.visibilityState === 'hidden') reset();
     };
@@ -102,15 +115,19 @@ export function useInputActions({
     reset();
     frame = api.requestFrame(loop);
     target.addEventListener('keydown', onKeyDown);
-    target.addEventListener('keyup', onKeyUp);
+    target.addEventListener('focusout', onFocusOut);
+    window.addEventListener('keyup', onKeyUp);
     window.addEventListener('blur', reset);
+    window.addEventListener('gamepadconnected', reset);
     window.addEventListener('gamepaddisconnected', reset);
     document.addEventListener('visibilitychange', onHidden);
     return () => {
       api.cancelFrame(frame);
       target.removeEventListener('keydown', onKeyDown);
-      target.removeEventListener('keyup', onKeyUp);
+      target.removeEventListener('focusout', onFocusOut);
+      window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('blur', reset);
+      window.removeEventListener('gamepadconnected', reset);
       window.removeEventListener('gamepaddisconnected', reset);
       document.removeEventListener('visibilitychange', onHidden);
     };

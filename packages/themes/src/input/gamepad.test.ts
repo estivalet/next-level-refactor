@@ -1,8 +1,5 @@
-import { defaultSettings, type GamepadButton } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
-import { chordActions, firstStandardPad, readPad, type PadSnapshot } from './gamepad.ts';
-
-const input = defaultSettings().input;
+import { firstStandardPad, readPad, type PadSnapshot } from './gamepad.ts';
 
 function pad(
   pressed: number[] = [],
@@ -36,20 +33,5 @@ describe('readPad (US-C1)', () => {
     const good = pad([1]);
     expect(firstStandardPad([null, odd, good])).toBe(good);
     expect(firstStandardPad([null])).toBeNull();
-  });
-});
-
-describe('chordActions (FR-THM-3)', () => {
-  const held = (...buttons: GamepadButton[]) => chordActions(new Set(buttons), input);
-
-  it('maps held buttons to actions', () => {
-    expect(held('a')).toEqual(['select']);
-    expect(held('dpadUp', 'lsUp')).toEqual(['up']);
-  });
-
-  it('a chord beats the single-button bindings of its buttons', () => {
-    expect(held('view', 'start')).toEqual(['toDesktop']);
-    expect(held('view')).toEqual(['help']);
-    expect(held('start', 'a')).toEqual(['select', 'menu']);
   });
 });

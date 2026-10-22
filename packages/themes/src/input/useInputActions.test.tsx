@@ -149,4 +149,58 @@ describe('useInputActions (FR-THM-3, US-C1)', () => {
     advance(1000);
     expect(fired).toEqual(['right']);
   });
+
+  it('View then Start then releasing Start fires only toDesktop', () => {
+    const { deps, advance, press } = harness();
+    const fired: InputAction[] = [];
+    render(<Probe deps={deps} fired={fired} />);
+    press(8);
+    advance(50);
+    press(8, 9);
+    advance(50);
+    press(8);
+    advance(50);
+    press();
+    advance(50);
+    expect(fired).toEqual(['toDesktop']);
+  });
+
+  it('a key released outside the theme still stops its repeat', () => {
+    const { deps, advance } = harness();
+    const fired: InputAction[] = [];
+    render(<Probe deps={deps} fired={fired} />);
+    fireEvent.keyDown(screen.getByTestId('root'), { code: 'ArrowDown' });
+    fireEvent.keyUp(window, { code: 'ArrowDown' });
+    advance(1000);
+    expect(fired).toEqual(['down']);
+  });
+
+  it('focus leaving the theme forgets held keys', () => {
+    const { deps, advance } = harness();
+    const fired: InputAction[] = [];
+    render(
+      <>
+        <Probe deps={deps} fired={fired} />
+        <button type="button">outside</button>
+      </>,
+    );
+    fireEvent.keyDown(screen.getByTestId('root'), { code: 'ArrowDown' });
+    fireEvent.focusOut(screen.getByTestId('root'), {
+      relatedTarget: screen.getByRole('button', { name: 'outside' }),
+    });
+    advance(1000);
+    expect(fired).toEqual(['down']);
+  });
+
+  it('focus moving inside the theme keeps held keys', () => {
+    const { deps, advance } = harness();
+    const fired: InputAction[] = [];
+    render(<Probe deps={deps} fired={fired} />);
+    fireEvent.keyDown(screen.getByTestId('root'), { code: 'ArrowDown' });
+    fireEvent.focusOut(screen.getByTestId('root'), {
+      relatedTarget: screen.getByRole('textbox', { name: 'search' }),
+    });
+    advance(450);
+    expect(fired).toEqual(['down', 'down']);
+  });
 });
