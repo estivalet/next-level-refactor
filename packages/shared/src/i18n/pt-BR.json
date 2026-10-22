@@ -609,7 +609,8 @@
       "menuFailed": "Não foi possível carregar o menu",
       "levelFailed": "Não foi possível carregar {{name}}",
       "searchLabel": "Buscar títulos",
-      "searchPlaceholder": "Buscar título…"
+      "searchPlaceholder": "Buscar título…",
+      "noGamesInTab": "Nenhum jogo nesta aba"
     },
     "tabs": {
       "all": "Todos",
@@ -644,6 +645,14 @@
         "collection": "Coleção",
         "filter": "Filtro"
       }
+    },
+    "bigBoxList": {
+      "name": "Big Box List",
+      "description": "Menus do Big Box com lista de jogos dividida"
+    },
+    "consoleHome": {
+      "name": "Console Home",
+      "description": "Blocos de menu inicial com grade de jogos em abas"
     }
   }
 }

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Background } from '../components/Background.tsx';
 import { cn } from '../components/cn.ts';
 import { KeyHelpOverlay } from '../components/KeyHelpOverlay.tsx';
+import { MENU_STATUS_ROOT, MenuStatusContent } from '../components/MenuStatusContent.tsx';
 import { useFocusBackground } from '../components/useFocusBackground.ts';
 import { useGamesLevelController } from '../components/useGamesLevelController.ts';
 import { levelIdentity, useNavigationSound } from '../components/useNavigationSound.ts';
@@ -22,6 +23,10 @@ import { GamesView } from './GamesView.tsx';
 import { BIG_BOX_KEYMAP } from './keymap.ts';
 import { MenuView } from './MenuView.tsx';
 import { accentFor } from './palette.ts';
+
+/** Retry / Exit on the menu-failed screen. */
+export const BIG_BOX_BUTTON =
+  'rounded-md border border-white/15 bg-white/10 px-5 py-2 font-semibold text-white hover:bg-white/20';
 
 /** Carousel tiles one page jump moves (D5): about one screen. */
 const PAGE_SIZE = 7;
@@ -100,34 +105,16 @@ export function BigBoxTheme({ onExit, inputEnabled = true, active = true }: Them
         ref={rootRef}
         tabIndex={0}
         style={rootStyle}
-        className="bigbox-root flex flex-col items-center justify-center gap-4 text-sm text-white/60"
+        className={`bigbox-root ${MENU_STATUS_ROOT}`}
       >
-        {status === 'loading' ? (
-          t('themes.common.loading')
-        ) : (
-          <>
-            <span className="bigbox-display text-2xl text-white">
-              {t('themes.common.menuFailed')}
-            </span>
-            {nav.state.error && <span className="text-xs text-white/40">{nav.state.error}</span>}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={nav.retry}
-                className="rounded-md bg-white/10 px-5 py-2 font-semibold text-white hover:bg-white/20"
-              >
-                {t('themes.common.retry')}
-              </button>
-              <button
-                type="button"
-                onClick={onExit}
-                className="rounded-md border border-white/15 px-5 py-2 text-white/70 hover:text-white"
-              >
-                {t('themes.common.exit')}
-              </button>
-            </div>
-          </>
-        )}
+        <MenuStatusContent
+          status={status}
+          error={nav.state.error}
+          onRetry={nav.retry}
+          onExit={onExit}
+          titleClassName="bigbox-display"
+          buttonClassName={BIG_BOX_BUTTON}
+        />
       </div>
     );
   }

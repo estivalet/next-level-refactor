@@ -609,7 +609,8 @@
       "menuFailed": "Couldn’t load the menu",
       "levelFailed": "Couldn’t load {{name}}",
       "searchLabel": "Search titles",
-      "searchPlaceholder": "Search title…"
+      "searchPlaceholder": "Search title…",
+      "noGamesInTab": "No games in this tab"
     },
     "tabs": {
       "all": "All",
@@ -644,6 +645,14 @@
         "collection": "Collection",
         "filter": "Filter"
       }
+    },
+    "bigBoxList": {
+      "name": "Big Box List",
+      "description": "Big Box menus with a split game list"
+    },
+    "consoleHome": {
+      "name": "Console Home",
+      "description": "Home-menu tiles with a tabbed game grid"
     }
   }
 }
