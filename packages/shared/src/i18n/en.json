@@ -610,7 +610,8 @@
       "levelFailed": "Couldn’t load {{name}}",
       "searchLabel": "Search titles",
       "searchPlaceholder": "Search title…",
-      "noGamesInTab": "No games in this tab"
+      "noGamesInTab": "No games in this tab",
+      "brand": "NextLevel"
     },
     "tabs": {
       "all": "All",
@@ -657,7 +658,8 @@
     "ps5": {
       "name": "PS5 Style",
       "description": "Category tabs, icon shelf and a dark game library",
-      "explore": "Explore"
+      "explore": "Explore",
+      "tabCount": "{{label}}: {{count, number}}"
     },
     "switcher": {
       "label": "Switch theme",

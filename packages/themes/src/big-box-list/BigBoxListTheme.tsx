@@ -23,7 +23,7 @@ import { useFilterLayout } from '../engine/useFilterLayout.ts';
 import { useHostInput, useThemeInput } from '../engine/useThemeInput.ts';
 import { useThemeHost, useThemeNavigation } from '../engine/useThemeNavigation.ts';
 import { GamesLevel } from './GamesLevel.tsx';
-import { BBL_GAMES_KEYMAP, BBL_KEYMAP, BBL_MENU_KEYMAP } from './keymap.ts';
+import { BBL_GAMES_KEYMAP, BBL_MENU_KEYMAP } from './keymap.ts';
 
 /** Rows one page jump moves (D5): about one screen of the list. */
 const PAGE_SIZE = 10;
@@ -177,7 +177,7 @@ export function BigBoxListTheme({
           setHelpOpen(false);
           rootRef.current?.focus();
         }}
-        keymap={BBL_KEYMAP}
+        keymap={isGames ? BBL_GAMES_KEYMAP : BBL_MENU_KEYMAP}
         input={input}
         className="bg-black/60"
         panelClassName="bigbox-help"

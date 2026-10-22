@@ -2,6 +2,7 @@
 // (categories Nintendo · Sega · Collections), driven by input actions (US-C1).
 import type { MenuNode, MenuTree } from '@nextlevel/shared';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import i18n from 'i18next';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { useNavigationSound } from '../components/useNavigationSound.ts';
@@ -146,6 +147,15 @@ describe('PS5 Style (FR-THM-1)', () => {
     press('Enter');
     const last = host.calls.filter((call) => call.method === 'launch').at(-1);
     expect(last?.args).toEqual([18]); // N64 H, the last game
+  });
+
+  it('the games header counts the active tab through i18n', async () => {
+    await ready();
+    press('ArrowRight');
+    press('Enter');
+    await screen.findByRole('tab', { name: /All/ });
+    expect(i18n.exists('themes.ps5.tabCount')).toBe(true);
+    expect(document.querySelector('.ps5-games-count')?.textContent).toBe('All: 8');
   });
 
   it('help opens the key help', async () => {

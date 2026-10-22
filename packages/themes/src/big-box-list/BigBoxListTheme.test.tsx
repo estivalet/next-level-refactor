@@ -1,7 +1,7 @@
 // Cases ported from NextLevelOS src/themes/big-box-list/BigBoxListTheme.test.tsx @ 3d530b7 on a
 // FakeThemeHost, plus the S5 tabs, favorite and page jumps (D5) the rebuild adds.
 import type { MenuTree } from '@nextlevel/shared';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { FakeThemeHost } from '../host/FakeThemeHost.ts';
 import { FIXTURE_MENU } from '../host/fixtures.ts';
@@ -163,6 +163,30 @@ describe('Big Box List (FR-THM-1)', () => {
       expect(focusedRow()).toBe('N64 B');
     });
     expect(count()).toBe('1 game');
+  });
+
+  it('help lists the keys of the level in use', async () => {
+    mount();
+    await shows('Nintendo');
+    press('F1');
+    const previousKeys = () =>
+      within(screen.getByRole('dialog', { name: 'Controls' })).getByText('Previous').parentElement
+        ?.textContent;
+    expect(previousKeys()).toContain('←'); // menus move left/right
+    expect(previousKeys()).not.toContain('↑');
+    press('Escape');
+    press('Enter');
+    await waitFor(() => {
+      expect(card()).toContain('Super Nintendo');
+    });
+    press('ArrowRight');
+    press('Enter');
+    await waitFor(() => {
+      expect(focusedRow()).toBe('N64 A');
+    });
+    press('F1');
+    expect(previousKeys()).toContain('↑'); // the list moves up/down
+    expect(previousKeys()).not.toContain('←');
   });
 
   it('D5: PageDown jumps a page and stops at the last game', async () => {

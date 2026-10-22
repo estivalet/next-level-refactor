@@ -188,6 +188,29 @@ describe('theme switcher (FR-THM-1)', () => {
     expect(focusedRow()).toBe('N64 C');
   });
 
+  it('T over the key help, then back: the help has the keyboard again, and closes', async () => {
+    setup();
+    await openFromStart();
+    press('F1');
+    const help = await screen.findByRole('dialog', { name: 'Controls' });
+    press('KeyT');
+    await screen.findByRole('dialog', { name: 'Switch theme' });
+    press('Escape');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Switch theme' })).toBeNull();
+    });
+    await waitFor(() => {
+      expect(help.contains(document.activeElement)).toBe(true);
+    });
+    press('Escape');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Controls' })).toBeNull();
+    });
+    await waitFor(() => {
+      expect(layer().contains(document.activeElement)).toBe(true);
+    });
+  });
+
   it('the theme menu offers Switch theme; back closes the switcher on the same theme', async () => {
     setup();
     await openFromStart();

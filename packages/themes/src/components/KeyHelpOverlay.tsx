@@ -41,9 +41,10 @@ export function KeyHelpOverlay({
 }) {
   const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
+  // Also when input comes back (an overlay above it closed): focus would be left on the body.
   useEffect(() => {
-    if (open) panelRef.current?.focus();
-  }, [open]);
+    if (open && enabled) panelRef.current?.focus();
+  }, [open, enabled]);
   useInputActions({
     targetRef: panelRef,
     enabled: open && enabled,

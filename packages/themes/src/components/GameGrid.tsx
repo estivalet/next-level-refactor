@@ -1,14 +1,9 @@
 // Ported from NextLevelOS src/themes/components/GameGrid.tsx @ 3d530b7: cells are ThemeGames keyed
-// by id. Mouse (FR-THM-3): a click focuses, a double-click plays, the wheel moves focus one row.
+// by id. Mouse (FR-THM-3): a click focuses, a double-click plays, the wheel moves focus one row
+// (a native non-passive listener, so the grid never scrolls by itself).
 import type { ThemeGame } from '@nextlevel/shared';
 import { observeElementRect, useVirtualizer } from '@tanstack/react-virtual';
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type WheelEvent as ReactWheelEvent,
-} from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from './cn.ts';
 
 const WHEEL_DEBOUNCE_MS = 80;
@@ -94,19 +89,34 @@ export function GameGrid({
     if (rowCount > 0) virt.scrollToIndex(Math.min(focusRow, rowCount - 1), { align: 'auto' });
   }, [focusRow, rowCount, virt]);
 
-  const onWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const now = Date.now();
-    if (now - wheelAt.current < WHEEL_DEBOUNCE_MS || event.deltaY === 0) return;
-    wheelAt.current = now;
-    const next = focusIndex + (event.deltaY > 0 ? cols : -cols);
-    if (next < 0) return;
-    const clamped = Math.min(next, games.length - 1);
-    if (clamped !== focusIndex) onFocusChange(clamped);
-  };
+  // React attaches wheel listeners as passive, so preventDefault there is ignored and the grid
+  // would scroll natively past the focus. A native non-passive listener moves focus instead.
+  const wheelState = useRef({ focusIndex, count: games.length, cols, onFocusChange });
+  useLayoutEffect(() => {
+    wheelState.current = { focusIndex, count: games.length, cols, onFocusChange };
+  });
+  useEffect(() => {
+    const el = parentRef.current;
+    if (!el) return;
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const now = Date.now();
+      if (now - wheelAt.current < WHEEL_DEBOUNCE_MS || event.deltaY === 0) return;
+      wheelAt.current = now;
+      const { focusIndex: focus, count, cols: perRow, onFocusChange: move } = wheelState.current;
+      const next = focus + (event.deltaY > 0 ? perRow : -perRow);
+      if (next < 0) return;
+      const clamped = Math.min(next, count - 1);
+      if (clamped !== focus) move(clamped);
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, []);
 
   return (
-    <div ref={parentRef} data-grid className={cn('overflow-y-auto', className)} onWheel={onWheel}>
+    <div ref={parentRef} data-grid className={cn('overflow-y-auto', className)}>
       <div ref={sizerRef} style={{ height: virt.getTotalSize(), position: 'relative' }}>
         {virt.getVirtualItems().map((row) => (
           <div

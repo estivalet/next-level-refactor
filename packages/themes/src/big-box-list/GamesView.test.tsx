@@ -53,7 +53,7 @@ describe('Big Box List helpers', () => {
 describe('Big Box List games view (FR-THM-1)', () => {
   it('shows brand, title, count, the focused row, badge and the game line', () => {
     const { container } = view();
-    expect(screen.getByText('NEXTLEVEL')).toBeInTheDocument();
+    expect(screen.getByText('NextLevel')).toBeInTheDocument(); // uppercased by CSS
     expect(screen.getByRole('heading', { name: 'Nintendo 64' })).toBeInTheDocument();
     expect(container.querySelector('.bbl-count')?.textContent).toBe('2 games');
     expect(container.querySelector('.bbl-row--focused')?.textContent).toBe('Astro Run');

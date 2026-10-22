@@ -90,7 +90,7 @@ export function GamesView({
           activeTabClassName="ps5-tab--active"
         />
         <div className="ps5-games-count">
-          {activeLabel}: {display.length}
+          {t('themes.ps5.tabCount', { label: activeLabel, count: display.length })}
         </div>
       </header>
       <div className="ps5-games-body">

@@ -25,5 +25,6 @@ export const BBL_GAMES_KEYMAP: KeyMap = {
   menu: 'open-menu',
 };
 
-/** Every binding of the theme, for key help and the gamepad-reach check. */
+/** Every binding of the theme (the module keymap, for the gamepad-reach check); help uses the
+ * level's own map. */
 export const BBL_KEYMAP: KeyMap = { ...BBL_MENU_KEYMAP, ...BBL_GAMES_KEYMAP };

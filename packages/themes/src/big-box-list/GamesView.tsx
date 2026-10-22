@@ -92,7 +92,7 @@ export function GamesView({
         <header className="bbl-header">
           <div className="bbl-brand">
             <span className="bbl-brand-mark" />
-            NEXTLEVEL
+            {t('themes.common.brand')}
           </div>
           <h1 className="bigbox-display bbl-title">{title}</h1>
           {status === 'ready' && (

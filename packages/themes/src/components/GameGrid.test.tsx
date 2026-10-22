@@ -66,6 +66,22 @@ describe('GameGrid (FR-THM-1)', () => {
     expect(onFocusChange).toHaveBeenLastCalledWith(8);
   });
 
+  it('FR-THM-3: the wheel listener is native and non-passive, so the grid never scrolls by itself', () => {
+    const spy = vi.spyOn(HTMLElement.prototype, 'addEventListener');
+    try {
+      renderGrid(0);
+      // React registers its own passive wheel listener on the root; look at the grid's.
+      const grid = document.querySelector('[data-grid]');
+      const index = spy.mock.contexts.findIndex(
+        (target, i) => target === grid && spy.mock.calls[i]?.[0] === 'wheel',
+      );
+      const wheel = spy.mock.calls[index];
+      expect(wheel?.[2]).toEqual({ passive: false });
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
   it('the wheel at the top row does nothing', () => {
     const { onFocusChange } = renderGrid(2);
     const grid = document.querySelector('[data-grid]') as HTMLElement;
