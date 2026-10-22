@@ -11,7 +11,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
 
-const SETTINGS = ['settings'] as const;
+export const SETTINGS_KEY = ['settings'] as const;
+const SETTINGS = SETTINGS_KEY;
 const BACKUPS = ['settings.backups'] as const;
 
 const loaded = (snapshot: SettingsSnapshot): SettingsLoad => ({ kind: 'ok', snapshot });

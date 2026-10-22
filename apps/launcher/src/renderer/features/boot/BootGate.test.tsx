@@ -1,4 +1,5 @@
-import { defaultSettings, err, ok } from '@nextlevel/shared';
+import { defaultSettings, err, ok, type Settings } from '@nextlevel/shared';
+import { FakeThemeHost, FIXTURE_MENU } from '@nextlevel/themes/testing';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,7 +11,9 @@ import i18n from '../../i18n.ts';
 import { createQueryClient } from '../../queryClient.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { GeneralSection } from '../settings/GeneralSection.tsx';
+import { Desktop } from '../shell/Desktop.tsx';
 import { BootGate } from './BootGate.tsx';
+import { BootShell } from './BootShell.tsx';
 
 // changeLanguage is async; a switch started by one test can land after the previous reset.
 beforeEach(async () => {
@@ -191,5 +194,84 @@ describe('BootGate review fixes', () => {
       await Promise.resolve();
     });
     expect(screen.getByText('Desktop apps')).toBeVisible();
+  });
+});
+
+describe('BootGate routing (FR-THM-5, D1)', () => {
+  const NO_ART = { packFiles: [], assetsFiles: [], manifest: null, warnings: [] };
+
+  function bootWith(settings = defaultSettings(), menu = FIXTURE_MENU) {
+    const games = new FakeThemeHost();
+    const bridge = installFakeBridge({
+      'settings.get': () => ok({ kind: 'ok', snapshot: { settings, revision: 1 } }),
+      'frontend.menu': () => ok(menu),
+      'frontend.games': async ({ nodeId }) => ok(await games.getGames(nodeId)),
+      'frontend.artIndex': () => ok(NO_ART),
+      'frontend.themeOpened': () => ok(undefined),
+      'launch.running': () => ok(null),
+    });
+    render(
+      <QueryClientProvider client={createQueryClient()}>
+        <BootGate>
+          <BootShell initialBounds={{ width: 1200, height: 800 }}>
+            <Desktop />
+          </BootShell>
+        </BootGate>
+      </QueryClientProvider>,
+    );
+    return bridge;
+  }
+
+  const target = (bootTarget: Settings['general']['bootTarget']) => {
+    const settings = defaultSettings();
+    return { ...settings, general: { ...settings.general, bootTarget } };
+  };
+
+  it('boots into the last theme (Big Box the first time)', async () => {
+    const bridge = bootWith();
+    expect(await screen.findByTestId('frontend-layer')).toBeVisible();
+    expect(screen.getByTestId('frontend-layer')).toHaveAttribute('data-theme', 'big-box');
+    expect(bridge.calls).toContainEqual({
+      channel: 'frontend.themeOpened',
+      input: { themeId: 'big-box' },
+    });
+  });
+
+  it('boots to the desktop when the library has no games', async () => {
+    bootWith(defaultSettings(), { title: 'NextLevel', items: [] });
+    expect(await screen.findByRole('main', { name: 'Desktop' })).toBeVisible();
+    expect(screen.queryByTestId('frontend-layer')).toBeNull();
+  });
+
+  it('boots to the desktop when that is the boot target', async () => {
+    bootWith(target({ kind: 'desktop' }));
+    expect(await screen.findByRole('main', { name: 'Desktop' })).toBeVisible();
+    expect(screen.queryByTestId('frontend-layer')).toBeNull();
+  });
+
+  it('a chosen theme is recorded before the shell shows; an unknown one opens Big Box', async () => {
+    const bridge = bootWith(target({ kind: 'theme', themeId: 'retired-theme' }));
+    expect(await screen.findByTestId('frontend-layer')).toHaveAttribute('data-theme', 'big-box');
+    expect(bridge.calls).toContainEqual({
+      channel: 'frontend.themeOpened',
+      input: { themeId: 'retired-theme' },
+    });
+  });
+
+  it('a library that cannot be read boots to the desktop', async () => {
+    installFakeBridge({
+      'frontend.menu': () => err('LIBRARY_UNAVAILABLE', 'errors.libraryUnavailable'),
+    });
+    render(
+      <QueryClientProvider client={createQueryClient()}>
+        <BootGate>
+          <BootShell initialBounds={{ width: 1200, height: 800 }}>
+            <Desktop />
+          </BootShell>
+        </BootGate>
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByRole('main', { name: 'Desktop' })).toBeVisible();
+    expect(screen.queryByTestId('frontend-layer')).toBeNull();
   });
 });

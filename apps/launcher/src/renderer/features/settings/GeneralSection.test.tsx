@@ -97,4 +97,43 @@ describe('GeneralSection', () => {
       'Open NextLevel automatically when you sign in to Windows.',
     );
   });
+
+  it('FR-THM-5: the boot target offers last theme, a chosen theme or the desktop', async () => {
+    const user = userEvent.setup();
+    const bridge = installFakeBridge({
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+    });
+    renderInShell(<GeneralSection />);
+    const target = await screen.findByRole('combobox', { name: 'Start in' });
+    expect(target).toHaveValue('lastTheme');
+    expect(screen.queryByRole('combobox', { name: 'Theme' })).toBeNull();
+    await user.selectOptions(target, 'theme');
+    const theme = screen.getByRole('combobox', { name: 'Theme' });
+    expect(theme).toHaveValue('big-box');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const saved = bridge.calls.find((call) => call.channel === 'settings.save');
+    expect((saved?.input as { settings: Settings }).settings.general.bootTarget).toEqual({
+      kind: 'theme',
+      themeId: 'big-box',
+    });
+  });
+
+  it('FR-THM-5: an unknown chosen theme reads as Big Box in the picker', async () => {
+    const settings = defaultSettings();
+    installFakeBridge({
+      'settings.get': () =>
+        ok({
+          kind: 'ok',
+          snapshot: {
+            settings: {
+              ...settings,
+              general: { ...settings.general, bootTarget: { kind: 'theme', themeId: 'gone' } },
+            },
+            revision: 0,
+          },
+        }),
+    });
+    renderInShell(<GeneralSection />);
+    expect(await screen.findByRole('combobox', { name: 'Theme' })).toHaveValue('big-box');
+  });
 });

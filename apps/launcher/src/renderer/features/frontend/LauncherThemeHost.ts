@@ -1,6 +1,7 @@
 import {
   artUrl,
   mediaUrl,
+  type AppError,
   type NextLevelBridge,
   type Result,
   type Settings,
@@ -12,6 +13,10 @@ export interface LauncherHostDeps {
   settings: () => Settings;
   /** Translates an error's message key. */
   t: (key: string) => string;
+  /** A launch was asked for; the launcher waits for it to start or fail (US-C2). */
+  onLaunching?: (gameId: number) => void;
+  /** Shows a failed launch to the user (US-C2: the reason and Fix in Settings). */
+  onLaunchError?: (gameId: number, error: AppError) => void;
 }
 
 /**
@@ -48,15 +53,19 @@ export function createLauncherThemeHost(
     mediaUrl: (game, kind) => (game.media.includes(kind) ? mediaUrl(game.id, kind) : null),
     artUrl,
     launch: async (gameId) => {
+      deps.onLaunching?.(gameId);
       const result = await bridge.invoke('launch.game', { gameId });
-      return result.ok ? { ok: true } : { ok: false, message: deps.t(result.error.message) };
+      if (result.ok) return { ok: true };
+      const message = deps.t(result.error.message);
+      if (!deps.onLaunchError) return { ok: false, message };
+      deps.onLaunchError(gameId, result.error);
+      return { ok: false, message, reported: true };
     },
     setGameFlags: async (gameId, flags) => {
       const result = await bridge.invoke('library.games.setFlags', { gameIds: [gameId], flags });
       return result.ok;
     },
-    // Per-theme option overrides arrive with `settings.themes` in M4b.
-    themeOptions: () => undefined,
+    themeOptions: (themeId) => settings().themes.entries[themeId],
     input: () => settings().input,
     onEvent: (listener: (event: HostEvent) => void) => {
       const offs = [

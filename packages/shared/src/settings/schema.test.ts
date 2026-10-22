@@ -13,6 +13,7 @@ describe('SettingsSchema', () => {
     expect(SettingsSchema.parse({ schemaVersion: 1 })).toEqual(defaultSettings());
     expect(defaultSettings().general).toEqual({
       language: 'en',
+      bootTarget: { kind: 'lastTheme' },
       startWithWindows: false,
       setupCompletedAt: null,
     });
@@ -134,5 +135,55 @@ describe('storage and systems settings', () => {
 
   it('normalizePath ignores case, slash style and trailing separators', () => {
     expect(normalizePath('e:/ROMS/')).toBe(normalizePath('E:\\roms'));
+  });
+});
+
+describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
+  it('defaults: boot into the last theme, Big Box first, no overrides', () => {
+    const settings = defaultSettings();
+    expect(settings.general.bootTarget).toEqual({ kind: 'lastTheme' });
+    expect(settings.themes).toEqual({ activeDefault: 'big-box', lastUsed: null, entries: {} });
+  });
+
+  it('accepts each boot target kind', () => {
+    for (const bootTarget of [
+      { kind: 'lastTheme' },
+      { kind: 'theme', themeId: 'big-box' },
+      { kind: 'desktop' },
+    ]) {
+      expect(
+        SettingsSchema.parse({ schemaVersion: 1, general: { bootTarget } }).general.bootTarget,
+      ).toEqual(bootTarget);
+    }
+  });
+
+  it('a chosen theme needs a valid theme id', () => {
+    expect(
+      issuePaths({
+        schemaVersion: 1,
+        general: { bootTarget: { kind: 'theme', themeId: 'Bad Id' } },
+      }),
+    ).toEqual(['general.bootTarget.themeId']);
+  });
+
+  it('an unknown but well-formed theme id is kept (it falls back to Big Box at use)', () => {
+    const parsed = SettingsSchema.parse({
+      schemaVersion: 1,
+      themes: {
+        lastUsed: 'future-theme',
+        entries: { 'future-theme': { art: { logoVariant: 'x' } } },
+      },
+    });
+    expect(parsed.themes.lastUsed).toBe('future-theme');
+    expect(parsed.themes.entries['future-theme']).toEqual({ art: { logoVariant: 'x' } });
+  });
+
+  it('theme option overrides are validated like a pack theme.json', () => {
+    expect(
+      issuePaths({
+        schemaVersion: 1,
+        themes: { entries: { 'big-box': { art: { useVideoBackground: 'yes' } } } },
+      }),
+    ).toEqual(['themes.entries.big-box.art.useVideoBackground']);
   });
 });

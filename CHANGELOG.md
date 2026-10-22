@@ -17,6 +17,21 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - Settings → Storage gets the art folder and the theme packs folder; Settings → Input maps every
   action to keys and gamepad buttons (press to bind, View+Start style chords, duplicate check,
   reset, repeat delay and rate). Held directions repeat after 400 ms at 10 per second by default.
+- M4b front-end mode with Big Box (FR-THM-1, FR-THM-3, FR-THM-5, US-C1, US-C2): the theme runs
+  fullscreen above the desktop. M or View+Start goes to the desktop and the taskbar's Front-end
+  button (or Start → Front-end) comes back to the same place; back at the top, or Start, opens the
+  theme menu (Desktop · Resume). Big Box shows logo plates for menus and box art for games, with
+  All · Favorites · Hidden tabs, search, favorite and hide, and a key help that shows your own
+  keys and buttons. Mouse: click to focus, double-click to open or play, wheel to move.
+- Play from the front-end: input pauses while the game runs and comes back on the same game; a
+  failure shows the reason and Fix in Settings, also from a gamepad.
+- The launcher starts in the last theme (Big Box the first time), a chosen theme or the desktop
+  (Settings → General → Start in); it starts on the desktop while the library has no games.
+  Settings → Themes lists the themes and the one in use.
+
+### Changed
+- The Library no longer shows a failure for a game started from the front-end; the front-end
+  shows it.
 
 ## [0.3.0] - 2026-10-21
 

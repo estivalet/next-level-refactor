@@ -85,7 +85,8 @@
       "storage": "Storage",
       "systems": "Systems",
       "emulators": "Emulators",
-      "input": "Input"
+      "input": "Input",
+      "themes": "Themes"
     },
     "about": {
       "product": "NextLevel",
@@ -354,6 +355,23 @@
         "toDesktop": "Go to desktop",
         "switchTheme": "Switch theme"
       }
+    },
+    "general": {
+      "bootTarget": {
+        "label": "Start in",
+        "help": "What the launcher opens when it starts. While the library has no games it opens the desktop.",
+        "theme": "Theme",
+        "options": {
+          "lastTheme": "Last theme",
+          "theme": "A chosen theme",
+          "desktop": "Desktop"
+        }
+      }
+    },
+    "themes": {
+      "help": "The front-end opens the theme in use. Options for each theme and art coverage come in a later version.",
+      "inUse": "In use",
+      "use": "Use this theme"
     }
   },
   "boot": {
@@ -551,7 +569,11 @@
       "translation": "Translations",
       "prototype": "Prototypes",
       "unlicensed": "Unlicensed"
-    }
+    },
+    "open": "Front-end",
+    "label": "Front-end",
+    "playing": "Playing",
+    "playingHint": "Playing… The front-end comes back when the game closes."
   },
   "themes": {
     "intents": {
@@ -572,6 +594,54 @@
       "jump-prev": "Previous letter",
       "jump-next": "Next letter",
       "random": "Random game"
+    },
+    "common": {
+      "loading": "Loading…",
+      "play": "Play",
+      "open": "Open",
+      "back": "Back",
+      "retry": "Retry",
+      "exit": "Exit",
+      "noGames": "No games",
+      "nothingHere": "Nothing here",
+      "menuFailed": "Couldn’t load the menu",
+      "levelFailed": "Couldn’t load {{name}}",
+      "searchLabel": "Search titles",
+      "searchPlaceholder": "Search title…"
+    },
+    "tabs": {
+      "all": "All",
+      "favorites": "Favorites",
+      "hidden": "Hidden"
+    },
+    "count": {
+      "games_one": "{{count, number}} game",
+      "games_other": "{{count, number}} games",
+      "items_one": "{{count, number}} item",
+      "items_other": "{{count, number}} items"
+    },
+    "toast": {
+      "favoriteFailed": "Couldn’t save favorite",
+      "hiddenFailed": "Couldn’t save hidden state"
+    },
+    "exitMenu": {
+      "label": "Theme menu",
+      "desktop": "Return to desktop",
+      "switch": "Switch theme",
+      "resume": "Resume"
+    },
+    "help": {
+      "title": "Controls"
+    },
+    "bigBox": {
+      "name": "Big Box",
+      "description": "Fullscreen carousel of menu logos and box art",
+      "types": {
+        "category": "Category",
+        "system": "System",
+        "collection": "Collection",
+        "filter": "Filter"
+      }
     }
   }
 }

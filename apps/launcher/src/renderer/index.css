@@ -1,1 +1,3 @@
 @import 'tailwindcss';
+/* Themes live in their own package; their classes must be generated too. */
+@source '../../../../packages/themes/src';

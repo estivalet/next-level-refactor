@@ -85,7 +85,8 @@
       "storage": "Armazenamento",
       "systems": "Sistemas",
       "emulators": "Emuladores",
-      "input": "Controles"
+      "input": "Controles",
+      "themes": "Temas"
     },
     "about": {
       "product": "NextLevel",
@@ -354,6 +355,23 @@
         "toDesktop": "Ir para a área de trabalho",
         "switchTheme": "Trocar tema"
       }
+    },
+    "general": {
+      "bootTarget": {
+        "label": "Iniciar em",
+        "help": "O que o launcher abre ao iniciar. Enquanto a biblioteca não tiver jogos, abre a área de trabalho.",
+        "theme": "Tema",
+        "options": {
+          "lastTheme": "Último tema",
+          "theme": "Um tema escolhido",
+          "desktop": "Área de trabalho"
+        }
+      }
+    },
+    "themes": {
+      "help": "O front-end abre o tema em uso. Opções de cada tema e cobertura de arte chegam numa versão futura.",
+      "inUse": "Em uso",
+      "use": "Usar este tema"
     }
   },
   "boot": {
@@ -551,7 +569,11 @@
       "translation": "Traduções",
       "prototype": "Protótipos",
       "unlicensed": "Não licenciados"
-    }
+    },
+    "open": "Front-end",
+    "label": "Front-end",
+    "playing": "Jogando",
+    "playingHint": "Jogando… O front-end volta quando o jogo fechar."
   },
   "themes": {
     "intents": {
@@ -572,6 +594,54 @@
       "jump-prev": "Letra anterior",
       "jump-next": "Próxima letra",
       "random": "Jogo aleatório"
+    },
+    "common": {
+      "loading": "Carregando…",
+      "play": "Jogar",
+      "open": "Abrir",
+      "back": "Voltar",
+      "retry": "Tentar de novo",
+      "exit": "Sair",
+      "noGames": "Nenhum jogo",
+      "nothingHere": "Nada aqui",
+      "menuFailed": "Não foi possível carregar o menu",
+      "levelFailed": "Não foi possível carregar {{name}}",
+      "searchLabel": "Buscar títulos",
+      "searchPlaceholder": "Buscar título…"
+    },
+    "tabs": {
+      "all": "Todos",
+      "favorites": "Favoritos",
+      "hidden": "Ocultos"
+    },
+    "count": {
+      "games_one": "{{count, number}} jogo",
+      "games_other": "{{count, number}} jogos",
+      "items_one": "{{count, number}} item",
+      "items_other": "{{count, number}} itens"
+    },
+    "toast": {
+      "favoriteFailed": "Não foi possível salvar o favorito",
+      "hiddenFailed": "Não foi possível salvar o estado oculto"
+    },
+    "exitMenu": {
+      "label": "Menu do tema",
+      "desktop": "Voltar à área de trabalho",
+      "switch": "Trocar tema",
+      "resume": "Continuar"
+    },
+    "help": {
+      "title": "Controles"
+    },
+    "bigBox": {
+      "name": "Big Box",
+      "description": "Carrossel em tela cheia de logos e capas",
+      "types": {
+        "category": "Categoria",
+        "system": "Sistema",
+        "collection": "Coleção",
+        "filter": "Filtro"
+      }
     }
   }
 }

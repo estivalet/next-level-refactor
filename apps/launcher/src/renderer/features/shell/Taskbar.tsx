@@ -1,7 +1,8 @@
-import { Grid } from 'lucide-react';
+import { Grid, MonitorPlay } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApp } from '../../apps/registry.ts';
+import { useFrontend } from '../frontend/useFrontend.ts';
 import { useShell } from './ShellContext.tsx';
 import { StartMenu } from './StartMenu.tsx';
 import { TrayClock } from './TrayClock.tsx';
@@ -13,6 +14,7 @@ const FOCUS_RING = 'focus-visible:ring-2 focus-visible:ring-white/70 focus-visib
 export function Taskbar() {
   const { t } = useTranslation();
   const { state, dispatch } = useShell();
+  const frontend = useFrontend();
   const [startOpen, setStartOpen] = useState(false);
   const startButton = useRef<HTMLButtonElement>(null);
   const closeStart = useCallback(() => {
@@ -42,6 +44,15 @@ export function Taskbar() {
         className={`flex h-12 w-12 items-center justify-center rounded-[20px] bg-[#990033] text-white shadow-lg transition-transform hover:scale-105 active:scale-95 ${FOCUS_RING}`}
       >
         <Grid aria-hidden="true" className="h-6 w-6" />
+      </button>
+      <button
+        type="button"
+        aria-label={t('frontend.open')}
+        title={t('frontend.open')}
+        onClick={frontend.show}
+        className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-white hover:bg-white/10 ${FOCUS_RING}`}
+      >
+        <MonitorPlay aria-hidden="true" className="h-6 w-6" />
       </button>
       {state.windows.length > 0 && <div className="mx-1 h-8 w-px bg-white/10" />}
       <ul aria-label={t('shell.taskbar.openWindows')} className="flex items-center gap-2">

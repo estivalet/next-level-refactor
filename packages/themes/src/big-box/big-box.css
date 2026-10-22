@@ -1,0 +1,147 @@
+/* Ported from NextLevelOS src/themes/big-box/big-box.css @ 3d530b7, plus tabs, toast and help. */
+.bigbox-root {
+  --bigbox-display-font: 'Oswald', 'Bebas Neue', 'Arial Narrow', system-ui, sans-serif;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #05070c;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  user-select: none;
+}
+.bigbox-root:focus {
+  outline: none;
+}
+
+.bigbox-card {
+  background: rgba(8, 10, 16, 0.66);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+}
+
+.bigbox-display {
+  font-family: var(--bigbox-display-font);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* Menu plates: a near-opaque dark panel so the clear-logo / label stays
+   readable over whatever background art is behind it. */
+.bigbox-carousel-plate {
+  background: rgba(6, 8, 12, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition:
+    transform 180ms ease,
+    filter 180ms ease,
+    opacity 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+/* Unfocused menu plates stay mostly opaque (box art, being opaque itself,
+   still takes the usual heavier dim below). */
+.bigbox-carousel-plate.bigbox-carousel-item--dim {
+  opacity: 0.8;
+  filter: brightness(0.82);
+}
+.bigbox-carousel-plate.bigbox-carousel-item--focused {
+  background: rgba(4, 6, 10, 0.92);
+  border-color: var(--bigbox-accent);
+  box-shadow:
+    inset 0 0 0 1px var(--bigbox-accent),
+    0 10px 34px -6px var(--bigbox-accent-soft);
+}
+
+/* Box art carries its own frame — no plate panel behind it. */
+.bigbox-carousel-art {
+  border-radius: 6px;
+  transition:
+    transform 180ms ease,
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+.bigbox-carousel-item--dim {
+  opacity: 0.45;
+  filter: brightness(0.7);
+}
+.bigbox-carousel-item--focused {
+  transform: scale(1.12);
+}
+/* Box art: unfocused stays at full brightness (only menu plates dim), and the
+   focused cover scales up harder so it clearly rises above and overlaps its
+   neighbours. */
+.bigbox-carousel-art.bigbox-carousel-item--dim {
+  opacity: 1;
+  filter: none;
+}
+.bigbox-carousel-art.bigbox-carousel-item--focused {
+  transform: scale(1.22);
+  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.6));
+}
+
+.bigbox-breadcrumb {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bigbox-hint-row {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.bigbox-hint-key {
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.bigbox-search {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+}
+
+.bigbox-tabs {
+  display: flex;
+  gap: 6px;
+}
+.bigbox-tab {
+  padding: 3px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bigbox-tab--active {
+  color: #fff;
+  border-color: var(--bigbox-accent);
+  background: var(--bigbox-accent-soft);
+}
+.bigbox-toast {
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: rgba(127, 29, 29, 0.85);
+  font-size: 13px;
+}
+.bigbox-help {
+  padding: 24px;
+  border-radius: 18px;
+  background: rgba(8, 10, 16, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 13px;
+}
+.bigbox-help kbd {
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  font-size: 11px;
+}

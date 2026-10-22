@@ -1,4 +1,9 @@
-import { _electron as electron, type ElectronApplication } from '@playwright/test';
+import {
+  _electron as electron,
+  expect,
+  type ElectronApplication,
+  type Page,
+} from '@playwright/test';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -40,4 +45,12 @@ export function launch(
     args: [appDir],
     env: { ...env, ...extraEnv, NEXTLEVEL_USER_DATA: dataDir },
   });
+}
+
+/** With games in the library the launcher boots into the front-end (FR-THM-5); M leaves it. */
+export async function leaveFrontend(page: Page): Promise<void> {
+  const layer = page.getByTestId('frontend-layer');
+  await expect(layer).toBeVisible();
+  await page.keyboard.press('KeyM');
+  await expect(layer).toBeHidden();
 }

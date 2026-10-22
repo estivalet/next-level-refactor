@@ -6,6 +6,7 @@ import {
   Info,
   Joystick,
   Keyboard,
+  Palette,
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ import { InputSection } from './input/InputSection.tsx';
 import type { AppParams } from '../shell/windowManager.ts';
 import { StorageSection } from './StorageSection.tsx';
 import { SystemsSection } from './systems/SystemsSection.tsx';
+import { ThemesSection } from './ThemesSection.tsx';
 
 interface Section {
   id: string;
@@ -55,6 +57,12 @@ const SECTIONS: readonly Section[] = [
     labelKey: 'settings.sections.emulators',
     icon: Joystick,
     Component: EmulatorsSection,
+  },
+  {
+    id: 'themes',
+    labelKey: 'settings.sections.themes',
+    icon: Palette,
+    Component: ThemesSection,
   },
   {
     id: 'input',

@@ -1,0 +1,19 @@
+/* Slow zoom on still backgrounds (art.backgroundZoom). Ported from NextLevelOS src/index.css @
+   3d530b7. The layer remounts on every focus change, so each background starts at 100%. */
+@keyframes nl-bg-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+.nl-bg-zoom {
+  animation: nl-bg-zoom 8s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nl-bg-zoom {
+    animation: none;
+  }
+}

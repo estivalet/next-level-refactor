@@ -14,7 +14,9 @@ export type HostEvent =
   | { type: 'launch-finished'; gameId: number; ok: boolean }
   | { type: 'settings-changed' };
 
-export type LaunchOutcome = { ok: true } | { ok: false; message: string };
+/** `reported`: the host already showed the failure to the user, so the theme stays quiet. */
+export type LaunchOutcome =
+  { ok: true } | { ok: false; message: string; reported?: boolean | undefined };
 
 /**
  * Everything a theme can reach outside itself (architecture §4.4, ADR-010). The launcher

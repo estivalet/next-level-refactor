@@ -105,6 +105,8 @@ export interface ThemeComponentProps {
   onExit: () => void;
   /** False while a host overlay owns the input. Default true. */
   inputEnabled?: boolean;
+  /** False while the theme is out of sight or a game runs: no sounds, no video. Default true. */
+  active?: boolean;
 }
 
 /** Free-form per-theme options (e.g. HyperSpin's `wheel`); each theme validates its own keys. */
@@ -118,6 +120,8 @@ export interface ThemeModule {
   art: ThemeArtConfig;
   /** Code defaults for this theme's settings. */
   settings?: ThemeSettings;
+  /** Which intent each input action means in this theme (key help, gamepad reachability). */
+  keymap: KeyMap;
   Component: ComponentType<ThemeComponentProps>;
 }
 

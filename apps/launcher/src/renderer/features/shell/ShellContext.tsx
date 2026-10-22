@@ -1,4 +1,18 @@
-import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useReducer,
+  type Dispatch,
+  type ReactNode,
+} from 'react';
+import {
+  FRONTEND_CLOSED,
+  FrontendContext,
+  frontendReducer,
+  type FrontendControls,
+  type FrontendState,
+} from '../frontend/useFrontend.ts';
 import {
   initialWindowState,
   windowReducer,
@@ -14,15 +28,40 @@ interface ShellContextValue {
 
 const ShellContext = createContext<ShellContextValue | null>(null);
 
+/** The desktop's windows and the front-end layer above them. */
 export function ShellProvider({
   children,
   initialBounds,
+  initialFrontend = FRONTEND_CLOSED,
 }: {
   children: ReactNode;
   initialBounds: Bounds;
+  /** Whether the launcher boots into the front-end (FR-THM-5). */
+  initialFrontend?: FrontendState;
 }) {
   const [state, dispatch] = useReducer(windowReducer, initialBounds, initialWindowState);
-  return <ShellContext value={{ state, dispatch }}>{children}</ShellContext>;
+  const [frontend, frontendDispatch] = useReducer(frontendReducer, initialFrontend);
+  // Stable show/hide, so effects and memoized children don't rerun on every change.
+  const actions = useMemo(
+    () => ({
+      show: () => {
+        frontendDispatch({ type: 'show' });
+      },
+      hide: () => {
+        frontendDispatch({ type: 'hide' });
+      },
+    }),
+    [],
+  );
+  const controls = useMemo<FrontendControls>(
+    () => ({ ...frontend, ...actions }),
+    [frontend, actions],
+  );
+  return (
+    <ShellContext value={{ state, dispatch }}>
+      <FrontendContext value={controls}>{children}</FrontendContext>
+    </ShellContext>
+  );
 }
 
 export function useShell(): ShellContextValue {
