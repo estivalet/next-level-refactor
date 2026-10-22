@@ -36,9 +36,10 @@ async function setup(withLibrary: boolean) {
     cleanups.push(temp.cleanup);
     db = temp.db;
     const launches = new LaunchRepository(temp.db);
+    const media = new MediaRepository(temp.db);
     const scan = new ScanService({
       repo: temp.repo,
-      media: new MediaRepository(temp.db),
+      media,
       settings,
       catalog: () => CATALOG,
       createWalker: inProcessWalker,
@@ -50,6 +51,7 @@ async function setup(withLibrary: boolean) {
     });
     library = {
       repo: temp.repo,
+      media,
       scan,
       games: new GameRepository(temp.db, (row) => join('X:', 'roms', row.systemId, row.relPath)),
       collections: new CollectionRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21))),

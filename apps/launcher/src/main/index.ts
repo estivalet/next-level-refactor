@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, protocol, shell } from 'electron';
 import { existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -23,6 +23,7 @@ import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { MediaRepository } from './library/MediaRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
+import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
 import { createWorkerWalker } from './scan/workerWalker.ts';
@@ -38,6 +39,8 @@ app.setPath(
   }),
 );
 const dataDir = app.getPath('userData');
+// Must happen before the app is ready (FR-THM-6).
+protocol.registerSchemesAsPrivileged([NEXTLEVEL_SCHEME]);
 const logsDir = join(dataDir, 'logs');
 initLogger(logsDir);
 
@@ -182,7 +185,7 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     scan.cancel();
     db.$client.close();
   });
-  return { repo, scan, games, collections, launches, launch };
+  return { repo, media, scan, games, collections, launches, launch };
 }
 
 async function start(): Promise<void> {
@@ -213,6 +216,17 @@ async function start(): Promise<void> {
     },
   });
   await settings.load();
+  const library = startLibrary(settings);
+  protocol.handle(
+    'nextlevel',
+    createNextlevelHandler({
+      mediaPath: (gameId, kind) => library?.media.path(gameId, kind) ?? null,
+      paths: () => {
+        const { assetsPath, themesPath } = currentSettings(settings).storage;
+        return { assetsPath, themesPath };
+      },
+    }),
+  );
 
   const handlers = createHandlers({
     settings,
@@ -225,7 +239,7 @@ async function start(): Promise<void> {
     setOpenAtLogin,
     log,
     catalog: systemCatalog,
-    library: startLibrary(settings),
+    library,
     clock: () => new Date(),
     emit,
     revealFile: (path) => {

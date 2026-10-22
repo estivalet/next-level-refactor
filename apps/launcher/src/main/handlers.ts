@@ -16,6 +16,7 @@ import type { CollectionRepository } from './library/CollectionRepository.ts';
 import type { GameRepository } from './library/GameRepository.ts';
 import type { LaunchRepository } from './library/LaunchRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
+import type { MediaRepository } from './library/MediaRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
@@ -38,6 +39,7 @@ export interface MainDeps {
   /** null when `library.db` could not be opened; library channels then fail. */
   library: {
     repo: LibraryRepository;
+    media: MediaRepository;
     scan: ScanService;
     games: GameRepository;
     collections: CollectionRepository;
