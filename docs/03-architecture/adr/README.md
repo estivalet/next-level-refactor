@@ -18,6 +18,7 @@ to change **Status** to `Superseded by ADR-XXX`; write a new ADR instead.
 | [011](ADR-011-stable-ids.md) | Stable slug IDs for systems | Accepted |
 | [012](ADR-012-rights-cleared-catalog.md) | The catalog holds rights-cleared content only | Accepted |
 | [013](ADR-013-single-runtime.md) | One runtime: drop Python, port the scraper to TypeScript | Accepted |
+| [014](ADR-014-bundled-7zip.md) | Bundle 7-Zip for archive extraction at launch | Accepted |
 
 ## Template
 

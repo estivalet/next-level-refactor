@@ -77,6 +77,7 @@ export function SystemsSection() {
                 key={editing.id}
                 system={editing}
                 settings={draft.systems[editing.id]}
+                profiles={draft.profiles.filter((p) => p.systems.includes(editing.id))}
                 errors={errors}
                 onChange={(patch) => {
                   update((current) => withSystem(current, editing.id, patch));

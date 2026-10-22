@@ -5,6 +5,26 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+- M3a launching engine (FR-EMU-2..5, FR-EMU-7, FR-EMU-8, ADR-004): emulators and launch profiles
+  live in settings. Argument templates use a fixed token set (`{rom}`, `{romDir}`, `{core}`,
+  `{extraArgs}`, …), are checked on save, and render to an argv array that's spawned without a
+  shell. The profile comes from the game's override, then the system default, then the first
+  profile for the system. The ROM is looked up on the game's own storage location first.
+- Emulator presets for RetroArch (one profile per core), MAME (one per system) and Dolphin, PCSX2,
+  DuckStation, PPSSPP, Cemu, Ryujinx, Azahar, xemu, Xenia Canary, DOSBox, ScummVM and Flycast,
+  ported from the NextLevelOS runner. A snapshot test pins each preset's argv.
+- Settings → Emulators: add an emulator from a preset (you only choose the program) or as Custom,
+  find emulators in a folder, add more preset profiles, and edit profiles. The editor has token
+  autocomplete, names unknown tokens, shows a live command preview, and has a Test launch with
+  the exit code and stderr; a failure names the path and the reason (for example a missing working
+  folder). Settings → Systems sets a system's emulator profile.
+- `.zip`/`.7z` games are extracted to a temp folder for profiles that can't read archives, using
+  the bundled 7-Zip (ADR-014). The folder is removed after the emulator exits; start-up removes
+  folders left by an earlier run.
+- Every launch, including Test launches, is recorded in a launch log (newest 1,000) with its
+  command, exit code and the last 4 KiB of stderr.
+
 ## [0.2.0] - 2026-10-21
 
 M2 — Library core: system catalog, storage, background scan and the Game Library app.

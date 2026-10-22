@@ -4,17 +4,19 @@
 //     --launchers <NextLevelOS>/public/data/launchers.json \
 //     --config <NextLevelOS>/public/data/config.json \
 //     --screenscraper <NextLevelOS>/public/data/screenscraper.json \
-//     --es-systems <download>/es_systems.xml \
+//     --es-systems <download>/es_systems.xml //     --runner <NextLevelOS>/public/nextlevel-launcher.py //     --gamelists <NextLevelOS>/public/data/gamelists \
 //     --source "nextlevelos@<commit> + es-de v3.5.0"
 //
 // es_systems.xml: ES-DE's resources/systems/windows/es_systems.xml at the release named in
 // --source (MIT, see NOTICE.md). The NextLevelOS files are only read.
 
-import { SystemCatalogSchema } from '@nextlevel/shared';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { PresetCatalogSchema, SystemCatalogSchema } from '@nextlevel/shared';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { buildCatalog, checkReleasedIds, parseEsSystems, type SeedInput } from './mapping.ts';
+import { buildPresets, mostCommonCore } from './presets.ts';
+import { parseMameArgs, parseSystemEmulators } from './runner.ts';
 
 /**
  * NextLevelOS names whose ES-DE fullname differs; value = ES-DE system `name`. Built from the
@@ -99,6 +101,8 @@ const { values } = parseArgs({
     config: { type: 'string' },
     screenscraper: { type: 'string' },
     'es-systems': { type: 'string' },
+    runner: { type: 'string' },
+    gamelists: { type: 'string' },
     source: { type: 'string' },
     out: { type: 'string', default: join(import.meta.dirname, '..', 'data', 'systems.json') },
   },
@@ -121,6 +125,33 @@ const { catalog, report } = buildCatalog({
   source: required('source'),
 });
 
+// FR-EMU-7: emulator presets and each system's preset profiles, best first.
+const launchers = readJson(required('launchers')) as Record<string, { command?: string }>;
+const runnerSource = readFileSync(required('runner'), 'utf8');
+const gamelistCores: Record<string, string> = {};
+for (const [name, launcher] of Object.entries(launchers)) {
+  const file = join(required('gamelists'), `${name}.json`);
+  if (!launcher.command?.includes('%core%') || !existsSync(file)) continue;
+  const core = mostCommonCore(readJson(file));
+  if (core) gamelistCores[name] = core;
+}
+const presets = buildPresets({
+  launchers,
+  systemEmulators: parseSystemEmulators(runnerSource),
+  mameArgs: parseMameArgs(runnerSource),
+  gamelistCores,
+  systemIds: new Map(catalog.systems.map((system) => [system.name, system.id])),
+  source: required('source'),
+});
+for (const system of catalog.systems) {
+  system.presetProfiles = presets.presetProfiles[system.id] ?? [];
+}
+PresetCatalogSchema.parse(presets.catalog);
+writeFileSync(
+  join(import.meta.dirname, '..', 'data', 'presets.json'),
+  `${JSON.stringify(presets.catalog, null, 2)}\n`,
+);
+
 SystemCatalogSchema.parse(catalog);
 // ADR-011: refuse to drop a released id; record any new ones.
 const releasedPath = join(import.meta.dirname, '..', 'data', 'released-ids.json');
@@ -132,4 +163,7 @@ const matched = catalog.systems.length - report.unmatchedEs.length;
 console.log(`systems: ${String(catalog.systems.length)}`);
 console.log(`ES-DE matches: ${String(matched)}`);
 console.log(`global-extension fallbacks: ${String(report.fallbackExtensions.length)}`);
+console.log(`presets: ${String(presets.catalog.presets.length)}`);
+console.log(`systems with a preset: ${String(Object.keys(presets.presetProfiles).length)}`);
+console.log(`no preset:\n  ${presets.skipped.join('\n  ')}`);
 console.log(`unmatched in ES-DE:\n  ${report.unmatchedEs.join('\n  ')}`);

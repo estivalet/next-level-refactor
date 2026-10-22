@@ -142,7 +142,20 @@ Left navigation of sections (see IA §1), right form pane.
   cancelled/failed line, and a virtualized per-system list. If the library can't be opened, the
   panel shows that error with **Open data folder**. The Library app's Scan ▾ (S7, M2c) uses the
   same channels.
-- **Emulator profile editor**: template field with token autocomplete and a live preview of the resolved command for a sample game; **Test launch** shows command, exit code and stderr.
+- **Emulators** (M3, FR-EMU-2/5/7): **Add emulator…** (choose a preset or Custom, then the
+  program; picking a known program offers its preset) creates the emulator and the preset's
+  profiles for enabled systems; **Find emulators in a folder…** lists preset programs found up to
+  two folders deep, checked unless already added. Each emulator shows its program and its
+  profiles (virtualized) with **Change program…**, **Add from preset…** (the preset profiles it
+  doesn't have, searchable), **New profile**, Edit, and Delete (asks first, naming the profile
+  count; clears system defaults that named them).
+- **Emulator profile editor**: name, a searchable system checklist, one row per argument with token
+  autocomplete when `{` is typed and the first problem under the field ("Unknown token {romm}"),
+  working folder, RetroArch core, archives (pass / extract first) and environment variables. A
+  live preview of the resolved command for an example file or a game chosen from the library;
+  **Test launch** (needs a game) shows command, exit code, duration and stderr, or the error.
+- **Systems → system editor** (M3): the system's emulator profile: Automatic (first profile for
+  the system) or one of the profiles that cover it.
 - **Backups**: table (time, what changed, size) with Restore and Export.
 
 ## S10 Menu Editor

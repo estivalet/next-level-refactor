@@ -2,8 +2,12 @@ import { AppErrorException, ERROR_CODES } from '@nextlevel/shared';
 import { dirname } from 'node:path';
 import type { MainDeps } from './handlers.ts';
 import type { IpcHandlers } from './ipc/router.ts';
+import type { LaunchChannel } from './launchHandlers.ts';
 
-type LibraryChannel = Extract<keyof IpcHandlers, `library.${string}` | `collections.${string}`>;
+type LibraryChannel = Exclude<
+  Extract<keyof IpcHandlers, `library.${string}` | `collections.${string}`>,
+  LaunchChannel
+>;
 
 /** The closest folder of `path` that exists; null when not even the drive does. */
 export function nearestExisting(path: string, exists: (path: string) => boolean): string | null {

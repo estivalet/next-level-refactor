@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
 
@@ -12,6 +13,8 @@ export const ipcEvents = {
     /** The games a metadata or flag change touched; absent after a scan. */
     gameIds: z.array(z.number().int().positive()).optional(),
   }),
+  'launch.started': LaunchStartedSchema,
+  'launch.finished': LaunchFinishedSchema,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;

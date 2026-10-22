@@ -43,3 +43,34 @@ export const SystemCatalogSchema = z.object({
 });
 
 export type SystemCatalog = z.output<typeof SystemCatalogSchema>;
+
+/** A ready-made launch profile; adding the preset's emulator copies it into settings (FR-EMU-7). */
+export const PresetProfileSchema = z.object({
+  /** `retroarch:<core>`, `mame:<system-id>[:<medium>]` or `<preset>:default`. */
+  id: z.string().regex(/^[a-z0-9-]+:[a-z0-9_.-]+(:[a-z0-9]+)?$/),
+  name: z.string().min(1),
+  systems: z.array(z.string().regex(SYSTEM_ID)).min(1),
+  args: z.array(z.string()),
+  cwd: z.string().optional(),
+  core: z.string().optional(),
+  archives: z.enum(['pass', 'extract']),
+});
+
+export const EmulatorPresetSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string().min(1),
+  /** File names that identify the emulator, used to suggest the preset (case-insensitive). */
+  executableNames: z.array(z.string().min(1)).min(1),
+  homepage: z.url(),
+  profiles: z.array(PresetProfileSchema).min(1),
+});
+
+export type PresetProfile = z.output<typeof PresetProfileSchema>;
+export type EmulatorPreset = z.output<typeof EmulatorPresetSchema>;
+
+export const PresetCatalogSchema = z.object({
+  source: z.string().min(1),
+  presets: z.array(EmulatorPresetSchema),
+});
+
+export type PresetCatalog = z.output<typeof PresetCatalogSchema>;

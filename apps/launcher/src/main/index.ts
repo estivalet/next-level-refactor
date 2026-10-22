@@ -4,17 +4,22 @@ import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { defaultSettings } from '@nextlevel/shared';
-import { systemCatalog } from '@nextlevel/system-catalog';
+import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
+import { path7za } from '7zip-bin';
 import { v7 as uuidv7 } from 'uuid';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createEventSink } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
+import { sevenZipExtractor } from './launch/archives.ts';
+import { LaunchService } from './launch/LaunchService.ts';
+import { spawnProcess } from './launch/spawnProcess.ts';
 import { initLogger, logger as log } from './log.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
 import { expectedGamePath } from './library/expectedPath.ts';
 import { GameRepository } from './library/GameRepository.ts';
+import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
 import { ScanService } from './scan/ScanService.ts';
@@ -86,6 +91,25 @@ function createWindow(): BrowserWindow {
   return window;
 }
 
+let mainWindow: BrowserWindow | null = null;
+
+/** The launcher window while a game runs (owner decision D4): minimized, then restored. */
+const launcherWindow = {
+  minimize: () => {
+    mainWindow?.minimize();
+  },
+  restore: () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  },
+};
+
+const currentSettings = (settings: SettingsService) => {
+  const loaded = settings.get();
+  return loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
+};
+
 const emit = createEventSink(
   () =>
     BrowserWindow.getAllWindows()
@@ -132,11 +156,30 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     });
   });
   const collections = new CollectionRepository(db, () => new Date());
+  const launches = new LaunchRepository(db);
+  const launch = new LaunchService({
+    settings: () => currentSettings(settings),
+    system: getSystem,
+    launches,
+    spawn: spawnProcess,
+    exists: existsSync,
+    clock: () => new Date(),
+    emit,
+    window: launcherWindow,
+    // ADR-014: packaged builds run 7za.exe from outside the asar archive.
+    extractor: sevenZipExtractor(path7za.replace('app.asar', 'app.asar.unpacked')),
+    tempDir: app.getPath('temp'),
+    baseEnv: process.env,
+    log,
+  });
+  launch.cleanupStaleExtractions().catch((error: unknown) => {
+    log.warn({ error }, 'could not remove old extraction folders');
+  });
   app.on('before-quit', () => {
     scan.cancel();
     db.$client.close();
   });
-  return { repo, scan, games, collections };
+  return { repo, scan, games, collections, launches, launch };
 }
 
 async function start(): Promise<void> {
@@ -186,6 +229,21 @@ async function start(): Promise<void> {
       shell.showItemInFolder(path);
     },
     pathExists: existsSync,
+    presets: emulatorPresets,
+    pickFile: async (title) => {
+      const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];
+      if (e2eFile) return e2eFile;
+      const window = BrowserWindow.getFocusedWindow();
+      const options = {
+        properties: ['openFile' as const],
+        filters: [{ name: 'Programs', extensions: ['exe'] }],
+        ...(title ? { title } : {}),
+      };
+      const result = await (window
+        ? dialog.showOpenDialog(window, options)
+        : dialog.showOpenDialog(options));
+      return result.canceled ? null : (result.filePaths[0] ?? null);
+    },
     pickFolder: async (title) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];
@@ -199,9 +257,9 @@ async function start(): Promise<void> {
     },
   });
   registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
-  createWindow();
+  mainWindow = createWindow();
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow();
   });
 }
 

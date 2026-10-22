@@ -65,9 +65,17 @@ describe('library schema', () => {
       .run(picks, gameId);
     client.prepare('insert into game_user_state (game_id, favorite) values (?, 1)').run(gameId);
     client.prepare("insert into game_filters (game_id, filter) values (?, 'homebrew')").run(gameId);
+    client
+      .prepare('insert into game_launch_override (game_id, core) values (?, ?)')
+      .run(gameId, 'x');
 
     client.prepare('delete from games where id = ?').run(gameId);
-    for (const table of ['collection_games', 'game_user_state', 'game_filters']) {
+    for (const table of [
+      'collection_games',
+      'game_user_state',
+      'game_filters',
+      'game_launch_override',
+    ]) {
       expect(client.prepare(`select count(*) from ${table}`).pluck().get(), table).toBe(0);
     }
     expect(client.prepare('select sort from collections').pluck().get()).toBe('manual');

@@ -36,7 +36,7 @@ is valid and the app fills the rest.
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
-`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2. Storage paths
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3. An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
@@ -101,8 +101,9 @@ type EmulatorProfile = {
   args: string[];                 // one template per argv element, e.g. ['-L', '{emulatorDir}/cores/{core}.dll', '{rom}']
   cwd?: string;                   // template; default {emulatorDir}
   core?: string;                  // RetroArch core name
-  archives: 'pass' | 'extract';
-  env?: Record<string, string>;
+  archives: 'pass' | 'extract';             // default 'pass'
+  env: Record<string, string>;              // default {}; values are templates
+  presetProfileId?: string;                 // the preset profile it was copied from
   hooks?: LaunchHook[];           // post-1.0 (FR-EMU-9)
 };
 
@@ -193,8 +194,7 @@ type EmulatorPreset = {
 Seeded by `packages/system-catalog/scripts/seed.ts` from the current `launchers.json` keys (all 438
 systems; id = slug of the NextLevelOS name), `screenscraper.json` IDs and ES-DE's `es_systems.xml`
 (MIT) for extensions, falling back to the NextLevelOS per-system `romext`, then the global
-`scanExtensions`. `kind` is `other` where unknown; emulator presets (`presetProfiles`) arrive in M3,
-from `nextlevel-launcher.py`'s per-system logic. Versioned with the launcher; user overrides live in
+`scanExtensions`. `kind` is `other` where unknown. Since M3 the seed also writes `data/presets.json` (RetroArch per core, MAME per system, standalone emulators) and each system's `presetProfiles`, from `nextlevel-launcher.py`'s `SYSTEM_EMULATORS` and `MAME_CUSTOM_ARGS` (see `packages/system-catalog/README.md`). Versioned with the launcher; user overrides live in
 settings.
 
 ---
@@ -205,7 +205,7 @@ SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_versi
 
 **Implemented so far** (`apps/launcher/src/main/library/`): `meta`, `games` and `game_metadata`
 since M2b; `game_user_state`, `game_filters`, `collections`, `collection_games` and `games_fts`
-since M2c; the other tables arrive with the milestones that use them, each as a new migration.
+since M2c; `game_launch_override` and `launch_log` since M3; the other tables arrive with the milestones that use them, each as a new migration.
 - `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
 - `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the
   natural key ignores case like Windows does.
@@ -261,7 +261,7 @@ erDiagram
 | `smart_filters` | `id` PK, `name`, `query` json | `GameQuery` serialized |
 | `menus` | `id` PK, `title`, `active` bool | exactly one active (partial unique index) |
 | `menu_nodes` | `id` PK, `menu_id` FK, `parent_id` FK?, `position` int, `type` (`category`/`system`/`collection`/`smartFilter`), `ref_id` text?, `name` text, `display_name`?, `short_name`?, `theme_id`?, `filter_tabs` bool?, `visible` bool | `name` is also the menu-art key (current convention) |
-| `launch_log` | `id` PK, `game_id` FK, `profile_id`, `argv` json, `started_at`, `ended_at`?, `exit_code` int?, `stderr_tail` text? | keep last 1,000 |
+| `launch_log` | `id` PK, `game_id` FK? (set null on delete), `game_title`, `profile_id`, `profile_name`, `argv` json (executable first), `cwd`, `test` bool, `started_at`, `ended_at`?, `exit_code` int?, `error_code` text?, `stderr_tail` text? (last 4 KiB) | keep last 1,000; titles and names are copies so rows outlive renames and deletes; `ended_at` null = still running or the launcher quit first |
 | `games_fts` | FTS5(`title`, content=`game_metadata`, content_rowid=`game_id`) | global search; triggers keep it in sync |
 | `meta` | `key` PK, `value` | `schema_version` |
 

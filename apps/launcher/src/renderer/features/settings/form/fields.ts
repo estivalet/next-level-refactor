@@ -12,7 +12,16 @@ export type FieldDescriptor =
 
 const KNOWN_ISSUES = new Set(['invalid_type', 'invalid_value', 'too_small', 'too_big']);
 /** Custom schema checks carry their message key as the issue message. */
-const CUSTOM_ISSUES = new Set(['notAbsolute', 'duplicatePath', 'duplicateName']);
+const CUSTOM_ISSUES = new Set([
+  'notAbsolute',
+  'duplicatePath',
+  'duplicateName',
+  'unknownToken',
+  'unclosedBrace',
+  'extraArgsAlone',
+  'unknownEmulator',
+  'notExecutable',
+]);
 
 function messageKey(issue: z.core.$ZodIssue): string {
   if (issue.code === 'custom' && CUSTOM_ISSUES.has(issue.message)) return issue.message;

@@ -4,6 +4,7 @@ import {
   Gamepad2,
   HardDrive,
   Info,
+  Joystick,
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
@@ -12,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { AboutSection } from './AboutSection.tsx';
 import { BackupsSection } from './BackupsSection.tsx';
 import { DataSection } from './DataSection.tsx';
+import { EmulatorsSection } from './emulators/EmulatorsSection.tsx';
 import { GeneralSection } from './GeneralSection.tsx';
 import { StorageSection } from './StorageSection.tsx';
 import { SystemsSection } from './systems/SystemsSection.tsx';
@@ -42,6 +44,12 @@ const SECTIONS: readonly Section[] = [
     labelKey: 'settings.sections.systems',
     icon: Gamepad2,
     Component: SystemsSection,
+  },
+  {
+    id: 'emulators',
+    labelKey: 'settings.sections.emulators',
+    icon: Joystick,
+    Component: EmulatorsSection,
   },
   {
     id: 'backups',

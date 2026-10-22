@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import type { Result } from '../result.ts';
-import { SystemDefinitionSchema } from '../catalog/schema.ts';
+import { EmulatorPresetSchema, SystemDefinitionSchema } from '../catalog/schema.ts';
+import {
+  LaunchLogPageSchema,
+  LaunchOverrideSchema,
+  LaunchPreviewSchema,
+  LaunchStartedSchema,
+  TestLaunchResultSchema,
+} from '../launch/schema.ts';
 import {
   COLLECTION_SORTS,
   CollectionNameSchema,
@@ -16,6 +23,7 @@ import {
   SearchResultSchema,
 } from '../library/games.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
+import { EmulatorProfileSchema, EmulatorSchema } from '../settings/emulators.ts';
 import { SettingsSchema } from '../settings/schema.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
@@ -41,6 +49,19 @@ export const BackupInfoSchema = z.object({
 const gameId = z.number().int().positive();
 const collectionId = z.number().int().positive();
 
+/** A profile from Settings, saved or not, for Preview and Test launch (FR-EMU-5). */
+function launchDraft<G extends z.ZodType>(game: G) {
+  return z
+    .strictObject({ emulator: EmulatorSchema, profile: EmulatorProfileSchema, gameId: game })
+    .refine((draft) => draft.profile.emulatorId === draft.emulator.id, {
+      message: 'unknownEmulator',
+      path: ['profile', 'emulatorId'],
+    });
+}
+
+export const DetectedEmulatorSchema = z.object({ presetId: z.string(), executable: z.string() });
+export type DetectedEmulator = z.output<typeof DetectedEmulatorSchema>;
+
 export const APP_PATH_KEYS = ['data', 'backups', 'logs'] as const;
 
 export type SettingsLoad = z.output<typeof SettingsLoadSchema>;
@@ -63,6 +84,10 @@ export const ipcContract = {
   'app.openPath': { input: z.strictObject({ key: z.enum(APP_PATH_KEYS) }), output: z.void() },
   'app.pickFolder': {
     input: z.strictObject({ title: z.string().max(200).optional() }),
+    output: z.string().nullable(),
+  },
+  'app.pickFile': {
+    input: z.strictObject({ title: z.string().max(200).optional(), kind: z.literal('executable') }),
     output: z.string().nullable(),
   },
   'systems.catalog': { input: z.void(), output: z.array(SystemDefinitionSchema) },
@@ -94,6 +119,33 @@ export const ipcContract = {
       limit: z.number().int().min(1).max(200).optional(),
     }),
     output: SearchResultSchema,
+  },
+  'library.games.launchOverride': {
+    input: z.strictObject({ gameId }),
+    output: LaunchOverrideSchema,
+  },
+  'library.games.setLaunchOverride': {
+    input: z.strictObject({ gameId, override: LaunchOverrideSchema }),
+    output: LaunchOverrideSchema,
+  },
+  'launch.game': {
+    input: z.strictObject({ gameId }),
+    output: z.object({ launchId: z.number().int().positive() }),
+  },
+  'launch.test': { input: launchDraft(gameId), output: TestLaunchResultSchema },
+  'launch.preview': { input: launchDraft(gameId.optional()), output: LaunchPreviewSchema },
+  'launch.log': {
+    input: z.strictObject({
+      offset: z.number().int().min(0),
+      limit: z.number().int().min(1).max(200),
+    }),
+    output: LaunchLogPageSchema,
+  },
+  'launch.running': { input: z.void(), output: LaunchStartedSchema.nullable() },
+  'emulators.presets': { input: z.void(), output: z.array(EmulatorPresetSchema) },
+  'emulators.detect': {
+    input: z.strictObject({ folder: z.string().trim().min(3).max(500) }),
+    output: z.array(DetectedEmulatorSchema),
   },
   'collections.list': { input: z.void(), output: z.array(CollectionSummarySchema) },
   'collections.create': {
