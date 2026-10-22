@@ -55,7 +55,7 @@ describe('ArtIndexService', () => {
     await write('themes/hyperspin/theme.json', JSON.stringify({ id: 'other' }));
     expect(await service.index('ps5')).toMatchObject({
       manifest: null,
-      warnings: ['theme.json is not valid JSON; ignored'],
+      warnings: [{ code: 'manifestInvalidJson' }],
     });
     expect((await service.index('hyperspin')).manifest).toBeNull();
   });
@@ -65,7 +65,7 @@ describe('ArtIndexService', () => {
       packFiles: [],
       assetsFiles: [],
       manifest: null,
-      warnings: ['artFolderUnreadable'],
+      warnings: [{ code: 'folderUnreadable' }],
     });
     paths = { assetsPath: null, themesPath: null };
     expect(await service.index('big-box')).toEqual({
@@ -77,7 +77,7 @@ describe('ArtIndexService', () => {
   });
 
   it('FR-THM-2: a missing art folder is not cached, so a drive mounted later is seen', async () => {
-    expect((await service.index('big-box')).warnings).toEqual(['artFolderUnreadable']);
+    expect((await service.index('big-box')).warnings).toEqual([{ code: 'folderUnreadable' }]);
     await write('assets/logo/clear/A.png');
     expect(await service.index('big-box')).toMatchObject({
       assetsFiles: ['logo/clear/A.png'],

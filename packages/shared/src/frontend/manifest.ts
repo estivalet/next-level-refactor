@@ -1,12 +1,17 @@
-import { ThemeArtOptionsSchema, type ThemeArtOptions, type ThemeManifest } from './schema.ts';
+import {
+  ThemeArtOptionsSchema,
+  type ArtIndexWarning,
+  type ThemeArtOptions,
+  type ThemeManifest,
+} from './schema.ts';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
 /** Keeps each valid `art` key and drops the others with a warning. */
-function parseArt(raw: unknown, warnings: string[]): ThemeArtOptions {
+function parseArt(raw: unknown, warnings: ArtIndexWarning[]): ThemeArtOptions {
   if (!isObject(raw)) {
-    warnings.push('art must be an object; ignored');
+    warnings.push({ code: 'manifestArtNotObject' });
     return {};
   }
   const shape = ThemeArtOptionsSchema.shape;
@@ -15,7 +20,7 @@ function parseArt(raw: unknown, warnings: string[]): ThemeArtOptions {
     if (!(key in raw)) continue;
     const parsed = shape[key].safeParse(raw[key]);
     if (parsed.success) out[key] = parsed.data;
-    else warnings.push(`art.${key} has the wrong type; ignored`);
+    else warnings.push({ code: 'manifestArtWrongType', field: key });
   }
   return out;
 }
@@ -28,21 +33,22 @@ function parseArt(raw: unknown, warnings: string[]): ThemeArtOptions {
 export function parseThemeManifest(
   json: unknown,
   expectedId: string,
-): { manifest: ThemeManifest | null; warnings: string[] } {
-  const warnings: string[] = [];
+): { manifest: ThemeManifest | null; warnings: ArtIndexWarning[] } {
+  const warnings: ArtIndexWarning[] = [];
   if (!isObject(json)) {
-    return { manifest: null, warnings: ['theme.json is not an object; ignored'] };
+    return { manifest: null, warnings: [{ code: 'manifestNotObject' }] };
   }
   if (json['id'] !== expectedId) {
-    const found = JSON.stringify(json['id']);
+    // JSON.stringify(undefined) is undefined at runtime, whatever its type says.
+    const found = (JSON.stringify(json['id']) as string | undefined) ?? 'undefined';
     return {
       manifest: null,
-      warnings: [`theme.json id ${found} does not match the folder; ignored`],
+      warnings: [{ code: 'manifestIdMismatch', field: found.slice(0, 200) }],
     };
   }
   const fallback = json['fallback'];
   if (fallback !== undefined && typeof fallback !== 'boolean') {
-    return { manifest: null, warnings: ['theme.json fallback must be a boolean; ignored'] };
+    return { manifest: null, warnings: [{ code: 'manifestFallbackInvalid' }] };
   }
   const manifest: ThemeManifest = { id: expectedId };
   for (const key of ['version', 'author', 'description'] as const) {
@@ -54,7 +60,7 @@ export function parseThemeManifest(
   const settings = json['settings'];
   if (settings !== undefined) {
     if (isObject(settings)) manifest.settings = settings;
-    else warnings.push('settings must be an object; ignored');
+    else warnings.push({ code: 'manifestSettingsNotObject' });
   }
   return { manifest, warnings };
 }

@@ -181,6 +181,29 @@ Left navigation of sections (see IA §1), right form pane.
   ("Unknown" while it runs, or when the launcher never saw the end) and outcome (exit code or Failed). A row
   expands to the command line, the working folder and the emulator output. It refreshes when a
   launch ends.
+- **General → Theme sounds** (M4d, FR-THM-4, D7): one on/off switch and a volume slider (0–100 %,
+  default on at 50 %) for the navigation sounds of every theme; the slider is disabled while sounds
+  are off. An open theme follows a save at once.
+- **Themes** (M4b–M4d, FR-THM-1, FR-THM-2, FR-THM-4): a card per bundled theme (name, description,
+  pack status, **In use**, **Use this theme**, **Options**). The pack status reads `No pack` (the pack
+  folder has no art and no valid `theme.json`) or `Art NN%` (menu art the pack covers itself: logo, background and, with
+  video backgrounds on, video per menu item; wallpaper shown but optional). A click opens the
+  coverage panel: the pack's version · author · description, per slot `have / total` with the
+  missing menu items, the pack's warnings, **Preview without fallback** (the front-end shows that
+  theme with pack art only, until the launcher closes; never saved) and **Rescan art** (re-reads
+  the folders; an open theme uses the new files; a failure is shown in the panel). **Options** opens the theme's page; **All themes** goes
+  back to the card (with an invalid value the page stays, says why and moves focus to the value). The page has **Reset to
+  defaults** (clears the theme's entry) and two groups:
+  - **Art**: logo style (text with the `logo/<variant>` folders found in the art as suggestions),
+    background order (ordered list of `background/<style>` folders: add, move up/down, remove),
+    video backgrounds, background zoom, game background order (fanart · video · screenshot) and
+    game art (All systems or one enabled system → ordered media kinds).
+  - **Theme settings**, for the keys the theme's schema has: filters in the menu (HyperSpin,
+    Showcase) and HyperSpin's game list wheel and menu wheel (every key with its range; an empty
+    box uses the default shown as placeholder, the menu wheel's being the game list wheel's).
+  Every option shows the value that applies without the user's ("Default: …", or "Pack default:
+  …" when the theme pack sets it) and **Use default** once the user set one. Values out of range
+  show the range and disable Save. An open theme follows a save at once.
 - **Backups**: table (time, what changed, size) with Restore and Export.
 
 ## S10 Menu Editor

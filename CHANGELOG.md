@@ -5,6 +5,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-22
+
+M4 — Themes: the fullscreen front-end with the six themes on one engine, gamepad and keyboard
+input (remappable), theme options and sounds in Settings, theme packs with art coverage, and
+starting straight into a theme. User guide: [docs/02-design/themes-guide.md](docs/02-design/themes-guide.md).
+
 ### Added
 - M4a themes engine (FR-THM-2, FR-THM-3, FR-THM-6, ADR-010): `packages/themes` holds the engine
   ported from NextLevelOS (navigation, levels, art paths, pack merge, coverage) behind a
@@ -34,6 +40,20 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - The theme switcher: T (or Switch theme in the theme menu) picks another theme and opens it on
   the same level with the same game focused; it is also the theme the launcher starts in next.
 - LT/RT (PageUp/PageDown) jump a page through game lists.
+- HyperSpin Classic (FR-THM-1): a curved logo wheel with a pointer and an animated stage of logo,
+  video and box art; left/right and LT/RT jump by letter, R3 (R) picks a random game, LB/RB step
+  through the filters. Its wheel shape and filter layout are theme options.
+- Showcase (FR-THM-1): big system tiles with a description from `system-info/<name>.json`, and a
+  cover strip under the focused game's details, last-played time and video. A system's filters
+  are game-list tabs (opening on Official) unless the theme option puts them in the menu.
+- Theme options in Settings (FR-THM-4): Settings → Themes → Options opens a page per theme for
+  its logo style, background order, video backgrounds, background zoom, game background order,
+  game art per system, filters in the menu and HyperSpin's wheels, each showing its default (or
+  the pack's) with Use default and Reset to defaults; an open theme follows a save at once.
+- Settings → General → Theme sounds: on/off and volume for every theme's navigation sounds.
+- Theme pack coverage (FR-THM-2): each theme card in Settings → Themes shows `No pack` or `Art NN%`;
+  its panel lists the art each pack covers and misses, the pack's warnings, Preview without
+  fallback for this session, and Rescan art.
 
 ### Changed
 - The Library no longer shows a failure for a game started from the front-end; the front-end

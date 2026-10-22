@@ -5,6 +5,7 @@ import type {
   MenuTree,
   ThemeGame,
   ThemeOptions,
+  ThemeSound,
 } from '@nextlevel/shared';
 
 /** Something outside the theme changed (FR-THM-6). */
@@ -40,5 +41,7 @@ export interface ThemeHost {
   /** The user's option overrides for a theme (`settings.themes.entries[id]`). */
   themeOptions(themeId: string): ThemeOptions | undefined;
   input(): InputSettings;
+  /** Navigation sounds of every theme (`settings.themes.sound`, D7). */
+  sound(): ThemeSound;
   onEvent(listener: (event: HostEvent) => void): () => void;
 }

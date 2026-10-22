@@ -67,6 +67,15 @@ export function StarIcon({ size }: IconProps) {
   );
 }
 
+export function ClockIcon({ size }: IconProps) {
+  return (
+    <Icon size={size}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </Icon>
+  );
+}
+
 export function EyeOffIcon({ size }: IconProps) {
   return (
     <Icon size={size}>

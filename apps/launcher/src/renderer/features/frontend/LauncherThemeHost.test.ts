@@ -110,6 +110,22 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
     off();
   });
 
+  it('FR-THM-4 (D7): theme sounds follow the latest settings', () => {
+    const settings = defaultSettings();
+    const { fake, host } = setup({}, settings);
+    const off = host.onEvent(() => undefined); // a running theme listens
+    expect(host.sound()).toEqual({ enabled: true, volume: 50 });
+    fake.emit('settings.changed', {
+      settings: {
+        ...settings,
+        themes: { ...settings.themes, sound: { enabled: false, volume: 10 } },
+      },
+      revision: 2,
+    });
+    expect(host.sound()).toEqual({ enabled: false, volume: 10 });
+    off();
+  });
+
   it('library and launch events become host events; unsubscribing stops them', () => {
     const { fake, host } = setup();
     const events: HostEvent[] = [];

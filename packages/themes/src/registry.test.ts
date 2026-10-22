@@ -30,8 +30,27 @@ describe('theme registry (FR-THM-1)', () => {
     }
   });
 
-  it('lists the M4c themes after Big Box', () => {
-    expect(THEME_IDS.slice(0, 4)).toEqual(['big-box', 'big-box-list', 'console-home', 'ps5']);
+  it('lists the six themes, Big Box first', () => {
+    expect(THEME_IDS).toEqual([
+      'big-box',
+      'big-box-list',
+      'console-home',
+      'ps5',
+      'hyperspin',
+      'showcase',
+    ]);
+  });
+
+  it('FR-THM-4: HyperSpin shows filters in the menu by default, with steel logos', () => {
+    expect(getTheme('hyperspin')?.settings).toEqual({ filtersInMenu: true });
+    expect(getTheme('hyperspin')?.art).toMatchObject({
+      logoVariant: 'steel',
+      useVideoBackground: true,
+    });
+  });
+
+  it('FR-THM-4: Showcase shows filters as game-list tabs by default', () => {
+    expect(getTheme('showcase')?.settings).toEqual({ filtersInMenu: false });
   });
 
   it('every theme name and description is translated', () => {

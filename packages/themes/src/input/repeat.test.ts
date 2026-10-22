@@ -51,6 +51,32 @@ describe('createRepeater (US-C1)', () => {
   it('marks the press and the repeats apart', () => {
     const repeater = createRepeater({ delayMs: 400, rateHz: 10 });
     expect(repeater.step(new Set(['up']), 0)).toEqual([{ action: 'up', repeat: false }]);
+    // The input loop steps every frame.
+    for (let now = 16; now < 400; now += 16)
+      expect(repeater.step(new Set(['up']), now)).toEqual([]);
     expect(repeater.step(new Set(['up']), 400)).toEqual([{ action: 'up', repeat: true }]);
+  });
+
+  it('a stalled main thread is not hold time: a press whose keyup is queued fires once', () => {
+    const repeater = createRepeater({ delayMs: 400, rateHz: 10 });
+    const held = new Set<InputAction>(['right']);
+    expect(repeater.step(held, 0)).toHaveLength(1);
+    // The renderer was busy for 600 ms; the keyup is still in the queue.
+    expect(repeater.step(held, 600)).toEqual([]);
+    expect(repeater.step(new Set(), 616)).toEqual([]);
+  });
+
+  it('after a stall while really held, repeats resume at the rate instead of bursting', () => {
+    const repeater = createRepeater({ delayMs: 400, rateHz: 10 });
+    const fired = [
+      ...hold(repeater, ['down'], 0, 500), // 0, 400, 500
+      ...hold(repeater, ['down'], 2000, 2300), // a 1.5 s stall, then frames again
+    ].map(([at]) => at);
+    expect(fired.slice(0, 3)).toEqual([0, 400, 500]);
+    const after = fired.slice(3);
+    expect(after.length).toBeLessThanOrEqual(4);
+    for (let i = 1; i < after.length; i++) {
+      expect((after[i] ?? 0) - (after[i - 1] ?? 0)).toBeGreaterThanOrEqual(100);
+    }
   });
 });

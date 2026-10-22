@@ -1,6 +1,11 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { parseThemeManifest, type ArtIndex, type ThemeManifest } from '@nextlevel/shared';
+import {
+  parseThemeManifest,
+  type ArtIndex,
+  type ArtIndexWarning,
+  type ThemeManifest,
+} from '@nextlevel/shared';
 
 export interface ArtIndexDeps {
   paths: () => { assetsPath: string | null; themesPath: string | null };
@@ -11,7 +16,7 @@ const MAX_DEPTH = 4;
 /** Art the owner keeps but doesn't use; never indexed (NextLevelOS convention). */
 const UNSORTED = '_unsorted_do_not_delete';
 const MANIFEST = 'theme.json';
-const UNREADABLE = 'artFolderUnreadable';
+const UNREADABLE: ArtIndexWarning = { code: 'folderUnreadable' };
 
 type Listing = { files: string[]; status: 'ok' | 'missing' | 'unreadable' };
 
@@ -41,7 +46,7 @@ async function listArt(root: string): Promise<Listing> {
 async function readManifest(
   packRoot: string,
   themeId: string,
-): Promise<{ manifest: ThemeManifest | null; warnings: string[] }> {
+): Promise<{ manifest: ThemeManifest | null; warnings: ArtIndexWarning[] }> {
   let text: string;
   try {
     text = await readFile(join(packRoot, MANIFEST), 'utf8');
@@ -51,7 +56,7 @@ async function readManifest(
   try {
     return parseThemeManifest(JSON.parse(text) as unknown, themeId);
   } catch {
-    return { manifest: null, warnings: ['theme.json is not valid JSON; ignored'] };
+    return { manifest: null, warnings: [{ code: 'manifestInvalidJson' }] };
   }
 }
 
@@ -78,7 +83,7 @@ export class ArtIndexService {
       this.cache.set(themeId, entry);
       // A folder that is missing or unreadable (a drive not mounted yet) is retried next time.
       void entry.then((index) => {
-        if (index.warnings.includes(UNREADABLE)) this.cache.delete(themeId);
+        if (index.warnings.some((w) => w.code === UNREADABLE.code)) this.cache.delete(themeId);
       });
     }
     return entry;
@@ -88,7 +93,7 @@ export class ArtIndexService {
     themeId: string,
     paths: { assetsPath: string | null; themesPath: string | null },
   ): Promise<ArtIndex> {
-    const warnings: string[] = [];
+    const warnings: ArtIndexWarning[] = [];
     const packRoot = paths.themesPath ? join(paths.themesPath, themeId) : null;
     const [pack, assets, manifest] = await Promise.all([
       packRoot ? listArt(packRoot) : Promise.resolve<Listing>({ files: [], status: 'missing' }),

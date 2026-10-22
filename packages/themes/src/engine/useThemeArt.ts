@@ -1,4 +1,4 @@
-import type { ThemeGame } from '@nextlevel/shared';
+import type { ArtIndexWarning, ThemeGame } from '@nextlevel/shared';
 import { createContext, useContext } from 'react';
 import type { BackgroundLayer, ThemeArtConfig } from './types.ts';
 
@@ -9,7 +9,7 @@ export interface ThemeArtApi {
   config: ThemeArtConfig;
   /** Whether the shared art folder backs up the pack. */
   fallback: boolean;
-  warnings: string[];
+  warnings: ArtIndexWarning[];
   /** URLs for relative art paths, pack first. */
   urls: (rels: string[]) => string[];
   logo: (name: string) => string[];
