@@ -15,9 +15,10 @@ beforeEach(async () => {
   paths = { assetsPath: join(root, 'assets'), themesPath: join(root, 'themes') };
   service = new ArtIndexService({ paths: () => paths });
 });
+// Removing the 20k files of the perf test takes longer than the default hook timeout on CI.
 afterEach(async () => {
   await cleanup();
-});
+}, 60_000);
 
 async function write(rel: string, content = 'x') {
   const path = join(root, ...rel.split('/'));

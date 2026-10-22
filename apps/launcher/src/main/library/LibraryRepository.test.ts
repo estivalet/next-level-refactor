@@ -215,7 +215,8 @@ describe('LibraryRepository', () => {
     repo.applySystemDiff('nintendo-64', { ...empty, unchanged: 20_000 }, NOW);
     expect(client.prepare('select total_changes()').pluck().get()).toBe(before);
     // About 330 ms alone, FTS indexing included (M2c); the full suite in parallel pushes it past
-    // 800 ms. The old per-row Drizzle builder took ~1.6 s more, which this still catches.
-    expect(elapsed).toBeLessThan(perfBudget(1200));
+    // 800 ms locally and past 4 s on CI runners (M4b). The old per-row Drizzle builder took
+    // ~1.6 s more on its own, which this still catches locally.
+    expect(elapsed).toBeLessThan(perfBudget(1600));
   });
 });
