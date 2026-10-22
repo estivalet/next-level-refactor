@@ -154,4 +154,22 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
       { type: 'launch-finished', gameId: 5, ok: false },
     ]);
   });
+
+  it('US-D5: menu saves and finished scans become menu-changed', () => {
+    const { fake, host } = setup();
+    const events: HostEvent[] = [];
+    const off = host.onEvent((event) => events.push(event));
+    fake.emit('menus.changed', {});
+    fake.emit('scan.finished', {
+      scanId: 's',
+      startedAt: '2026-10-22T00:00:00.000Z',
+      finishedAt: '2026-10-22T00:01:00.000Z',
+      outcome: 'completed',
+      systems: [],
+      enabledSystemIds: [],
+    });
+    off();
+    fake.emit('menus.changed', {});
+    expect(events).toEqual([{ type: 'menu-changed' }, { type: 'menu-changed' }]);
+  });
 });

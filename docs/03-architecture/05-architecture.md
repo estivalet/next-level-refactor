@@ -145,9 +145,15 @@ interface ThemeHost {
   setGameFlags(gameId: number, flags: { favorite?: boolean; hidden?: boolean }): Promise<boolean>;
   themeOptions(themeId: string): ThemeOptions | undefined; // settings.themes.entries[id]
   input(): InputSettings;
-  onEvent(listener: (e: HostEvent) => void): () => void;   // library changed, launch finished, settings changed
+  onEvent(listener: (e: HostEvent) => void): () => void;   // library changed, launch finished, settings changed, menu changed
 }
 ```
+
+`menu-changed` (since M5a) comes from the `menus.changed` IPC event (a menu, smart filter or
+collection write) and from `scan.finished`. The engine reloads the menu and walks the open path by
+node id through the new tree: it keeps the deepest level that still exists with focus on the same
+node id (or the old index, clamped), refreshes an open games level that survived, and goes back to
+the parent when the open node is gone (US-D5).
 
 Menu art is resolved in the engine against the art index (every pack file before any shared
 file, `fallback: false` drops the shared folder), so themes only build relative paths. Game

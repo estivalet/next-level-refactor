@@ -13,7 +13,9 @@ export type HostEvent =
   /** `systems` and `gameIds` say what changed, when main knows. */
   | { type: 'library-changed'; systems?: string[]; gameIds?: number[] }
   | { type: 'launch-finished'; gameId: number; ok: boolean }
-  | { type: 'settings-changed' };
+  | { type: 'settings-changed' }
+  /** The menu may look different: a menu was saved, or something a menu shows changed. */
+  | { type: 'menu-changed' };
 
 /** `reported`: the host already showed the failure to the user, so the theme stays quiet. */
 export type LaunchOutcome =

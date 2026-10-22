@@ -50,4 +50,22 @@ describe('SettingsService.update', () => {
     }));
     expect(result.ok ? null : result.error.code).toBe('INVALID_SETTINGS');
   });
+
+  it('FR-THM-5: idle() waits for every queued write, so quitting never drops one', async () => {
+    const fixture = await settingsFixture();
+    cleanup = fixture.cleanup;
+    const service = new SettingsService(fixture.deps);
+    await service.load();
+    for (const themeId of ['big-box-list', 'console-home', 'ps5']) {
+      void service.update((settings) => ({
+        ...settings,
+        themes: { ...settings.themes, lastUsed: themeId },
+      }));
+    }
+    await service.idle();
+    const file = JSON.parse(await readFile(join(fixture.dir, 'settings.json'), 'utf8')) as {
+      themes: { lastUsed: string };
+    };
+    expect(file.themes.lastUsed).toBe('ps5');
+  });
 });

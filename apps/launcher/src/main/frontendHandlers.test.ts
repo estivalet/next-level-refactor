@@ -8,6 +8,7 @@ describe('front-end handlers', () => {
       frontend: () => ({
         menu: () => ({ title: 'NextLevel', items: [] }),
         games: (nodeId) => (nodeId === 's:snes' ? [] : []),
+        resolveDraft: (draft) => ({ title: draft.title, items: [] }),
       }),
       artIndex: {
         index: (themeId) =>
@@ -18,6 +19,9 @@ describe('front-end handlers', () => {
     expect((await handlers['frontend.artIndex']({ themeId: 'ps5' })).packFiles).toEqual(['ps5']);
     expect(await handlers['frontend.menu']()).toEqual({ title: 'NextLevel', items: [] });
     expect(await handlers['frontend.games']({ nodeId: 's:snes' })).toEqual([]);
+    expect(
+      await handlers['frontend.resolveMenu']({ draft: { title: 'Preview', nodes: [] } }),
+    ).toEqual({ title: 'Preview', items: [] });
   });
 
   it('FR-THM-6: without a library the channels fail with LIBRARY_UNAVAILABLE', () => {

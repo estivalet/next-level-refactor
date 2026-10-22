@@ -29,6 +29,25 @@ describe('ipcContract', () => {
     );
   });
 
+  it('FR-MENU-1..3: menu channels take documents with a base revision', () => {
+    const id = '0192f000-0000-7000-8000-000000000001';
+    const save = ipcContract['menus.save'].input;
+    expect(save.safeParse({ id, title: 'Main', nodes: [], baseRevision: 0 }).success).toBe(true);
+    expect(save.safeParse({ id, title: 'Main', nodes: [] }).success).toBe(false);
+    expect(ipcContract['menus.create'].input.safeParse({ title: 'New', nodes: [] }).success).toBe(
+      true,
+    );
+    expect(ipcContract['menus.setActive'].input.safeParse({ id: 'nope' }).success).toBe(false);
+    expect(ipcContract['menus.draft'].input.safeParse(undefined).success).toBe(true);
+    expect(ipcContract['menus.generated'].output.safeParse({ title: 'D', nodes: [] }).success).toBe(
+      true,
+    );
+    expect(
+      ipcContract['frontend.resolveMenu'].input.safeParse({ draft: { title: 'D', nodes: [] } })
+        .success,
+    ).toBe(true);
+  });
+
   it('NFR-MAINT-1: app.version takes no input and returns a string', () => {
     const channel = ipcContract['app.version'];
     expect(channel.input.safeParse(undefined).success).toBe(true);

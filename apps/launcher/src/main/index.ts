@@ -7,6 +7,9 @@ import { defaultSettings } from '@nextlevel/shared';
 import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
 import { path7za } from '7zip-bin';
 import { v7 as uuidv7 } from 'uuid';
+import { seedBuiltInSmartFilters } from './library/builtInSmartFilters.ts';
+import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import { MenuRepository } from './menus/MenuRepository.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createEventSink } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
@@ -183,17 +186,38 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
   launch.cleanupStaleExtractions().catch((error: unknown) => {
     log.warn({ error }, 'could not remove old extraction folders');
   });
-  app.on('before-quit', () => {
+  // will-quit: after before-quit has let pending settings writes finish (start()).
+  app.on('will-quit', () => {
     scan.cancel();
     db.$client.close();
   });
+  const menus = new MenuRepository(db, () => new Date(), uuidv7);
+  const smartFilters = new SmartFilterRepository(db, () => new Date());
+  try {
+    seedBuiltInSmartFilters(smartFilters, currentSettings(settings).general.language);
+  } catch (error) {
+    log.warn({ error }, 'could not create the built-in smart filters');
+  }
   const frontend = new FrontendService({
     db,
     catalog: systemCatalog,
     settings: () => currentSettings(settings),
     collections,
+    menus,
+    smartFilters,
   });
-  return { repo, media, frontend, scan, games, collections, launches, launch };
+  return {
+    repo,
+    media,
+    frontend,
+    scan,
+    games,
+    collections,
+    launches,
+    launch,
+    menus,
+    smartFilters,
+  };
 }
 
 async function start(): Promise<void> {
@@ -224,6 +248,18 @@ async function start(): Promise<void> {
     },
   });
   await settings.load();
+  // A theme switch right before quitting must still be remembered (FR-THM-5).
+  let settingsSettled = false;
+  app.on('before-quit', (event) => {
+    if (settingsSettled) return;
+    event.preventDefault();
+    // Capped, so a stuck disk can't keep the app from quitting.
+    const capped = new Promise<void>((resolve) => setTimeout(resolve, 3000));
+    void Promise.race([settings.idle(), capped]).finally(() => {
+      settingsSettled = true;
+      app.quit();
+    });
+  });
   const library = startLibrary(settings);
   const artPaths = () => {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
@@ -256,6 +292,7 @@ async function start(): Promise<void> {
       shell.showItemInFolder(path);
     },
     pathExists: existsSync,
+    newId: uuidv7,
     presets: emulatorPresets,
     pickFile: async (title) => {
       const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];

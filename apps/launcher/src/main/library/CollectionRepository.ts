@@ -12,7 +12,7 @@ const SUMMARY = `select c.id as id, c.name as name, c.sort as sort,
   (select count(*) from collection_games cg where cg.collection_id = c.id) as games
   from collections c`;
 
-function nameTaken(error: unknown, name: string): unknown {
+export function nameTaken(error: unknown, name: string): unknown {
   if (error instanceof Database.SqliteError && error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
     return new AppErrorException({
       code: 'NAME_TAKEN',

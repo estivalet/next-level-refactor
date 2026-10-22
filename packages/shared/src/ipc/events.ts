@@ -13,6 +13,8 @@ export const ipcEvents = {
     /** The games a metadata or flag change touched; absent after a scan. */
     gameIds: z.array(z.number().int().positive()).optional(),
   }),
+  /** A menu, or a collection / smart filter a menu can show, changed (FR-MENU-1). */
+  'menus.changed': z.object({}),
   'launch.started': LaunchStartedSchema,
   'launch.finished': LaunchFinishedSchema,
 } as const;

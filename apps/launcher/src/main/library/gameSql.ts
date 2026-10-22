@@ -47,21 +47,29 @@ export function listShape(
   query: Pick<GameListQuery, 'scope' | 'tab' | 'sort'>,
   collectionSort: CollectionSort | null,
   hasText: boolean,
+  /** A smart filter scope: its `select id, rn` query (smartFilterIdsSql). */
+  smartIds: string | null = null,
 ) {
   const scope =
     query.scope.kind === 'system'
       ? { join: '', where: 'g.system_id = @systemId' }
-      : {
-          join: 'join collection_games cg on cg.game_id = g.id and cg.collection_id = @collectionId',
-          where: '1 = 1',
-        };
+      : query.scope.kind === 'collection'
+        ? {
+            join: 'join collection_games cg on cg.game_id = g.id and cg.collection_id = @collectionId',
+            where: '1 = 1',
+          }
+        : {
+            join: `join (${smartIds ?? 'select 0 as id, 0 as rn'}) sf on sf.id = g.id`,
+            where: '1 = 1',
+          };
   const where = [scope.where, TABS[query.tab]];
   if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
   const sort =
     query.scope.kind === 'collection' ? (collectionSort ?? 'manual') : (query.sort ?? 'title');
   return {
     from: `from games g ${ROW_JOINS} ${scope.join} where ${where.join(' and ')}`,
-    order: ORDERS[sort],
+    // A smart filter keeps its own order.
+    order: query.scope.kind === 'smartFilter' ? 'sf.rn' : ORDERS[sort],
   };
 }
 

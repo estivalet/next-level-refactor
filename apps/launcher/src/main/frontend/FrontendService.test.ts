@@ -2,6 +2,10 @@ import { defaultSettings, type Settings } from '@nextlevel/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { CollectionRepository } from '../library/CollectionRepository.ts';
 import { MediaRepository } from '../library/MediaRepository.ts';
+import { SmartFilterRepository } from '../library/SmartFilterRepository.ts';
+import { MenuRepository } from '../menus/MenuRepository.ts';
+import { v7 as uuidv7 } from 'uuid';
+import { SmartFilterQuerySchema, type MenuDocNode } from '@nextlevel/shared';
 import { appErrorOf, seedGames, tempLibrary } from '../library/testing.ts';
 import { system } from '../scan/testing.ts';
 import { FrontendService } from './FrontendService.ts';
@@ -29,18 +33,23 @@ async function setup(
   const settings: Settings = { ...defaultSettings(), systems };
   const collections = new CollectionRepository(library.db, () => new Date(Date.UTC(2026, 9, 21)));
   const media = new MediaRepository(library.db);
+  const clock = () => new Date(Date.UTC(2026, 9, 21));
+  const menus = new MenuRepository(library.db, clock, uuidv7);
+  const smartFilters = new SmartFilterRepository(library.db, clock);
   const service = new FrontendService({
     db: library.db,
     catalog: () => CATALOG,
     settings: () => settings,
     collections,
+    menus,
+    smartFilters,
   });
   const tag = (gameId: number, filter: string) => {
     library.db.$client
       .prepare('insert into game_filters (game_id, filter) values (?, ?)')
       .run(gameId, filter);
   };
-  return { library, service, collections, media, tag };
+  return { library, service, collections, media, tag, menus, smartFilters };
 }
 
 describe('FrontendService.menu', () => {
@@ -131,5 +140,104 @@ describe('FrontendService.games', () => {
     for (const id of ['m:nintendo', 's:nope', 'c:99', 'x', 's:snes:f:']) {
       expect(appErrorOf(() => service.games(id)).code, id).toBe('NOT_FOUND');
     }
+  });
+});
+
+const docNode = (name: string, patch: Partial<MenuDocNode> = {}): MenuDocNode => ({
+  id: uuidv7(),
+  type: 'category',
+  refId: null,
+  name,
+  displayName: null,
+  shortName: null,
+  filterTabs: true,
+  visible: true,
+  children: [],
+  ...patch,
+});
+
+describe('FrontendService with menus', () => {
+  it('FR-MENU-3: the active menu replaces the generated one', async () => {
+    const { library, service, menus } = await setup();
+    seedGames(library.db, 'snes', ['Alpha']);
+    menus.create('Mine', [
+      docNode('Favourites', {
+        children: [docNode('Super Nintendo', { type: 'system', refId: 'snes' })],
+      }),
+    ]);
+    const tree = service.menu();
+    expect(tree.title).toBe('Mine');
+    expect(tree.items[0]?.name).toBe('Favourites');
+    expect(tree.items[0]?.children[0]?.id).toBe('s:snes');
+  });
+
+  it('FR-MENU-2: renaming a collection renames its menu entry; deleting it drops the entry', async () => {
+    const { library, service, menus, collections } = await setup();
+    const [a] = seedGames(library.db, 'snes', ['Alpha']);
+    const picks = collections.create('Picks');
+    collections.addGames(picks.id, [a ?? 0]);
+    menus.create('Mine', [docNode('Picks', { type: 'collection', refId: String(picks.id) })]);
+    collections.update(picks.id, { name: 'Best' });
+    expect(service.menu().items[0]).toMatchObject({ id: `c:${String(picks.id)}`, display: 'Best' });
+    collections.delete(picks.id);
+    expect(service.menu().items).toEqual([]);
+  });
+
+  it('FR-LIB-9: a smart filter level lists its games in its order', async () => {
+    const { library, service, menus, smartFilters } = await setup();
+    seedGames(library.db, 'snes', [{ title: 'Alpha', favorite: true }, 'Beta']);
+    seedGames(library.db, 'n64', [{ title: 'Gamma', favorite: true }]);
+    const favs = smartFilters.create('Favs', SmartFilterQuerySchema.parse({ favorite: true }));
+    menus.create('Mine', [docNode('Favs', { type: 'smartFilter', refId: String(favs.id) })]);
+    expect(service.menu().items[0]?.id).toBe(`sf:${String(favs.id)}`);
+    expect(service.games(`sf:${String(favs.id)}`).map((g) => g.title)).toEqual(['Alpha', 'Gamma']);
+    expect(appErrorOf(() => service.games('sf:99')).code).toBe('NOT_FOUND');
+  });
+
+  it('FR-MENU-2: an empty smart filter and a deleted one are left out of the menu', async () => {
+    const { library, service, menus, smartFilters } = await setup();
+    seedGames(library.db, 'snes', [{ title: 'Gone', favorite: true, missing: true }, 'Beta']);
+    const favs = smartFilters.create('Favs', SmartFilterQuerySchema.parse({ favorite: true }));
+    const all = smartFilters.create('All', SmartFilterQuerySchema.parse({ limit: 1 }));
+    const node = (id: number) => docNode(String(id), { type: 'smartFilter', refId: String(id) });
+    menus.create('Mine', [node(favs.id), node(all.id), node(999)]);
+    expect(service.menu().items.map((item) => item.id)).toEqual([`sf:${String(all.id)}`]);
+  });
+
+  it('FR-MENU-2: a numbered repeat of a node opens the same games', async () => {
+    const { library, service, tag } = await setup();
+    const [a, b] = seedGames(library.db, 'snes', ['Alpha', 'Beta']);
+    tag(a ?? 0, 'official');
+    tag(b ?? 0, 'hack');
+    expect(service.games('s:snes~2').map((g) => g.title)).toEqual(['Alpha', 'Beta']);
+    expect(service.games('s:snes~2:f:hack').map((g) => g.title)).toEqual(['Beta']);
+  });
+
+  it('FR-MENU-1: an unsaved draft resolves like the active menu', async () => {
+    const { library, service } = await setup();
+    seedGames(library.db, 'snes', ['Alpha']);
+    const tree = service.resolveDraft({
+      title: 'Preview',
+      nodes: [docNode('Super Nintendo', { type: 'system', refId: 'snes', displayName: 'SNES!' })],
+    });
+    expect(tree).toMatchObject({ title: 'Preview', items: [{ id: 's:snes', display: 'SNES!' }] });
+  });
+
+  it('FR-MENU-3: the generated draft has manufacturer categories and a Collections category', async () => {
+    const { library, service, collections } = await setup();
+    seedGames(library.db, 'snes', ['Alpha']);
+    collections.create('Picks');
+    const draft = service.generatedDraft();
+    expect(draft.nodes.map((n) => [n.type, n.name])).toEqual([
+      ['category', 'Nintendo'],
+      ['category', 'Collections'],
+    ]);
+    expect(draft.nodes[0]?.children[0]).toMatchObject({
+      type: 'system',
+      refId: 'snes',
+      name: 'Super Nintendo',
+      filterTabs: true,
+    });
+    expect(draft.nodes[1]?.children[0]).toMatchObject({ type: 'collection', name: 'Picks' });
   });
 });

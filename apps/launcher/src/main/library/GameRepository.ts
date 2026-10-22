@@ -8,10 +8,12 @@ import {
   type GameListQuery,
   type MetadataChanges,
   type SearchResult,
+  SmartFilterQuerySchema,
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
 import { ROW_COLUMNS, ROW_JOINS, listShape, toRow, type RawRow } from './gameSql.ts';
+import { smartFilterIdsSql } from './smartFilterSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
 /** Where a game's file is (or, when missing, was expected: FR-LIB-4), from library and settings. */
@@ -84,6 +86,7 @@ export class GameRepository {
   constructor(
     protected readonly db: LibraryDb,
     private readonly resolvePath: ResolvePath,
+    private readonly clock: () => Date = () => new Date(),
   ) {}
 
   protected statement(sql: string): Database.Statement {
@@ -99,11 +102,13 @@ export class GameRepository {
     const match = query.text === undefined ? null : ftsQuery(query.text);
     const collectionSort =
       query.scope.kind === 'collection' ? this.collectionSort(query.scope.collectionId) : null;
-    const shape = listShape(query, collectionSort, match !== null);
+    const smart =
+      query.scope.kind === 'smartFilter' ? this.smartIds(query.scope.smartFilterId) : null;
+    const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null);
     const params = {
-      ...(query.scope.kind === 'system'
-        ? { systemId: query.scope.systemId }
-        : { collectionId: query.scope.collectionId }),
+      ...(query.scope.kind === 'system' ? { systemId: query.scope.systemId } : {}),
+      ...(query.scope.kind === 'collection' ? { collectionId: query.scope.collectionId } : {}),
+      ...smart?.params,
       ...(match === null ? {} : { match }),
     };
     const total = this.statement(`select count(*) ${shape.from}`).pluck().get(params) as number;
@@ -115,6 +120,13 @@ export class GameRepository {
       offset: query.offset,
       games: rows.map((row) => toRow(row, this.resolvePath)),
     };
+  }
+
+  private smartIds(id: number) {
+    const raw = this.statement('select query from smart_filters where id = ?').pluck().get(id) as
+      string | undefined;
+    if (raw === undefined) throw notFound({ smartFilterId: id });
+    return smartFilterIdsSql(SmartFilterQuerySchema.parse(JSON.parse(raw)), this.clock());
   }
 
   private collectionSort(id: number): CollectionSort {

@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { migrate, migrations as bundledMigrations, type Migration } from './migrate.ts';
 import * as schema from './schema.ts';
+import { registerSmartFilterFunctions } from './smartFilterSql.ts';
 
 export type LibraryDb = BetterSQLite3Database<typeof schema> & { $client: Database.Database };
 
@@ -21,6 +22,7 @@ export function openLibrary(file: string, options: OpenLibraryOptions): LibraryD
     client.pragma('journal_mode = WAL');
     client.pragma('foreign_keys = ON');
     client.pragma('busy_timeout = 5000');
+    registerSmartFilterFunctions(client);
     migrate(client, options.migrations ?? bundledMigrations(), (fromVersion) => {
       mkdirSync(options.backupsDir, { recursive: true });
       const stamp = options.clock().toISOString().replace(/[:.]/g, '-');

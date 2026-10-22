@@ -657,6 +657,13 @@
       "coreTooLong": "Use a core name of at most {{core}} characters.",
       "tooManyArgs": "Use at most {{extraArgs}} extra arguments.",
       "argTooLong": "Each extra argument can have at most {{extraArg}} characters."
+    },
+    "smart": {
+      "builtin": {
+        "favorites": "Favorites",
+        "recent": "Recently played",
+        "mostPlayed": "Most played"
+      }
     }
   },
   "frontend": {
@@ -792,5 +799,8 @@
       "label": "Switch theme",
       "current": "Current"
     }
+  },
+  "menus": {
+    "defaultTitle": "Default"
   }
 }

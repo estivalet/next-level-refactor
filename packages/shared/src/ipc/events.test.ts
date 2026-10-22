@@ -11,4 +11,8 @@ describe('ipcEvents', () => {
     }
     expect(ipcEvents['library.changed'].safeParse({ systems: ['nintendo-64'] }).success).toBe(true);
   });
+
+  it('FR-MENU-1: menus.changed carries no payload', () => {
+    expect(ipcEvents['menus.changed'].safeParse({}).success).toBe(true);
+  });
 });

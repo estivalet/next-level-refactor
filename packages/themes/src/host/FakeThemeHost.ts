@@ -39,14 +39,21 @@ export class FakeThemeHost implements ThemeHost {
   private readonly listeners = new Set<(event: HostEvent) => void>();
   private games: ThemeGame[];
   private soundSettings: ThemeSound;
+  private menu: MenuTree;
 
   constructor(private readonly fixture: HostFixture = {}) {
     this.games = [...(fixture.games ?? FIXTURE_GAMES)];
+    this.menu = fixture.menu ?? FIXTURE_MENU;
     this.soundSettings = fixture.sound ?? defaultSettings().themes.sound;
   }
 
   getMenu(): Promise<MenuTree> {
-    return Promise.resolve(this.fixture.menu ?? FIXTURE_MENU);
+    return Promise.resolve(this.menu);
+  }
+
+  /** Replaces the menu, e.g. before emitting `menu-changed`. */
+  setMenu(menu: MenuTree): void {
+    this.menu = menu;
   }
 
   getGames(nodeId: string): Promise<ThemeGame[]> {

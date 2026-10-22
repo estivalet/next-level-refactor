@@ -229,6 +229,11 @@ export class SettingsService {
     return this.state;
   }
 
+  /** Resolves once every write queued so far has finished (or failed); main waits on it to quit. */
+  idle(): Promise<void> {
+    return this.queue.then(() => undefined);
+  }
+
   /** Runs writes one at a time so the revision check and the file stay consistent. */
   private exclusive<T>(task: () => Promise<T>): Promise<T> {
     const run = this.queue.then(task, task);

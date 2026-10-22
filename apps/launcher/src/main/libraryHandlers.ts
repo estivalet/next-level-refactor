@@ -37,6 +37,14 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
   const changed = (gameIds: number[]) => {
     deps.emit('library.changed', { systems: library().games.systemOf(gameIds), gameIds });
   };
+  // A menu shows a collection by name and hides it while it has no games (FR-MENU-2).
+  const announceMenus = () => {
+    deps.emit('menus.changed', {});
+  };
+  const menuChanged = <T>(value: T): T => {
+    announceMenus();
+    return value;
+  };
 
   return {
     'library.games.list': (query) => library().games.list(query),
@@ -66,15 +74,20 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
     'collections.list': () => library().collections.list(),
     'collections.create': ({ name }) => library().collections.create(name),
     'collections.update': ({ id, name, sort }) =>
-      library().collections.update(id, {
-        ...(name === undefined ? {} : { name }),
-        ...(sort === undefined ? {} : { sort }),
-      }),
+      menuChanged(
+        library().collections.update(id, {
+          ...(name === undefined ? {} : { name }),
+          ...(sort === undefined ? {} : { sort }),
+        }),
+      ),
     'collections.delete': ({ id }) => {
       library().collections.delete(id);
+      announceMenus();
     },
-    'collections.addGames': ({ id, gameIds }) => library().collections.addGames(id, gameIds),
-    'collections.removeGames': ({ id, gameIds }) => library().collections.removeGames(id, gameIds),
+    'collections.addGames': ({ id, gameIds }) =>
+      menuChanged(library().collections.addGames(id, gameIds)),
+    'collections.removeGames': ({ id, gameIds }) =>
+      menuChanged(library().collections.removeGames(id, gameIds)),
     'collections.reorder': ({ id, gameId, swapWithGameId }) => {
       library().collections.reorder(id, gameId, swapWithGameId);
     },

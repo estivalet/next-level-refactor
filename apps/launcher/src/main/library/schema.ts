@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnySQLiteColumn,
   customType,
   index,
   integer,
@@ -105,6 +106,8 @@ export const collections = sqliteTable('collections', {
     .notNull()
     .default('manual'),
   createdAt: text('created_at').notNull(),
+  /** Import provenance (`nextlevelos:<name>`); null for collections made here (D12). */
+  source: text('source').unique(),
 });
 
 export const collectionGames = sqliteTable(
@@ -172,4 +175,56 @@ export const gameMedia = sqliteTable(
     size: integer('size').notNull(),
   },
   (table) => [primaryKey({ columns: [table.gameId, table.kind] })],
+);
+
+/** Saved game queries (FR-LIB-9); `query` is a SmartFilterQuery as JSON. */
+export const smartFilters = sqliteTable('smart_filters', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: nocaseText('name').notNull().unique(),
+  query: text('query').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+/** Menus (FR-MENU-3): at most one active; `source` marks imported ones (D12). */
+export const menus = sqliteTable(
+  'menus',
+  {
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    active: integer('active', { mode: 'boolean' }).notNull().default(false),
+    revision: integer('revision').notNull().default(0),
+    source: text('source').unique(),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('menus_one_active')
+      .on(table.active)
+      .where(sql`active = 1`),
+  ],
+);
+
+/** Menu tree nodes (FR-MENU-1/2); `ref_id` names a system, collection or smart filter. */
+export const menuNodes = sqliteTable(
+  'menu_nodes',
+  {
+    id: text('id').primaryKey(),
+    menuId: text('menu_id')
+      .notNull()
+      .references(() => menus.id, { onDelete: 'cascade' }),
+    parentId: text('parent_id').references((): AnySQLiteColumn => menuNodes.id, {
+      onDelete: 'cascade',
+    }),
+    position: integer('position').notNull(),
+    type: text('type', { enum: ['category', 'system', 'collection', 'smartFilter'] }).notNull(),
+    refId: text('ref_id'),
+    name: text('name').notNull(),
+    displayName: text('display_name'),
+    shortName: text('short_name'),
+    /** FR-MENU-4 theme override: stored, not applied yet (D9). */
+    themeId: text('theme_id'),
+    filterTabs: integer('filter_tabs', { mode: 'boolean' }).notNull().default(true),
+    visible: integer('visible', { mode: 'boolean' }).notNull().default(true),
+  },
+  (table) => [index('menu_nodes_menu').on(table.menuId, table.parentId, table.position)],
 );

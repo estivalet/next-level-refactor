@@ -213,7 +213,9 @@ SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_versi
 
 **Implemented so far** (`apps/launcher/src/main/library/`): `meta`, `games` and `game_metadata`
 since M2b; `game_user_state`, `game_filters`, `collections`, `collection_games` and `games_fts`
-since M2c; `game_launch_override` and `launch_log` since M3; the other tables arrive with the milestones that use them, each as a new migration.
+since M2c; `game_launch_override` and `launch_log` since M3; `game_media` since M4a; `smart_filters`,
+`menus`, `menu_nodes` and `collections.source` since M5a (migration `0005`); the other tables arrive
+with the milestones that use them, each as a new migration.
 - `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
 - `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the
   natural key ignores case like Windows does.
@@ -237,6 +239,22 @@ since M2c; `game_launch_override` and `launch_log` since M3; the other tables ar
   (0..n-1) and only used for the `manual` sort.
 - The `games_system` index from M2b was dropped: the `(system_id, rel_path)` unique index serves
   lookups by system.
+- **Smart filters** (FR-LIB-9): `query` is a `SmartFilterQuery` (`packages/shared/src/library/smartFilters.ts`:
+  systems, favorite, filters, genre, year range, min players, played/never/within days, sort, limit
+  1–10,000) turned into SQL by `smartFilterSql.ts`; missing games never match. Names are unique
+  ignoring case (`NAME_TAKEN`). Favorites, Recently played (50) and Most played (50) are created
+  once per library at startup, named in the UI language (`meta.smart_filters_seeded`, D10).
+- **Menus** (FR-MENU-1..3): a save replaces every `menu_nodes` row of that menu in one transaction
+  and bumps `menus.revision`; a save from an older `baseRevision` is `CONFLICT` and writes nothing.
+  The first menu created is active; deleting the active one activates the most recently changed
+  other one. `source` (`nextlevelos:<file>`) is set for imported menus and collections (D12) and
+  null for those made here. While `menus` is empty themes get the generated menu (FR-MENU-3).
+- **Resolving a menu for themes** (`main/menus/resolveMenu.ts`): invisible nodes (and subtrees),
+  disabled, unknown or empty systems, deleted or empty collections and smart filters, and categories
+  left empty are left out. Ids: categories `m:<nodeId>`, references `s:<systemId>`, `c:<id>`,
+  `sf:<id>`, filter children `<systemNodeId>:f:<filter>` (only with `filter_tabs`); a reference that
+  repeats gets `~2`, `~3`… in document order (`s:snes~2`), which `frontend.games` ignores.
+  `menu_nodes.theme_id` is stored but unused until a later milestone (D9).
 
 ```mermaid
 erDiagram
@@ -264,10 +282,10 @@ erDiagram
 | `game_media` | `game_id` FK, `kind` text, `path` text, `size` int | PK(`game_id`,`kind`); since M4a every scan rebuilds a system's rows from `media/<kind>/<rom stem>.<ext>` (png > jpg > jpeg > webp > gif; mp4 > webm), scrape adds to it in M6; themes read only this |
 | `scrape_status` | `game_id` PK FK, `provider`, `provider_game_id`, `status`, `candidates` int, `error` text?, `scraped_at` | |
 | `arcade_info` | `game_id` PK FK, `rom`, `parent`, `driver`, `manufacturer` | MAME data |
-| `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `created_at` | |
+| `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `source` text? UNIQUE, `created_at` | `source` since M5a (import provenance) |
 | `collection_games` | `collection_id` FK, `game_id` FK, `position` int | PK(`collection_id`,`game_id`) |
-| `smart_filters` | `id` PK, `name`, `query` json | `GameQuery` serialized |
-| `menus` | `id` PK, `title`, `active` bool | exactly one active (partial unique index) |
+| `smart_filters` | `id` PK (autoincrement), `name` UNIQUE NOCASE, `query` json, `created_at` | `SmartFilterQuery` serialized |
+| `menus` | `id` PK, `title`, `active` bool, `revision` int, `source` text? UNIQUE, `created_at`, `updated_at` | at most one active (partial unique index) |
 | `menu_nodes` | `id` PK, `menu_id` FK, `parent_id` FK?, `position` int, `type` (`category`/`system`/`collection`/`smartFilter`), `ref_id` text?, `name` text, `display_name`?, `short_name`?, `theme_id`?, `filter_tabs` bool?, `visible` bool | `name` is also the menu-art key (current convention) |
 | `launch_log` | `id` PK, `game_id` FK? (set null on delete), `game_title`, `profile_id`, `profile_name`, `argv` json (executable first), `cwd`, `test` bool, `started_at`, `ended_at`?, `exit_code` int?, `error_code` text?, `stderr_tail` text? (last 4 KiB) | keep last 1,000; titles and names are copies so rows outlive renames and deletes; `ended_at` null = still running or the launcher quit first |
 | `games_fts` | FTS5(`title`, content=`game_metadata`, content_rowid=`game_id`) | global search; triggers keep it in sync |

@@ -38,16 +38,18 @@ const readable = (filter: string) => {
   return words.charAt(0).toUpperCase() + words.slice(1);
 };
 
-function filterNodes(
-  system: MenuTreeInput['systems'][number],
+/** A system's filter entries (≥ 2 distinct filters, `official` first); ids hang off `baseId`. */
+export function filterNodes(
+  system: { id: string; name: string },
   filters: readonly string[],
+  baseId = `s:${system.id}`,
 ): MenuNode[] {
   if (filters.length < 2) return [];
   const ordered = [...filters].sort((a, b) =>
     a === 'official' ? -1 : b === 'official' ? 1 : a.localeCompare(b),
   );
   return ordered.map((filter) => ({
-    id: `s:${system.id}:f:${filter}`,
+    id: `${baseId}:f:${filter}`,
     // A filter shows its system's art, as in NextLevelOS `{ name, filter }` entries.
     name: system.name,
     display: readable(filter),

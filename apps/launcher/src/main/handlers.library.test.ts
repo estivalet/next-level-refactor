@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
+import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import { MenuRepository } from './menus/MenuRepository.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { LaunchService } from './launch/LaunchService.ts';
 import { GameRepository } from './library/GameRepository.ts';
@@ -51,6 +53,12 @@ async function setup(withLibrary: boolean) {
       newId: () => 'scan-1',
     });
     const collections = new CollectionRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21)));
+    const menus = new MenuRepository(
+      temp.db,
+      () => new Date(Date.UTC(2026, 9, 21)),
+      () => 'm-1',
+    );
+    const smartFilters = new SmartFilterRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21)));
     library = {
       repo: temp.repo,
       media,
@@ -59,6 +67,8 @@ async function setup(withLibrary: boolean) {
         catalog: () => CATALOG,
         settings: defaultSettings,
         collections,
+        menus,
+        smartFilters,
       }),
       scan,
       games: new GameRepository(temp.db, (row) => join('X:', 'roms', row.systemId, row.relPath)),
@@ -78,6 +88,8 @@ async function setup(withLibrary: boolean) {
         baseEnv: {},
         log: { warn: () => undefined, error: () => undefined },
       }),
+      menus,
+      smartFilters,
     };
   }
   const deps: MainDeps = {
@@ -95,6 +107,7 @@ async function setup(withLibrary: boolean) {
     presets: () => [],
     library,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
+    newId: () => '0199f000-0000-7000-8000-000000000001',
     emit: (event, payload) => {
       events.push({ event, payload });
     },
@@ -193,6 +206,10 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['collections.addGames', { id: 1, gameIds: [1] }],
   ['collections.removeGames', { id: 1, gameIds: [1] }],
   ['collections.reorder', { id: 1, gameId: 1, swapWithGameId: 2 }],
+  ['smartFilters.list', undefined],
+  ['menus.list', undefined],
+  ['menus.draft', undefined],
+  ['frontend.resolveMenu', { draft: { title: 'X', nodes: [] } }],
 ];
 
 describe('game library handlers', () => {
@@ -247,5 +264,23 @@ describe('game library handlers', () => {
       ok: true,
       value: [{ id: 1, name: 'Picks', sort: 'manual', games: 1 }],
     });
+  });
+
+  it('FR-MENU-2: collection changes a menu can show announce menus.changed', async () => {
+    const { router, seed, events } = await setup(true);
+    const [a = 0] = seed('nintendo-64', ['Alpha']);
+    await router.handle('collections.create', { name: 'Picks' });
+    const menuEvents = () => events.filter((entry) => entry.event === 'menus.changed').length;
+    expect(menuEvents()).toBe(0);
+    await router.handle('collections.update', { id: 1, name: 'Best' });
+    expect(menuEvents()).toBe(1);
+    await router.handle('collections.addGames', { id: 1, gameIds: [a] });
+    await router.handle('collections.removeGames', { id: 1, gameIds: [a] });
+    await router.handle('collections.reorder', { id: 1, gameId: a, swapWithGameId: a });
+    expect(menuEvents()).toBe(3);
+    await router.handle('collections.update', { id: 99, name: 'None' });
+    expect(menuEvents()).toBe(3);
+    await router.handle('collections.delete', { id: 1 });
+    expect(events.at(-1)).toEqual({ event: 'menus.changed', payload: {} });
   });
 });

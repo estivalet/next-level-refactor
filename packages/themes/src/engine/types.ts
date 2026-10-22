@@ -46,6 +46,8 @@ export interface EngineState {
 export type NavAction =
   | { type: 'menu-loaded'; items: MenuNode[]; title: string }
   | { type: 'menu-failed'; error: string }
+  /** The host's menu changed: same path by node id where it still exists (US-D5). */
+  | { type: 'menu-reloaded'; items: MenuNode[]; title: string }
   | { type: 'push'; level: Level }
   | { type: 'select-root'; index: number; level: Level }
   | { type: 'back' }
