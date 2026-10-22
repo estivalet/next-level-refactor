@@ -34,6 +34,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - The theme switcher: T (or Switch theme in the theme menu) picks another theme and opens it on
   the same level with the same game focused; it is also the theme the launcher starts in next.
 - LT/RT (PageUp/PageDown) jump a page through game lists.
+- HyperSpin Classic (FR-THM-1): a curved logo wheel with a pointer and an animated stage of logo,
+  video and box art; left/right and LT/RT jump by letter, R3 (R) picks a random game, LB/RB step
+  through the filters. Its wheel shape and filter layout are theme options.
 
 ### Changed
 - The Library no longer shows a failure for a game started from the front-end; the front-end

@@ -37,7 +37,12 @@ export function renderTheme(
   const onExit = vi.fn<() => void>();
   const view = render(
     <ThemeEngineProvider host={host} onExit={onExit}>
-      <ThemeArtProvider host={host} themeId={theme.id} moduleArt={theme.art}>
+      <ThemeArtProvider
+        host={host}
+        themeId={theme.id}
+        moduleArt={theme.art}
+        {...(theme.settings ? { moduleSettings: theme.settings } : {})}
+      >
         <Component onExit={onExit} inputEnabled={inputEnabled} active={active} />
       </ThemeArtProvider>
     </ThemeEngineProvider>,

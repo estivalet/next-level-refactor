@@ -3,6 +3,7 @@
 import { bigBoxTheme } from './big-box/index.ts';
 import { bigBoxListTheme } from './big-box-list/index.ts';
 import { consoleHomeTheme } from './console-home/index.ts';
+import { hyperspinTheme } from './hyperspin/index.ts';
 import { ps5Theme } from './ps5/index.ts';
 import type { ThemeModule } from './engine/types.ts';
 
@@ -12,6 +13,7 @@ export const THEMES: readonly ThemeModule[] = [
   bigBoxListTheme,
   consoleHomeTheme,
   ps5Theme,
+  hyperspinTheme,
 ];
 
 export const THEME_IDS: readonly string[] = THEMES.map((theme) => theme.id);

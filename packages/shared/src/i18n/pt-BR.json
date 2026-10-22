@@ -661,6 +661,13 @@
       "explore": "Explorar",
       "tabCount": "{{label}}: {{count, number}}"
     },
+    "hyperspin": {
+      "name": "HyperSpin Clássico",
+      "description": "Roda curva de logotipos com arte animada",
+      "filter": "Filtro",
+      "previousFilter": "Filtro anterior",
+      "nextFilter": "Próximo filtro"
+    },
     "switcher": {
       "label": "Trocar tema",
       "current": "Atual"

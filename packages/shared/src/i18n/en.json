@@ -661,6 +661,13 @@
       "explore": "Explore",
       "tabCount": "{{label}}: {{count, number}}"
     },
+    "hyperspin": {
+      "name": "HyperSpin Classic",
+      "description": "Curved logo wheel with animated artwork",
+      "filter": "Filter",
+      "previousFilter": "Previous filter",
+      "nextFilter": "Next filter"
+    },
     "switcher": {
       "label": "Switch theme",
       "current": "Current"
