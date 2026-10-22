@@ -82,6 +82,7 @@ test('FR-THM-1, FR-THM-4: HyperSpin follows an option saved in Settings; Showcas
     await page.keyboard.press('KeyT');
     await expect(switcher).toBeFocused();
     await page.keyboard.press('ArrowRight');
+    await expect(switcher.locator('[aria-pressed="true"]')).toContainText('Showcase');
     await page.keyboard.press('Enter');
     await expect(switcher).toBeHidden();
     await expect(layer).toHaveAttribute('data-theme', 'showcase');
