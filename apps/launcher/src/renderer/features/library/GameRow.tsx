@@ -11,6 +11,7 @@ interface GameRowProps {
   top: number;
   height: number;
   onClick: (event: MouseEvent) => void;
+  onDoubleClick: () => void;
   onContextMenu: (event: MouseEvent) => void;
 }
 
@@ -23,6 +24,7 @@ export function GameRow({
   top,
   height,
   onClick,
+  onDoubleClick,
   onContextMenu,
 }: GameRowProps) {
   const { t } = useTranslation();
@@ -33,6 +35,7 @@ export function GameRow({
       aria-selected={selected}
       title={game.expectedPath ? t('library.missingAt', { path: game.expectedPath }) : undefined}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       onContextMenu={onContextMenu}
       className={`absolute left-0 flex w-full cursor-default items-center gap-4 rounded-lg border px-4 text-left select-none ${
         selected ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-transparent hover:bg-white/5'

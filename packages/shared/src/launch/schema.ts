@@ -13,6 +13,26 @@ export type LaunchOverride = z.output<typeof LaunchOverrideSchema>;
 
 export const EMPTY_LAUNCH_OVERRIDE: LaunchOverride = { profileId: null, core: null, extraArgs: [] };
 
+/** The Settings section (and item) that fixes a launch error (IA: errors link to their fix). */
+export const LaunchFixSchema = z.object({
+  section: z.enum(['emulators', 'systems', 'storage']),
+  id: z.string().optional(),
+});
+
+export type LaunchFix = z.output<typeof LaunchFixSchema>;
+
+/** `AppError.details` of launch errors (US-C2): what failed, why, and where to fix it. */
+export const LaunchErrorDetailsSchema = z.object({
+  fix: LaunchFixSchema.optional(),
+  path: z.string().optional(),
+  stderrTail: z.string().optional(),
+  exitCode: z.number().int().optional(),
+  /** A short machine reason, e.g. the spawn error code (ENOENT) or `cwdMissing`. */
+  reason: z.string().optional(),
+});
+
+export type LaunchErrorDetails = z.output<typeof LaunchErrorDetailsSchema>;
+
 /** One row of the launch log (FR-EMU-10). Names are copies, so the log survives renames. */
 export const LaunchLogEntrySchema = z.object({
   id: z.number().int().positive(),

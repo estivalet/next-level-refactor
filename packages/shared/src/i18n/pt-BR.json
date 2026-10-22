@@ -366,7 +366,10 @@
       "missingSince": "Ausente desde {{date}}",
       "expectedAt": "Esperado em {{path}}",
       "relink": "Religar…",
-      "file": "Arquivo"
+      "file": "Arquivo",
+      "play": "Jogar",
+      "playCount_one": "Jogado {{count}} vez",
+      "playCount_other": "Jogado {{count}} vezes"
     },
     "fields": {
       "title": "Título",
@@ -387,7 +390,8 @@
       "hide": "Ocultar",
       "unhide": "Mostrar",
       "openFolder": "Abrir pasta",
-      "missingReason": "Mostrar motivo da ausência…"
+      "missingReason": "Mostrar motivo da ausência…",
+      "play": "Jogar"
     },
     "edit": {
       "title": "Editar detalhes",
@@ -446,6 +450,17 @@
       "system": "Procurar em {{system}}",
       "cancel": "Cancelar busca",
       "progress": "Procurando {{done}}/{{total}}"
+    },
+    "playing": {
+      "title": "Jogando {{title}}…",
+      "hint": "A Biblioteca volta quando o jogo fechar."
+    },
+    "launchError": {
+      "title": "{{title}} não iniciou",
+      "fix": "Corrigir nas Configurações",
+      "close": "Fechar",
+      "exitCode": "Código de saída {{code}}",
+      "stderr": "Saída do emulador"
     }
   }
 }

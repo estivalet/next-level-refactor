@@ -2,6 +2,7 @@ import { Library, Settings, type LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { LibraryApp } from '../features/library/LibraryApp.tsx';
 import { SettingsApp } from '../features/settings/SettingsApp.tsx';
+import type { AppParams } from '../features/shell/windowManager.ts';
 
 export type AppId = 'library' | 'settings';
 
@@ -12,7 +13,7 @@ export interface AppDefinition {
   defaultSize: { width: number; height: number };
   /** Whether opening the app again focuses the existing window (FR-SHELL-3). */
   singleInstance: boolean;
-  Component: ComponentType;
+  Component: ComponentType<{ params?: AppParams }>;
 }
 
 /** Every app the shell can open, in desktop and Start menu order. */

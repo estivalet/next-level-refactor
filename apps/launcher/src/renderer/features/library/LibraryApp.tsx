@@ -15,6 +15,8 @@ import { SearchResults } from './SearchResults.tsx';
 import { SystemTree } from './SystemTree.tsx';
 import { leavesTab, scopeFacts } from './scopeFacts.ts';
 import { useLibraryView } from './useLibraryView.ts';
+import { PlayLayer } from './PlayLayer.tsx';
+import { usePlay } from './usePlay.ts';
 
 /** The Game Library app (S7): search and scan header, system tree, game list, details, status. */
 export function LibraryApp() {
@@ -26,6 +28,11 @@ export function LibraryApp() {
   const [searchText, setSearchText] = useState('');
   const [searchPick, setSearchPick] = useState<number | null>(null);
   const search = useGlobalSearch(searchText);
+  const focusList = () => {
+    list.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus();
+  };
+  // Back from a game, the same row is still selected: give it the keyboard again.
+  const play = usePlay({ onFinished: focusList });
   const { setRange } = view;
   const onRange = useCallback(
     (first: number, last: number) => {
@@ -64,7 +71,7 @@ export function LibraryApp() {
             setSearchPick(null);
           }}
           onArrowDown={() => {
-            list.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus();
+            focusList();
             const first = search.data?.games[0];
             if (searchPick === null && first) setSearchPick(first.id);
           }}
@@ -131,6 +138,10 @@ export function LibraryApp() {
                 onOpenMenu={(_index, point) => {
                   overlays.openMenu(point);
                 }}
+                onActivate={(index) => {
+                  const game = view.games.rowAt(index);
+                  if (game && !game.missing) play.play(game.id);
+                }}
               />
             </>
           )}
@@ -145,6 +156,8 @@ export function LibraryApp() {
             onEdit={overlays.edit}
             onRelink={overlays.relink}
             onFlags={onFlags}
+            onPlay={play.play}
+            playBusy={play.busy}
           />
         </aside>
       </div>
@@ -160,10 +173,10 @@ export function LibraryApp() {
         view={view}
         overlays={overlays}
         onFlags={onFlags}
-        onMenuClosed={() => {
-          list.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus();
-        }}
+        {...(play.busy ? {} : { onPlay: play.play })}
+        onMenuClosed={focusList}
       />
+      <PlayLayer play={play} />
     </div>
   );
 }

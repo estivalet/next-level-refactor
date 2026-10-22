@@ -16,6 +16,8 @@ interface GameListProps {
   onRange: (first: number, last: number) => void;
   /** Opens the context menu for the focused row at a screen point. */
   onOpenMenu?: (index: number, point: { x: number; y: number }) => void;
+  /** Enter or double-click on a row (US-C2: Play). */
+  onActivate?: (index: number) => void;
 }
 
 const modeOf = (event: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean }): SelectMode =>
@@ -24,7 +26,7 @@ const modeOf = (event: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean }
 /**
  * The virtualized game list (S7, NFR-PERF-2): a multi-select listbox. Arrows, Home/End and
  * PageUp/PageDown move (Shift extends), Ctrl/⌘-click toggles, the ContextMenu key or Shift+F10
- * opens the menu.
+ * opens the menu, Enter or double-click activates (plays) a row.
  */
 export function GameList({
   games,
@@ -33,6 +35,7 @@ export function GameList({
   onSelect,
   onRange,
   onOpenMenu,
+  onActivate,
 }: GameListProps) {
   const { t } = useTranslation();
   const scroller = useRef<HTMLDivElement>(null);
@@ -76,7 +79,9 @@ export function GameList({
     if (step !== undefined) moveTo(focused + step, event.shiftKey);
     else if (event.key === 'Home') moveTo(0, event.shiftKey);
     else if (event.key === 'End') moveTo(total - 1, event.shiftKey);
-    else if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
+    else if (event.key === 'Enter') {
+      if (focused >= 0) onActivate?.(focused);
+    } else if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
       if (focused >= 0) openMenuAt(focused);
     } else return;
     event.preventDefault();
@@ -116,6 +121,9 @@ export function GameList({
               top={item.start}
               height={ROW_HEIGHT}
               onClick={pick}
+              onDoubleClick={() => {
+                onActivate?.(item.index);
+              }}
               onContextMenu={(event) => {
                 event.preventDefault();
                 if (!selection.ids.has(game.id)) onSelect(item.index, 'single');

@@ -1,6 +1,8 @@
 // Window state for the desktop shell, as a pure reducer so every rule is unit-testable.
 
 export type AppId = string;
+/** What an app should show when opened, e.g. Settings `{ section, focusId }` from "Fix in Settings". */
+export type AppParams = Readonly<Record<string, string>>;
 
 export type Rect = { x: number; y: number; width: number; height: number };
 export type Bounds = { width: number; height: number };
@@ -13,6 +15,7 @@ export interface ShellWindow {
   minimized: boolean;
   maximized: boolean;
   z: number;
+  params?: AppParams;
 }
 
 export interface WindowState {
@@ -24,7 +27,7 @@ export interface WindowState {
 }
 
 export type WindowAction =
-  | { type: 'open'; appId: AppId; size: Size; singleInstance: boolean }
+  | { type: 'open'; appId: AppId; size: Size; singleInstance: boolean; params?: AppParams }
   | { type: 'close' | 'focus' | 'toggleMinimize' | 'toggleMaximize'; id: string }
   | { type: 'move'; id: string; x: number; y: number }
   | { type: 'resize'; id: string; width: number; height: number }
@@ -88,7 +91,11 @@ function focus(state: WindowState, id: string): WindowState {
 function open(state: WindowState, action: Extract<WindowAction, { type: 'open' }>): WindowState {
   if (action.singleInstance) {
     const existing = state.windows.find((w) => w.appId === action.appId);
-    if (existing) return focus(state, existing.id);
+    if (existing) {
+      const { params } = action;
+      const updated = params ? update(state, existing.id, (w) => ({ ...w, params })) : state;
+      return focus(updated, existing.id);
+    }
   }
   const size = clampSize(action.size, state.bounds);
   const offset = (state.windows.length % 5) * CASCADE_STEP;
@@ -107,6 +114,7 @@ function open(state: WindowState, action: Extract<WindowAction, { type: 'open' }
     minimized: false,
     maximized: false,
     z: state.nextZ,
+    ...(action.params ? { params: action.params } : {}),
   };
   return {
     ...state,

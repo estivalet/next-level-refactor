@@ -366,7 +366,10 @@
       "missingSince": "Missing since {{date}}",
       "expectedAt": "Expected at {{path}}",
       "relink": "Relink…",
-      "file": "File"
+      "file": "File",
+      "play": "Play",
+      "playCount_one": "Played {{count}} time",
+      "playCount_other": "Played {{count}} times"
     },
     "fields": {
       "title": "Title",
@@ -387,7 +390,8 @@
       "hide": "Hide",
       "unhide": "Unhide",
       "openFolder": "Open folder",
-      "missingReason": "Show missing reason…"
+      "missingReason": "Show missing reason…",
+      "play": "Play"
     },
     "edit": {
       "title": "Edit details",
@@ -446,6 +450,17 @@
       "system": "Scan {{system}}",
       "cancel": "Cancel scan",
       "progress": "Scanning {{done}}/{{total}}"
+    },
+    "playing": {
+      "title": "Playing {{title}}…",
+      "hint": "The Library comes back when the game closes."
+    },
+    "launchError": {
+      "title": "{{title}} didn’t start",
+      "fix": "Fix in Settings",
+      "close": "Close",
+      "exitCode": "Exit code {{code}}",
+      "stderr": "Emulator output"
     }
   }
 }

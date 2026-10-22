@@ -7,13 +7,16 @@ import { filterSystems, withSystem } from './filterSystems.ts';
 import { SystemEditor } from './SystemEditor.tsx';
 import { SystemList } from './SystemList.tsx';
 
-/** Settings → Systems (FR-EMU-1, FR-LIB-2): enable systems and override folder/extensions. */
-export function SystemsSection() {
+/**
+ * Settings → Systems (FR-EMU-1, FR-LIB-2): enable systems and override folder/extensions.
+ * `focusId` opens that system's editor (US-C2: "Fix in Settings").
+ */
+export function SystemsSection({ focusId }: { focusId?: string }) {
   const { t } = useTranslation();
   const catalog = useSystemCatalog();
   const [query, setQuery] = useState('');
   const [enabledOnly, setEnabledOnly] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(focusId ?? null);
   const systems = catalog.data ?? [];
   const container = useRef<HTMLDivElement>(null);
 

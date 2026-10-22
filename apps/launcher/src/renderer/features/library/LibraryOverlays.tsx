@@ -45,12 +45,15 @@ interface LibraryOverlaysProps {
   view: LibraryView;
   overlays: Overlays;
   onFlags: (flags: GameFlags) => void;
+  /** Play, when a game may start now (D4: one at a time). */
+  onPlay?: (gameId: number) => void;
   /** Where focus goes back when the context menu closes. */
   onMenuClosed: () => void;
 }
 
 /** The context menu and dialogs of the Library (S7). */
-export function LibraryOverlays({ view, overlays, onFlags, onMenuClosed }: LibraryOverlaysProps) {
+export function LibraryOverlays(props: LibraryOverlaysProps) {
+  const { view, overlays, onFlags, onMenuClosed } = props;
   const { t } = useTranslation();
   const removeFromCollection = useRemoveFromCollection();
   const targets = overlays.menu ? view.selectedGames() : [];
@@ -94,6 +97,7 @@ export function LibraryOverlays({ view, overlays, onFlags, onMenuClosed }: Libra
             onMenuClosed();
           }}
           onEdit={overlays.edit}
+          {...(props.onPlay ? { onPlay: props.onPlay } : {})}
           onMissingReason={overlays.relink}
           onFlags={onFlags}
           extraItems={collectionItems}

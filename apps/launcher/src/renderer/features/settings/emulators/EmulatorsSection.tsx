@@ -18,12 +18,15 @@ function scoped(errors: Record<string, string>, prefix: string): Record<string, 
   );
 }
 
-/** Settings → Emulators (FR-EMU-2, FR-EMU-7, US-D1): emulators, their profiles and presets. */
-export function EmulatorsSection() {
+/**
+ * Settings → Emulators (FR-EMU-2, FR-EMU-7, US-D1): emulators, their profiles and presets.
+ * `focusId` opens that profile's editor (US-C2: "Fix in Settings").
+ */
+export function EmulatorsSection({ focusId }: { focusId?: string }) {
   const { t } = useTranslation();
   const presets = usePresets().data ?? [];
   const [dialog, setDialog] = useState<Dialog | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(focusId ?? null);
   const close = () => {
     setDialog(null);
   };
