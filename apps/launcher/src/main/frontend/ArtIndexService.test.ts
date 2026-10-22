@@ -75,6 +75,15 @@ describe('ArtIndexService', () => {
     });
   });
 
+  it('FR-THM-2: a missing art folder is not cached, so a drive mounted later is seen', async () => {
+    expect((await service.index('big-box')).warnings).toEqual(['artFolderUnreadable']);
+    await write('assets/logo/clear/A.png');
+    expect(await service.index('big-box')).toMatchObject({
+      assetsFiles: ['logo/clear/A.png'],
+      warnings: [],
+    });
+  });
+
   it('FR-THM-2: results are cached until refresh or a path change', async () => {
     await write('assets/logo/clear/A.png');
     expect((await service.index('big-box')).assetsFiles).toEqual(['logo/clear/A.png']);

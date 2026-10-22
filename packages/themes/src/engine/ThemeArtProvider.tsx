@@ -43,6 +43,9 @@ export function ThemeArtProvider({
   const [index, setIndex] = useState<ArtIndex | null>(null);
   const [options, setOptions] = useState(() => host.themeOptions(themeId));
 
+  // The index loads once, and again after a settings change (the art folders may have moved;
+  // the host answers from its cache when they didn't).
+  const [revision, setRevision] = useState(0);
   useEffect(() => {
     let alive = true;
     host.loadArtIndex(themeId).then(
@@ -56,12 +59,14 @@ export function ThemeArtProvider({
     return () => {
       alive = false;
     };
-  }, [host, themeId]);
+  }, [host, themeId, revision]);
 
   useEffect(
     () =>
       host.onEvent((event) => {
-        if (event.type === 'settings-changed') setOptions(host.themeOptions(themeId));
+        if (event.type !== 'settings-changed') return;
+        setOptions(host.themeOptions(themeId));
+        setRevision((n) => n + 1);
       }),
     [host, themeId],
   );

@@ -11,6 +11,7 @@ const MAX_DEPTH = 4;
 /** Art the owner keeps but doesn't use; never indexed (NextLevelOS convention). */
 const UNSORTED = '_unsorted_do_not_delete';
 const MANIFEST = 'theme.json';
+const UNREADABLE = 'artFolderUnreadable';
 
 type Listing = { files: string[]; status: 'ok' | 'missing' | 'unreadable' };
 
@@ -75,6 +76,10 @@ export class ArtIndexService {
     if (!entry) {
       entry = this.build(themeId, paths);
       this.cache.set(themeId, entry);
+      // A folder that is missing or unreadable (a drive not mounted yet) is retried next time.
+      void entry.then((index) => {
+        if (index.warnings.includes(UNREADABLE)) this.cache.delete(themeId);
+      });
     }
     return entry;
   }
@@ -95,8 +100,7 @@ export class ArtIndexService {
         : Promise.resolve({ manifest: null, warnings: [] }),
     ]);
     // No pack is normal; a set art folder that is missing or unreadable is worth a notice.
-    if (pack.status === 'unreadable' || assets.status !== 'ok')
-      warnings.push('artFolderUnreadable');
+    if (pack.status === 'unreadable' || assets.status !== 'ok') warnings.push(UNREADABLE);
     warnings.push(...manifest.warnings);
     return {
       packFiles: pack.files.filter((file) => file !== MANIFEST),

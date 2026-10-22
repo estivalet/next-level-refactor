@@ -26,8 +26,9 @@ export interface ThemeHost {
   /** A whole level: every present game of a system, a system filter or a collection. */
   getGames(nodeId: string): Promise<ThemeGame[]>;
   getGameDetails(gameId: number): Promise<{ description: string | null }>;
-  /** The pack and shared art files a theme may use, plus its pack manifest. */
-  loadArtIndex(themeId: string): Promise<ArtIndex>;
+  /** The pack and shared art files a theme may use, plus its pack manifest; `refresh` re-reads
+   * the folders instead of using the host's cache. */
+  loadArtIndex(themeId: string, opts?: { refresh?: boolean }): Promise<ArtIndex>;
   /** A URL for an indexed media kind of a game; null when the game has none of that kind. */
   mediaUrl(game: ThemeGame, kind: string): string | null;
   artUrl(root: ArtRoot, rel: string): string;

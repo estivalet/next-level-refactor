@@ -35,11 +35,13 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
     expect(await host.getGames('s:snes')).toHaveLength(2);
     expect(await host.loadArtIndex('big-box')).toEqual(art);
     expect(await host.getGameDetails(7)).toEqual({ description: 'A game' });
+    await host.loadArtIndex('ps5', { refresh: true });
     expect(fake.calls.map((call) => [call.channel, call.input])).toEqual([
       ['frontend.menu', undefined],
       ['frontend.games', { nodeId: 's:snes' }],
       ['frontend.artIndex', { themeId: 'big-box' }],
       ['library.games.get', { gameId: 7 }],
+      ['frontend.artIndex', { themeId: 'ps5', refresh: true }],
     ]);
   });
 

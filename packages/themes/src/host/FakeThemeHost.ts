@@ -71,8 +71,8 @@ export class FakeThemeHost implements ThemeHost {
     return Promise.resolve({ description: `About game ${String(gameId)}` });
   }
 
-  loadArtIndex(themeId: string): Promise<ArtIndex> {
-    this.calls.push({ method: 'loadArtIndex', args: [themeId] });
+  loadArtIndex(themeId: string, opts?: { refresh?: boolean }): Promise<ArtIndex> {
+    this.calls.push({ method: 'loadArtIndex', args: opts ? [themeId, opts] : [themeId] });
     return Promise.resolve(this.fixture.art ?? FIXTURE_ART);
   }
 

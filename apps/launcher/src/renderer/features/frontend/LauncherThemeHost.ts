@@ -38,7 +38,13 @@ export function createLauncherThemeHost(
       const details = value(await bridge.invoke('library.games.get', { gameId }));
       return { description: details.description };
     },
-    loadArtIndex: async (themeId) => value(await bridge.invoke('frontend.artIndex', { themeId })),
+    loadArtIndex: async (themeId, opts) =>
+      value(
+        await bridge.invoke(
+          'frontend.artIndex',
+          opts?.refresh ? { themeId, refresh: true } : { themeId },
+        ),
+      ),
     mediaUrl: (game, kind) => (game.media.includes(kind) ? mediaUrl(game.id, kind) : null),
     artUrl,
     launch: async (gameId) => {

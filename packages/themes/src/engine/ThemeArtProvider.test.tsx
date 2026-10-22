@@ -139,4 +139,18 @@ describe('ThemeArtProvider (FR-THM-2, FR-THM-4)', () => {
     await ctx.ready();
     expect(ctx.art().logo('SNES')).toEqual([]);
   });
+
+  it('a settings change reloads the art index (e.g. a new art folder)', async () => {
+    const host = new FakeThemeHost({ art: index({ assetsFiles: [], packFiles: [] }) });
+    const ctx = setup(host);
+    await ctx.ready();
+    expect(ctx.art().logo('SNES')).toEqual([]);
+    vi.spyOn(host, 'loadArtIndex').mockResolvedValue(index());
+    act(() => {
+      host.emit({ type: 'settings-changed' });
+    });
+    await waitFor(() => {
+      expect(ctx.art().logo('SNES')).toHaveLength(2);
+    });
+  });
 });
