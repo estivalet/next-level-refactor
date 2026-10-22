@@ -12,3 +12,6 @@ export * from './catalog/schema.ts';
 export * from './launch/template.ts';
 export * from './launch/schema.ts';
 export * from './launch/profiles.ts';
+export * from './frontend/schema.ts';
+export * from './frontend/manifest.ts';
+export * from './frontend/urls.ts';
