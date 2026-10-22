@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "7zip-bin": "^5.2.0",
     "@nextlevel/shared": "*",
     "@nextlevel/system-catalog": "*",
+    "@nextlevel/themes": "*",
     "@tanstack/react-query": "^5.104.5",
     "@tanstack/react-virtual": "^3.14.21",
-    "7zip-bin": "^5.2.0",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",
     "electron-log": "^5.4.4",

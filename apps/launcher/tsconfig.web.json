@@ -10,6 +10,9 @@
     },
     {
       "path": "../../packages/system-catalog"
+    },
+    {
+      "path": "../../packages/themes"
     }
   ]
 }

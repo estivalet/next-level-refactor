@@ -10,6 +10,7 @@ import { SettingsSection } from '../form/SettingsSection.tsx';
 import type { SettingsDraft } from '../form/useSettingsDraft.ts';
 import { BindingRow } from './BindingRow.tsx';
 import { useBindingCapture } from './useBindingCapture.ts';
+import { usePadCapture } from './usePadCapture.ts';
 
 type Device = 'keyboard' | 'gamepad';
 
@@ -43,13 +44,14 @@ export function InputSection() {
 
 function InputForm({ draft, update, errors }: SettingsDraft) {
   const { t } = useTranslation();
-  const { capture, start } = useBindingCapture((target, binding) => {
+  const { capture, start, dispatch } = useBindingCapture((target, binding) => {
     update((current) =>
       withBindings(current, target.device, target.action, (list) =>
         list.includes(binding) ? list : [...list, binding],
       ),
     );
   });
+  usePadCapture(capture.target?.device === 'gamepad', dispatch);
   const input = draft.input;
   const setRepeat = (key: 'repeatDelayMs' | 'repeatRateHz', value: string) => {
     update((current) => ({ ...current, input: { ...current.input, [key]: Number(value) } }));

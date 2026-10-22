@@ -1,14 +1,37 @@
 import { defaultSettings, ok, type Settings } from '@nextlevel/shared';
 import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../../test-utils.tsx';
 import { InputSection } from './InputSection.tsx';
 
 afterEach(() => {
   setBridgeForTests(null);
+  vi.unstubAllGlobals();
 });
+
+/** A standard gamepad whose pressed buttons the test controls. */
+function stubGamepad() {
+  let pressed: number[] = [];
+  vi.stubGlobal('requestAnimationFrame', (callback: () => void) => setTimeout(callback, 5));
+  vi.stubGlobal('cancelAnimationFrame', (id: number) => {
+    clearTimeout(id);
+  });
+  Object.defineProperty(navigator, 'getGamepads', {
+    configurable: true,
+    value: () => [
+      {
+        mapping: 'standard',
+        axes: [0, 0],
+        buttons: Array.from({ length: 17 }, (_, i) => ({ pressed: pressed.includes(i) })),
+      },
+    ],
+  });
+  return (...buttons: number[]) => {
+    pressed = buttons;
+  };
+}
 
 function setup(settings: Settings = defaultSettings()) {
   const bridge = installFakeBridge({
@@ -71,5 +94,17 @@ describe('InputSection', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(saved()?.repeatDelayMs).toBe(300);
     expect(saved()?.keyboard.search).toEqual(['KeyF']);
+  });
+
+  it('FR-THM-3: a gamepad button pressed and released is captured', async () => {
+    const press = stubGamepad();
+    const user = userEvent.setup();
+    setup();
+    const row = await screen.findByRole('group', { name: 'Switch theme' });
+    await user.click(within(row).getByRole('button', { name: 'Add button for Switch theme' }));
+    press(16);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    press();
+    expect(await within(row).findByText('Guide')).toBeVisible();
   });
 });

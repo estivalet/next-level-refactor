@@ -13,3 +13,7 @@ export * from './engine/themePack.ts';
 export * from './engine/themeCoverage.ts';
 export * from './engine/transitions.ts';
 export * from './engine/artEntrances.ts';
+export * from './input/keyboard.ts';
+export * from './input/gamepad.ts';
+export * from './input/repeat.ts';
+export * from './input/useInputActions.ts';
