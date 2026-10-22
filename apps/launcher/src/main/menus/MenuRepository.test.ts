@@ -46,6 +46,19 @@ const tree = () => [
 ];
 
 describe('MenuRepository', () => {
+  it('FR-MENU-1: a node id another menu uses is refused as invalid, nothing written', () => {
+    const nodes = tree();
+    const first = menus.create('Main', nodes);
+    expect(appErrorOf(() => menus.create('Copy', nodes)).code).toBe('VALIDATION_FAILED');
+    const other = menus.create('Other', []);
+    expect(appErrorOf(() => menus.save(other.id, { title: 'Other', nodes }, 0)).code).toBe(
+      'VALIDATION_FAILED',
+    );
+    expect(menus.list().map((menu) => menu.title)).toEqual(['Main', 'Other']);
+    expect(menus.get(other.id).revision).toBe(0);
+    expect(menus.get(first.id).nodes).toEqual(nodes);
+  });
+
   it('FR-MENU-3: no menus means no active menu', () => {
     expect(menus.list()).toEqual([]);
     expect(menus.active()).toBeNull();
