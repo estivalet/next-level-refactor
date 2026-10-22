@@ -11,6 +11,7 @@ import { mkdir } from 'node:fs/promises';
 import type { EmitEvent } from './ipc/events.ts';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { LaunchService } from './launch/LaunchService.ts';
+import type { ArtIndexService } from './frontend/ArtIndexService.ts';
 import type { FrontendService } from './frontend/FrontendService.ts';
 import { createFrontendHandlers } from './frontendHandlers.ts';
 import { createLaunchHandlers } from './launchHandlers.ts';
@@ -49,6 +50,8 @@ export interface MainDeps {
     launches: LaunchRepository;
     launch: LaunchService;
   } | null;
+  /** Theme art lists (FR-THM-2); works without the library. */
+  artIndex: Pick<ArtIndexService, 'index'>;
   clock: () => Date;
   emit: EmitEvent;
   /** Shows a file (or folder) selected in the OS file manager. */
@@ -88,7 +91,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
 
   return {
     ...createLibraryHandlers(deps),
-    ...createFrontendHandlers({ frontend: () => library().frontend }),
+    ...createFrontendHandlers({ frontend: () => library().frontend, artIndex: deps.artIndex }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();

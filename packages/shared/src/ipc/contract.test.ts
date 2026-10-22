@@ -21,6 +21,9 @@ describe('ipcContract', () => {
     expect(games.input.safeParse({ nodeId: 's:snes' }).success).toBe(true);
     expect(games.input.safeParse({ nodeId: 'x'.repeat(201) }).success).toBe(false);
     expect(games.output.safeParse([]).success).toBe(true);
+    const art = ipcContract['frontend.artIndex'].input;
+    expect(art.safeParse({ themeId: 'big-box', refresh: true }).success).toBe(true);
+    expect(art.safeParse({ themeId: '../x' }).success).toBe(false);
     expect(ipcContract['frontend.menu'].output.safeParse({ title: 'T', items: [] }).success).toBe(
       true,
     );

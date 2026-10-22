@@ -9,7 +9,12 @@ describe('front-end handlers', () => {
         menu: () => ({ title: 'NextLevel', items: [] }),
         games: (nodeId) => (nodeId === 's:snes' ? [] : []),
       }),
+      artIndex: {
+        index: (themeId) =>
+          Promise.resolve({ packFiles: [themeId], assetsFiles: [], manifest: null, warnings: [] }),
+      },
     });
+    expect((await handlers['frontend.artIndex']({ themeId: 'ps5' })).packFiles).toEqual(['ps5']);
     expect(await handlers['frontend.menu']()).toEqual({ title: 'NextLevel', items: [] });
     expect(await handlers['frontend.games']({ nodeId: 's:snes' })).toEqual([]);
   });
@@ -19,6 +24,7 @@ describe('front-end handlers', () => {
       frontend: () => {
         throw new AppErrorException({ code: 'LIBRARY_UNAVAILABLE', message: 'x' });
       },
+      artIndex: { index: () => Promise.reject(new Error('unused')) },
     });
     expect(() => handlers['frontend.menu']()).toThrow(AppErrorException);
   });

@@ -23,6 +23,7 @@ import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { MediaRepository } from './library/MediaRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
+import { ArtIndexService } from './frontend/ArtIndexService.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts';
 import { ScanService } from './scan/ScanService.ts';
@@ -224,14 +225,15 @@ async function start(): Promise<void> {
   });
   await settings.load();
   const library = startLibrary(settings);
+  const artPaths = () => {
+    const { assetsPath, themesPath } = currentSettings(settings).storage;
+    return { assetsPath, themesPath };
+  };
   protocol.handle(
     'nextlevel',
     createNextlevelHandler({
       mediaPath: (gameId, kind) => library?.media.path(gameId, kind) ?? null,
-      paths: () => {
-        const { assetsPath, themesPath } = currentSettings(settings).storage;
-        return { assetsPath, themesPath };
-      },
+      paths: artPaths,
     }),
   );
 
@@ -247,6 +249,7 @@ async function start(): Promise<void> {
     log,
     catalog: systemCatalog,
     library,
+    artIndex: new ArtIndexService({ paths: artPaths }),
     clock: () => new Date(),
     emit,
     revealFile: (path) => {

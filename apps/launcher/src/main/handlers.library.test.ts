@@ -82,6 +82,7 @@ async function setup(withLibrary: boolean) {
   }
   const deps: MainDeps = {
     settings,
+    artIndex: { index: () => Promise.reject(new Error('no art index in this test')) },
     appVersion: () => '1.0.0',
     quit: vi.fn(),
     paths: { data: fixture.dir, logs: join(fixture.dir, 'logs') },
