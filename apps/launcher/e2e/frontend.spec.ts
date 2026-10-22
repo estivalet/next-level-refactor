@@ -155,7 +155,7 @@ test('FR-THM-1: the switcher goes through four themes keeping the focused game; 
     const switcher = page.getByRole('dialog', { name: 'Switch theme' });
     const next = async (themeId: string) => {
       await page.keyboard.press('KeyT');
-      await expect(switcher).toBeVisible();
+      await expect(switcher).toBeFocused();
       await page.keyboard.press('ArrowRight');
       await page.keyboard.press('Enter');
       await expect(switcher).toBeHidden();
