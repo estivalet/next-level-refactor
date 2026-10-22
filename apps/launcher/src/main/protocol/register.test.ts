@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { tempDir } from '../library/testing.ts';
-import { createNextlevelHandler } from './register.ts';
+import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './register.ts';
 
 let root: string;
 let cleanup: () => Promise<void>;
@@ -39,6 +39,14 @@ describe('nextlevel:// handler', () => {
       const res = await handle(new Request(url));
       expect(res.status, url).toBe(404);
     }
+  });
+
+  it('FR-THM-6: the renderer may fetch it: CORS-enabled scheme, responses allow any origin', async () => {
+    expect(NEXTLEVEL_SCHEME.privileges).toMatchObject({ corsEnabled: true, supportFetchAPI: true });
+    const res = await handle(new Request('nextlevel://art/assets/logo/clear/Arcade.png'));
+    expect(res.headers.get('access-control-allow-origin')).toBe('*');
+    const missing = await handle(new Request('nextlevel://art/assets/nope.png'));
+    expect(missing.headers.get('access-control-allow-origin')).toBe('*');
   });
 
   it('FR-THM-6: only GET is allowed', async () => {
