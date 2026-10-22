@@ -51,7 +51,7 @@ function setup(initial: CollectionSummary[] = []) {
     },
     'collections.reorder': () => ok(undefined),
     'library.games.list': (query: GameListQuery) => {
-      if (query.scope.kind === 'system') return base['library.games.list']?.(query) as never;
+      if (query.scope.kind !== 'collection') return base['library.games.list']?.(query) as never;
       const ids = members.get(query.scope.collectionId) ?? [];
       const rows = GAMES.filter((game) => ids.includes(game.id));
       return ok({ total: rows.length, offset: 0, games: rows });

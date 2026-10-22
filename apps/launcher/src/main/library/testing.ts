@@ -44,6 +44,10 @@ export interface SeedGame {
   favorite?: boolean;
   hidden?: boolean;
   userRating?: number;
+  players?: string;
+  playCount?: number;
+  lastPlayedAt?: string;
+  filters?: string[];
 }
 
 /** Inserts games with metadata (and user state when given) in one transaction; returns ids. */
@@ -54,12 +58,14 @@ export function seedGames(db: LibraryDb, systemId: string, games: Array<string |
      values (?, ?, ?, 1, 1, ?, ?, ?)`,
   );
   const insertMetadata = client.prepare(
-    `insert into game_metadata (game_id, title, sort_title, year, genre, updated_at)
-     values (?, ?, ?, ?, ?, '2026-10-21T12:00:00.000Z')`,
+    `insert into game_metadata (game_id, title, sort_title, year, genre, players, updated_at)
+     values (?, ?, ?, ?, ?, ?, '2026-10-21T12:00:00.000Z')`,
   );
   const insertState = client.prepare(
-    'insert into game_user_state (game_id, favorite, hidden, user_rating) values (?, ?, ?, ?)',
+    `insert into game_user_state (game_id, favorite, hidden, user_rating, play_count, last_played_at)
+     values (?, ?, ?, ?, ?, ?)`,
   );
+  const insertFilter = client.prepare('insert into game_filters (game_id, filter) values (?, ?)');
   return client.transaction(() =>
     games.map((entry) => {
       const game = typeof entry === 'string' ? { title: entry } : entry;
@@ -78,10 +84,19 @@ export function seedGames(db: LibraryDb, systemId: string, games: Array<string |
         game.title.toLowerCase(),
         game.year ?? null,
         game.genre ?? null,
+        game.players ?? null,
       );
-      if (game.favorite || game.hidden || game.userRating) {
-        insertState.run(id, game.favorite ? 1 : 0, game.hidden ? 1 : 0, game.userRating ?? null);
+      if (game.favorite || game.hidden || game.userRating || game.playCount || game.lastPlayedAt) {
+        insertState.run(
+          id,
+          game.favorite ? 1 : 0,
+          game.hidden ? 1 : 0,
+          game.userRating ?? null,
+          game.playCount ?? 0,
+          game.lastPlayedAt ?? null,
+        );
       }
+      for (const filter of game.filters ?? []) insertFilter.run(id, filter);
       return id;
     }),
   )();

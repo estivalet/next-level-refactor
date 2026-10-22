@@ -31,6 +31,34 @@ const matches = (text: string) =>
     .all(text);
 
 describe('library schema', () => {
+  it('FR-MENU-3: one menu at most is active, and deleting a menu deletes its nodes', () => {
+    const client = library.db.$client;
+    const menu = client.prepare(
+      `insert into menus (id, title, active, revision, created_at, updated_at)
+       values (?, ?, ?, 0, 'now', 'now')`,
+    );
+    menu.run('m1', 'Main', 1);
+    expect(() => menu.run('m2', 'Other', 1)).toThrow(/UNIQUE/);
+    menu.run('m3', 'Arcade', 0);
+    menu.run('m4', 'Kids', 0);
+    const node = client.prepare(
+      `insert into menu_nodes (id, menu_id, parent_id, position, type, name, filter_tabs, visible)
+       values (?, 'm3', ?, ?, 'category', ?, 1, 1)`,
+    );
+    node.run('n1', null, 0, 'Sega');
+    node.run('n2', 'n1', 0, 'Saturn');
+    client.prepare("delete from menus where id = 'm3'").run();
+    expect(client.prepare('select count(*) from menu_nodes').pluck().get()).toBe(0);
+  });
+
+  it('FR-LIB-9: smart filter names are unique ignoring case', () => {
+    const insert = library.db.$client.prepare(
+      "insert into smart_filters (name, query, created_at) values (?, '{}', 'now')",
+    );
+    insert.run('Recent');
+    expect(() => insert.run('RECENT')).toThrow(/UNIQUE/);
+  });
+
   it('FR-LIB-10: titles are indexed for search on insert, update and delete', () => {
     library.repo.applySystemDiff(
       'nintendo-64',
