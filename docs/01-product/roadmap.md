@@ -14,7 +14,7 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 | M2 | **Library core** | System catalog; add storage locations; background scan; SQLite library; Game Library app with virtualized lists and global search | FR-LIB-1..8, FR-LIB-10, FR-EMU-1, NFR-PERF | ☑ M2a catalog + storage, M2b library DB + scan, M2c Game Library |
 | M3 | **Launching** | Emulators + profiles + presets in Settings; Test launch; Play a game and return to it; launch log | FR-EMU-2..8, FR-EMU-10 | ☑ M3a launch engine + emulator settings, M3b Play, per-game options, launch log |
 | M4 | **Themes engine** | `packages/themes` engine; Big Box theme first, then the other five; gamepad input; theme packs + coverage | FR-THM-1..6 | ☑ M4a engine, host, input, media; M4b front-end mode, Big Box, boot target; M4c Big Box List, Console Home, PS5 Style, theme switcher; M4d HyperSpin, Showcase, theme options, sounds, pack coverage |
-| M5 | **Menus, collections & import** | Menu editor; collections; smart filters; NextLevelOS importer with dry run; owner's library migrated | FR-MENU-*, FR-LIB-9, FR-IMP-* | ☐ |
+| M5 | **Menus, collections & import** | Menu editor; collections; smart filters; NextLevelOS importer with dry run; owner's library migrated | FR-MENU-*, FR-LIB-9, FR-IMP-* | ◐ M5a menus core, smart filters, live menu reload |
 | M6 | **Scraping & media** | Single-game scrape with preview; batch scrape; media index | FR-SCR-* | ☐ |
 | M7 | **Accounts** | `apps/api` with Google sign-in, roles, entitlements, devices; launcher sign-in gate + offline grace; admin console v0 (users, audit log) | FR-AUTH-*, FR-ADM-1, FR-ADM-4..5 | ☐ |
 | M8 | **Subscriptions** | Plans; Stripe Checkout/Portal; webhooks; complimentary access; subscribe screen | FR-SUB-*, FR-ADM-2 | ☐ |

@@ -5,6 +5,15 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+- M5a menus core (FR-MENU-1..3, FR-LIB-9, US-D5): menus are stored in the library and themes show
+  the active one; until a menu is saved they keep the generated menu. Menu nodes can be
+  categories, systems, collections and smart filters; what can't open (hidden, disabled, empty or
+  deleted) is left out. Smart filters are saved game queries; Favorites, Recently played and Most
+  played are created on first start. An open theme reloads its menu when a menu, collection or
+  smart filter changes or a scan finishes, and stays on the same entry. The Menu Editor arrives in
+  M5b.
+
 ## [0.4.0] - 2026-10-22
 
 M4 — Themes: the fullscreen front-end with the six themes on one engine, gamepad and keyboard
