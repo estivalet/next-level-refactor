@@ -55,7 +55,7 @@ export type NavAction =
   | { type: 'patch-game'; gameId: number; patch: Partial<ThemeGame> }
   | { type: 'patch-games-error'; error: string }
   | { type: 'replace-stack'; stack: Level[]; focusIndex: number }
-  | { type: 'set-filter-tab'; filterTab?: string };
+  | { type: 'set-filter-tab'; filterTab?: string | undefined };
 
 export type BackgroundLayer =
   { kind: 'image'; candidates: string[] } | { kind: 'video'; candidates: string[] };

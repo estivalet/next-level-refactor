@@ -12,11 +12,16 @@ export interface InputActionsDeps {
   getPads: () => ReadonlyArray<PadSnapshot | null>;
 }
 
+// Without requestAnimationFrame (tests, some hosts) the poll falls back to a 16 ms timer.
+const hasFrames = () => typeof requestAnimationFrame === 'function';
+
 const browserDeps = (): InputActionsDeps => ({
   now: () => performance.now(),
-  requestFrame: (callback) => requestAnimationFrame(callback),
+  requestFrame: (callback) =>
+    hasFrames() ? requestAnimationFrame(callback) : window.setTimeout(callback, 16),
   cancelFrame: (id) => {
-    cancelAnimationFrame(id);
+    if (hasFrames()) cancelAnimationFrame(id);
+    else window.clearTimeout(id);
   },
   getPads: () => (typeof navigator.getGamepads === 'function' ? navigator.getGamepads() : []),
 });

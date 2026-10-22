@@ -17,6 +17,8 @@ export interface HostFixture {
   games?: readonly ThemeGame[];
   art?: ArtIndex;
   options?: Record<string, ThemeOptions>;
+  /** Input settings; defaults to the US-C1 bindings. */
+  input?: InputSettings;
   /** setGameFlags resolves false. */
   failFlags?: boolean;
   /** launch resolves `{ ok: false, message }`. */
@@ -98,7 +100,7 @@ export class FakeThemeHost implements ThemeHost {
   }
 
   input(): InputSettings {
-    return defaultSettings().input;
+    return this.fixture.input ?? defaultSettings().input;
   }
 
   onEvent(listener: (event: HostEvent) => void): () => void {
