@@ -572,6 +572,44 @@
       "jump-prev": "Letra anterior",
       "jump-next": "Próxima letra",
       "random": "Jogo aleatório"
+    },
+    "common": {
+      "loading": "Carregando…",
+      "play": "Jogar",
+      "open": "Abrir",
+      "back": "Voltar",
+      "retry": "Tentar de novo",
+      "exit": "Sair",
+      "noGames": "Nenhum jogo",
+      "nothingHere": "Nada aqui",
+      "menuFailed": "Não foi possível carregar o menu",
+      "levelFailed": "Não foi possível carregar {{name}}",
+      "searchLabel": "Buscar títulos",
+      "searchPlaceholder": "Buscar título…"
+    },
+    "tabs": {
+      "all": "Todos",
+      "favorites": "Favoritos",
+      "hidden": "Ocultos"
+    },
+    "count": {
+      "games_one": "{{count, number}} jogo",
+      "games_other": "{{count, number}} jogos",
+      "items_one": "{{count, number}} item",
+      "items_other": "{{count, number}} itens"
+    },
+    "toast": {
+      "favoriteFailed": "Não foi possível salvar o favorito",
+      "hiddenFailed": "Não foi possível salvar o estado oculto"
+    },
+    "exitMenu": {
+      "label": "Menu do tema",
+      "desktop": "Voltar à área de trabalho",
+      "switch": "Trocar tema",
+      "resume": "Continuar"
+    },
+    "help": {
+      "title": "Controles"
     }
   }
 }

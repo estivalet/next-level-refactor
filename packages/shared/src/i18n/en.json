@@ -572,6 +572,44 @@
       "jump-prev": "Previous letter",
       "jump-next": "Next letter",
       "random": "Random game"
+    },
+    "common": {
+      "loading": "Loading…",
+      "play": "Play",
+      "open": "Open",
+      "back": "Back",
+      "retry": "Retry",
+      "exit": "Exit",
+      "noGames": "No games",
+      "nothingHere": "Nothing here",
+      "menuFailed": "Couldn’t load the menu",
+      "levelFailed": "Couldn’t load {{name}}",
+      "searchLabel": "Search titles",
+      "searchPlaceholder": "Search title…"
+    },
+    "tabs": {
+      "all": "All",
+      "favorites": "Favorites",
+      "hidden": "Hidden"
+    },
+    "count": {
+      "games_one": "{{count, number}} game",
+      "games_other": "{{count, number}} games",
+      "items_one": "{{count, number}} item",
+      "items_other": "{{count, number}} items"
+    },
+    "toast": {
+      "favoriteFailed": "Couldn’t save favorite",
+      "hiddenFailed": "Couldn’t save hidden state"
+    },
+    "exitMenu": {
+      "label": "Theme menu",
+      "desktop": "Return to desktop",
+      "switch": "Switch theme",
+      "resume": "Resume"
+    },
+    "help": {
+      "title": "Controls"
     }
   }
 }
