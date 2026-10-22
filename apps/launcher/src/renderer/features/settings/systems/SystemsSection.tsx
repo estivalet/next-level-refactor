@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useFocusRequest, type FocusRequest } from '../focusRequest.ts';
 import { SettingsSection } from '../form/SettingsSection.tsx';
 import { useSystemCatalog } from '../settingsApi.ts';
 import { filterSystems, withSystem } from './filterSystems.ts';
@@ -9,14 +10,15 @@ import { SystemList } from './SystemList.tsx';
 
 /**
  * Settings → Systems (FR-EMU-1, FR-LIB-2): enable systems and override folder/extensions.
- * `focusId` opens that system's editor (US-C2: "Fix in Settings").
+ * `focus` opens that system's editor (US-C2: "Fix in Settings").
  */
-export function SystemsSection({ focusId }: { focusId?: string }) {
+export function SystemsSection({ focus }: { focus?: FocusRequest }) {
   const { t } = useTranslation();
   const catalog = useSystemCatalog();
   const [query, setQuery] = useState('');
   const [enabledOnly, setEnabledOnly] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(focusId ?? null);
+  const [editingId, setEditingId] = useState<string | null>(focus?.id ?? null);
+  useFocusRequest(focus, setEditingId);
   const systems = catalog.data ?? [];
   const container = useRef<HTMLDivElement>(null);
 
