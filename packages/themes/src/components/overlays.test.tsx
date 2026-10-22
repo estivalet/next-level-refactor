@@ -139,6 +139,13 @@ describe('KeyHelpOverlay (FR-THM-3)', () => {
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 
+  it('ignores input while the theme behind it is disabled (front-end hidden)', () => {
+    const onClose = vi.fn();
+    render(<KeyHelpOverlay open enabled={false} onClose={onClose} keymap={keymap} input={input} />);
+    press(screen.getByRole('dialog'), 'Escape');
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('a click outside the panel closes it (mouse)', () => {
     const onClose = vi.fn();
     render(<KeyHelpOverlay open onClose={onClose} keymap={keymap} input={input} />);

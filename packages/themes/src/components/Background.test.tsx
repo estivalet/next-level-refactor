@@ -56,6 +56,22 @@ describe('Background (FR-THM-2)', () => {
   });
 });
 
+describe('Background while inactive (FR-THM-1)', () => {
+  it('drops video layers while paused and keeps the stills', () => {
+    const { container } = render(
+      <Background
+        paused
+        layers={[
+          { kind: 'video', candidates: ['clip.mp4'] },
+          { kind: 'image', candidates: ['still.jpg'] },
+        ]}
+      />,
+    );
+    expect(container.querySelector('video')).toBeNull();
+    expect(container.querySelector('img')).toHaveAttribute('src', 'still.jpg');
+  });
+});
+
 describe('Background zoom (FR-THM-4)', () => {
   const layers = [
     { kind: 'image' as const, candidates: ['still.jpg'] },

@@ -61,6 +61,13 @@ describe('Big Box (FR-THM-1)', () => {
     expect(last?.levelKey).toContain('m:root');
   });
 
+  it('is silent while inactive (behind the desktop or during a game)', async () => {
+    vi.mocked(useNavigationSound).mockClear();
+    renderTheme(bigBoxTheme, { active: false });
+    await shows('Nintendo');
+    expect(vi.mocked(useNavigationSound).mock.calls.at(-1)?.[0]).toMatchObject({ muted: true });
+  });
+
   it('shows an error with Retry when the menu cannot load', async () => {
     class FailingHost extends FakeThemeHost {
       override getMenu(): Promise<MenuTree> {

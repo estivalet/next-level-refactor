@@ -44,15 +44,20 @@ export function Background({
   overlay,
   className,
   zoom,
+  paused = false,
 }: {
   layers: BackgroundLayer[];
   overlay?: ReactNode;
   className?: string;
   zoom?: boolean;
+  /** Drops video layers (nothing decodes while the theme is out of sight or a game runs). */
+  paused?: boolean;
 }) {
   const { config } = useThemeArt();
   const zoomStills = zoom ?? config.backgroundZoom !== false;
-  const resolved = layers.filter((layer) => layer.candidates.length > 0);
+  const resolved = layers.filter(
+    (layer) => layer.candidates.length > 0 && !(paused && layer.kind === 'video'),
+  );
   const sig = resolved.map((layer) => layer.candidates[0]).join('~') || 'empty';
 
   // The highest-priority layer that painted, for this set of sources.

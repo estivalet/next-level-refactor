@@ -17,6 +17,7 @@ const CLOSE_ACTIONS = new Set<InputAction>(['back', 'help', 'select', 'menu']);
  */
 export function KeyHelpOverlay({
   open,
+  enabled = true,
   onClose,
   keymap,
   input,
@@ -27,6 +28,8 @@ export function KeyHelpOverlay({
   keyClassName,
 }: {
   open: boolean;
+  /** False while the theme behind it takes no input (e.g. the front-end is hidden). */
+  enabled?: boolean;
   onClose: () => void;
   keymap: KeyMap;
   input: InputSettings;
@@ -43,7 +46,7 @@ export function KeyHelpOverlay({
   }, [open]);
   useInputActions({
     targetRef: panelRef,
-    enabled: open,
+    enabled: open && enabled,
     input,
     onAction: (action) => {
       if (CLOSE_ACTIONS.has(action)) onClose();

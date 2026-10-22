@@ -23,7 +23,7 @@ import { BIG_BOX_KEYMAP } from './keymap.ts';
 import { MenuView } from './MenuView.tsx';
 import { accentFor } from './palette.ts';
 
-export function BigBoxTheme({ onExit, inputEnabled = true }: ThemeComponentProps) {
+export function BigBoxTheme({ onExit, inputEnabled = true, active = true }: ThemeComponentProps) {
   const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
   const nav = useThemeNavigation();
@@ -40,13 +40,13 @@ export function BigBoxTheme({ onExit, inputEnabled = true }: ThemeComponentProps
     wrap: true,
   });
   const { tabbed } = controller;
-  const active = inputEnabled && !helpOpen;
-  useThemeRootFocus(rootRef, { status, stackDepth, enabled: active });
+  const listening = inputEnabled && !helpOpen;
+  useThemeRootFocus(rootRef, { status, stackDepth, enabled: listening });
 
   useThemeInput({
     targetRef: rootRef,
     keymap: BIG_BOX_KEYMAP,
-    enabled: active && !controller.searchFocused,
+    enabled: listening && !controller.searchFocused,
     onToggleSearch: controller.onToggleSearch,
     onIntent: (intent) => {
       if (intent === 'show-help') {
@@ -69,7 +69,7 @@ export function BigBoxTheme({ onExit, inputEnabled = true }: ThemeComponentProps
     focusKey: focusIndex,
     levelKey: `${String(stackDepth)}:${levelIdentity(level)}:${tabbed.activeTabId}`,
     levelKind: level?.kind,
-    muted: tabbed.search.isOpen,
+    muted: tabbed.search.isOpen || !active,
   });
 
   const focusKey = isGames
@@ -133,6 +133,7 @@ export function BigBoxTheme({ onExit, inputEnabled = true }: ThemeComponentProps
     <div ref={rootRef} tabIndex={0} className="bigbox-root" style={rootStyle}>
       <Background
         layers={background}
+        paused={!active}
         overlay={
           <div
             className={cn(
@@ -178,6 +179,7 @@ export function BigBoxTheme({ onExit, inputEnabled = true }: ThemeComponentProps
 
       <KeyHelpOverlay
         open={helpOpen}
+        enabled={inputEnabled}
         onClose={() => {
           setHelpOpen(false);
           rootRef.current?.focus();

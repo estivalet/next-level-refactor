@@ -87,7 +87,12 @@ export function FrontendLayer() {
           moduleArt={theme.art}
           {...(theme.settings ? { moduleSettings: theme.settings } : {})}
         >
-          <Theme key={theme.id} onExit={openMenu} inputEnabled={themeInput} />
+          <Theme
+            key={theme.id}
+            onExit={openMenu}
+            inputEnabled={themeInput}
+            active={visible && session.playingGameId === null}
+          />
         </ThemeArtProvider>
       </ThemeEngineProvider>
       {menuOpen && (

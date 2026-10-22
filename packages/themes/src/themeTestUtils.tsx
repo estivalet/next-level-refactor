@@ -20,6 +20,7 @@ export function press(code: string, target: Element = document.activeElement ?? 
 interface RenderThemeOptions {
   host?: FakeThemeHost;
   inputEnabled?: boolean;
+  active?: boolean;
   Component?: ComponentType<ThemeComponentProps>;
 }
 
@@ -30,13 +31,14 @@ export function renderTheme(
   const {
     host = new FakeThemeHost({ art: NO_ART_FILES }),
     inputEnabled = true,
+    active = true,
     Component = theme.Component,
   } = options;
   const onExit = vi.fn<() => void>();
   const view = render(
     <ThemeEngineProvider host={host} onExit={onExit}>
       <ThemeArtProvider host={host} themeId={theme.id} moduleArt={theme.art}>
-        <Component onExit={onExit} inputEnabled={inputEnabled} />
+        <Component onExit={onExit} inputEnabled={inputEnabled} active={active} />
       </ThemeArtProvider>
     </ThemeEngineProvider>,
   );
