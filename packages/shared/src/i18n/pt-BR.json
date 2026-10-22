@@ -538,5 +538,19 @@
       "tooManyArgs": "Use no máximo {{extraArgs}} argumentos extras.",
       "argTooLong": "Cada argumento extra pode ter no máximo {{extraArg}} caracteres."
     }
+  },
+  "frontend": {
+    "menu": {
+      "other": "Outros",
+      "collections": "Coleções"
+    },
+    "filters": {
+      "official": "Oficiais",
+      "homebrew": "Homebrew",
+      "hack": "Hacks",
+      "translation": "Traduções",
+      "prototype": "Protótipos",
+      "unlicensed": "Não licenciados"
+    }
   }
 }

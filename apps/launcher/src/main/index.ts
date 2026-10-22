@@ -23,6 +23,7 @@ import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { MediaRepository } from './library/MediaRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
+import { FrontendService } from './frontend/FrontendService.ts';
 import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
@@ -185,7 +186,13 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     scan.cancel();
     db.$client.close();
   });
-  return { repo, media, scan, games, collections, launches, launch };
+  const frontend = new FrontendService({
+    db,
+    catalog: systemCatalog,
+    settings: () => currentSettings(settings),
+    collections,
+  });
+  return { repo, media, frontend, scan, games, collections, launches, launch };
 }
 
 async function start(): Promise<void> {

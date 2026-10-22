@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
+import { FrontendService } from './frontend/FrontendService.ts';
 import { LaunchService } from './launch/LaunchService.ts';
 import { GameRepository } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
@@ -49,12 +50,19 @@ async function setup(withLibrary: boolean) {
       log: { error: () => undefined },
       newId: () => 'scan-1',
     });
+    const collections = new CollectionRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21)));
     library = {
       repo: temp.repo,
       media,
+      frontend: new FrontendService({
+        db: temp.db,
+        catalog: () => CATALOG,
+        settings: defaultSettings,
+        collections,
+      }),
       scan,
       games: new GameRepository(temp.db, (row) => join('X:', 'roms', row.systemId, row.relPath)),
-      collections: new CollectionRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21))),
+      collections,
       launches,
       launch: new LaunchService({
         settings: defaultSettings,

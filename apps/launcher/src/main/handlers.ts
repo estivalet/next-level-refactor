@@ -11,6 +11,8 @@ import { mkdir } from 'node:fs/promises';
 import type { EmitEvent } from './ipc/events.ts';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { LaunchService } from './launch/LaunchService.ts';
+import type { FrontendService } from './frontend/FrontendService.ts';
+import { createFrontendHandlers } from './frontendHandlers.ts';
 import { createLaunchHandlers } from './launchHandlers.ts';
 import type { CollectionRepository } from './library/CollectionRepository.ts';
 import type { GameRepository } from './library/GameRepository.ts';
@@ -40,6 +42,7 @@ export interface MainDeps {
   library: {
     repo: LibraryRepository;
     media: MediaRepository;
+    frontend: FrontendService;
     scan: ScanService;
     games: GameRepository;
     collections: CollectionRepository;
@@ -85,6 +88,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
 
   return {
     ...createLibraryHandlers(deps),
+    ...createFrontendHandlers({ frontend: () => library().frontend }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();
