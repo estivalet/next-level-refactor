@@ -3,31 +3,37 @@
 exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv (snapshot) 1`] = `
 {
   "azahar:default": [
+    "--extra",
     "-f",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "cemu:default": [
+    "--extra",
     "-f",
     "-g",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "dolphin:default": [
+    "--extra",
     "-b",
     "-e",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "dosbox:default": [
+    "--extra",
     "E:\\roms\\Sys\\Game (USA).zip",
     "-fullscreen",
     "-exit",
   ],
   "duckstation:default": [
+    "--extra",
     "-fullscreen",
     "-batch",
     "--",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "flycast:default": [
+    "--extra",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "mame:aamber-pegasus": [
@@ -1915,11 +1921,13 @@ exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv
     "--extra",
   ],
   "pcsx2:default": [
+    "--extra",
     "-fullscreen",
     "--",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "ppsspp:default": [
+    "--extra",
     "--fullscreen",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
@@ -2350,20 +2358,24 @@ exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "ryujinx:default": [
+    "--extra",
     "-f",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "scummvm:default": [
+    "--extra",
     "--fullscreen",
     "--auto-detect",
     "--path=E:\\roms\\Sys",
   ],
   "xemu:default": [
+    "--extra",
     "-full-screen",
     "-dvd_path",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
   "xenia-canary:default": [
+    "--extra",
     "E:\\roms\\Sys\\Game (USA).zip",
     "--fullscreen",
   ],

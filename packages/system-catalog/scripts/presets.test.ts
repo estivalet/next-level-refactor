@@ -117,7 +117,8 @@ describe('emulator presets (FR-EMU-7)', () => {
 
   it('FR-EMU-7: standalone presets follow the runner, then the extra systems', () => {
     expect(built().presetProfiles['nintendo-gamecube']).toEqual(['dolphin:default']);
-    expect(profile('dolphin:default').args).toEqual(['-b', '-e', '{rom}']);
+    // FR-EMU-4: options first, so `-e {rom}` and `-- {rom}` stay together.
+    expect(profile('dolphin:default').args).toEqual(['{extraArgs}', '-b', '-e', '{rom}']);
     expect(built().presetProfiles['sony-playstation']).toEqual([
       'retroarch:swanstation_libretro',
       'duckstation:default',

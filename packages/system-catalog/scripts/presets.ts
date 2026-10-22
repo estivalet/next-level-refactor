@@ -177,7 +177,8 @@ export function buildPresets(input: PresetInput): PresetResult {
       name,
       executableNames,
       homepage,
-      profiles: [{ id: `${id}:default`, name, systems, args, archives }],
+      // FR-EMU-4: a game's extra arguments go first, before flags like `-e {rom}` or `-- {rom}`.
+      profiles: [{ id: `${id}:default`, name, systems, args: ['{extraArgs}', ...args], archives }],
     });
   }
   return { catalog: { source: input.source, presets }, presetProfiles, skipped };

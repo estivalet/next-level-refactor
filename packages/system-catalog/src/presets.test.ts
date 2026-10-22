@@ -36,6 +36,12 @@ describe('emulator presets (FR-EMU-7)', () => {
     }
   });
 
+  it('FR-EMU-4: every preset profile has {extraArgs}, so a game’s extra arguments reach it', () => {
+    for (const profile of emulatorPresets().flatMap((preset) => preset.profiles)) {
+      expect(profile.args, profile.id).toContain('{extraArgs}');
+    }
+  });
+
   it('FR-EMU-7: every system preset profile exists and covers that system', () => {
     for (const system of systemCatalog()) {
       for (const id of system.presetProfiles) {
