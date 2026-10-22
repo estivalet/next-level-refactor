@@ -107,6 +107,7 @@ async function setup(withLibrary: boolean) {
     presets: () => [],
     library,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
+    newId: () => '0199f000-0000-7000-8000-000000000001',
     emit: (event, payload) => {
       events.push({ event, payload });
     },
@@ -205,6 +206,10 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['collections.addGames', { id: 1, gameIds: [1] }],
   ['collections.removeGames', { id: 1, gameIds: [1] }],
   ['collections.reorder', { id: 1, gameId: 1, swapWithGameId: 2 }],
+  ['smartFilters.list', undefined],
+  ['menus.list', undefined],
+  ['menus.draft', undefined],
+  ['frontend.resolveMenu', { draft: { title: 'X', nodes: [] } }],
 ];
 
 describe('game library handlers', () => {
@@ -259,5 +264,23 @@ describe('game library handlers', () => {
       ok: true,
       value: [{ id: 1, name: 'Picks', sort: 'manual', games: 1 }],
     });
+  });
+
+  it('FR-MENU-2: collection changes a menu can show announce menus.changed', async () => {
+    const { router, seed, events } = await setup(true);
+    const [a = 0] = seed('nintendo-64', ['Alpha']);
+    await router.handle('collections.create', { name: 'Picks' });
+    const menuEvents = () => events.filter((entry) => entry.event === 'menus.changed').length;
+    expect(menuEvents()).toBe(0);
+    await router.handle('collections.update', { id: 1, name: 'Best' });
+    expect(menuEvents()).toBe(1);
+    await router.handle('collections.addGames', { id: 1, gameIds: [a] });
+    await router.handle('collections.removeGames', { id: 1, gameIds: [a] });
+    await router.handle('collections.reorder', { id: 1, gameId: a, swapWithGameId: a });
+    expect(menuEvents()).toBe(3);
+    await router.handle('collections.update', { id: 99, name: 'None' });
+    expect(menuEvents()).toBe(3);
+    await router.handle('collections.delete', { id: 1 });
+    expect(events.at(-1)).toEqual({ event: 'menus.changed', payload: {} });
   });
 });

@@ -31,6 +31,7 @@ async function setup() {
     presets: () => [],
     library: null,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
+    newId: () => '0199f000-0000-7000-8000-000000000001',
     emit: vi.fn(),
     revealFile: vi.fn(),
     pathExists: () => false,

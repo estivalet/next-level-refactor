@@ -84,6 +84,13 @@ export function createLauncherThemeHost(
           announced = snapshot.settings;
           listener({ type: 'settings-changed' });
         }),
+        bridge.on('menus.changed', () => {
+          listener({ type: 'menu-changed' });
+        }),
+        // A scan can add or empty systems, which shows or hides their menu nodes.
+        bridge.on('scan.finished', () => {
+          listener({ type: 'menu-changed' });
+        }),
       ];
       return () => {
         offs.forEach((off) => {

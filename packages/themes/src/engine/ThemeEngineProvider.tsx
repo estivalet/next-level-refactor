@@ -1,15 +1,7 @@
 // Ported from NextLevelOS src/themes/engine/ThemeEngineProvider.tsx @ 3d530b7: data comes from a
 // ThemeHost (FR-THM-6) instead of /data/*.json and window.electronAPI.
 import type { MenuNode } from '@nextlevel/shared';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  type ReactNode,
-} from 'react';
+import { useCallback, useLayoutEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import type { ThemeHost } from '../host/ThemeHost.ts';
 import { reshapeFilterLevels, resolveLevel } from './levelModel.ts';
 import { initialEngineState, navReducer } from './navReducer.ts';
@@ -22,8 +14,7 @@ import {
 import { useGameActions } from './useGameActions.ts';
 import { useGamesLoader } from './useGamesLoader.ts';
 import { useHostEvents } from './useHostEvents.ts';
-
-const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
+import { useMenuLoader } from './useMenuLoader.ts';
 
 export function ThemeEngineProvider({
   host,
@@ -41,19 +32,8 @@ export function ThemeEngineProvider({
     stateRef.current = state;
   });
 
-  const loadMenu = useCallback(() => {
-    host.getMenu().then(
-      (menu) => {
-        dispatch({ type: 'menu-loaded', items: menu.items, title: menu.title });
-      },
-      (error: unknown) => {
-        dispatch({ type: 'menu-failed', error: message(error) });
-      },
-    );
-  }, [host]);
-  useEffect(loadMenu, [loadMenu]);
-
   const { load: loadGames, cancel: cancelLoad } = useGamesLoader(host, stateRef, dispatch);
+  const { loadMenu, reloadMenu } = useMenuLoader(host, stateRef, dispatch, loadGames, cancelLoad);
 
   const currentLevel = state.stack[state.stack.length - 1] ?? null;
   const ancestors = useMemo(
@@ -136,7 +116,7 @@ export function ThemeEngineProvider({
   );
 
   const { launch, updateGameFlags } = useGameActions(host, dispatch);
-  useHostEvents(host, stateRef, loadGames, dispatch);
+  useHostEvents(host, stateRef, loadGames, dispatch, reloadMenu);
 
   const value = useMemo<ThemeNavigation>(
     () => ({

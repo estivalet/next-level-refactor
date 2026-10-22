@@ -7,6 +7,7 @@ import { defaultSettings } from '@nextlevel/shared';
 import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
 import { path7za } from '7zip-bin';
 import { v7 as uuidv7 } from 'uuid';
+import { seedBuiltInSmartFilters } from './library/builtInSmartFilters.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
@@ -191,6 +192,11 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
   });
   const menus = new MenuRepository(db, () => new Date(), uuidv7);
   const smartFilters = new SmartFilterRepository(db, () => new Date());
+  try {
+    seedBuiltInSmartFilters(smartFilters, currentSettings(settings).general.language);
+  } catch (error) {
+    log.warn({ error }, 'could not create the built-in smart filters');
+  }
   const frontend = new FrontendService({
     db,
     catalog: systemCatalog,
@@ -273,6 +279,7 @@ async function start(): Promise<void> {
       shell.showItemInFolder(path);
     },
     pathExists: existsSync,
+    newId: uuidv7,
     presets: emulatorPresets,
     pickFile: async (title) => {
       const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];

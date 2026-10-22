@@ -6,17 +6,23 @@ import type { EngineState, NavAction } from './types.ts';
 /**
  * Keeps the open level in step with the host (FR-THM-6, US-C2): a library change that touches the
  * open level's systems or games re-fetches it (even mid-load, so a scan's late write is not
- * missed) and keeps focus on the same game; a finished launch focuses that game.
+ * missed) and keeps focus on the same game; a finished launch focuses that game; a menu change
+ * reloads the menu (US-D5).
  */
 export function useHostEvents(
   host: ThemeHost,
   stateRef: RefObject<EngineState>,
   loadGames: (level: GamesLevel, opts?: { refresh?: boolean }) => void,
   dispatch: Dispatch<NavAction>,
+  reloadMenu: () => void,
 ) {
   useEffect(
     () =>
       host.onEvent((event) => {
+        if (event.type === 'menu-changed') {
+          reloadMenu();
+          return;
+        }
         const { stack } = stateRef.current;
         const top = stack[stack.length - 1];
         if (top?.kind !== 'games') return;
@@ -27,7 +33,7 @@ export function useHostEvents(
           if (at >= 0) dispatch({ type: 'set-focus', index: at });
         }
       }),
-    [host, stateRef, loadGames, dispatch],
+    [host, stateRef, loadGames, dispatch, reloadMenu],
   );
 }
 

@@ -23,6 +23,8 @@ import type { MediaRepository } from './library/MediaRepository.ts';
 import type { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
+import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
+import { createMenuHandlers } from './menus/menuHandlers.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
@@ -61,6 +63,8 @@ export interface MainDeps {
   /** Shows a file (or folder) selected in the OS file manager. */
   revealFile: (path: string) => void;
   pathExists: (path: string) => boolean;
+  /** UUIDv7 for menus and menu nodes. */
+  newId: () => string;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -95,6 +99,13 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
 
   return {
     ...createLibraryHandlers(deps),
+    ...createSmartFilterHandlers({ smartFilters: () => library().smartFilters, emit: deps.emit }),
+    ...createMenuHandlers({
+      menus: () => library().menus,
+      generatedDraft: () => library().frontend.generatedDraft(deps.newId),
+      newId: deps.newId,
+      emit: deps.emit,
+    }),
     ...createFrontendHandlers({
       frontend: () => library().frontend,
       artIndex: deps.artIndex,

@@ -657,6 +657,13 @@
       "coreTooLong": "Use um nome de core com no máximo {{core}} caracteres.",
       "tooManyArgs": "Use no máximo {{extraArgs}} argumentos extras.",
       "argTooLong": "Cada argumento extra pode ter no máximo {{extraArg}} caracteres."
+    },
+    "smart": {
+      "builtin": {
+        "favorites": "Favoritos",
+        "recent": "Jogados recentemente",
+        "mostPlayed": "Mais jogados"
+      }
     }
   },
   "frontend": {

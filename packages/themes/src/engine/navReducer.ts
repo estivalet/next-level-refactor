@@ -1,4 +1,5 @@
 // Ported from NextLevelOS src/themes/engine/navReducer.ts @ 3d530b7 (games patched by id).
+import { reloadStack } from './menuReload.ts';
 import type { EngineState, Level, NavAction } from './types.ts';
 
 export function initialEngineState(): EngineState {
@@ -36,6 +37,12 @@ export function navReducer(state: EngineState, action: NavAction): EngineState {
       };
       return { stack: [root], focusIndex: 0, status: 'ready' };
     }
+
+    case 'menu-reloaded':
+      if (state.status !== 'ready' || state.stack.length === 0) {
+        return navReducer(state, { type: 'menu-loaded', items: action.items, title: action.title });
+      }
+      return reloadStack(state, action.items, action.title);
 
     case 'menu-failed':
       return { ...state, status: 'error', error: action.error };
