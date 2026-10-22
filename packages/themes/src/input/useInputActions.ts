@@ -1,5 +1,5 @@
 import type { GamepadButton, InputAction, InputSettings } from '@nextlevel/shared';
-import { useLayoutEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import { firstStandardPad, readPad, type PadSnapshot } from './gamepad.ts';
 import { isTextField, keyboardActions, passesTextInput } from './keyboard.ts';
 import { createPadGate } from './padGate.ts';
@@ -55,9 +55,7 @@ export function useInputActions({
   onActionRef.current = onAction;
   const depsRef = useRef(deps ?? browserDeps());
 
-  // A layout effect: listening starts before paint, so a key pressed as soon as an overlay shows
-  // is not lost.
-  useLayoutEffect(() => {
+  useEffect(() => {
     const target = targetRef.current;
     if (!enabled || !target) return;
     const api = depsRef.current;

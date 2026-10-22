@@ -1,7 +1,7 @@
 // Ported from NextLevelOS src/themes/components/KeyHelpOverlay.tsx @ 3d530b7: generated from the
 // theme's keymap and the user's bindings, so it shows their key and button for every intent.
 import type { InputAction, InputSettings } from '@nextlevel/shared';
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { describeKeymap } from '../engine/intentLabels.ts';
 import type { KeyMap, NavIntentKind } from '../engine/types.ts';
@@ -42,7 +42,7 @@ export function KeyHelpOverlay({
   const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
   // Also when input comes back (an overlay above it closed): focus would be left on the body.
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (open && enabled) panelRef.current?.focus();
   }, [open, enabled]);
   useInputActions({

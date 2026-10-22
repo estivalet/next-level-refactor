@@ -2,7 +2,7 @@
 // gamepad works it too (US-C1), names via i18n, and one card per bundled theme (D6, no "All
 // themes…" card). Its keys never reach the theme or the shell behind it.
 import type { InputSettings } from '@nextlevel/shared';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInputActions } from '../input/useInputActions.ts';
 import { cn } from './cn.ts';
@@ -35,7 +35,7 @@ export function ThemeSwitcher({
   );
   const ref = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     dialog.focus();

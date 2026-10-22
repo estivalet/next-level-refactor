@@ -44,4 +44,23 @@ describe('useFrontendTheme (FR-THM-1, FR-THM-5)', () => {
     rerender({ s: withLastUsed('console-home') }); // Settings → Themes → Use this theme
     expect(result.current.theme.id).toBe('console-home');
   });
+
+  it('switching again before the first save lands: the last switch wins and stays', () => {
+    const bridge = installFakeBridge({ 'frontend.themeOpened': () => ok(undefined) });
+    const { result, rerender } = renderHook(({ s }) => useFrontendTheme(s), {
+      initialProps: { s: withLastUsed(null) },
+    });
+    act(() => {
+      result.current.switchTo('big-box-list');
+    });
+    act(() => {
+      result.current.switchTo('console-home');
+    });
+    rerender({ s: withLastUsed('big-box-list') }); // the first save lands late
+    expect(result.current.theme.id).toBe('console-home');
+    const saves = bridge.calls.filter((call) => call.channel === 'frontend.themeOpened');
+    expect(saves.at(-1)?.input).toEqual({ themeId: 'console-home' });
+    rerender({ s: withLastUsed('console-home') });
+    expect(result.current.theme.id).toBe('console-home');
+  });
 });

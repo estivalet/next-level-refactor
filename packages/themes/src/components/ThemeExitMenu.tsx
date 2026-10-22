@@ -1,7 +1,7 @@
 // Ported from NextLevelOS src/themes/components/ThemeExitMenu.tsx @ 3d530b7: driven by input
 // actions, so a gamepad works it too (US-C1), with the user's keys shown on each entry.
 import { bindingLabel, type InputAction, type InputSettings } from '@nextlevel/shared';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInputActions } from '../input/useInputActions.ts';
 import { cn } from './cn.ts';
@@ -34,7 +34,7 @@ export function ThemeExitMenu({
   const [index, setIndex] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     dialog.focus();
