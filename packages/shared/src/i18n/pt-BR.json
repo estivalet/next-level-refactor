@@ -552,5 +552,26 @@
       "prototype": "Protótipos",
       "unlicensed": "Não licenciados"
     }
+  },
+  "themes": {
+    "intents": {
+      "focus-prev": "Anterior",
+      "focus-next": "Próximo",
+      "focus-up": "Cima",
+      "focus-down": "Baixo",
+      "enter": "Abrir / Jogar",
+      "back": "Voltar",
+      "home": "Início",
+      "toggle-search": "Buscar",
+      "tab-prev": "Aba anterior",
+      "tab-next": "Próxima aba",
+      "toggle-favorite": "Favoritar",
+      "toggle-hidden": "Ocultar / mostrar",
+      "show-help": "Mostrar todos os controles",
+      "open-menu": "Menu do tema",
+      "jump-prev": "Letra anterior",
+      "jump-next": "Próxima letra",
+      "random": "Jogo aleatório"
+    }
   }
 }

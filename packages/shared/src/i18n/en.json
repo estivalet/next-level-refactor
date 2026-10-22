@@ -552,5 +552,26 @@
       "prototype": "Prototypes",
       "unlicensed": "Unlicensed"
     }
+  },
+  "themes": {
+    "intents": {
+      "focus-prev": "Previous",
+      "focus-next": "Next",
+      "focus-up": "Up",
+      "focus-down": "Down",
+      "enter": "Open / Play",
+      "back": "Back",
+      "home": "Home",
+      "toggle-search": "Search",
+      "tab-prev": "Previous tab",
+      "tab-next": "Next tab",
+      "toggle-favorite": "Toggle favorite",
+      "toggle-hidden": "Toggle hidden",
+      "show-help": "Show all keys",
+      "open-menu": "Theme menu",
+      "jump-prev": "Previous letter",
+      "jump-next": "Next letter",
+      "random": "Random game"
+    }
   }
 }
