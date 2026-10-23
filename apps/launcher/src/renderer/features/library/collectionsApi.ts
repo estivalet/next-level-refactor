@@ -60,3 +60,12 @@ export function useReorderCollection() {
     },
   );
 }
+
+/** Drag reorder (D11): the games, in order, go right before `beforeGameId` (null = the end). */
+export function useMoveInCollection() {
+  return useCollectionMutation(
+    async (input: { id: number; gameIds: number[]; beforeGameId: number | null }) => {
+      unwrap(await getBridge().invoke('collections.move', input));
+    },
+  );
+}

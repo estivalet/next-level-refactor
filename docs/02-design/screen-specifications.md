@@ -236,8 +236,13 @@ As built in M5b (FR-MENU-1..4, D8, D9):
 
 ## S11 Collections
 
-List of collections with counts; detail shows ordered games with drag reorder, sort-by, remove,
-and "Add games…" (search picker across systems).
+No separate app (D11): collections live in the Library (S7). The tree lists them with counts
+(**+** creates one); selecting one shows its games with a toolbar: sort (manual, title, year…),
+Move up / Move down, **Add games…**, Rename, Delete. In manual order rows drag into a new place
+(upper half of a row = before it, lower half = after it); dragging a selected row moves the whole
+selection, in order. **Add games…** searches every system (2+ characters), lists results with a
+checkbox (games already in are ticked and can't be changed) and adds the ticked ones at the end.
+Remove from collection is in the game's context menu.
 
 ## S12 Account
 

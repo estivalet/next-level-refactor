@@ -15,6 +15,7 @@ import { SearchResults } from './SearchResults.tsx';
 import { LibrarySidebar } from './LibrarySidebar.tsx';
 import { SmartFilterToolbar } from './SmartFilterToolbar.tsx';
 import { leavesTab, scopeFacts } from './scopeFacts.ts';
+import { useCollectionDrag } from './useCollectionDrag.ts';
 import { useLibraryView } from './useLibraryView.ts';
 import { PlayLayer } from './PlayLayer.tsx';
 import { usePlay } from './usePlay.ts';
@@ -40,6 +41,11 @@ export function LibraryApp() {
       setRange(first, last);
     },
     [setRange],
+  );
+  const shownCollectionId = view.scope?.kind === 'collection' ? view.scope.collectionId : null;
+  const reorder = useCollectionDrag(
+    view,
+    view.collections.data?.find((c) => c.id === shownCollectionId),
   );
   const systemName = (id: string) => view.catalog.data?.find((s) => s.id === id)?.name ?? id;
 
@@ -126,6 +132,9 @@ export function LibraryApp() {
                   onDelete={() => {
                     overlays.openCollection({ kind: 'delete', collection });
                   }}
+                  onAddGames={() => {
+                    overlays.openCollection({ kind: 'addGames', collection });
+                  }}
                 />
               )}
               {smartFilter && (
@@ -140,6 +149,7 @@ export function LibraryApp() {
                 />
               )}
               <GameList
+                reorder={reorder}
                 games={view.games}
                 selection={view.selection}
                 focused={view.focused}

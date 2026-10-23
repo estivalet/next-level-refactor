@@ -206,6 +206,8 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['collections.addGames', { id: 1, gameIds: [1] }],
   ['collections.removeGames', { id: 1, gameIds: [1] }],
   ['collections.reorder', { id: 1, gameId: 1, swapWithGameId: 2 }],
+  ['collections.move', { id: 1, gameIds: [1], beforeGameId: null }],
+  ['collections.gameIds', { id: 1 }],
   ['smartFilters.list', undefined],
   ['menus.list', undefined],
   ['menus.draft', undefined],
@@ -221,6 +223,28 @@ describe('game library handlers', () => {
         error: { code: 'LIBRARY_UNAVAILABLE' },
       });
     }
+  });
+
+  it('FR-LIB-8: collections.move drags games before another member', async () => {
+    const { router, seed } = await setup(true);
+    const [a = 0, b = 0] = seed('nintendo-64', ['Alpha', 'Bravo']);
+    await router.handle('collections.create', { name: 'Picks' });
+    await router.handle('collections.addGames', { id: 1, gameIds: [a, b] });
+    expect(
+      await router.handle('collections.move', { id: 1, gameIds: [b], beforeGameId: a }),
+    ).toEqual({ ok: true, value: undefined });
+    const listed = await router.handle('library.games.list', {
+      scope: { kind: 'collection', collectionId: 1 },
+      tab: 'all',
+      offset: 0,
+      limit: 10,
+    });
+    const page = listed as { ok: true; value: { games: Array<{ title: string }> } };
+    expect(page.value.games.map((game) => game.title)).toEqual(['Bravo', 'Alpha']);
+    expect(await router.handle('collections.gameIds', { id: 1 })).toEqual({
+      ok: true,
+      value: [b, a],
+    });
   });
 
   it('FR-LIB-7: setFlags emits library.changed with the systems and games', async () => {

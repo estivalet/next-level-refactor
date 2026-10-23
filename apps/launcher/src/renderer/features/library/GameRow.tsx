@@ -2,6 +2,7 @@ import type { GameRow as Game } from '@nextlevel/shared';
 import { Gamepad2, Star } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { RowDragProps } from './useRowDrag.ts';
 
 interface GameRowProps {
   game: Game;
@@ -13,6 +14,8 @@ interface GameRowProps {
   onClick: (event: MouseEvent) => void;
   onDoubleClick: () => void;
   onContextMenu: (event: MouseEvent) => void;
+  /** Drag reorder in a manual-order collection (FR-LIB-8). */
+  drag?: RowDragProps | undefined;
 }
 
 /** One game line; missing games are greyed and name their expected path (FR-LIB-4). */
@@ -26,10 +29,13 @@ export function GameRow({
   onClick,
   onDoubleClick,
   onContextMenu,
+  drag,
 }: GameRowProps) {
   const { t } = useTranslation();
+  const { indicator = null, ...dragEvents } = drag ?? {};
   return (
     <div
+      {...dragEvents}
       id={`library-game-${String(index)}`}
       role="option"
       aria-selected={selected}
@@ -39,7 +45,9 @@ export function GameRow({
       onContextMenu={onContextMenu}
       className={`absolute left-0 flex w-full cursor-default items-center gap-4 rounded-lg border px-4 text-left select-none ${
         selected ? 'border-emerald-500/20 bg-emerald-500/10' : 'border-transparent hover:bg-white/5'
-      } ${focused ? 'ring-1 ring-white/30' : ''} ${game.missing ? 'opacity-40 grayscale' : ''}`}
+      } ${focused ? 'ring-1 ring-white/30' : ''} ${game.missing ? 'opacity-40 grayscale' : ''} ${
+        indicator === 'before' ? 'border-t-emerald-400' : ''
+      } ${indicator === 'after' ? 'border-b-emerald-400' : ''}`}
       style={{ top, height: height - 4 }}
     >
       <Gamepad2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-slate-600" />

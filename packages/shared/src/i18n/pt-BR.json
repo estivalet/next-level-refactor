@@ -615,7 +615,14 @@
       "remove": "Remover da coleção",
       "moveUp": "Mover para cima",
       "moveDown": "Mover para baixo",
-      "toolbar": "Coleção"
+      "toolbar": "Coleção",
+      "addGames": "Adicionar jogos…",
+      "addGamesTitle": "Adicionar jogos a {{name}}",
+      "addGamesSearch": "Pesquisar jogos",
+      "addGamesHint": "Digite pelo menos 2 caracteres para pesquisar em todos os sistemas.",
+      "addGamesMore": "Mais jogos correspondem; digite mais para filtrar a lista.",
+      "addGamesConfirm_one": "Adicionar {{count}} jogo",
+      "addGamesConfirm_other": "Adicionar {{count}} jogos"
     },
     "search": {
       "label": "Buscar em todos os jogos",

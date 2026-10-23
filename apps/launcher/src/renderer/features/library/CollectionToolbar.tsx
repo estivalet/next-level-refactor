@@ -1,5 +1,5 @@
 import { COLLECTION_SORTS, type CollectionSort, type CollectionSummary } from '@nextlevel/shared';
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ListPlus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useReorderCollection, useUpdateCollection } from './collectionsApi.ts';
 
@@ -15,6 +15,8 @@ interface CollectionToolbarProps {
   onMoved: (index: number) => void;
   onRename: () => void;
   onDelete: () => void;
+  /** "Add games…": the search picker (D11). */
+  onAddGames: () => void;
 }
 
 /** Above a collection's list (FR-LIB-8): its order, manual moves, rename and delete. */
@@ -81,6 +83,10 @@ export function CollectionToolbar(props: CollectionToolbarProps) {
         </>
       )}
       <span className="flex-1" />
+      <button type="button" className={BUTTON} onClick={props.onAddGames}>
+        <ListPlus aria-hidden="true" className="h-3.5 w-3.5" />
+        {t('library.collections.addGames')}
+      </button>
       <button type="button" className={BUTTON} onClick={props.onRename}>
         <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
         {t('library.collections.rename')}

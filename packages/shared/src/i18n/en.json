@@ -615,7 +615,14 @@
       "remove": "Remove from collection",
       "moveUp": "Move up",
       "moveDown": "Move down",
-      "toolbar": "Collection"
+      "toolbar": "Collection",
+      "addGames": "Add games…",
+      "addGamesTitle": "Add games to {{name}}",
+      "addGamesSearch": "Search games",
+      "addGamesHint": "Type at least 2 characters to search every system.",
+      "addGamesMore": "More games match; type more to narrow the list.",
+      "addGamesConfirm_one": "Add {{count}} game",
+      "addGamesConfirm_other": "Add {{count}} games"
     },
     "search": {
       "label": "Search all games",
