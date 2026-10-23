@@ -8,6 +8,7 @@ import { EditMetadataDialog } from './EditMetadataDialog.tsx';
 import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
+import { SmartFilterDialogs, type SmartFilterDialogState } from './SmartFilterDialog.tsx';
 import type { LibraryView } from './useLibraryView.ts';
 
 /** Which menu or dialog is open over the Library. */
@@ -17,17 +18,20 @@ export function useOverlays() {
   const [relinking, setRelinking] = useState<number | null>(null);
   const [launchOptions, setLaunchOptions] = useState<number | null>(null);
   const [collection, setCollection] = useState<CollectionDialogState | null>(null);
+  const [smartFilter, setSmartFilter] = useState<SmartFilterDialogState | null>(null);
   return {
     menu,
     editing,
     relinking,
     launchOptions,
     collection,
+    smartFilter,
     openMenu: setMenu,
     edit: setEditing,
     relink: setRelinking,
     openLaunchOptions: setLaunchOptions,
     openCollection: setCollection,
+    openSmartFilter: setSmartFilter,
     closeMenu: () => {
       setMenu(null);
     },
@@ -42,6 +46,9 @@ export function useOverlays() {
     },
     closeCollection: () => {
       setCollection(null);
+    },
+    closeSmartFilter: () => {
+      setSmartFilter(null);
     },
   };
 }
@@ -118,6 +125,14 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
           onDeleted={view.resetScope}
         />
       )}
+      {overlays.smartFilter && (
+        <SmartFilterDialogs
+          state={overlays.smartFilter}
+          systems={enabledSystems(view)}
+          onClose={overlays.closeSmartFilter}
+          onDeleted={view.resetScope}
+        />
+      )}
       {overlays.editing !== null && (
         <EditMetadataDialog gameId={overlays.editing} onClose={overlays.closeEdit} />
       )}
@@ -132,4 +147,13 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
     </>
   );
+}
+
+/** Enabled systems by name, for limiting a smart filter to some of them. */
+function enabledSystems(view: LibraryView) {
+  const names = new Map((view.catalog.data ?? []).map((system) => [system.id, system.name]));
+  return (view.systems.data ?? [])
+    .filter((system) => system.enabled)
+    .map((system) => ({ id: system.id, name: names.get(system.id) ?? system.id }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

@@ -2,7 +2,6 @@ import type { GameFlags } from '@nextlevel/shared';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
-import { CollectionToolbar, NewCollectionButton } from './CollectionToolbar.tsx';
 import { GameDetails } from './GameDetails.tsx';
 import { GameList } from './GameList.tsx';
 import { GlobalSearch } from './GlobalSearch.tsx';
@@ -12,8 +11,10 @@ import { LibraryStatusBar } from './LibraryStatusBar.tsx';
 import { useGlobalSearch, useLibraryEvents } from './libraryApi.ts';
 import { ScanMenu } from './ScanMenu.tsx';
 import { SearchResults } from './SearchResults.tsx';
-import { SystemTree } from './SystemTree.tsx';
+import { LibrarySidebar } from './LibrarySidebar.tsx';
+import { ScopeToolbar } from './ScopeToolbar.tsx';
 import { leavesTab, scopeFacts } from './scopeFacts.ts';
+import { useCollectionDrag } from './useCollectionDrag.ts';
 import { useLibraryView } from './useLibraryView.ts';
 import { PlayLayer } from './PlayLayer.tsx';
 import { usePlay } from './usePlay.ts';
@@ -40,6 +41,11 @@ export function LibraryApp() {
     },
     [setRange],
   );
+  const shownCollectionId = view.scope?.kind === 'collection' ? view.scope.collectionId : null;
+  const reorder = useCollectionDrag(
+    view,
+    view.collections.data?.find((c) => c.id === shownCollectionId),
+  );
   const systemName = (id: string) => view.catalog.data?.find((s) => s.id === id)?.name ?? id;
 
   if (errorCode(view.systems.error) === 'LIBRARY_UNAVAILABLE') return <LibraryUnavailable />;
@@ -50,10 +56,6 @@ export function LibraryApp() {
 
   const scope = view.scope;
   const facts = scopeFacts(view);
-  const collection =
-    scope.kind === 'collection'
-      ? view.collections.data?.find((c) => c.id === scope.collectionId)
-      : undefined;
   const searching = search.active;
   const onFlags = (flags: GameFlags) => {
     if (searching || !leavesTab(view.tab, flags)) return;
@@ -85,24 +87,15 @@ export function LibraryApp() {
         />
       </header>
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-64 shrink-0 flex-col border-r border-white/5 bg-[#111115]">
-          <SystemTree
-            rows={view.tree}
-            scope={scope}
-            onSelectScope={(next) => {
-              setSearchText('');
-              view.setScope(next);
-            }}
-            onToggleGroup={view.toggleGroup}
-            collectionsAction={
-              <NewCollectionButton
-                onClick={() => {
-                  overlays.openCollection({ kind: 'new' });
-                }}
-              />
-            }
-          />
-        </aside>
+        <LibrarySidebar
+          view={view}
+          scope={scope}
+          overlays={overlays}
+          onSelectScope={(next) => {
+            setSearchText('');
+            view.setScope(next);
+          }}
+        />
         <main ref={list} className="flex min-w-0 flex-1 flex-col">
           {searching ? (
             <SearchResults
@@ -116,23 +109,9 @@ export function LibraryApp() {
             />
           ) : (
             <>
-              {collection && (
-                <CollectionToolbar
-                  collection={collection}
-                  focused={
-                    view.focusedGame ? { index: view.focused, gameId: view.focusedGame.id } : null
-                  }
-                  gameIdAt={(index) => view.games.rowAt(index)?.id}
-                  onMoved={view.focusRow}
-                  onRename={() => {
-                    overlays.openCollection({ kind: 'rename', collection });
-                  }}
-                  onDelete={() => {
-                    overlays.openCollection({ kind: 'delete', collection });
-                  }}
-                />
-              )}
+              <ScopeToolbar view={view} overlays={overlays} />
               <GameList
+                reorder={reorder}
                 games={view.games}
                 selection={view.selection}
                 focused={view.focused}

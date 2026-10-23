@@ -1,17 +1,22 @@
 import type { GameScope } from '@nextlevel/shared';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ChevronDown, ChevronRight, Folder, Gamepad2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Folder, Gamepad2, Sparkles } from 'lucide-react';
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { OTHER_GROUP, type TreeRow } from './buildTree.ts';
 
 const ROW_HEIGHT = 32;
 
+const HEADERS = new Set<TreeRow['kind']>(['group', 'collectionsHeader', 'smartFiltersHeader']);
+
 function isScope(row: TreeRow, scope: GameScope | null): boolean {
   if (!scope) return false;
   if (row.kind === 'system') return scope.kind === 'system' && scope.systemId === row.systemId;
   if (row.kind === 'collection') {
     return scope.kind === 'collection' && scope.collectionId === row.collection.id;
+  }
+  if (row.kind === 'smartFilter') {
+    return scope.kind === 'smartFilter' && scope.smartFilterId === row.filter.id;
   }
   return false;
 }
@@ -21,8 +26,10 @@ interface SystemTreeProps {
   scope: GameScope | null;
   onSelectScope: (scope: GameScope) => void;
   onToggleGroup: (key: string) => void;
-  /** Extra controls in the collections header (New collection, Task 11). */
+  /** Extra controls in the collections header (New collection). */
   collectionsAction?: ReactNode;
+  /** Extra controls in the smart filters header (New smart filter, FR-LIB-9). */
+  smartFiltersAction?: ReactNode;
 }
 
 /** The Library's virtualized left tree: manufacturer groups, systems with counts, collections. */
@@ -32,6 +39,7 @@ export function SystemTree({
   onSelectScope,
   onToggleGroup,
   collectionsAction,
+  smartFiltersAction,
 }: SystemTreeProps) {
   const { t } = useTranslation();
   const scroller = useRef<HTMLDivElement>(null);
@@ -54,6 +62,9 @@ export function SystemTree({
     if (row?.kind === 'system') onSelectScope({ kind: 'system', systemId: row.systemId });
     if (row?.kind === 'collection') {
       onSelectScope({ kind: 'collection', collectionId: row.collection.id });
+    }
+    if (row?.kind === 'smartFilter') {
+      onSelectScope({ kind: 'smartFilter', smartFilterId: row.filter.id });
     }
   };
   const onKeyDown = (event: KeyboardEvent) => {
@@ -99,10 +110,8 @@ export function SystemTree({
               key={item.key}
               id={`library-tree-${String(item.index)}`}
               role="treeitem"
-              aria-level={row.kind === 'group' || row.kind === 'collectionsHeader' ? 1 : 2}
-              aria-selected={
-                row.kind === 'system' || row.kind === 'collection' ? selected : undefined
-              }
+              aria-level={HEADERS.has(row.kind) ? 1 : 2}
+              aria-selected={HEADERS.has(row.kind) ? undefined : selected}
               aria-expanded={row.kind === 'group' ? row.expanded : undefined}
               onClick={() => {
                 setActive(item.index);
@@ -115,7 +124,10 @@ export function SystemTree({
               } ${focused ? 'ring-1 ring-white/30 ring-inset' : ''}`}
               style={{ top: item.start, height: ROW_HEIGHT }}
             >
-              <TreeRowContent row={row} action={collectionsAction} />
+              <TreeRowContent
+                row={row}
+                action={row.kind === 'smartFiltersHeader' ? smartFiltersAction : collectionsAction}
+              />
             </div>
           );
         })}
@@ -137,11 +149,11 @@ function TreeRowContent({ row, action }: { row: TreeRow; action: ReactNode }) {
       </>
     );
   }
-  if (row.kind === 'collectionsHeader') {
+  if (row.kind === 'collectionsHeader' || row.kind === 'smartFiltersHeader') {
     return (
       <>
         <span className="flex-1 truncate text-[10px] font-medium tracking-wider uppercase">
-          {t('library.tree.collections')}
+          {t(row.kind === 'collectionsHeader' ? 'library.tree.collections' : 'library.tree.smart')}
         </span>
         {action}
       </>
@@ -150,7 +162,9 @@ function TreeRowContent({ row, action }: { row: TreeRow; action: ReactNode }) {
   const [Icon, label, count] =
     row.kind === 'system'
       ? [Gamepad2, row.label, row.games]
-      : [Folder, row.collection.name, row.collection.games];
+      : row.kind === 'smartFilter'
+        ? [Sparkles, row.filter.name, row.filter.games]
+        : [Folder, row.collection.name, row.collection.games];
   return (
     <>
       <Icon aria-hidden="true" className="ml-3 h-3.5 w-3.5 shrink-0 text-slate-600" />

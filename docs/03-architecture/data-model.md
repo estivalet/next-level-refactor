@@ -236,14 +236,17 @@ with the milestones that use them, each as a new migration.
 - No `game_user_state` row means not favorite, not hidden, no rating, never played. Edited
   metadata fields are added to `locked_fields` (sorted JSON array).
 - `collections.name` is `COLLATE NOCASE` and unique; `collection_games.position` is dense
-  (0..n-1) and only used for the `manual` sort.
+  (0..n-1) and only used for the `manual` sort. Drag reorder (`collections.move`, M5c) puts a
+  block of games right before an anchor game (or at the end) and renumbers in one transaction, so
+  members hidden from the view keep their relative place.
 - The `games_system` index from M2b was dropped: the `(system_id, rel_path)` unique index serves
   lookups by system.
 - **Smart filters** (FR-LIB-9): `query` is a `SmartFilterQuery` (`packages/shared/src/library/smartFilters.ts`:
   systems, favorite, filters, genre, year range, min players, played/never/within days, sort, limit
   1–10,000) turned into SQL by `smartFilterSql.ts`; missing games never match. Names are unique
   ignoring case (`NAME_TAKEN`). Favorites, Recently played (50) and Most played (50) are created
-  once per library at startup, named in the UI language (`meta.smart_filters_seeded`, D10).
+  once per library at startup, named in the UI language (`meta.smart_filters_seeded`, D10). A
+  summary also counts the menus with a node showing the filter (`menus`, for the delete warning).
 - **Menus** (FR-MENU-1..3): a save replaces every `menu_nodes` row of that menu in one transaction
   and bumps `menus.revision`; a save from an older `baseRevision` is `CONFLICT` and writes nothing.
   Node ids are unique across all menus: a node id another menu uses is `VALIDATION_FAILED`

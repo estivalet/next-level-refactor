@@ -1,6 +1,8 @@
 import type { SmartFilterQueryInput } from '@nextlevel/shared';
 import { SmartFilterQuerySchema } from '@nextlevel/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { v7 as uuidv7 } from 'uuid';
+import { MenuRepository } from '../menus/MenuRepository.ts';
 import { GameRepository } from './GameRepository.ts';
 import { SmartFilterRepository } from './SmartFilterRepository.ts';
 import { appErrorOf, seedGames, tempLibrary } from './testing.ts';
@@ -35,6 +37,29 @@ function titles(input: SmartFilterQueryInput): string[] {
 }
 
 describe('SmartFilterRepository', () => {
+  it('FR-LIB-9: a summary counts the menus that show the filter', () => {
+    const shown = filters.create('Shown', q({}));
+    filters.create('Unused', q({}));
+    const menus = new MenuRepository(library.db, () => NOW, uuidv7);
+    const node = () => ({
+      id: uuidv7(),
+      type: 'smartFilter' as const,
+      refId: String(shown.id),
+      name: 'Shown',
+      displayName: null,
+      shortName: null,
+      filterTabs: true,
+      visible: true,
+      children: [],
+    });
+    menus.create('A', [node(), node()]);
+    menus.create('B', [node()]);
+    expect(filters.list().map((f) => [f.name, f.menus])).toEqual([
+      ['Shown', 2],
+      ['Unused', 0],
+    ]);
+  });
+
   it('FR-LIB-9: favorites only returns favorite games, hidden ones included', () => {
     seedGames(library.db, 'snes', [
       { title: 'Alpha', favorite: true },
@@ -99,7 +124,7 @@ describe('SmartFilterRepository', () => {
     seedGames(library.db, 'snes', [{ title: 'Alpha', favorite: true }, 'Beta']);
     const favs = filters.create('Favs', q({ favorite: true }));
     expect(filters.list()).toEqual([
-      { id: favs.id, name: 'Favs', query: q({ favorite: true }), games: 1 },
+      { id: favs.id, name: 'Favs', query: q({ favorite: true }), games: 1, menus: 0 },
     ]);
     expect(appErrorOf(() => filters.create('FAVS', q({}))).code).toBe('NAME_TAKEN');
     expect(filters.update(favs.id, { name: 'Loved' }).name).toBe('Loved');

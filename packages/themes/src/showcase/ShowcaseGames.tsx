@@ -1,5 +1,6 @@
 // Showcase's games level over the games controller: tabs with counts, the settled game's video,
 // system logo and filter label, cover art (FR-THM-1, FR-THM-2).
+import { gameById } from '../engine/gameIndex.ts';
 import { useTranslation } from 'react-i18next';
 import { tabLabel } from '../components/gameTabs.ts';
 import type { useGamesLevelController } from '../components/useGamesLevelController.ts';
@@ -29,7 +30,7 @@ export function ShowcaseGames({
   // The video follows the settled game; reset on level change so the next system never
   // inherits the previous one's video.
   const settledId = useSettledFocus(focusedGame?.id ?? 0, 400, nav.state.stack.length);
-  const settled = tabbed.display.find((g) => g.id === settledId);
+  const settled = gameById(tabbed.display, settledId);
   const video = active && settled ? art.gameMedia(settled, 'video') : null;
   const isFilter = level.node.type === 'filter';
 

@@ -20,9 +20,8 @@ Front-end mode    (fullscreen theme; default after boot)
 Shell (desktop)   (reached with M / Start "Desktop", hidden in kiosk mode)
  ├─ Desktop, taskbar, start menu, notifications
  └─ Apps (windows)
-     ├─ Library          browse/search/edit games, scan, scrape
+     ├─ Library          browse/search/edit games, scan, scrape; collections (order, Add games…) and smart filters
      ├─ Catalog          browse/install online games; Downloads tab
-     ├─ Collections
      ├─ Menu Editor      menus (several, one active), tree, node form, Not in this menu, preview
      ├─ Themes           pick theme, pack coverage
      ├─ Settings

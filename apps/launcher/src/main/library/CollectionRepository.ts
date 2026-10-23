@@ -137,6 +137,37 @@ export class CollectionRepository {
     })();
   }
 
+  /**
+   * Drag reorder (FR-LIB-8, D11): puts `gameIds` right before `beforeGameId`, or at the end when it
+   * is null; the moved games keep their own relative order (a selection arrives as a set).
+   * Anchoring on a game, not an index, keeps hidden or filtered-out members where they are. An
+   * anchor inside the moved block changes nothing.
+   */
+  move(id: number, gameIds: readonly number[], beforeGameId: number | null): void {
+    this.client.transaction(() => {
+      this.summary(id);
+      const members = this.members(id);
+      const known = new Set(members);
+      const moving = new Set(gameIds);
+      const unknown = [...moving].some((gameId) => !known.has(gameId));
+      if (unknown || (beforeGameId !== null && !known.has(beforeGameId))) {
+        throw notFound({ collectionId: id, gameIds: [...moving], beforeGameId });
+      }
+      if (beforeGameId !== null && moving.has(beforeGameId)) return;
+      const block = members.filter((gameId) => moving.has(gameId));
+      const rest = members.filter((gameId) => !moving.has(gameId));
+      const at = beforeGameId === null ? rest.length : rest.indexOf(beforeGameId);
+      rest.splice(at, 0, ...block);
+      this.renumber(id, rest);
+    })();
+  }
+
+  /** Its games in their manual order (missing and hidden ones too). */
+  gameIds(id: number): number[] {
+    this.summary(id);
+    return this.members(id);
+  }
+
   /** The collections a game belongs to. */
   membership(gameId: number): number[] {
     return this.client

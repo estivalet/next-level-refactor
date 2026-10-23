@@ -3,7 +3,7 @@
 import type { ThemeGame } from '@nextlevel/shared';
 import { useEffect, useState } from 'react';
 import type { NavIntentKind } from '../engine/types.ts';
-import { letterJump, letterKey, randomOtherIndex } from './letterJump.ts';
+import { letterJumpKeys, letterKeysOf, randomOtherIndex } from './letterJump.ts';
 
 const FLASH_MS = 600;
 
@@ -36,10 +36,11 @@ export function useWheelGamesIntents({
     }
     if (intent === 'jump-prev' || intent === 'jump-next') {
       if (n === 0) return true;
-      const titles = display.map((g) => g.title);
-      const to = letterJump(titles, focus, intent === 'jump-next' ? 1 : -1);
+      // Keys are computed once per list: letter jumps on a 10k-game wheel stay O(run length).
+      const keys = letterKeysOf(display);
+      const to = letterJumpKeys(keys, focus, intent === 'jump-next' ? 1 : -1);
       setFocus(to);
-      setFlash((f) => ({ letter: letterKey(titles[to] ?? ''), id: (f?.id ?? 0) + 1 }));
+      setFlash((f) => ({ letter: keys[to] ?? '#', id: (f?.id ?? 0) + 1 }));
       return true;
     }
     if (intent === 'random') {

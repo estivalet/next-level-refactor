@@ -188,6 +188,17 @@ export const ipcContract = {
     input: z.strictObject({ id: collectionId, gameId, swapWithGameId: gameId }),
     output: z.void(),
   },
+  /** Drag reorder (D11): the games, in order, go right before `beforeGameId` (null = the end). */
+  'collections.move': {
+    input: z.strictObject({
+      id: collectionId,
+      gameIds: GameIdsSchema,
+      beforeGameId: gameId.nullable(),
+    }),
+    output: z.void(),
+  },
+  /** A collection's games in their order, for "Add games…" to tick those already in. */
+  'collections.gameIds': { input: z.strictObject({ id: collectionId }), output: z.array(gameId) },
   'smartFilters.list': { input: z.void(), output: z.array(SmartFilterSummarySchema) },
   'smartFilters.create': {
     input: z.strictObject({ name: SmartFilterNameSchema, query: SmartFilterQuerySchema }),

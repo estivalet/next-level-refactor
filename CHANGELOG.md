@@ -18,6 +18,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   collections and smart filters, and see what isn't in the menu yet (nothing is added on its own).
   Entries that can't show are greyed with the reason. Preview shows the unsaved menu in the
   current theme. A save over a newer version asks to reload.
+- M5c smart filters and collections in the Library (FR-LIB-8, FR-LIB-9): a Smart filters list
+  with counts, a dialog to create and edit them over every field, and delete that says which
+  menus lose the entry. Collections in manual order reorder by dragging rows (a selection moves
+  together) and gain **Add games…**, a search picker across systems.
+- HyperSpin letter jumps and the HyperSpin/Showcase settled game stay fast on 10k-game lists.
 - Open themes now also reload the menu when a game change makes a menu entry appear or go away
   (e.g. the first favorite brings in Favorites), when a system is turned on or off, and when a
   collection is created.

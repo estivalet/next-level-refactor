@@ -105,6 +105,35 @@ describe('CollectionRepository', () => {
     ).toBe('NOT_FOUND');
   });
 
+  it('FR-LIB-8: move puts games before another one, keeping positions dense', () => {
+    const [a = 0, b = 0, c = 0, d = 0, e = 0] = seedGames(library.db, 'snes', [
+      'Alpha',
+      'Bravo',
+      'Charlie',
+      'Delta',
+      'Echo',
+    ]);
+    const { id } = collections.create('Picks');
+    collections.addGames(id, [a, b, c, d, e]);
+    collections.move(id, [a], e);
+    expect(listed(id)).toEqual(['Bravo', 'Charlie', 'Delta', 'Alpha', 'Echo']);
+    // A block keeps its members' order (not the order the ids arrive in); null = to the end.
+    collections.move(id, [e, b], null);
+    expect(listed(id)).toEqual(['Charlie', 'Delta', 'Alpha', 'Bravo', 'Echo']);
+    collections.move(id, [d], c);
+    expect(listed(id)).toEqual(['Delta', 'Charlie', 'Alpha', 'Bravo', 'Echo']);
+    const positions = library.db.$client
+      .prepare('select position from collection_games where collection_id = ? order by position')
+      .pluck()
+      .all(id);
+    expect(positions).toEqual([0, 1, 2, 3, 4]);
+    expect(
+      appErrorOf(() => {
+        collections.move(id, [a], 999);
+      }).code,
+    ).toBe('NOT_FOUND');
+  });
+
   it('FR-LIB-8: deleting a collection or a game removes the memberships', () => {
     const [kept = 0, gone = 0] = seedGames(library.db, 'snes', [
       { title: 'Kept', missing: true },

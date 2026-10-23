@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { GameRow } from './GameRow.tsx';
 import type { SelectMode, Selection } from './selection.ts';
 import type { PagedGames } from './usePagedGames.ts';
+import { useRowDrag, type RowReorder } from './useRowDrag.ts';
 
 const ROW_HEIGHT = 44;
 const PAGE_ROWS = 10;
@@ -18,6 +19,8 @@ interface GameListProps {
   onOpenMenu?: (index: number, point: { x: number; y: number }) => void;
   /** Enter or double-click on a row (US-C2: Play). */
   onActivate?: (index: number) => void;
+  /** Rows drag into a new order (a manual-order collection, FR-LIB-8). */
+  reorder?: RowReorder | undefined;
 }
 
 const modeOf = (event: { shiftKey: boolean; ctrlKey: boolean; metaKey: boolean }): SelectMode =>
@@ -36,9 +39,11 @@ export function GameList({
   onRange,
   onOpenMenu,
   onActivate,
+  reorder,
 }: GameListProps) {
   const { t } = useTranslation();
   const scroller = useRef<HTMLDivElement>(null);
+  const dragFor = useRowDrag(reorder, games);
   const total = games.total ?? 0;
   // TanStack Virtual returns functions that can't be auto-memoized; nothing here relies on the
   // React Compiler, so its "incompatible library" notice doesn't apply.
@@ -121,6 +126,7 @@ export function GameList({
               top={item.start}
               height={ROW_HEIGHT}
               onClick={pick}
+              drag={dragFor(item.index)}
               onDoubleClick={() => {
                 onActivate?.(item.index);
               }}

@@ -14,7 +14,13 @@ interface RawFilter {
   id: number;
   name: string;
   query: string;
+  menus: number;
 }
+
+/** A filter row with how many menus show it (delete warns, FR-LIB-9). */
+const FILTER_COLUMNS = `s.id, s.name, s.query,
+  (select count(distinct n.menu_id) from menu_nodes n
+    where n.type = 'smartFilter' and n.ref_id = cast(s.id as text)) as menus`;
 
 /** The names of the built-in smart filters, in the UI language (D10). */
 export interface BuiltInNames {
@@ -36,7 +42,7 @@ export class SmartFilterRepository {
 
   list(): SmartFilterSummary[] {
     const rows = this.client
-      .prepare('select id, name, query from smart_filters order by name collate nocase, id')
+      .prepare(`select ${FILTER_COLUMNS} from smart_filters s order by s.name collate nocase, s.id`)
       .all() as RawFilter[];
     return rows.map((row) => this.summarize(row));
   }
@@ -136,7 +142,7 @@ export class SmartFilterRepository {
 
   private raw(id: number): RawFilter {
     const row = this.client
-      .prepare('select id, name, query from smart_filters where id = ?')
+      .prepare(`select ${FILTER_COLUMNS} from smart_filters s where s.id = ?`)
       .get(id) as RawFilter | undefined;
     if (!row) throw notFound({ smartFilterId: id });
     return row;
@@ -153,6 +159,6 @@ export class SmartFilterRepository {
       .prepare(`select count(*) from (${sql})`)
       .pluck()
       .get(params) as number;
-    return { id: row.id, name: row.name, query, games };
+    return { id: row.id, name: row.name, query, games, menus: row.menus };
   }
 }

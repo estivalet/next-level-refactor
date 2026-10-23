@@ -3,6 +3,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
 import { useCreateCollection, useDeleteCollection, useUpdateCollection } from './collectionsApi.ts';
+import { AddGamesDialog } from './AddGamesDialog.tsx';
 import { AddToCollection } from './AddToCollectionDialog.tsx';
 import { INPUT, Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from './Modal.tsx';
 
@@ -11,7 +12,8 @@ export type CollectionDialogState =
   | { kind: 'new' }
   | { kind: 'rename'; collection: CollectionSummary }
   | { kind: 'delete'; collection: CollectionSummary }
-  | { kind: 'add'; gameIds: number[] };
+  | { kind: 'add'; gameIds: number[] }
+  | { kind: 'addGames'; collection: CollectionSummary };
 
 interface CollectionDialogsProps {
   state: CollectionDialogState;
@@ -28,6 +30,9 @@ export function CollectionDialogs({ state, onClose, onDeleted }: CollectionDialo
     return (
       <DeleteCollection collection={state.collection} onClose={onClose} onDeleted={onDeleted} />
     );
+  }
+  if (state.kind === 'addGames') {
+    return <AddGamesDialog collection={state.collection} onClose={onClose} />;
   }
   return <AddToCollection gameIds={state.gameIds} onClose={onClose} />;
 }

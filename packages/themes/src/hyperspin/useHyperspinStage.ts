@@ -1,5 +1,6 @@
 // What HyperSpin's stage shows: the settled wheel item (only it animates in; a new level shows its
 // first item at once), the level's count or message.
+import { gameById } from '../engine/gameIndex.ts';
 import type { MenuNode, ThemeGame } from '@nextlevel/shared';
 import { useTranslation } from 'react-i18next';
 import { countLabel, useGameCount } from '../components/useGameCount.ts';
@@ -42,8 +43,11 @@ export function useHyperspinStage({
   const settledId = useSettledFocus(focusId, 250, levelId);
   const settledMenuItem =
     level?.kind === 'menu' ? menuItems.find((m) => prefix + m.id === settledId) : undefined;
+  // One id → index map per list, not a scan of the list per settle (10k-game levels).
   const settledGame =
-    level?.kind === 'games' ? display.find((g) => prefix + String(g.id) === settledId) : undefined;
+    level?.kind === 'games' && settledId.startsWith(prefix)
+      ? gameById(display, Number(settledId.slice(prefix.length)))
+      : undefined;
   // The count follows the settled item (already debounced), so no second delay.
   const count = useGameCount(settledMenuItem ?? null, 0, { filtersAsGames });
 
