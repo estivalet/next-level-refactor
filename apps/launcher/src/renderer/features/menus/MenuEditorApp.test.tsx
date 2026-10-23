@@ -189,4 +189,66 @@ describe('MenuEditorApp', () => {
     await user.click(within(ask).getByRole('button', { name: 'Discard' }));
     expect(close).toHaveBeenCalled();
   });
+
+  it('FR-MENU-1: F2 on a category renames what its row shows (display name), not its art key', async () => {
+    const nodes = [docNode('Other', 'category', [], { displayName: 'Others' })];
+    const { user, lastInput } = setup([storedMenu('Main', nodes, true)]);
+    await user.click(await row('Others'));
+    await user.keyboard('{F2}');
+    const input = await screen.findByRole('textbox', { name: 'New name' });
+    await user.clear(input);
+    await user.type(input, 'Misc{Enter}');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(lastInput('menus.save')?.nodes[0]).toMatchObject({
+        name: 'Other',
+        displayName: 'Misc',
+      });
+    });
+  });
+
+  it('FR-MENU-1: F2 then Enter without a change leaves the menu clean', async () => {
+    setup();
+    const user = userEvent.setup();
+    await user.click(await row('Sega Saturn'));
+    await user.keyboard('{F2}');
+    await screen.findByRole('textbox', { name: 'New name' });
+    await user.keyboard('{Enter}');
+    expect(screen.queryByRole('img', { name: 'Unsaved changes' })).not.toBeInTheDocument();
+  });
+
+  it('NFR-A11Y-1: after a rename the tree has the keyboard again', async () => {
+    const { user } = setup();
+    await user.click(await row('Sega Saturn'));
+    await user.keyboard('{F2}');
+    await user.type(await screen.findByRole('textbox', { name: 'New name' }), ' X{Enter}');
+    expect(screen.getByRole('tree', { name: 'Menu tree' })).toHaveFocus();
+  });
+
+  it('FR-MENU-1: clicking away from the rename box keeps the typed name', async () => {
+    const { user } = setup();
+    await user.click(await row('Sega Saturn'));
+    await user.keyboard('{F2}');
+    const input = await screen.findByRole('textbox', { name: 'New name' });
+    await user.clear(input);
+    await user.type(input, 'Saturn');
+    await user.click(await row('Nintendo'));
+    expect(await row('Saturn')).toBeInTheDocument();
+  });
+
+  it('FR-MENU-1: the first save keeps the tree as it was (no reload)', async () => {
+    const { user, bridge } = setup();
+    await user.click(await row('Nintendo'));
+    await user.keyboard('{ArrowRight}{Alt>}{ArrowDown}{/Alt}');
+    expect(await row('Super Nintendo')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('menus.save');
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('img', { name: 'Unsaved changes' })).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('treeitem', { name: 'Super Nintendo' })).toBeInTheDocument();
+    expect(bridge.channels()).not.toContain('menus.get');
+  });
 });

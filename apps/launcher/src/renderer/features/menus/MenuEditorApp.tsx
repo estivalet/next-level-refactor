@@ -11,6 +11,7 @@ import { nodeLabel } from './MenuTreeRow.tsx';
 import { useCreateMenu, useDeleteMenu, useMenuList, useSetActiveMenu } from './menusApi.ts';
 import { NewMenuDialog, type NewMenuSource } from './NewMenuDialog.tsx';
 import { countDescendants, findNode, removeNode } from './treeOps.ts';
+import { useLatest } from './useLatest.ts';
 import { useMenuDraft } from './useMenuDraft.ts';
 
 type Pending =
@@ -55,14 +56,18 @@ export function MenuEditorApp() {
     if (id === menuId) draft.reload();
     else setMenuId(id);
   };
-  const save = async () => {
-    const doc = await draft.save();
-    if (doc && doc.id !== menuId) setMenuId(doc.id);
-  };
+  // The saved menu stays loaded as it is: `menuId` keeps naming the same menu (null = the active
+  // one, which a first save also makes active), so nothing reloads and the tree keeps its state.
+  const save = useLatest(() => void draft.save());
   const onKeyDown = (event: KeyboardEvent) => {
     if (!(event.ctrlKey || event.metaKey)) return;
-    if (event.key.toLowerCase() === 's') void save();
-    else if (event.key.toLowerCase() === 'z' && !(event.target instanceof HTMLInputElement))
+    if (event.key.toLowerCase() === 's') {
+      // A field commits when it loses focus; save once that edit has rendered.
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      setTimeout(() => {
+        save.current();
+      }, 0);
+    } else if (event.key.toLowerCase() === 'z' && !(event.target instanceof HTMLInputElement))
       draft.undo();
     else return;
     event.preventDefault();
@@ -134,7 +139,9 @@ export function MenuEditorApp() {
         onPreview={() => {
           if (nodes) frontend.show({ previewDraft: { title: draft.title, nodes } });
         }}
-        onSave={() => void save()}
+        onSave={() => {
+          save.current();
+        }}
       />
       {draft.error && (
         <DraftErrorBanner code={draft.error} conflict={draft.conflict} onReload={draft.reload} />

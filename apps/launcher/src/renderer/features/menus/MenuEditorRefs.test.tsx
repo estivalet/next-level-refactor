@@ -77,4 +77,30 @@ describe('Menu Editor references', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect((await saved()).nodes[0]?.children.map((n) => n.refId)).toEqual(['snes', 'nintendo-64']);
   });
+
+  it('FR-MENU-2: after a retarget renames the node, leaving the Name field keeps the new name', async () => {
+    const { snes, saved, user } = setup();
+    await user.click(await row('Nintendo'));
+    await user.keyboard('{ArrowRight}');
+    await user.click(await row('Super Nintendo'));
+    await user.selectOptions(
+      await screen.findByRole('combobox', { name: 'Target' }),
+      'Nintendo 64',
+    );
+    const name = screen.getByRole('textbox', { name: 'Name' });
+    expect(name).toHaveValue('Nintendo 64');
+    await user.click(name);
+    await user.tab();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const node = [...walkMenuNodes((await saved()).nodes)].find((n) => n.id === snes.id);
+    expect(node?.name).toBe('Nintendo 64');
+  });
+
+  it('FR-MENU-4: Ctrl+S while typing in a field saves what was typed', async () => {
+    const { saved, user } = setup();
+    await user.click(await row('Sega'));
+    await user.type(await screen.findByRole('textbox', { name: 'Display name' }), 'SEGA');
+    await user.keyboard('{Control>}s{/Control}');
+    expect((await saved()).nodes[1]?.displayName).toBe('SEGA');
+  });
 });

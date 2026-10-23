@@ -1,6 +1,6 @@
 import type { MenuDocNode } from '@nextlevel/shared';
 import { ChevronRight, Eye, EyeOff, Folder, Gamepad2, LibraryBig, Sparkles } from 'lucide-react';
-import { useState, type DragEvent, type ElementType } from 'react';
+import { useRef, useState, type DragEvent, type ElementType } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DropZone, Row } from './rows.ts';
 
@@ -119,7 +119,7 @@ export function MenuTreeRow(props: MenuTreeRowProps) {
   );
 }
 
-/** Enter keeps the text (empty = null), Escape or leaving cancels. */
+/** Enter or leaving keeps the text (empty = no change), Escape cancels; reports once. */
 function RenameInput({
   initial,
   onDone,
@@ -129,6 +129,13 @@ function RenameInput({
 }) {
   const { t } = useTranslation();
   const [value, setValue] = useState(initial);
+  const done = useRef(false);
+  const finish = (label: string | null) => {
+    if (done.current) return;
+    done.current = true;
+    onDone(label);
+  };
+  const typed = () => (value.trim() === '' ? null : value.trim());
   return (
     <input
       autoFocus
@@ -142,12 +149,12 @@ function RenameInput({
         setValue(event.target.value);
       }}
       onBlur={() => {
-        onDone(null);
+        finish(typed());
       }}
       onKeyDown={(event) => {
         event.stopPropagation();
-        if (event.key === 'Enter') onDone(value.trim() === '' ? null : value.trim());
-        else if (event.key === 'Escape') onDone(null);
+        if (event.key === 'Enter') finish(typed());
+        else if (event.key === 'Escape') finish(null);
       }}
       className="min-w-0 flex-1 rounded border border-emerald-500/50 bg-black/60 px-1 text-xs text-white focus:outline-none"
     />

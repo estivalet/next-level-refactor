@@ -139,6 +139,12 @@ function TextField(props: {
   const { t } = useTranslation();
   const id = useId();
   const [value, setValue] = useState(props.value);
+  // The node can change under the field (retarget, undo, F2 in the tree): show the new value.
+  const [shown, setShown] = useState(props.value);
+  if (shown !== props.value) {
+    setShown(props.value);
+    setValue(props.value);
+  }
   const missing = props.required === true && value.trim() === '';
   const commit = () => {
     const trimmed = value.trim();

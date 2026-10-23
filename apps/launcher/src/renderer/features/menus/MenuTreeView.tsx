@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { INPUT } from '../library/Modal.tsx';
-import { MenuTreeRow } from './MenuTreeRow.tsx';
+import { MenuTreeRow, nodeLabel } from './MenuTreeRow.tsx';
 import { buildRows } from './rows.ts';
 import {
   ancestorIds,
@@ -48,6 +48,7 @@ export function MenuTreeView({
   const [query, setQuery] = useState('');
   const [renaming, setRenaming] = useState<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const tree = useRef<HTMLDivElement>(null);
   const rows = useMemo(() => buildRows(nodes, expanded, query), [nodes, expanded, query]);
   const selectedIndex = rows.findIndex((row) => row.node.id === selectedId);
 
@@ -89,12 +90,15 @@ export function MenuTreeView({
     onSelect(row.node.id);
     virtualizer.scrollToIndex(rows.indexOf(row));
   };
+  // Renames what the row shows: a category's name until it has a display name; a reference's
+  // display name (its name is the art key). The tree gets the keyboard back.
   const rename = (id: string, label: string | null) => {
     setRenaming(null);
+    tree.current?.focus();
     const node = findNode(nodes, id);
-    if (!node || label === null) return;
-    const patch = node.type === 'category' ? { name: label } : { displayName: label };
-    onChange(updateNode(nodes, id, patch));
+    if (!node || label === null || label === nodeLabel(node)) return;
+    const field = node.type === 'category' && node.displayName === null ? 'name' : 'displayName';
+    onChange(updateNode(nodes, id, { [field]: label }));
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
@@ -142,6 +146,7 @@ export function MenuTreeView({
       )}
       <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
         <div
+          ref={tree}
           role="tree"
           tabIndex={0}
           aria-label={t('menuEditor.tree.label')}
