@@ -4,13 +4,14 @@ import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { buildTree } from './buildTree.ts';
 import { useCollections } from './collectionsApi.ts';
 import { useSystemSummaries } from './libraryApi.ts';
+import { useSmartFilters } from './smartFiltersApi.ts';
 import { EMPTY_SELECTION, select, type SelectMode } from './selection.ts';
 import { usePagedGames, type GameListParams } from './usePagedGames.ts';
 
 const NOTHING_VISIBLE = { first: 0, last: -1 };
 
 /**
- * The Library's view state (S7): the tree, the chosen system or collection, tab, sort, the rows
+ * The Library's view state (S7): the tree, the chosen system, collection or smart filter, tab, sort, the rows
  * in view and the selection. Selection and focus belong to one list: a new scope, tab or sort
  * starts them empty.
  */
@@ -18,14 +19,22 @@ export function useLibraryView() {
   const systems = useSystemSummaries();
   const catalog = useSystemCatalog();
   const collections = useCollections();
+  const smartFilters = useSmartFilters();
   const [chosenScope, setScope] = useState<GameScope | null>(null);
   const [tab, setTab] = useState<GameTab>('all');
   const [sort, setSort] = useState<GameSort>('title');
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
 
   const tree = useMemo(
-    () => buildTree(systems.data ?? [], catalog.data ?? [], collections.data ?? [], collapsed),
-    [systems.data, catalog.data, collections.data, collapsed],
+    () =>
+      buildTree(
+        systems.data ?? [],
+        catalog.data ?? [],
+        collections.data ?? [],
+        smartFilters.data ?? [],
+        collapsed,
+      ),
+    [systems.data, catalog.data, collections.data, smartFilters.data, collapsed],
   );
   const firstSystem = tree.find((row) => row.kind === 'system');
   const scope: GameScope | null =
@@ -57,6 +66,7 @@ export function useLibraryView() {
     systems,
     catalog,
     collections,
+    smartFilters,
     tree,
     scope,
     tab,

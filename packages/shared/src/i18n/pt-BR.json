@@ -500,7 +500,8 @@
       "label": "Sistemas e coleções",
       "other": "Outros",
       "collections": "Coleções",
-      "noCollections": "Nenhuma coleção ainda"
+      "noCollections": "Nenhuma coleção ainda",
+      "smart": "Filtros inteligentes"
     },
     "list": {
       "label": "Jogos",
@@ -666,6 +667,57 @@
         "favorites": "Favoritos",
         "recent": "Jogados recentemente",
         "mostPlayed": "Mais jogados"
+      },
+      "new": "Novo filtro inteligente",
+      "newTitle": "Novo filtro inteligente",
+      "editTitle": "Editar filtro inteligente",
+      "edit": "Editar…",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "deleteTitle": "Excluir filtro inteligente",
+      "deleteBody": "Excluir \"{{name}}\"? Os jogos continuam na biblioteca.",
+      "usedIn_one": "Usado em 1 menu; ele some de lá.",
+      "usedIn_other": "Usado em {{count}} menus; ele some deles.",
+      "toolbar": "Filtro inteligente",
+      "fields": {
+        "name": "Nome",
+        "systems": "Sistemas",
+        "systemsHint": "Nenhum marcado: todos os sistemas.",
+        "favorite": "Só favoritos",
+        "filters": "Tags de filtro (qualquer uma, separadas por vírgula)",
+        "genre": "Gênero contém",
+        "yearFrom": "Ano de",
+        "yearTo": "Ano até",
+        "minPlayers": "Mínimo de jogadores",
+        "played": "Jogado",
+        "playedWithinDays": "Jogado nos últimos (dias)",
+        "sort": "Ordenar",
+        "limit": "No máximo (jogos)"
+      },
+      "played": {
+        "any": "Qualquer",
+        "played": "Jogado",
+        "never": "Nunca jogado"
+      },
+      "sort": {
+        "title": "Título",
+        "year": "Ano",
+        "lastPlayed": "Jogado por último",
+        "playCount": "Mais jogados",
+        "added": "Adicionados recentemente"
+      },
+      "errors": {
+        "name": "Dê um nome (até 100 caracteres).",
+        "yearFrom": "Um ano de 1950 a 2100.",
+        "yearTo": "Um ano de 1950 a 2100.",
+        "yearRange": "Ano até não pode ser antes de Ano de.",
+        "minPlayers": "Um número de 1 a 16.",
+        "playedWithinDays": "Um número de dias de 1 a 3650.",
+        "limit": "Um número de 1 a 10.000.",
+        "filters": "Tags usam letras minúsculas, dígitos e hífens.",
+        "genre": "Até 100 caracteres.",
+        "systems": "Sistemas demais."
       }
     }
   },

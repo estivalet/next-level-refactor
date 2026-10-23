@@ -40,9 +40,12 @@ export const SmartFilterSummarySchema = z.object({
   query: SmartFilterQuerySchema,
   /** Present games it matches now. */
   games: z.number().int().min(0),
+  /** Menus with a node that shows it. */
+  menus: z.number().int().min(0),
 });
 
 export type SmartFilterSort = (typeof SMART_FILTER_SORTS)[number];
+export type SmartFilterPlayed = (typeof SMART_FILTER_PLAYED)[number];
 export type SmartFilterQuery = z.output<typeof SmartFilterQuerySchema>;
 export type SmartFilterQueryInput = z.input<typeof SmartFilterQuerySchema>;
 export type SmartFilterSummary = z.output<typeof SmartFilterSummarySchema>;

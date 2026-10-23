@@ -2,7 +2,7 @@ import type { GameFlags } from '@nextlevel/shared';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
-import { CollectionToolbar, NewCollectionButton } from './CollectionToolbar.tsx';
+import { CollectionToolbar } from './CollectionToolbar.tsx';
 import { GameDetails } from './GameDetails.tsx';
 import { GameList } from './GameList.tsx';
 import { GlobalSearch } from './GlobalSearch.tsx';
@@ -12,7 +12,8 @@ import { LibraryStatusBar } from './LibraryStatusBar.tsx';
 import { useGlobalSearch, useLibraryEvents } from './libraryApi.ts';
 import { ScanMenu } from './ScanMenu.tsx';
 import { SearchResults } from './SearchResults.tsx';
-import { SystemTree } from './SystemTree.tsx';
+import { LibrarySidebar } from './LibrarySidebar.tsx';
+import { SmartFilterToolbar } from './SmartFilterToolbar.tsx';
 import { leavesTab, scopeFacts } from './scopeFacts.ts';
 import { useLibraryView } from './useLibraryView.ts';
 import { PlayLayer } from './PlayLayer.tsx';
@@ -54,6 +55,10 @@ export function LibraryApp() {
     scope.kind === 'collection'
       ? view.collections.data?.find((c) => c.id === scope.collectionId)
       : undefined;
+  const smartFilter =
+    scope.kind === 'smartFilter'
+      ? view.smartFilters.data?.find((f) => f.id === scope.smartFilterId)
+      : undefined;
   const searching = search.active;
   const onFlags = (flags: GameFlags) => {
     if (searching || !leavesTab(view.tab, flags)) return;
@@ -85,24 +90,15 @@ export function LibraryApp() {
         />
       </header>
       <div className="flex min-h-0 flex-1">
-        <aside className="flex w-64 shrink-0 flex-col border-r border-white/5 bg-[#111115]">
-          <SystemTree
-            rows={view.tree}
-            scope={scope}
-            onSelectScope={(next) => {
-              setSearchText('');
-              view.setScope(next);
-            }}
-            onToggleGroup={view.toggleGroup}
-            collectionsAction={
-              <NewCollectionButton
-                onClick={() => {
-                  overlays.openCollection({ kind: 'new' });
-                }}
-              />
-            }
-          />
-        </aside>
+        <LibrarySidebar
+          view={view}
+          scope={scope}
+          overlays={overlays}
+          onSelectScope={(next) => {
+            setSearchText('');
+            view.setScope(next);
+          }}
+        />
         <main ref={list} className="flex min-w-0 flex-1 flex-col">
           {searching ? (
             <SearchResults
@@ -129,6 +125,17 @@ export function LibraryApp() {
                   }}
                   onDelete={() => {
                     overlays.openCollection({ kind: 'delete', collection });
+                  }}
+                />
+              )}
+              {smartFilter && (
+                <SmartFilterToolbar
+                  filter={smartFilter}
+                  onEdit={() => {
+                    overlays.openSmartFilter({ kind: 'edit', filter: smartFilter });
+                  }}
+                  onDelete={() => {
+                    overlays.openSmartFilter({ kind: 'delete', filter: smartFilter });
                   }}
                 />
               )}

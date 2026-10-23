@@ -500,7 +500,8 @@
       "label": "Systems and collections",
       "other": "Other",
       "collections": "Collections",
-      "noCollections": "No collections yet"
+      "noCollections": "No collections yet",
+      "smart": "Smart filters"
     },
     "list": {
       "label": "Games",
@@ -666,6 +667,57 @@
         "favorites": "Favorites",
         "recent": "Recently played",
         "mostPlayed": "Most played"
+      },
+      "new": "New smart filter",
+      "newTitle": "New smart filter",
+      "editTitle": "Edit smart filter",
+      "edit": "Edit…",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteTitle": "Delete smart filter",
+      "deleteBody": "Delete \"{{name}}\"? Its games stay in the library.",
+      "usedIn_one": "Used in 1 menu; it disappears from it.",
+      "usedIn_other": "Used in {{count}} menus; it disappears from them.",
+      "toolbar": "Smart filter",
+      "fields": {
+        "name": "Name",
+        "systems": "Systems",
+        "systemsHint": "None ticked: every system.",
+        "favorite": "Favorites only",
+        "filters": "Filter tags (any of, comma separated)",
+        "genre": "Genre contains",
+        "yearFrom": "Year from",
+        "yearTo": "Year to",
+        "minPlayers": "Minimum players",
+        "played": "Played",
+        "playedWithinDays": "Played in the last (days)",
+        "sort": "Sort",
+        "limit": "At most (games)"
+      },
+      "played": {
+        "any": "Any",
+        "played": "Played",
+        "never": "Never played"
+      },
+      "sort": {
+        "title": "Title",
+        "year": "Year",
+        "lastPlayed": "Last played",
+        "playCount": "Most played",
+        "added": "Recently added"
+      },
+      "errors": {
+        "name": "Give it a name (up to 100 characters).",
+        "yearFrom": "A year from 1950 to 2100.",
+        "yearTo": "A year from 1950 to 2100.",
+        "yearRange": "Year to must not be before Year from.",
+        "minPlayers": "A number from 1 to 16.",
+        "playedWithinDays": "A number of days from 1 to 3650.",
+        "limit": "A number from 1 to 10,000.",
+        "filters": "Tags use lowercase letters, digits and dashes.",
+        "genre": "Up to 100 characters.",
+        "systems": "Too many systems."
       }
     }
   },

@@ -12,6 +12,10 @@ export function scopeFacts(view: LibraryView) {
     const collection = view.collections.data?.find((c) => c.id === scope.collectionId);
     return { games: collection?.games ?? 0, missing: 0, name: collection?.name ?? '' };
   }
+  if (scope?.kind === 'smartFilter') {
+    const filter = view.smartFilters.data?.find((f) => f.id === scope.smartFilterId);
+    return { games: filter?.games ?? 0, missing: 0, name: filter?.name ?? '' };
+  }
   return { games: 0, missing: 0 };
 }
 

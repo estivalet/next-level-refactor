@@ -1,4 +1,8 @@
-import type { SystemDefinition, SystemSummary } from '@nextlevel/shared';
+import {
+  SmartFilterQuerySchema,
+  type SystemDefinition,
+  type SystemSummary,
+} from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import { buildTree, OTHER_GROUP } from './buildTree.ts';
 
@@ -40,12 +44,14 @@ const labels = (rows: ReturnType<typeof buildTree>) =>
     if (row.kind === 'group') return `${row.expanded ? '▾' : '▸'} ${row.label}`;
     if (row.kind === 'system') return `  ${row.label} ${String(row.games)}`;
     if (row.kind === 'collectionsHeader') return 'Collections';
+    if (row.kind === 'smartFiltersHeader') return 'Smart filters';
+    if (row.kind === 'smartFilter') return `  ${row.filter.name} ${String(row.filter.games)}`;
     return `  ${row.collection.name}`;
   });
 
 describe('buildTree', () => {
   it('FR-LIB-6: the system tree groups systems with games by manufacturer', () => {
-    expect(labels(buildTree(SYSTEMS, CATALOG, [], new Set()))).toEqual([
+    expect(labels(buildTree(SYSTEMS, CATALOG, [], [], new Set()))).toEqual([
       '▾ Nintendo',
       '  Nintendo 64 2',
       '  Super Nintendo 3',
@@ -54,6 +60,7 @@ describe('buildTree', () => {
       `▾ ${OTHER_GROUP}`,
       '  Homebrew Box 4',
       'Collections',
+      'Smart filters',
     ]);
   });
 
@@ -62,6 +69,7 @@ describe('buildTree', () => {
       SYSTEMS,
       CATALOG,
       [{ id: 1, name: 'Picks', sort: 'manual', games: 2 }],
+      [],
       new Set(['Nintendo']),
     );
     expect(labels(rows)).toEqual([
@@ -72,6 +80,27 @@ describe('buildTree', () => {
       '  Homebrew Box 4',
       'Collections',
       '  Picks',
+      'Smart filters',
+    ]);
+  });
+
+  it('FR-LIB-9: smart filters follow the collections, with their counts', () => {
+    const query = SmartFilterQuerySchema.parse({ favorite: true });
+    const rows = buildTree(
+      [],
+      CATALOG,
+      [],
+      [
+        { id: 1, name: 'Favorites', query, games: 3, menus: 0 },
+        { id: 2, name: 'Most played', query, games: 0, menus: 1 },
+      ],
+      new Set(),
+    );
+    expect(labels(rows)).toEqual([
+      'Collections',
+      'Smart filters',
+      '  Favorites 3',
+      '  Most played 0',
     ]);
   });
 });
