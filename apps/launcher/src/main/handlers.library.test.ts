@@ -269,17 +269,18 @@ describe('game library handlers', () => {
   it('FR-MENU-2: collection changes a menu can show announce menus.changed', async () => {
     const { router, seed, events } = await setup(true);
     const [a = 0] = seed('nintendo-64', ['Alpha']);
-    await router.handle('collections.create', { name: 'Picks' });
     const menuEvents = () => events.filter((entry) => entry.event === 'menus.changed').length;
-    expect(menuEvents()).toBe(0);
-    await router.handle('collections.update', { id: 1, name: 'Best' });
+    // The generated menu lists every collection (FR-MENU-3).
+    await router.handle('collections.create', { name: 'Picks' });
     expect(menuEvents()).toBe(1);
+    await router.handle('collections.update', { id: 1, name: 'Best' });
+    expect(menuEvents()).toBe(2);
     await router.handle('collections.addGames', { id: 1, gameIds: [a] });
     await router.handle('collections.removeGames', { id: 1, gameIds: [a] });
     await router.handle('collections.reorder', { id: 1, gameId: a, swapWithGameId: a });
-    expect(menuEvents()).toBe(3);
+    expect(menuEvents()).toBe(4);
     await router.handle('collections.update', { id: 99, name: 'None' });
-    expect(menuEvents()).toBe(3);
+    expect(menuEvents()).toBe(4);
     await router.handle('collections.delete', { id: 1 });
     expect(events.at(-1)).toEqual({ event: 'menus.changed', payload: {} });
   });

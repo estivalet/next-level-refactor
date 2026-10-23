@@ -150,7 +150,14 @@ interface ThemeHost {
 ```
 
 `menu-changed` (since M5a) comes from the `menus.changed` IPC event (a menu, smart filter or
-collection write) and from `scan.finished`. The engine reloads the menu and walks the open path by
+collection write) and from `scan.finished`. Since M5b main also announces `menus.changed` when a
+game or settings change moves what the menu can show: it wraps the event sink
+(`main/menus/menuWatch.ts`) and, after every `library.changed` / `settings.changed`, compares a
+cheap fingerprint (`frontend/menuFingerprint.ts`: enabled systems with present games; for a stored
+menu, which of its collections and smart filters have present games; for the generated one, the
+collection list) with the one taken at the last `menus.changed`. A first favorite thus brings a
+Favorites entry in at once. The Menu Editor's preview uses a second host whose `getMenu()` calls
+`frontend.resolveMenu` with the unsaved draft. The engine reloads the menu and walks the open path by
 node id through the new tree: it keeps the deepest level that still exists with focus on the same
 node id (or the old index, clamped), refreshes an open games level that survived, and goes back to
 the parent when the open node is gone (US-D5).

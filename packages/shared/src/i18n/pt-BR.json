@@ -73,6 +73,9 @@
     },
     "library": {
       "title": "Biblioteca de jogos"
+    },
+    "menuEditor": {
+      "title": "Editor de menus"
     }
   },
   "settings": {
@@ -802,5 +805,99 @@
   },
   "menus": {
     "defaultTitle": "Padrão"
+  },
+  "menuEditor": {
+    "loading": "Carregando o menu…",
+    "unsaved": "Alterações não salvas",
+    "undo": "Desfazer",
+    "save": "Salvar",
+    "preview": "Pré-visualizar",
+    "reload": "Recarregar",
+    "cancel": "Cancelar",
+    "discard": "Descartar",
+    "delete": "Excluir",
+    "conflict": "Este menu foi alterado em outro lugar. Recarregue para obter a versão mais nova; suas alterações aqui serão perdidas.",
+    "picker": {
+      "label": "Menu",
+      "unsaved": "{{title}} (não salvo)",
+      "active": "{{title}} (ativo)",
+      "new": "Novo menu",
+      "duplicate": "Duplicar",
+      "delete": "Excluir menu",
+      "setActive": "Tornar ativo"
+    },
+    "new": {
+      "title": "Novo menu",
+      "create": "Criar",
+      "name": "Nome",
+      "startFrom": "Começar de",
+      "defaultTitle": "Novo menu",
+      "copyTitle": "Cópia de {{title}}",
+      "source": {
+        "copy": "Cópia do atual",
+        "generated": "Gerado dos sistemas ativados",
+        "empty": "Vazio"
+      }
+    },
+    "confirm": {
+      "discard": "Descartar as alterações não salvas?",
+      "deleteNode": "Excluir \"{{name}}\"?",
+      "deleteNodeWithChildren_one": "Excluir \"{{name}}\" e o item dentro dele?",
+      "deleteNodeWithChildren_other": "Excluir \"{{name}}\" e os {{count}} itens dentro dele?",
+      "deleteMenu": "Excluir o menu \"{{title}}\"?"
+    },
+    "tree": {
+      "label": "Árvore do menu",
+      "search": "Pesquisar no menu",
+      "empty": "Este menu está vazio.",
+      "expand": "Expandir {{name}}",
+      "collapse": "Recolher {{name}}",
+      "show": "Mostrar {{name}}",
+      "hide": "Ocultar {{name}}",
+      "renameLabel": "Novo nome"
+    },
+    "kind": {
+      "category": "Categoria",
+      "system": "Sistema",
+      "collection": "Coleção",
+      "smartFilter": "Filtro inteligente"
+    },
+    "newCategory": "Nova categoria",
+    "addCategory": "Adicionar categoria",
+    "form": {
+      "none": "Selecione um item para editá-lo.",
+      "target": "Destino",
+      "findTarget": "Procurar destino",
+      "deletedTarget": "(excluído)",
+      "name": "Nome",
+      "nameHint": "Também é o nome do arquivo de arte que os temas procuram.",
+      "nameRequired": "O nome é obrigatório.",
+      "displayName": "Nome de exibição",
+      "shortName": "Nome curto",
+      "filterTabs": "Abas de filtro",
+      "visible": "Visível"
+    },
+    "notInMenu": {
+      "title": "Fora deste menu",
+      "none": "Tudo já está neste menu.",
+      "systems": "Sistemas",
+      "collections": "Coleções",
+      "smartFilters": "Filtros inteligentes",
+      "add": "Adicionar {{name}}",
+      "addShort": "Adicionar"
+    },
+    "status": {
+      "systemDisabled": "Sistema desativado",
+      "noGames": "Sem jogos",
+      "empty": "Nada aqui aparece",
+      "missing": {
+        "system": "Sistema fora do catálogo",
+        "collection": "Coleção excluída",
+        "smartFilter": "Filtro inteligente excluído"
+      }
+    },
+    "previewLabel": "Pré-visualização do menu",
+    "previewBanner": "Pré-visualização do menu não salvo. Voltar no nível principal, ou Ir para a área de trabalho, retorna ao editor.",
+    "previewNoLaunch": "Jogos não iniciam na pré-visualização do menu."
   }
 }

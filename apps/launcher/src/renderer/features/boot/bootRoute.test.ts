@@ -23,15 +23,28 @@ describe('boot routing (FR-THM-5, D1)', () => {
   });
 
   it('last theme and a chosen theme boot into the front-end', () => {
-    expect(bootFrontend({ kind: 'lastTheme' }, true)).toEqual({ mounted: true, visible: true });
+    expect(bootFrontend({ kind: 'lastTheme' }, true)).toEqual({
+      mounted: true,
+      visible: true,
+      preview: null,
+    });
     expect(bootFrontend({ kind: 'theme', themeId: 'big-box' }, true)).toEqual({
       mounted: true,
       visible: true,
+      preview: null,
     });
   });
 
   it('the desktop target, or a library without games, boots to the desktop', () => {
-    expect(bootFrontend({ kind: 'desktop' }, true)).toEqual({ mounted: false, visible: false });
-    expect(bootFrontend({ kind: 'lastTheme' }, false)).toEqual({ mounted: false, visible: false });
+    expect(bootFrontend({ kind: 'desktop' }, true)).toEqual({
+      mounted: false,
+      visible: false,
+      preview: null,
+    });
+    expect(bootFrontend({ kind: 'lastTheme' }, false)).toEqual({
+      mounted: false,
+      visible: false,
+      preview: null,
+    });
   });
 });

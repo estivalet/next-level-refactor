@@ -2,6 +2,7 @@ import {
   artUrl,
   mediaUrl,
   type AppError,
+  type MenuDraft,
   type NextLevelBridge,
   type Result,
   type Settings,
@@ -17,6 +18,11 @@ export interface LauncherHostDeps {
   onLaunching?: (gameId: number) => void;
   /** Shows a failed launch to the user (US-C2: the reason and Fix in Settings). */
   onLaunchError?: (gameId: number, error: AppError) => void;
+  /**
+   * Menu Editor preview (US-D5): the unsaved menu the theme shows instead of the active one.
+   * Games don't launch from a preview.
+   */
+  previewDraft?: () => MenuDraft;
 }
 
 /**
@@ -37,7 +43,12 @@ export function createLauncherThemeHost(
   };
 
   return {
-    getMenu: async () => value(await bridge.invoke('frontend.menu')),
+    getMenu: async () =>
+      value(
+        await (deps.previewDraft
+          ? bridge.invoke('frontend.resolveMenu', { draft: deps.previewDraft() })
+          : bridge.invoke('frontend.menu')),
+      ),
     getGames: async (nodeId) => value(await bridge.invoke('frontend.games', { nodeId })),
     getGameDetails: async (gameId) => {
       const details = value(await bridge.invoke('library.games.get', { gameId }));
@@ -53,6 +64,7 @@ export function createLauncherThemeHost(
     mediaUrl: (game, kind) => (game.media.includes(kind) ? mediaUrl(game.id, kind) : null),
     artUrl,
     launch: async (gameId) => {
+      if (deps.previewDraft) return { ok: false, message: deps.t('menuEditor.previewNoLaunch') };
       deps.onLaunching?.(gameId);
       const result = await bridge.invoke('launch.game', { gameId });
       if (result.ok) return { ok: true };

@@ -28,6 +28,7 @@ import { MediaRepository } from './library/MediaRepository.ts';
 import { openLibrary } from './library/openLibrary.ts';
 import { ArtIndexService } from './frontend/ArtIndexService.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
+import { createMenuWatch } from './menus/menuWatch.ts';
 import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
@@ -119,13 +120,18 @@ const currentSettings = (settings: SettingsService) => {
   return loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
 };
 
-const emit = createEventSink(
-  () =>
-    BrowserWindow.getAllWindows()
-      .map((window) => window.webContents)
-      .filter((contents) => !contents.isDestroyed()),
+// menus.changed also goes out when a game or settings change alters what the menu can show.
+const menuWatch = createMenuWatch(
+  createEventSink(
+    () =>
+      BrowserWindow.getAllWindows()
+        .map((window) => window.webContents)
+        .filter((contents) => !contents.isDestroyed()),
+    log,
+  ),
   log,
 );
+const emit = menuWatch.emit;
 
 /** Opens `library.db`; without it the app still runs and library channels fail (M2b). */
 function startLibrary(settings: SettingsService): MainDeps['library'] {
@@ -206,6 +212,7 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     menus,
     smartFilters,
   });
+  menuWatch.watch(() => frontend.menuFingerprint());
   return {
     repo,
     media,

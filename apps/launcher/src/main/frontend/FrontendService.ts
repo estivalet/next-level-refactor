@@ -15,6 +15,7 @@ import type { SmartFilterRepository } from '../library/SmartFilterRepository.ts'
 import { generatedNodes } from '../menus/generatedDocument.ts';
 import type { MenuRepository } from '../menus/MenuRepository.ts';
 import { resolveMenu, type ResolveContext } from '../menus/resolveMenu.ts';
+import { menuFingerprint } from './menuFingerprint.ts';
 import { buildMenuTree } from './menuTree.ts';
 
 export interface FrontendDeps {
@@ -102,6 +103,11 @@ export class FrontendService {
   menu(): MenuTree {
     const active = this.deps.menus.active();
     return active ? resolveMenu(active, this.resolveContext(active)) : this.generatedTree();
+  }
+
+  /** What decides which entries the menu can show (see `menuFingerprint`). */
+  menuFingerprint(): string {
+    return menuFingerprint(this.deps);
   }
 
   /** An unsaved menu resolved like the active one (Menu Editor preview). */

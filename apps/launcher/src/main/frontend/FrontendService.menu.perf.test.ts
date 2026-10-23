@@ -106,4 +106,16 @@ describe('menu resolution over a big library', () => {
     }
     expect(worst).toBeLessThanOrEqual(perfBudget(300));
   });
+
+  it('FR-MENU-2: the fingerprint checked after every game change takes ≤ 20 ms', () => {
+    // Runs after the test above created the menu.
+    service.menuFingerprint();
+    let worst = 0;
+    for (let i = 0; i < 3; i += 1) {
+      const start = performance.now();
+      service.menuFingerprint();
+      worst = Math.max(worst, performance.now() - start);
+    }
+    expect(worst).toBeLessThanOrEqual(perfBudget(20));
+  });
 });

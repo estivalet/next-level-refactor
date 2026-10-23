@@ -73,6 +73,9 @@
     },
     "library": {
       "title": "Game Library"
+    },
+    "menuEditor": {
+      "title": "Menu Editor"
     }
   },
   "settings": {
@@ -802,5 +805,99 @@
   },
   "menus": {
     "defaultTitle": "Default"
+  },
+  "menuEditor": {
+    "loading": "Loading the menu…",
+    "unsaved": "Unsaved changes",
+    "undo": "Undo",
+    "save": "Save",
+    "preview": "Preview",
+    "reload": "Reload",
+    "cancel": "Cancel",
+    "discard": "Discard",
+    "delete": "Delete",
+    "conflict": "This menu was changed elsewhere. Reload to get the newest version; your changes here will be lost.",
+    "picker": {
+      "label": "Menu",
+      "unsaved": "{{title}} (not saved)",
+      "active": "{{title}} (active)",
+      "new": "New menu",
+      "duplicate": "Duplicate",
+      "delete": "Delete menu",
+      "setActive": "Set as active"
+    },
+    "new": {
+      "title": "New menu",
+      "create": "Create",
+      "name": "Name",
+      "startFrom": "Start from",
+      "defaultTitle": "New menu",
+      "copyTitle": "Copy of {{title}}",
+      "source": {
+        "copy": "Copy of current",
+        "generated": "Generated from enabled systems",
+        "empty": "Empty"
+      }
+    },
+    "confirm": {
+      "discard": "Discard unsaved changes?",
+      "deleteNode": "Delete \"{{name}}\"?",
+      "deleteNodeWithChildren_one": "Delete \"{{name}}\" and the entry inside it?",
+      "deleteNodeWithChildren_other": "Delete \"{{name}}\" and the {{count}} entries inside it?",
+      "deleteMenu": "Delete the menu \"{{title}}\"?"
+    },
+    "tree": {
+      "label": "Menu tree",
+      "search": "Search the menu",
+      "empty": "This menu is empty.",
+      "expand": "Expand {{name}}",
+      "collapse": "Collapse {{name}}",
+      "show": "Show {{name}}",
+      "hide": "Hide {{name}}",
+      "renameLabel": "New name"
+    },
+    "kind": {
+      "category": "Category",
+      "system": "System",
+      "collection": "Collection",
+      "smartFilter": "Smart filter"
+    },
+    "newCategory": "New category",
+    "addCategory": "Add category",
+    "form": {
+      "none": "Select an entry to edit it.",
+      "target": "Target",
+      "findTarget": "Find a target",
+      "deletedTarget": "(deleted)",
+      "name": "Name",
+      "nameHint": "Also the art file name the themes look for.",
+      "nameRequired": "Name is required.",
+      "displayName": "Display name",
+      "shortName": "Short name",
+      "filterTabs": "Filter tabs",
+      "visible": "Visible"
+    },
+    "notInMenu": {
+      "title": "Not in this menu",
+      "none": "Everything is in this menu.",
+      "systems": "Systems",
+      "collections": "Collections",
+      "smartFilters": "Smart filters",
+      "add": "Add {{name}}",
+      "addShort": "Add"
+    },
+    "status": {
+      "systemDisabled": "System turned off",
+      "noGames": "No games",
+      "empty": "Nothing in it shows",
+      "missing": {
+        "system": "System not in the catalog",
+        "collection": "Collection deleted",
+        "smartFilter": "Smart filter deleted"
+      }
+    },
+    "previewLabel": "Menu preview",
+    "previewBanner": "Preview of the unsaved menu. Back at the top level, or To desktop, returns to the editor.",
+    "previewNoLaunch": "Games don't start from a menu preview."
   }
 }

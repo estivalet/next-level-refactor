@@ -5,6 +5,7 @@ import {
   type MenuDocument,
   type MenuDraft,
   type MenuSummary,
+  walkMenuNodes,
 } from '@nextlevel/shared';
 import { notFound } from '../library/GameRepository.ts';
 import type { LibraryDb } from '../library/openLibrary.ts';
@@ -156,6 +157,22 @@ export class MenuRepository {
   }
 
   private writeNodes(menuId: string, nodes: readonly MenuDocNode[]): void {
+    // Node ids are global: a copied tree must get new ones (the editor's "Copy of current").
+    const ids = [...walkMenuNodes(nodes)].map((node) => node.id);
+    const taken = this.client
+      .prepare(
+        `select id from menu_nodes where menu_id <> ? and id in (select value from json_each(?))
+         limit 1`,
+      )
+      .pluck()
+      .get(menuId, JSON.stringify(ids)) as string | undefined;
+    if (taken !== undefined) {
+      throw new AppErrorException({
+        code: 'VALIDATION_FAILED',
+        message: ERROR_CODES.VALIDATION_FAILED,
+        details: { nodeId: taken },
+      });
+    }
     const insert = this.client.prepare(
       `insert into menu_nodes (id, menu_id, parent_id, position, type, ref_id, name, display_name,
          short_name, filter_tabs, visible)

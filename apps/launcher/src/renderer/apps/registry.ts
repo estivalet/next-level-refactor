@@ -1,10 +1,11 @@
-import { Library, Settings, type LucideIcon } from 'lucide-react';
+import { Library, ListTree, Settings, type LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { LibraryApp } from '../features/library/LibraryApp.tsx';
+import { MenuEditorApp } from '../features/menus/MenuEditorApp.tsx';
 import { SettingsApp } from '../features/settings/SettingsApp.tsx';
 import type { AppParams } from '../features/shell/windowManager.ts';
 
-export type AppId = 'library' | 'settings';
+export type AppId = 'library' | 'menu-editor' | 'settings';
 
 export interface AppDefinition {
   id: AppId;
@@ -25,6 +26,14 @@ export const apps: readonly AppDefinition[] = [
     defaultSize: { width: 1200, height: 720 },
     singleInstance: true,
     Component: LibraryApp,
+  },
+  {
+    id: 'menu-editor',
+    titleKey: 'apps.menuEditor.title',
+    icon: ListTree,
+    defaultSize: { width: 900, height: 640 },
+    singleInstance: true,
+    Component: MenuEditorApp,
   },
   {
     id: 'settings',

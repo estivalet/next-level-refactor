@@ -1,7 +1,8 @@
 import { Minus, Square, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { WindowCloseContext, type WindowClose } from './closeGuard.ts';
 import { useShell } from './ShellContext.tsx';
 import { useWindowPointer } from './useWindowPointer.ts';
 import type { ShellWindow as ShellWindowState } from './windowManager.ts';
@@ -25,6 +26,18 @@ export function ShellWindow({
   const resize = useWindowPointer('resize', win);
   const focused = state.focusedId === win.id;
   const frame = useRef<HTMLDivElement>(null);
+  const guard = useRef<(() => boolean) | null>(null);
+  const closer = useMemo<WindowClose>(
+    () => ({
+      setGuard: (next) => {
+        guard.current = next;
+      },
+      close: () => {
+        dispatch({ type: 'close', id: win.id });
+      },
+    }),
+    [dispatch, win.id],
+  );
 
   // Keyboard focus follows the window manager: the focused window owns DOM focus (NFR-A11Y-1).
   useEffect(() => {
@@ -66,7 +79,7 @@ export function ShellWindow({
             type="button"
             aria-label={t('shell.window.close')}
             onClick={() => {
-              dispatch({ type: 'close', id: win.id });
+              if (guard.current?.() !== false) closer.close();
             }}
             className={`${LIGHT} bg-[#ff5f56]`}
           >
@@ -96,7 +109,9 @@ export function ShellWindow({
         <span className="text-xs font-medium tracking-wide text-slate-400">{title}</span>
         <span className="w-12" />
       </div>
-      <div className="relative flex-1 overflow-auto bg-black/20 text-slate-200">{children}</div>
+      <div className="relative flex-1 overflow-auto bg-black/20 text-slate-200">
+        <WindowCloseContext value={closer}>{children}</WindowCloseContext>
+      </div>
       {!win.maximized && (
         <div
           {...resize}

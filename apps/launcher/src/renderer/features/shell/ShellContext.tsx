@@ -1,3 +1,4 @@
+import type { MenuDraft } from '@nextlevel/shared';
 import {
   createContext,
   useContext,
@@ -44,8 +45,12 @@ export function ShellProvider({
   // Stable show/hide, so effects and memoized children don't rerun on every change.
   const actions = useMemo(
     () => ({
-      show: () => {
-        frontendDispatch({ type: 'show' });
+      show: (options?: { previewDraft?: MenuDraft }) => {
+        frontendDispatch(
+          options?.previewDraft
+            ? { type: 'show', previewDraft: options.previewDraft }
+            : { type: 'show' },
+        );
       },
       hide: () => {
         frontendDispatch({ type: 'hide' });

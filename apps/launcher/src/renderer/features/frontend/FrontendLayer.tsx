@@ -27,7 +27,7 @@ import { useLauncherThemeHost } from './useLauncherThemeHost.ts';
  */
 export function FrontendLayer() {
   const { t } = useTranslation();
-  const { visible, hide, show } = useFrontend();
+  const { visible, hide, show, preview } = useFrontend();
   const openApp = useOpenApp();
   const loaded = useSettings().data;
   const settings = loaded?.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
@@ -55,7 +55,9 @@ export function FrontendLayer() {
     setMenuOpen(false);
     setSwitcherOpen(true);
   };
+  // A Menu Editor preview above takes the input (US-D5).
   const themeInput =
+    preview === null &&
     visible &&
     !menuOpen &&
     !switcherOpen &&
@@ -76,7 +78,7 @@ export function FrontendLayer() {
   // then, so only the gamepad reaches this.
   useInputActions({
     targetRef: layerRef,
-    enabled: !visible,
+    enabled: !visible && preview === null,
     input: settings.input,
     onAction: (action) => {
       if (action === 'toDesktop') show();

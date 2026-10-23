@@ -246,6 +246,8 @@ with the milestones that use them, each as a new migration.
   once per library at startup, named in the UI language (`meta.smart_filters_seeded`, D10).
 - **Menus** (FR-MENU-1..3): a save replaces every `menu_nodes` row of that menu in one transaction
   and bumps `menus.revision`; a save from an older `baseRevision` is `CONFLICT` and writes nothing.
+  Node ids are unique across all menus: a node id another menu uses is `VALIDATION_FAILED`
+  (`details.nodeId`), so copies get new ids (the Menu Editor's "Copy of current" does).
   The first menu created is active; deleting the active one activates the most recently changed
   other one. `source` (`nextlevelos:<file>`) is set for imported menus and collections (D12) and
   null for those made here. While `menus` is empty themes get the generated menu (FR-MENU-3).
