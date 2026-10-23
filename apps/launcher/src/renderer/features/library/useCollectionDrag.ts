@@ -5,7 +5,8 @@ import type { RowReorder } from './useRowDrag.ts';
 
 /**
  * Drag reorder for the collection shown, only while it is in manual order (FR-LIB-8, D11). A
- * drag from a selected row moves the whole selection, in list order.
+ * drag from a selected row moves the whole selection — also rows on pages never loaded (a Shift
+ * range fetches every id); main keeps them in their collection order.
  */
 export function useCollectionDrag(
   view: LibraryView,
@@ -17,8 +18,7 @@ export function useCollectionDrag(
     blockFor: (index) => {
       const id = view.games.rowAt(index)?.id;
       if (id === undefined) return [];
-      if (!view.selection.ids.has(id)) return [id];
-      return view.selectedGames().map((game) => game.id);
+      return view.selection.ids.has(id) ? [...view.selection.ids] : [id];
     },
     onMove: (gameIds, beforeGameId) => {
       move.mutate({ id: collection.id, gameIds, beforeGameId });

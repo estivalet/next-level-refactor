@@ -10,6 +10,7 @@ export const GAME_KEY = 'library.game';
 export const SEARCH_KEY = 'library.search';
 export const SYSTEMS_KEY = ['systems.list'] as const;
 export const COLLECTIONS_KEY = ['collections.list'] as const;
+export const SMART_FILTERS_KEY = ['smartFilters.list'] as const;
 const SEARCH_DELAY_MS = 120;
 
 /**
@@ -29,12 +30,14 @@ export function invalidateGames(client: QueryClient) {
 /** Refreshes library views when main reports a change (another window, a scan). */
 export function useLibraryEvents() {
   const client = useQueryClient();
-  useIpcEvent('library.changed', () => {
+  // Smart filter counts follow game changes too (favorites, plays, metadata, scans): main
+  // announces all of them with library.changed, local edits included.
+  const refresh = () => {
     void invalidateGames(client);
-  });
-  useIpcEvent('scan.finished', () => {
-    void invalidateGames(client);
-  });
+    void client.invalidateQueries({ queryKey: SMART_FILTERS_KEY });
+  };
+  useIpcEvent('library.changed', refresh);
+  useIpcEvent('scan.finished', refresh);
 }
 
 /** Catalog systems with their game counts (`games` includes missing ones). */

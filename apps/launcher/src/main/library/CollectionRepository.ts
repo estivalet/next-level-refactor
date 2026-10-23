@@ -138,21 +138,24 @@ export class CollectionRepository {
   }
 
   /**
-   * Drag reorder (FR-LIB-8, D11): puts `gameIds` (in that order) right before `beforeGameId`, or
-   * at the end when it is null. Anchoring on a game, not an index, keeps hidden or filtered-out
-   * members where they are. An anchor inside the moved block changes nothing.
+   * Drag reorder (FR-LIB-8, D11): puts `gameIds` right before `beforeGameId`, or at the end when it
+   * is null; the moved games keep their own relative order (a selection arrives as a set).
+   * Anchoring on a game, not an index, keeps hidden or filtered-out members where they are. An
+   * anchor inside the moved block changes nothing.
    */
   move(id: number, gameIds: readonly number[], beforeGameId: number | null): void {
     this.client.transaction(() => {
       this.summary(id);
       const members = this.members(id);
-      const block = [...new Set(gameIds)];
-      const unknown = block.some((gameId) => !members.includes(gameId));
-      if (unknown || (beforeGameId !== null && !members.includes(beforeGameId))) {
-        throw notFound({ collectionId: id, gameIds: block, beforeGameId });
+      const known = new Set(members);
+      const moving = new Set(gameIds);
+      const unknown = [...moving].some((gameId) => !known.has(gameId));
+      if (unknown || (beforeGameId !== null && !known.has(beforeGameId))) {
+        throw notFound({ collectionId: id, gameIds: [...moving], beforeGameId });
       }
-      if (beforeGameId !== null && block.includes(beforeGameId)) return;
-      const rest = members.filter((gameId) => !block.includes(gameId));
+      if (beforeGameId !== null && moving.has(beforeGameId)) return;
+      const block = members.filter((gameId) => moving.has(gameId));
+      const rest = members.filter((gameId) => !moving.has(gameId));
       const at = beforeGameId === null ? rest.length : rest.indexOf(beforeGameId);
       rest.splice(at, 0, ...block);
       this.renumber(id, rest);

@@ -2,9 +2,9 @@ import type { SmartFilterQuery } from '@nextlevel/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { unwrap } from '../settings/settingsApi.ts';
-import { invalidateGames } from './libraryApi.ts';
+import { invalidateGames, SMART_FILTERS_KEY } from './libraryApi.ts';
 
-export const SMART_FILTERS_KEY = ['smartFilters.list'] as const;
+export { SMART_FILTERS_KEY };
 
 /** Smart filters with their present-game and menu counts (FR-LIB-9). */
 export function useSmartFilters() {

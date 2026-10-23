@@ -62,7 +62,10 @@ function EditSmartFilter({
   const shown = result.ok
     ? {}
     : Object.fromEntries(
-        Object.entries(result.errors).filter(([f]) => touched.has(f as SmartField)),
+        Object.entries(result.errors).filter(
+          // A backwards year range sits on Year to; editing either year shows it.
+          ([f]) => touched.has(f as SmartField) || (f === 'yearTo' && touched.has('yearFrom')),
+        ),
       );
   const mutation = filter ? update : create;
   const taken = errorCode(mutation.error) === 'NAME_TAKEN';

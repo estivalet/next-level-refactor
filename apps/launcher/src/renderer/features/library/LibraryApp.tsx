@@ -2,7 +2,6 @@ import type { GameFlags } from '@nextlevel/shared';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
-import { CollectionToolbar } from './CollectionToolbar.tsx';
 import { GameDetails } from './GameDetails.tsx';
 import { GameList } from './GameList.tsx';
 import { GlobalSearch } from './GlobalSearch.tsx';
@@ -13,7 +12,7 @@ import { useGlobalSearch, useLibraryEvents } from './libraryApi.ts';
 import { ScanMenu } from './ScanMenu.tsx';
 import { SearchResults } from './SearchResults.tsx';
 import { LibrarySidebar } from './LibrarySidebar.tsx';
-import { SmartFilterToolbar } from './SmartFilterToolbar.tsx';
+import { ScopeToolbar } from './ScopeToolbar.tsx';
 import { leavesTab, scopeFacts } from './scopeFacts.ts';
 import { useCollectionDrag } from './useCollectionDrag.ts';
 import { useLibraryView } from './useLibraryView.ts';
@@ -57,14 +56,6 @@ export function LibraryApp() {
 
   const scope = view.scope;
   const facts = scopeFacts(view);
-  const collection =
-    scope.kind === 'collection'
-      ? view.collections.data?.find((c) => c.id === scope.collectionId)
-      : undefined;
-  const smartFilter =
-    scope.kind === 'smartFilter'
-      ? view.smartFilters.data?.find((f) => f.id === scope.smartFilterId)
-      : undefined;
   const searching = search.active;
   const onFlags = (flags: GameFlags) => {
     if (searching || !leavesTab(view.tab, flags)) return;
@@ -118,36 +109,7 @@ export function LibraryApp() {
             />
           ) : (
             <>
-              {collection && (
-                <CollectionToolbar
-                  collection={collection}
-                  focused={
-                    view.focusedGame ? { index: view.focused, gameId: view.focusedGame.id } : null
-                  }
-                  gameIdAt={(index) => view.games.rowAt(index)?.id}
-                  onMoved={view.focusRow}
-                  onRename={() => {
-                    overlays.openCollection({ kind: 'rename', collection });
-                  }}
-                  onDelete={() => {
-                    overlays.openCollection({ kind: 'delete', collection });
-                  }}
-                  onAddGames={() => {
-                    overlays.openCollection({ kind: 'addGames', collection });
-                  }}
-                />
-              )}
-              {smartFilter && (
-                <SmartFilterToolbar
-                  filter={smartFilter}
-                  onEdit={() => {
-                    overlays.openSmartFilter({ kind: 'edit', filter: smartFilter });
-                  }}
-                  onDelete={() => {
-                    overlays.openSmartFilter({ kind: 'delete', filter: smartFilter });
-                  }}
-                />
-              )}
+              <ScopeToolbar view={view} overlays={overlays} />
               <GameList
                 reorder={reorder}
                 games={view.games}

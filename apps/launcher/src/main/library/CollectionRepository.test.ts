@@ -117,11 +117,11 @@ describe('CollectionRepository', () => {
     collections.addGames(id, [a, b, c, d, e]);
     collections.move(id, [a], e);
     expect(listed(id)).toEqual(['Bravo', 'Charlie', 'Delta', 'Alpha', 'Echo']);
-    // A block keeps its own order wherever it lands; null = to the end.
+    // A block keeps its members' order (not the order the ids arrive in); null = to the end.
     collections.move(id, [e, b], null);
-    expect(listed(id)).toEqual(['Charlie', 'Delta', 'Alpha', 'Echo', 'Bravo']);
+    expect(listed(id)).toEqual(['Charlie', 'Delta', 'Alpha', 'Bravo', 'Echo']);
     collections.move(id, [d], c);
-    expect(listed(id)).toEqual(['Delta', 'Charlie', 'Alpha', 'Echo', 'Bravo']);
+    expect(listed(id)).toEqual(['Delta', 'Charlie', 'Alpha', 'Bravo', 'Echo']);
     const positions = library.db.$client
       .prepare('select position from collection_games where collection_id = ? order by position')
       .pluck()

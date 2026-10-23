@@ -42,6 +42,13 @@ const BUILT_INS: SmartFilterSummary[] = [
     games: 0,
     menus: 2,
   },
+  {
+    id: 3,
+    name: 'Nineties',
+    query: SmartFilterQuerySchema.parse({ yearFrom: 1990, yearTo: 1995 }),
+    games: 0,
+    menus: 0,
+  },
 ];
 
 /** A library with smart filters kept in memory; a filter's games match its genre or favorite. */
@@ -142,5 +149,28 @@ describe('Library smart filters', () => {
     expect(
       within(await tree()).queryByRole('treeitem', { name: /Most played/ }),
     ).not.toBeInTheDocument();
+  });
+
+  it('FR-LIB-9: a game change from main refreshes the smart filter counts', async () => {
+    const { bridge } = setup();
+    await within(await tree()).findByRole('treeitem', { name: /Favorites/ });
+    const lists = () => bridge.channels().filter((c) => c === 'smartFilters.list').length;
+    const before = lists();
+    bridge.emit('library.changed', { systems: ['nintendo-64'], gameIds: [2] });
+    await waitFor(() => {
+      expect(lists()).toBeGreaterThan(before);
+    });
+  });
+
+  it('FR-LIB-9: raising Year from past a saved Year to shows why Save is off', async () => {
+    const { user } = setup();
+    await user.click(await within(await tree()).findByRole('treeitem', { name: /Nineties/ }));
+    await user.click(await screen.findByRole('button', { name: 'Edit…' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Edit smart filter' });
+    const from = within(dialog).getByRole('textbox', { name: 'Year from' });
+    await user.clear(from);
+    await user.type(from, '1999');
+    expect(within(dialog).getByText('Year to must not be before Year from.')).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 });
