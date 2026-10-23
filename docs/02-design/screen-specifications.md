@@ -111,10 +111,21 @@ requirements:
     while running it shows "Scanning n/m" and offers Cancel; the last summary or a start error
     sits next to it).
   - Left: virtualized tree of systems with games, grouped by manufacturer (Other last), then
-    Collections with **+** (New collection).
+    Collections with **+** (New collection), then **Smart filters** with **+** (since M5c), each
+    with its count of present games.
+  - **Smart filters (M5c, FR-LIB-9, D10):** selecting one lists its games (status bar tabs
+    work) under a toolbar with **Edit…** and **Delete** (asks; "Used in N menus" when menus show
+    it, they lose that entry). New/Edit dialog: name, systems (none ticked = all; enabled systems
+    listed), favorites only, filter tags (any of, comma separated), genre contains, year from/to,
+    minimum players, played (any/played/never), played in the last N days, sort (title, year, last
+    played, most played, recently added), at most N games. A field's message shows once it was
+    edited; Save stays off while anything is invalid; a taken name shows inline. The three
+    built-ins (Favorites, Recently played, Most played) are ordinary, editable filters. Smart
+    filters reach a menu only through the Menu Editor (D8).
   - Middle: virtualized multi-select list (click, Ctrl/⌘-click, Shift-click, arrows, Home/End,
     PageUp/PageDown; ContextMenu key or Shift+F10 opens the menu). A collection adds a toolbar:
-    sort (manual / title / year), Move up / Move down (manual), Rename, Delete (asks first).
+    sort (manual / title / year), Move up / Move down (manual), Add games… (since M5c), Rename,
+    Delete (asks first). In manual order rows also drag into a new place (see S11).
   - Right: details (title, system, facts, filters, description), Favorite, 1–5 stars (choosing
     the same star clears), Edit details, Open folder; a missing game shows since when, the
     expected path and **Relink…**.

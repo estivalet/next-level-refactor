@@ -2,7 +2,16 @@
 // binds input actions (US-C1) and LT/RT keep letter jumps (D5).
 import { describe, expect, it } from 'vitest';
 import { HYPERSPIN_KEYMAP } from './keymap.ts';
-import { letterJump, letterKey, randomOtherIndex } from './letterJump.ts';
+import { vi } from 'vitest';
+import type { ThemeGame } from '@nextlevel/shared';
+import { FIXTURE_GAMES } from '../host/fixtures.ts';
+import {
+  letterJump,
+  letterJumpKeys,
+  letterKey,
+  memoizedLetterKeys,
+  randomOtherIndex,
+} from './letterJump.ts';
 
 describe('letterKey (FR-THM-1)', () => {
   it('uppercases letters and maps everything else to #', () => {
@@ -67,5 +76,31 @@ describe('HYPERSPIN_KEYMAP (US-C1, D5)', () => {
       pageDown: 'jump-next',
       random: 'random',
     });
+  });
+});
+
+describe('letter keys on big lists (FR-THM-3, NFR-PERF)', () => {
+  const base = FIXTURE_GAMES[0] as ThemeGame;
+  const games: ThemeGame[] = Array.from({ length: 10_000 }, (_, i) => ({
+    ...base,
+    id: i + 1,
+    title: `${String.fromCharCode(65 + Math.floor(i / 400))} game ${String(i)}`,
+  }));
+
+  it('100 letter jumps over 10k games compute each title key once', () => {
+    const normalize = vi.fn(letterKey);
+    const keysOf = memoizedLetterKeys(normalize);
+    let focus = 0;
+    for (let i = 0; i < 100; i += 1) focus = letterJumpKeys(keysOf(games), focus, 1);
+    expect(normalize).toHaveBeenCalledTimes(10_000);
+    // 25 runs of 400: 100 jumps forward go round four times, back to the start.
+    expect(focus).toBe(0);
+    expect(letterJumpKeys(keysOf(games), 0, 1)).toBe(400);
+  });
+
+  it('a new list gets its own keys', () => {
+    const keysOf = memoizedLetterKeys(letterKey);
+    expect(keysOf(games)).toBe(keysOf(games));
+    expect(keysOf(games.slice(0, 3))).toEqual(['A', 'A', 'A']);
   });
 });
