@@ -1,0 +1,7 @@
+{
+  "title": "Arcade Cabinet",
+  "items": [
+    { "name": "Arcade", "type": "system" },
+    { "name": "Party Picks", "type": "collection" }
+  ]
+}

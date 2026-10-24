@@ -1,0 +1,46 @@
+{
+  "Atari 2600": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Atari 2600\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Atari 2600"]
+  },
+  "Nintendo 64": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Nintendo 64\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Nintendo 64"],
+    "gameArt": ["cart-front"]
+  },
+  "Amstrad GX4000": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Amstrad GX4000\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/GX4000 Carts"],
+    "romext": ["CPR", "bin"]
+  },
+  "Sony Playstation": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Sony Playstation\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Sony Playstation"]
+  },
+  "Arcade": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Arcade\" -c \"%core%\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Arcade"],
+    "emulators": ["fbneo_libretro", "mame"]
+  },
+  "Microsoft MSX": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Microsoft MSX\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Microsoft MSX"],
+    "romext": "rom"
+  },
+  "Flash Games": {
+    "command": "c:/Emu/flashplayer/flashplayer.exe \"%romfilename%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Flash Games"]
+  },
+  "Sega Genesis": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Sega Genesis\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Sega Genesis"]
+  },
+  "Imaginary Console": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Imaginary Console\" -r \"%romname%\"",
+    "rompath": ["%SYSTEMS_BASE_PATH%/Imaginary Console"]
+  },
+  "Nintendo NES": {
+    "command": "%NEXTLEVEL_RUNNER% -s \"Nintendo NES\" -r \"%romname%\"",
+    "rompath": ["d:/Elsewhere/Nintendo NES"]
+  }
+}

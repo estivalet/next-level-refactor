@@ -1,0 +1,13 @@
+{
+  "games": [
+    {
+      "filename": "./Fuzzy Kart.z64",
+      "system": "Nintendo 64",
+      "title": "Fuzzy Kart",
+      "year": "1999",
+      "filter": ["favorite"],
+      "played": "7",
+      "lastPlayedOn": "12/31/2025, 11:59:59 PM"
+    }
+  ]
+}

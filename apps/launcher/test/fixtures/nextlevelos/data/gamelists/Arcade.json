@@ -1,0 +1,32 @@
+{
+  "games": [
+    {
+      "filename": "./blastoid.zip",
+      "system": "Arcade",
+      "title": "Blastoid",
+      "year": "1981",
+      "players": "2",
+      "manufacturer": "Invented Arcade Co",
+      "rom": "blastoid",
+      "parent": "",
+      "driver": "inventd.cpp",
+      "core": "fbneo_libretro",
+      "config": "arcade-realistic",
+      "alt_game_config": "realistic",
+      "shader": "shaders_slang/crt/crt-easy.slangp",
+      "played": "5"
+    },
+    {
+      "filename": "./blastoidj.zip",
+      "system": "Arcade",
+      "title": "Blastoid (Japan)",
+      "rom": "blastoidj",
+      "parent": "blastoid",
+      "driver": "inventd.cpp",
+      "emulator": "mame",
+      "launch_args": "-autoboot_delay 2",
+      "squashfs_exe": "blastoidj.exe",
+      "played": "0"
+    }
+  ]
+}

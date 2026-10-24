@@ -1,0 +1,6 @@
+{
+  "games": [
+    { "filename": "./Dream One.img", "system": "Imaginary Console", "title": "Dream One" },
+    { "filename": "./Dream Two.img", "system": "Imaginary Console", "title": "Dream Two" }
+  ]
+}
