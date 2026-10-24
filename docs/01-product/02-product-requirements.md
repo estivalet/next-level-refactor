@@ -89,7 +89,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-MENU-1 | Visual menu editor: add, rename, reorder (drag and keyboard), hide, delete nodes; categories nest without limit. | M |
 | FR-MENU-2 | Node types: category, system, collection, smart filter. Nodes reference systems/collections by ID, so renaming never breaks links. | M |
 | FR-MENU-3 | Several menus can exist; one is active. A new user gets a generated menu (by manufacturer) of their enabled systems. | M |
-| FR-MENU-4 | Per-node options: display name, short name, theme override, filter tabs on/off. | S |
+| FR-MENU-4 | Per-node options: display name, short name, theme override, filter tabs on/off. (v0.5.0: all but theme override, which is stored and reported by the importer — D9.) | S |
 
 ## 8. Scraping & media (`FR-SCR`)
 
