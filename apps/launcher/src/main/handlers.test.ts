@@ -2,6 +2,7 @@ import { defaultSettings } from '@nextlevel/shared';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { memorySecrets } from './secrets/testing.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { SettingsService } from './settings/SettingsService.ts';
@@ -32,6 +33,7 @@ async function setup() {
     library: null,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
     newId: () => '0199f000-0000-7000-8000-000000000001',
+    secrets: memorySecrets(),
     emit: vi.fn(),
     revealFile: vi.fn(),
     pathExists: () => false,

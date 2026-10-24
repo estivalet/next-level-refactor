@@ -1,6 +1,7 @@
 import { defaultSettings, type IpcChannel, type IpcEvent } from '@nextlevel/shared';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { memorySecrets } from './secrets/testing.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
@@ -111,6 +112,7 @@ async function setup(withLibrary: boolean) {
     library,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
     newId: () => '0199f000-0000-7000-8000-000000000001',
+    secrets: memorySecrets(),
     emit: (event, payload) => {
       events.push({ event, payload });
     },

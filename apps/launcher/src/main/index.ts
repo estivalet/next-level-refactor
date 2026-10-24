@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, protocol, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, shell } from 'electron';
 import { existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -37,6 +37,7 @@ import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
 import { createWorkerWalker } from './scan/workerWalker.ts';
+import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { userDataPath } from './userData.ts';
 
@@ -321,6 +322,18 @@ async function start(): Promise<void> {
     },
     pathExists: existsSync,
     newId: uuidv7,
+    secrets: new SecretStore(
+      join(dataDir, 'secrets.bin'),
+      {
+        available: () => safeStorage.isAsyncEncryptionAvailable(),
+        encrypt: (text) => safeStorage.encryptStringAsync(text),
+        decrypt: async (data) => {
+          const { result, shouldReEncrypt } = await safeStorage.decryptStringAsync(data);
+          return { text: result, reEncrypt: shouldReEncrypt };
+        },
+      },
+      log,
+    ),
     presets: emulatorPresets,
     pickFile: async (title) => {
       const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];
