@@ -38,6 +38,21 @@ export interface LegacyRead {
   fingerprint: string;
 }
 
+const keyIndex = new WeakMap<LegacyLaunchers, Map<string, string>>();
+
+/**
+ * The launcher key a name refers to, ignoring case: NextLevelOS found `Gamepark 32.json` for the
+ * `GamePark 32` launcher through Windows' case-insensitive file system.
+ */
+export function launcherKey(launchers: LegacyLaunchers, name: string): string | undefined {
+  let index = keyIndex.get(launchers);
+  if (!index) {
+    index = new Map(Object.keys(launchers).map((key) => [key.toLowerCase(), key]));
+    keyIndex.set(launchers, index);
+  }
+  return index.get(name.toLowerCase());
+}
+
 /** Gamelists read at once; the owner's folder has ~1,000 of them. */
 const CONCURRENCY = 16;
 

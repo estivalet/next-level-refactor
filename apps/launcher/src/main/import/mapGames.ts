@@ -11,7 +11,7 @@ import {
   parseYear,
   text,
 } from './legacyGame.ts';
-import type { LegacyFiles } from './readLegacy.ts';
+import { launcherKey, type LegacyFiles } from './readLegacy.ts';
 import { Tally } from './tally.ts';
 
 export { normalizeRelPath, parseLastPlayed };
@@ -211,10 +211,11 @@ export function mapGames(
   const tally = new Tally();
   const entries: GameImport[] = [];
   for (const list of files.gamelists) {
-    if (!(list.name in files.launchers)) continue;
-    const systemId = match(list.name);
+    const name = launcherKey(files.launchers, list.name);
+    if (name === undefined) continue;
+    const systemId = match(name);
     if (!systemId) {
-      tally.add('game', list.name, 'unknownSystem', undefined, list.games.length);
+      tally.add('game', name, 'unknownSystem', undefined, list.games.length);
       continue;
     }
     const byPath = new Map<string, GameImport>();
@@ -222,20 +223,20 @@ export function mapGames(
       const parsed = LegacyGameSchema.safeParse(raw);
       const relPath = parsed.success ? normalizeRelPath(parsed.data.filename) : null;
       if (!parsed.success || !relPath) {
-        tally.add('game', list.name, 'invalidEntry');
+        tally.add('game', name, 'invalidEntry');
         continue;
       }
       if (isFolder(parsed.data.folder)) {
-        tally.add('game', list.name, 'folderEntry');
+        tally.add('game', name, 'folderEntry');
         continue;
       }
-      const game = toImport(parsed.data, systemId, list.name, relPath, options, tally);
+      const game = toImport(parsed.data, systemId, name, relPath, options, tally);
       const key = relPath.toLowerCase();
       const seen = byPath.get(key);
-      if (seen) tally.add('game', list.name, 'duplicateEntry');
+      if (seen) tally.add('game', name, 'duplicateEntry');
       byPath.set(key, seen ? merge(seen, game) : game);
     }
-    entries.push(...mergeDiscSets([...byPath.values()], list.name, tally));
+    entries.push(...mergeDiscSets([...byPath.values()], name, tally));
   }
   return { entries, items: tally.items() };
 }

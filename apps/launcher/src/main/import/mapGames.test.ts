@@ -145,6 +145,11 @@ describe('mapGames', () => {
     expect(item(run().items, 'Atari 2600', 'scrapeInM6')?.count).toBe(1);
   });
 
+  it('FR-IMP-1: a gamelist named like its launcher in other case is still the system list', () => {
+    // Windows found `Amstrad Gx4000.json` for the `Amstrad GX4000` launcher.
+    expect(game(run().entries, 'amstrad-gx4000', 'Cart Racer.cpr')).toBeDefined();
+  });
+
   it('FR-IMP-1: only system gamelists are games; collections are not', () => {
     const { entries } = run();
     expect(entries.some((e) => e.relPath === 'Hidden Gem.a26')).toBe(false);

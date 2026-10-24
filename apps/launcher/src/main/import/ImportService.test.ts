@@ -50,7 +50,7 @@ describe('ImportService.apply', () => {
       collections: 2,
       members: 6,
       menus: 2,
-      nodes: 16,
+      nodes: 18,
       favorites: 3,
       filters: 5,
       overrides: 1,

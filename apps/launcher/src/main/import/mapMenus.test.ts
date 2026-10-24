@@ -126,12 +126,14 @@ describe('mapMenus', () => {
     expect(has(items, 'Microsoft MSX', 'nestedFilterTab')).toBe(true);
   });
 
-  it('FR-MENU-2: a collection node naming a system gamelist is that system', () => {
+  it('FR-MENU-2: collection and untyped nodes naming a system or collection gamelist open it', () => {
     const arcade = run().menus.find((m) => m.file === 'menu-arcade.json');
     expect(shape(arcade?.nodes ?? [])).toEqual([
       ['system', 'arcade', 'Arcade', null, null, false],
       ['collection', 'Party Picks', 'Party Picks', null, null, false],
       ['system', 'flash-games', 'Flash Games', 'Flash', null, false],
+      ['system', 'atari-2600', 'Atari 2600', 'VCS', null, false],
+      ['collection', 'Favorites Mix', 'Favorites Mix', null, null, false],
     ]);
   });
 

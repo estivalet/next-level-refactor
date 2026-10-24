@@ -39,7 +39,7 @@ describe('readLegacy', () => {
     expect(Object.keys(files.launchers)).toHaveLength(10);
     expect(files.menus.map((m) => m.file)).toEqual(['menu-arcade.json', 'menu.json']);
     expect(files.gamelists.map((g) => g.name)).toEqual([
-      'Amstrad GX4000',
+      'Amstrad Gx4000',
       'Arcade',
       'Atari 2600',
       'Favorites Mix',

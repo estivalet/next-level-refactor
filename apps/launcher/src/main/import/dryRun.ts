@@ -20,7 +20,7 @@ import { mapGames, type GameImport } from './mapGames.ts';
 import { mapMenus, type MenuImport } from './mapMenus.ts';
 import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
-import { readLegacy, type LegacyFiles } from './readLegacy.ts';
+import { launcherKey, readLegacy, type LegacyFiles } from './readLegacy.ts';
 
 /** What the library already holds from earlier imports, and names made here (D12). */
 export interface ExistingImports {
@@ -222,8 +222,9 @@ export async function dryRun(
     walker.stop();
   }
   const { files } = plan;
-  const systemLists = files.gamelists.filter((g) => g.name in files.launchers);
-  const collectionLists = files.gamelists.filter((g) => !(g.name in files.launchers));
+  const isSystemList = (name: string) => launcherKey(files.launchers, name) !== undefined;
+  const systemLists = files.gamelists.filter((g) => isSystemList(g.name));
+  const collectionLists = files.gamelists.filter((g) => !isSystemList(g.name));
   return {
     source: folder,
     token: plan.fingerprint,

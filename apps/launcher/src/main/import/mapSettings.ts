@@ -13,7 +13,7 @@ import {
 } from '@nextlevel/shared';
 import { mapThemes } from './mapThemes.ts';
 import { createSystemMatcher } from './matchSystem.ts';
-import type { LegacyFiles } from './readLegacy.ts';
+import { launcherKey, type LegacyFiles } from './readLegacy.ts';
 
 const RUNNER = '%NEXTLEVEL_RUNNER%';
 const BASE_PATH = /^%SYSTEMS_BASE_PATH%[\\/]+/i;
@@ -26,19 +26,30 @@ const MAPPED_CONFIG_KEYS = new Set(['storage', 'assets', 'themesPath', 'menu']);
 /** `e:/NextLevel/systems` → `e:\NextLevel\systems`. */
 export const windowsPath = (path: string) => path.trim().replace(/\//g, '\\');
 
-function* menuSystemNames(items: readonly LegacyMenuItem[]): Generator<string> {
+/** Names a menu opens as a gamelist: system nodes, and collection nodes or untyped leaves. */
+function* menuListNames(items: readonly LegacyMenuItem[]): Generator<string> {
   for (const item of items) {
-    if (item.type === 'system') yield item.name;
-    if (item.items) yield* menuSystemNames(item.items);
+    const leaf = item.filter === undefined && !item.items?.length;
+    if (
+      item.type === 'system' ||
+      (leaf && (item.type === undefined || item.type === 'collection'))
+    ) {
+      yield item.name;
+    }
+    if (item.items) yield* menuListNames(item.items);
   }
 }
 
-/** NextLevelOS system names that have a gamelist or a system node in a menu. */
+/** Launcher keys that have a gamelist or are opened by a menu node (names matched ignoring case). */
 export function systemsInUse(files: LegacyFiles): Set<string> {
-  const names = new Set(files.gamelists.map((g) => g.name).filter((n) => n in files.launchers));
-  for (const { menu } of files.menus)
-    for (const name of menuSystemNames(menu.items)) names.add(name);
-  return names;
+  const keys = new Set<string>();
+  const add = (name: string) => {
+    const key = launcherKey(files.launchers, name);
+    if (key !== undefined) keys.add(key);
+  };
+  for (const list of files.gamelists) add(list.name);
+  for (const { menu } of files.menus) for (const name of menuListNames(menu.items)) add(name);
+  return keys;
 }
 
 function uniqueName(name: string, taken: Set<string>): string {
@@ -154,8 +165,10 @@ function mapSystems(
     const def = id ? byId.get(id) : undefined;
     if (!id || !def) {
       items.push({ area: 'scraper', key: name, reason: 'unknownSystem' });
-    } else if (def.scraper.screenscraperId !== screenscraperId) {
-      systems[id] = { enabled: false, ...systems[id], screenscraperId };
+    } else if (def.scraper.screenscraperId !== screenscraperId && systems[id]) {
+      // Only systems already in settings: a new `{ enabled: false }` entry would stop scans from
+      // finding that system's folder (planScan treats it as switched off by the user).
+      systems[id] = { ...systems[id], screenscraperId };
       items.push({
         area: 'scraper',
         key: name,

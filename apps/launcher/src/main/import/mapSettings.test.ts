@@ -117,6 +117,8 @@ describe('mapSettings', () => {
     expect(next.storage.themesPath?.toLowerCase()).toBe(`${copy.root}\\themes`.toLowerCase());
     expect(next.systems['nintendo-64']?.screenscraperId).toBe(999);
     expect(next.systems['atari-2600']?.screenscraperId).toBeUndefined();
+    // Not imported: an `{ enabled: false }` entry would stop scans from finding its folder.
+    expect(next.systems['sega-genesis']).toBeUndefined();
     expect(has(items, { area: 'scraper', key: 'Imaginary Console', reason: 'unknownSystem' })).toBe(
       true,
     );

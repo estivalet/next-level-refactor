@@ -1,6 +1,6 @@
 import { LegacyGameSchema, type ImportItem } from '@nextlevel/shared';
 import { discGroupOf, normalizeRelPath, parseYear, text } from './legacyGame.ts';
-import type { LegacyFiles } from './readLegacy.ts';
+import { launcherKey, type LegacyFiles } from './readLegacy.ts';
 import { Tally } from './tally.ts';
 
 /** A collection member: the game it points at, plus a title for a game no system list has. */
@@ -32,7 +32,7 @@ export function mapCollections(
   const tally = new Tally();
   const collections: CollectionImport[] = [];
   for (const list of files.gamelists) {
-    if (list.name in files.launchers) continue;
+    if (launcherKey(files.launchers, list.name) !== undefined) continue;
     const entries: CollectionEntryImport[] = [];
     const seen = new Set<string>();
     for (const raw of list.games) {

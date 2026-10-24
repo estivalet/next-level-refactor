@@ -1,5 +1,5 @@
-import type { ImportItem, LegacyMenuItem, MenuDocNode } from '@nextlevel/shared';
-import type { LegacyFiles } from './readLegacy.ts';
+import type { ImportItem, LegacyLaunchers, LegacyMenuItem, MenuDocNode } from '@nextlevel/shared';
+import { launcherKey, type LegacyFiles } from './readLegacy.ts';
 import { Tally } from './tally.ts';
 
 /**
@@ -20,7 +20,7 @@ interface Context {
   match: (name: string) => string | null;
   collections: ReadonlySet<string>;
   /** Launcher keys: a collection node naming one shows that system's games. */
-  launchers: Readonly<Record<string, unknown>>;
+  launchers: LegacyLaunchers;
   newId: () => string;
   tally: Tally;
 }
@@ -69,6 +69,10 @@ function node(
   };
 }
 
+/** No children and no filter: NextLevelOS opened it as a gamelist. */
+const isLeaf = (item: LegacyMenuItem) =>
+  item.filter === undefined && (item.items === undefined || item.items.length === 0);
+
 function mapItems(items: readonly LegacyMenuItem[], ctx: Context): MenuDocNode[] {
   const nodes: MenuDocNode[] = [];
   for (const item of items) {
@@ -78,23 +82,23 @@ function mapItems(items: readonly LegacyMenuItem[], ctx: Context): MenuDocNode[]
       if (systemId)
         nodes.push(node(item, 'system', systemId, ctx, [], systemFilterTabs(item, ctx)));
       else ctx.tally.add('menu', item.name, 'unknownSystem');
-    } else if (item.type === 'collection') {
-      const systemId = item.name in ctx.launchers ? ctx.match(item.name) : null;
+    } else if (item.type === 'collection' || (item.type === undefined && isLeaf(item))) {
+      // NextLevelOS loaded a gamelist by the node's name: a system's, else a collection's.
+      const key = launcherKey(ctx.launchers, item.name);
+      const systemId = key === undefined ? null : ctx.match(key);
       if (systemId) {
         nodes.push(node(item, 'system', systemId, ctx));
       } else if (ctx.collections.has(item.name.toLowerCase())) {
         nodes.push(node(item, 'collection', item.name, ctx));
       } else {
-        ctx.tally.add('menu', item.name, 'noGamelist');
+        ctx.tally.add('menu', item.name, item.type === undefined ? 'untypedEntry' : 'noGamelist');
       }
     } else if (item.type !== undefined) {
       ctx.tally.add('menu', item.name, 'dropped', item.type);
     } else if (item.filter !== undefined) {
       ctx.tally.add('menu', item.name, 'dropped', item.filter);
-    } else if (item.items) {
-      nodes.push(node(item, 'category', null, ctx, mapItems(item.items, ctx)));
     } else {
-      ctx.tally.add('menu', item.name, 'untypedEntry');
+      nodes.push(node(item, 'category', null, ctx, mapItems(item.items ?? [], ctx)));
     }
   }
   return nodes;
@@ -103,7 +107,8 @@ function mapItems(items: readonly LegacyMenuItem[], ctx: Context): MenuDocNode[]
 /**
  * NextLevelOS `menu*.json` → menu documents (FR-MENU-1..4, FR-IMP-1). Untyped nodes with children
  * are categories; a system's filter children turn its filter tabs on; a collection node naming a
- * system gamelist is that system (NextLevelOS loaded the gamelist by name); untyped leaves, unknown
+ * system gamelist is that system and an untyped leaf opens the system or collection gamelist it
+ * names (NextLevelOS loaded gamelists by name); other untyped leaves, unknown
  * systems, collections without a gamelist and per-node themes (D9) are reported. The menu named
  * by config.json (default `menu.json`) is the active one.
  */

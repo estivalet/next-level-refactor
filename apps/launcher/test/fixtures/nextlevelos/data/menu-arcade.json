@@ -13,6 +13,13 @@
       "name": "Flash Games",
       "type": "collection",
       "display": "Flash"
+    },
+    {
+      "name": "Atari 2600",
+      "display": "VCS"
+    },
+    {
+      "name": "Favorites Mix"
     }
   ]
 }
