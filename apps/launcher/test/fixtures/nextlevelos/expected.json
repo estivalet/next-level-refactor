@@ -1,0 +1,61 @@
+{
+  "counts": {
+    "systems": 8,
+    "menus": 2,
+    "menuNodes": 22,
+    "gamelists": 9,
+    "games": 19,
+    "collections": 2,
+    "collectionEntries": 8
+  },
+  "systems": [
+    { "systemId": "amstrad-gx4000", "entries": 1, "withFile": 1, "missing": 0, "newFiles": 0 },
+    { "systemId": "arcade", "entries": 2, "withFile": 2, "missing": 0, "newFiles": 0 },
+    { "systemId": "atari-2600", "entries": 3, "withFile": 2, "missing": 1, "newFiles": 1 },
+    { "systemId": "flash-games", "entries": 1, "withFile": 1, "missing": 0, "newFiles": 0 },
+    { "systemId": "microsoft-msx", "entries": 1, "withFile": 1, "missing": 0, "newFiles": 0 },
+    { "systemId": "nintendo-64", "entries": 1, "withFile": 0, "missing": 1, "newFiles": 0 },
+    { "systemId": "nintendo-nes", "entries": 1, "withFile": 0, "missing": 1, "newFiles": 0 },
+    { "systemId": "sony-playstation", "entries": 2, "withFile": 1, "missing": 1, "newFiles": 0 }
+  ],
+  "unmapped": [
+    { "area": "collection", "key": "Party Picks", "reason": "collectionLaunchFields", "count": 1 },
+    { "area": "collection", "key": "Party Picks", "reason": "duplicateEntry", "count": 1 },
+    { "area": "collection", "key": "Party Picks", "reason": "unknownCollectionSystem", "count": 1 },
+    { "area": "config", "key": "extraction.base.path", "reason": "hookSetting" },
+    { "area": "config", "key": "overlay.base.path", "reason": "hookSetting" },
+    { "area": "config", "key": "scanExtensions", "reason": "dropped" },
+    { "area": "config", "key": "squashfs.exe", "reason": "hookSetting" },
+    { "area": "config", "key": "test.data", "reason": "dropped" },
+    { "area": "config", "key": "test.mode", "reason": "dropped" },
+    { "area": "config", "key": "wsl.distro.name", "reason": "hookSetting" },
+    { "area": "config", "key": "wsl.mount.point", "reason": "hookSetting" },
+    { "area": "emulator", "key": "Flash Games", "reason": "customCommand" },
+    { "area": "game", "key": "Arcade", "reason": "hookSetting", "count": 1 },
+    { "area": "game", "key": "Arcade", "reason": "perGameEmulator", "count": 1 },
+    { "area": "game", "key": "Arcade", "reason": "retroarchNotFound", "count": 1 },
+    { "area": "game", "key": "Atari 2600", "reason": "duplicateEntry", "count": 1 },
+    { "area": "game", "key": "Atari 2600", "reason": "invalidEntry", "count": 2 },
+    { "area": "game", "key": "Atari 2600", "reason": "scrapeInM6", "count": 1 },
+    { "area": "game", "key": "gamelists/Broken.json", "reason": "invalidFile" },
+    {
+      "area": "game",
+      "key": "gamelists/Sony Playstation_metadata_report.json",
+      "reason": "notAGamelist"
+    },
+    { "area": "game", "key": "Imaginary Console", "reason": "unknownSystem", "count": 2 },
+    { "area": "game", "key": "Microsoft MSX", "reason": "folderEntry", "count": 1 },
+    { "area": "menu", "key": "Atari 2600", "reason": "themeOverride", "count": 1 },
+    { "area": "menu", "key": "Collections", "reason": "themeOverride", "count": 1 },
+    { "area": "menu", "key": "Imaginary Console", "reason": "unknownSystem", "count": 1 },
+    { "area": "menu", "key": "Lonely Collection", "reason": "noGamelist", "count": 1 },
+    { "area": "menu", "key": "Sega Hikaru", "reason": "untypedEntry", "count": 1 },
+    { "area": "scraper", "key": "Imaginary Console", "reason": "unknownSystem" },
+    { "area": "system", "key": "Arcade", "reason": "dropped" },
+    { "area": "system", "key": "Imaginary Console", "reason": "unknownSystem" },
+    { "area": "system", "key": "Nintendo 64", "reason": "dropped" },
+    { "area": "system", "key": "Nintendo NES", "reason": "absoluteRompath" },
+    { "area": "theme", "key": "Imaginary Console", "reason": "unknownSystem" },
+    { "area": "theme", "key": "retired-theme", "reason": "unknownTheme" }
+  ]
+}

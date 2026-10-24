@@ -15,8 +15,8 @@ export const IMPORT_AREAS = [
   'config',
 ] as const;
 
-export const IMPORT_REASONS = [
-  // Not imported, or imported differently.
+/** Reasons for what was not imported, or not as it was. */
+export const IMPORT_UNMAPPED_REASONS = [
   'unknownSystem',
   'noGamelist',
   'notAGamelist',
@@ -37,7 +37,10 @@ export const IMPORT_REASONS = [
   'retroarchNotFound',
   'collectionLaunchFields',
   'unknownTheme',
-  // Imported.
+] as const;
+
+/** Reasons for what was imported (the report's "mapped" list). */
+export const IMPORT_MAPPED_REASONS = [
   'favoriteFilterTab',
   'filterTabs',
   'nestedFilterTab',
@@ -55,6 +58,8 @@ export const IMPORT_REASONS = [
   'artFolder',
   'replacesImport',
 ] as const;
+
+export const IMPORT_REASONS = [...IMPORT_UNMAPPED_REASONS, ...IMPORT_MAPPED_REASONS] as const;
 
 export type ImportArea = (typeof IMPORT_AREAS)[number];
 export type ImportReason = (typeof IMPORT_REASONS)[number];
