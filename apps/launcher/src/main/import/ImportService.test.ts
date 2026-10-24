@@ -41,7 +41,8 @@ describe('ImportService.apply', () => {
   it('US-B3, C5: the fixture imports with the expected games, flags, collections and menus', async () => {
     const h = await setup();
     const summary = await h.run();
-    expect(summary.games).toEqual({ matched: 8, inserted: 5, missing: 5 });
+    // System gamelist entries only: Hidden Gem (a collection-only member) is a missing row too.
+    expect(summary.games).toEqual({ matched: 8, inserted: 4, missing: 4 });
     expect(summary).toMatchObject({ collections: 2, menus: 2 });
     expect(libraryCounts(h)).toEqual({
       games: 14,
@@ -94,7 +95,7 @@ describe('ImportService.apply', () => {
     const first = libraryCounts(h);
     const again = await h.run();
     expect(libraryCounts(h)).toEqual(first);
-    expect(again.games.inserted).toBe(0);
+    expect(again.games).toEqual({ matched: 12, inserted: 0, missing: 4 });
     expect(again.settingsBackupId).toBeNull();
   });
 

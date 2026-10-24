@@ -56,7 +56,6 @@ describe('import apply performance', () => {
           discGroup: null,
         })),
         now,
-        counts,
       );
     }
     const elapsed = performance.now() - started;

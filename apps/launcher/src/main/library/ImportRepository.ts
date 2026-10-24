@@ -71,15 +71,16 @@ export class ImportRepository {
 
   /**
    * Creates or refills an imported collection (D12: contents and order replaced, sort manual; a
-   * name changed here is kept). Members without a game become missing rows (D13).
+   * name changed here is kept). Members without a game become missing rows (D13); they are not
+   * counted as games (the summary counts system gamelist entries).
    */
   upsertCollection(
     source: string,
     name: string,
     members: readonly CollectionEntryImport[],
     now: Date,
-    counts: GameWriteCounts,
   ): number {
+    const uncounted: GameWriteCounts = { matched: 0, inserted: 0, missing: 0 };
     const at = now.toISOString();
     const s = this.statements;
     return this.client.transaction(() => {
@@ -92,7 +93,7 @@ export class ImportRepository {
       s.clearMembers.run(id);
       const seen = new Set<number>();
       for (const member of members) {
-        const gameId = this.resolve(member, member.title, member.year, at, counts, false);
+        const gameId = this.resolve(member, member.title, member.year, at, uncounted);
         if (seen.has(gameId)) continue;
         seen.add(gameId);
         s.insertMember.run({ collectionId: id, gameId, position: seen.size - 1 });
@@ -108,7 +109,6 @@ export class ImportRepository {
     year: number | undefined,
     at: string,
     counts: GameWriteCounts,
-    countMatches = true,
   ): number {
     const s = this.statements;
     const row = s.byPath.get(key.systemId, key.relPath) as
@@ -116,10 +116,8 @@ export class ImportRepository {
     const byDisc = row ? undefined : this.byDiscSet(key);
     const found = row ?? byDisc;
     if (found) {
-      if (countMatches) {
-        counts.matched += 1;
-        if (found.missing) counts.missing += 1;
-      }
+      counts.matched += 1;
+      if (found.missing) counts.missing += 1;
       return found.id;
     }
     const gameId = Number(

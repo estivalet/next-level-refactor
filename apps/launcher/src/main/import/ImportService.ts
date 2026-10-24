@@ -11,7 +11,7 @@ import {
 } from '@nextlevel/shared';
 import { isDeepStrictEqual } from 'node:util';
 import type { EmitEvent } from '../ipc/events.ts';
-import type { GameWriteCounts, ImportRepository } from '../library/ImportRepository.ts';
+import type { ImportRepository } from '../library/ImportRepository.ts';
 import type { MenuRepository } from '../menus/MenuRepository.ts';
 import type { ScanService } from '../scan/ScanService.ts';
 import type { Walker } from '../scan/walker.ts';
@@ -110,7 +110,7 @@ export class ImportService {
       const games = this.deps.repo.upsertGames(plan.games, now, (done, total) => {
         this.progress('games', done, total);
       });
-      const collectionIds = this.applyCollections(plan, now, games);
+      const collectionIds = this.applyCollections(plan, now);
       const menus = this.applyMenus(plan, collectionIds);
       this.deps.emit('library.changed', { systems: plan.systemIds });
       this.deps.emit('menus.changed', {});
@@ -149,11 +149,7 @@ export class ImportService {
     return after !== before ? after : null;
   }
 
-  private applyCollections(
-    plan: ImportPlan,
-    now: Date,
-    counts: GameWriteCounts,
-  ): Map<string, number> {
+  private applyCollections(plan: ImportPlan, now: Date): Map<string, number> {
     const ids = new Map<string, number>();
     plan.collections.forEach((collection, index) => {
       const id = this.deps.repo.upsertCollection(
@@ -161,7 +157,6 @@ export class ImportService {
         collection.finalName,
         collection.entries,
         now,
-        counts,
       );
       ids.set(collection.name.toLowerCase(), id);
       this.progress('collections', index + 1, plan.collections.length);
