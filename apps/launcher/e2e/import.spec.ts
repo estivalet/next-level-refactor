@@ -50,6 +50,8 @@ test('FR-IMP-1/2, US-B3: import a NextLevelOS folder, then import it again', asy
     await settings.getByRole('button', { name: 'Data & logs' }).click();
     await importOnce(settings, page);
     await settings.getByRole('button', { name: 'Open Library' }).click();
+    // On CI's smaller screen an open Settings window covers the desktop icons.
+    await settings.getByRole('button', { name: 'Close' }).click();
 
     const library = page.getByRole('dialog', { name: 'Game Library' });
     await library.getByRole('treeitem', { name: /Atari 2600/ }).click();
