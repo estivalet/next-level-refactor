@@ -187,6 +187,16 @@ Left navigation of sections (see IA §1), right form pane.
   **Test launch** (needs a game) shows command, exit code, duration and stderr, or the error.
 - **Systems → system editor** (M3): the system's emulator profile: Automatic (first profile for
   the system) or one of the profiles that cover it.
+- **Data & logs → Import NextLevelOS** (M5d, FR-IMP-1/2, US-B3): data folder (folder picker,
+  shown as a path), emulators folder (pre-filled, editable, optional), **Dry run** and
+  **Import…** (enabled only after a dry run of exactly these folders). The report lists counts
+  (systems to enable, menus, entries, collections; entries with a file, kept as missing, new
+  files) and three collapsible lists by area — not imported or changed (open), will replace,
+  imported — each row with its key, translated reason, count and detail. Import asks first,
+  shows `<stage>: n of total`, then a summary with Open Library / Open Menu Editor. CONFLICT says
+  "The folder changed — run the dry run again."
+- **Systems → system editor → ScreenScraper system id** (M5d): empty uses the catalog id
+  (shown as the placeholder); Reset clears it with the folder and extensions.
 - **Data & logs → Launch log** (M3, FR-EMU-10): the last 1,000 launches, newest first, loaded a
   page at a time: time, game (with a **Test** badge for Test launches), profile, duration
   ("Unknown" while it runs, or when the launcher never saw the end) and outcome (exit code or Failed). A row

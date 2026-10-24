@@ -1,0 +1,18 @@
+{
+  "storage": [
+    { "name": "Fast", "path": "%FIXTURE%/roms/a", "priority": 2 },
+    { "name": "Big", "path": "%FIXTURE%/roms/b", "priority": 1 },
+    { "name": "Old", "path": "%FIXTURE%/roms/c", "priority": 3 }
+  ],
+  "scanExtensions": ["zip", "7z", "bin"],
+  "assets": "%FIXTURE%/assets",
+  "themesPath": "%FIXTURE%/themes",
+  "test.mode": "ON",
+  "wsl.distro.name": "Ubuntu",
+  "wsl.mount.point": "/mnt/share/game",
+  "squashfs.exe": "C:/Tools/squashfs/mountsquashfs.exe",
+  "overlay.base.path": "C:/Tools/temp/overlay",
+  "extraction.base.path": "C:/Tools/temp",
+  "test.data": { "system": "Atari 2600", "id": "TEST BENCH" },
+  "menu": "menu.json"
+}

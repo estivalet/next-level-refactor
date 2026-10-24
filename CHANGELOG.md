@@ -5,6 +5,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-24
+
+M5 — Menus, collections & import: menus as user data with a visual Menu Editor and live
+preview, smart filters and collection editing in the Library, and an importer that brings a
+NextLevelOS setup over with a dry run first.
+
 ### Added
 - M5a menus core (FR-MENU-1..3, FR-LIB-9, US-D5): menus are stored in the library and themes show
   the active one; until a menu is saved they keep the generated menu. Menu nodes can be
@@ -26,6 +32,21 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - Open themes now also reload the menu when a game change makes a menu entry appear or go away
   (e.g. the first favorite brings in Favorites), when a system is turned on or off, and when a
   collection is created.
+- M5d Import NextLevelOS (FR-IMP-1/2, US-B3) in Settings → Data: choose the NextLevelOS
+  `public\data` folder (and, optionally, an emulators folder: found emulators are added for
+  systems without one), run a dry run that reports what maps, what doesn't and why, then import
+  with progress per stage. Storage, systems (folders, extensions, ScreenScraper ids), theme
+  options, games with metadata, favorites, hidden, filters, play history, per-game core and
+  RetroArch options, arcade info, collections and menus come over; games whose files aren't
+  found are kept as missing and come back when a scan finds them. Importing again updates what
+  the last import brought and never duplicates; collections and menus made here are left alone.
+  The NextLevelOS folder is only read.
+- Settings → Systems: a ScreenScraper system id override per system.
+
+### Changed
+- Scans search group folders whose name starts with `!`, `+` or `#` (`! Hacks/! Hacks-SMW/…`) up
+  to 10 levels deep; other sub-folders are still searched one level deep.
+- The theme art lists in Settings refresh when the art or theme packs folder changes.
 
 ## [0.4.0] - 2026-10-22
 

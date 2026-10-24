@@ -25,6 +25,8 @@ import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
+import { createImportHandlers } from './import/importHandlers.ts';
+import type { ImportService } from './import/ImportService.ts';
 import type { ScanService } from './scan/ScanService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
@@ -55,6 +57,7 @@ export interface MainDeps {
     launch: LaunchService;
     menus: MenuRepository;
     smartFilters: SmartFilterRepository;
+    importer: ImportService;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;
@@ -105,6 +108,10 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       generatedDraft: () => library().frontend.generatedDraft(deps.newId),
       newId: deps.newId,
       emit: deps.emit,
+    }),
+    ...createImportHandlers({
+      importer: () => library().importer,
+      folderExists: (dir) => Promise.resolve(deps.pathExists(dir)),
     }),
     ...createFrontendHandlers({
       frontend: () => library().frontend,

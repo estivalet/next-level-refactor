@@ -92,6 +92,7 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
                     withSystem(current, editing.id, {
                       folderName: undefined,
                       extensions: undefined,
+                      screenscraperId: undefined,
                     }),
                   );
                 }}

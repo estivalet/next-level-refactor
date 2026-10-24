@@ -1,0 +1,28 @@
+{
+  "activeDefault": "hyperspin",
+  "themes": [
+    {
+      "id": "big-box",
+      "name": "Big Box",
+      "description": "Fullscreen kiosk carousel",
+      "art": {
+        "logoVariant": "clear",
+        "backgroundVariants": ["background/artwork", "background/photo"],
+        "useVideoBackground": false,
+        "gameBackgroundSources": ["fanart", "screenshot", "video"],
+        "gameArt": { "Nintendo 64": ["box-front"], "Imaginary Console": ["box-front"] }
+      }
+    },
+    {
+      "id": "hyperspin",
+      "name": "HyperSpin Classic",
+      "settings": { "filtersInMenu": false },
+      "art": { "logoVariant": "steel", "useVideoBackground": true }
+    },
+    {
+      "id": "retired-theme",
+      "name": "Retired",
+      "art": { "logoVariant": "clear" }
+    }
+  ]
+}

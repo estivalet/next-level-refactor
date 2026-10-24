@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ImportProgressSchema } from '../import/report.ts';
 import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
@@ -16,6 +17,8 @@ export const ipcEvents = {
   /** A menu, or a collection / smart filter a menu can show, changed (FR-MENU-1). */
   'menus.changed': z.object({}),
   'launch.started': LaunchStartedSchema,
+  /** Stage progress of a NextLevelOS dry run or import (FR-IMP-2). */
+  'import.progress': ImportProgressSchema,
   'launch.finished': LaunchFinishedSchema,
 } as const;
 

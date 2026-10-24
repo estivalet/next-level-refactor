@@ -15,6 +15,7 @@ export const ERROR_CODES = {
   CORE_MISSING: 'errors.coreMissing',
   LAUNCH_FAILED: 'errors.launchFailed',
   ALREADY_RUNNING: 'errors.alreadyRunning',
+  BUSY: 'errors.busy',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

@@ -1,0 +1,54 @@
+{
+  "games": [
+    {
+      "filename": "./Pixel Quest.a26",
+      "system": "Atari 2600",
+      "title": "Pixel Quest",
+      "year": "1983",
+      "desc": "A tiny invented adventure.",
+      "players": "1-2",
+      "publisher": "Invented Soft",
+      "developer": "Invented Soft",
+      "genre": "Adventure",
+      "filter": ["official", "favorite"],
+      "played": "20",
+      "lastPlayedOn": "7/21/2026, 7:49:00 PM",
+      "core": "",
+      "rompath": "",
+      "updatedAt": "2026-03-02 22:40:45",
+      "ai_updated": true
+    },
+    {
+      "filename": "./Homebrew/Star Drifter.bin",
+      "system": "Nintendo NES",
+      "title": "Star Drifter",
+      "year": 1984,
+      "category": "Shooter",
+      "filter": ["homebrew"],
+      "played": null
+    },
+    {
+      "filename": "Moon Hopper.a26",
+      "system": "Atari 2600",
+      "title": "Moon Hopper",
+      "year": "19xx",
+      "played": "0",
+      "hidden": true
+    },
+    {
+      "filename": "./pixel quest.a26",
+      "system": "Atari 2600",
+      "title": "Pixel Quest (dup)",
+      "played": "3",
+      "lastPlayedOn": "7/22/2026, 10:05:30 AM"
+    },
+    {
+      "filename": "./",
+      "system": "Atari 2600"
+    },
+    {
+      "system": "Atari 2600",
+      "title": "No file name"
+    }
+  ]
+}

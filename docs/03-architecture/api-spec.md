@@ -146,7 +146,7 @@ channels also return `VALIDATION_FAILED`.
 | Scraper | `scraper.search`, `scraper.preview`, `scraper.apply`, `scraper.batch.start`, `scraper.batch.cancel`, `scraper.credentials.set` |
 | Catalog | `catalog.list`, `catalog.get`, `catalog.install`, `catalog.uninstall`, `downloads.list`, `downloads.pause`, `downloads.resume`, `downloads.cancel` |
 | Auth | `auth.state`, `auth.signIn`, `auth.cancelSignIn`, `auth.signOut`, `auth.refreshEntitlement`, `auth.openCheckout`, `auth.openPortal` |
-| Import | `import.nextlevelos.dryRun`, `import.nextlevelos.run` |
+| Import | Since M5d: `import.inspect` (`{ folder }` → `{ emulatorsFolder }`: `<parent of NextLevelOS's first storage location>\emulators` when it exists, else null; D14), `import.dryRun` (`{ folder, emulatorsFolder }` → `ImportReport`: `source`, `token`, `counts`, per-system `{ systemId, entries, withFile, missing, newFiles }`, `mapped` / `unmapped` / `willReplace` items `{ area, key, reason, detail?, count? }`; writes nothing), `import.apply` (`{ folder, emulatorsFolder, reportToken }` → `{ games: { matched, inserted, missing }, collections, menus, settingsBackupId, durationMs }`; folder changed since the dry run → `CONFLICT` with `details.reason: 'folderChanged'`, a scan or import running → `BUSY`, both before any write). Schemas in `packages/shared/src/import/` |
 | System | `app.paths`, `app.openPath` (takes a folder key `data`/`backups`/`logs`, never a path), `app.pickFolder` (`{ title? }` → path or null; native dialog in main), `app.pickFile` (`{ kind: 'executable', title? }` → path or null; `.exe` filter), `app.version`, `app.quit`, `app.setKioskUnlocked` |
 
 **Events (main → renderer):** `settings.changed`, `scan.progress`, `scan.finished`,
@@ -155,7 +155,7 @@ channels also return `VALIDATION_FAILED`.
 `scan.progress`, `scan.finished`, `settings.changed` and `library.changed` exist: schemas in
 `packages/shared/src/ipc/events.ts`, sent on `event:<name>` channels after main validates the
 payload, received with `window.nextlevel.on(event, listener)` (returns an unsubscribe function;
-unknown events are ignored). Since M3 `launch.started` (`{ launchId, gameId }`) and `launch.finished` (`{ launchId, gameId, exitCode, durationMs, counted, error? }`; `counted` is false and `error` set when the exit code wasn't 0 within 10 s).
+unknown events are ignored). Since M5d `import.progress` (`{ stage: settings|scan|games|collections|menus, done, total }`; the dry run reports `scan` while it walks). Since M3 `launch.started` (`{ launchId, gameId }`) and `launch.finished` (`{ launchId, gameId, exitCode, durationMs, counted, error? }`; `counted` is false and `error` set when the exit code wasn't 0 within 10 s).
 
 **Media (since M4a):** `nextlevel://media/<gameId>/<kind>` serves the file the media index
 (`game_media`) holds for that game and kind; `nextlevel://art/assets/<rel>` and

@@ -1,15 +1,16 @@
-import type { EmulatorPreset, Settings } from '@nextlevel/shared';
-import { useTranslation } from 'react-i18next';
-import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../library/Modal.tsx';
-import { AddEmulatorDialog } from './AddEmulatorDialog.tsx';
-import { newId } from './emulatorsApi.ts';
-import { FindEmulatorsDialog } from './FindEmulatorsDialog.tsx';
 import {
   addEmulator,
   addPresetProfiles,
   remainingPresetProfiles,
   removeEmulator,
-} from './fromPreset.ts';
+  type EmulatorPreset,
+  type Settings,
+} from '@nextlevel/shared';
+import { useTranslation } from 'react-i18next';
+import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../library/Modal.tsx';
+import { AddEmulatorDialog } from './AddEmulatorDialog.tsx';
+import { newId } from './emulatorsApi.ts';
+import { FindEmulatorsDialog } from './FindEmulatorsDialog.tsx';
 import { PresetProfilesDialog } from './PresetProfilesDialog.tsx';
 
 export type Dialog =

@@ -1,0 +1,6 @@
+{
+  "games": [
+    { "filename": "./Fuzzy Kart.z64", "system": "Nintendo 64" },
+    { "filename": "./Orbit Saga (Disc 2).chd", "system": "Sony Playstation" }
+  ]
+}

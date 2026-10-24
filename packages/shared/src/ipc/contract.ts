@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Result } from '../result.ts';
 import { EmulatorPresetSchema, SystemDefinitionSchema } from '../catalog/schema.ts';
+import { ImportReportSchema, ImportSummarySchema } from '../import/report.ts';
 import {
   LaunchLogPageSchema,
   LaunchOverrideSchema,
@@ -157,6 +158,28 @@ export const ipcContract = {
   },
   'launch.running': { input: z.void(), output: LaunchStartedSchema.nullable() },
   'emulators.presets': { input: z.void(), output: z.array(EmulatorPresetSchema) },
+  /** D14: the emulators folder to suggest for a NextLevelOS data folder (null: none found). */
+  'import.inspect': {
+    input: z.strictObject({ folder: z.string().trim().min(3).max(500) }),
+    output: z.object({ emulatorsFolder: z.string().nullable() }),
+  },
+  /** FR-IMP-2: what importing the folder would do; writes nothing. */
+  'import.dryRun': {
+    input: z.strictObject({
+      folder: z.string().trim().min(3).max(500),
+      emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
+    }),
+    output: ImportReportSchema,
+  },
+  /** FR-IMP-1, US-B3: imports the folder; `reportToken` is the dry run's (CONFLICT if changed). */
+  'import.apply': {
+    input: z.strictObject({
+      folder: z.string().trim().min(3).max(500),
+      emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
+      reportToken: z.string().min(1).max(200),
+    }),
+    output: ImportSummarySchema,
+  },
   'emulators.detect': {
     input: z.strictObject({ folder: z.string().trim().min(3).max(500) }),
     output: z.array(DetectedEmulatorSchema),

@@ -1,10 +1,6 @@
-import type {
-  EmulatorPreset,
-  EmulatorProfile,
-  PresetProfile,
-  Settings,
-  SystemSettings,
-} from '@nextlevel/shared';
+import type { EmulatorPreset, PresetProfile } from '../catalog/schema.ts';
+import type { EmulatorProfile } from './emulators.ts';
+import type { Settings, SystemSettings } from './schema.ts';
 
 /** The file name without folder and extension: `C:\Emu\my-emu.exe` → `my-emu`. */
 function baseName(path: string): string {
@@ -15,7 +11,12 @@ export function emulatorNameFor(executable: string, preset: EmulatorPreset | und
   return preset?.name ?? baseName(executable);
 }
 
-function toProfile(preset: PresetProfile, emulatorId: string, id: string): EmulatorProfile {
+/** A preset profile as a profile of `emulatorId` (FR-EMU-7). */
+export function profileFromPreset(
+  preset: PresetProfile,
+  emulatorId: string,
+  id: string,
+): EmulatorProfile {
   return {
     id,
     name: preset.name,
@@ -47,7 +48,7 @@ export function addEmulator(
   );
   const profiles = (preset?.profiles ?? [])
     .filter((profile) => profile.systems.some((id) => enabled.has(id)))
-    .map((profile) => toProfile(profile, emulatorId, newId()));
+    .map((profile) => profileFromPreset(profile, emulatorId, newId()));
   return {
     ...settings,
     emulators: [
@@ -85,7 +86,10 @@ export function addPresetProfiles(
   const chosen = preset.profiles.filter((profile) => presetProfileIds.includes(profile.id));
   return {
     ...settings,
-    profiles: [...settings.profiles, ...chosen.map((p) => toProfile(p, emulatorId, newId()))],
+    profiles: [
+      ...settings.profiles,
+      ...chosen.map((p) => profileFromPreset(p, emulatorId, newId())),
+    ],
   };
 }
 

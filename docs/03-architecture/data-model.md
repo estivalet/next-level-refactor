@@ -36,7 +36,7 @@ is valid and the app fills the rest.
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
-`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
@@ -214,7 +214,8 @@ SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_versi
 **Implemented so far** (`apps/launcher/src/main/library/`): `meta`, `games` and `game_metadata`
 since M2b; `game_user_state`, `game_filters`, `collections`, `collection_games` and `games_fts`
 since M2c; `game_launch_override` and `launch_log` since M3; `game_media` since M4a; `smart_filters`,
-`menus`, `menu_nodes` and `collections.source` since M5a (migration `0005`); the other tables arrive
+`menus`, `menu_nodes` and `collections.source` since M5a (migration `0005`); `arcade_info` since
+M5d (migration `0006`, filled by the importer); the other tables arrive
 with the milestones that use them, each as a new migration.
 - `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
 - `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the
@@ -260,6 +261,21 @@ with the milestones that use them, each as a new migration.
   `sf:<id>`, filter children `<systemNodeId>:f:<filter>` (only with `filter_tabs`); a reference that
   repeats gets `~2`, `~3`… in document order (`s:snes~2`), which `frontend.games` ignores.
   `menu_nodes.theme_id` is stored but unused until a later milestone (D9).
+- **NextLevelOS import** (FR-IMP-1/2, M5d; `main/import/`, `main/library/ImportRepository.ts`):
+  a dry run reads the folder (never writes there; `screenscraper.credentials.json` is never
+  opened), maps it (§6) and walks the would-be system folders read-only; its `token` hashes every
+  read file's name, size and mtime, and the apply refuses a changed folder (`CONFLICT`) or a
+  running scan/import (`BUSY`). The apply stages settings (one write and backup, skipped when
+  nothing changes) → a scan of the imported systems → games in 2,000-entry transactions →
+  collections → menus, emitting `import.progress`. Games match by (system, rel path), then by
+  disc set; an entry without a game becomes a missing row (`size 0`, `mtime 0`, D13) that a later
+  scan revives by path. Re-import (D12): unlocked metadata fields NextLevelOS has, filters (unless
+  locked), favorite and hidden take its values; `play_count` = max, `last_played_at` = later;
+  the launch override's core/extra args and `arcade_info` are replaced when NextLevelOS has them
+  (`profile_id` kept); absent values never clear data here. Imported collections (by `source`)
+  get contents, order and `manual` sort replaced and keep a name changed here; a name taken by
+  a collection made here gets ` (NextLevelOS)`. Imported menus are replaced in place by
+  `source` and config.json's menu becomes active.
 
 ```mermaid
 erDiagram
@@ -355,18 +371,22 @@ Admins always get `status: 'active'` and all scopes.
 | Current | New |
 |---|---|
 | `config.json` `storage[]` | `settings.storage.locations` |
-| `config.json` `scanExtensions` | per-system `extensions` only where they differ from the catalog |
+| `config.json` `scanExtensions` | dropped (the catalog's lists were seeded from it) |
 | `config.json` `assets`, `themesPath` | `settings.storage.assetsPath`, `themesPath` |
-| `config.json` `wsl.*`, `squashfs.exe`, `overlay.*`, `extraction.*` | reported as unmapped until hooks exist (post-1.0) |
-| `config.json` `test.mode`, `test.data` | dropped |
+| `config.json` `wsl.*`, `squashfs.exe`, `overlay.*`, `extraction.*` | `hookSetting` (unmapped until hooks exist, post-1.0) |
+| `config.json` `test.mode`, `test.data`, other keys | `dropped` |
 | `config.json` `menu` | which imported menu is `active` |
-| `launchers.json` key | matched to `SystemDefinition` by `name`/`aliases` → system id; unmatched reported |
-| `launchers.json` `rompath` | `systems[id].folderName` when not the default |
-| `launchers.json` `romext` | `systems[id].extensions` |
-| `launchers.json` `command` (runner) | default preset profile for the system; custom commands reported for manual review |
-| `menu*.json` | `menus` + `menu_nodes`; `type:system` → system node by id, `type:collection` → collection node; `disply` typo accepted as `display` |
-| `gamelists/<System>.json` games | `games` + `game_metadata` (`genre` or `category` → `genre`), `game_filters` (`filter` minus `favorite`), `game_user_state` (`favorite` filter, `hidden`, `played`, `lastPlayedOn`), `game_launch_override` (`core`, `emulator`, `config`, `shader`, `alt_*`, `launch_args`), `arcade_info` (`rom`, `parent`, `driver`, `manufacturer`), `scrape_status` (`status`, `error`, `num_candidates`, `game_id`) |
-| `gamelists/<Collection>.json` | `collections` + `collection_games` (games resolved by `system` + `filename`) |
-| `themes.json` | `settings.themes` (`gameArt` keys mapped from system name to id) |
+| `launchers.json` key | matched by name, alias, then case/punctuation-insensitive → system id (`unknownSystem`); a system with a gamelist or a menu node is enabled |
+| `launchers.json` `rompath` | `%SYSTEMS_BASE_PATH%/<folder>` → `systems[id].folderName` when not the default; an absolute path is `absoluteRompath` |
+| `launchers.json` `romext` | added to the catalog's `extensions` (NextLevelOS scanned `scanExtensions` ∪ `romext`) |
+| `launchers.json` `command` | runner commands: emulators come from the optional emulators folder (D14: detection adds preset profiles and `defaultProfileId` only for enabled systems without a profile); non-runner commands are `customCommand` with the text; `emulators`, `gameArt` are `dropped` |
+| `menu*.json` | `menus` + `menu_nodes` (`source` `nextlevelos:<file>`); untyped node with children → category; `type:system` → system node (`unknownSystem` dropped); its filter children turn `filter_tabs` on (`favorite` → Favorites tab, nested filters flatten); `type:collection` → collection node, or the system when the name is a launcher key (`noGamelist` dropped); untyped leaf → `untypedEntry`; `theme` → `themeOverride` (D9); `disply` typo accepted as `display` |
+| `gamelists/<System>.json` games (name = launcher key; that decides the system) | `games` + `game_metadata` (`genre` or `category` → `genre`; year 1950–2100), `game_filters` (`filter` minus `favorite`, as slugs: `msxdev_2003` → `msxdev-2003`), `game_user_state` (`favorite` filter, `hidden`, `played` string/number/null, `lastPlayedOn` `M/D/YYYY, h:mm:ss AM` local time), `game_launch_override` (`core`; `config`/`alt_game_config` → `--appendconfig <RA>\config\…`, `shader` → `--set-shader <RA>\shaders\…` when RetroArch is known, else `retroarchNotFound`), `arcade_info` (`rom`, `parent`, `driver`, `manufacturer`); `emulator`, `launch_args`, `alt_core` → `perGameEmulator`; `squashfs_exe` → `hookSetting`; `updatedAt`/`ai_updated`/`artfolder` → `scrapeInM6`; `./` and `\` normalized, duplicates and `Disc N` entries merged, `folder` entries reported |
+| `gamelists/<Collection>.json` (name not a launcher key) | `collections` + `collection_games` in file order (games resolved by `system` + `filename`, then disc set; members without a game become missing rows); unknown systems `unknownCollectionSystem`; per-entry launch fields `collectionLaunchFields` |
+| non-gamelist / unreadable JSON in `gamelists/` | `notAGamelist` / `invalidFile` |
+| `themes.json` | `settings.themes` (`activeDefault`; per built-in theme `art` and `settings` key by key, `gameArt` keys mapped from system name to id; unknown themes `unknownTheme`) |
 | `screenscraper.json` | `systems[id].screenscraperId` where it differs from the catalog |
-| `scrappers/screenscraper.credentials.json` | keychain (asked, not copied silently) |
+| `scrappers/screenscraper.credentials.json` | never read by the importer (keychain in M6, FR-SCR-3) |
+
+Report reasons are `IMPORT_UNMAPPED_REASONS` / `IMPORT_MAPPED_REASONS` in
+`packages/shared/src/import/report.ts`, shown through `import.reason.<code>`.

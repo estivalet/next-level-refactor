@@ -5,6 +5,7 @@ import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import type { ImportService } from './import/ImportService.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { LaunchService } from './launch/LaunchService.ts';
@@ -90,6 +91,8 @@ async function setup(withLibrary: boolean) {
       }),
       menus,
       smartFilters,
+      // These tests never reach the import channels.
+      importer: {} as ImportService,
     };
   }
   const deps: MainDeps = {

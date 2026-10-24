@@ -1,0 +1,25 @@
+{
+  "title": "Arcade Cabinet",
+  "items": [
+    {
+      "name": "Arcade",
+      "type": "system"
+    },
+    {
+      "name": "Party Picks",
+      "type": "collection"
+    },
+    {
+      "name": "Flash Games",
+      "type": "collection",
+      "display": "Flash"
+    },
+    {
+      "name": "Atari 2600",
+      "display": "VCS"
+    },
+    {
+      "name": "Favorites Mix"
+    }
+  ]
+}

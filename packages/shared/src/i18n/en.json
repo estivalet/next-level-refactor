@@ -38,7 +38,8 @@
       "unknownEmulator": "Choose an emulator.",
       "notExecutable": "Choose the emulator program (.exe).",
       "duplicateBinding": "This key or button is already used by another action."
-    }
+    },
+    "busy": "A scan or an import is running. Try again when it finishes."
   },
   "shell": {
     "window": {
@@ -229,7 +230,10 @@
       "close": "Close",
       "editShort": "Edit",
       "defaultProfile": "Emulator profile",
-      "defaultProfileAuto": "Automatic (first profile for this system)"
+      "defaultProfileAuto": "Automatic (first profile for this system)",
+      "screenscraperId": "ScreenScraper system id",
+      "screenscraperHelp": "Leave empty to use the catalog's id ({{default}}).",
+      "screenscraperHelpNone": "The catalog has no ScreenScraper id for this system."
     },
     "emulators": {
       "intro": "Add the emulators you use. A preset fills in the launch options, so you only choose the program.",
@@ -477,6 +481,65 @@
         },
         "rescanFailed": "Couldn’t read the art folders again."
       }
+    },
+    "import": {
+      "title": "Import NextLevelOS",
+      "intro": "Bring your NextLevelOS setup over: storage, systems, games with favorites and play history, collections and menus. The NextLevelOS folder is only read, never changed.",
+      "folder": "NextLevelOS data folder",
+      "folderHelp": "The public\\data folder of your NextLevelOS install.",
+      "noFolder": "No folder chosen.",
+      "chooseFolder": "Choose NextLevelOS data folder…",
+      "emulators": "Emulators folder (optional)",
+      "noEmulators": "No emulators folder",
+      "chooseEmulators": "Choose emulators folder…",
+      "emulatorsHelp": "Emulators found here (two levels deep) are added for enabled systems that have none.",
+      "dryRun": "Dry run",
+      "import": "Import…",
+      "working": "Reading the folder…",
+      "progress": "{{stage}}: {{done}} of {{total}}",
+      "stage": {
+        "settings": "Settings",
+        "scan": "Scanning systems",
+        "games": "Games",
+        "collections": "Collections",
+        "menus": "Menus"
+      },
+      "confirmTitle": "Import NextLevelOS?",
+      "confirmBody": "Settings are backed up first. Games, collections and menus from an earlier import are updated; collections and menus you made here stay as they are.",
+      "confirm": "Import",
+      "cancel": "Cancel",
+      "folderChanged": "The folder changed — run the dry run again.",
+      "summary": "Imported {{games}} games ({{missing}} missing), {{collections}} collections and {{menus}} menus.",
+      "openLibrary": "Open Library",
+      "openMenuEditor": "Open Menu Editor",
+      "reportTitle": "Dry run report",
+      "unmapped": "Not imported, or imported differently",
+      "willReplace": "Will replace",
+      "mapped": "Imported",
+      "count": {
+        "systems": "Systems to enable",
+        "menus": "Menus",
+        "menuNodes": "Menu entries",
+        "gamelists": "System gamelists",
+        "games": "Gamelist entries",
+        "collections": "Collections",
+        "collectionEntries": "Collection entries",
+        "withFile": "Entries with a file",
+        "missing": "Entries without a file (kept as missing)",
+        "newFiles": "Files without an entry (new games)"
+      },
+      "area": {
+        "storage": "Storage",
+        "system": "Systems",
+        "emulator": "Emulators",
+        "menu": "Menus",
+        "game": "Games",
+        "collection": "Collections",
+        "theme": "Themes",
+        "scraper": "ScreenScraper",
+        "config": "config.json"
+      },
+      "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again."
     }
   },
   "boot": {
@@ -958,5 +1021,45 @@
     "previewLabel": "Menu preview",
     "previewBanner": "Preview of the unsaved menu. Back at the top level, or To desktop, returns to the editor.",
     "previewNoLaunch": "Games don't start from a menu preview."
+  },
+  "import": {
+    "reason": {
+      "unknownSystem": "No matching system in NextLevel",
+      "noGamelist": "Collection has no gamelist file",
+      "notAGamelist": "Not a gamelist (no games list)",
+      "customCommand": "Custom launch command: add an emulator profile for it",
+      "untypedEntry": "Menu entry without a type or children",
+      "themeOverride": "Per-node theme isn't applied yet",
+      "folderEntry": "Folder entry, not a game",
+      "unknownCollectionSystem": "Collection entry names an unknown system",
+      "duplicateEntry": "Listed more than once (merged)",
+      "nameConflict": "A collection made here has this name; imported with a suffix",
+      "hookSetting": "Needs the NextLevelOS runner hooks (not supported)",
+      "dropped": "Not used by NextLevel",
+      "scrapeInM6": "Scrape data arrives with the scraper (M6)",
+      "perGameEmulator": "Per-game emulator choice isn't imported",
+      "invalidFile": "File can't be read as JSON",
+      "invalidEntry": "Entry without a file name",
+      "absoluteRompath": "ROM folder outside the storage locations",
+      "retroarchNotFound": "Per-game RetroArch config or shader: RetroArch wasn't found in the emulators folder",
+      "collectionLaunchFields": "Launch options set inside a collection aren't imported",
+      "unknownTheme": "Theme not in NextLevel",
+      "favoriteFilterTab": "Favorite filter becomes the Favorites tab",
+      "filterTabs": "Filter entries become the system's filter tabs",
+      "nestedFilterTab": "Nested filter entries become filter tabs of the system",
+      "filterRenamed": "Filter tags renamed to lowercase-with-dashes",
+      "discSet": "Multi-disc entries merged into one game",
+      "storageAdded": "Storage location added",
+      "systemEnabled": "System enabled",
+      "folderName": "Custom folder name",
+      "extensions": "Custom file extensions",
+      "themeArt": "Theme art settings",
+      "screenscraperId": "ScreenScraper system id",
+      "emulatorAdded": "Emulator found and added with its profiles",
+      "launchOverride": "Per-game core and launch options",
+      "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
+      "replacesImport": "Replaces what an earlier import brought in",
+      "artFolder": "Art or theme packs folder"
+    }
   }
 }

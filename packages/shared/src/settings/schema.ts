@@ -109,6 +109,8 @@ export const SystemSettingsSchema = z.object({
     .optional(),
   /** FR-EMU-4: the profile Play uses; a deleted profile falls through to the first match. */
   defaultProfileId: z.uuid().optional(),
+  /** Overrides the catalog's ScreenScraper system id (data model §6; set by the importer). */
+  screenscraperId: z.number().int().positive().optional(),
 });
 
 export type SystemSettings = z.output<typeof SystemSettingsSchema>;
