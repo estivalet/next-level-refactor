@@ -16,7 +16,7 @@ function lenientArray<T extends z.ZodType>(item: T) {
     .transform((entries) =>
       entries.flatMap((entry) => {
         const parsed = item.safeParse(entry);
-        return parsed.success ? [parsed.data as z.output<T>] : [];
+        return parsed.success ? [parsed.data] : [];
       }),
     );
 }

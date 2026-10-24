@@ -229,7 +229,10 @@
       "close": "Fechar",
       "editShort": "Editar",
       "defaultProfile": "Perfil de emulador",
-      "defaultProfileAuto": "Automático (primeiro perfil deste sistema)"
+      "defaultProfileAuto": "Automático (primeiro perfil deste sistema)",
+      "screenscraperId": "Id de sistema do ScreenScraper",
+      "screenscraperHelp": "Deixe vazio para usar o id do catálogo ({{default}}).",
+      "screenscraperHelpNone": "O catálogo não tem id do ScreenScraper para este sistema."
     },
     "emulators": {
       "intro": "Adicione os emuladores que você usa. Uma predefinição preenche as opções de execução; você só escolhe o programa.",
@@ -995,7 +998,8 @@
       "emulatorAdded": "Emulador encontrado e adicionado com seus perfis",
       "launchOverride": "Core e opções de execução por jogo",
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
-      "replacesImport": "Substitui o que uma importação anterior trouxe"
+      "replacesImport": "Substitui o que uma importação anterior trouxe",
+      "artFolder": "Pasta de arte ou de pacotes de tema"
     }
   }
 }

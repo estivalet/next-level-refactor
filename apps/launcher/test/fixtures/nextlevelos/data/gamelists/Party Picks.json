@@ -3,7 +3,12 @@
     { "filename": "./blastoid.zip", "system": "Arcade", "title": "Blastoid", "played": "5" },
     { "filename": "./Pixel Quest.a26", "system": "Atari 2600", "title": "Pixel Quest" },
     { "filename": "./mystery.zip", "system": "fbneo_libretro", "title": "Mystery" },
-    { "filename": "./Hidden Gem.a26", "system": "Atari 2600", "title": "Hidden Gem", "year": "1985" },
+    {
+      "filename": "./Hidden Gem.a26",
+      "system": "Atari 2600",
+      "title": "Hidden Gem",
+      "year": "1985"
+    },
     { "filename": "./blastoid.zip", "system": "Arcade", "title": "Blastoid again" },
     {
       "filename": "./Fuzzy Kart.z64",

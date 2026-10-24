@@ -1,11 +1,15 @@
 // Ported from NextLevelOS src/themes/registry.test.ts @ 3d530b7 (themes.json and localStorage are
 // gone: the launcher keeps the active theme in settings.themes).
-import { defaultSettings, THEME_ID } from '@nextlevel/shared';
+import { BUILT_IN_THEME_IDS, defaultSettings, THEME_ID } from '@nextlevel/shared';
 import i18n from 'i18next';
 import { describe, expect, it } from 'vitest';
 import { getTheme, resolveTheme, THEME_IDS, THEMES } from './registry.ts';
 
 describe('theme registry (FR-THM-1)', () => {
+  it('FR-IMP-1: matches the built-in theme ids main knows (the importer checks them)', () => {
+    expect([...THEME_IDS]).toEqual([...BUILT_IN_THEME_IDS]);
+  });
+
   it('lists Big Box first, with unique valid ids', () => {
     expect(THEME_IDS[0]).toBe('big-box');
     expect(new Set(THEME_IDS).size).toBe(THEMES.length);

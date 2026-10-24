@@ -52,6 +52,7 @@ export const IMPORT_REASONS = [
   'emulatorAdded',
   'launchOverride',
   'arcadeInfo',
+  'artFolder',
   'replacesImport',
 ] as const;
 

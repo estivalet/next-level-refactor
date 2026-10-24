@@ -1,3 +1,5 @@
 {
-  "games": [{ "filename": "./Far Away.nes", "system": "Nintendo NES", "title": "Far Away", "played": "2" }]
+  "games": [
+    { "filename": "./Far Away.nes", "system": "Nintendo NES", "title": "Far Away", "played": "2" }
+  ]
 }

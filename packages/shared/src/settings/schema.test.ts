@@ -219,4 +219,12 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
       }),
     ).toEqual(['themes.entries.big-box.art.useVideoBackground']);
   });
+
+  it('FR-IMP-1: a system may override its ScreenScraper id with a positive integer', () => {
+    const parse = (screenscraperId: unknown) =>
+      SettingsSchema.safeParse({ schemaVersion: 1, systems: { snes: { screenscraperId } } });
+    expect(parse(4).success).toBe(true);
+    expect(parse(0).success).toBe(false);
+    expect(parse(1.5).success).toBe(false);
+  });
 });

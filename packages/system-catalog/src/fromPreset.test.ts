@@ -1,14 +1,16 @@
-import { defaultSettings, SettingsSchema, type Settings } from '@nextlevel/shared';
-import { getPreset } from '@nextlevel/system-catalog';
-import { describe, expect, it } from 'vitest';
 import {
   addEmulator,
   addPresetProfiles,
+  defaultSettings,
   emulatorNameFor,
   remainingPresetProfiles,
   removeEmulator,
   removeProfile,
-} from './fromPreset.ts';
+  SettingsSchema,
+  type Settings,
+} from '@nextlevel/shared';
+import { describe, expect, it } from 'vitest';
+import { getPreset } from './index.ts';
 
 let counter = 0;
 const newId = () => `01900000-0000-7000-8000-${String(++counter).padStart(12, '0')}`;

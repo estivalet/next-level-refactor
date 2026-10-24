@@ -15,7 +15,10 @@ function parseExtensions(text: string): string[] | undefined {
 const INPUT =
   'w-full rounded-md border border-white/10 bg-black/30 px-2 py-1 text-sm text-white focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
 
-/** Per-system overrides: ROM folder name and file extensions (FR-LIB-2), default profile (FR-EMU-4). */
+/**
+ * Per-system overrides: ROM folder name and file extensions (FR-LIB-2), ScreenScraper id
+ * (data model §6), default profile (FR-EMU-4).
+ */
 export function SystemEditor({
   system,
   settings,
@@ -31,7 +34,9 @@ export function SystemEditor({
   profiles: readonly EmulatorProfile[];
   errors: Record<string, string>;
   onChange: (
-    patch: Partial<Pick<SystemSettings, 'folderName' | 'extensions' | 'defaultProfileId'>>,
+    patch: Partial<
+      Pick<SystemSettings, 'folderName' | 'extensions' | 'defaultProfileId' | 'screenscraperId'>
+    >,
   ) => void;
   onReset: () => void;
   onClose: () => void;
@@ -52,6 +57,8 @@ export function SystemEditor({
   }
   const base = `systems.${system.id}`;
   const folderError = errors[`${base}.folderName`];
+  const scraperError = errors[`${base}.screenscraperId`];
+  const catalogScraperId = system.scraper.screenscraperId;
   const extensionsError = Object.entries(errors).find(([path]) =>
     path.startsWith(`${base}.extensions`),
   )?.[1];
@@ -116,6 +123,30 @@ export function SystemEditor({
         {t('settings.systems.extensionsHelp', { default: system.extensions.join(', ') })}
       </p>
       {extensionsError && <p className="text-xs text-[#ff8a80]">{t(extensionsError)}</p>}
+      <label className="flex flex-col gap-1 text-xs text-slate-200" htmlFor={`${id}-scraper`}>
+        {t('settings.systems.screenscraperId')}
+        <input
+          id={`${id}-scraper`}
+          type="number"
+          min={1}
+          step={1}
+          value={settings?.screenscraperId ?? ''}
+          placeholder={catalogScraperId === undefined ? '' : String(catalogScraperId)}
+          aria-describedby={`${id}-scraper-help`}
+          aria-invalid={scraperError ? true : undefined}
+          onChange={(event) => {
+            const value = event.target.value;
+            onChange({ screenscraperId: value === '' ? undefined : Number(value) });
+          }}
+          className={INPUT}
+        />
+      </label>
+      <p id={`${id}-scraper-help`} className="text-xs text-slate-400">
+        {catalogScraperId === undefined
+          ? t('settings.systems.screenscraperHelpNone')
+          : t('settings.systems.screenscraperHelp', { default: catalogScraperId })}
+      </p>
+      {scraperError && <p className="text-xs text-[#ff8a80]">{t(scraperError)}</p>}
       <label className="flex flex-col gap-1 text-xs text-slate-200" htmlFor={`${id}-profile`}>
         {t('settings.systems.defaultProfile')}
         <select
