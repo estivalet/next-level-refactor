@@ -19,6 +19,8 @@ const label = (value: string | undefined) => value?.trim().slice(0, 200) || null
 interface Context {
   match: (name: string) => string | null;
   collections: ReadonlySet<string>;
+  /** Launcher keys: a collection node naming one shows that system's games. */
+  launchers: Readonly<Record<string, unknown>>;
   newId: () => string;
   tally: Tally;
 }
@@ -77,7 +79,10 @@ function mapItems(items: readonly LegacyMenuItem[], ctx: Context): MenuDocNode[]
         nodes.push(node(item, 'system', systemId, ctx, [], systemFilterTabs(item, ctx)));
       else ctx.tally.add('menu', item.name, 'unknownSystem');
     } else if (item.type === 'collection') {
-      if (ctx.collections.has(item.name.toLowerCase())) {
+      const systemId = item.name in ctx.launchers ? ctx.match(item.name) : null;
+      if (systemId) {
+        nodes.push(node(item, 'system', systemId, ctx));
+      } else if (ctx.collections.has(item.name.toLowerCase())) {
         nodes.push(node(item, 'collection', item.name, ctx));
       } else {
         ctx.tally.add('menu', item.name, 'noGamelist');
@@ -97,7 +102,8 @@ function mapItems(items: readonly LegacyMenuItem[], ctx: Context): MenuDocNode[]
 
 /**
  * NextLevelOS `menu*.json` → menu documents (FR-MENU-1..4, FR-IMP-1). Untyped nodes with children
- * are categories; a system's filter children turn its filter tabs on; untyped leaves, unknown
+ * are categories; a system's filter children turn its filter tabs on; a collection node naming a
+ * system gamelist is that system (NextLevelOS loaded the gamelist by name); untyped leaves, unknown
  * systems, collections without a gamelist and per-node themes (D9) are reported. The menu named
  * by config.json (default `menu.json`) is the active one.
  */
@@ -108,7 +114,13 @@ export function mapMenus(
   newId: () => string,
 ): { menus: MenuImport[]; items: ImportItem[] } {
   const tally = new Tally();
-  const ctx: Context = { match, collections: collectionNames, newId, tally };
+  const ctx: Context = {
+    match,
+    collections: collectionNames,
+    launchers: files.launchers,
+    newId,
+    tally,
+  };
   const activeFile = (files.config?.menu ?? 'menu.json').toLowerCase();
   const menus = files.menus.map(({ file, menu }) => ({
     file,

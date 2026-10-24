@@ -126,6 +126,15 @@ describe('mapMenus', () => {
     expect(has(items, 'Microsoft MSX', 'nestedFilterTab')).toBe(true);
   });
 
+  it('FR-MENU-2: a collection node naming a system gamelist is that system', () => {
+    const arcade = run().menus.find((m) => m.file === 'menu-arcade.json');
+    expect(shape(arcade?.nodes ?? [])).toEqual([
+      ['system', 'arcade', 'Arcade', null, null, false],
+      ['collection', 'Party Picks', 'Party Picks', null, null, false],
+      ['system', 'flash-games', 'Flash Games', 'Flash', null, false],
+    ]);
+  });
+
   it('FR-MENU-3: the second menu imports inactive; ids are unique and the tree is valid', () => {
     const { menus } = run();
     const arcade = menus.find((m) => m.file === 'menu-arcade.json');
