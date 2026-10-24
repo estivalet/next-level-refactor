@@ -161,7 +161,7 @@ export class ScreenScraperClient {
     const response = await this.send(url);
     if (!response.ok) return fail('SCRAPER_NETWORK', `HTTP ${String(response.status)}`);
     return {
-      bytes: Buffer.from(await response.arrayBuffer()),
+      bytes: Buffer.from(await this.body(response, (r) => r.arrayBuffer())),
       contentType: response.headers.get('content-type'),
     };
   }
@@ -195,9 +195,10 @@ export class ScreenScraperClient {
       if (response.status === 430 || response.status === 431) this.deps.quota.exhausted();
       if (!response.ok)
         return fail(statusError(response.status), `HTTP ${String(response.status)}`);
+      const raw = await this.body(response, (r) => r.text());
       let data: unknown;
       try {
-        data = await response.json();
+        data = JSON.parse(raw);
       } catch {
         return fail('SCRAPER_UNAVAILABLE', 'not JSON');
       }
@@ -207,6 +208,15 @@ export class ScreenScraperClient {
       const error = text(body['error']);
       if (error) return fail('SCRAPER_UNAVAILABLE', redact(error));
       return body;
+    }
+  }
+
+  /** Reads a body; a connection lost or timed out mid-body is a network failure. */
+  private async body<T>(response: Response, read: (response: Response) => Promise<T>): Promise<T> {
+    try {
+      return await read(response);
+    } catch (error) {
+      return fail('SCRAPER_NETWORK', redact(error));
     }
   }
 

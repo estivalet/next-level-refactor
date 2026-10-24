@@ -323,6 +323,7 @@ async function start(): Promise<void> {
     secrets,
     cacheFile: join(dataDir, 'scraper-cache.sqlite'),
     baseUrl: scraperUrl ?? SCREENSCRAPER_URL,
+    log,
   });
   app.on('will-quit', () => {
     scraper.cache.close();

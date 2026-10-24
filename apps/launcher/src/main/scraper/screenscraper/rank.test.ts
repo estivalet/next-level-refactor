@@ -29,7 +29,7 @@ describe('rankCandidates (FR-SCR-1)', () => {
     },
   );
 
-  it('filename mode keeps the region bonus (ported score 93.89)', () => {
+  it('filename mode keeps the region bonus; candidate names stay whole titles', () => {
     const normalized = normalizeTitle('Turbo Rally Bros. 3 (USA).nes');
     const [match] = rankCandidates([game(1, ['Turbo Rally Bros. 3'])], {
       normalized,
@@ -38,8 +38,23 @@ describe('rankCandidates (FR-SCR-1)', () => {
       threshold: 0,
       isTitle: false,
     });
-    expect(match?.similarity).toBe(93.89);
+    expect(match?.similarity).toBe(100);
     expect(match?.regionMatch).toBe(true);
+  });
+
+  it('a file-name query matches a candidate whose name has a dot or a slash', () => {
+    const normalized = normalizeTitle('Dr. Gizmo (USA).zip');
+    const query = { normalized, matched: normalized, region: null, threshold: 0, isTitle: false };
+    expect(normalized).toBe('dr gizmo');
+    expect(rankCandidates([game(1, ['Dr. Gizmo'])], query)[0]?.similarity).toBe(100);
+    const split = normalizeTitle('Blip-Blop - Zorbo (Europe).zip');
+    expect(
+      rankCandidates([game(2, ['Blip-Blop / Zorbo'])], {
+        ...query,
+        normalized: split,
+        matched: split,
+      })[0]?.similarity,
+    ).toBe(100);
   });
 
   it('a wrong region costs 5 points', () => {

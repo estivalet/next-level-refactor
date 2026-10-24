@@ -13,16 +13,24 @@ const RENAMED_KINDS: Record<string, string | null> = {
   'screenshot-select': null,
 };
 
+/**
+ * Renames and drops kinds per D16, without duplicates. A system whose list ends up empty is
+ * dropped, so its tiles fall back to the theme defaults instead of showing nothing.
+ */
 function renameGameArt(gameArt: Json): Json {
   const result: Json = {};
   for (const [system, kinds] of Object.entries(gameArt)) {
-    result[system] = Array.isArray(kinds)
-      ? kinds.flatMap((kind: unknown) => {
-          if (typeof kind !== 'string' || !(kind in RENAMED_KINDS)) return [kind];
-          const renamed = RENAMED_KINDS[kind];
-          return renamed ? [renamed] : [];
-        })
-      : kinds;
+    if (!Array.isArray(kinds)) {
+      result[system] = kinds;
+      continue;
+    }
+    const renamed = kinds.flatMap((kind: unknown) => {
+      if (typeof kind !== 'string' || !(kind in RENAMED_KINDS)) return [kind];
+      const next = RENAMED_KINDS[kind];
+      return next ? [next] : [];
+    });
+    if (kinds.length > 0 && renamed.length === 0) continue;
+    result[system] = [...new Set(renamed)];
   }
   return result;
 }

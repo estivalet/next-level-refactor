@@ -28,7 +28,7 @@ function setup(
   };
   const clock = () => now;
   const server = fakeScreenScraper(routes);
-  const cache = new ScraperCache(':memory:', clock);
+  const cache = new ScraperCache(':memory:', clock, { warn: () => undefined });
   const quota = new QuotaGate({ clock, sleep, minIntervalMs: 0 });
   const client = new ScreenScraperClient({
     fetch: fetchOverride ?? server.fetch,
@@ -258,5 +258,28 @@ describe('ScreenScraperClient (FR-SCR-1)', () => {
     expect(await codeOf(client.download('https://media.invalid/mediaJeu.php?media=missing'))).toBe(
       'SCRAPER_NETWORK',
     );
+  });
+
+  it('a body cut off mid-read is SCRAPER_NETWORK (API and download), redacted', async () => {
+    const broken = () => {
+      const body = new ReadableStream({
+        start(controller) {
+          controller.error(new TypeError('terminated https://x/?devpassword=dev-pw'));
+        },
+      });
+      return Promise.resolve(new Response(body, { status: 200 }));
+    };
+    const { client } = setup({}, TEST_CREDENTIALS, broken);
+    for (const call of [client.game(7, 1), client.download('https://media.invalid/m')]) {
+      try {
+        await call;
+        expect.unreachable();
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppErrorException);
+        const appError = (error as AppErrorException).error;
+        expect(appError.code).toBe('SCRAPER_NETWORK');
+        expect(JSON.stringify(appError)).not.toContain('dev-pw');
+      }
+    }
   });
 });

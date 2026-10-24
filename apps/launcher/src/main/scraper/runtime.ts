@@ -33,9 +33,10 @@ export function createScraperClient(deps: {
   secrets: Pick<SecretsLike, 'get'>;
   cacheFile: string;
   baseUrl: string;
+  log: { warn(context: object, msg: string): void };
 }): { client: ScreenScraperClient; quota: QuotaGate; cache: ScraperCache } {
   const clock = () => Date.now();
-  const cache = new ScraperCache(deps.cacheFile, clock);
+  const cache = new ScraperCache(deps.cacheFile, clock, deps.log);
   const quota = new QuotaGate({ clock, sleep });
   const client = new ScreenScraperClient({
     fetch: deps.fetch,

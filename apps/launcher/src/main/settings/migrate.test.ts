@@ -40,11 +40,32 @@ describe('migrate', () => {
           activeDefault: 'big-box',
           entries: {
             'big-box': {
-              art: { gameArt: { all: ['screenshot-game-title', 'box-front'], snes: [] } },
+              art: { gameArt: { all: ['screenshot-game-title', 'box-front'] } },
               settings: { x: 1 },
             },
             showcase: { settings: { filtersInMenu: true } },
           },
+        },
+      },
+    });
+  });
+
+  it('D16: no duplicates when a list already had the new name too', () => {
+    const v1 = {
+      schemaVersion: 1,
+      themes: {
+        entries: {
+          ps5: {
+            art: { gameArt: { n64: ['screenshot-game-title', 'screenshot-title', 'box-front'] } },
+          },
+        },
+      },
+    };
+    const migrated = migrate(v1);
+    expect(migrated).toMatchObject({
+      value: {
+        themes: {
+          entries: { ps5: { art: { gameArt: { n64: ['screenshot-game-title', 'box-front'] } } } },
         },
       },
     });

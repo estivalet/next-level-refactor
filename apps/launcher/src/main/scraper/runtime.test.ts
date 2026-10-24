@@ -26,6 +26,7 @@ describe('scraper runtime (FR-SCR-3)', () => {
         'screenscraper.devPassword': 'p',
       }),
       cacheFile: ':memory:',
+      log: { warn: () => undefined },
       baseUrl: 'https://api.invalid/api2',
     });
     expect(await accountOf(client, quota)).toEqual({

@@ -1,3 +1,4 @@
+import { rmSync } from 'node:fs';
 import Database from 'better-sqlite3';
 
 export type CacheKind = 'systems' | 'game' | 'search' | 'hash';
@@ -22,12 +23,37 @@ export class ScraperCache {
   constructor(
     file: string,
     private readonly clock: () => number,
+    log: { warn(context: object, msg: string): void },
   ) {
-    this.db = new Database(file);
-    this.db.pragma('journal_mode = WAL');
-    this.db.exec(`create table if not exists entries (
-      kind text not null, key text not null, data text not null, cached_at integer not null,
-      primary key (kind, key))`);
+    try {
+      this.db = ScraperCache.open(file);
+    } catch (error) {
+      // Only costs requests: start over with an empty file (or in memory if even that fails).
+      log.warn(
+        { code: (error as { code?: unknown }).code },
+        'scraper cache unusable; starting empty',
+      );
+      try {
+        for (const suffix of ['', '-wal', '-shm']) rmSync(`${file}${suffix}`, { force: true });
+        this.db = ScraperCache.open(file);
+      } catch {
+        this.db = ScraperCache.open(':memory:');
+      }
+    }
+  }
+
+  private static open(file: string): Database.Database {
+    const db = new Database(file);
+    try {
+      db.pragma('journal_mode = WAL');
+      db.exec(`create table if not exists entries (
+        kind text not null, key text not null, data text not null, cached_at integer not null,
+        primary key (kind, key))`);
+      return db;
+    } catch (error) {
+      db.close();
+      throw error;
+    }
   }
 
   get(kind: CacheKind, key: string): unknown {
@@ -35,7 +61,11 @@ export class ScraperCache {
       .prepare('select data, cached_at as cachedAt from entries where kind = ? and key = ?')
       .get(kind, key) as { data: string; cachedAt: number } | undefined;
     if (!row || this.clock() - row.cachedAt > TTL[kind]) return null;
-    return JSON.parse(row.data) as unknown;
+    try {
+      return JSON.parse(row.data) as unknown;
+    } catch {
+      return null;
+    }
   }
 
   put(kind: CacheKind, key: string, value: unknown): void {

@@ -145,7 +145,7 @@ The only tokens allowed in `args`, `cwd` and `env` values. Unknown tokens fail v
 
 - Saves are atomic (write `settings.json.tmp`, fsync, rename). The previous file goes to
   `backups/settings-<ISO>.json`; the newest 10 are kept.
-- On load: parse → migrate (`schemaVersion` n → n+1, backup first) → validate. An invalid file is
+- On load: parse → migrate in memory (`schemaVersion` n → n+1; the file on disk changes at the next write, which backs up the old file first) → validate. An invalid file is
   never overwritten silently: the app offers *Restore latest backup* or *Reset to defaults*.
 - Secrets (ScreenScraper password, refresh token) are **never** in this file; they use Electron
   `safeStorage`-encrypted entries in `secrets.bin`. Since M6a it holds `screenscraper.devId`,

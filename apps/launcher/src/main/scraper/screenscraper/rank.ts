@@ -43,7 +43,9 @@ export function rankCandidates(games: readonly SsGame[], query: RankQuery): Game
     let score = 0;
     let name = names[0] ?? '';
     for (const candidate of names) {
-      const normalized = normalizeTitle(candidate, { isTitle: query.isTitle });
+      // A candidate is a game name, never a path: "Dr. Gizmo" keeps "gizmo" even when the query
+      // came from a ROM file name (NextLevelOS cut it at the dot).
+      const normalized = normalizeTitle(candidate, { isTitle: true });
       const value = Math.max(
         similarity(query.normalized, normalized),
         similarity(query.matched, normalized),
