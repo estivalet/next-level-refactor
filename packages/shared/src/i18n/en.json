@@ -97,7 +97,8 @@
       "systems": "Systems",
       "emulators": "Emulators",
       "input": "Input",
-      "themes": "Themes"
+      "themes": "Themes",
+      "scraper": "Scraper"
     },
     "about": {
       "product": "NextLevel",
@@ -548,6 +549,37 @@
         "config": "config.json"
       },
       "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again."
+    },
+    "scraper": {
+      "account": "ScreenScraper account",
+      "accountHelp": "Your screenscraper.fr account raises the daily quota. Credentials are kept in the Windows credential store, never in settings files.",
+      "user": "User name",
+      "password": "Password",
+      "developer": "Developer credentials",
+      "developerHelp": "The developer id and password ScreenScraper issued for this app. Scraping needs them.",
+      "devId": "Developer id",
+      "devPassword": "Developer password",
+      "required": "Required",
+      "saved": "Saved",
+      "saveCredentials": "Save credentials",
+      "savedNotice": "Credentials saved.",
+      "test": "Test",
+      "testing": "Testing…",
+      "signedIn": "Signed in as {{user}} · {{today}} of {{max}} requests today",
+      "anonymous": "Connected without an account · {{today}} of {{max}} requests today",
+      "unknownCount": "?",
+      "remove": "Remove credentials",
+      "removeConfirm": "Remove all ScreenScraper credentials from this PC?",
+      "removeYes": "Remove",
+      "cancel": "Cancel",
+      "removed": "Credentials removed.",
+      "options": "Scraping",
+      "regions": "Region priority",
+      "regionsHelp": "Art and names come from the first region that has them.",
+      "languages": "Language priority",
+      "languagesHelp": "For descriptions and genres. Empty uses the app language, then English.",
+      "artKinds": "Art kinds for batch scraping",
+      "fields": "Fields for batch scraping"
     }
   },
   "boot": {
@@ -1068,6 +1100,18 @@
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
       "replacesImport": "Replaces what an earlier import brought in",
       "artFolder": "Art or theme packs folder"
+    }
+  },
+  "scrape": {
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "year": "Year",
+      "developer": "Developer",
+      "publisher": "Publisher",
+      "genre": "Genre",
+      "players": "Players",
+      "rating": "Rating"
     }
   }
 }

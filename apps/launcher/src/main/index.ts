@@ -37,6 +37,8 @@ import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
 import { createWorkerWalker } from './scan/workerWalker.ts';
+import { accountOf, createScraperClient } from './scraper/runtime.ts';
+import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { userDataPath } from './userData.ts';
@@ -302,6 +304,30 @@ async function start(): Promise<void> {
     }),
   );
 
+  const secrets = new SecretStore(
+    join(dataDir, 'secrets.bin'),
+    {
+      available: () => safeStorage.isAsyncEncryptionAvailable(),
+      encrypt: (text) => safeStorage.encryptStringAsync(text),
+      decrypt: async (data) => {
+        const { result, shouldReEncrypt } = await safeStorage.decryptStringAsync(data);
+        return { text: result, reEncrypt: shouldReEncrypt };
+      },
+    },
+    log,
+  );
+  // e2e points the client at a local fake ScreenScraper; packaged builds never read the variable.
+  const scraperUrl = app.isPackaged ? undefined : process.env['NEXTLEVEL_SCREENSCRAPER_URL'];
+  const scraper = createScraperClient({
+    fetch: (input, init) => fetch(input, init),
+    secrets,
+    cacheFile: join(dataDir, 'scraper-cache.sqlite'),
+    baseUrl: scraperUrl ?? SCREENSCRAPER_URL,
+  });
+  app.on('will-quit', () => {
+    scraper.cache.close();
+  });
+
   const handlers = createHandlers({
     settings,
     appVersion: () => app.getVersion(),
@@ -322,18 +348,8 @@ async function start(): Promise<void> {
     },
     pathExists: existsSync,
     newId: uuidv7,
-    secrets: new SecretStore(
-      join(dataDir, 'secrets.bin'),
-      {
-        available: () => safeStorage.isAsyncEncryptionAvailable(),
-        encrypt: (text) => safeStorage.encryptStringAsync(text),
-        decrypt: async (data) => {
-          const { result, shouldReEncrypt } = await safeStorage.decryptStringAsync(data);
-          return { text: result, reEncrypt: shouldReEncrypt };
-        },
-      },
-      log,
-    ),
+    secrets,
+    scraperAccount: () => accountOf(scraper.client, scraper.quota),
     presets: emulatorPresets,
     pickFile: async (title) => {
       const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];

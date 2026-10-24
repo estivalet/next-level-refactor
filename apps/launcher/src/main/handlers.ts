@@ -5,6 +5,7 @@ import {
   type SystemDefinition,
   type AppPathKey,
   type Result,
+  type ScraperAccount,
   type SettingsSnapshot,
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
@@ -72,6 +73,8 @@ export interface MainDeps {
   newId: () => string;
   /** OS-encrypted secrets (`secrets.bin`, FR-SCR-3). */
   secrets: SecretsLike;
+  /** Settings → Scraper → Test: one ScreenScraper request with the stored credentials. */
+  scraperAccount: () => Promise<ScraperAccount>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -132,7 +135,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
         );
       },
     }),
-    ...createCredentialHandlers({ secrets: deps.secrets }),
+    ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();

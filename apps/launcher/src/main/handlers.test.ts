@@ -34,6 +34,7 @@ async function setup() {
     clock: () => new Date(Date.UTC(2026, 9, 21)),
     newId: () => '0199f000-0000-7000-8000-000000000001',
     secrets: memorySecrets(),
+    scraperAccount: () => Promise.reject(new Error('no scraper in this test')),
     emit: vi.fn(),
     revealFile: vi.fn(),
     pathExists: () => false,

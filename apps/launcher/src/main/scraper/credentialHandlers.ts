@@ -1,8 +1,9 @@
-import type { CredentialStatus } from '@nextlevel/shared';
+import type { CredentialStatus, ScraperAccount } from '@nextlevel/shared';
 import type { IpcHandlers } from '../ipc/router.ts';
 import type { SecretKey, SecretStore } from '../secrets/SecretStore.ts';
 
-type CredentialChannel = Extract<keyof IpcHandlers, `scraper.credentials.${string}`>;
+type CredentialChannel =
+  Extract<keyof IpcHandlers, `scraper.credentials.${string}`> | 'scraper.test';
 
 /** The input field each secret key is set from (contract `scraper.credentials.set`). */
 const FIELDS = {
@@ -15,6 +16,8 @@ const FIELDS = {
 /** ScreenScraper credentials (FR-SCR-3, D15): written to the OS store, reported only as flags. */
 export function createCredentialHandlers(deps: {
   secrets: Pick<SecretStore, 'available' | 'has' | 'setMany'>;
+  /** One request with the stored credentials; errors (SCRAPER_*, NO_CREDENTIALS) pass through. */
+  account: () => Promise<ScraperAccount>;
 }): Pick<IpcHandlers, CredentialChannel> {
   const status = async (): Promise<CredentialStatus> => ({
     available: await deps.secrets.available(),
@@ -25,6 +28,7 @@ export function createCredentialHandlers(deps: {
   });
   return {
     'scraper.credentials.status': status,
+    'scraper.test': () => deps.account(),
     'scraper.credentials.set': async (input) => {
       const changes: Partial<Record<SecretKey, string | null>> = {};
       for (const [field, key] of Object.entries(FIELDS) as Array<

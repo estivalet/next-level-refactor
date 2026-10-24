@@ -97,3 +97,12 @@ export const CredentialStatusSchema = z.object({
 });
 
 export type CredentialStatus = z.output<typeof CredentialStatusSchema>;
+
+/** Settings → Scraper → Test: the signed-in account and today's quota (US-D6). */
+export const ScraperAccountSchema = z.object({
+  user: z.string().nullable(),
+  requestsToday: z.number().int().min(0).nullable(),
+  maxRequestsPerDay: z.number().int().positive().nullable(),
+});
+
+export type ScraperAccount = z.output<typeof ScraperAccountSchema>;

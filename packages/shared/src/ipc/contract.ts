@@ -25,7 +25,7 @@ import {
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
-import { CredentialStatusSchema } from '../scraper/schema.ts';
+import { CredentialStatusSchema, ScraperAccountSchema } from '../scraper/schema.ts';
 import {
   SmartFilterNameSchema,
   SmartFilterQuerySchema,
@@ -290,6 +290,8 @@ export const ipcContract = {
     }),
     output: CredentialStatusSchema,
   },
+  /** One ScreenScraper request with the stored credentials (Settings → Scraper → Test). */
+  'scraper.test': { input: z.void(), output: ScraperAccountSchema },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),

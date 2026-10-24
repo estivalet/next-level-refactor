@@ -187,6 +187,16 @@ Left navigation of sections (see IA §1), right form pane.
   **Test launch** (needs a game) shows command, exit code, duration and stderr, or the error.
 - **Systems → system editor** (M3): the system's emulator profile: Automatic (first profile for
   the system) or one of the profiles that cover it.
+- **Scraper** (M6a, FR-SCR-2, FR-SCR-3, US-D6, D15): **ScreenScraper account** — user name and
+  password, and a collapsed **Developer credentials** group (developer id and password, marked
+  **Required** while missing). Fields are always empty; a stored value shows "Saved" as its
+  placeholder, and an empty field means unchanged. **Save credentials** (enabled once something
+  is typed) writes to the Windows credential store and says "Credentials saved."; **Test** sends
+  one request and shows "Signed in as X · N of M requests today" (or "Connected without an
+  account…") or the translated error; **Remove credentials** asks inline, then clears all four.
+  When Windows can't encrypt, the page says so and saving is off. Below, **Scraping** (settings
+  file, Save bar): region priority and language priority (ordered lists; no region disables
+  Save), and checkboxes for the batch art kinds and batch fields (no title, D19).
 - **Data & logs → Import NextLevelOS** (M5d, FR-IMP-1/2, US-B3): data folder (folder picker,
   shown as a path), emulators folder (pre-filled, editable, optional), **Dry run** and
   **Import…** (enabled only after a dry run of exactly these folders). The report lists counts

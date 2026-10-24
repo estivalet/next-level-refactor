@@ -3,11 +3,13 @@ import { ipcContract } from '@nextlevel/shared';
 import { memorySecrets } from '../secrets/testing.ts';
 import { createCredentialHandlers } from './credentialHandlers.ts';
 
+const noAccount = () => Promise.reject(new Error('not used'));
+
 describe('scraper credential channels (FR-SCR-3, US-D6)', () => {
   it('status reports which credentials are set, never their values', async () => {
     const store = memorySecrets();
     store.values.set('screenscraper.devId', 'dev-secret');
-    const handlers = createCredentialHandlers({ secrets: store });
+    const handlers = createCredentialHandlers({ secrets: store, account: noAccount });
     const status = await handlers['scraper.credentials.status']();
     expect(status).toEqual({
       available: true,
@@ -23,7 +25,7 @@ describe('scraper credential channels (FR-SCR-3, US-D6)', () => {
     const store = memorySecrets();
     store.values.set('screenscraper.user', 'old');
     store.values.set('screenscraper.devId', 'dev');
-    const handlers = createCredentialHandlers({ secrets: store });
+    const handlers = createCredentialHandlers({ secrets: store, account: noAccount });
     const status = await handlers['scraper.credentials.set']({
       user: 'player1',
       password: 'pw',
@@ -41,5 +43,18 @@ describe('scraper credential channels (FR-SCR-3, US-D6)', () => {
     expect(input.safeParse({ password: 'x'.repeat(201) }).success).toBe(false);
     expect(input.safeParse({ user: 'a', devPassword: null }).success).toBe(true);
     expect(input.safeParse({ other: 'a' }).success).toBe(false);
+  });
+
+  it('US-D6: Test reports the account and the requests made today', async () => {
+    const handlers = createCredentialHandlers({
+      secrets: memorySecrets(),
+      account: () =>
+        Promise.resolve({ user: 'player1', requestsToday: 12, maxRequestsPerDay: 20000 }),
+    });
+    expect(await handlers['scraper.test']()).toEqual({
+      user: 'player1',
+      requestsToday: 12,
+      maxRequestsPerDay: 20000,
+    });
   });
 });

@@ -3,6 +3,7 @@ import {
   FolderOpen,
   Gamepad2,
   HardDrive,
+  ImageDown,
   Info,
   Joystick,
   Keyboard,
@@ -20,6 +21,7 @@ import type { FocusRequest } from './focusRequest.ts';
 import { GeneralSection } from './GeneralSection.tsx';
 import { InputSection } from './input/InputSection.tsx';
 import type { AppParams } from '../shell/windowManager.ts';
+import { ScraperSection } from './scraper/ScraperSection.tsx';
 import { StorageSection } from './StorageSection.tsx';
 import { SystemsSection } from './systems/SystemsSection.tsx';
 import { ThemesSection } from './ThemesSection.tsx';
@@ -69,6 +71,12 @@ const SECTIONS: readonly Section[] = [
     labelKey: 'settings.sections.input',
     icon: Keyboard,
     Component: InputSection,
+  },
+  {
+    id: 'scraper',
+    labelKey: 'settings.sections.scraper',
+    icon: ImageDown,
+    Component: ScraperSection,
   },
   {
     id: 'backups',

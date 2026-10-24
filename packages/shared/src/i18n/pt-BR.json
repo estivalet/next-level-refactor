@@ -97,7 +97,8 @@
       "systems": "Sistemas",
       "emulators": "Emuladores",
       "input": "Controles",
-      "themes": "Temas"
+      "themes": "Temas",
+      "scraper": "Scraper"
     },
     "about": {
       "product": "NextLevel",
@@ -548,6 +549,37 @@
         "config": "config.json"
       },
       "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo."
+    },
+    "scraper": {
+      "account": "Conta do ScreenScraper",
+      "accountHelp": "Sua conta do screenscraper.fr aumenta a cota diária. As credenciais ficam no cofre de credenciais do Windows, nunca nos arquivos de configuração.",
+      "user": "Usuário",
+      "password": "Senha",
+      "developer": "Credenciais de desenvolvedor",
+      "developerHelp": "O id e a senha de desenvolvedor que o ScreenScraper emitiu para este app. O scraping precisa deles.",
+      "devId": "Id de desenvolvedor",
+      "devPassword": "Senha de desenvolvedor",
+      "required": "Obrigatório",
+      "saved": "Salvo",
+      "saveCredentials": "Salvar credenciais",
+      "savedNotice": "Credenciais salvas.",
+      "test": "Testar",
+      "testing": "Testando…",
+      "signedIn": "Conectado como {{user}} · {{today}} de {{max}} requisições hoje",
+      "anonymous": "Conectado sem conta · {{today}} de {{max}} requisições hoje",
+      "unknownCount": "?",
+      "remove": "Remover credenciais",
+      "removeConfirm": "Remover todas as credenciais do ScreenScraper deste PC?",
+      "removeYes": "Remover",
+      "cancel": "Cancelar",
+      "removed": "Credenciais removidas.",
+      "options": "Scraping",
+      "regions": "Prioridade de região",
+      "regionsHelp": "Arte e nomes vêm da primeira região que os tiver.",
+      "languages": "Prioridade de idioma",
+      "languagesHelp": "Para descrições e gêneros. Vazio usa o idioma do app e depois o inglês.",
+      "artKinds": "Tipos de arte no scraping em lote",
+      "fields": "Campos no scraping em lote"
     }
   },
   "boot": {
@@ -1068,6 +1100,18 @@
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
       "replacesImport": "Substitui o que uma importação anterior trouxe",
       "artFolder": "Pasta de arte ou de pacotes de tema"
+    }
+  },
+  "scrape": {
+    "fields": {
+      "title": "Título",
+      "description": "Descrição",
+      "year": "Ano",
+      "developer": "Desenvolvedora",
+      "publisher": "Publicadora",
+      "genre": "Gênero",
+      "players": "Jogadores",
+      "rating": "Nota"
     }
   }
 }
