@@ -9,6 +9,11 @@ import { ImportFolders } from './ImportFolders.tsx';
 import { ImportReportView } from './ImportReportView.tsx';
 import { ImportSummaryView } from './ImportSummaryView.tsx';
 
+/** The import stopped because its scan was cancelled or failed (ImportService.scanImported). */
+const scanIncomplete = (cause: unknown) =>
+  cause instanceof AppErrorException &&
+  (cause.error.details as { reason?: unknown } | undefined)?.reason === 'scanIncomplete';
+
 type Phase = 'idle' | 'dryRunning' | 'confirming' | 'importing';
 
 interface DryRun {
@@ -41,6 +46,8 @@ export function ImportPanel() {
     if (errorCode(cause) === 'CONFLICT') {
       setDryRun(null);
       setError(t('settings.import.folderChanged'));
+    } else if (scanIncomplete(cause)) {
+      setError(t('settings.import.scanIncomplete'));
     } else {
       setError(t(cause instanceof AppErrorException ? cause.error.message : 'errors.internal'));
     }

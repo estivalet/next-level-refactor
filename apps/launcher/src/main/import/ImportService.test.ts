@@ -161,6 +161,24 @@ describe('ImportService.apply', () => {
     expect(loaded.kind === 'ok' && loaded.snapshot.revision).toBe(0);
   });
 
+  it('IA F6: a scan cancelled during the import stops it before games are matched', async () => {
+    const h = await setup();
+    const report = await h.service.dryRun(h.copy.data, null);
+    const start = h.scan.start.bind(h.scan);
+    vi.spyOn(h.scan, 'start').mockImplementation(async (ids) => {
+      const status = await start(ids);
+      h.scan.cancel();
+      return status;
+    });
+    await expect(h.service.apply(h.copy.data, null, report.token)).rejects.toMatchObject({
+      error: { code: 'INTERNAL', details: { reason: 'scanIncomplete', outcome: 'cancelled' } },
+    });
+    // No games stage: nothing was turned into a missing row, no collection or menu was written.
+    expect(h.count('select count(*) from games where missing = 1')).toBe(0);
+    expect(h.count('select count(*) from collections')).toBe(0);
+    expect(h.count('select count(*) from menus')).toBe(0);
+  });
+
   it('IA F6: a scan already running refuses the import with BUSY', async () => {
     const h = await setup();
     const report = await h.service.dryRun(h.copy.data, null);

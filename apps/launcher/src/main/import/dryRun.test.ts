@@ -92,6 +92,26 @@ describe('dryRun', () => {
     });
   });
 
+  it('D12: a suffixed name that is also taken counts up; a renamed import holds its new name', async () => {
+    const { copy, deps } = await setup({
+      collections: [
+        { name: 'Party Picks', source: null },
+        { name: 'Party Picks (NextLevelOS)', source: null },
+        // An imported "Lonely" renamed here to the name of another NextLevelOS gamelist.
+        { name: 'Favorites Mix', source: 'nextlevelos:Lonely' },
+      ],
+      menuSources: [],
+    });
+    const report = await dryRun(copy.data, null, deps);
+    const renamed = report.unmapped
+      .filter((i) => i.reason === 'nameConflict')
+      .map((i) => [i.key, i.detail]);
+    expect(renamed).toEqual([
+      ['Favorites Mix', 'Favorites Mix (NextLevelOS)'],
+      ['Party Picks', 'Party Picks (NextLevelOS 2)'],
+    ]);
+  });
+
   it('D14: an emulators folder adds detected emulators and enables per-game RetroArch options', async () => {
     const { copy, deps } = await setup();
     const emulators = join(copy.root, 'emulators');

@@ -102,10 +102,7 @@ export class ImportService {
       const plan = await planImport(folder, emulatorsFolder, this.planDeps());
       if (plan.fingerprint !== token) fail('CONFLICT', { reason: 'folderChanged' });
       const settingsBackupId = await this.applySettings(plan);
-      this.progress('scan', 0, 1);
-      await this.deps.scan.start(plan.systemIds);
-      await this.deps.scan.whenIdle();
-      this.progress('scan', 1, 1);
+      await this.scanImported(plan.systemIds);
       const now = this.deps.clock();
       const games = this.deps.repo.upsertGames(plan.games, now, (done, total) => {
         this.progress('games', done, total);
@@ -122,6 +119,26 @@ export class ImportService {
         durationMs: Math.max(0, this.deps.clock().getTime() - started),
       };
     });
+  }
+
+  /**
+   * Scans the imported systems and waits for it. Games are matched against what that scan found,
+   * so a scan that was cancelled, failed, or wasn't this one (a scan started meanwhile) stops the
+   * import before any game is written: unscanned entries would all become missing rows.
+   */
+  private async scanImported(systemIds: string[]): Promise<void> {
+    this.progress('scan', 0, 1);
+    const started = await this.deps.scan.start(systemIds);
+    const scanId = started.progress?.scanId;
+    await this.deps.scan.whenIdle();
+    const last = this.deps.scan.status().last;
+    if (scanId === undefined || last?.scanId !== scanId || last.outcome !== 'completed') {
+      fail('INTERNAL', {
+        reason: 'scanIncomplete',
+        outcome: last?.scanId === scanId ? (last?.outcome ?? null) : 'otherScan',
+      });
+    }
+    this.progress('scan', 1, 1);
   }
 
   /** One settings write against the latest settings; skipped when nothing would change. */

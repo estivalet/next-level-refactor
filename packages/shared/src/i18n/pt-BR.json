@@ -538,7 +538,8 @@
         "theme": "Temas",
         "scraper": "ScreenScraper",
         "config": "config.json"
-      }
+      },
+      "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo."
     }
   },
   "boot": {

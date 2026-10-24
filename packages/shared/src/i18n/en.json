@@ -538,7 +538,8 @@
         "theme": "Themes",
         "scraper": "ScreenScraper",
         "config": "config.json"
-      }
+      },
+      "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again."
     }
   },
   "boot": {

@@ -73,24 +73,40 @@ function retroarchDir(detected: readonly DetectedEmulator[], settings: Settings)
   return executable ? dirname(executable) : null;
 }
 
+/** `X (NextLevelOS)`, then `X (NextLevelOS 2)`, … — the first name nobody holds, ≤ 100 chars. */
+function freeName(name: string, taken: ReadonlySet<string>): string {
+  for (let n = 1; ; n++) {
+    const suffix = n === 1 ? SUFFIX : ` (NextLevelOS ${String(n)})`;
+    const candidate = `${name.slice(0, 100 - suffix.length)}${suffix}`;
+    if (!taken.has(candidate.toLowerCase())) return candidate;
+  }
+}
+
+/**
+ * The name each collection gets (D12). One imported before keeps the name it has here; a new one
+ * takes its NextLevelOS name unless any other collection (made here, or imported and renamed)
+ * or one named earlier in this run holds it, then a suffix.
+ */
 function nameCollections(
   collections: readonly CollectionImport[],
   existing: ExistingImports,
   unmapped: ImportItem[],
   willReplace: ImportItem[],
 ): ImportPlan['collections'] {
-  const imported = new Set(existing.collections.flatMap((c) => (c.source ? [c.source] : [])));
-  const local = new Set(
-    existing.collections.filter((c) => c.source === null).map((c) => c.name.toLowerCase()),
+  const bySource = new Map(
+    existing.collections.flatMap((c) => (c.source ? [[c.source, c.name] as const] : [])),
   );
+  const taken = new Set(existing.collections.map((c) => c.name.toLowerCase()));
   return collections.map((collection) => {
     const source = `nextlevelos:${collection.name}`;
-    let finalName = collection.name.slice(0, 100);
-    if (imported.has(source)) {
+    const current = bySource.get(source);
+    if (current !== undefined) {
       willReplace.push({ area: 'collection', key: collection.name, reason: 'replacesImport' });
+      return { ...collection, source, finalName: current };
     }
-    if (local.has(finalName.toLowerCase())) {
-      finalName = `${collection.name.slice(0, 100 - SUFFIX.length)}${SUFFIX}`;
+    let finalName = collection.name.slice(0, 100);
+    if (taken.has(finalName.toLowerCase())) {
+      finalName = freeName(collection.name, taken);
       unmapped.push({
         area: 'collection',
         key: collection.name,
@@ -98,6 +114,7 @@ function nameCollections(
         detail: finalName,
       });
     }
+    taken.add(finalName.toLowerCase());
     return { ...collection, source, finalName };
   });
 }

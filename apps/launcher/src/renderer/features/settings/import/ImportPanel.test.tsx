@@ -149,4 +149,22 @@ describe('ImportPanel', () => {
     expect(await screen.findByText('The folder changed — run the dry run again.')).toBeVisible();
     expect(button('Import…')).toBeDisabled();
   });
+
+  it('IA F6: an import whose scan did not finish says so', async () => {
+    const user = userEvent.setup();
+    setup({
+      'import.apply': () =>
+        err('INTERNAL', 'errors.internal', { reason: 'scanIncomplete', outcome: 'cancelled' }),
+    });
+    await user.click(button('Choose NextLevelOS data folder…'));
+    await user.click(await screen.findByRole('button', { name: 'Dry run' }));
+    await screen.findByText('No matching system in NextLevel');
+    await user.click(button('Import…'));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Import' }));
+    expect(
+      await screen.findByText(
+        "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again.",
+      ),
+    ).toBeVisible();
+  });
 });
