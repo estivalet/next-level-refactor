@@ -61,11 +61,14 @@ describe('mapSettings', () => {
       'nintendo-nes',
       'sony-playstation',
     ]);
+    // NextLevelOS scanned scanExtensions plus romext: romext adds to the catalog's list.
+    const gx4000 = systemCatalog().find((s) => s.id === 'amstrad-gx4000');
     expect(next.systems['amstrad-gx4000']).toMatchObject({
       folderName: 'GX4000 Carts',
-      extensions: ['cpr', 'bin'],
+      extensions: [...(gx4000?.extensions ?? []), 'xyz'],
     });
-    expect(next.systems['microsoft-msx']?.extensions).toEqual(['rom']);
+    // MSX's romext 'rom' is already in the catalog's list: no override.
+    expect(next.systems['microsoft-msx']?.extensions).toBeUndefined();
     expect(next.systems['sega-genesis']?.enabled ?? false).toBe(false);
     expect(has(items, { area: 'system', key: 'Amstrad GX4000', reason: 'folderName' })).toBe(true);
   });

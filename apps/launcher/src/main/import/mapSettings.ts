@@ -100,16 +100,14 @@ function launcherOverrides(
   } else if (rompath) {
     items.push({ area: 'system', key: name, reason: 'absoluteRompath', detail: rompath });
   }
-  const extensions = [
-    ...new Set(
-      (launcher.romext ?? [])
-        .map((e) => e.trim().replace(/^\./, '').toLowerCase())
-        .filter((e) => /^[a-z0-9]+$/.test(e)),
-    ),
-  ];
-  if (extensions.length > 0 && extensions.join(',') !== def.extensions.join(',')) {
-    overrides.extensions = extensions;
-    items.push({ area: 'system', key: name, reason: 'extensions', detail: extensions.join(', ') });
+  // NextLevelOS scanned config scanExtensions plus the launcher's romext, so romext adds to the
+  // catalog's list (which was seeded from scanExtensions) rather than replacing it.
+  const added = (launcher.romext ?? [])
+    .map((e) => e.trim().replace(/^\./, '').toLowerCase())
+    .filter((e) => /^[a-z0-9]+$/.test(e) && !def.extensions.includes(e));
+  if (added.length > 0) {
+    overrides.extensions = [...def.extensions, ...new Set(added)];
+    items.push({ area: 'system', key: name, reason: 'extensions', detail: added.join(', ') });
   }
   return overrides;
 }

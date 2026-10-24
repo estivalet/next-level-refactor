@@ -28,12 +28,26 @@ async function names(extensions: string[], dirs = [{ locationId: 'a', dir: root 
 describe('walkSystem', () => {
   it('FR-LIB-3: keeps accepted extensions at root and one sub-folder deep', async () => {
     await write('Alice Madness Returns.m3u', 'content/alice.god\n');
-    await write('! Brazil/Game (Brazil).zip');
-    await write('Deep/Deeper/Too Deep.zip');
+    await write('Brazil/Game (Brazil).zip');
+    await write('MAME 0.283 ROMs (merged)/Deeper/Too Deep.zip');
     await write('notes.txt');
     expect(await names(['m3u', 'zip'])).toEqual([
-      '! Brazil/Game (Brazil).zip',
       'Alice Madness Returns.m3u',
+      'Brazil/Game (Brazil).zip',
+    ]);
+  });
+
+  it('FR-LIB-3: group folders (!, + or # first) are searched up to 10 levels deep', async () => {
+    // NextLevelOS gamelists keep curated sets in `! Hacks/! Hacks-SMW/…`, `+AGS/…`, `#2003/…`.
+    const nine = Array.from({ length: 9 }, (_, i) => `L${String(i + 1)}`).join('/');
+    await write('! Hacks/! Hacks-SMW/Hack.zip');
+    await write('+AGS/2080/Adventure.zip');
+    await write(`#Jams/${nine}/Ten Deep.zip`);
+    await write(`#Jams/${nine}/L10/Too Deep.zip`);
+    expect(await names(['zip'])).toEqual([
+      '! Hacks/! Hacks-SMW/Hack.zip',
+      `#Jams/${nine}/Ten Deep.zip`,
+      '+AGS/2080/Adventure.zip',
     ]);
   });
 

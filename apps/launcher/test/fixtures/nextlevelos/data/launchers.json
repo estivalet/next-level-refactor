@@ -11,7 +11,7 @@
   "Amstrad GX4000": {
     "command": "%NEXTLEVEL_RUNNER% -s \"Amstrad GX4000\" -r \"%romname%\"",
     "rompath": ["%SYSTEMS_BASE_PATH%/GX4000 Carts"],
-    "romext": ["CPR", "bin"]
+    "romext": ["CPR", "xyz"]
   },
   "Sony Playstation": {
     "command": "%NEXTLEVEL_RUNNER% -s \"Sony Playstation\" -r \"%romname%\"",
