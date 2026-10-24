@@ -481,6 +481,64 @@
         },
         "rescanFailed": "Couldn’t read the art folders again."
       }
+    },
+    "import": {
+      "title": "Import NextLevelOS",
+      "intro": "Bring your NextLevelOS setup over: storage, systems, games with favorites and play history, collections and menus. The NextLevelOS folder is only read, never changed.",
+      "folder": "NextLevelOS data folder",
+      "folderHelp": "The public\\data folder of your NextLevelOS install.",
+      "noFolder": "No folder chosen.",
+      "chooseFolder": "Choose NextLevelOS data folder…",
+      "emulators": "Emulators folder (optional)",
+      "noEmulators": "No emulators folder",
+      "chooseEmulators": "Choose emulators folder…",
+      "emulatorsHelp": "Emulators found here (two levels deep) are added for enabled systems that have none.",
+      "dryRun": "Dry run",
+      "import": "Import…",
+      "working": "Reading the folder…",
+      "progress": "{{stage}}: {{done}} of {{total}}",
+      "stage": {
+        "settings": "Settings",
+        "scan": "Scanning systems",
+        "games": "Games",
+        "collections": "Collections",
+        "menus": "Menus"
+      },
+      "confirmTitle": "Import NextLevelOS?",
+      "confirmBody": "Settings are backed up first. Games, collections and menus from an earlier import are updated; collections and menus you made here stay as they are.",
+      "confirm": "Import",
+      "cancel": "Cancel",
+      "folderChanged": "The folder changed — run the dry run again.",
+      "summary": "Imported {{games}} games ({{missing}} missing), {{collections}} collections and {{menus}} menus.",
+      "openLibrary": "Open Library",
+      "openMenuEditor": "Open Menu Editor",
+      "reportTitle": "Dry run report",
+      "unmapped": "Not imported, or imported differently",
+      "willReplace": "Will replace",
+      "mapped": "Imported",
+      "count": {
+        "systems": "Systems to enable",
+        "menus": "Menus",
+        "menuNodes": "Menu entries",
+        "gamelists": "System gamelists",
+        "games": "Gamelist entries",
+        "collections": "Collections",
+        "collectionEntries": "Collection entries",
+        "withFile": "Entries with a file",
+        "missing": "Entries without a file (kept as missing)",
+        "newFiles": "Files without an entry (new games)"
+      },
+      "area": {
+        "storage": "Storage",
+        "system": "Systems",
+        "emulator": "Emulators",
+        "menu": "Menus",
+        "game": "Games",
+        "collection": "Collections",
+        "theme": "Themes",
+        "scraper": "ScreenScraper",
+        "config": "config.json"
+      }
     }
   },
   "boot": {

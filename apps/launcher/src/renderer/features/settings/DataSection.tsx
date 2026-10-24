@@ -1,5 +1,6 @@
 import type { AppPathKey } from '@nextlevel/shared';
 import { useTranslation } from 'react-i18next';
+import { ImportPanel } from './import/ImportPanel.tsx';
 import { LaunchLog } from './LaunchLog.tsx';
 import { useAppPaths, useOpenPath } from './settingsApi.ts';
 
@@ -11,7 +12,10 @@ const ROWS: readonly { key: 'data' | 'settings' | 'backups' | 'logs'; openable: 
   { key: 'logs', openable: true },
 ];
 
-/** Settings → Data & logs (FR-SET-7, FR-EMU-10): where data lives, and the launch log. */
+/**
+ * Settings → Data & logs (FR-SET-7, FR-IMP-2, FR-EMU-10): where data lives, the NextLevelOS import
+ * and the launch log.
+ */
 export function DataSection() {
   const { t } = useTranslation();
   const paths = useAppPaths();
@@ -52,6 +56,9 @@ export function DataSection() {
           );
         })}
       </dl>
+      <div className="mt-4 border-t border-white/10 pt-4">
+        <ImportPanel />
+      </div>
       <h3 className="mt-4 text-sm font-semibold text-white">
         {t('settings.data.launchLog.title')}
       </h3>

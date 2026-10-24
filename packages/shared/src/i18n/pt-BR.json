@@ -481,6 +481,64 @@
         },
         "rescanFailed": "Não foi possível reler as pastas de arte."
       }
+    },
+    "import": {
+      "title": "Importar NextLevelOS",
+      "intro": "Traga sua configuração do NextLevelOS: armazenamento, sistemas, jogos com favoritos e histórico, coleções e menus. A pasta do NextLevelOS só é lida, nunca alterada.",
+      "folder": "Pasta de dados do NextLevelOS",
+      "folderHelp": "A pasta public\\data da sua instalação do NextLevelOS.",
+      "noFolder": "Nenhuma pasta escolhida.",
+      "chooseFolder": "Escolher pasta de dados do NextLevelOS…",
+      "emulators": "Pasta de emuladores (opcional)",
+      "noEmulators": "Sem pasta de emuladores",
+      "chooseEmulators": "Escolher pasta de emuladores…",
+      "emulatorsHelp": "Emuladores encontrados aqui (até dois níveis) são adicionados aos sistemas ativos que não têm nenhum.",
+      "dryRun": "Simular",
+      "import": "Importar…",
+      "working": "Lendo a pasta…",
+      "progress": "{{stage}}: {{done}} de {{total}}",
+      "stage": {
+        "settings": "Configurações",
+        "scan": "Varrendo sistemas",
+        "games": "Jogos",
+        "collections": "Coleções",
+        "menus": "Menus"
+      },
+      "confirmTitle": "Importar NextLevelOS?",
+      "confirmBody": "As configurações são salvas em backup antes. Jogos, coleções e menus de uma importação anterior são atualizados; coleções e menus criados aqui ficam como estão.",
+      "confirm": "Importar",
+      "cancel": "Cancelar",
+      "folderChanged": "A pasta mudou — rode a simulação de novo.",
+      "summary": "Importados {{games}} jogos ({{missing}} ausentes), {{collections}} coleções e {{menus}} menus.",
+      "openLibrary": "Abrir Biblioteca",
+      "openMenuEditor": "Abrir Editor de Menus",
+      "reportTitle": "Relatório da simulação",
+      "unmapped": "Não importado, ou importado de outra forma",
+      "willReplace": "Será substituído",
+      "mapped": "Importado",
+      "count": {
+        "systems": "Sistemas a ativar",
+        "menus": "Menus",
+        "menuNodes": "Entradas de menu",
+        "gamelists": "Listas de sistemas",
+        "games": "Entradas de listas",
+        "collections": "Coleções",
+        "collectionEntries": "Entradas de coleções",
+        "withFile": "Entradas com arquivo",
+        "missing": "Entradas sem arquivo (mantidas como ausentes)",
+        "newFiles": "Arquivos sem entrada (jogos novos)"
+      },
+      "area": {
+        "storage": "Armazenamento",
+        "system": "Sistemas",
+        "emulator": "Emuladores",
+        "menu": "Menus",
+        "game": "Jogos",
+        "collection": "Coleções",
+        "theme": "Temas",
+        "scraper": "ScreenScraper",
+        "config": "config.json"
+      }
     }
   },
   "boot": {
