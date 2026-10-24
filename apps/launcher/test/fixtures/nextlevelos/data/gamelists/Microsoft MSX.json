@@ -1,0 +1,17 @@
+{
+  "games": [
+    {
+      "filename": "./Brick Tale.rom",
+      "system": "Microsoft MSX",
+      "title": "Brick Tale",
+      "filter": ["msxdev", "msxdev_2003"],
+      "played": "1"
+    },
+    {
+      "filename": "./programs",
+      "system": "Microsoft MSX",
+      "title": "Programs",
+      "folder": 1
+    }
+  ]
+}

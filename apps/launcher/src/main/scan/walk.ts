@@ -35,24 +35,46 @@ async function topEntries(dir: string) {
   }
 }
 
-/** Files in the system folder and one sub-folder level, skipping the `media` art folder. */
+/**
+ * Group folders (`! Hacks`, `+AGS`, `#2003`: a name starting with `!`, `+` or `#`) are searched
+ * up to this many folder levels; other sub-folders one level, as NextLevelOS scanned. NextLevelOS
+ * gamelists keep curated sets up to 9 levels deep under group folders (`! Hacks/! Hacks-SMW/…`),
+ * while other deep trees are support files (MAME software lists, game assets).
+ */
+const GROUP_FOLDER_DEPTH = 10;
+const GROUP_FOLDER = /^[!+#]/;
+
+/**
+ * Files in the system folder and its sub-folders, skipping the top-level `media` art folder.
+ * Links and junctions are not followed (Dirent reports them as links, not folders), so a loop
+ * can't happen.
+ */
 async function listFolder(dir: string): Promise<Candidate[] | null> {
   const top = await topEntries(dir);
   if (!top) return null;
   const found: Candidate[] = [];
-  for (const entry of top) {
-    const fullPath = join(dir, entry.name);
-    if (!entry.isDirectory()) {
-      found.push({ relPath: entry.name, fullPath });
-      continue;
-    }
-    if (entry.name.toLowerCase() === 'media') continue;
-    for (const sub of (await entries(fullPath)) ?? []) {
-      if (!sub.isDirectory()) {
-        found.push({ relPath: `${entry.name}/${sub.name}`, fullPath: join(fullPath, sub.name) });
+  const visit = async (
+    list: Awaited<ReturnType<typeof entries>>,
+    folder: string,
+    prefix: string,
+    depth: number,
+    maxDepth: number,
+  ): Promise<void> => {
+    for (const entry of list ?? []) {
+      const fullPath = join(folder, entry.name);
+      const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (!entry.isDirectory()) {
+        found.push({ relPath, fullPath });
+      } else if (depth === 0) {
+        if (entry.name.toLowerCase() === 'media') continue;
+        const limit = GROUP_FOLDER.test(entry.name) ? GROUP_FOLDER_DEPTH : 1;
+        await visit(await entries(fullPath), fullPath, relPath, 1, limit);
+      } else if (depth < maxDepth) {
+        await visit(await entries(fullPath), fullPath, relPath, depth + 1, maxDepth);
       }
     }
-  }
+  };
+  await visit(top, dir, '', 0, 1);
   return found;
 }
 

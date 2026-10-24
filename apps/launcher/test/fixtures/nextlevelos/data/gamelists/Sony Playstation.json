@@ -1,0 +1,28 @@
+{
+  "games": [
+    {
+      "filename": "./Orbit Saga (Disc 1).chd",
+      "system": "Sony Playstation",
+      "title": "Orbit Saga",
+      "year": "1998",
+      "played": "2",
+      "lastPlayedOn": "1/5/2026, 9:00:00 PM",
+      "filter": ["official"]
+    },
+    {
+      "filename": "./Orbit Saga (Disc 2).chd",
+      "system": "Sony Playstation",
+      "title": "Orbit Saga",
+      "year": "1998",
+      "played": "4",
+      "lastPlayedOn": "1/6/2026, 9:00:00 PM",
+      "filter": ["official", "favorite"]
+    },
+    {
+      "filename": "./Lost Signal.chd",
+      "system": "Sony Playstation",
+      "title": "Lost Signal",
+      "played": "1"
+    }
+  ]
+}

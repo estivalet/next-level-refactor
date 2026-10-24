@@ -19,3 +19,6 @@ export * from './frontend/schema.ts';
 export * from './frontend/themeSettings.ts';
 export * from './frontend/manifest.ts';
 export * from './frontend/urls.ts';
+export * from './import/legacy.ts';
+export * from './import/report.ts';
+export * from './settings/fromPreset.ts';

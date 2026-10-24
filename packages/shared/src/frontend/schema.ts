@@ -100,6 +100,16 @@ export const ThemeArtOptionsSchema = z.object({
   gameArt: z.record(z.string(), z.array(z.string())).optional(),
 });
 
+/** The themes the launcher ships, in switcher order (packages/themes registry tests keep this in step). */
+export const BUILT_IN_THEME_IDS = [
+  'big-box',
+  'big-box-list',
+  'console-home',
+  'ps5',
+  'hyperspin',
+  'showcase',
+] as const;
+
 export const ThemeOptionsSchema = z.object({
   art: ThemeArtOptionsSchema.optional(),
   /** Theme-specific settings; each theme validates its own keys. */

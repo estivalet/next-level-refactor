@@ -10,7 +10,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../../bridge.ts';
 import { markArtRescanned } from '../../frontend/themeArtSession.ts';
 import { unwrap } from '../settingsApi.ts';
-import { artIndexKey, useThemeArtIndex } from './useThemeArtIndex.ts';
+import { artIndexKey, useArtFolders, useThemeArtIndex } from './useThemeArtIndex.ts';
 
 export interface ThemeCoverageInfo {
   status: 'loading' | 'ready';
@@ -53,9 +53,10 @@ export function useThemeCoverage(
 /** Rescan art: main reads the folders again; Settings and an open theme use the new index. */
 export function useRescanArt(themeId: string) {
   const client = useQueryClient();
+  const folders = useArtFolders();
   return async () => {
     const index = unwrap(await getBridge().invoke('frontend.artIndex', { themeId, refresh: true }));
-    client.setQueryData(artIndexKey(themeId), index);
+    if (folders) client.setQueryData(artIndexKey(themeId, folders), index);
     markArtRescanned(themeId);
   };
 }

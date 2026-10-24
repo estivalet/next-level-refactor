@@ -31,4 +31,11 @@ describe('DataSection', () => {
     expect(bridge.calls).toContainEqual({ channel: 'app.openPath', input: { key: 'logs' } });
     expect(screen.queryByRole('button', { name: 'Open Settings file' })).not.toBeInTheDocument();
   });
+
+  it('FR-IMP-2: Data holds the Import NextLevelOS panel', async () => {
+    installFakeBridge({ 'app.paths': () => ok(PATHS) });
+    renderInShell(<DataSection />);
+    expect(await screen.findByRole('heading', { name: 'Import NextLevelOS' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Dry run' })).toBeDisabled();
+  });
 });

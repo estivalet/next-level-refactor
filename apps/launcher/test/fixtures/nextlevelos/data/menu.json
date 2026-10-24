@@ -1,0 +1,53 @@
+{
+  "title": "Main",
+  "items": [
+    {
+      "name": "Consoles",
+      "items": [
+        {
+          "name": "Atari 2600",
+          "type": "system",
+          "shortname": "2600",
+          "theme": "grid",
+          "items": [
+            { "name": "Favorite", "filter": "favorite" },
+            { "name": "Homebrew", "filter": "homebrew" }
+          ]
+        },
+        { "name": "Atari 2600", "type": "system", "display": "Atari VCS" },
+        { "name": "Nintendo 64", "type": "system" },
+        { "name": "Sony Playstation", "type": "system", "display": "PlayStation" },
+        { "name": "Imaginary Console", "type": "system" },
+        { "name": "Sega Hikaru", "display": "Hikaru" }
+      ]
+    },
+    {
+      "name": "Computers",
+      "items": [
+        {
+          "name": "Microsoft MSX",
+          "type": "system",
+          "items": [
+            {
+              "name": "MSXDEV",
+              "filter": "msxdev",
+              "items": [{ "name": "MSXDEV 2003", "filter": "msxdev_2003" }]
+            }
+          ]
+        },
+        { "name": "Amstrad GX4000", "type": "system", "shortname": "gx4000" }
+      ]
+    },
+    { "name": "Arcade", "type": "system", "display": "Games", "shortname": "arcade" },
+    { "name": "Flash Games", "type": "system" },
+    {
+      "name": "Collections",
+      "theme": "grid",
+      "items": [
+        { "name": "Party Picks", "disply": "Party", "type": "collection" },
+        { "name": "Lonely Collection", "type": "collection" },
+        { "name": "Favorites Mix", "type": "collection" }
+      ]
+    }
+  ]
+}

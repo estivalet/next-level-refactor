@@ -43,6 +43,13 @@
       "when": 1792695502210,
       "tag": "0005_nappy_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792860500827,
+      "tag": "0006_futuristic_kronos",
+      "breakpoints": true
     }
   ]
 }

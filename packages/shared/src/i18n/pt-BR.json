@@ -38,7 +38,8 @@
       "unknownEmulator": "Escolha um emulador.",
       "notExecutable": "Escolha o programa do emulador (.exe).",
       "duplicateBinding": "Esta tecla ou botão já é usado por outra ação."
-    }
+    },
+    "busy": "Uma varredura ou importação está em andamento. Tente de novo quando terminar."
   },
   "shell": {
     "window": {
@@ -229,7 +230,10 @@
       "close": "Fechar",
       "editShort": "Editar",
       "defaultProfile": "Perfil de emulador",
-      "defaultProfileAuto": "Automático (primeiro perfil deste sistema)"
+      "defaultProfileAuto": "Automático (primeiro perfil deste sistema)",
+      "screenscraperId": "Id de sistema do ScreenScraper",
+      "screenscraperHelp": "Deixe vazio para usar o id do catálogo ({{default}}).",
+      "screenscraperHelpNone": "O catálogo não tem id do ScreenScraper para este sistema."
     },
     "emulators": {
       "intro": "Adicione os emuladores que você usa. Uma predefinição preenche as opções de execução; você só escolhe o programa.",
@@ -477,6 +481,65 @@
         },
         "rescanFailed": "Não foi possível reler as pastas de arte."
       }
+    },
+    "import": {
+      "title": "Importar NextLevelOS",
+      "intro": "Traga sua configuração do NextLevelOS: armazenamento, sistemas, jogos com favoritos e histórico, coleções e menus. A pasta do NextLevelOS só é lida, nunca alterada.",
+      "folder": "Pasta de dados do NextLevelOS",
+      "folderHelp": "A pasta public\\data da sua instalação do NextLevelOS.",
+      "noFolder": "Nenhuma pasta escolhida.",
+      "chooseFolder": "Escolher pasta de dados do NextLevelOS…",
+      "emulators": "Pasta de emuladores (opcional)",
+      "noEmulators": "Sem pasta de emuladores",
+      "chooseEmulators": "Escolher pasta de emuladores…",
+      "emulatorsHelp": "Emuladores encontrados aqui (até dois níveis) são adicionados aos sistemas ativos que não têm nenhum.",
+      "dryRun": "Simular",
+      "import": "Importar…",
+      "working": "Lendo a pasta…",
+      "progress": "{{stage}}: {{done}} de {{total}}",
+      "stage": {
+        "settings": "Configurações",
+        "scan": "Varrendo sistemas",
+        "games": "Jogos",
+        "collections": "Coleções",
+        "menus": "Menus"
+      },
+      "confirmTitle": "Importar NextLevelOS?",
+      "confirmBody": "As configurações são salvas em backup antes. Jogos, coleções e menus de uma importação anterior são atualizados; coleções e menus criados aqui ficam como estão.",
+      "confirm": "Importar",
+      "cancel": "Cancelar",
+      "folderChanged": "A pasta mudou — rode a simulação de novo.",
+      "summary": "Importados {{games}} jogos ({{missing}} ausentes), {{collections}} coleções e {{menus}} menus.",
+      "openLibrary": "Abrir Biblioteca",
+      "openMenuEditor": "Abrir Editor de Menus",
+      "reportTitle": "Relatório da simulação",
+      "unmapped": "Não importado, ou importado de outra forma",
+      "willReplace": "Será substituído",
+      "mapped": "Importado",
+      "count": {
+        "systems": "Sistemas a ativar",
+        "menus": "Menus",
+        "menuNodes": "Entradas de menu",
+        "gamelists": "Listas de sistemas",
+        "games": "Entradas de listas",
+        "collections": "Coleções",
+        "collectionEntries": "Entradas de coleções",
+        "withFile": "Entradas com arquivo",
+        "missing": "Entradas sem arquivo (mantidas como ausentes)",
+        "newFiles": "Arquivos sem entrada (jogos novos)"
+      },
+      "area": {
+        "storage": "Armazenamento",
+        "system": "Sistemas",
+        "emulator": "Emuladores",
+        "menu": "Menus",
+        "game": "Jogos",
+        "collection": "Coleções",
+        "theme": "Temas",
+        "scraper": "ScreenScraper",
+        "config": "config.json"
+      },
+      "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo."
     }
   },
   "boot": {
@@ -958,5 +1021,45 @@
     "previewLabel": "Pré-visualização do menu",
     "previewBanner": "Pré-visualização do menu não salvo. Voltar no nível principal, ou Ir para a área de trabalho, retorna ao editor.",
     "previewNoLaunch": "Jogos não iniciam na pré-visualização do menu."
+  },
+  "import": {
+    "reason": {
+      "unknownSystem": "Nenhum sistema correspondente no NextLevel",
+      "noGamelist": "Coleção sem arquivo de lista de jogos",
+      "notAGamelist": "Não é uma lista de jogos (sem lista games)",
+      "customCommand": "Comando de execução personalizado: crie um perfil de emulador para ele",
+      "untypedEntry": "Entrada de menu sem tipo nem filhos",
+      "themeOverride": "Tema por nó ainda não é aplicado",
+      "folderEntry": "Entrada de pasta, não é um jogo",
+      "unknownCollectionSystem": "Entrada de coleção com sistema desconhecido",
+      "duplicateEntry": "Listado mais de uma vez (mesclado)",
+      "nameConflict": "Já existe uma coleção criada aqui com este nome; importada com sufixo",
+      "hookSetting": "Depende dos hooks do executor do NextLevelOS (não suportado)",
+      "dropped": "Não é usado pelo NextLevel",
+      "scrapeInM6": "Dados de scraping chegam com o scraper (M6)",
+      "perGameEmulator": "Escolha de emulador por jogo não é importada",
+      "invalidFile": "Arquivo não pode ser lido como JSON",
+      "invalidEntry": "Entrada sem nome de arquivo",
+      "absoluteRompath": "Pasta de ROMs fora dos locais de armazenamento",
+      "retroarchNotFound": "Config ou shader do RetroArch por jogo: o RetroArch não foi encontrado na pasta de emuladores",
+      "collectionLaunchFields": "Opções de execução definidas dentro de uma coleção não são importadas",
+      "unknownTheme": "Tema não existe no NextLevel",
+      "favoriteFilterTab": "Filtro Favorite vira a aba Favoritos",
+      "filterTabs": "Entradas de filtro viram as abas de filtro do sistema",
+      "nestedFilterTab": "Entradas de filtro aninhadas viram abas de filtro do sistema",
+      "filterRenamed": "Tags de filtro renomeadas para minúsculas-com-hífens",
+      "discSet": "Entradas de vários discos mescladas em um jogo",
+      "storageAdded": "Local de armazenamento adicionado",
+      "systemEnabled": "Sistema ativado",
+      "folderName": "Nome de pasta personalizado",
+      "extensions": "Extensões de arquivo personalizadas",
+      "themeArt": "Configurações de arte do tema",
+      "screenscraperId": "Id de sistema do ScreenScraper",
+      "emulatorAdded": "Emulador encontrado e adicionado com seus perfis",
+      "launchOverride": "Core e opções de execução por jogo",
+      "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
+      "replacesImport": "Substitui o que uma importação anterior trouxe",
+      "artFolder": "Pasta de arte ou de pacotes de tema"
+    }
   }
 }

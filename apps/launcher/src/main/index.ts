@@ -10,6 +10,10 @@ import { v7 as uuidv7 } from 'uuid';
 import { seedBuiltInSmartFilters } from './library/builtInSmartFilters.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
+import { ImportService } from './import/ImportService.ts';
+import { detectEmulators } from './launch/detect.ts';
+import { ImportRepository } from './library/ImportRepository.ts';
+import { listBackupIds } from './settings/backups.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createEventSink } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
@@ -147,17 +151,18 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
   }
   const repo = new LibraryRepository(db);
   const media = new MediaRepository(db);
+  const folderExists = (dir: string) =>
+    stat(dir).then(
+      (info) => info.isDirectory(),
+      () => false,
+    );
   const scan = new ScanService({
     repo,
     media,
     settings,
     catalog: systemCatalog,
     createWalker: () => createWorkerWalker(scanWorkerPath),
-    folderExists: (dir) =>
-      stat(dir).then(
-        (info) => info.isDirectory(),
-        () => false,
-      ),
+    folderExists,
     clock: () => new Date(),
     emit,
     log,
@@ -213,6 +218,21 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     smartFilters,
   });
   menuWatch.watch(() => frontend.menuFingerprint());
+  const importer = new ImportService({
+    catalog: systemCatalog(),
+    presets: emulatorPresets(),
+    settings,
+    scan,
+    repo: new ImportRepository(db),
+    menus,
+    emit,
+    clock: () => new Date(),
+    newId: uuidv7,
+    detect: (folder) => detectEmulators(folder, emulatorPresets()),
+    createWalker: () => createWorkerWalker(scanWorkerPath),
+    folderExists,
+    latestBackupId: async () => (await listBackupIds(settings.paths.backups))[0] ?? null,
+  });
   return {
     repo,
     media,
@@ -224,6 +244,7 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     launch,
     menus,
     smartFilters,
+    importer,
   };
 }
 

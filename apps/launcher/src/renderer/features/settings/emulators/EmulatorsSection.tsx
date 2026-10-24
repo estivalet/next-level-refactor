@@ -1,4 +1,4 @@
-import type { Settings } from '@nextlevel/shared';
+import { removeProfile, type Settings } from '@nextlevel/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PRIMARY_BUTTON, SECONDARY_BUTTON } from '../../library/Modal.tsx';
@@ -6,7 +6,6 @@ import { SettingsSection } from '../form/SettingsSection.tsx';
 import { EmulatorCard } from './EmulatorCard.tsx';
 import { newId, pickExecutable, usePresets } from './emulatorsApi.ts';
 import { EmulatorDialogs, type Dialog } from './EmulatorDialogs.tsx';
-import { removeProfile } from './fromPreset.ts';
 import { ProfileEditor } from './ProfileEditor.tsx';
 import { useFocusRequest, type FocusRequest } from '../focusRequest.ts';
 
