@@ -45,6 +45,8 @@ export interface ImportPlan {
   fingerprint: string;
   files: LegacyFiles;
   settings: Settings;
+  /** Emulators found in the emulators folder (D14); the apply re-applies them to fresh settings. */
+  detected: DetectedEmulator[];
   /** Systems the import enables (scanned before games are matched). */
   systemIds: string[];
   games: GameImport[];
@@ -149,6 +151,7 @@ export async function planImport(
     fingerprint,
     files,
     settings: withProfiles.next,
+    detected,
     systemIds: [...new Set(systemIds)].sort(),
     games: games.entries,
     collections: named,

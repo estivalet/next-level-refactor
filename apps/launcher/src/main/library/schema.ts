@@ -177,6 +177,17 @@ export const gameMedia = sqliteTable(
   (table) => [primaryKey({ columns: [table.gameId, table.kind] })],
 );
 
+/** Arcade ROM facts NextLevelOS kept per game (data model §4); filled by the importer (D12). */
+export const arcadeInfo = sqliteTable('arcade_info', {
+  gameId: integer('game_id')
+    .primaryKey()
+    .references(() => games.id, { onDelete: 'cascade' }),
+  rom: text('rom'),
+  parent: text('parent'),
+  driver: text('driver'),
+  manufacturer: text('manufacturer'),
+});
+
 /** Saved game queries (FR-LIB-9); `query` is a SmartFilterQuery as JSON. */
 export const smartFilters = sqliteTable('smart_filters', {
   id: integer('id').primaryKey({ autoIncrement: true }),

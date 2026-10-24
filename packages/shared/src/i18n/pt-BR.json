@@ -38,7 +38,8 @@
       "unknownEmulator": "Escolha um emulador.",
       "notExecutable": "Escolha o programa do emulador (.exe).",
       "duplicateBinding": "Esta tecla ou botão já é usado por outra ação."
-    }
+    },
+    "busy": "Uma varredura ou importação está em andamento. Tente de novo quando terminar."
   },
   "shell": {
     "window": {

@@ -38,7 +38,8 @@
       "unknownEmulator": "Choose an emulator.",
       "notExecutable": "Choose the emulator program (.exe).",
       "duplicateBinding": "This key or button is already used by another action."
-    }
+    },
+    "busy": "A scan or an import is running. Try again when it finishes."
   },
   "shell": {
     "window": {
