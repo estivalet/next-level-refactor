@@ -120,7 +120,10 @@ describe('StorageSection art folders', () => {
           snapshot: {
             settings: {
               ...defaultSettings(),
-              storage: { locations: [], assetsPath: null, themesPath: 'E:\\NextLevel\\themes' },
+              storage: {
+                ...defaultSettings().storage,
+                themesPath: 'E:\\NextLevel\\themes',
+              },
             },
             revision: 0,
           },

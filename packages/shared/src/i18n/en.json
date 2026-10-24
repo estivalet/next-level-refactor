@@ -39,7 +39,14 @@
       "notExecutable": "Choose the emulator program (.exe).",
       "duplicateBinding": "This key or button is already used by another action."
     },
-    "busy": "A scan or an import is running. Try again when it finishes."
+    "busy": "A scan or an import is running. Try again when it finishes.",
+    "scraperCredentials": "ScreenScraper rejected the credentials. Check them in Settings → Scraper.",
+    "scraperQuota": "ScreenScraper quota reached. Try again later.",
+    "scraperUnavailable": "ScreenScraper is not available right now. Try again later.",
+    "scraperNetwork": "Could not reach ScreenScraper. Check your internet connection.",
+    "noScraperSystem": "This system has no ScreenScraper system id yet.",
+    "noCredentials": "Enter your ScreenScraper credentials in Settings → Scraper first.",
+    "secretsUnavailable": "Windows could not encrypt the credentials, so they were not saved."
   },
   "shell": {
     "window": {
@@ -413,11 +420,12 @@
         "kinds": {
           "box-front": "Box front",
           "box-back": "Box back",
+          "box-3d": "3D box",
+          "cart-front": "Cartridge / disc",
           "fanart": "Fanart",
           "video": "Video",
           "screenshot-game-play": "Gameplay screenshot",
-          "screenshot-title": "Title screenshot",
-          "screenshot-select": "Select screenshot",
+          "screenshot-game-title": "Title screenshot",
           "logo-clear": "Clear logo",
           "marquee": "Marquee"
         },

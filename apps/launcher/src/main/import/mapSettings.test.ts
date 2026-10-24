@@ -36,7 +36,7 @@ describe('mapSettings', () => {
 
   it('FR-IMP-1: a location already here (other slashes or case) is kept, not duplicated', () => {
     const current = SettingsSchema.parse({
-      schemaVersion: 1,
+      schemaVersion: 2,
       storage: {
         locations: [{ id: newId(), name: 'Mine', path: `${copy.root}\\ROMS\\A\\`, priority: 1 }],
       },
@@ -125,7 +125,7 @@ describe('mapSettings', () => {
   });
 
   it('FR-IMP-1: the result is valid settings and keeps what NextLevelOS does not set', () => {
-    const current = SettingsSchema.parse({ schemaVersion: 1, general: { language: 'pt-BR' } });
+    const current = SettingsSchema.parse({ schemaVersion: 2, general: { language: 'pt-BR' } });
     const { next } = run(current);
     expect(SettingsSchema.safeParse(next).success).toBe(true);
     expect(next.general.language).toBe('pt-BR');

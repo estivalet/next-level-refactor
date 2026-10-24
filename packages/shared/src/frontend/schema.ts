@@ -9,17 +9,21 @@ export const THEME_ID = /^[a-z0-9-]{1,40}$/;
 export const MEDIA_KIND = /^[a-z0-9-]{1,40}$/;
 
 /** Game art kinds in display order; other indexed kinds are allowed too. */
+/** The NextLevelOS media folder names (D16), in the order Settings lists them. */
 export const GAME_ART_KINDS = [
   'box-front',
   'box-back',
+  'box-3d',
+  'cart-front',
   'fanart',
   'video',
   'screenshot-game-play',
-  'screenshot-title',
-  'screenshot-select',
+  'screenshot-game-title',
   'logo-clear',
   'marquee',
 ] as const;
+
+export type GameArtKind = (typeof GAME_ART_KINDS)[number];
 
 export const MENU_NODE_TYPES = [
   'category',

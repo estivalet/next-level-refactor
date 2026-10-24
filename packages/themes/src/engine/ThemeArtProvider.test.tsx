@@ -119,12 +119,12 @@ describe('ThemeArtProvider (FR-THM-2, FR-THM-4)', () => {
     });
     const ctx = setup(host);
     await ctx.ready();
-    const snes = game(4, { media: ['box-front', 'screenshot-title'] });
+    const snes = game(4, { media: ['box-front', 'screenshot-game-title'] });
     const n64 = game(5, { systemId: 'n64', media: ['box-front', 'marquee'] });
     expect(ctx.art().gameMedia(snes, 'fanart')).toBeNull();
     expect(ctx.art().gameTile(snes)).toEqual([
       'nextlevel://media/4/box-front',
-      'nextlevel://media/4/screenshot-title',
+      'nextlevel://media/4/screenshot-game-title',
     ]);
     expect(ctx.art().gameTile(n64)).toEqual([
       'nextlevel://media/5/marquee',

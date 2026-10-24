@@ -39,7 +39,14 @@
       "notExecutable": "Escolha o programa do emulador (.exe).",
       "duplicateBinding": "Esta tecla ou botão já é usado por outra ação."
     },
-    "busy": "Uma varredura ou importação está em andamento. Tente de novo quando terminar."
+    "busy": "Uma varredura ou importação está em andamento. Tente de novo quando terminar.",
+    "scraperCredentials": "O ScreenScraper recusou as credenciais. Confira em Configurações → Scraper.",
+    "scraperQuota": "A cota do ScreenScraper acabou. Tente mais tarde.",
+    "scraperUnavailable": "O ScreenScraper não está disponível agora. Tente mais tarde.",
+    "scraperNetwork": "Não foi possível acessar o ScreenScraper. Verifique sua conexão.",
+    "noScraperSystem": "Este sistema ainda não tem um id de sistema do ScreenScraper.",
+    "noCredentials": "Informe primeiro suas credenciais do ScreenScraper em Configurações → Scraper.",
+    "secretsUnavailable": "O Windows não conseguiu criptografar as credenciais; elas não foram salvas."
   },
   "shell": {
     "window": {
@@ -413,11 +420,12 @@
         "kinds": {
           "box-front": "Capa",
           "box-back": "Contracapa",
+          "box-3d": "Caixa 3D",
+          "cart-front": "Cartucho / disco",
           "fanart": "Fanart",
           "video": "Vídeo",
           "screenshot-game-play": "Captura do jogo",
-          "screenshot-title": "Captura da tela-título",
-          "screenshot-select": "Captura de seleção",
+          "screenshot-game-title": "Captura da tela-título",
           "logo-clear": "Logotipo transparente",
           "marquee": "Marquee"
         },

@@ -75,6 +75,18 @@ As a subscriber, I want Play to just work.
 - When I favorite a game, then it appears in "Favorites" immediately and survives a restart.
 - When I hide a game, then it disappears from lists except the "Hidden" tab, where I can unhide it.
 
+### US-C5 Scrape one game · FR-SCR-1, FR-SCR-5 *(proposed, D20)*
+As a collector, I want to fix one game's art and details without leaving the launcher.
+- When I choose **Scrape…** on a game, then ScreenScraper candidates appear (an exact file match first) with the best one chosen, and a preview shows each art kind and field: what I have and what ScreenScraper has.
+- By default only missing art and empty fields are ticked; fields I edited myself show a lock and stay unticked unless I tick them.
+- When I click **Apply**, then the art appears in the Library and every theme without a rescan, and in the same folders NextLevelOS reads.
+
+### US-C6 Fill in a whole system · FR-SCR-2 *(proposed, D20)*
+As a collector, I want art for a whole system without clicking every game.
+- When I choose **Scrape ▾ → Scrape Nintendo 64…**, pick art kinds and fields and start, then the scrape runs in the background with progress, and only fills what is missing by default.
+- Only exact file matches and single confident matches (≥ 90 %) are applied; the rest are listed under **Needs review**.
+- When the daily ScreenScraper quota runs out, or I quit, then the batch pauses and carries on later where it stopped.
+
 ---
 
 ## Epic D — Configuration without files
@@ -94,6 +106,10 @@ As a collector, I want to set up Dolphin for GameCube without reading docs.
 ### US-D4 Lock the cabinet · FR-SET-6
 As an owner, I want kids to play but not change settings.
 - When I enable kiosk mode with PIN 1234, then the desktop, Settings and theme switcher are hidden; Start → hold 3 s → PIN unlocks them until next restart.
+
+### US-D6 Enter my ScreenScraper account · FR-SCR-3 *(proposed, D20)*
+- When I enter my ScreenScraper user and password in Settings → Scraper and click **Test**, then I see my account name and today's request count.
+- The passwords are stored in the Windows credential store, never in settings files, backups, exports or logs.
 
 ### US-D5 Edit the menu · FR-MENU-1, FR-MENU-2
 - When I drag "Sega Saturn" under "Sega" and rename "Sega" to "SEGA", then all themes show the new structure immediately, and the system's games are unaffected.

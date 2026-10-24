@@ -3,12 +3,14 @@ import { checkProfiles, EmulatorProfileSchema, EmulatorSchema } from './emulator
 import { THEME_ID, ThemeOptionsSchema } from '../frontend/schema.ts';
 import { checkInput, InputSettingsSchema } from './input.ts';
 import { checkThemeSettings } from '../frontend/themeSettings.ts';
+import { ScraperSettingsSchema } from '../scraper/schema.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
 // field has a default, so `{ "schemaVersion": 1 }` is a complete file. Plain objects strip
 // unknown keys (a typo is dropped, not fatal); wrong types fail with the field's path.
+// Older files are brought up to date by main's `migrate()` before they are parsed.
 
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
 
 export const LANGUAGES = ['en', 'pt-BR'] as const;
 export type Language = (typeof LANGUAGES)[number];
@@ -87,6 +89,20 @@ const OptionalFolderSchema = z
   .nullable()
   .default(null);
 
+/** Where scraped media is written and indexed (FR-SCR-4): next to the ROMs or one central folder. */
+export const MediaLocationSchema = z.discriminatedUnion('mode', [
+  z.object({ mode: z.literal('perRomFolder') }),
+  z.object({
+    mode: z.literal('central'),
+    path: z
+      .string()
+      .trim()
+      .refine((path) => ABSOLUTE_PATH.test(path), { message: 'notAbsolute' }),
+  }),
+]);
+
+export type MediaLocation = z.output<typeof MediaLocationSchema>;
+
 /** Storage locations in list order, with priority renumbered 1..n (FR-LIB-1). */
 export function orderedLocations(locations: readonly StorageLocation[]): StorageLocation[] {
   return locations.map((location, index) => ({ ...location, priority: index + 1 }));
@@ -126,6 +142,7 @@ export const SettingsSchema = z
         assetsPath: OptionalFolderSchema,
         /** Theme packs: `<themesPath>/<theme id>/` (FR-THM-2). */
         themesPath: OptionalFolderSchema,
+        media: MediaLocationSchema.default({ mode: 'perRomFolder' }),
       })
       .prefault({}),
     // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.
@@ -152,6 +169,7 @@ export const SettingsSchema = z
       })
       .prefault({}),
     input: InputSettingsSchema.prefault({}),
+    scraper: ScraperSettingsSchema.prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),
   })
   .superRefine((settings, ctx) => {

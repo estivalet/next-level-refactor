@@ -107,12 +107,12 @@ describe('background layers', () => {
 
   it('game: fanart → video → screenshots by default, then the wallpaper', () => {
     const media = (_g: unknown, kind: string) =>
-      ['fanart', 'video', 'screenshot-title'].includes(kind) ? `m:${kind}` : null;
+      ['fanart', 'video', 'screenshot-game-title'].includes(kind) ? `m:${kind}` : null;
     const layers = buildGameBackgroundLayers(game(1), art, media, ['url:wall']);
     expect(layers).toEqual([
       { kind: 'image', candidates: ['m:fanart'] },
       { kind: 'video', candidates: ['m:video'] },
-      { kind: 'image', candidates: ['m:screenshot-title'] },
+      { kind: 'image', candidates: ['m:screenshot-game-title'] },
       { kind: 'image', candidates: ['url:wall'] },
     ]);
   });
@@ -127,7 +127,7 @@ describe('background layers', () => {
     expect(layers).toEqual([
       {
         kind: 'image',
-        candidates: ['m:screenshot-game-play', 'm:screenshot-title', 'm:screenshot-select'],
+        candidates: ['m:screenshot-game-play', 'm:screenshot-game-title'],
       },
     ]);
   });
