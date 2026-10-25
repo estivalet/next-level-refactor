@@ -190,7 +190,19 @@ describe('GameRepository.applyScraped', () => {
 
   it('FR-SCR-1: scraping an unknown game is NOT_FOUND', () => {
     expect(
-      appErrorOf(() => games.applyScraped(999, { genre: 'x' }, { overrideLocked: [] }, NOW))?.code,
+      appErrorOf(() => games.applyScraped(999, { genre: 'x' }, { overrideLocked: [] }, NOW)).code,
     ).toBe('NOT_FOUND');
+  });
+});
+
+describe('GameRepository.location', () => {
+  it('FR-SCR-4: a game location is its system, storage location and rel path', () => {
+    const [id = 0] = seedGames(library.db, 'snes', [{ title: 'Racer', relPath: '!hacks/r.sfc' }]);
+    expect(games.location(id)).toEqual({
+      systemId: 'snes',
+      locationId: 'loc-1',
+      relPath: '!hacks/r.sfc',
+    });
+    expect(appErrorOf(() => games.location(999)).code).toBe('NOT_FOUND');
   });
 });

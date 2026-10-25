@@ -359,6 +359,15 @@ export class GameRepository {
     return { path: this.resolvePath(row), missing: row.missing === 1 };
   }
 
+  /** Where a game's file lives in library terms (for its media folder, FR-SCR-4). */
+  location(gameId: number): { systemId: string; locationId: string | null; relPath: string } {
+    const row = this.statement(
+      'select system_id as systemId, location_id as locationId, rel_path as relPath from games where id = ?',
+    ).get(gameId) as { systemId: string; locationId: string | null; relPath: string } | undefined;
+    if (!row) throw notFound({ gameId });
+    return row;
+  }
+
   /** The distinct systems of some games, for `library.changed`. */
   systemOf(gameIds: readonly number[]): string[] {
     return this.statement(

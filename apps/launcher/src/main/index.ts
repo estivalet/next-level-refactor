@@ -1,4 +1,13 @@
-import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  nativeImage,
+  protocol,
+  safeStorage,
+  shell,
+} from 'electron';
 import { existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -38,7 +47,11 @@ import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
 import { createWorkerWalker } from './scan/workerWalker.ts';
 import { accountOf, createScraperClient } from './scraper/runtime.ts';
-import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
+import { hashRom } from './scraper/hashRom.ts';
+import { MediaWriter } from './scraper/MediaWriter.ts';
+import { ScrapeService } from './scraper/ScrapeService.ts';
+import { SCREENSCRAPER_URL, type ScreenScraperClient } from './scraper/screenscraper/client.ts';
+import { ScrapeRepository } from './library/ScrapeRepository.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { userDataPath } from './userData.ts';
@@ -141,7 +154,10 @@ const menuWatch = createMenuWatch(
 const emit = menuWatch.emit;
 
 /** Opens `library.db`; without it the app still runs and library channels fail (M2b). */
-function startLibrary(settings: SettingsService): MainDeps['library'] {
+function startLibrary(
+  settings: SettingsService,
+  scraperClient: ScreenScraperClient,
+): MainDeps['library'] {
   let db: ReturnType<typeof openLibrary>;
   try {
     db = openLibrary(join(dataDir, 'library.db'), {
@@ -236,7 +252,28 @@ function startLibrary(settings: SettingsService): MainDeps['library'] {
     folderExists,
     latestBackupId: async () => (await listBackupIds(settings.paths.backups))[0] ?? null,
   });
+  const scrape = new ScrapeService({
+    client: scraperClient,
+    games,
+    media,
+    scrapes: new ScrapeRepository(db),
+    writer: new MediaWriter({
+      toPng: (bytes) => {
+        const image = nativeImage.createFromBuffer(bytes);
+        return image.isEmpty() ? null : image.toPNG();
+      },
+    }),
+    transaction: (fn) => {
+      db.$client.transaction(fn)();
+    },
+    settings: () => currentSettings(settings),
+    system: getSystem,
+    hash: (path) => hashRom(path),
+    emit,
+    clock: () => new Date(),
+  });
   return {
+    scrape,
     repo,
     media,
     frontend,
@@ -291,19 +328,6 @@ async function start(): Promise<void> {
       app.quit();
     });
   });
-  const library = startLibrary(settings);
-  const artPaths = () => {
-    const { assetsPath, themesPath } = currentSettings(settings).storage;
-    return { assetsPath, themesPath };
-  };
-  protocol.handle(
-    'nextlevel',
-    createNextlevelHandler({
-      mediaPath: (gameId, kind) => library?.media.path(gameId, kind) ?? null,
-      paths: artPaths,
-    }),
-  );
-
   const secrets = new SecretStore(
     join(dataDir, 'secrets.bin'),
     {
@@ -328,6 +352,19 @@ async function start(): Promise<void> {
   app.on('will-quit', () => {
     scraper.cache.close();
   });
+  const library = startLibrary(settings, scraper.client);
+  const artPaths = () => {
+    const { assetsPath, themesPath } = currentSettings(settings).storage;
+    return { assetsPath, themesPath };
+  };
+  protocol.handle(
+    'nextlevel',
+    createNextlevelHandler({
+      mediaPath: (gameId, kind) => library?.media.path(gameId, kind) ?? null,
+      scrapeThumb: (id) => library?.scrape.thumbnail(id) ?? Promise.resolve(null),
+      paths: artPaths,
+    }),
+  );
 
   const handlers = createHandlers({
     settings,
@@ -351,6 +388,7 @@ async function start(): Promise<void> {
     newId: uuidv7,
     secrets,
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
+    scraperSystems: (opts) => scraper.client.systems(opts),
     presets: emulatorPresets,
     pickFile: async (title) => {
       const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];

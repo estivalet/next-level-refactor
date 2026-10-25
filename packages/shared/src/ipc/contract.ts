@@ -25,7 +25,19 @@ import {
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
-import { CredentialStatusSchema, ScraperAccountSchema } from '../scraper/schema.ts';
+import {
+  ScrapeApplyInputSchema,
+  ScrapeApplyResultSchema,
+  ScrapePreviewInputSchema,
+  ScrapeSearchInputSchema,
+  ScraperSystemSchema,
+} from '../scraper/apply.ts';
+import {
+  CredentialStatusSchema,
+  ScrapePreviewSchema,
+  ScraperAccountSchema,
+  ScrapeSearchResultSchema,
+} from '../scraper/schema.ts';
 import {
   SmartFilterNameSchema,
   SmartFilterQuerySchema,
@@ -292,6 +304,25 @@ export const ipcContract = {
   },
   /** One ScreenScraper request with the stored credentials (Settings → Scraper → Test). */
   'scraper.test': { input: z.void(), output: ScraperAccountSchema },
+  /** ScreenScraper's systems for the system picker; `refresh` skips the cache. */
+  'scraper.systems': {
+    input: z.strictObject({ refresh: z.boolean().optional() }),
+    output: z.array(ScraperSystemSchema),
+  },
+  /** Candidates for one game: by ROM hash, else by title (FR-SCR-1, US-C5). */
+  'scraper.search': { input: ScrapeSearchInputSchema, output: ScrapeSearchResultSchema },
+  /** What a candidate has against what the game has (art kinds, fields, locks). */
+  'scraper.preview': { input: ScrapePreviewInputSchema, output: ScrapePreviewSchema },
+  /** Writes the chosen art and fields; per-kind failures don't stop the rest (FR-SCR-4/5). */
+  'scraper.apply': { input: ScrapeApplyInputSchema, output: ScrapeApplyResultSchema },
+  /** Saves a system's ScreenScraper id (settings `systems[id].screenscraperId`). */
+  'scraper.setSystemId': {
+    input: z.strictObject({
+      systemId: z.string().min(1).max(80),
+      screenscraperId: z.number().int().positive(),
+    }),
+    output: z.void(),
+  },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),

@@ -6,6 +6,7 @@ import {
   type AppPathKey,
   type Result,
   type ScraperAccount,
+  type ScraperSystem,
   type SettingsSnapshot,
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
@@ -26,6 +27,8 @@ import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
 import { createCredentialHandlers } from './scraper/credentialHandlers.ts';
+import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
+import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
 import { createImportHandlers } from './import/importHandlers.ts';
@@ -61,6 +64,7 @@ export interface MainDeps {
     menus: MenuRepository;
     smartFilters: SmartFilterRepository;
     importer: ImportService;
+    scrape: Pick<ScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;
@@ -75,6 +79,8 @@ export interface MainDeps {
   secrets: SecretsLike;
   /** Settings → Scraper → Test: one ScreenScraper request with the stored credentials. */
   scraperAccount: () => Promise<ScraperAccount>;
+  /** ScreenScraper's system list (cached 30 days unless `refresh`). */
+  scraperSystems: (opts: { refresh?: boolean | undefined }) => Promise<ScraperSystem[]>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -136,6 +142,13 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       },
     }),
     ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
+    ...createScrapeHandlers({
+      service: () => library().scrape,
+      systems: deps.scraperSystems,
+      updateSettings: async (change) => {
+        unwrap(await settings.update(change));
+      },
+    }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();

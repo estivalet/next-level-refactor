@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { artUrl, mediaUrl, parseNextlevelUrl } from './urls.ts';
+import { artUrl, mediaUrl, parseNextlevelUrl, scrapeThumbUrl } from './urls.ts';
 
 describe('nextlevel URLs', () => {
   it('FR-THM-6: an art URL round-trips with spaces and accents', () => {
@@ -38,6 +38,22 @@ describe('nextlevel URLs', () => {
     });
     expect(parseNextlevelUrl('nextlevel://media/42/box-front?v=x')).toBeNull();
     expect(parseNextlevelUrl('nextlevel://media/42/box-front?w=1')).toBeNull();
+  });
+
+  it('FR-SCR-1: a candidate thumbnail is named by its ScreenScraper game id only', () => {
+    expect(scrapeThumbUrl(321)).toBe('nextlevel://scrape-thumb/321');
+    expect(parseNextlevelUrl('nextlevel://scrape-thumb/321')).toEqual({
+      kind: 'scrape-thumb',
+      providerGameId: 321,
+    });
+    for (const bad of [
+      'nextlevel://scrape-thumb/0',
+      'nextlevel://scrape-thumb/x',
+      'nextlevel://scrape-thumb/1/2',
+      'nextlevel://scrape-thumb/',
+    ]) {
+      expect(parseNextlevelUrl(bad), bad).toBeNull();
+    }
   });
 
   it('FR-THM-6: paths that could leave the root are rejected', () => {
