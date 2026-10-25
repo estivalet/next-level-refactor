@@ -1,4 +1,5 @@
 import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import Fastify, { type FastifyInstance } from 'fastify';
 import {
@@ -12,12 +13,15 @@ import pkg from '../package.json' with { type: 'json' };
 import { GOOGLE_JWKS_URL, googleProvider } from './auth/google.ts';
 import type { IdentityProviders } from './auth/identity.ts';
 import { stubProviders, type StubProviders } from './auth/stub.ts';
+import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
 import { registerErrorHandling } from './errors.ts';
-import { requireRouteRoles } from './plugins/roles.ts';
+import { installGuards, requireRouteRoles } from './plugins/roles.ts';
 import { healthRoutes } from './routes/health.ts';
+import { launcherAuthRoutes } from './routes/launcherAuth.ts';
 import { launcherConfigRoutes } from './routes/launcherConfig.ts';
+import { meRoutes } from './routes/me.ts';
 import { stubRoutes } from './routes/stub.ts';
 
 export interface AppDeps {
@@ -67,6 +71,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     done(null, payload);
   });
   await app.register(helmet);
+  // api-spec rate limits: 300/min per address by default; auth routes set 10/min. The limit runs
+  // before authentication, so it counts per address, not per user.
+  await app.register(rateLimit, { max: 300, timeWindow: '1 minute' });
   await app.register(swagger, {
     openapi: {
       openapi: '3.1.0',
@@ -75,6 +82,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     transform: jsonSchemaTransform,
   });
   requireRouteRoles(app);
+  const ctx = createContext(deps);
+  installGuards(app, ctx);
 
   app.get('/v1/openapi.json', { config: { role: 'public' }, schema: { hide: true } }, () =>
     app.swagger(),
@@ -82,6 +91,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   healthRoutes(app, deps.db);
   const identity = identityProviders(deps);
   launcherConfigRoutes(app, identity.desktop, deps.db);
+  launcherAuthRoutes(app, ctx, identity.desktop);
+  meRoutes(app, ctx);
   if ('issue' in identity) stubRoutes(app, identity, deps.env.publicUrl);
   return app;
 }
