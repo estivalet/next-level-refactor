@@ -1,11 +1,11 @@
-import { ok, type GameFlags, type GameRow } from '@nextlevel/shared';
+import { ok, type GameDetails, type GameFlags, type GameRow } from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import { gameDetails, gameRow, libraryResponses } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -137,5 +137,64 @@ describe('GameDetails', () => {
     await screen.findByRole('option', { name: /Aaron/ });
     expect(selectedTitles()).toEqual(['Aaron']);
     expect(await within(details()).findByRole('heading', { name: 'Aaron' })).toBeVisible();
+  });
+});
+
+describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
+  function scrapeSetup(details: Partial<GameDetails> = {}) {
+    const games: GameRow[] = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo')];
+    installFakeBridge({
+      ...libraryResponses(games),
+      'library.games.get': ({ gameId }) =>
+        ok(gameDetails(games.find((g) => g.id === gameId) ?? gameRow(gameId, 'X'), details)),
+      'scraper.search': () => ok({ method: 'title', candidates: [] }),
+    });
+    renderInShell(<LibraryApp />);
+  }
+
+  it('US-C5: the context menu offers Scrape… after Edit details and opens the dialog', async () => {
+    const user = userEvent.setup();
+    scrapeSetup();
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    const items = within(screen.getByRole('menu')).getAllByRole('menuitem');
+    const names = items.map((item) => item.textContent);
+    expect(names.indexOf('Scrape…')).toBe(names.indexOf('Edit details…') + 1);
+    await user.click(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Scrape…' }));
+    expect(await screen.findByRole('dialog', { name: 'Scrape: Alpha' })).toBeVisible();
+  });
+
+  it('FR-SCR-5: details show the indexed box art (versioned URL) and the scrape status', async () => {
+    const user = userEvent.setup();
+    scrapeSetup({
+      media: { 'box-front': 55 },
+      scrape: {
+        status: 'scraped',
+        providerGameId: 9,
+        candidates: 1,
+        error: null,
+        scrapedAt: '2026-10-25T12:00:00.000Z',
+      },
+    });
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    const panel = details();
+    const art = await within(panel).findByRole('img', { name: 'Alpha' });
+    expect(art).toHaveAttribute('src', 'nextlevel://media/1/box-front?v=55');
+    expect(within(panel).getByText(/^Scraped /)).toBeVisible();
+  });
+
+  it('FR-SCR-2: a game marked for review says so', async () => {
+    const user = userEvent.setup();
+    scrapeSetup({
+      scrape: {
+        status: 'review',
+        providerGameId: null,
+        candidates: 2,
+        error: null,
+        scrapedAt: '2026-10-25T12:00:00.000Z',
+      },
+    });
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    expect(await within(details()).findByText('Needs review')).toBeVisible();
   });
 });

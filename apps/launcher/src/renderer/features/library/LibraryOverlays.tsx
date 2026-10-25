@@ -1,5 +1,5 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderMinus, FolderPlus } from 'lucide-react';
+import { FolderMinus, FolderPlus, ImageDown } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollectionDialogs, type CollectionDialogState } from './CollectionDialog.tsx';
@@ -7,6 +7,7 @@ import { useRemoveFromCollection } from './collectionsApi.ts';
 import { EditMetadataDialog } from './EditMetadataDialog.tsx';
 import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
+import { ScrapeDialog } from '../scrape/ScrapeDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
 import { SmartFilterDialogs, type SmartFilterDialogState } from './SmartFilterDialog.tsx';
 import type { LibraryView } from './useLibraryView.ts';
@@ -17,6 +18,7 @@ export function useOverlays() {
   const [editing, setEditing] = useState<number | null>(null);
   const [relinking, setRelinking] = useState<number | null>(null);
   const [launchOptions, setLaunchOptions] = useState<number | null>(null);
+  const [scraping, setScraping] = useState<number | null>(null);
   const [collection, setCollection] = useState<CollectionDialogState | null>(null);
   const [smartFilter, setSmartFilter] = useState<SmartFilterDialogState | null>(null);
   return {
@@ -24,12 +26,14 @@ export function useOverlays() {
     editing,
     relinking,
     launchOptions,
+    scraping,
     collection,
     smartFilter,
     openMenu: setMenu,
     edit: setEditing,
     relink: setRelinking,
     openLaunchOptions: setLaunchOptions,
+    scrape: setScraping,
     openCollection: setCollection,
     openSmartFilter: setSmartFilter,
     closeMenu: () => {
@@ -43,6 +47,9 @@ export function useOverlays() {
     },
     closeLaunchOptions: () => {
       setLaunchOptions(null);
+    },
+    closeScrape: () => {
+      setScraping(null);
     },
     closeCollection: () => {
       setCollection(null);
@@ -87,6 +94,20 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       },
     },
   ];
+  const [onlyId] = ids;
+  const editItems: MenuItem[] =
+    ids.length === 1 && onlyId !== undefined
+      ? [
+          {
+            key: 'scrape',
+            label: t('library.menu.scrape'),
+            icon: ImageDown,
+            run: () => {
+              overlays.scrape(onlyId);
+            },
+          },
+        ]
+      : [];
   if (shown) {
     collectionItems.push({
       key: 'remove',
@@ -116,6 +137,7 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
           onMissingReason={overlays.relink}
           onFlags={onFlags}
           extraItems={collectionItems}
+          editItems={editItems}
         />
       )}
       {overlays.collection && (
@@ -138,6 +160,9 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
       {overlays.relinking !== null && (
         <RelinkDialog gameId={overlays.relinking} onClose={overlays.closeRelink} />
+      )}
+      {overlays.scraping !== null && (
+        <ScrapeDialog gameId={overlays.scraping} onClose={overlays.closeScrape} />
       )}
       {overlays.launchOptions !== null && (
         <LaunchOptionsDialog

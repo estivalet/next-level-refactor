@@ -60,6 +60,7 @@ export function gameDetails(row: GameRow, overrides: Partial<GameDetails> = {}):
     lastPlayedAt: null,
     collectionIds: [],
     scrape: null,
+    media: {},
     ...overrides,
   };
 }

@@ -168,6 +168,9 @@ export class GameRepository {
         `select ${SCRAPE_STATUS_COLUMNS} from scrape_status s where s.game_id = ?`,
       ).get(gameId) as Parameters<typeof toScrapeStatus>[0],
     );
+    const media = this.statement('select kind, version from game_media where game_id = ?').all(
+      gameId,
+    ) as Array<{ kind: string; version: number }>;
     return {
       ...toRow(raw, this.resolvePath),
       relPath: raw.relPath,
@@ -185,6 +188,7 @@ export class GameRepository {
       lastPlayedAt: raw.lastPlayedAt,
       collectionIds,
       scrape,
+      media: Object.fromEntries(media.map((row) => [row.kind, row.version])),
     };
   }
 

@@ -38,6 +38,8 @@ interface GameContextMenuProps {
   onFlags: (flags: GameFlags) => void;
   /** Items added by the caller, e.g. collections (Task 11). */
   extraItems?: readonly MenuItem[];
+  /** One-game items shown right after Edit details, e.g. Scrape… (FR-SCR-1). */
+  editItems?: readonly MenuItem[];
 }
 
 /**
@@ -84,6 +86,7 @@ export function GameContextMenu(props: GameContextMenuProps) {
         props.onEdit(single.id);
       },
     });
+    items.push(...(props.editItems ?? []));
   }
   items.push(
     {

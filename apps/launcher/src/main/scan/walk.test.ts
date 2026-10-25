@@ -183,18 +183,19 @@ describe('walkSystem', () => {
       ],
       extensions: ['zip'],
     });
-    expect(result.media).toEqual([
+    expect(result.media.every((file) => file.mtime > 0)).toBe(true);
+    expect(
+      result.media.map((file) => ({ kind: file.kind, path: file.path, size: file.size })),
+    ).toEqual([
       {
         kind: 'Box-Front',
         path: join(root, 'a', 'media', 'Box-Front', 'Game.png'),
         size: 3,
-        mtime: expect.any(Number),
       },
       {
         kind: 'video',
         path: join(root, 'b', 'media', 'video', 'Game.mp4'),
         size: 5,
-        mtime: expect.any(Number),
       },
     ]);
   });

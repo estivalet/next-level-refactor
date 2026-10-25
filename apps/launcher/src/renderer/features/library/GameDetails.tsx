@@ -1,6 +1,7 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderOpen, Gamepad2, Link2, Pencil, Play, SlidersHorizontal, Star } from 'lucide-react';
+import { FolderOpen, Link2, Pencil, Play, SlidersHorizontal, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { DetailsArt, ScrapeStatusLine } from './DetailsArt.tsx';
 import { useGameDetails, useRevealGame, useSetFlags } from './libraryApi.ts';
 import { PRIMARY_BUTTON } from './Modal.tsx';
 import { RatingStars } from './RatingStars.tsx';
@@ -42,12 +43,11 @@ export function GameDetails(props: GameDetailsProps) {
   ] as const;
   return (
     <div className="flex flex-col gap-4 overflow-y-auto p-4">
-      <div className="flex aspect-[4/3] items-center justify-center rounded-lg bg-gradient-to-br from-emerald-900/30 to-slate-900">
-        <Gamepad2 aria-hidden="true" className="h-12 w-12 text-emerald-400/20" />
-      </div>
+      <DetailsArt game={game} />
       <div>
         <h3 className="text-sm font-bold text-white">{game.title}</h3>
         <p className="text-xs text-slate-500">{systemName(game.systemId)}</p>
+        <ScrapeStatusLine game={game} />
         {game.playCount > 0 && (
           <p className="text-xs text-slate-500">
             {t('library.details.playCount', { count: game.playCount })}

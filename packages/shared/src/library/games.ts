@@ -65,6 +65,8 @@ export const GameDetailsSchema = GameRowSchema.extend({
   collectionIds: z.array(id),
   /** The last scrape (FR-SCR-5); null = never scraped. */
   scrape: ScrapeStatusSchema.nullable(),
+  /** Indexed media kinds → file version, for `mediaUrl` (FR-SCR-5). */
+  media: z.record(z.string(), z.number().int().min(0)),
 });
 
 /** Metadata the user can edit in the Library (FR-LIB-6). */
