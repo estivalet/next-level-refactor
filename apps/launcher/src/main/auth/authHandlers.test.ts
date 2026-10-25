@@ -30,7 +30,7 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
     const handlers = createAuthHandlers(auth);
     expect(handlers['auth.state']()).toEqual(SIGNED_OUT);
     await handlers['auth.signIn']();
-    handlers['auth.cancelSignIn']();
+    await handlers['auth.cancelSignIn']();
     await handlers['auth.signOut']();
     await handlers['auth.refreshEntitlement']();
     await handlers['auth.resolveDeviceLimit']({ revokeDeviceId: 'd1' });
