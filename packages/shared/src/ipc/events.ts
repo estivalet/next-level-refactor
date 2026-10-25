@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ImportProgressSchema } from '../import/report.ts';
 import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
+import { BatchStatusSchema } from '../scraper/batch.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
 
 /** Every event main sends to the renderer, with its payload schema. */
@@ -20,6 +21,8 @@ export const ipcEvents = {
   /** Stage progress of a NextLevelOS dry run or import (FR-IMP-2). */
   'import.progress': ImportProgressSchema,
   'launch.finished': LaunchFinishedSchema,
+  /** The batch scrape job changed (FR-SCR-2): started, a game done, paused, finished. */
+  'scraper.batch.progress': BatchStatusSchema,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;

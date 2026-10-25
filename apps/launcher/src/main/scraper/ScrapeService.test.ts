@@ -404,3 +404,66 @@ describe('ScrapeService thumbnails (review)', () => {
     expect(await service.thumbnail(result.candidates[10]?.providerGameId ?? 0)).toBeNull();
   });
 });
+
+describe('ScrapeService.apply for a batch (FR-SCR-2)', () => {
+  it('records the candidate count and uses the batch region order', async () => {
+    const both: SsGame = {
+      ...RACER,
+      medias: [
+        {
+          type: 'box-2D',
+          region: 'us',
+          url: 'https://m.invalid/mediaJeu.php?devid=d&media=boxus',
+          format: 'png',
+        },
+        {
+          type: 'box-2D',
+          region: 'jp',
+          url: 'https://m.invalid/mediaJeu.php?devid=d&media=boxjp',
+          format: 'png',
+        },
+      ],
+    };
+    const { service, gameId, server } = await setup({
+      routes: { 'jeuInfos.php': () => ({ body: apiBody({ jeu: both }) }) },
+    });
+    const result = await service.apply(
+      { gameId, providerGameId: 500, kinds: ['box-front'], fields: [] },
+      { candidates: 3, regions: ['jp'] },
+    );
+    expect(result.game.scrape?.candidates).toBe(3);
+    expect(server.callsTo('mediaJeu.php').map((url) => url.searchParams.get('media'))).toEqual([
+      'boxjp',
+    ]);
+  });
+});
+
+describe('ScrapeService.apply in a batch: transport failures (review)', () => {
+  it('a quota refusal on a download rejects the whole apply, writing nothing', async () => {
+    const { service, gameId, scrapes, games } = await setup({
+      routes: { 'mediaJeu.php': () => ({ status: 430 }) },
+    });
+    const error = await appErrorOfAsync(() =>
+      service.apply(
+        { gameId, providerGameId: 500, kinds: ['box-front'], fields: ['genre'] },
+        { batch: true },
+      ),
+    );
+    expect(error.code).toBe('SCRAPER_QUOTA');
+    expect(scrapes.get(gameId)).toBeNull();
+    expect(games.get(gameId).genre).toBeNull();
+  });
+
+  it('the single-game dialog still reports it per kind', async () => {
+    const { service, gameId } = await setup({
+      routes: { 'mediaJeu.php': () => ({ status: 430 }) },
+    });
+    const result = await service.apply({
+      gameId,
+      providerGameId: 500,
+      kinds: ['box-front'],
+      fields: [],
+    });
+    expect(result.failed).toEqual([{ kind: 'box-front', code: 'download' }]);
+  });
+});

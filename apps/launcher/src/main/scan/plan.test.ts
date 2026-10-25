@@ -77,3 +77,14 @@ describe('planScan', () => {
     });
   });
 });
+
+describe('planScan media location (FR-SCR-4)', () => {
+  it('central mode: each job names <central>/<systemId>; per-ROM mode names none', async () => {
+    const central = settings({ 'enabled-one': { enabled: true } });
+    central.storage.media = { mode: 'central', path: join('G:', 'art') };
+    const [job] = await planScan(central, catalog, ['enabled-one'], folderExists);
+    expect(job?.centralMediaDir).toBe(join('G:', 'art', 'enabled-one'));
+    const [perRom] = await planScan(settings({}), catalog, ['enabled-one'], folderExists);
+    expect(perRom?.centralMediaDir).toBeUndefined();
+  });
+});

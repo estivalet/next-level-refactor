@@ -218,6 +218,14 @@
         "notSet": "Não definida",
         "browse": "Procurar…",
         "clear": "Limpar"
+      },
+      "media": {
+        "title": "Onde fica a arte buscada",
+        "help": "As buscas gravam capas, logos, capturas e vídeos aqui. A varredura lê a arte do mesmo lugar.",
+        "perRomFolder": "Junto das ROMs",
+        "central": "Uma pasta central",
+        "rescan": "Faça uma nova varredura para atualizar a arte: a arte já na biblioteca fica onde a última varredura a encontrou.",
+        "scanAll": "Varrer tudo"
       }
     },
     "systems": {

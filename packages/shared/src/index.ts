@@ -9,6 +9,7 @@ export * from './library/smartFilters.ts';
 export * from './menus/schema.ts';
 export * from './settings/schema.ts';
 export * from './scraper/apply.ts';
+export * from './scraper/batch.ts';
 export * from './scraper/schema.ts';
 export * from './settings/emulators.ts';
 export * from './settings/input.ts';

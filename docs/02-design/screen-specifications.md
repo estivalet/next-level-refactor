@@ -183,6 +183,12 @@ Left navigation of sections (see IA §1), right form pane.
 - Save bar: appears when dirty — **Save** / **Discard**; field errors inline; Save disabled while invalid.
 - Drafts survive outside changes: when the settings change underneath an open section (a scan
   turning systems on, a conflict reload), the draft is rebased; the user's unsaved edits win.
+- **Storage → Where scraped art goes** (M6c, FR-SCR-4): **Next to the ROMs** (default:
+  `<location>/<system folder>/media/<kind>/<rom stem>`) or **One central folder** (picks a folder;
+  `<central>/<system id>/<kind>/<rom stem>`, absolute path required) with **Browse…**. The scan
+  reads the central folder first, then the per-ROM folders for kinds the central one lacks; a
+  missing central folder is no art, not a failed scan. After a change: "Rescan to update art…" and
+  **Scan all** (disabled until saved or while a scan runs).
 - **Storage → Scan for games** (M2b, FR-LIB-3): **Scan now** (disabled with a hint while the
   section has unsaved changes or no storage location), then a progress bar (systems done / total,
   current system, files found) with **Cancel scan**, then the last result: "N games in N systems ·

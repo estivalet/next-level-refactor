@@ -82,17 +82,22 @@ async function listFolder(dir: string): Promise<Candidate[] | null> {
 async function listMedia(dir: string): Promise<MediaFile[]> {
   const top = (await entries(dir)) ?? [];
   const mediaDir = top.find((entry) => entry.isDirectory() && entry.name.toLowerCase() === 'media');
-  if (!mediaDir) return [];
+  return mediaDir ? listKinds(join(dir, mediaDir.name), false) : [];
+}
+
+/** Files in `<mediaDir>/<kind>/`; a missing or unreadable folder has none. */
+async function listKinds(mediaDir: string, central: boolean): Promise<MediaFile[]> {
   const found: MediaFile[] = [];
-  for (const kind of (await entries(join(dir, mediaDir.name))) ?? []) {
+  for (const kind of (await entries(mediaDir)) ?? []) {
     if (!kind.isDirectory()) continue;
-    const kindDir = join(dir, mediaDir.name, kind.name);
+    const kindDir = join(mediaDir, kind.name);
     for (const file of (await entries(kindDir)) ?? []) {
       if (!file.isFile()) continue;
       const path = join(kindDir, file.name);
       try {
         const info = await stat(path);
-        found.push({ kind: kind.name, path, size: info.size, mtime: info.mtimeMs });
+        const file = { kind: kind.name, path, size: info.size, mtime: info.mtimeMs };
+        found.push(central ? { ...file, central } : file);
       } catch {
         // Vanished between listing and stat.
       }
@@ -142,7 +147,8 @@ async function scanLocation(
 export async function walkSystem(job: WalkJob): Promise<WalkResult> {
   const accepted = new Set(job.extensions);
   const byKey = new Map<string, FoundGame>();
-  const media: MediaFile[] = [];
+  // Central media first (FR-SCR-4); matchMedia also ranks it above per-ROM files.
+  const media: MediaFile[] = job.centralMediaDir ? await listKinds(job.centralMediaDir, true) : [];
   let foldersFound = 0;
   const unreadable: string[] = [];
   for (const { locationId, dir } of job.dirs) {

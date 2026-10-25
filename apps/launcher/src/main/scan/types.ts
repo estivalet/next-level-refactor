@@ -6,6 +6,8 @@ export interface WalkJob {
   systemId: string;
   dirs: Array<{ locationId: string; dir: string }>;
   extensions: string[];
+  /** Central mode (FR-SCR-4): `<central>/<systemId>`, holding `<kind>/` folders; indexed first. */
+  centralMediaDir?: string;
 }
 
 /**

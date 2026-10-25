@@ -19,6 +19,13 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   NextLevelOS looks for it (`media/<kind>/<rom stem>`, PNG / JPEG fanart / MP4, D17) and
   shows at once in the Library and the themes; fields you edited stay yours unless you tick
   them (D19). The details panel shows the box art and when the game was last scraped.
+- M6c media location and batch engine (FR-SCR-2, FR-SCR-4): **Settings → Storage → Where
+  scraped art goes** — next to the ROMs (default) or one central folder, which the scan reads
+  first. A batch scrape engine fills a system or a selection one game at a time: it applies a
+  game only on an exact hash match or a single close candidate and marks the rest for review
+  (D18), never touches fields you edited, pauses when the daily quota runs out (resuming on
+  its own) or the network or credentials fail, and picks up where it left off after a
+  restart. Its controls arrive in the Library with M6d.
 
 ### Changed
 - Game art kinds follow the NextLevelOS folder names (D16): `box-3d`, `cart-front` and

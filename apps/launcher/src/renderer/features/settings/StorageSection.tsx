@@ -7,6 +7,7 @@ import { v7 as uuidv7 } from 'uuid';
 import { ScanPanel } from '../library/ScanPanel.tsx';
 import { ArtFoldersFields } from './ArtFoldersFields.tsx';
 import { SettingsSection } from './form/SettingsSection.tsx';
+import { MediaLocationField } from './MediaLocationField.tsx';
 import { usePickFolder } from './settingsApi.ts';
 
 const ICON_BUTTON =
@@ -167,6 +168,7 @@ export function StorageSection() {
               {t('settings.storage.add')}
             </button>
             <ScanPanel dirty={dirty} hasLocations={locations.length > 0} />
+            <MediaLocationField draft={draft} update={update} errors={errors} dirty={dirty} />
             <ArtFoldersFields draft={draft} update={update} errors={errors} />
           </div>
         );

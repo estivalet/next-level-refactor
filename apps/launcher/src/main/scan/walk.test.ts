@@ -199,4 +199,35 @@ describe('walkSystem', () => {
       },
     ]);
   });
+
+  it('central media is indexed before per-ROM media; per-ROM fills kinds central lacks (FR-SCR-4)', async () => {
+    await write('roms/Game.zip');
+    await write('roms/media/box-front/Game.png', 'rom');
+    await write('roms/media/fanart/Game.jpg', 'rom');
+    await write('central/test/box-front/Game.jpg', 'central');
+    const result = await walkSystem({
+      systemId: 'test',
+      dirs: [{ locationId: 'a', dir: join(root, 'roms') }],
+      extensions: ['zip'],
+      centralMediaDir: join(root, 'central', 'test'),
+    });
+    expect(result.media.map((f) => [f.kind, f.central === true, f.path])).toEqual([
+      ['box-front', true, join(root, 'central', 'test', 'box-front', 'Game.jpg')],
+      ['box-front', false, join(root, 'roms', 'media', 'box-front', 'Game.png')],
+      ['fanart', false, join(root, 'roms', 'media', 'fanart', 'Game.jpg')],
+    ]);
+  });
+
+  it('a missing central folder means no central media, not a failed scan (FR-SCR-4)', async () => {
+    await write('roms/Game.zip');
+    const result = await walkSystem({
+      systemId: 'test',
+      dirs: [{ locationId: 'a', dir: join(root, 'roms') }],
+      extensions: ['zip'],
+      centralMediaDir: join(root, 'nowhere', 'test'),
+    });
+    expect(result.media).toEqual([]);
+    expect(result.unreadable).toEqual([]);
+    expect(result.files).toHaveLength(1);
+  });
 });

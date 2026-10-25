@@ -218,6 +218,14 @@
         "notSet": "Not set",
         "browse": "Browse…",
         "clear": "Clear"
+      },
+      "media": {
+        "title": "Where scraped art goes",
+        "help": "Scrapes write box art, logos, screenshots and videos here. The scan reads art from the same place.",
+        "perRomFolder": "Next to the ROMs",
+        "central": "One central folder",
+        "rescan": "Rescan to update art: art already in the library stays where the last scan found it.",
+        "scanAll": "Scan all"
       }
     },
     "systems": {

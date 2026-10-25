@@ -289,8 +289,20 @@ describe('ScreenScraperClient (FR-SCR-1)', () => {
     expect([...file.bytes]).toEqual([1, 2, 3]);
     expect(file.contentType).toBe('image/png');
     expect(await codeOf(client.download('https://media.invalid/mediaJeu.php?media=missing'))).toBe(
-      'SCRAPER_NETWORK',
+      'NOT_FOUND',
     );
+  });
+
+  it('review: a download refused for quota or credentials says so (the batch pauses on it)', async () => {
+    const { client, quota } = setup({
+      'mediaJeu.php': (params) => ({ status: Number(params.get('status')) }),
+    });
+    const at = (status: number) =>
+      codeOf(client.download(`https://media.invalid/mediaJeu.php?status=${String(status)}`));
+    expect(await at(430)).toBe('SCRAPER_QUOTA');
+    expect(quota.state().exhaustedUntil).not.toBeNull();
+    expect(await at(403)).toBe('SCRAPER_CREDENTIALS');
+    expect(await at(503)).toBe('SCRAPER_UNAVAILABLE');
   });
 
   it('a body cut off mid-read is SCRAPER_NETWORK (API and download), redacted', async () => {

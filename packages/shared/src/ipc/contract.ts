@@ -32,6 +32,7 @@ import {
   ScrapeSearchInputSchema,
   ScraperSystemSchema,
 } from '../scraper/apply.ts';
+import { BatchRulesSchema, BatchScopeSchema, BatchStatusSchema } from '../scraper/batch.ts';
 import {
   CredentialStatusSchema,
   ScrapePreviewSchema,
@@ -315,6 +316,17 @@ export const ipcContract = {
   'scraper.preview': { input: ScrapePreviewInputSchema, output: ScrapePreviewSchema },
   /** Writes the chosen art and fields; per-kind failures don't stop the rest (FR-SCR-4/5). */
   'scraper.apply': { input: ScrapeApplyInputSchema, output: ScrapeApplyResultSchema },
+  /** Starts a batch scrape (FR-SCR-2, D18); BUSY while one runs or is paused, or a scan runs. */
+  'scraper.batch.start': {
+    input: z.strictObject({ scope: BatchScopeSchema, rules: BatchRulesSchema }),
+    output: BatchStatusSchema,
+  },
+  /** Stops after the current game (`pausedReason: 'user'`). */
+  'scraper.batch.pause': { input: z.void(), output: BatchStatusSchema },
+  'scraper.batch.resume': { input: z.void(), output: BatchStatusSchema },
+  /** A running job stops after the current game; a paused one at once. */
+  'scraper.batch.cancel': { input: z.void(), output: BatchStatusSchema },
+  'scraper.batch.status': { input: z.void(), output: BatchStatusSchema },
   /** Saves a system's ScreenScraper id (settings `systems[id].screenscraperId`). */
   'scraper.setSystemId': {
     input: z.strictObject({
