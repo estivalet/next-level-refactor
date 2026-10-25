@@ -405,7 +405,7 @@ describe('ScrapeService thumbnails (review)', () => {
   });
 });
 
-describe('ScrapeService thumbnail type (M6 minor)', () => {
+describe('ScrapeService thumbnail type (FR-SCR-1)', () => {
   it('the type comes from the bytes, not the upstream header; a non-image is not served', async () => {
     const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]);
     let body = pngBytes;

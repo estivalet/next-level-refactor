@@ -470,7 +470,7 @@ describe('BatchScrapeService (FR-SCR-2, D18)', () => {
   });
 });
 
-describe('BatchScrapeService status and shutdown (M6 minors)', () => {
+describe('BatchScrapeService status and shutdown (FR-SCR-2)', () => {
   it('US-C6: the status names the systems of a system scope, null for a selection', async () => {
     const [one = 0] = seedGames(library.db, 'snes', ['One']);
     const { service } = setup({ One: [HASH] });

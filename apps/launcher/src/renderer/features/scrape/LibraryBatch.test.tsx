@@ -177,4 +177,29 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       ).toBe(true);
     });
   });
+
+  it('US-C6: Show Needs review after a selection batch (no systems) only switches the tab', async () => {
+    const user = userEvent.setup();
+    const fake = installFakeBridge({
+      ...libraryResponses([gameRow(1, 'Alpha')]),
+      'scraper.batch.status': () =>
+        ok({ ...IDLE_BATCH, jobId: 1, state: 'finished', total: 1, done: 1, review: 1 }),
+    });
+    renderInShell(<LibraryApp />);
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
+    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    await waitFor(() => {
+      expect(
+        fake.calls.some((c) => {
+          const input = c.input as { tab?: string; scope?: { systemId?: string } };
+          return (
+            c.channel === 'library.games.list' &&
+            input.tab === 'needsReview' &&
+            input.scope?.systemId === 'nintendo-64'
+          );
+        }),
+      ).toBe(true);
+    });
+  });
 });

@@ -25,6 +25,8 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
   const button = useRef<HTMLButtonElement>(null);
   const state = status.data?.state;
   const lastState = useRef(state);
+  // Set when the rules dialog opens from here; a batch resuming on its own (quota) never takes focus.
+  const armed = useRef(false);
   // Unknown until main answers: offer nothing rather than a batch main would refuse.
   const busy = state === undefined || state === 'running' || state === 'paused';
 
@@ -40,10 +42,12 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
     };
   }, [open]);
 
-  // A batch just started (the rules dialog closed and Scrape ▾ is gone): Pause gets the keyboard.
+  // A batch just started from here (the rules dialog and Scrape ▾ are gone): Pause gets the keyboard.
   useEffect(() => {
-    const started = state === 'running' && lastState.current !== 'running';
+    if (state === lastState.current) return;
+    const started = state === 'running' && armed.current;
     lastState.current = state;
+    armed.current = false;
     const active = document.activeElement;
     if (started && (active === null || active === document.body)) {
       root.current?.querySelector<HTMLElement>('button')?.focus();
@@ -80,6 +84,10 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
         <button
           ref={button}
           type="button"
+          onFocus={() => {
+            // Back here from the rules dialog without starting.
+            armed.current = false;
+          }}
           aria-haspopup="menu"
           aria-expanded={open}
           onClick={() => {
@@ -109,6 +117,7 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
               onClick={() => {
                 // The rules dialog gives the keyboard back to what had it: Scrape ▾, not this item.
                 button.current?.focus();
+                armed.current = true;
                 setOpen(false);
                 onRules(item.scope);
               }}

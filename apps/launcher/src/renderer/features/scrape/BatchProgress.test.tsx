@@ -72,4 +72,25 @@ describe('BatchProgress (FR-SCR-2, US-C6)', () => {
     fake.emit('scraper.batch.progress', { ...RUNNING, state: 'finished' });
     expect(await screen.findByText(/^Scraped 3 games/)).toBeVisible();
   });
+
+  it('NFR-A11Y-1: a batch resuming on its own (quota timer) never takes the keyboard', async () => {
+    const fake = setup({ ...RUNNING, state: 'paused', pausedReason: 'quota' });
+    await screen.findByRole('button', { name: 'Resume' });
+    (document.activeElement as HTMLElement | null)?.blur();
+    fake.emit('scraper.batch.progress', RUNNING);
+    expect(await screen.findByRole('button', { name: 'Pause' })).not.toHaveFocus();
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('NFR-A11Y-1: Resume hands the keyboard to Pause', async () => {
+    const user = userEvent.setup();
+    const paused = { ...RUNNING, state: 'paused' as const, pausedReason: 'user' as const };
+    installFakeBridge({
+      'scraper.batch.status': () => ok(paused),
+      'scraper.batch.resume': () => ok(RUNNING),
+    });
+    renderInShell(<ScrapeMenu system={null} selectedIds={[]} onRules={() => undefined} />);
+    await user.click(await screen.findByRole('button', { name: 'Resume' }));
+    expect(await screen.findByRole('button', { name: 'Pause' })).toHaveFocus();
+  });
 });

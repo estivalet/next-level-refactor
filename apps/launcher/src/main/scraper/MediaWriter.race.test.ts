@@ -27,7 +27,7 @@ afterEach(async () => {
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });
 
-describe('MediaWriter temp folder race (M6 minor)', () => {
+describe('MediaWriter temp folder race (FR-SCR-4)', () => {
   it('a temp folder removed by another write is made again and the write succeeds', async () => {
     const temp = await tempDir('nextlevel-media-race-');
     cleanups.push(temp.cleanup);
