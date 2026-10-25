@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AuthStateSchema } from '../auth/state.ts';
 import { ImportProgressSchema } from '../import/report.ts';
 import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
@@ -23,6 +24,8 @@ export const ipcEvents = {
   'launch.finished': LaunchFinishedSchema,
   /** The batch scrape job changed (FR-SCR-2): started, a game done, paused, finished. */
   'scraper.batch.progress': BatchStatusSchema,
+  /** The sign-in state changed (FR-AUTH-5..7): signed in or out, offline, suspended. */
+  'auth.changed': AuthStateSchema,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;

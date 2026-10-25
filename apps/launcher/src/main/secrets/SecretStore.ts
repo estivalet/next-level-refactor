@@ -16,7 +16,9 @@ export type SecretKey =
   | 'screenscraper.devId'
   | 'screenscraper.devPassword'
   | 'screenscraper.user'
-  | 'screenscraper.password';
+  | 'screenscraper.password'
+  /** The launcher's sign-in (SessionRecord JSON, FR-AUTH-2). */
+  | 'auth.session';
 
 /** What callers need from the store; tests use `memorySecrets()` (secrets/testing.ts). */
 export type SecretsLike = Pick<SecretStore, 'available' | 'get' | 'has' | 'setMany'>;
@@ -30,6 +32,8 @@ type SecretMap = Partial<Record<SecretKey, string>>;
  */
 export class SecretStore {
   private cache: SecretMap | null = null;
+  /** Writes run one after another, so two callers never overwrite each other's keys. */
+  private queue: Promise<void> = Promise.resolve();
 
   constructor(
     private readonly file: string,
@@ -50,7 +54,13 @@ export class SecretStore {
   }
 
   /** Sets the given keys (`null` removes one) in one write. */
-  async setMany(values: Partial<Record<SecretKey, string | null>>): Promise<void> {
+  setMany(values: Partial<Record<SecretKey, string | null>>): Promise<void> {
+    const run = this.queue.then(() => this.apply(values));
+    this.queue = run.catch(() => undefined);
+    return run;
+  }
+
+  private async apply(values: Partial<Record<SecretKey, string | null>>): Promise<void> {
     if (!(await this.cipher.available())) {
       throw new AppErrorException({
         code: 'SECRETS_UNAVAILABLE',

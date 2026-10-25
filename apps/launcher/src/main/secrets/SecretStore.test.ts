@@ -93,4 +93,15 @@ describe('SecretStore (FR-SCR-3)', () => {
     expect(await new SecretStore(file, rotated, log).get('screenscraper.user')).toBe('a');
     expect(rotated.writes).toBe(1);
   });
+
+  it('FR-AUTH-6: two writes at once (scraper account, sign-in session) both persist', async () => {
+    const store = new SecretStore(file, fakeCipher(), log);
+    await Promise.all([
+      store.setMany({ 'screenscraper.user': 'player1' }),
+      store.setMany({ 'auth.session': '{"deviceId":"d"}' }),
+    ]);
+    const fresh = new SecretStore(file, fakeCipher(), log);
+    expect(await fresh.get('screenscraper.user')).toBe('player1');
+    expect(await fresh.get('auth.session')).toBe('{"deviceId":"d"}');
+  });
 });

@@ -23,6 +23,7 @@ import { ImportService } from './import/ImportService.ts';
 import { detectEmulators } from './launch/detect.ts';
 import { ImportRepository } from './library/ImportRepository.ts';
 import { listBackupIds } from './settings/backups.ts';
+import { DISABLED_AUTH } from './auth/authHandlers.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createEventSink } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
@@ -420,6 +421,8 @@ async function start(): Promise<void> {
     pathExists: existsSync,
     newId: uuidv7,
     secrets,
+    // Replaced by the AuthService (M7b Task 9).
+    auth: DISABLED_AUTH,
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
     scraperSystems: (opts) => scraper.client.systems(opts),
     presets: emulatorPresets,

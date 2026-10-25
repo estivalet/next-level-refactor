@@ -26,3 +26,4 @@ export * from './import/legacy.ts';
 export * from './import/report.ts';
 export * from './settings/fromPreset.ts';
 export * from './api/index.ts';
+export * from './auth/state.ts';

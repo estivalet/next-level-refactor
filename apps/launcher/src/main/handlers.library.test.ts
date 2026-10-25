@@ -2,6 +2,7 @@ import { defaultSettings, type IpcChannel, type IpcEvent } from '@nextlevel/shar
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { memorySecrets } from './secrets/testing.ts';
+import { DISABLED_AUTH } from './auth/authHandlers.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
@@ -101,6 +102,7 @@ async function setup(withLibrary: boolean) {
     };
   }
   const deps: MainDeps = {
+    auth: DISABLED_AUTH,
     settings,
     artIndex: { index: () => Promise.reject(new Error('no art index in this test')) },
     appVersion: () => '1.0.0',
