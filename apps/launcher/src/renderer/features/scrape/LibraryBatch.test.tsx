@@ -61,4 +61,37 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       expect(started).toEqual([{ gameIds: [1, 2, 3] }]);
     });
   });
+
+  it('FR-SCR-2: the status bar counts games needing review; Show Needs review filters to them', async () => {
+    const user = userEvent.setup();
+    const games = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo')];
+    const fake = installFakeBridge({
+      ...libraryResponses(games, [
+        { id: 'nintendo-64', enabled: true, games: 2, missing: 0, review: 1 },
+      ]),
+      'scraper.batch.status': () =>
+        ok({
+          ...IDLE_BATCH,
+          jobId: 1,
+          state: 'finished',
+          total: 2,
+          done: 2,
+          applied: 1,
+          review: 1,
+        }),
+    });
+    renderInShell(<LibraryApp />);
+    expect(await screen.findByText(/1 needs review/)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
+    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    await waitFor(() => {
+      expect(
+        fake.calls.some(
+          (c) =>
+            c.channel === 'library.games.list' &&
+            (c.input as { tab: string }).tab === 'needsReview',
+        ),
+      ).toBe(true);
+    });
+  });
 });

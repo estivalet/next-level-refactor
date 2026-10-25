@@ -154,13 +154,15 @@ export class LibraryRepository {
     };
   }
 
-  /** Games per system (missing ones included) and how many are missing. */
-  systemCounts(): Array<{ systemId: string; games: number; missing: number }> {
+  /** Games per system (missing ones included), how many are missing and need review. */
+  systemCounts(): Array<{ systemId: string; games: number; missing: number; review: number }> {
     return this.db
       .select({
         systemId: games.systemId,
         games: count(),
         missing: sql<number>`coalesce(sum(${games.missing}), 0)`,
+        review: sql<number>`coalesce(sum(exists (select 1 from scrape_status s
+          where s.game_id = ${games.id} and s.status = 'review')), 0)`,
       })
       .from(games)
       .groupBy(games.systemId)

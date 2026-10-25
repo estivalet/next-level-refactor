@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { FoundGame, LibraryRepository } from './LibraryRepository.ts';
-import { perfBudget, tempLibrary } from './testing.ts';
+import { ScrapeRepository } from './ScrapeRepository.ts';
+import { perfBudget, seedGames, tempLibrary } from './testing.ts';
 
 const NOW = new Date(Date.UTC(2026, 9, 21, 12, 0, 0));
 const LATER = new Date(Date.UTC(2026, 9, 22, 12, 0, 0));
@@ -74,6 +75,27 @@ describe('LibraryRepository renames', () => {
   });
 });
 
+describe('LibraryRepository review counts', () => {
+  it('FR-SCR-2: system counts include the games needing review', async () => {
+    const library = await tempLibrary();
+    try {
+      const [a = 0] = seedGames(library.db, 'snes', ['A', 'B']);
+      new ScrapeRepository(library.db).set(a, {
+        status: 'review',
+        providerGameId: null,
+        candidates: 3,
+        error: null,
+        scrapedAt: '2026-10-25T12:00:00.000Z',
+      });
+      expect(library.repo.systemCounts()).toEqual([
+        { systemId: 'snes', games: 2, missing: 0, review: 1 },
+      ]);
+    } finally {
+      await library.cleanup();
+    }
+  });
+});
+
 describe('LibraryRepository', () => {
   it('FR-LIB-1: rel_path is unique per system regardless of case', () => {
     repo.applySystemDiff('nintendo-64', { ...empty, added: [found('Game.zip')] }, NOW);
@@ -82,8 +104,8 @@ describe('LibraryRepository', () => {
     }).toThrow(/UNIQUE/);
     repo.applySystemDiff('sega-genesis', { ...empty, added: [found('Game.zip')] }, NOW);
     expect(repo.systemCounts()).toEqual([
-      { systemId: 'nintendo-64', games: 1, missing: 0 },
-      { systemId: 'sega-genesis', games: 1, missing: 0 },
+      { systemId: 'nintendo-64', games: 1, missing: 0, review: 0 },
+      { systemId: 'sega-genesis', games: 1, missing: 0, review: 0 },
     ]);
   });
 
@@ -174,7 +196,9 @@ describe('LibraryRepository', () => {
     expect(
       library.db.$client.prepare('select missing_since from games where id = ?').pluck().get(c.id),
     ).toBeNull();
-    expect(repo.systemCounts()).toEqual([{ systemId: 'nintendo-64', games: 3, missing: 0 }]);
+    expect(repo.systemCounts()).toEqual([
+      { systemId: 'nintendo-64', games: 3, missing: 0, review: 0 },
+    ]);
   });
 
   it('NFR-REL-1: a failing apply leaves the system unchanged', () => {

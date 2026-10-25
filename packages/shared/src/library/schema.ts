@@ -42,6 +42,8 @@ export const SystemSummarySchema = z.object({
   enabled: z.boolean(),
   games: count,
   missing: count,
+  /** Games whose last scrape asked for review (FR-SCR-2). */
+  review: count,
 });
 
 export type ScanSystemResult = z.output<typeof ScanSystemResultSchema>;

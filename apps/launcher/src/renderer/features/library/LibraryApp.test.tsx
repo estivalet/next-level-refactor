@@ -24,8 +24,8 @@ const GAMES = [
   gameRow(4, 'Secret', { hidden: true }),
 ];
 const SYSTEMS = [
-  { id: 'nintendo-64', enabled: true, games: 4, missing: 1 },
-  { id: 'snes', enabled: true, games: 0, missing: 0 },
+  { id: 'nintendo-64', enabled: true, games: 4, missing: 1, review: 0 },
+  { id: 'snes', enabled: true, games: 0, missing: 0, review: 0 },
 ];
 
 describe('LibraryApp', () => {

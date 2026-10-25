@@ -140,7 +140,7 @@ export const REF_CATALOG: SystemDefinition[] = [
 
 /** What menu nodes can point at: every REF_CATALOG system enabled with 5 games by default. */
 export function refsResponses({
-  systems = REF_CATALOG.map((s) => ({ id: s.id, enabled: true, games: 5, missing: 0 })),
+  systems = REF_CATALOG.map((s) => ({ id: s.id, enabled: true, games: 5, missing: 0, review: 0 })),
   collections = [],
   smartFilters = [],
 }: {

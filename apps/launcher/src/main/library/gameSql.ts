@@ -29,6 +29,8 @@ const TABS: Record<GameTab, string> = {
   favorites: 'coalesce(u.favorite, 0) = 1 and coalesce(u.hidden, 0) = 0',
   hidden: 'coalesce(u.hidden, 0) = 1',
   missing: 'g.missing = 1 and coalesce(u.hidden, 0) = 0',
+  needsReview: `coalesce(u.hidden, 0) = 0 and exists (select 1 from scrape_status s
+    where s.game_id = g.id and s.status = 'review')`,
 };
 
 const ORDERS: Record<GameSort | CollectionSort, string> = {

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 interface LibraryStatusBarProps {
   games: number;
   missing: number;
+  /** Games needing review (system scope; FR-SCR-2). */
+  review?: number;
   tab: GameTab;
   onTab: (tab: GameTab) => void;
   /** Absent for a collection, whose order is its own setting. */
@@ -20,6 +22,7 @@ export function LibraryStatusBar(props: LibraryStatusBarProps) {
   const { t } = useTranslation();
   const counts = [t('library.status.games', { count: props.games })];
   if (props.missing > 0) counts.push(t('library.status.missing', { count: props.missing }));
+  if (props.review) counts.push(t('library.status.review', { count: props.review }));
   return (
     <div className="flex shrink-0 items-center gap-4 border-t border-white/5 bg-[#111115] px-4 py-2 text-xs text-slate-500">
       <span>{counts.join(' · ')}</span>

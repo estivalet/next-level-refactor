@@ -2,6 +2,7 @@ import type { GameListQuery } from '@nextlevel/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { GameRepository } from './GameRepository.ts';
 import { MediaRepository } from './MediaRepository.ts';
+import { ScrapeRepository } from './ScrapeRepository.ts';
 import { appErrorOf, seedGames, tempLibrary } from './testing.ts';
 
 let library: Awaited<ReturnType<typeof tempLibrary>>;
@@ -26,6 +27,34 @@ const titles = (overrides: Partial<GameListQuery> = {}) =>
   games.list(query(overrides)).games.map((game) => game.title);
 
 describe('GameRepository.list', () => {
+  it('FR-SCR-2, D18: the Needs review tab lists games a batch could not match', () => {
+    const [review = 0, scraped = 0] = seedGames(library.db, 'snes', ['Review', 'Scraped', 'Never']);
+    const scrapes = new ScrapeRepository(library.db);
+    const at = '2026-10-25T12:00:00.000Z';
+    scrapes.set(review, {
+      status: 'review',
+      providerGameId: null,
+      candidates: 2,
+      error: null,
+      scrapedAt: at,
+    });
+    scrapes.set(scraped, {
+      status: 'scraped',
+      providerGameId: 9,
+      candidates: 1,
+      error: null,
+      scrapedAt: at,
+    });
+    const page = games.list({
+      scope: { kind: 'system', systemId: 'snes' },
+      tab: 'needsReview',
+      offset: 0,
+      limit: 10,
+    });
+    expect(page.games.map((g) => g.title)).toEqual(['Review']);
+    expect(page.total).toBe(1);
+  });
+
   it('FR-LIB-7: the All tab hides hidden games; Hidden and Favorites tabs filter', () => {
     seedGames(library.db, 'nintendo-64', [
       { title: 'Alpha', favorite: true },

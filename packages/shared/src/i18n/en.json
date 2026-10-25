@@ -624,14 +624,17 @@
       "games_one": "{{count}} game",
       "games_other": "{{count}} games",
       "missing_one": "{{count}} missing",
-      "missing_other": "{{count}} missing"
+      "missing_other": "{{count}} missing",
+      "review_one": "{{count}} needs review",
+      "review_other": "{{count}} need review"
     },
     "tabs": {
       "label": "Filter",
       "all": "All",
       "favorites": "Favorites",
       "hidden": "Hidden",
-      "missing": "Missing"
+      "missing": "Missing",
+      "needsReview": "Needs review"
     },
     "sort": {
       "label": "Sort",

@@ -22,6 +22,7 @@ const summary = (id: string, games: number, missing = 0): SystemSummary => ({
   enabled: true,
   games,
   missing,
+  review: 0,
 });
 
 const CATALOG = [

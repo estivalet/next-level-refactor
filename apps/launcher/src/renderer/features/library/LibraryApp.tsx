@@ -90,6 +90,9 @@ export function LibraryApp() {
             onRules={(batchScope) => {
               overlays.openBatch(batchScope, systemName);
             }}
+            onShowReview={() => {
+              view.setTab('needsReview');
+            }}
           />
           <ScanMenu
             system={
@@ -161,6 +164,7 @@ export function LibraryApp() {
       <LibraryStatusBar
         games={facts.games}
         missing={facts.missing}
+        {...('review' in facts ? { review: facts.review } : {})}
         tab={view.tab}
         onTab={view.setTab}
         {...(scope.kind === 'system' ? { sort: view.sort, onSort: view.setSort } : {})}

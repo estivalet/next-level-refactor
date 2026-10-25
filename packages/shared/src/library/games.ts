@@ -4,8 +4,11 @@ import { ScrapeStatusSchema } from '../scraper/schema.ts';
 const id = z.number().int().positive();
 const count = z.number().int().min(0);
 
-/** Game list tabs: All leaves hidden games out; Hidden is the only place they show (US-C4). */
-export const GAME_TABS = ['all', 'favorites', 'hidden', 'missing'] as const;
+/**
+ * Game list tabs: All leaves hidden games out; Hidden is the only place they show (US-C4);
+ * Needs review lists games a batch scrape could not match on its own (FR-SCR-2, D18).
+ */
+export const GAME_TABS = ['all', 'favorites', 'hidden', 'missing', 'needsReview'] as const;
 /** Orders of a system's game list; a collection uses its own `sort`. */
 export const GAME_SORTS = ['title', 'year', 'rating', 'added'] as const;
 
