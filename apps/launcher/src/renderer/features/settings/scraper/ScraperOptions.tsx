@@ -9,7 +9,7 @@ import type { SettingsDraft } from '../form/useSettingsDraft.ts';
 import { OrderedList } from '../themes/OrderedList.tsx';
 
 /** ScreenScraper region codes offered in the priority list. */
-const REGIONS = [
+export const REGIONS = [
   'us',
   'eu',
   'wor',

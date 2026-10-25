@@ -9,6 +9,7 @@ import { LibraryEmpty, LibraryUnavailable } from './LibraryEmpty.tsx';
 import { LibraryOverlays, useOverlays } from './LibraryOverlays.tsx';
 import { LibraryStatusBar } from './LibraryStatusBar.tsx';
 import { useGlobalSearch, useLibraryEvents } from './libraryApi.ts';
+import { ScrapeMenu } from '../scrape/ScrapeMenu.tsx';
 import { ScanMenu } from './ScanMenu.tsx';
 import { SearchResults } from './SearchResults.tsx';
 import { LibrarySidebar } from './LibrarySidebar.tsx';
@@ -78,13 +79,26 @@ export function LibraryApp() {
             if (searchPick === null && first) setSearchPick(first.id);
           }}
         />
-        <ScanMenu
-          system={
-            scope.kind === 'system'
-              ? { id: scope.systemId, name: systemName(scope.systemId) }
-              : null
-          }
-        />
+        <div className="flex items-center gap-3">
+          <ScrapeMenu
+            system={
+              scope.kind === 'system'
+                ? { id: scope.systemId, name: systemName(scope.systemId) }
+                : null
+            }
+            selectedIds={[...view.selection.ids]}
+            onRules={(batchScope) => {
+              overlays.openBatch(batchScope, systemName);
+            }}
+          />
+          <ScanMenu
+            system={
+              scope.kind === 'system'
+                ? { id: scope.systemId, name: systemName(scope.systemId) }
+                : null
+            }
+          />
+        </div>
       </header>
       <div className="flex min-h-0 flex-1">
         <LibrarySidebar

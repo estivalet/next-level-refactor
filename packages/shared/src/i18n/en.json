@@ -877,6 +877,35 @@
         "notFound": "Not found on ScreenScraper",
         "failed": "Last scrape failed"
       }
+    },
+    "batch": {
+      "button": "Scrape",
+      "menu": "Scrape",
+      "system": "Scrape {{system}}…",
+      "selected_one": "Scrape {{count}} selected game…",
+      "selected_other": "Scrape {{count}} selected games…",
+      "selectedTitle_one": "{{count}} selected game",
+      "selectedTitle_other": "{{count}} selected games",
+      "rulesTitle": "Scrape {{title}}",
+      "onlyMissing": "Only missing art and fields",
+      "rulesHelp": "A game is filled in only when ScreenScraper matches it exactly (by file) or finds one close match; the rest go to Needs review. Fields you edited are never changed.",
+      "start": "Start",
+      "close": "Close",
+      "running": "Scraping {{done}}/{{total}} · applied {{applied}} · review {{review}}",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel scraping",
+      "openSettings": "Open Settings",
+      "showReview": "Show Needs review",
+      "finished": "Scraped {{done}} games · applied {{applied}} · review {{review}} · not found {{notFound}} · failed {{failed}}",
+      "paused": {
+        "quota": "Daily quota reached — resumes at {{time}} ({{done}}/{{total}})",
+        "network": "Paused: ScreenScraper can't be reached ({{done}}/{{total}})",
+        "credentials": "Paused: ScreenScraper refused the account ({{done}}/{{total}})",
+        "user": "Paused ({{done}}/{{total}})",
+        "media": "Paused: art couldn't be saved — check the media folder ({{done}}/{{total}})",
+        "error": "Paused after an error — see the log ({{done}}/{{total}})"
+      }
     }
   },
   "frontend": {
