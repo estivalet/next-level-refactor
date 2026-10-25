@@ -341,8 +341,8 @@ Unchanged from the current app: `logo/clear|silver|steel`, `background/wallpaper
 | `users` | `id` PK, `google_sub` UNIQUE, `email`, `name`, `avatar_url`, `role` (`admin`/`subscriber`), `status` (`active`/`suspended`), `suspended_reason`?, `created_at`, `last_seen_at` | `role=subscriber` is the default; access still needs a subscription |
 | `devices` | `id` PK, `user_id` FK, `name`, `platform`, `app_version`, `created_at`, `last_seen_at`, `revoked_at`? | |
 | `refresh_tokens` | `id` PK, `device_id` FK, `token_hash` (SHA-256), `expires_at`, `replaced_by`?, `revoked_at`? | rotation + reuse detection |
-| `plans` | `id` PK, `slug` UNIQUE, `name`, `device_limit`, `scope_ids` json, `stripe_price_monthly`?, `stripe_price_yearly`?, `archived` bool | |
-| `subscriptions` | `id` PK, `user_id` FK, `plan_id` FK, `source` (`stripe`/`comp`/`devmode`), `status` (`active`/`past_due`/`canceled`/`expired`), `current_period_end`, `stripe_customer_id`?, `stripe_subscription_id`?, `granted_by`?, `note`? | one current per user |
+| `plans` | `id` PK, `slug` UNIQUE, `name`, `device_limit`, `scope_ids` json, `stripe_price_monthly`?, `stripe_price_yearly`?, `archived` bool | seeded: `default` ("Default", 3 devices, no scopes), the plan of every allowed user while billing is off (D21) |
+| `subscriptions` | `id` PK, `user_id` FK, `plan_id` FK, `source` (`stripe`/`comp`/`devmode`), `status` (`active`/`past_due`/`canceled`/`expired`), `current_period_end`, `stripe_customer_id`?, `stripe_subscription_id`?, `granted_by`?, `note`? | one current per user; from M8 (none while billing is off) |
 | `catalog_scopes` | `id` PK, `slug`, `name`, `description` | e.g. `homebrew-8bit` |
 | `catalog_items` | `id` PK, `slug` UNIQUE, `title`, `system_id`, `scope_id` FK, `description`, `year`, `developer`, `publisher`, `genre`, `players`, `license_id` FK, `on_lapse` (`keep`/`remove`), `status` (`draft`/`published`/`unpublished`), `published_at`?, `version` int | publish requires `license_id` |
 | `catalog_files` | `id` PK, `item_id` FK, `filename`, `size`, `sha256`, `storage_key`, `role` (`rom`/`disc`/`extra`) | |
@@ -351,7 +351,8 @@ Unchanged from the current app: `logo/clear|silver|steel`, `background/wallpaper
 | `downloads` | `id` PK, `user_id`, `device_id`, `file_id`, `issued_at`, `ip_hash` | |
 | `audit_log` | `id` PK, `actor_id`, `action`, `target_type`, `target_id`, `before` json, `after` json, `at` | append-only |
 | `stripe_events` | `id` PK (Stripe event id), `type`, `received_at`, `processed_at`? | webhook idempotency |
-| `app_settings` | `key` PK, `value` json | grace days, sign-up mode, allow-list, banner |
+| `app_settings` | `key` PK, `value` json | `graceDays` (14, 1–90), `signUpMode` (`open`/`allowList`/`closed`, default `allowList`), `allowList` (lowercased emails), `banner` (≤ 280 chars or null); seeded with these defaults |
+| `admin_sessions` | `id` PK, `token_hash` UNIQUE (SHA-256 of the `nl_session` cookie), `user_id` FK, `created_at`, `last_seen_at` | admin console sessions; 8 h idle timeout |
 | `sync_documents` | `user_id`, `kind` (`settings`/`menus`/`collections`/`userState`), `revision` int, `data` json, `updated_at` | PK(`user_id`,`kind`); M10 |
 
 ### Entitlement (computed, returned by `/v1/me/entitlement`, cached by the launcher)

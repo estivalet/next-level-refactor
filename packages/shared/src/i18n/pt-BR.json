@@ -46,7 +46,14 @@
     "scraperNetwork": "Não foi possível acessar o ScreenScraper. Verifique sua conexão.",
     "noScraperSystem": "Este sistema ainda não tem um id de sistema do ScreenScraper.",
     "noCredentials": "Informe primeiro suas credenciais do ScreenScraper em Configurações → Scraper.",
-    "secretsUnavailable": "O Windows não conseguiu criptografar as credenciais; elas não foram salvas."
+    "secretsUnavailable": "O Windows não conseguiu criptografar as credenciais; elas não foram salvas.",
+    "unauthenticated": "Sua sessão expirou. Entre novamente.",
+    "forbidden": "Você não tem acesso a isso.",
+    "subscriptionRequired": "É necessária uma assinatura ativa.",
+    "suspended": "Esta conta está suspensa.",
+    "deviceLimit": "Esta conta está conectada em dispositivos demais. Remova um para continuar.",
+    "notAllowed": "Esta conta Google não está autorizada.",
+    "rateLimited": "Tentativas demais. Aguarde um minuto e tente de novo."
   },
   "shell": {
     "window": {

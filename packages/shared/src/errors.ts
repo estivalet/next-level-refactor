@@ -23,6 +23,13 @@ export const ERROR_CODES = {
   NO_SCRAPER_SYSTEM: 'errors.noScraperSystem',
   NO_CREDENTIALS: 'errors.noCredentials',
   SECRETS_UNAVAILABLE: 'errors.secretsUnavailable',
+  UNAUTHENTICATED: 'errors.unauthenticated',
+  FORBIDDEN: 'errors.forbidden',
+  SUBSCRIPTION_REQUIRED: 'errors.subscriptionRequired',
+  SUSPENDED: 'errors.suspended',
+  DEVICE_LIMIT: 'errors.deviceLimit',
+  NOT_ALLOWED: 'errors.notAllowed',
+  RATE_LIMITED: 'errors.rateLimited',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;
