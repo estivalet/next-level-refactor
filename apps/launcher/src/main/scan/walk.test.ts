@@ -184,8 +184,18 @@ describe('walkSystem', () => {
       extensions: ['zip'],
     });
     expect(result.media).toEqual([
-      { kind: 'Box-Front', path: join(root, 'a', 'media', 'Box-Front', 'Game.png'), size: 3 },
-      { kind: 'video', path: join(root, 'b', 'media', 'video', 'Game.mp4'), size: 5 },
+      {
+        kind: 'Box-Front',
+        path: join(root, 'a', 'media', 'Box-Front', 'Game.png'),
+        size: 3,
+        mtime: expect.any(Number),
+      },
+      {
+        kind: 'video',
+        path: join(root, 'b', 'media', 'video', 'Game.mp4'),
+        size: 5,
+        mtime: expect.any(Number),
+      },
     ]);
   });
 });
