@@ -1,4 +1,10 @@
-import { SystemSettingsSchema, type ScraperSystem, type Settings } from '@nextlevel/shared';
+import {
+  AppErrorException,
+  ERROR_CODES,
+  SystemSettingsSchema,
+  type ScraperSystem,
+  type Settings,
+} from '@nextlevel/shared';
 import type { IpcHandlers } from '../ipc/router.ts';
 import type { ScrapeService } from './ScrapeService.ts';
 
@@ -15,14 +21,21 @@ export function createScrapeHandlers(deps: {
   systems: (opts: { refresh?: boolean | undefined }) => Promise<ScraperSystem[]>;
   /** A settings write (with its backup and `settings.changed`). */
   updateSettings: (change: (settings: Settings) => Settings) => Promise<void>;
+  /** Whether the system catalog has this system id. */
+  systemExists: (systemId: string) => boolean;
 }): Pick<IpcHandlers, ScrapeChannel> {
   return {
     'scraper.systems': (input) => deps.systems(input),
     'scraper.search': (input) => deps.service().search(input),
     'scraper.preview': (input) => deps.service().preview(input),
     'scraper.apply': (input) => deps.service().apply(input),
-    'scraper.setSystemId': ({ systemId, screenscraperId }) =>
-      deps.updateSettings((settings) => ({
+    'scraper.setSystemId': ({ systemId, screenscraperId }) => {
+      if (!deps.systemExists(systemId)) {
+        return Promise.reject(
+          new AppErrorException({ code: 'NOT_FOUND', message: ERROR_CODES.NOT_FOUND }),
+        );
+      }
+      return deps.updateSettings((settings) => ({
         ...settings,
         systems: {
           ...settings.systems,
@@ -31,6 +44,7 @@ export function createScrapeHandlers(deps: {
             screenscraperId,
           },
         },
-      })),
+      }));
+    },
   };
 }

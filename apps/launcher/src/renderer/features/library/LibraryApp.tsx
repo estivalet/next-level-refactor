@@ -90,7 +90,11 @@ export function LibraryApp() {
             onRules={(batchScope) => {
               overlays.openBatch(batchScope, systemName);
             }}
-            onShowReview={() => {
+            onShowReview={(systemIds) => {
+              const systemId = systemIds?.[0];
+              if (systemId && !(scope.kind === 'system' && scope.systemId === systemId)) {
+                view.setScope({ kind: 'system', systemId });
+              }
               view.setTab('needsReview');
             }}
           />

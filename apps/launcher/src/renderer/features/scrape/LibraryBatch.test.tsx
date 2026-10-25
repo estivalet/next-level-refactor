@@ -114,4 +114,92 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       within(menu).queryByRole('menuitem', { name: /selected games/ }),
     ).not.toBeInTheDocument();
   });
+
+  it('Start hands the keyboard to the running batch: focus is on Pause', async () => {
+    const user = userEvent.setup();
+    setup();
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(screen.getByRole('button', { name: 'Scrape' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Scrape Nintendo 64…' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Scrape Nintendo 64' });
+    await user.click(within(dialog).getByRole('button', { name: 'Start' }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Pause' })).toHaveFocus();
+    });
+  });
+
+  it('Close returns the keyboard to Scrape ▾', async () => {
+    const user = userEvent.setup();
+    setup();
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(screen.getByRole('button', { name: 'Scrape' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Scrape Nintendo 64…' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Scrape Nintendo 64' });
+    const [close] = within(dialog).getAllByRole('button', { name: 'Close' });
+    if (close) await user.click(close);
+    expect(screen.getByRole('button', { name: 'Scrape' })).toHaveFocus();
+  });
+
+  it("US-C6: Show Needs review opens the batch's system, not the one on screen", async () => {
+    const user = userEvent.setup();
+    const fake = installFakeBridge({
+      ...libraryResponses(
+        [gameRow(1, 'Alpha'), { ...gameRow(2, 'Bravo'), systemId: 'snes' }],
+        [
+          { id: 'nintendo-64', enabled: true, games: 1, missing: 0, review: 0 },
+          { id: 'snes', enabled: true, games: 1, missing: 0, review: 1 },
+        ],
+      ),
+      'scraper.batch.status': () =>
+        ok({
+          ...IDLE_BATCH,
+          jobId: 1,
+          state: 'finished',
+          total: 1,
+          done: 1,
+          review: 1,
+          systemIds: ['snes'],
+        }),
+    });
+    renderInShell(<LibraryApp />);
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
+    await waitFor(() => {
+      expect(
+        fake.calls.some((c) => {
+          const input = c.input as { tab?: string; scope?: { systemId?: string } };
+          return (
+            c.channel === 'library.games.list' &&
+            input.tab === 'needsReview' &&
+            input.scope?.systemId === 'snes'
+          );
+        }),
+      ).toBe(true);
+    });
+  });
+
+  it('US-C6: Show Needs review after a selection batch (no systems) only switches the tab', async () => {
+    const user = userEvent.setup();
+    const fake = installFakeBridge({
+      ...libraryResponses([gameRow(1, 'Alpha')]),
+      'scraper.batch.status': () =>
+        ok({ ...IDLE_BATCH, jobId: 1, state: 'finished', total: 1, done: 1, review: 1 }),
+    });
+    renderInShell(<LibraryApp />);
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
+    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    await waitFor(() => {
+      expect(
+        fake.calls.some((c) => {
+          const input = c.input as { tab?: string; scope?: { systemId?: string } };
+          return (
+            c.channel === 'library.games.list' &&
+            input.tab === 'needsReview' &&
+            input.scope?.systemId === 'nintendo-64'
+          );
+        }),
+      ).toBe(true);
+    });
+  });
 });

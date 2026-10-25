@@ -22,7 +22,7 @@ import type { MediaRepository } from '../library/MediaRepository.ts';
 import type { ScrapeRepository } from '../library/ScrapeRepository.ts';
 import type { RomHashes } from './hashRom.ts';
 import { mediaDir, romStem } from './mediaTarget.ts';
-import { isImage } from './sniff.ts';
+import { imageType, isImage } from './sniff.ts';
 import type { MediaWriter, WriteResult } from './MediaWriter.ts';
 import type { ScreenScraperClient } from './screenscraper/client.ts';
 import { selectMedia } from './screenscraper/mediaSelect.ts';
@@ -286,13 +286,15 @@ export class ScrapeService {
     return { written: written.map((w) => w.kind), failed, game: this.deps.games.get(game.id) };
   }
 
-  /** A listed candidate's box image; null for an unknown id or a failed download. */
+  /** A listed candidate's box image; null for an unknown id, a failed download or a non-image. */
   async thumbnail(providerGameId: number): Promise<{ bytes: Buffer; mime: string } | null> {
     const url = this.thumbs.get(providerGameId);
     if (!url) return null;
     try {
       const file = await this.deps.client.download(url);
-      return { bytes: file.bytes, mime: file.contentType?.split(';')[0] ?? 'image/png' };
+      // The upstream header is not trusted: the protocol serves only what the bytes say.
+      const mime = imageType(file.bytes);
+      return mime ? { bytes: file.bytes, mime } : null;
     } catch {
       return null;
     }

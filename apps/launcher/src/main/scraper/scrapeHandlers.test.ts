@@ -23,6 +23,7 @@ function setup() {
       settings = change(settings);
       return Promise.resolve();
     },
+    systemExists: (id) => id === 'snes',
   });
   return { handlers, calls, settings: () => settings };
 }
@@ -48,6 +49,14 @@ describe('scraper channels (FR-SCR-1, US-C5)', () => {
     expect(settings().systems['snes']).toMatchObject({ screenscraperId: 4, enabled: false });
     await handlers['scraper.setSystemId']({ systemId: 'snes', screenscraperId: 5 });
     expect(settings().systems['snes']?.screenscraperId).toBe(5);
+  });
+
+  it('setSystemId for a system the catalog does not know is NOT_FOUND and saves nothing', async () => {
+    const { handlers, settings } = setup();
+    await expect(
+      handlers['scraper.setSystemId']({ systemId: 'nope', screenscraperId: 4 }),
+    ).rejects.toMatchObject({ error: { code: 'NOT_FOUND' } });
+    expect(settings().systems['nope']).toBeUndefined();
   });
 
   it('the contract validates the inputs', () => {

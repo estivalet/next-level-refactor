@@ -405,6 +405,20 @@ describe('ScrapeService thumbnails (review)', () => {
   });
 });
 
+describe('ScrapeService thumbnail type (FR-SCR-1)', () => {
+  it('the type comes from the bytes, not the upstream header; a non-image is not served', async () => {
+    const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]);
+    let body = pngBytes;
+    const { service, gameId } = await setup({
+      routes: { 'mediaJeu.php': () => ({ body, contentType: 'text/html' }) },
+    });
+    await service.search({ gameId });
+    expect((await service.thumbnail(500))?.mime).toBe('image/png');
+    body = Buffer.from('<html>nope</html>');
+    expect(await service.thumbnail(500)).toBeNull();
+  });
+});
+
 describe('ScrapeService.apply for a batch (FR-SCR-2)', () => {
   it('records the candidate count and uses the batch region order', async () => {
     const both: SsGame = {

@@ -152,6 +152,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       updateSettings: async (change) => {
         unwrap(await settings.update(change));
       },
+      systemExists: (systemId) => deps.catalog().some((system) => system.id === systemId),
     }),
     ...createLaunchHandlers({
       launch: () => {
