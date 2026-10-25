@@ -60,6 +60,16 @@ function envelope(
   return { error: { code, message, requestId, ...(details === undefined ? {} : { details }) } };
 }
 
+/** Drizzle's query errors end with the bound values ("params: …"): emails, token hashes. */
+const redact = (text: string | undefined) =>
+  text?.replace(/params:[\s\S]*?(?=\n\s+at |$)/g, 'params: [redacted]');
+
+/** An unexpected error as it may be logged (architecture §7: no PII beyond the user id). */
+function loggable(error: Error): Record<string, unknown> {
+  const cause = error.cause instanceof Error ? error.cause.name : undefined;
+  return { type: error.name, message: redact(error.message), stack: redact(error.stack), cause };
+}
+
 export function registerErrorHandling(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError, request, reply) => {
     if (error instanceof ApiError) {
@@ -85,7 +95,7 @@ export function registerErrorHandling(app: FastifyInstance): void {
         .status(error.statusCode)
         .send(envelope('VALIDATION_FAILED', MESSAGES.VALIDATION_FAILED ?? '', request.id));
     }
-    request.log.error({ err: error }, 'unexpected error');
+    request.log.error({ err: loggable(error) }, 'unexpected error');
     return reply.status(500).send(envelope('INTERNAL', MESSAGES.INTERNAL ?? '', request.id));
   });
   app.setNotFoundHandler((request, reply) =>

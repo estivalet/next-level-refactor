@@ -127,6 +127,50 @@ describe('device limit (FR-AUTH-8, US-A4)', () => {
   });
 });
 
+describe('device-limit ticket hardening (US-A4, review)', () => {
+  async function limited(app: Parameters<typeof signIn>[0]) {
+    const a = await signIn(app, 'subscriber', 'A');
+    const b = await signIn(app, 'subscriber', 'B');
+    await signIn(app, 'subscriber', 'C');
+    const response = await exchange(app, 'subscriber', { ...DEVICE, name: 'D' });
+    const { ticket } = response.json<{ error: { details: { ticket: string } } }>().error.details;
+    return { a, b, ticket };
+  }
+  const complete = (app: Parameters<typeof signIn>[0], ticket: string, revokeDeviceId: string) =>
+    app.inject({
+      method: 'POST',
+      url: '/v1/auth/complete',
+      payload: { ticket, revokeDeviceId, device: { ...DEVICE, name: 'D' } },
+    });
+
+  it('US-A4: a re-encoded copy of a used ticket (same signature bits) is refused', async () => {
+    const { app } = await setup();
+    const { a, b, ticket } = await limited(app);
+    expect((await complete(app, ticket, a.deviceId)).statusCode).toBe(200);
+    // The last base64url character carries unused bits: flipping them keeps the signature valid.
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    const last = alphabet.indexOf(ticket.slice(-1));
+    const variants = [1, 2, 3].map(
+      (bits) => ticket.slice(0, -1) + (alphabet[(last & ~3) | ((last + bits) & 3)] ?? ''),
+    );
+    for (const variant of variants.filter((v) => v !== ticket)) {
+      expect((await complete(app, variant, b.deviceId)).statusCode).toBe(401);
+    }
+  });
+
+  it('US-A4: a device id that is no longer there does not spend the ticket', async () => {
+    const { app } = await setup();
+    const { a, b, ticket } = await limited(app);
+    await app.inject({
+      method: 'DELETE',
+      url: `/v1/me/devices/${a.deviceId}`,
+      headers: bearer(b.accessToken),
+    });
+    expect((await complete(app, ticket, a.deviceId)).statusCode).toBe(404);
+    expect((await complete(app, ticket, b.deviceId)).statusCode).toBe(200);
+  });
+});
+
 describe('refresh and rate limits (ADR-006, api-spec rate limits)', () => {
   it('refresh rotates the pair and updates last seen', async () => {
     const { app, clock, db } = await setup();

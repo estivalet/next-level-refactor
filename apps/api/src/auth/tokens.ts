@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { DeviceInfoSchema, type DeviceInfo } from '@nextlevel/shared';
 import { jwtVerify, SignJWT, type JWTHeaderParameters } from 'jose';
 import { apiError } from '../errors.ts';
@@ -110,7 +110,15 @@ export interface Ticket {
 }
 
 export function signTicket(ticket: Ticket, keys: JwtKeys, now: Date): Promise<string> {
-  return sign({ device: ticket.device }, ticket.sub, TICKET_AUDIENCE, TICKET_TTL_S, keys, now);
+  // A signed random id: the token text can be re-encoded (spare base64url bits), the claim can't.
+  return sign(
+    { device: ticket.device, jti: randomUUID() },
+    ticket.sub,
+    TICKET_AUDIENCE,
+    TICKET_TTL_S,
+    keys,
+    now,
+  );
 }
 
 export async function verifyTicket(
@@ -120,8 +128,11 @@ export async function verifyTicket(
 ): Promise<Ticket & { jti: string }> {
   const payload = await verify(token, TICKET_AUDIENCE, keys, now);
   const device = DeviceInfoSchema.safeParse(payload['device']);
-  if (typeof payload.sub !== 'string' || !device.success) throw apiError('UNAUTHENTICATED');
-  return { sub: payload.sub, device: device.data, jti: hashToken(token) };
+  const { sub, jti } = payload;
+  if (typeof sub !== 'string' || typeof jti !== 'string' || !device.success) {
+    throw apiError('UNAUTHENTICATED');
+  }
+  return { sub, device: device.data, jti };
 }
 
 /** 32 random bytes, base64url: the refresh token the launcher keeps. */

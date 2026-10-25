@@ -61,13 +61,14 @@ export function launcherAuthRoutes(
       const ticket = await verifyTicket(request.body.ticket, ctx.keys, ctx.clock());
       for (const [jti, expires] of usedTickets) if (expires < now) usedTickets.delete(jti);
       if (usedTickets.has(ticket.jti)) throw apiError('UNAUTHENTICATED');
-      usedTickets.set(ticket.jti, now + TICKET_TTL_S * 1000);
       const user = ctx.users.byId(ticket.sub);
       if (!user) throw apiError('UNAUTHENTICATED');
       const revoke = ctx.devices.byId(request.body.revokeDeviceId);
       if (!revoke || revoke.userId !== user.id || revoke.revokedAt !== null) {
         throw apiError('NOT_FOUND');
       }
+      // Spent only now (no await since the check), so a stale device id lets the user pick again.
+      usedTickets.set(ticket.jti, now + TICKET_TTL_S * 1000);
       ctx.tokens.revokeDevice(revoke.id);
       await assertDeviceSlot(ctx, user, ticket.device);
       return startSession(ctx, user, ticket.device);

@@ -104,4 +104,22 @@ describe('API pipeline (api-spec §1, architecture §5.2)', () => {
     expect(text).not.toContain('SECRET-CODE');
     expect(text).not.toContain('remoteAddress');
   });
+
+  it('architecture §7: an unexpected error is logged without its query parameters', async () => {
+    const lines: string[] = [];
+    const { app, close } = await createTestApp({
+      log: { ...logOptions('production'), stream: { write: (line: string) => lines.push(line) } },
+    });
+    closers.push(close);
+    app.get('/v1/test/db', { config: { role: 'public' } }, () => {
+      // Drizzle's query errors carry the bound values.
+      throw new Error(
+        'Failed query: select * from users where email = ?\nparams: secret@example.test',
+      );
+    });
+    await app.inject({ method: 'GET', url: '/v1/test/db' });
+    const text = lines.join('');
+    expect(text).toContain('Failed query');
+    expect(text).not.toContain('secret@example.test');
+  });
 });
