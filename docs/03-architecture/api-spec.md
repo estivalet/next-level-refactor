@@ -14,7 +14,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 ## 1. HTTP API conventions
 
 - Base path `/v1`. JSON only (`Content-Type: application/json`), UTF-8.
-- **Auth:** launcher → `Authorization: Bearer <accessToken>` (JWT, 15 min). Admin console →
+- **Auth:** launcher → `Authorization: Bearer <accessToken>` (JWT, 15 min; a revoked device's token is refused at once). Every route declares a role (`public`, `device`, `admin`); registering one without a role fails at start. Admin console →
   httpOnly `nl_session` cookie. Webhooks → provider signature.
 - **IDs** are strings. **Timestamps** ISO-8601 UTC.
 - **Pagination:** `?cursor=<opaque>&limit=<1..100>` → `{ items: [...], nextCursor: string | null }`.
@@ -60,7 +60,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 |---|---|
 | `GET /v1/me` | → `{ user, entitlement }` |
 | `GET /v1/me/entitlement` | → `{ entitlement, banner }` (launcher polls hourly and after checkout) |
-| `GET /v1/me/devices` | → `Device[]` |
+| `GET /v1/me/devices` | → `Device[]`: the devices not revoked, oldest first; `current` marks the caller |
 | `DELETE /v1/me/devices/:id` | → `204`; another user's device → `NOT_FOUND`; the calling device → `CONFLICT` (`details.reason: 'current'`, sign out instead) |
 | `POST /v1/me/billing/checkout` | `{ planSlug, interval: 'month'|'year' }` → `{ url }` (Stripe Checkout) |
 | `POST /v1/me/billing/portal` | → `{ url }` (Stripe Customer Portal) |
@@ -111,7 +111,11 @@ Entity shapes are defined in [data-model.md](data-model.md).
 
 ### Rate limits (defaults)
 
-Auth endpoints 10/min/IP; download URL issue 60/hour/user; everything else 300/min/user.
+Auth endpoints 10/min/IP; download URL issue 60/hour/user; everything else 300/min (counted per address: the limit runs before authentication). `RATE_LIMITED` carries `Retry-After`.
+
+### Logging
+
+Requests are logged by method and path only (no query string: OAuth codes and states travel there; no client address). Tokens, codes and emails never appear in a log line.
 
 ---
 
