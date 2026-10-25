@@ -72,6 +72,12 @@ export class AuthService {
   #checking: Promise<AuthState> | null = null;
   #signIn: { close(): void } | null = null;
   #ticket: string | null = null;
+  #cancelRequested = false;
+  /**
+   * Bumped whenever the session is replaced or removed (sign-in, sign-out, revoke): work that
+   * started on an older session never stores or announces anything (a sign-out stays a sign-out).
+   */
+  #generation = 0;
   #stopTimer: (() => void) | null = null;
 
   constructor(deps: AuthDeps) {
@@ -109,7 +115,24 @@ export class AuthService {
 
   async signIn(): Promise<AuthState> {
     if (this.#deps.disabled || this.#state.kind === 'signingIn') return this.#state;
+    // A kept session (offline past the grace, US-A3) reconnects without the browser.
+    if (this.#session) {
+      const state = await this.refreshEntitlement();
+      if (this.#hasSession()) return state;
+    }
+    this.#cancelRequested = false;
     this.#set({ kind: 'signingIn' });
+    try {
+      return await this.#browserSignIn();
+    } catch (error) {
+      this.#signIn?.close();
+      this.#signIn = null;
+      this.#deps.log.warn({ error }, 'sign-in failed');
+      return this.#signedOut('error');
+    }
+  }
+
+  async #browserSignIn(): Promise<AuthState> {
     let config;
     try {
       config = await this.#deps.api.launcherConfig();
@@ -117,6 +140,7 @@ export class AuthService {
       return this.#signedOut('unreachable');
     }
     this.#banner = config.banner;
+    if (this.#cancelled()) return this.#signedOut('cancelled');
     if (!authorizeUrlAllowed(config.authorizeUrl, this.#deps.apiOrigin)) {
       this.#deps.log.warn({}, 'sign-in refused: unexpected authorize URL');
       return this.#signedOut('error');
@@ -128,6 +152,7 @@ export class AuthService {
       page: this.#deps.page,
     });
     this.#signIn = loop;
+    if (this.#cancelled()) loop.close();
     const url = new URL(config.authorizeUrl);
     for (const [key, value] of Object.entries({
       client_id: config.clientId,
@@ -141,13 +166,7 @@ export class AuthService {
     })) {
       url.searchParams.set(key, value);
     }
-    try {
-      await this.#deps.openBrowser(url.toString());
-    } catch {
-      loop.close();
-      this.#signIn = null;
-      return this.#signedOut('error');
-    }
+    if (!this.#cancelled()) await this.#deps.openBrowser(url.toString());
     const result = await loop.result;
     this.#signIn = null;
     if ('cancelled' in result) return this.#signedOut('cancelled');
@@ -162,7 +181,17 @@ export class AuthService {
     );
   }
 
+  // Read through methods: these fields change while a sign-in awaits.
+  #hasSession(): boolean {
+    return this.#session !== null;
+  }
+
+  #cancelled(): boolean {
+    return this.#cancelRequested;
+  }
+
   cancelSignIn(): AuthState {
+    if (this.#state.kind === 'signingIn') this.#cancelRequested = true;
     this.#signIn?.close();
     return this.#state;
   }
@@ -203,10 +232,12 @@ export class AuthService {
   async #check(): Promise<AuthState> {
     const session = this.#session;
     if (!session) return this.#state;
+    const generation = this.#generation;
     try {
       await this.#refresh();
       const token = this.#access?.token ?? '';
       const answer = await this.#deps.api.entitlement(token);
+      if (generation !== this.#generation) return this.#state;
       this.#banner = answer.banner;
       await this.#store({
         ...session,
@@ -216,6 +247,7 @@ export class AuthService {
       });
       return this.#signedIn(false);
     } catch (error) {
+      if (generation !== this.#generation) return this.#state;
       const failure = failureOf(error);
       if (failure?.kind === 'api' && failure.status === 401) {
         await this.#clear();
@@ -234,10 +266,12 @@ export class AuthService {
     this.#refreshing ??= (async () => {
       const session = this.#session;
       if (!session) throw new Error('no session');
+      const generation = this.#generation;
       const pair = await this.#deps.api.refresh({
         refreshToken: session.refreshToken,
         deviceId: session.deviceId,
       });
+      if (generation !== this.#generation) throw new Error('signed out meanwhile');
       this.#access = { token: pair.accessToken, at: this.#deps.clock().getTime() };
       await this.#store({ ...session, refreshToken: pair.refreshToken });
     })().finally(() => {
@@ -285,6 +319,7 @@ export class AuthService {
       return this.#signedOut('error');
     }
     this.#ticket = null;
+    this.#generation += 1;
     this.#banner = session.banner;
     this.#access = { token: session.accessToken, at: this.#deps.clock().getTime() };
     this.#remembered = await this.#deps.secrets.available().catch(() => false);
@@ -322,6 +357,7 @@ export class AuthService {
   }
 
   async #clear(): Promise<void> {
+    this.#generation += 1;
     this.#session = null;
     this.#access = null;
     await this.#deps.secrets.setMany({ 'auth.session': null }).catch(() => undefined);

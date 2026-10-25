@@ -68,4 +68,24 @@ describe('Account app (S12, D24, FR-AUTH-6, FR-AUTH-8)', () => {
       await screen.findByText('Sign-in is turned off in this development build.'),
     ).toBeVisible();
   });
+
+  it('security §3: no remote content — a Google avatar URL is not loaded', async () => {
+    installFakeBridge({
+      'auth.state': () =>
+        ok({
+          ...signedIn(),
+          user: {
+            id: 'u1',
+            email: 'player@example.test',
+            name: 'Player One',
+            avatarUrl: 'https://lh3.googleusercontent.com/a/x',
+            role: 'subscriber',
+          },
+        }),
+      'auth.devices.list': () => ok([]),
+    });
+    renderInShell(<AccountApp />);
+    await screen.findByText('player@example.test');
+    expect(document.querySelector('img')).toBeNull();
+  });
 });

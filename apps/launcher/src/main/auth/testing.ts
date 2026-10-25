@@ -57,9 +57,11 @@ export const storedSession = (at: number, overrides: Partial<SessionRecord> = {}
     ...overrides,
   } satisfies SessionRecord);
 
-type Step<T> = T | Failure;
+/** A value, an API failure, or a call that answers when the test says (races). */
+type Step<T> = T | Failure | (() => Promise<T>);
 const answer = <T>(step: Step<T> | undefined, fallback: () => T): Promise<T> => {
   if (step === undefined) return Promise.resolve(fallback());
+  if (typeof step === 'function') return (step as () => Promise<T>)();
   if (typeof step === 'object' && step !== null && 'kind' in step) {
     return Promise.reject(new ApiFailure(step));
   }
@@ -142,7 +144,12 @@ export function fakeApi(now: () => number) {
 
 /** An AuthService on fakes; `browse(result)` answers the pending browser sign-in. */
 export function setup(
-  opts: { session?: string; secretsAvailable?: boolean; disabled?: boolean } = {},
+  opts: {
+    session?: string;
+    secretsAvailable?: boolean;
+    disabled?: boolean;
+    loopbackFails?: boolean;
+  } = {},
 ) {
   let now = T0;
   const clock = () => new Date(now);
@@ -163,6 +170,7 @@ export function setup(
       return Promise.resolve();
     },
     loopback: () => {
+      if (opts.loopbackFails) return Promise.reject(new Error('EACCES'));
       const result = new Promise<LoopbackResult>((resolve) => {
         pending = resolve;
       });
@@ -217,4 +225,13 @@ export function setup(
       return raw === null ? null : (JSON.parse(raw) as SessionRecord);
     },
   };
+}
+
+/** A call the test answers later: `step` goes in a queue, `release` answers it. */
+export function held<T>(value: T) {
+  let release: () => void = () => undefined;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { step: () => gate.then(() => value), release };
 }

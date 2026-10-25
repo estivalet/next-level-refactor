@@ -36,11 +36,8 @@ export function AccountApp() {
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto bg-[#0b0b0f] p-6 text-slate-300">
       <section className="flex items-center gap-4">
-        {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt="" className="h-12 w-12 rounded-full" />
-        ) : (
-          <UserRound aria-hidden="true" className="h-12 w-12 rounded-full bg-white/5 p-2" />
-        )}
+        {/* No Google avatar: the window loads no remote content (security §3, CSP img-src). */}
+        <UserRound aria-hidden="true" className="h-12 w-12 rounded-full bg-white/5 p-2" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-base font-semibold text-white">{user.name}</p>
           <p className="truncate text-sm text-slate-400">{user.email}</p>

@@ -19,6 +19,26 @@ function platform(): DeviceInfo['platform'] {
   return process.platform === 'darwin' || process.platform === 'linux' ? process.platform : 'win32';
 }
 
+/** The development-only hooks (D25); a packaged build gets none of them. */
+export function devHooks(
+  isPackaged: boolean,
+  env: Record<string, string | undefined>,
+): {
+  disabled: boolean;
+  apiOverride: string | undefined;
+  stubPersona: string | null;
+  clockOffsetMs: number;
+} {
+  const dev = isPackaged ? {} : env;
+  const days = Number(dev['NEXTLEVEL_E2E_CLOCK_OFFSET_DAYS'] ?? 0);
+  return {
+    disabled: dev['NEXTLEVEL_AUTH'] === 'off',
+    apiOverride: dev['NEXTLEVEL_API_URL'],
+    stubPersona: /^stub:(\w+)$/.exec(dev['NEXTLEVEL_E2E_BROWSER'] ?? '')?.[1] ?? null,
+    clockOffsetMs: Number.isFinite(days) ? days * DAY_MS : 0,
+  };
+}
+
 /**
  * Builds the launcher's sign-in (FR-AUTH-*). Development builds honour, for e2e and local work:
  * `NEXTLEVEL_AUTH=off` (no gate, D25), `NEXTLEVEL_API_URL`, `NEXTLEVEL_E2E_BROWSER=stub:<persona>`
@@ -36,17 +56,17 @@ export function createAuth(opts: {
   language: () => Settings['general']['language'];
   openExternal: (url: string) => Promise<void>;
 }): { auth: AuthApi; start(): Promise<void>; dispose(): void } {
-  const dev = opts.isPackaged ? {} : opts.env;
-  if (dev['NEXTLEVEL_AUTH'] === 'off') {
+  const hooks = devHooks(opts.isPackaged, opts.env);
+  if (hooks.disabled) {
     return { auth: DISABLED_AUTH, start: () => Promise.resolve(), dispose: () => undefined };
   }
   const baseUrl = apiBaseUrl({
     isPackaged: opts.isPackaged,
-    override: dev['NEXTLEVEL_API_URL'],
+    override: hooks.apiOverride,
     built: opts.builtApiUrl,
   });
-  const offsetMs = Number(dev['NEXTLEVEL_E2E_CLOCK_OFFSET_DAYS'] ?? 0) * DAY_MS || 0;
-  const persona = /^stub:(\w+)$/.exec(dev['NEXTLEVEL_E2E_BROWSER'] ?? '')?.[1];
+  const offsetMs = hooks.clockOffsetMs;
+  const persona = hooks.stubPersona;
   const openBrowser = persona
     ? async (url: string) => {
         await fetch(`${url}&login_hint=${persona}`, { redirect: 'follow' });

@@ -1,7 +1,7 @@
 import type { ErrorCode } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import { authorizeUrlAllowed, offlineAllowed } from './rules.ts';
-import { DAY, device, entitlement, setup, storedSession, T0 } from './testing.ts';
+import { DAY, device, entitlement, held, setup, storedSession, T0 } from './testing.ts';
 
 const OFFLINE = { kind: 'offline' } as const;
 const api = (code: ErrorCode, status = 403, details?: unknown) =>
@@ -262,5 +262,70 @@ describe('devices (FR-AUTH-8, US-A4)', () => {
     await t.service.start();
     t.queues.devices.push(OFFLINE);
     await expect(t.service.devices()).rejects.toMatchObject({ error: { code: 'API_UNREACHABLE' } });
+  });
+});
+
+describe('races and recovery (review, FR-AUTH-6, US-A3, Review Focus 1)', () => {
+  it('FR-AUTH-6: a check still running when the user signs out never brings the session back', async () => {
+    const t = setup({ session: storedSession(T0) });
+    await t.service.start();
+    const slow = held({ accessToken: 'a9', refreshToken: 'r9' });
+    t.queues.refresh.push(slow.step);
+    const check = t.service.refreshEntitlement();
+    await t.service.signOut();
+    slow.release();
+    await check;
+    expect(t.service.state()).toMatchObject({ kind: 'signedOut', reason: null });
+    expect(await t.stored()).toBeNull();
+  });
+
+  it('US-A3: Try again after the grace reconnects with the kept session, without the browser', async () => {
+    const t = setup({ session: storedSession(T0 - 15 * DAY) });
+    t.queues.refresh.push(OFFLINE);
+    await t.service.start();
+    expect(t.service.state()).toMatchObject({ reason: 'offlineExpired' });
+    expect(await t.service.signIn()).toMatchObject({ kind: 'signedIn', offline: false });
+    expect(t.opened).toEqual([]);
+  });
+
+  it('US-A3: Try again while still offline stays on "connect to continue", no browser', async () => {
+    const t = setup({ session: storedSession(T0 - 15 * DAY) });
+    t.queues.refresh.push(OFFLINE, OFFLINE);
+    await t.service.start();
+    expect(await t.service.signIn()).toMatchObject({ kind: 'signedOut', reason: 'offlineExpired' });
+    expect(t.opened).toEqual([]);
+  });
+
+  it('a loopback that cannot listen ends the sign-in with an error, not a stuck wait', async () => {
+    const t = setup({ loopbackFails: true });
+    await t.service.start();
+    expect(await t.service.signIn()).toMatchObject({ kind: 'signedOut', reason: 'error' });
+    expect(t.service.state()).toMatchObject({ kind: 'signedOut' });
+  });
+
+  it('Cancel pressed before the browser opens stops the sign-in there', async () => {
+    const t = setup();
+    await t.service.start();
+    const slow = held({
+      authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+      clientId: 'c',
+      scopes: [],
+      banner: null,
+    });
+    t.queues.config.push(slow.step);
+    const done = t.service.signIn();
+    t.service.cancelSignIn();
+    slow.release();
+    expect(await done).toMatchObject({ kind: 'signedOut', reason: 'cancelled' });
+    expect(t.opened).toEqual([]);
+  });
+
+  it('Review Focus 1: the hourly check and an Account call with a stale token make one refresh', async () => {
+    const t = setup({ session: storedSession(T0) });
+    await t.service.start();
+    t.calls.length = 0;
+    t.advance(20 * 60_000);
+    await Promise.all([t.service.refreshEntitlement(), t.service.devices()]);
+    expect(t.calls.filter((c) => c.startsWith('refresh:'))).toEqual(['refresh:r1']);
   });
 });
