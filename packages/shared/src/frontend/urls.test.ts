@@ -26,6 +26,20 @@ describe('nextlevel URLs', () => {
     });
   });
 
+  it('FR-SCR-5: a media URL carries the file version, so a replaced file gets a new URL', () => {
+    expect(mediaUrl(42, 'box-front', 1700000000123)).toBe(
+      'nextlevel://media/42/box-front?v=1700000000123',
+    );
+    expect(mediaUrl(42, 'box-front', 1)).not.toBe(mediaUrl(42, 'box-front', 2));
+    expect(parseNextlevelUrl('nextlevel://media/42/box-front?v=17')).toEqual({
+      kind: 'media',
+      gameId: 42,
+      mediaKind: 'box-front',
+    });
+    expect(parseNextlevelUrl('nextlevel://media/42/box-front?v=x')).toBeNull();
+    expect(parseNextlevelUrl('nextlevel://media/42/box-front?w=1')).toBeNull();
+  });
+
   it('FR-THM-6: paths that could leave the root are rejected', () => {
     for (const bad of [
       'nextlevel://art/assets/..%2Fx',

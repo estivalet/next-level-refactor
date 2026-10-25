@@ -91,7 +91,8 @@ async function listMedia(dir: string): Promise<MediaFile[]> {
       if (!file.isFile()) continue;
       const path = join(kindDir, file.name);
       try {
-        found.push({ kind: kind.name, path, size: (await stat(path)).size });
+        const info = await stat(path);
+        found.push({ kind: kind.name, path, size: info.size, mtime: info.mtimeMs });
       } catch {
         // Vanished between listing and stat.
       }

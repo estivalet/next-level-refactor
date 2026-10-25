@@ -109,6 +109,7 @@ describe('GameRepository.get', () => {
       playCount: 0,
       lastPlayedAt: null,
       collectionIds: [],
+      scrape: null,
     });
   });
 

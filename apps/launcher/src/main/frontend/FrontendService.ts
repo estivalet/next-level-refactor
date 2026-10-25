@@ -51,8 +51,8 @@ const COLUMNS = `g.id as id, g.system_id as systemId, m.title as title, m.year a
   coalesce(u.play_count, 0) as playCount, u.last_played_at as lastPlayedAt,
   (select group_concat(f.filter, char(31)) from (select filter from game_filters
      where game_id = g.id order by filter) f) as filters,
-  (select group_concat(k.kind, char(31)) from (select kind from game_media
-     where game_id = g.id order by kind) k) as media`;
+  (select group_concat(k.kind || ':' || k.version, char(31)) from (select kind, version
+     from game_media where game_id = g.id order by kind) k) as media`;
 
 const FROM = `from games g join game_metadata m on m.game_id = g.id
   left join game_user_state u on u.game_id = g.id`;
@@ -78,13 +78,23 @@ const SQL = {
 
 const split = (value: string | null) => (value ? value.split('\u001f') : []);
 
+/** Media comes as `kind:version` pairs; a kind never holds a colon (MEDIA_KIND). */
 function toThemeGame(raw: RawThemeGame): ThemeGame {
+  const media: string[] = [];
+  const mediaVersions: Record<string, number> = {};
+  for (const pair of split(raw.media)) {
+    const colon = pair.lastIndexOf(':');
+    const kind = pair.slice(0, colon);
+    media.push(kind);
+    mediaVersions[kind] = Number(pair.slice(colon + 1));
+  }
   return {
     ...raw,
     favorite: raw.favorite === 1,
     hidden: raw.hidden === 1,
     filters: split(raw.filters),
-    media: split(raw.media),
+    media,
+    mediaVersions,
   };
 }
 

@@ -173,9 +173,24 @@ export const gameMedia = sqliteTable(
     kind: text('kind').notNull(),
     path: text('path').notNull(),
     size: integer('size').notNull(),
+    /** File mtime in ms; part of the media URL so a replaced file is never served from cache. */
+    version: integer('version').notNull().default(0),
   },
   (table) => [primaryKey({ columns: [table.gameId, table.kind] })],
 );
+
+/** The last scrape of a game (FR-SCR-2, FR-SCR-5); no row = never scraped. */
+export const scrapeStatus = sqliteTable('scrape_status', {
+  gameId: integer('game_id')
+    .primaryKey()
+    .references(() => games.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(),
+  providerGameId: integer('provider_game_id'),
+  status: text('status', { enum: ['scraped', 'review', 'notFound', 'failed'] }).notNull(),
+  candidates: integer('candidates').notNull().default(0),
+  error: text('error'),
+  scrapedAt: text('scraped_at').notNull(),
+});
 
 /** Arcade ROM facts NextLevelOS kept per game (data model §4); filled by the importer (D12). */
 export const arcadeInfo = sqliteTable('arcade_info', {

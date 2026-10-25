@@ -7,12 +7,14 @@ import {
   type GameListPage,
   type GameListQuery,
   type MetadataChanges,
+  type ScrapeField,
   type SearchResult,
   SmartFilterQuerySchema,
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
 import { ROW_COLUMNS, ROW_JOINS, listShape, toRow, type RawRow } from './gameSql.ts';
+import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
 import { smartFilterIdsSql } from './smartFilterSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
@@ -48,6 +50,11 @@ const METADATA_COLUMNS = {
   description: 'description',
   region: 'region',
 } as const;
+
+/** Columns a scrape may set (FR-SCR-1); `rating` is the community rating, 0..5. */
+const SCRAPE_COLUMNS = { ...METADATA_COLUMNS, rating: 'rating' } as const satisfies Partial<
+  Record<ScrapeField | 'region', string>
+>;
 
 const FLAG_COLUMNS = { favorite: 'favorite', hidden: 'hidden', userRating: 'user_rating' } as const;
 
@@ -156,6 +163,11 @@ export class GameRepository {
     )
       .pluck()
       .all(gameId) as number[];
+    const scrape = toScrapeStatus(
+      this.statement(
+        `select ${SCRAPE_STATUS_COLUMNS} from scrape_status s where s.game_id = ?`,
+      ).get(gameId) as Parameters<typeof toScrapeStatus>[0],
+    );
     return {
       ...toRow(raw, this.resolvePath),
       relPath: raw.relPath,
@@ -172,6 +184,7 @@ export class GameRepository {
       playCount: raw.playCount ?? 0,
       lastPlayedAt: raw.lastPlayedAt,
       collectionIds,
+      scrape,
     };
   }
 
@@ -225,6 +238,46 @@ export class GameRepository {
       const fields = new Set([...(JSON.parse(locked) as string[]), ...Object.keys(changes)]);
       params.lockedFields = JSON.stringify([...fields].sort());
       sets.push('locked_fields = @lockedFields', 'updated_at = @updatedAt');
+      this.statement(`update game_metadata set ${sets.join(', ')} where game_id = @gameId`).run(
+        params,
+      );
+    })();
+    return this.get(gameId);
+  }
+
+  /**
+   * Writes scraped metadata (FR-SCR-1, D19) in one transaction: only unlocked fields, plus locked
+   * ones the user ticked on purpose (`overrideLocked`). Scraped values never lock a field, and a
+   * null value (nothing scraped) leaves the field as it is.
+   */
+  applyScraped(
+    gameId: number,
+    values: Partial<Record<ScrapeField, string | number | null>>,
+    opts: { overrideLocked: readonly ScrapeField[] },
+    now: Date,
+  ): GameDetails {
+    this.db.$client.transaction(() => {
+      const locked = this.statement('select locked_fields from game_metadata where game_id = ?')
+        .pluck()
+        .get(gameId) as string | undefined;
+      if (locked === undefined) throw notFound({ gameId });
+      const lockedFields = new Set(JSON.parse(locked) as string[]);
+      const sets: string[] = [];
+      const params: Record<string, unknown> = { gameId, updatedAt: now.toISOString() };
+      for (const [field, column] of Object.entries(SCRAPE_COLUMNS)) {
+        const value = values[field as ScrapeField];
+        if (value === undefined || value === null) continue;
+        if (lockedFields.has(field) && !opts.overrideLocked.includes(field as ScrapeField))
+          continue;
+        sets.push(`${column} = @${field}`);
+        params[field] = value;
+        if (field === 'title') {
+          sets.push('sort_title = @sortTitle');
+          params.sortTitle = String(value).toLowerCase();
+        }
+      }
+      if (sets.length === 0) return;
+      sets.push('updated_at = @updatedAt');
       this.statement(`update game_metadata set ${sets.join(', ')} where game_id = @gameId`).run(
         params,
       );

@@ -9,8 +9,10 @@ export type ParsedNextlevelUrl =
   | { kind: 'media'; gameId: number; mediaKind: string }
   | { kind: 'art'; root: ArtRoot; rel: string };
 
-export function mediaUrl(gameId: number, kind: string): string {
-  return `nextlevel://media/${String(gameId)}/${kind}`;
+/** `version` (the file's mtime) changes the URL when a file is replaced, so no cached image stays. */
+export function mediaUrl(gameId: number, kind: string, version?: number): string {
+  const base = `nextlevel://media/${String(gameId)}/${kind}`;
+  return version === undefined ? base : `${base}?v=${String(version)}`;
 }
 
 export function artUrl(root: ArtRoot, rel: string): string {
@@ -41,7 +43,9 @@ export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
   if (!match) return null;
   const parts = (match[2] ?? '').split('/');
   if (match[1] === 'media') {
-    const [id, kind, ...rest] = parts;
+    const [id, kindAndQuery, ...rest] = parts;
+    const [kind, query, ...more] = (kindAndQuery ?? '').split('?');
+    if (more.length > 0 || (query !== undefined && !/^v=\d{1,16}$/.test(query))) return null;
     if (rest.length > 0 || !id || !/^[1-9]\d{0,15}$/.test(id) || !kind || !MEDIA_KIND.test(kind)) {
       return null;
     }

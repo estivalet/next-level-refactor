@@ -89,7 +89,7 @@ export class FakeThemeHost implements ThemeHost {
   }
 
   mediaUrl(game: ThemeGame, kind: string): string | null {
-    return game.media.includes(kind) ? mediaUrl(game.id, kind) : null;
+    return game.media.includes(kind) ? mediaUrl(game.id, kind, game.mediaVersions?.[kind]) : null;
   }
 
   artUrl(root: ArtRoot, rel: string): string {

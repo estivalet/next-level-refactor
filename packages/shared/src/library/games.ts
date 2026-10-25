@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ScrapeStatusSchema } from '../scraper/schema.ts';
 
 const id = z.number().int().positive();
 const count = z.number().int().min(0);
@@ -54,7 +55,7 @@ export const GameDetailsSchema = GameRowSchema.extend({
   publisher: z.string().nullable(),
   description: z.string().nullable(),
   region: z.string().nullable(),
-  /** Community rating from a scrape (0..1); the user's own is `userRating`. */
+  /** Community rating from a scrape (0..5, one decimal); the user's own is `userRating`. */
   rating: z.number().nullable(),
   filters: z.array(z.string()),
   /** Fields the user edited; scrapes never overwrite them (FR-LIB-6). */
@@ -62,6 +63,8 @@ export const GameDetailsSchema = GameRowSchema.extend({
   playCount: count,
   lastPlayedAt: z.string().nullable(),
   collectionIds: z.array(id),
+  /** The last scrape (FR-SCR-5); null = never scraped. */
+  scrape: ScrapeStatusSchema.nullable(),
 });
 
 /** Metadata the user can edit in the Library (FR-LIB-6). */

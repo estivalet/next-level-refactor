@@ -61,7 +61,8 @@ export function createLauncherThemeHost(
           opts?.refresh ? { themeId, refresh: true } : { themeId },
         ),
       ),
-    mediaUrl: (game, kind) => (game.media.includes(kind) ? mediaUrl(game.id, kind) : null),
+    mediaUrl: (game, kind) =>
+      game.media.includes(kind) ? mediaUrl(game.id, kind, game.mediaVersions?.[kind]) : null,
     artUrl,
     launch: async (gameId) => {
       if (deps.previewDraft) return { ok: false, message: deps.t('menuEditor.previewNoLaunch') };
