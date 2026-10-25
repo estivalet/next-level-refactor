@@ -11,7 +11,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
+    "dev": "concurrently -n api,admin,launcher -c blue,magenta,green \"npm run dev -w apps/api\" \"npm run dev -w apps/admin --if-present\" \"npm run dev -w apps/launcher\"",
     "build": "npm run build --workspaces --if-present",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
@@ -23,6 +23,7 @@
     "@eslint/js": "^9.39.5",
     "@types/node": "^24.19.2",
     "@vitest/coverage-v8": "^5.0.5",
+    "concurrently": "^10.0.6",
     "eslint": "^9.39.5",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^7.1.1",
