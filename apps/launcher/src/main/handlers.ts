@@ -27,6 +27,8 @@ import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
 import { createCredentialHandlers } from './scraper/credentialHandlers.ts';
+import { createBatchHandlers } from './scraper/batch/batchHandlers.ts';
+import type { BatchScrapeService } from './scraper/batch/BatchScrapeService.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
@@ -65,6 +67,7 @@ export interface MainDeps {
     smartFilters: SmartFilterRepository;
     importer: ImportService;
     scrape: Pick<ScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
+    batch: Pick<BatchScrapeService, 'begin' | 'pause' | 'resume' | 'cancel' | 'status'>;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;
@@ -142,6 +145,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       },
     }),
     ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
+    ...createBatchHandlers({ batch: () => library().batch }),
     ...createScrapeHandlers({
       service: () => library().scrape,
       systems: deps.scraperSystems,

@@ -56,6 +56,11 @@ export interface ScrapeServiceDeps {
   blocked: () => boolean;
 }
 
+export interface ApplyOptions {
+  candidates?: number;
+  regions?: readonly string[];
+}
+
 const MAX_THUMBS = 200;
 /** Candidates past this many get no thumbnail: each costs a rate-limited request. */
 const THUMBS_PER_SEARCH = 8;
@@ -190,26 +195,27 @@ export class ScrapeService {
     } satisfies Record<ScrapeField, string | number | null>;
   }
 
-  async apply(input: ScrapeApplyInput): Promise<ScrapeApplyResult> {
+  /** `opts` come from a batch: its candidate count and region order (FR-SCR-2). */
+  async apply(input: ScrapeApplyInput, opts: ApplyOptions = {}): Promise<ScrapeApplyResult> {
     if (this.deps.blocked() || this.applying.has(input.gameId)) {
       fail('BUSY', { gameId: input.gameId });
     }
     this.applying.add(input.gameId);
     try {
-      return await this.applyOnce(input);
+      return await this.applyOnce(input, opts);
     } finally {
       this.applying.delete(input.gameId);
     }
   }
 
-  private async applyOnce(input: ScrapeApplyInput): Promise<ScrapeApplyResult> {
+  private async applyOnce(input: ScrapeApplyInput, opts: ApplyOptions): Promise<ScrapeApplyResult> {
     const game = this.deps.games.get(input.gameId);
     const settings = this.deps.settings();
     const remote = await this.deps.client.game(
       input.providerGameId,
       this.screenscraperId(game.systemId),
     );
-    const selected = selectMedia(remote, settings.scraper.regionPriority);
+    const selected = selectMedia(remote, opts.regions ?? settings.scraper.regionPriority);
     const location = this.deps.games.location(game.id);
     const dir = mediaDir(location, settings, this.deps.system(game.systemId));
     const stem = romStem(game.relPath);
@@ -258,7 +264,7 @@ export class ScrapeService {
       this.deps.scrapes.set(game.id, {
         status: savedNothing ? 'failed' : 'scraped',
         providerGameId: input.providerGameId,
-        candidates: 1,
+        candidates: opts.candidates ?? 1,
         error: savedNothing ? (failed[0]?.code ?? null) : null,
         scrapedAt: now.toISOString(),
       });

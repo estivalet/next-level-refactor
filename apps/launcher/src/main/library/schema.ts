@@ -192,6 +192,28 @@ export const scrapeStatus = sqliteTable('scrape_status', {
   scrapedAt: text('scraped_at').notNull(),
 });
 
+/** Batch scrape jobs (FR-SCR-2, D18); at most one is running or paused at a time. */
+export const scrapeJobs = sqliteTable('scrape_jobs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  /** BatchScope as JSON. */
+  scope: text('scope').notNull(),
+  /** BatchRules as JSON. */
+  rules: text('rules').notNull(),
+  status: text('status', { enum: ['running', 'paused', 'finished', 'cancelled'] }).notNull(),
+  /** The last game handled; the next one has a larger id. */
+  cursorGameId: integer('cursor_game_id'),
+  total: integer('total').notNull().default(0),
+  done: integer('done').notNull().default(0),
+  applied: integer('applied').notNull().default(0),
+  review: integer('review').notNull().default(0),
+  notFound: integer('not_found').notNull().default(0),
+  failed: integer('failed').notNull().default(0),
+  pausedReason: text('paused_reason'),
+  resumeAt: text('resume_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 /** Arcade ROM facts NextLevelOS kept per game (data model §4); filled by the importer (D12). */
 export const arcadeInfo = sqliteTable('arcade_info', {
   gameId: integer('game_id')

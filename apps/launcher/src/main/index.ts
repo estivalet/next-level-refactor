@@ -49,8 +49,10 @@ import { createWorkerWalker } from './scan/workerWalker.ts';
 import { accountOf, createScraperClient } from './scraper/runtime.ts';
 import { hashRom } from './scraper/hashRom.ts';
 import { MediaWriter } from './scraper/MediaWriter.ts';
+import { BatchScrapeService } from './scraper/batch/BatchScrapeService.ts';
 import { ScrapeService } from './scraper/ScrapeService.ts';
 import { SCREENSCRAPER_URL, type ScreenScraperClient } from './scraper/screenscraper/client.ts';
+import type { QuotaGate } from './scraper/screenscraper/quota.ts';
 import { ScrapeRepository } from './library/ScrapeRepository.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
@@ -157,6 +159,7 @@ const emit = menuWatch.emit;
 function startLibrary(
   settings: SettingsService,
   scraperClient: ScreenScraperClient,
+  scraperQuota: Pick<QuotaGate, 'state'>,
 ): MainDeps['library'] {
   let db: ReturnType<typeof openLibrary>;
   try {
@@ -273,8 +276,33 @@ function startLibrary(
     clock: () => new Date(),
     blocked: () => scan.status().running || importer.running(),
   });
+  const batch = new BatchScrapeService({
+    db,
+    scraper: scrape,
+    games,
+    media,
+    scrapes: new ScrapeRepository(db),
+    quota: () => scraperQuota.state(),
+    blocked: () => scan.status().running || importer.running(),
+    emit,
+    log,
+    clock: () => new Date(),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    setTimer: (ms, run) => {
+      // setTimeout caps at ~24.8 days; a quota pause is at most a day.
+      const timer = setTimeout(run, Math.min(ms, 2_147_000_000));
+      return () => {
+        clearTimeout(timer);
+      };
+    },
+  });
+  batch.restore();
+  app.on('will-quit', () => {
+    batch.dispose();
+  });
   return {
     scrape,
+    batch,
     repo,
     media,
     frontend,
@@ -353,7 +381,7 @@ async function start(): Promise<void> {
   app.on('will-quit', () => {
     scraper.cache.close();
   });
-  const library = startLibrary(settings, scraper.client);
+  const library = startLibrary(settings, scraper.client, scraper.quota);
   const artPaths = () => {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
     return { assetsPath, themesPath };

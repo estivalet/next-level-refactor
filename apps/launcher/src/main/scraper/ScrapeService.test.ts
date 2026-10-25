@@ -404,3 +404,36 @@ describe('ScrapeService thumbnails (review)', () => {
     expect(await service.thumbnail(result.candidates[10]?.providerGameId ?? 0)).toBeNull();
   });
 });
+
+describe('ScrapeService.apply for a batch (FR-SCR-2)', () => {
+  it('records the candidate count and uses the batch region order', async () => {
+    const both: SsGame = {
+      ...RACER,
+      medias: [
+        {
+          type: 'box-2D',
+          region: 'us',
+          url: 'https://m.invalid/mediaJeu.php?devid=d&media=boxus',
+          format: 'png',
+        },
+        {
+          type: 'box-2D',
+          region: 'jp',
+          url: 'https://m.invalid/mediaJeu.php?devid=d&media=boxjp',
+          format: 'png',
+        },
+      ],
+    };
+    const { service, gameId, server } = await setup({
+      routes: { 'jeuInfos.php': () => ({ body: apiBody({ jeu: both }) }) },
+    });
+    const result = await service.apply(
+      { gameId, providerGameId: 500, kinds: ['box-front'], fields: [] },
+      { candidates: 3, regions: ['jp'] },
+    );
+    expect(result.game.scrape?.candidates).toBe(3);
+    expect(server.callsTo('mediaJeu.php').map((url) => url.searchParams.get('media'))).toEqual([
+      'boxjp',
+    ]);
+  });
+});
