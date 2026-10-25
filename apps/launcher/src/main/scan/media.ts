@@ -6,6 +6,8 @@ export interface MediaFile {
   kind: string;
   path: string;
   size: number;
+  /** mtime in ms. */
+  mtime: number;
 }
 
 export interface GameMediaRow {
@@ -13,6 +15,8 @@ export interface GameMediaRow {
   kind: string;
   path: string;
   size: number;
+  /** The file's mtime in ms, truncated; `mediaUrl` carries it (FR-SCR-5). */
+  version: number;
 }
 
 const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'gif'];
@@ -57,7 +61,16 @@ export function matchMedia(
     const slot = `${String(gameId)}/${kind}`;
     const current = best.get(slot);
     if (!current || fileRank < current.rank) {
-      best.set(slot, { row: { gameId, kind, path: file.path, size: file.size }, rank: fileRank });
+      best.set(slot, {
+        row: {
+          gameId,
+          kind,
+          path: file.path,
+          size: file.size,
+          version: Math.trunc(file.mtime),
+        },
+        rank: fileRank,
+      });
     }
   }
   return [...best.values()].map((entry) => entry.row);

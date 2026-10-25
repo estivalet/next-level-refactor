@@ -1,6 +1,7 @@
 import type { GameListQuery } from '@nextlevel/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { GameRepository } from './GameRepository.ts';
+import { MediaRepository } from './MediaRepository.ts';
 import { appErrorOf, seedGames, tempLibrary } from './testing.ts';
 
 let library: Awaited<ReturnType<typeof tempLibrary>>;
@@ -109,7 +110,21 @@ describe('GameRepository.get', () => {
       playCount: 0,
       lastPlayedAt: null,
       collectionIds: [],
+      scrape: null,
+      media: {},
     });
+  });
+
+  it('FR-SCR-5: details carry the indexed media kinds with their versions', () => {
+    const [id = 0] = seedGames(library.db, 'snes', ['Racer']);
+    new MediaRepository(library.db).upsert({
+      gameId: id,
+      kind: 'box-front',
+      path: 'C:/r.png',
+      size: 1,
+      version: 42,
+    });
+    expect(games.get(id).media).toEqual({ 'box-front': 42 });
   });
 
   it('FR-LIB-6: an unknown game is NOT_FOUND', () => {

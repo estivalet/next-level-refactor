@@ -104,6 +104,10 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
     const game = { ...FIXTURE_GAMES[0], media: ['box-front'] } as (typeof FIXTURE_GAMES)[number];
     expect(host.mediaUrl(game, 'box-front')).toBe(`nextlevel://media/${String(game.id)}/box-front`);
     expect(host.mediaUrl(game, 'fanart')).toBeNull();
+    // FR-SCR-5: a re-scraped file has a new version, so the URL (and the image) changes.
+    expect(host.mediaUrl({ ...game, mediaVersions: { 'box-front': 9 } }, 'box-front')).toBe(
+      `nextlevel://media/${String(game.id)}/box-front?v=9`,
+    );
     expect(host.artUrl({ kind: 'assets' }, 'logo/clear/A B.png')).toBe(
       'nextlevel://art/assets/logo/clear/A%20B.png',
     );

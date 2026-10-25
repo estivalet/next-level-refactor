@@ -87,6 +87,8 @@ export const ThemeGameSchema = z.object({
   lastPlayedAt: z.string().nullable(),
   /** Indexed media kinds of this game (`game_media`). */
   media: z.array(z.string().regex(MEDIA_KIND)),
+  /** File version (mtime ms) per indexed kind, for `mediaUrl` (FR-SCR-5); absent = unversioned. */
+  mediaVersions: z.record(z.string(), z.number().int().min(0)).optional(),
 });
 
 export const ThemeGamesSchema = z.array(ThemeGameSchema).max(200000);

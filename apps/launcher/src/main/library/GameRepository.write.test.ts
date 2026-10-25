@@ -138,3 +138,71 @@ describe('GameRepository.relink', () => {
     expect(appErrorOf(() => games.relink(missing, 999)).code).toBe('NOT_FOUND');
   });
 });
+
+describe('GameRepository.applyScraped', () => {
+  it('FR-SCR-1, D19: scraped values fill unlocked fields and never lock them', () => {
+    const [id = 0] = seedGames(library.db, 'snes', [{ title: 'Racer', genre: 'Old' }]);
+    games.updateMetadata(id, { genre: 'Mine' }, NOW);
+    const details = games.applyScraped(
+      id,
+      { genre: 'Racing', year: 1994, developer: 'Dev Co', rating: 4, description: 'Fast.' },
+      { overrideLocked: [] },
+      LATER,
+    );
+    expect(details).toMatchObject({
+      genre: 'Mine',
+      year: 1994,
+      developer: 'Dev Co',
+      rating: 4,
+      description: 'Fast.',
+    });
+    expect(details.lockedFields).toEqual(['genre']);
+  });
+
+  it('D19: a locked field ticked on purpose is written and stays locked', () => {
+    const [id = 0] = seedGames(library.db, 'snes', ['Racer']);
+    games.updateMetadata(id, { genre: 'Mine' }, NOW);
+    const details = games.applyScraped(
+      id,
+      { genre: 'Racing' },
+      { overrideLocked: ['genre'] },
+      LATER,
+    );
+    expect(details.genre).toBe('Racing');
+    expect(details.lockedFields).toEqual(['genre']);
+  });
+
+  it('FR-SCR-1: a scraped title updates the sort title and search; null values are skipped', () => {
+    const [id = 0] = seedGames(library.db, 'snes', [{ title: 'racer_v1', year: 1990 }]);
+    const details = games.applyScraped(
+      id,
+      { title: 'Zoom Racer', year: null, players: '1-2' },
+      { overrideLocked: [] },
+      LATER,
+    );
+    expect(details).toMatchObject({ title: 'Zoom Racer', year: 1990, players: '1-2' });
+    expect(searchTitles('zoom')).toEqual(['Zoom Racer']);
+    expect(
+      games.list({ scope: { kind: 'system', systemId: 'snes' }, tab: 'all', offset: 0, limit: 10 })
+        .games[0]?.title,
+    ).toBe('Zoom Racer');
+  });
+
+  it('FR-SCR-1: scraping an unknown game is NOT_FOUND', () => {
+    expect(
+      appErrorOf(() => games.applyScraped(999, { genre: 'x' }, { overrideLocked: [] }, NOW)).code,
+    ).toBe('NOT_FOUND');
+  });
+});
+
+describe('GameRepository.location', () => {
+  it('FR-SCR-4: a game location is its system, storage location and rel path', () => {
+    const [id = 0] = seedGames(library.db, 'snes', [{ title: 'Racer', relPath: '!hacks/r.sfc' }]);
+    expect(games.location(id)).toEqual({
+      systemId: 'snes',
+      locationId: 'loc-1',
+      relPath: '!hacks/r.sfc',
+    });
+    expect(appErrorOf(() => games.location(999)).code).toBe('NOT_FOUND');
+  });
+});

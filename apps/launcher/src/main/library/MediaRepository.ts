@@ -3,7 +3,7 @@ import type { LibraryDb } from './openLibrary.ts';
 
 const sameRows = (a: readonly GameMediaRow[], b: readonly GameMediaRow[]) => {
   const keyOf = (r: GameMediaRow) =>
-    `${String(r.gameId)}\u0000${r.kind}\u0000${r.path}\u0000${String(r.size)}`;
+    `${String(r.gameId)}\u0000${r.kind}\u0000${r.path}\u0000${String(r.size)}\u0000${String(r.version)}`;
   const left = new Set(a.map(keyOf));
   return a.length === b.length && b.every((row) => left.has(keyOf(row)));
 };
@@ -17,7 +17,7 @@ export class MediaRepository {
     const client = this.db.$client;
     const current = client
       .prepare(
-        `select m.game_id as gameId, m.kind, m.path, m.size from game_media m
+        `select m.game_id as gameId, m.kind, m.path, m.size, m.version from game_media m
          join games g on g.id = m.game_id where g.system_id = ?`,
       )
       .all(systemId) as GameMediaRow[];
@@ -26,13 +26,57 @@ export class MediaRepository {
       'delete from game_media where game_id in (select id from games where system_id = ?)',
     );
     const insert = client.prepare(
-      'insert into game_media (game_id, kind, path, size) values (?, ?, ?, ?)',
+      'insert into game_media (game_id, kind, path, size, version) values (?, ?, ?, ?, ?)',
     );
     client.transaction(() => {
       remove.run(systemId);
-      for (const row of rows) insert.run(row.gameId, row.kind, row.path, row.size);
+      for (const row of rows) insert.run(row.gameId, row.kind, row.path, row.size, row.version);
     })();
     return true;
+  }
+
+  /** Adds or replaces one game's file of a kind, e.g. after a scrape wrote it (FR-SCR-5). */
+  upsert(row: GameMediaRow): void {
+    this.db.$client
+      .prepare(
+        `insert into game_media (game_id, kind, path, size, version) values (?, ?, ?, ?, ?)
+         on conflict (game_id, kind) do update set
+           path = excluded.path, size = excluded.size, version = excluded.version`,
+      )
+      .run(row.gameId, row.kind, row.path, row.size, row.version);
+  }
+
+  /**
+   * Points every row that named one of `paths` at the new file: games whose ROMs share a stem in
+   * different subfolders share one art file (FR-SCR-5).
+   */
+  repoint(paths: readonly string[], file: { path: string; size: number; version: number }): void {
+    this.db.$client
+      .prepare(
+        `update game_media set path = ?, size = ?, version = ?
+         where path in (select value from json_each(?))`,
+      )
+      .run(file.path, file.size, file.version, JSON.stringify(paths));
+  }
+
+  /** File versions per kind for each game; games without media are absent. */
+  versionsByGame(gameIds: readonly number[]): Map<number, Record<string, number>> {
+    const result = new Map<number, Record<string, number>>();
+    if (gameIds.length === 0) return result;
+    const statement = this.db.$client.prepare(
+      `select game_id as gameId, kind, version from game_media
+       where game_id in (select value from json_each(?))`,
+    );
+    for (const row of statement.all(JSON.stringify(gameIds)) as Array<{
+      gameId: number;
+      kind: string;
+      version: number;
+    }>) {
+      const versions = result.get(row.gameId) ?? {};
+      versions[row.kind] = row.version;
+      result.set(row.gameId, versions);
+    }
+    return result;
   }
 
   /** Indexed kinds per game, sorted; games without media are absent. */

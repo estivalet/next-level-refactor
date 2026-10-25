@@ -29,6 +29,8 @@ export interface NextlevelHandlerDeps {
   mediaPath: (gameId: number, kind: string) => string | null;
   /** Read per request, so a Settings change applies at once. */
   paths: () => { assetsPath: string | null; themesPath: string | null };
+  /** A scrape candidate's thumbnail, fetched by main (FR-SCR-1); null = 404. */
+  scrapeThumb?: (providerGameId: number) => Promise<{ bytes: Buffer; mime: string } | null>;
 }
 
 /** The `protocol.handle('nextlevel', …)` handler; 404 for anything it can't resolve. */
@@ -39,6 +41,11 @@ export function createNextlevelHandler(deps: NextlevelHandlerDeps) {
     }
     const parsed = parseNextlevelUrl(request.url);
     if (!parsed) return new Response(null, { status: 404 });
+    if (parsed.kind === 'scrape-thumb') {
+      const thumb = await deps.scrapeThumb?.(parsed.providerGameId);
+      if (!thumb) return new Response(null, { status: 404 });
+      return new Response(new Uint8Array(thumb.bytes), { headers: { 'content-type': thumb.mime } });
+    }
     const path = await resolveNextlevelPath(parsed, { mediaPath: deps.mediaPath, ...deps.paths() });
     if (!path) return new Response(null, { status: 404 });
     return serveFile(path, request.headers.get('range'));

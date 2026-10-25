@@ -235,6 +235,39 @@ describe('ScreenScraperClient (FR-SCR-1)', () => {
     expect(server.calls).toHaveLength(1);
   });
 
+  it('systems: an empty list is not cached, and refresh asks again (system picker)', async () => {
+    let systemes: unknown[] = [];
+    const { client, server } = setup({
+      'systemesListe.php': () => ({ body: apiBody({ systemes }) }),
+    });
+    expect(await client.systems()).toEqual([]);
+    systemes = [{ id: '1', noms: { nom_eu: 'Alpha Console' } }];
+    expect(await client.systems()).toEqual([{ id: 1, name: 'Alpha Console' }]);
+    await client.systems();
+    expect(server.calls).toHaveLength(2);
+    await client.systems({ refresh: true });
+    expect(server.calls).toHaveLength(3);
+  });
+
+  it('download stops when the caller aborts (batch cancel)', async () => {
+    const seen: Array<AbortSignal | undefined> = [];
+    const fetchSpy: typeof fetch = (_input, init) => {
+      seen.push(init?.signal ?? undefined);
+      return init?.signal?.aborted
+        ? Promise.reject(new DOMException('aborted', 'AbortError'))
+        : Promise.resolve(new Response(new Uint8Array([1])));
+    };
+    const { client } = setup({}, TEST_CREDENTIALS, fetchSpy);
+    const controller = new AbortController();
+    controller.abort();
+    expect(
+      await codeOf(client.download('https://media.invalid/mediaJeu.php?m=1', controller.signal)),
+    ).toBe('SCRAPER_NETWORK');
+    expect(seen[0]?.aborted).toBe(true);
+    await client.download('https://media.invalid/mediaJeu.php?m=2');
+    expect(seen[1]?.aborted).toBe(false);
+  });
+
   it('every response updates the quota from ssuser', async () => {
     const { client, quota } = setup({
       'ssuserInfos.php': () => ({

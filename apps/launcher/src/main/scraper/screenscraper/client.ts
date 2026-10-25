@@ -65,8 +65,10 @@ export class ScreenScraperClient {
   constructor(private readonly deps: ClientDeps) {}
 
   /** The ScreenScraper system list, sorted by name (for the system picker). */
-  async systems(): Promise<Array<{ id: number; name: string }>> {
-    const cached = this.deps.cache.get('systems', 'all');
+  async systems(
+    opts: { refresh?: boolean | undefined } = {},
+  ): Promise<Array<{ id: number; name: string }>> {
+    const cached = opts.refresh ? null : this.deps.cache.get('systems', 'all');
     if (Array.isArray(cached)) return cached as Array<{ id: number; name: string }>;
     const response = await this.request('systemesListe.php', {});
     const list = Array.isArray(response?.['systemes']) ? response['systemes'] : [];
@@ -81,7 +83,8 @@ export class ScreenScraperClient {
       })
       .filter((s): s is { id: number; name: string } => s.id !== null && s.name !== null)
       .sort((a, b) => a.name.localeCompare(b.name));
-    this.deps.cache.put('systems', 'all', systems);
+    // An empty list is an API hiccup, not a fact worth keeping for 30 days.
+    if (systems.length > 0) this.deps.cache.put('systems', 'all', systems);
     return systems;
   }
 
@@ -157,8 +160,11 @@ export class ScreenScraperClient {
   }
 
   /** A media file. Its URL already carries the credentials ScreenScraper put there. */
-  async download(url: string): Promise<{ bytes: Buffer; contentType: string | null }> {
-    const response = await this.send(url);
+  async download(
+    url: string,
+    signal?: AbortSignal,
+  ): Promise<{ bytes: Buffer; contentType: string | null }> {
+    const response = await this.send(url, signal);
     if (!response.ok) return fail('SCRAPER_NETWORK', `HTTP ${String(response.status)}`);
     return {
       bytes: Buffer.from(await this.body(response, (r) => r.arrayBuffer())),
@@ -220,10 +226,11 @@ export class ScreenScraperClient {
     }
   }
 
-  private async send(url: string): Promise<Response> {
+  private async send(url: string, signal?: AbortSignal): Promise<Response> {
+    const timeout = AbortSignal.timeout(TIMEOUT_MS);
     try {
       return await this.deps.quota.run(() =>
-        this.deps.fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) }),
+        this.deps.fetch(url, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout }),
       );
     } catch (error) {
       return fail('SCRAPER_NETWORK', redact(error));

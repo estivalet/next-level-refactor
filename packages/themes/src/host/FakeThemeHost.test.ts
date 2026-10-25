@@ -20,6 +20,10 @@ describe('FakeThemeHost (FR-THM-6)', () => {
     if (!game) throw new Error('fixture');
     expect(host.mediaUrl(game, 'box-front')).toBe(`nextlevel://media/${String(game.id)}/box-front`);
     expect(host.mediaUrl(game, 'marquee')).toBeNull();
+    const versioned = { ...game, mediaVersions: { 'box-front': 77 } };
+    expect(host.mediaUrl(versioned, 'box-front')).toBe(
+      `nextlevel://media/${String(game.id)}/box-front?v=77`,
+    );
   });
 
   it('FR-THM-6: records calls, fails on request and delivers events', async () => {

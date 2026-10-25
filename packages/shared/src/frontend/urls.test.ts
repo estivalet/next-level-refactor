@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { artUrl, mediaUrl, parseNextlevelUrl } from './urls.ts';
+import { artUrl, mediaUrl, parseNextlevelUrl, scrapeThumbUrl } from './urls.ts';
 
 describe('nextlevel URLs', () => {
   it('FR-THM-6: an art URL round-trips with spaces and accents', () => {
@@ -24,6 +24,36 @@ describe('nextlevel URLs', () => {
       gameId: 42,
       mediaKind: 'box-front',
     });
+  });
+
+  it('FR-SCR-5: a media URL carries the file version, so a replaced file gets a new URL', () => {
+    expect(mediaUrl(42, 'box-front', 1700000000123)).toBe(
+      'nextlevel://media/42/box-front?v=1700000000123',
+    );
+    expect(mediaUrl(42, 'box-front', 1)).not.toBe(mediaUrl(42, 'box-front', 2));
+    expect(parseNextlevelUrl('nextlevel://media/42/box-front?v=17')).toEqual({
+      kind: 'media',
+      gameId: 42,
+      mediaKind: 'box-front',
+    });
+    expect(parseNextlevelUrl('nextlevel://media/42/box-front?v=x')).toBeNull();
+    expect(parseNextlevelUrl('nextlevel://media/42/box-front?w=1')).toBeNull();
+  });
+
+  it('FR-SCR-1: a candidate thumbnail is named by its ScreenScraper game id only', () => {
+    expect(scrapeThumbUrl(321)).toBe('nextlevel://scrape-thumb/321');
+    expect(parseNextlevelUrl('nextlevel://scrape-thumb/321')).toEqual({
+      kind: 'scrape-thumb',
+      providerGameId: 321,
+    });
+    for (const bad of [
+      'nextlevel://scrape-thumb/0',
+      'nextlevel://scrape-thumb/x',
+      'nextlevel://scrape-thumb/1/2',
+      'nextlevel://scrape-thumb/',
+    ]) {
+      expect(parseNextlevelUrl(bad), bad).toBeNull();
+    }
   });
 
   it('FR-THM-6: paths that could leave the root are rejected', () => {

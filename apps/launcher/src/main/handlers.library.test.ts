@@ -6,6 +6,7 @@ import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { ImportService } from './import/ImportService.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
@@ -94,6 +95,7 @@ async function setup(withLibrary: boolean) {
       smartFilters,
       // These tests never reach the import channels.
       importer: {} as ImportService,
+      scrape: {} as ScrapeService,
     };
   }
   const deps: MainDeps = {
@@ -114,6 +116,7 @@ async function setup(withLibrary: boolean) {
     newId: () => '0199f000-0000-7000-8000-000000000001',
     secrets: memorySecrets(),
     scraperAccount: () => Promise.reject(new Error('no scraper in this test')),
+    scraperSystems: () => Promise.reject(new Error('no scraper in this test')),
     emit: (event, payload) => {
       events.push({ event, payload });
     },

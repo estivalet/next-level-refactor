@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { matchMedia } from './media.ts';
 
-const file = (kind: string, path: string, size = 10) => ({ kind, path, size });
+const file = (kind: string, path: string, size = 10, mtime = 5) => ({ kind, path, size, mtime });
 
 describe('matchMedia', () => {
+  it('FR-SCR-5: a row carries the file mtime as its version', () => {
+    const rows = matchMedia(
+      [{ id: 1, relPath: 'Game.zip' }],
+      [file('fanart', 'C:/m/fanart/Game.jpg', 3, 1234.9)],
+    );
+    expect(rows[0]?.version).toBe(1234);
+  });
+
   it('FR-THM-2: a media file matches the game with the same file stem', () => {
     const rows = matchMedia(
       [
@@ -18,6 +26,7 @@ describe('matchMedia', () => {
         kind: 'box-front',
         path: 'E:\\roms\\sega\\media\\box-front\\Sonic (USA).png',
         size: 10,
+        version: 5,
       },
     ]);
   });

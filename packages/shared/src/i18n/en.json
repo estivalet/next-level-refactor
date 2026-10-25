@@ -666,7 +666,8 @@
       "players": "Players",
       "description": "Description",
       "region": "Region",
-      "filters": "Filters"
+      "filters": "Filters",
+      "rating": "Rating"
     },
     "menu": {
       "label": "Game actions",
@@ -678,7 +679,8 @@
       "openFolder": "Open folder",
       "missingReason": "Show missing reason…",
       "play": "Play",
-      "launchOptions": "Launch options…"
+      "launchOptions": "Launch options…",
+      "scrape": "Scrape…"
     },
     "edit": {
       "title": "Edit details",
@@ -828,6 +830,44 @@
         "filters": "Tags use lowercase letters, digits and dashes.",
         "genre": "Up to 100 characters.",
         "systems": "Too many systems."
+      }
+    },
+    "scrape": {
+      "title": "Scrape: {{title}}",
+      "searchLabel": "Search title",
+      "search": "Search",
+      "searching": "Searching ScreenScraper…",
+      "candidates": "Candidates",
+      "exact": "Exact match",
+      "noMatch": "No match found. Try another title.",
+      "loadingPreview": "Loading preview…",
+      "overwrite": "Overwrite existing",
+      "art": "Art",
+      "metadata": "Metadata",
+      "local": "Already have a local file",
+      "missing": "Missing locally",
+      "notAvailable": "Not on ScreenScraper",
+      "locked": "Edited by you. Ticking it replaces your value; the field stays locked.",
+      "needsSystem": "This system is not linked to a ScreenScraper system yet.",
+      "systemLabel": "ScreenScraper system",
+      "chooseSystem": "Choose a system…",
+      "saveSystem": "Save system",
+      "reloadSystems": "Reload list",
+      "noSystems": "ScreenScraper sent no systems. Reload the list to try again.",
+      "apply": "Apply",
+      "applying": "Applying…",
+      "close": "Close",
+      "failed": "{{kind}}: {{reason}}",
+      "failure": {
+        "notAvailable": "not on ScreenScraper",
+        "download": "the download failed",
+        "write": "could not be saved in the media folder"
+      },
+      "status": {
+        "scraped": "Scraped {{date}}",
+        "review": "Needs review",
+        "notFound": "Not found on ScreenScraper",
+        "failed": "Last scrape failed"
       }
     }
   },

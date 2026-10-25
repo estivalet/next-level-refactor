@@ -666,7 +666,8 @@
       "players": "Jogadores",
       "description": "Descrição",
       "region": "Região",
-      "filters": "Filtros"
+      "filters": "Filtros",
+      "rating": "Nota"
     },
     "menu": {
       "label": "Ações do jogo",
@@ -678,7 +679,8 @@
       "openFolder": "Abrir pasta",
       "missingReason": "Mostrar motivo da ausência…",
       "play": "Jogar",
-      "launchOptions": "Opções de execução…"
+      "launchOptions": "Opções de execução…",
+      "scrape": "Buscar dados…"
     },
     "edit": {
       "title": "Editar detalhes",
@@ -828,6 +830,44 @@
         "filters": "Tags usam letras minúsculas, dígitos e hífens.",
         "genre": "Até 100 caracteres.",
         "systems": "Sistemas demais."
+      }
+    },
+    "scrape": {
+      "title": "Buscar dados: {{title}}",
+      "searchLabel": "Buscar título",
+      "search": "Buscar",
+      "searching": "Buscando no ScreenScraper…",
+      "candidates": "Candidatos",
+      "exact": "Correspondência exata",
+      "noMatch": "Nada encontrado. Tente outro título.",
+      "loadingPreview": "Carregando prévia…",
+      "overwrite": "Substituir existentes",
+      "art": "Arte",
+      "metadata": "Metadados",
+      "local": "Já existe um arquivo local",
+      "missing": "Não existe localmente",
+      "notAvailable": "Não está no ScreenScraper",
+      "locked": "Editado por você. Marcar substitui seu valor; o campo continua bloqueado.",
+      "needsSystem": "Este sistema ainda não está ligado a um sistema do ScreenScraper.",
+      "systemLabel": "Sistema do ScreenScraper",
+      "chooseSystem": "Escolha um sistema…",
+      "saveSystem": "Salvar sistema",
+      "reloadSystems": "Recarregar lista",
+      "noSystems": "O ScreenScraper não enviou sistemas. Recarregue a lista para tentar de novo.",
+      "apply": "Aplicar",
+      "applying": "Aplicando…",
+      "close": "Fechar",
+      "failed": "{{kind}}: {{reason}}",
+      "failure": {
+        "notAvailable": "não está no ScreenScraper",
+        "download": "o download falhou",
+        "write": "não pôde ser salvo na pasta de mídia"
+      },
+      "status": {
+        "scraped": "Dados buscados em {{date}}",
+        "review": "Precisa de revisão",
+        "notFound": "Não encontrado no ScreenScraper",
+        "failed": "A última busca falhou"
       }
     }
   },

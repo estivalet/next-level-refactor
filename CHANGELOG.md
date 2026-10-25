@@ -13,6 +13,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   fields a batch scrape fills. Under the hood: a TypeScript ScreenScraper client ported from
   NextLevelOS (title matching, hash identify, metadata, art selection) with quota limits and a
   response cache.
+- M6b single-game scrape (FR-SCR-1, FR-SCR-4, FR-SCR-5, US-C5): **Scrape…** in the Library's
+  game menu finds the game on ScreenScraper (by ROM hash, then by title), previews its art
+  and fields against what the game has, and applies the ticked ones. Art is written where
+  NextLevelOS looks for it (`media/<kind>/<rom stem>`, PNG / JPEG fanart / MP4, D17) and
+  shows at once in the Library and the themes; fields you edited stay yours unless you tick
+  them (D19). The details panel shows the box art and when the game was last scraped.
 
 ### Changed
 - Game art kinds follow the NextLevelOS folder names (D16): `box-3d`, `cart-front` and

@@ -304,8 +304,8 @@ erDiagram
 | `game_filters` | `game_id` FK, `filter` text | PK(`game_id`,`filter`); values: `official`, `homebrew`, `hack`, `translation`, `prototype`, `unlicensed`, … |
 | `game_user_state` | `game_id` PK FK, `favorite` bool, `hidden` bool, `user_rating` int?, `play_count` int, `last_played_at` text?, `play_seconds` int | |
 | `game_launch_override` | `game_id` PK FK, `profile_id` text?, `core` text?, `extra_args` json | Replaces gamelist `core`/`config`/`shader`/`emulator` fields |
-| `game_media` | `game_id` FK, `kind` text, `path` text, `size` int | PK(`game_id`,`kind`); since M4a every scan rebuilds a system's rows from `media/<kind>/<rom stem>.<ext>` (png > jpg > jpeg > webp > gif; mp4 > webm), scrape adds to it in M6; themes read only this |
-| `scrape_status` | `game_id` PK FK, `provider`, `provider_game_id`, `status`, `candidates` int, `error` text?, `scraped_at` | |
+| `game_media` | `game_id` FK, `kind` text, `path` text, `size` int, `version` int (since M6b) | PK(`game_id`,`kind`); since M4a every scan rebuilds a system's rows from `media/<kind>/<rom stem>.<ext>` (png > jpg > jpeg > webp > gif; mp4 > webm); a scrape upserts the row of each kind it writes (M6b); `version` = file mtime in ms, carried by `nextlevel://media/<id>/<kind>?v=<version>` so a replaced file is never served from cache (FR-SCR-5); themes read only this |
+| `scrape_status` | `game_id` PK FK cascade, `provider` text (`screenscraper`), `provider_game_id` int?, `status` text (`scraped`/`review`/`notFound`/`failed`), `candidates` int, `error` text?, `scraped_at` text | Since M6b (migration 0007); one row per game, replaced by every scrape; the single-game dialog writes `scraped`; `GameDetails.scrape` |
 | `arcade_info` | `game_id` PK FK, `rom`, `parent`, `driver`, `manufacturer` | MAME data |
 | `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `source` text? UNIQUE, `created_at` | `source` since M5a (import provenance) |
 | `collection_games` | `collection_id` FK, `game_id` FK, `position` int | PK(`collection_id`,`game_id`) |

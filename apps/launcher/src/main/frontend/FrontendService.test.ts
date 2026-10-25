@@ -93,8 +93,8 @@ describe('FrontendService.games', () => {
     ]);
     tag(zeta ?? 0, 'official');
     media.replaceForSystem('snes', [
-      { gameId: zeta ?? 0, kind: 'video', path: 'C:\\z.mp4', size: 1 },
-      { gameId: zeta ?? 0, kind: 'box-front', path: 'C:\\z.png', size: 1 },
+      { gameId: zeta ?? 0, kind: 'video', path: 'C:\\z.mp4', size: 1, version: 30 },
+      { gameId: zeta ?? 0, kind: 'box-front', path: 'C:\\z.png', size: 1, version: 40 },
     ]);
     const games = service.games('s:snes');
     expect(games.map((g) => [g.title, g.hidden, g.favorite])).toEqual([
@@ -109,9 +109,12 @@ describe('FrontendService.games', () => {
       playCount: 0,
       lastPlayedAt: null,
       media: ['box-front', 'video'],
+      mediaVersions: { 'box-front': 40, video: 30 },
     });
     expect(games[0]?.id).toBe(alpha);
     expect(games[0]?.media).toEqual([]);
+    expect(games[0]?.mediaVersions).toEqual({});
+    expect(games[0]?.mediaVersions).toEqual({});
   });
 
   it('FR-THM-6: a filter level only has games carrying that filter', async () => {
