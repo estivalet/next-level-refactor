@@ -3,10 +3,14 @@ import { ImageDown } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MenuItem } from '../library/GameContextMenu.tsx';
+import { useBatchStatus } from './batchApi.ts';
 
 /** The batch rules dialog's state in the Library overlays (US-C6). */
 export function useBatchOverlay() {
   const { t } = useTranslation();
+  const status = useBatchStatus();
+  // One job at a time: no new batch while one runs or is paused (or before the status is known).
+  const canBatch = status.data?.state === 'idle' || status.data?.state === 'finished';
   const [batchRules, setBatchRules] = useState<{ scope: BatchScope; title: string } | null>(null);
   const titleOf = (scope: BatchScope, systemName: (id: string) => string) =>
     'systemIds' in scope
@@ -17,6 +21,7 @@ export function useBatchOverlay() {
   };
   return {
     batchRules,
+    canBatch,
     openBatch,
     closeBatch: () => {
       setBatchRules(null);

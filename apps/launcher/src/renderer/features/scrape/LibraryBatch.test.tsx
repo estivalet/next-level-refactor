@@ -94,4 +94,24 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       ).toBe(true);
     });
   });
+
+  it('review: while a batch is paused the context menu offers no new batch', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      ...libraryResponses([gameRow(1, 'Alpha'), gameRow(2, 'Bravo')]),
+      'scraper.batch.status': () =>
+        ok({ ...IDLE_BATCH, jobId: 1, state: 'paused', pausedReason: 'quota', total: 2 }),
+    });
+    renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    await user.keyboard('{Shift>}');
+    await user.click(screen.getByRole('option', { name: /Bravo/ }));
+    await user.keyboard('{/Shift}');
+    await screen.findByText(/Daily quota reached/);
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    const menu = screen.getByRole('menu', { name: 'Game actions' });
+    expect(
+      within(menu).queryByRole('menuitem', { name: /selected games/ }),
+    ).not.toBeInTheDocument();
+  });
 });

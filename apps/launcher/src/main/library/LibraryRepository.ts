@@ -156,17 +156,28 @@ export class LibraryRepository {
 
   /** Games per system (missing ones included), how many are missing and need review. */
   systemCounts(): Array<{ systemId: string; games: number; missing: number; review: number }> {
+    // Review counts follow the Needs review tab: hidden games are left out.
+    const review = new Map(
+      (
+        this.db.$client
+          .prepare(
+            `select g.system_id as systemId, count(*) as n from scrape_status s
+             join games g on g.id = s.game_id left join game_user_state u on u.game_id = g.id
+             where s.status = 'review' and coalesce(u.hidden, 0) = 0 group by g.system_id`,
+          )
+          .all() as Array<{ systemId: string; n: number }>
+      ).map((row) => [row.systemId, row.n]),
+    );
     return this.db
       .select({
         systemId: games.systemId,
         games: count(),
         missing: sql<number>`coalesce(sum(${games.missing}), 0)`,
-        review: sql<number>`coalesce(sum(exists (select 1 from scrape_status s
-          where s.game_id = ${games.id} and s.status = 'review')), 0)`,
       })
       .from(games)
       .groupBy(games.systemId)
       .orderBy(asc(games.systemId))
-      .all();
+      .all()
+      .map((row) => ({ ...row, review: review.get(row.systemId) ?? 0 }));
   }
 }

@@ -908,7 +908,9 @@
         "user": "Pausado ({{done}}/{{total}})",
         "media": "Pausado: a arte não pôde ser salva — verifique a pasta de mídia ({{done}}/{{total}})",
         "error": "Pausado após um erro — veja o log ({{done}}/{{total}})"
-      }
+      },
+      "busy": "Já há uma busca em lote em andamento ou pausada. Cancele-a primeiro.",
+      "noSystem": "Nenhum sistema do ScreenScraper definido para {{systems}}. Escolha um em Configurações → Sistemas (ou busque um jogo com Buscar dados…, que pergunta)."
     }
   },
   "frontend": {

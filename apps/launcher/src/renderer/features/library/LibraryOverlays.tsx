@@ -112,7 +112,7 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
           },
         ]
       : [];
-  if (ids.length > 1) {
+  if (ids.length > 1 && overlays.canBatch) {
     collectionItems.push(overlays.batchItem(ids));
   }
   if (shown) {

@@ -133,4 +133,10 @@ describe('ScrapeMenu (FR-SCR-2, US-C6)', () => {
     await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
     expect(review()).toBe(1);
   });
+
+  it('review: the status line wraps instead of cutting the counts off', async () => {
+    setup({ ...RUNNING, state: 'paused', pausedReason: 'media', current: null });
+    const line = await screen.findByText(/art couldn't be saved/);
+    expect(line.className).not.toMatch(/truncate/);
+  });
 });

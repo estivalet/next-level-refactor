@@ -29,7 +29,7 @@ export function BatchProgress({
   if (status.state === 'finished') {
     return (
       <div className="flex items-center gap-2">
-        <p role="status" className="max-w-xs truncate text-[11px] text-slate-500">
+        <p role="status" className="max-w-md text-[11px] text-slate-500">
           {t('library.batch.finished', { ...status })}
         </p>
         {status.review > 0 && onShowReview && (
@@ -55,7 +55,7 @@ export function BatchProgress({
     return (
       <div className="flex items-center gap-2">
         <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin text-emerald-400" />
-        <p role="status" className="max-w-xs truncate text-[11px] text-slate-400">
+        <p role="status" className="max-w-md text-[11px] text-slate-400">
           {t('library.batch.running', { ...counts, review: status.review })}
         </p>
         <button
@@ -80,7 +80,7 @@ export function BatchProgress({
     : '';
   return (
     <div className="flex items-center gap-2">
-      <p role="status" className="max-w-xs truncate text-[11px] text-amber-200">
+      <p role="status" className="max-w-md text-[11px] text-amber-200">
         {t(`library.batch.paused.${reason}`, { ...counts, time })}
       </p>
       {reason === 'credentials' && (

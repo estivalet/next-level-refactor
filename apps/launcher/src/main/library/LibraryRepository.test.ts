@@ -79,7 +79,11 @@ describe('LibraryRepository review counts', () => {
   it('FR-SCR-2: system counts include the games needing review', async () => {
     const library = await tempLibrary();
     try {
-      const [a = 0] = seedGames(library.db, 'snes', ['A', 'B']);
+      const [a = 0, , hidden = 0] = seedGames(library.db, 'snes', [
+        'A',
+        'B',
+        { title: 'H', hidden: true },
+      ]);
       new ScrapeRepository(library.db).set(a, {
         status: 'review',
         providerGameId: null,
@@ -87,8 +91,15 @@ describe('LibraryRepository review counts', () => {
         error: null,
         scrapedAt: '2026-10-25T12:00:00.000Z',
       });
+      new ScrapeRepository(library.db).set(hidden, {
+        status: 'review',
+        providerGameId: null,
+        candidates: 2,
+        error: null,
+        scrapedAt: '2026-10-25T12:00:00.000Z',
+      });
       expect(library.repo.systemCounts()).toEqual([
-        { systemId: 'snes', games: 2, missing: 0, review: 1 },
+        { systemId: 'snes', games: 3, missing: 0, review: 1 },
       ]);
     } finally {
       await library.cleanup();

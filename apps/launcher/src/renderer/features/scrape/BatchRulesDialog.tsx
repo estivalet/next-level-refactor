@@ -10,9 +10,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
 import { REGIONS } from '../settings/scraper/ScraperOptions.tsx';
-import { errorMessageKey, useSettings } from '../settings/settingsApi.ts';
+import { useSettings } from '../settings/settingsApi.ts';
 import { OrderedList } from '../settings/themes/OrderedList.tsx';
 import { useStartBatch } from './batchApi.ts';
+import { StartRefusal } from './StartRefusal.tsx';
 
 const BATCH_FIELDS = BatchFieldSchema.options;
 
@@ -126,11 +127,7 @@ function RulesForm({
             onChange={setRegions}
           />
         </div>
-        {start.isError && (
-          <p role="alert" className="text-xs text-red-300">
-            {t(errorMessageKey(start.error))}
-          </p>
-        )}
+        {start.isError && <StartRefusal error={start.error} />}
       </div>
     </Modal>
   );

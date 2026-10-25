@@ -11,7 +11,18 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell, type FakeResponses } from '../../test-utils.tsx';
+import { SNES } from '../library/testing.ts';
+import { useShell } from '../shell/ShellContext.tsx';
 import { BatchRulesDialog } from './BatchRulesDialog.tsx';
+
+function WindowsProbe() {
+  const { state } = useShell();
+  return (
+    <output aria-label="windows">
+      {JSON.stringify(state.windows.map((w) => ({ appId: w.appId, params: w.params })))}
+    </output>
+  );
+}
 
 afterEach(() => {
   setBridgeForTests(null);
@@ -36,6 +47,7 @@ function setup(responses: FakeResponses = {}) {
           closed += 1;
         }}
       />
+      <WindowsProbe />
     </div>,
   );
   return { started, closed: () => closed };
@@ -98,5 +110,31 @@ describe('BatchRulesDialog (FR-SCR-2, US-C6, D18)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Start' }));
     expect(await within(dialog).findByRole('alert')).toBeVisible();
     expect(closed()).toBe(0);
+  });
+
+  it('review: a batch already there is named as such, not as a scan', async () => {
+    const user = userEvent.setup();
+    setup({ 'scraper.batch.start': () => err('BUSY', 'errors.busy', { batch: true }) });
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Start' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      /batch scrape is already running or paused/i,
+    );
+  });
+
+  it('review: systems without a ScreenScraper id are named, with Open Settings on Systems', async () => {
+    const user = userEvent.setup();
+    setup({
+      'systems.catalog': () => ok([SNES]),
+      'scraper.batch.start': () =>
+        err('NO_SCRAPER_SYSTEM', 'errors.noScraperSystem', { systemIds: ['snes'] }),
+    });
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Start' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('Super Nintendo');
+    await user.click(within(dialog).getByRole('button', { name: 'Open Settings' }));
+    expect(JSON.parse(screen.getByRole('status', { name: 'windows' }).textContent)).toEqual([
+      { appId: 'settings', params: { section: 'systems', focusId: 'snes' } },
+    ]);
   });
 });

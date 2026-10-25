@@ -17,11 +17,12 @@ background. For the screens see [screen-specifications.md](screen-specifications
    today".
 
 The four values go to the Windows credential store (`secrets.bin`, encrypted with your Windows
-account). They are never written to the settings file, backups or logs. **Remove** deletes them.
+account). They are never written to the settings file, backups or logs. **Remove credentials** deletes them.
 
 On the same page:
-- **Regions**: the region order used to pick art (default: USA, Europe, World, Japan).
-- **Languages**: the language order for descriptions and genres. Empty means the app language,
+- **Region priority**: the ScreenScraper region codes in the order used to pick art (default:
+  `us`, `eu`, `wor`, `jp`).
+- **Language priority**: the language order for descriptions and genres. Empty means the app language,
   then English.
 - **Art kinds** and **fields**: what a batch fills in by default.
 
@@ -93,6 +94,9 @@ The rules start from your Settings → Scraper defaults:
 - **Only missing art and fields** (on): skip art the game already has and fields that have a
   value.
 - **Art kinds**, **fields** (never the title) and the **region order**.
+
+A system without a ScreenScraper system id is refused at **Start**, with **Open Settings** on
+Settings → Systems to choose it (or scrape one of its games with **Scrape…**, which asks).
 
 **Start** runs in the background, one game at a time. The header shows "Scraping n/m · applied a ·
 review r" with **Pause** and **Cancel scraping**.

@@ -22,8 +22,9 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
   const status = useBatchStatus();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const state = status.data?.state ?? 'idle';
-  const busy = state === 'running' || state === 'paused';
+  const state = status.data?.state;
+  // Unknown until main answers: offer nothing rather than a batch main would refuse.
+  const busy = state === undefined || state === 'running' || state === 'paused';
 
   useEffect(() => {
     if (!open) return;
