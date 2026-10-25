@@ -16,6 +16,11 @@ export interface WrittenMedia {
   version: number;
 }
 
+export interface WriteResult extends WrittenMedia {
+  /** Paths the new file replaced: the target itself and deleted same-stem siblings. */
+  replaced: string[];
+}
+
 /** Temp files live beside the kind folders; the scan skips it (not a valid kind name). */
 export const MEDIA_TMP_DIR = '.nextlevel-tmp';
 
@@ -54,7 +59,7 @@ export class MediaWriter {
     stem: string,
     bytes: Buffer,
     format: string,
-  ): Promise<WrittenMedia> {
+  ): Promise<WriteResult> {
     if (stem === '' || stem === '.' || stem === '..' || /[\\/]/.test(stem)) {
       throw invalidStem(stem);
     }
@@ -77,12 +82,17 @@ export class MediaWriter {
       await rmdir(tmpDir).catch(() => undefined);
     }
     const written = `${stem}${ext}`;
+    const replaced = [target];
     for (const name of await readdir(kindDir)) {
       if (name !== written && sameStem(stemOf(name), stem)) {
-        await rm(join(kindDir, name), { force: true }).catch(() => undefined);
+        const sibling = join(kindDir, name);
+        await rm(sibling, { force: true }).then(
+          () => replaced.push(sibling),
+          () => undefined,
+        );
       }
     }
     const info = await stat(target);
-    return { path: target, size: info.size, version: Math.trunc(info.mtimeMs) };
+    return { path: target, size: info.size, version: Math.trunc(info.mtimeMs), replaced };
   }
 }

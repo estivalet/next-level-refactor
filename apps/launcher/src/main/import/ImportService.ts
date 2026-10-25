@@ -76,6 +76,11 @@ export class ImportService {
     this.deps.emit('import.progress', { stage, done, total });
   }
 
+  /** An import (dry run or apply) is running. */
+  running(): boolean {
+    return this.busy;
+  }
+
   /** Runs `work` unless a scan or another import is running (`BUSY`). */
   private async exclusive<T>(work: () => Promise<T>): Promise<T> {
     if (this.busy || this.deps.scan.status().running) fail('BUSY');

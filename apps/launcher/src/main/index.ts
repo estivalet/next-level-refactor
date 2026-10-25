@@ -271,6 +271,7 @@ function startLibrary(
     hash: (path) => hashRom(path),
     emit,
     clock: () => new Date(),
+    blocked: () => scan.status().running || importer.running(),
   });
   return {
     scrape,

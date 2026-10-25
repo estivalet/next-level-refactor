@@ -34,7 +34,12 @@ export function CandidateList(props: {
             className="accent-emerald-500"
           />
           {c.thumb ? (
-            <img src={c.thumb} alt="" className="h-10 w-10 rounded bg-black/40 object-contain" />
+            <img
+              src={c.thumb}
+              alt=""
+              loading="lazy"
+              className="h-10 w-10 rounded bg-black/40 object-contain"
+            />
           ) : (
             <span className="flex h-10 w-10 items-center justify-center rounded bg-black/40 text-slate-600">
               <ImageOff aria-hidden="true" className="h-4 w-4" />

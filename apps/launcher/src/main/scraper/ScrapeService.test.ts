@@ -58,7 +58,12 @@ const RACER: SsGame = ssGame(500, 'Zoom Racer', {
   ],
 });
 
+/** Invented image bytes: a JPEG signature, then a tag. */
+const img = (tag: string) => Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), Buffer.from(tag)]);
+
 interface Options {
+  /** A scan or import is running (apply must refuse). */
+  blocked?: boolean;
   routes?: Record<string, FakeRoute>;
   hash?: typeof HASH_HIT | null;
   settings?: (s: Settings) => void;
@@ -86,7 +91,7 @@ async function setup(options: Options = {}) {
     },
     'jeuRecherche.php': () => ({ body: apiBody({ jeux: [RACER, ssGame(501, 'Zoom Racer II')] }) }),
     'mediaJeu.php': (params) => ({
-      body: Buffer.from(`bytes:${params.get('media') ?? ''}`),
+      body: img(params.get('media') ?? ''),
       contentType: 'image/jpeg',
     }),
     ...options.routes,
@@ -130,6 +135,7 @@ async function setup(options: Options = {}) {
       events.push({ event, payload });
     },
     clock: () => NOW,
+    blocked: () => options.blocked ?? false,
   });
   const mediaDir = join(romDir, 'Super Nintendo', 'media');
   return {
@@ -213,7 +219,7 @@ describe('ScrapeService.search (FR-SCR-1, US-C5)', () => {
     const { service, gameId } = await setup();
     await service.search({ gameId });
     const thumb = await service.thumbnail(500);
-    expect(thumb?.bytes.toString()).toBe('bytes:box');
+    expect(thumb?.bytes.equals(img('box'))).toBe(true);
     expect(thumb?.mime).toBe('image/jpeg');
     expect(await service.thumbnail(999)).toBeNull();
   });
@@ -252,8 +258,8 @@ describe('ScrapeService.apply (FR-SCR-1, FR-SCR-4, FR-SCR-5)', () => {
     expect(result.failed).toEqual([]);
     expect(result.game).toMatchObject({ genre: 'Racing', year: 1994, lockedFields: [] });
     expect(result.game.scrape).toMatchObject({ status: 'scraped', providerGameId: 500 });
-    expect(await readFile(join(mediaDir, 'box-front', 'Zoom Racer (USA).png'), 'utf8')).toBe(
-      'PNG:bytes:box',
+    expect(await readFile(join(mediaDir, 'box-front', 'Zoom Racer (USA).png'))).toEqual(
+      Buffer.concat([Buffer.from('PNG:'), img('box')]),
     );
     expect(media.path(gameId, 'logo-clear')).toBe(
       join(mediaDir, 'logo-clear', 'Zoom Racer (USA).png'),
@@ -306,7 +312,7 @@ describe('ScrapeService.apply (FR-SCR-1, FR-SCR-4, FR-SCR-5)', () => {
     const { service, gameId } = await setup({
       routes: {
         'mediaJeu.php': (params) =>
-          params.get('media') === 'wheel' ? { status: 500 } : { body: Buffer.from('x') },
+          params.get('media') === 'wheel' ? { status: 500 } : { body: img('x') },
       },
     });
     const result = await service.apply({
@@ -325,5 +331,76 @@ describe('ScrapeService.apply (FR-SCR-1, FR-SCR-4, FR-SCR-5)', () => {
     expect((await appErrorOfAsync(() => service.apply(input))).code).toBe('BUSY');
     await first;
     await expect(service.apply(input)).resolves.toBeDefined();
+  });
+
+  it('review: apply is BUSY while a scan or import runs (their index write would undo it)', async () => {
+    const { service, gameId, server } = await setup({ blocked: true });
+    const error = await appErrorOfAsync(() =>
+      service.apply({ gameId, providerGameId: 500, kinds: ['box-front'], fields: [] }),
+    );
+    expect(error.code).toBe('BUSY');
+    expect(server.calls).toEqual([]);
+  });
+
+  it('review: a game sharing the stem (another subfolder) follows the replaced file', async () => {
+    const { library, service, gameId, media, mediaDir } = await setup();
+    const [twin = 0] = seedGames(library.db, 'snes', [
+      { title: 'Zoom Racer Hack', relPath: '!hacks/Zoom Racer (USA).sfc' },
+    ]);
+    await mkdir(join(mediaDir, 'box-front'), { recursive: true });
+    const old = join(mediaDir, 'box-front', 'Zoom Racer (USA).jpg');
+    await writeFile(old, 'old');
+    media.upsert({ gameId, kind: 'box-front', path: old, size: 3, version: 1 });
+    await service.apply({ gameId: twin, providerGameId: 500, kinds: ['box-front'], fields: [] });
+    const versions = media.versionsByGame([gameId, twin]);
+    expect(media.path(gameId, 'box-front')).toBe(
+      join(mediaDir, 'box-front', 'Zoom Racer (USA).png'),
+    );
+    expect(versions.get(gameId)?.['box-front']).toBe(versions.get(twin)?.['box-front']);
+  });
+
+  it('review: a body that is not an image fails as download and leaves the old art alone', async () => {
+    const { service, gameId, mediaDir } = await setup({
+      routes: {
+        'mediaJeu.php': () => ({ body: Buffer.from('NOMEDIA'), contentType: 'text/plain' }),
+      },
+    });
+    await mkdir(join(mediaDir, 'box-front'), { recursive: true });
+    const old = join(mediaDir, 'box-front', 'Zoom Racer (USA).jpg');
+    await writeFile(old, 'old');
+    const result = await service.apply({
+      gameId,
+      providerGameId: 500,
+      kinds: ['box-front'],
+      fields: [],
+    });
+    expect(result.failed).toEqual([{ kind: 'box-front', code: 'download' }]);
+    expect(await readFile(old, 'utf8')).toBe('old');
+  });
+
+  it('review: when nothing was saved the status is failed, not scraped', async () => {
+    const { service, gameId, mediaDir } = await setup();
+    await mkdir(mediaDir, { recursive: true });
+    await writeFile(join(mediaDir, 'video'), 'a file where the kind folder should be');
+    const result = await service.apply({
+      gameId,
+      providerGameId: 500,
+      kinds: ['video'],
+      fields: [],
+    });
+    expect(result.game.scrape).toMatchObject({ status: 'failed', error: 'write' });
+  });
+});
+
+describe('ScrapeService thumbnails (review)', () => {
+  it('only the first candidates get a thumbnail, so they never crowd the request queue', async () => {
+    const many = Array.from({ length: 12 }, (_, i) => ssGame(600 + i, `Zoom Racer ${String(i)}`));
+    const { service, gameId } = await setup({
+      routes: { 'jeuRecherche.php': () => ({ body: apiBody({ jeux: many }) }) },
+    });
+    const result = await service.search({ gameId });
+    expect(result.candidates.length).toBeGreaterThan(8);
+    expect(result.candidates.filter((c) => c.thumb !== null)).toHaveLength(8);
+    expect(await service.thumbnail(result.candidates[10]?.providerGameId ?? 0)).toBeNull();
   });
 });

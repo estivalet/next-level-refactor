@@ -22,7 +22,8 @@ import type { MediaRepository } from '../library/MediaRepository.ts';
 import type { ScrapeRepository } from '../library/ScrapeRepository.ts';
 import type { RomHashes } from './hashRom.ts';
 import { mediaDir, romStem } from './mediaTarget.ts';
-import type { MediaWriter, WrittenMedia } from './MediaWriter.ts';
+import { isImage } from './sniff.ts';
+import type { MediaWriter, WriteResult } from './MediaWriter.ts';
 import type { ScreenScraperClient } from './screenscraper/client.ts';
 import { selectMedia } from './screenscraper/mediaSelect.ts';
 import {
@@ -39,7 +40,7 @@ import { positiveInt, text, type SsGame } from './screenscraper/types.ts';
 export interface ScrapeServiceDeps {
   client: Pick<ScreenScraperClient, 'identify' | 'search' | 'game' | 'download'>;
   games: Pick<GameRepository, 'get' | 'applyScraped' | 'filePath' | 'location'>;
-  media: Pick<MediaRepository, 'kindsByGame' | 'upsert'>;
+  media: Pick<MediaRepository, 'kindsByGame' | 'upsert' | 'repoint'>;
   scrapes: Pick<ScrapeRepository, 'set'>;
   writer: Pick<MediaWriter, 'write'>;
   /** Runs `fn` in one library transaction. */
@@ -51,9 +52,13 @@ export interface ScrapeServiceDeps {
   hash: (path: string) => Promise<RomHashes | null>;
   emit: EmitEvent;
   clock: () => Date;
+  /** A scan or import is running: its index write would undo an apply's rows. */
+  blocked: () => boolean;
 }
 
 const MAX_THUMBS = 200;
+/** Candidates past this many get no thumbnail: each costs a rate-limited request. */
+const THUMBS_PER_SEARCH = 8;
 
 const fail = (code: 'NO_SCRAPER_SYSTEM' | 'BUSY', details?: unknown): never => {
   throw new AppErrorException({ code, message: ERROR_CODES[code], details });
@@ -92,10 +97,10 @@ export class ScrapeService {
     return id ?? fail('NO_SCRAPER_SYSTEM', { systemId });
   }
 
-  private candidate(game: SsGame, name: string, similarity: number): ScrapeCandidate {
+  private candidate(game: SsGame, name: string, similarity: number, index = 0): ScrapeCandidate {
     const providerGameId = positiveInt(game.id) ?? 0;
     const box = selectMedia(game, this.deps.settings().scraper.regionPriority)['box-front'];
-    const url = box ? text(box.url) : null;
+    const url = box && index < THUMBS_PER_SEARCH ? text(box.url) : null;
     if (url) {
       this.thumbs.delete(providerGameId);
       this.thumbs.set(providerGameId, url);
@@ -142,7 +147,7 @@ export class ScrapeService {
       if (matches.length > 0) {
         return {
           method: 'title',
-          candidates: matches.map((m) => this.candidate(m.game, m.name, m.similarity)),
+          candidates: matches.map((m, i) => this.candidate(m.game, m.name, m.similarity, i)),
         };
       }
     }
@@ -186,7 +191,9 @@ export class ScrapeService {
   }
 
   async apply(input: ScrapeApplyInput): Promise<ScrapeApplyResult> {
-    if (this.applying.has(input.gameId)) fail('BUSY', { gameId: input.gameId });
+    if (this.deps.blocked() || this.applying.has(input.gameId)) {
+      fail('BUSY', { gameId: input.gameId });
+    }
     this.applying.add(input.gameId);
     try {
       return await this.applyOnce(input);
@@ -206,7 +213,7 @@ export class ScrapeService {
     const location = this.deps.games.location(game.id);
     const dir = mediaDir(location, settings, this.deps.system(game.systemId));
     const stem = romStem(game.relPath);
-    const written: Array<{ kind: GameArtKind; file: WrittenMedia }> = [];
+    const written: Array<{ kind: GameArtKind; file: WriteResult }> = [];
     const failed: ScrapeApplyResult['failed'] = [];
     for (const kind of input.kinds) {
       const item = selected[kind];
@@ -218,6 +225,8 @@ export class ScrapeService {
       let download: Awaited<ReturnType<ScrapeServiceDeps['client']['download']>>;
       try {
         download = await this.deps.client.download(url);
+        const usable = kind === 'video' ? download.bytes.length > 0 : isImage(download.bytes);
+        if (!usable) throw new Error('not media');
       } catch {
         failed.push({ kind, code: 'download' });
         continue;
@@ -238,15 +247,19 @@ export class ScrapeService {
     const now = this.deps.clock();
     this.deps.transaction(() => {
       for (const { kind, file } of written) {
-        this.deps.media.upsert({ gameId: game.id, kind, ...file });
+        const { replaced, ...row } = file;
+        this.deps.media.repoint(replaced, row);
+        this.deps.media.upsert({ gameId: game.id, kind, ...row });
       }
       // Every ticked field is on purpose, so a locked one is written too (D19).
       this.deps.games.applyScraped(game.id, values, { overrideLocked: input.fields }, now);
+      const savedNothing =
+        written.length === 0 && failed.length > 0 && !Object.values(values).some((v) => v !== null);
       this.deps.scrapes.set(game.id, {
-        status: 'scraped',
+        status: savedNothing ? 'failed' : 'scraped',
         providerGameId: input.providerGameId,
         candidates: 1,
-        error: null,
+        error: savedNothing ? (failed[0]?.code ?? null) : null,
         scrapedAt: now.toISOString(),
       });
     });

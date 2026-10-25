@@ -58,7 +58,12 @@ describe('MediaWriter (FR-SCR-4, D17)', () => {
     const { dir, writer } = await setup();
     const result = await writer.write(dir, 'box-front', 'Game', Buffer.from('12345'), 'png');
     const info = await stat(result.path);
-    expect(result).toEqual({ path: result.path, size: 5, version: Math.trunc(info.mtimeMs) });
+    expect(result).toEqual({
+      path: result.path,
+      size: 5,
+      version: Math.trunc(info.mtimeMs),
+      replaced: [result.path],
+    });
     expect(await readdir(dir)).toEqual(['box-front']);
   });
 
@@ -68,8 +73,11 @@ describe('MediaWriter (FR-SCR-4, D17)', () => {
     await writeFile(join(dir, 'box-front', 'game.jpg'), 'old');
     await writeFile(join(dir, 'box-front', 'GAME.webp'), 'old');
     await writeFile(join(dir, 'box-front', 'Game (Alt).jpg'), 'keep');
-    await writer.write(dir, 'box-front', 'Game', Buffer.from('new'), 'png');
+    const result = await writer.write(dir, 'box-front', 'Game', Buffer.from('new'), 'png');
     expect((await readdir(join(dir, 'box-front'))).sort()).toEqual(['Game (Alt).jpg', 'Game.png']);
+    expect(result.replaced.slice(1).sort()).toEqual(
+      [join(dir, 'box-front', 'GAME.webp'), join(dir, 'box-front', 'game.jpg')].sort(),
+    );
   });
 
   it('a failed write throws and leaves the old file and no temp files', async () => {

@@ -46,6 +46,19 @@ export class MediaRepository {
       .run(row.gameId, row.kind, row.path, row.size, row.version);
   }
 
+  /**
+   * Points every row that named one of `paths` at the new file: games whose ROMs share a stem in
+   * different subfolders share one art file (FR-SCR-5).
+   */
+  repoint(paths: readonly string[], file: { path: string; size: number; version: number }): void {
+    this.db.$client
+      .prepare(
+        `update game_media set path = ?, size = ?, version = ?
+         where path in (select value from json_each(?))`,
+      )
+      .run(file.path, file.size, file.version, JSON.stringify(paths));
+  }
+
   /** File versions per kind for each game; games without media are absent. */
   versionsByGame(gameIds: readonly number[]): Map<number, Record<string, number>> {
     const result = new Map<number, Record<string, number>>();
