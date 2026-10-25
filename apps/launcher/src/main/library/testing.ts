@@ -137,6 +137,17 @@ export function appErrorOf(run: () => unknown): AppError {
   throw new Error('expected an AppErrorException');
 }
 
+/** The AppError an async call rejects with; fails the test otherwise. */
+export async function appErrorOfAsync(run: () => Promise<unknown>): Promise<AppError> {
+  try {
+    await run();
+  } catch (error) {
+    if (error instanceof AppErrorException) return error.error;
+    throw error;
+  }
+  throw new Error('expected an AppErrorException');
+}
+
 /**
  * A timing budget for performance tests: the NFR value on a developer machine, ×3 on CI, whose
  * shared runners are several times slower (test strategy: targets are met on the reference PC).
