@@ -75,6 +75,8 @@ export class BatchScrapeService {
   private stop: 'pause' | 'cancel' | null = null;
   private current: BatchStatus['current'] = null;
   private networkFails = 0;
+  /** Set at quit: nothing may start another run. */
+  private disposed = false;
   private mediaFails = 0;
   private cancelTimer: (() => void) | null = null;
 
@@ -98,6 +100,7 @@ export class BatchScrapeService {
       notFound: job.notFound,
       failed: job.failed,
       current: state === 'running' ? this.current : null,
+      systemIds: 'systemIds' in job.scope ? [...new Set(job.scope.systemIds)] : null,
     };
   }
 
@@ -136,7 +139,7 @@ export class BatchScrapeService {
 
   resume(): Promise<BatchStatus> {
     const job = this.job;
-    if (job?.status === 'paused') {
+    if (job?.status === 'paused' && !this.disposed) {
       this.clearTimer();
       Object.assign(job, { status: 'running', pausedReason: null, resumeAt: null });
       this.save();
@@ -179,6 +182,7 @@ export class BatchScrapeService {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.clearTimer();
     this.stop = 'pause';
   }
@@ -188,6 +192,7 @@ export class BatchScrapeService {
   }
 
   private drive(): void {
+    if (this.disposed) return;
     this.emitProgress();
     // Each run starts from a settled loop, and nothing here may reject: a rejected loop would
     // skip every later run until restart.

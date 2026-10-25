@@ -1,11 +1,19 @@
 import type { BatchStatus } from '@nextlevel/shared';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOpenApp } from '../shell/useOpenApp.ts';
 import { useCancelBatch, usePauseBatch, useResumeBatch } from './batchApi.ts';
 
 const BUTTON =
-  'rounded-md bg-white/5 px-2 py-1 text-[11px] text-slate-300 hover:bg-white/10 hover:text-white';
+  'rounded-md bg-white/5 px-2 py-1 text-[11px] text-slate-300 hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:hover:bg-white/5';
+
+/** A Pause or Cancel main has accepted but not carried out yet (it waits for the current game). */
+interface Pending {
+  action: 'pause' | 'cancel';
+  jobId: number | null;
+  state: BatchStatus['state'];
+}
 
 /**
  * The batch job in the Library header (S7, US-C6): progress with Pause / Cancel, why it paused
@@ -16,24 +24,45 @@ export function BatchProgress({
   onShowReview,
 }: {
   status: BatchStatus;
-  onShowReview?: () => void;
+  /** Gets the job's systems (null for a selection batch). */
+  onShowReview?: (systemIds: string[] | null) => void;
 }) {
   const { t, i18n } = useTranslation();
   const openApp = useOpenApp();
   const pause = usePauseBatch();
   const resume = useResumeBatch();
   const cancel = useCancelBatch();
-  const counts = { done: status.done, total: status.total, applied: status.applied };
+  const [pending, setPending] = useState<Pending | null>(null);
+  // Pending until the job changes state (main pauses or cancels after the current game).
+  if (pending && (pending.jobId !== status.jobId || pending.state !== status.state)) {
+    setPending(null);
+  }
+  const done = Math.min(status.done, status.total);
+  const counts = { done, total: status.total, applied: status.applied };
+  const request = (action: Pending['action']) => {
+    setPending({ action, jobId: status.jobId, state: status.state });
+    (action === 'pause' ? pause : cancel).mutate(undefined, {
+      onError: () => {
+        setPending(null);
+      },
+    });
+  };
 
   if (status.state === 'idle') return null;
   if (status.state === 'finished') {
     return (
       <div className="flex items-center gap-2">
         <p role="status" className="max-w-md text-[11px] text-slate-500">
-          {t('library.batch.finished', { ...status })}
+          {t('library.batch.finished', { ...status, count: done })}
         </p>
         {status.review > 0 && onShowReview && (
-          <button type="button" className={BUTTON} onClick={onShowReview}>
+          <button
+            type="button"
+            className={BUTTON}
+            onClick={() => {
+              onShowReview(status.systemIds);
+            }}
+          >
             {t('library.batch.showReview')}
           </button>
         )}
@@ -44,11 +73,12 @@ export function BatchProgress({
     <button
       type="button"
       className={BUTTON}
+      disabled={pending !== null}
       onClick={() => {
-        cancel.mutate();
+        request('cancel');
       }}
     >
-      {t('library.batch.cancel')}
+      {t(pending?.action === 'cancel' ? 'library.batch.cancelling' : 'library.batch.cancel')}
     </button>
   );
   if (status.state === 'running') {
@@ -61,11 +91,12 @@ export function BatchProgress({
         <button
           type="button"
           className={BUTTON}
+          disabled={pending !== null}
           onClick={() => {
-            pause.mutate();
+            request('pause');
           }}
         >
-          {t('library.batch.pause')}
+          {t(pending?.action === 'pause' ? 'library.batch.pausing' : 'library.batch.pause')}
         </button>
         {cancelButton}
       </div>

@@ -469,3 +469,35 @@ describe('BatchScrapeService (FR-SCR-2, D18)', () => {
     expect(logged).toHaveLength(2);
   });
 });
+
+describe('BatchScrapeService status and shutdown (M6 minors)', () => {
+  it('US-C6: the status names the systems of a system scope, null for a selection', async () => {
+    const [one = 0] = seedGames(library.db, 'snes', ['One']);
+    const { service } = setup({ One: [HASH] });
+    await service.begin({ systemIds: ['snes', 'snes'] }, RULES);
+    expect(service.status().systemIds).toEqual(['snes']);
+    await service.idle();
+    expect(service.status()).toMatchObject({ state: 'finished', systemIds: ['snes'] });
+    await service.begin({ gameIds: [one] }, RULES);
+    expect(service.status().systemIds).toBeNull();
+    await service.idle();
+  });
+
+  it('after dispose, resume and a due quota timer start no run', async () => {
+    seedGames(library.db, 'snes', ['First', 'Second']);
+    const until = '2026-10-25T22:00:00.000Z';
+    const { service, searched, advance } = setup(
+      { First: [HASH], Second: ['SCRAPER_QUOTA', HASH] },
+      { exhaustedUntil: until },
+    );
+    await service.begin({ systemIds: ['snes'] }, RULES);
+    await service.idle();
+    expect(service.status()).toMatchObject({ state: 'paused', pausedReason: 'quota' });
+    service.dispose();
+    advance(Date.parse(until) - NOW);
+    await service.resume();
+    await service.idle();
+    expect(service.status()).toMatchObject({ state: 'paused', done: 1 });
+    expect(searched).toHaveLength(2);
+  });
+});

@@ -5,6 +5,16 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Batch scrape: the summary says "1 game" in the singular; done never shows above the total;
+  Pause and Cancel read "Pausing…" / "Cancelling…" until the current game finishes; after Start
+  the keyboard is on Pause, after Close back on Scrape ▾; **Show Needs review** opens the
+  batch's system.
+- Art downloads running at the same time no longer fail when one removes the shared temp folder.
+- Candidate thumbnails are served only when the bytes are an image, with the type the bytes show.
+- Choosing a ScreenScraper system for an unknown system id is refused.
+
 ## [0.6.0] - 2026-10-25
 
 M6 — Scraping & media: ScreenScraper art and details for one game with a preview, or a whole

@@ -12,8 +12,8 @@ interface ScrapeMenuProps {
   selectedIds: readonly number[];
   /** Opens the batch rules for a scope (the dialog lives in the Library's overlays). */
   onRules: (scope: BatchScope) => void;
-  /** Shows the Needs review filter; without it the finished summary has no button. */
-  onShowReview?: () => void;
+  /** Shows the Needs review filter (of the job's systems); without it the summary has no button. */
+  onShowReview?: (systemIds: string[] | null) => void;
 }
 
 /** Scrape ▾ in the Library header (S7, FR-SCR-2, US-C6), next to Scan ▾, with the job's progress. */
@@ -22,7 +22,9 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
   const status = useBatchStatus();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
   const state = status.data?.state;
+  const lastState = useRef(state);
   // Unknown until main answers: offer nothing rather than a batch main would refuse.
   const busy = state === undefined || state === 'running' || state === 'paused';
 
@@ -37,6 +39,16 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
       document.removeEventListener('mousedown', outside);
     };
   }, [open]);
+
+  // A batch just started (the rules dialog closed and Scrape ▾ is gone): Pause gets the keyboard.
+  useEffect(() => {
+    const started = state === 'running' && lastState.current !== 'running';
+    lastState.current = state;
+    const active = document.activeElement;
+    if (started && (active === null || active === document.body)) {
+      root.current?.querySelector<HTMLElement>('button')?.focus();
+    }
+  }, [state]);
 
   const items = [
     ...(system
@@ -66,6 +78,7 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
       )}
       {!busy && items.length > 0 && (
         <button
+          ref={button}
           type="button"
           aria-haspopup="menu"
           aria-expanded={open}
@@ -94,6 +107,8 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
               type="button"
               role="menuitem"
               onClick={() => {
+                // The rules dialog gives the keyboard back to what had it: Scrape ▾, not this item.
+                button.current?.focus();
                 setOpen(false);
                 onRules(item.scope);
               }}

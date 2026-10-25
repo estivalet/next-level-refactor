@@ -31,6 +31,17 @@
 - Device limits per plan; revocation takes effect within one access-token lifetime.
 - Rate limits on auth and download endpoints (see [api-spec](../03-architecture/api-spec.md#rate-limits-defaults)).
 
+### Secrets on the device
+
+The launcher keeps secrets in one file, `secrets.bin` in its data folder, encrypted with
+Electron `safeStorage` (DPAPI on Windows) and written atomically. They never appear in
+`settings.json`, backups, IPC outputs, logs or crash reports, and the renderer never sees a value.
+
+| Key | Since | Holds |
+|---|---|---|
+| `screenscraper.devId`, `screenscraper.devPassword` | M6a | ScreenScraper developer credentials (D15) |
+| `screenscraper.user`, `screenscraper.password` | M6a | The user's ScreenScraper account |
+
 ## 3. Launcher hardening (Electron)
 
 - `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`, `webSecurity: true`.

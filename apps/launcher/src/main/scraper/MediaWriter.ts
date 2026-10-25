@@ -38,6 +38,24 @@ const stemOf = (name: string) => {
 const sameStem = (a: string, b: string) =>
   a.normalize('NFC').toLowerCase() === b.normalize('NFC').toLowerCase();
 
+const TEMP_TRIES = 3;
+
+/**
+ * Another write removes the shared temp folder once it is empty, possibly between this write's
+ * mkdir and its writeFile (ENOENT); the folder is then made again.
+ */
+async function writeTemp(tmpDir: string, tmp: string, data: Buffer): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    await mkdir(tmpDir, { recursive: true });
+    try {
+      await writeFile(tmp, data);
+      return;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || attempt >= TEMP_TRIES) throw error;
+    }
+  }
+}
+
 /**
  * Writes scraped media in the formats NextLevelOS loads (FR-SCR-4, D17): images as `.png`
  * (transcoded unless already PNG), JPEG fanart as `.jpg`, video as `.mp4`. The file is written to
@@ -70,9 +88,8 @@ export class MediaWriter {
     const tmpDir = join(dir, MEDIA_TMP_DIR);
     const tmp = join(tmpDir, `${randomUUID()}${ext}`);
     try {
-      await mkdir(tmpDir, { recursive: true });
       await mkdir(kindDir, { recursive: true });
-      await writeFile(tmp, data);
+      await writeTemp(tmpDir, tmp, data);
       await rename(tmp, target);
     } catch (error) {
       await rm(tmp, { force: true }).catch(() => undefined);

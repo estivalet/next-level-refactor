@@ -51,6 +51,8 @@ export const BatchStatusSchema = z.object({
   notFound: count,
   failed: count,
   current: z.object({ gameId: z.number().int().positive(), title: z.string() }).nullable(),
+  /** The systems a system-scope job covers (Show Needs review opens them); null for a selection. */
+  systemIds: z.array(z.string()).nullable(),
 });
 
 export const IDLE_BATCH: BatchStatus = {
@@ -65,6 +67,7 @@ export const IDLE_BATCH: BatchStatus = {
   notFound: 0,
   failed: 0,
   current: null,
+  systemIds: null,
 };
 
 export type BatchField = z.output<typeof BatchFieldSchema>;
