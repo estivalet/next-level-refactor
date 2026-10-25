@@ -4,6 +4,21 @@ import { matchMedia } from './media.ts';
 const file = (kind: string, path: string, size = 10, mtime = 5) => ({ kind, path, size, mtime });
 
 describe('matchMedia', () => {
+  it('FR-SCR-4: a central file wins over a per-ROM one whatever the format', () => {
+    const rows = matchMedia(
+      [{ id: 1, relPath: 'Game.zip' }],
+      [
+        file('box-front', 'C:/roms/media/box-front/Game.png'),
+        { ...file('box-front', 'G:/art/snes/box-front/Game.webp'), central: true },
+        file('fanart', 'C:/roms/media/fanart/Game.jpg'),
+      ],
+    );
+    expect(rows.map((r) => [r.kind, r.path])).toEqual([
+      ['box-front', 'G:/art/snes/box-front/Game.webp'],
+      ['fanart', 'C:/roms/media/fanart/Game.jpg'],
+    ]);
+  });
+
   it('FR-SCR-5: a row carries the file mtime as its version', () => {
     const rows = matchMedia(
       [{ id: 1, relPath: 'Game.zip' }],

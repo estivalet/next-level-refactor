@@ -167,3 +167,42 @@ describe('StorageSection keyboard focus (NFR-A11Y-1)', () => {
     expect(screen.getByRole('textbox', { name: 'Name of location 1' })).toHaveFocus();
   });
 });
+
+describe('StorageSection media location (FR-SCR-4)', () => {
+  const IDLE = { running: false, progress: null, last: null };
+  const savedMedia = (bridge: ReturnType<typeof installFakeBridge>) =>
+    (
+      bridge.calls.filter((c) => c.channel === 'settings.save').pop()?.input as
+        { settings: Settings } | undefined
+    )?.settings.storage.media;
+
+  it('FR-SCR-4: choosing a central folder picks it; Save stores it; then Rescan to update art offers Scan all', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup([A], {
+      'app.pickFolder': () => ok('G:\\Art'),
+      'scan.status': () => ok(IDLE),
+      'scan.start': () => ok(IDLE),
+    });
+    const place = await screen.findByRole('group', { name: 'Where scraped art goes' });
+    expect(within(place).getByRole('radio', { name: 'Next to the ROMs' })).toBeChecked();
+    await user.click(within(place).getByRole('radio', { name: 'One central folder' }));
+    expect(within(place).getByText('G:\\Art')).toBeVisible();
+    expect(within(place).getByText(/Rescan to update art/)).toBeVisible();
+    expect(within(place).getByRole('button', { name: 'Scan all' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(savedMedia(bridge)).toEqual({ mode: 'central', path: 'G:\\Art' });
+    const scanAll = await within(place).findByRole('button', { name: 'Scan all' });
+    await expect.poll(() => scanAll.hasAttribute('disabled')).toBe(false);
+    await user.click(scanAll);
+    expect(bridge.calls.some((c) => c.channel === 'scan.start')).toBe(true);
+  });
+
+  it('FR-SCR-4: cancelling the folder picker keeps Next to the ROMs', async () => {
+    const user = userEvent.setup();
+    setup([A], { 'app.pickFolder': () => ok(null), 'scan.status': () => ok(IDLE) });
+    const place = await screen.findByRole('group', { name: 'Where scraped art goes' });
+    await user.click(within(place).getByRole('radio', { name: 'One central folder' }));
+    expect(within(place).getByRole('radio', { name: 'Next to the ROMs' })).toBeChecked();
+    expect(within(place).queryByText(/Rescan to update art/)).not.toBeInTheDocument();
+  });
+});

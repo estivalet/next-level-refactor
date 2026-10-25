@@ -8,6 +8,8 @@ export interface MediaFile {
   size: number;
   /** mtime in ms. */
   mtime: number;
+  /** From the central media folder (FR-SCR-4): wins over per-ROM files of the same kind. */
+  central?: boolean;
 }
 
 export interface GameMediaRow {
@@ -38,7 +40,8 @@ function rank(kind: string, ext: string): number {
 
 /**
  * Matches media files to games by file stem (case-insensitive) and keeps one file per game and
- * kind: png > jpg > jpeg > webp > gif for images, mp4 > webm for `video` (FR-THM-2). Kind
+ * kind: a central file first (FR-SCR-4), then png > jpg > jpeg > webp > gif for images, mp4 >
+ * webm for `video` (FR-THM-2). Kind
  * folders whose lowercase name is not a valid kind are skipped.
  */
 export function matchMedia(
@@ -56,8 +59,9 @@ export function matchMedia(
     const parts = split(fileName(file.path));
     if (!MEDIA_KIND.test(kind) || !parts) continue;
     const gameId = byStem.get(key(parts.stem));
-    const fileRank = rank(kind, parts.ext);
-    if (gameId === undefined || fileRank < 0) continue;
+    const formatRank = rank(kind, parts.ext);
+    if (gameId === undefined || formatRank < 0) continue;
+    const fileRank = (file.central ? 0 : 100) + formatRank;
     const slot = `${String(gameId)}/${kind}`;
     const current = best.get(slot);
     if (!current || fileRank < current.rank) {
