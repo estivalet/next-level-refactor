@@ -147,12 +147,27 @@ requirements:
     and every field (current value struck through, scraped value). Ticked at first: missing
     art and empty fields; **Overwrite existing** ticks everything available. Title and
     fields the user edited (lock icon, "Edited by you…") are never ticked for the user;
-    ticking one writes it and it stays locked. **Apply** writes the art next to the ROMs
-    (`<system folder>/media/<kind>/<rom stem>.png|.jpg|.mp4`, D17) and the fields, then
-    closes; kinds that fail are listed ("Video: could not be saved in the media folder")
+    ticking one writes it and it stays locked. **Apply** writes the art where Settings →
+    Storage says (next to the ROMs, `<system folder>/media/<kind>/<rom stem>.png|.jpg|.mp4`,
+    or the central folder; D17) and the fields, then closes; kinds that fail are listed ("Video: could not be saved in the media folder")
     and the dialog stays open. A system without a ScreenScraper id shows a system picker
     (**Save system**, **Reload list**) and searches again. Errors (credentials, quota,
     network) show translated. Esc or **Close** closes; late answers are ignored.
+  - **Scrape ▾ and batch scrape (M6d, FR-SCR-2, US-C6, D18):** in the header next to Scan ▾:
+    **Scrape <system>…** (system scope) and **Scrape n selected games…** (2+ selected; also in
+    the context menu of a multi-selection). The rules dialog "Scrape <what>" starts from
+    Settings → Scraper: **Only missing art and fields** (on), art kinds, fields (never title),
+    region order; **Start** is disabled with no kind and no field; a refusal (system without
+    a ScreenScraper id, a job already there, a scan running) shows in the dialog. While a job
+    runs, Scrape ▾ gives way to "Scraping n/m · applied a · review r" with **Pause** and
+    **Cancel scraping**; paused: the reason ("Daily quota reached — resumes at <time>",
+    network, account → **Open Settings** on Scraper, media folder, error) with **Resume** and
+    **Cancel scraping**; finished: "Scraped N games · applied · review · not found · failed"
+    and **Show Needs review**. The job lives in main: the header reads it when the Library
+    opens and follows `scraper.batch.progress`.
+  - **Needs review (M6d):** a fifth Filter entry lists games whose last scrape is `review`;
+    the status bar adds "N needs review" for a system; scraping one from Scrape… takes it
+    off the list.
   - **Play (M3, FR-EMU-6, US-C2):** the **Play** button in the details panel, Play in the menu,
     Enter or double-click on a row or a search result. The button is disabled for missing games
     and while a game is starting or running (one at a time); the menu leaves Play out then. While it runs the launcher window is minimized and the Library
