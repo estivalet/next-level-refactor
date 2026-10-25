@@ -153,7 +153,8 @@ describe('ScanPanel', () => {
 
   it("FR-LIB-4: scan results show a system's total missing games", async () => {
     const bridge = setup({
-      'systems.list': () => ok([{ id: 'nintendo-64', enabled: true, games: 7, missing: 5 }]),
+      'systems.list': () =>
+        ok([{ id: 'nintendo-64', enabled: true, games: 7, missing: 5, review: 0 }]),
     });
     await screen.findByRole('button', { name: 'Scan now' });
     bridge.emit('scan.finished', {

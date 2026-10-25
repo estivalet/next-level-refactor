@@ -467,3 +467,24 @@ describe('ScrapeService.apply in a batch: transport failures (review)', () => {
     expect(result.failed).toEqual([{ kind: 'box-front', code: 'download' }]);
   });
 });
+
+describe('ScrapeService.apply clears Needs review (FR-SCR-2)', () => {
+  it('scraping a game marked for review takes it off the Needs review list', async () => {
+    const { service, gameId, scrapes, games } = await setup();
+    scrapes.set(gameId, {
+      status: 'review',
+      providerGameId: null,
+      candidates: 2,
+      error: null,
+      scrapedAt: NOW.toISOString(),
+    });
+    await service.apply({ gameId, providerGameId: 500, kinds: ['box-front'], fields: [] });
+    const page = games.list({
+      scope: { kind: 'system', systemId: 'snes' },
+      tab: 'needsReview',
+      offset: 0,
+      limit: 10,
+    });
+    expect(page.total).toBe(0);
+  });
+});

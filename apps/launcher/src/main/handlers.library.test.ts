@@ -179,8 +179,8 @@ describe('library handlers', () => {
     expect(await router.handle('systems.list', undefined)).toEqual({
       ok: true,
       value: [
-        { id: 'nintendo-64', enabled: false, games: 1, missing: 0 },
-        { id: 'sega-genesis', enabled: true, games: 0, missing: 0 },
+        { id: 'nintendo-64', enabled: false, games: 1, missing: 0, review: 0 },
+        { id: 'sega-genesis', enabled: true, games: 0, missing: 0, review: 0 },
       ],
     });
   });

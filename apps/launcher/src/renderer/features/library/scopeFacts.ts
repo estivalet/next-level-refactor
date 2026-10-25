@@ -6,7 +6,11 @@ export function scopeFacts(view: LibraryView) {
   const { scope } = view;
   if (scope?.kind === 'system') {
     const summary = view.systems.data?.find((system) => system.id === scope.systemId);
-    return { games: summary?.games ?? 0, missing: summary?.missing ?? 0 };
+    return {
+      games: summary?.games ?? 0,
+      missing: summary?.missing ?? 0,
+      review: summary?.review ?? 0,
+    };
   }
   if (scope?.kind === 'collection') {
     const collection = view.collections.data?.find((c) => c.id === scope.collectionId);

@@ -35,7 +35,8 @@ describe('scan contract', () => {
   it('FR-LIB-3: systems.list returns game counts per system', () => {
     const output = ipcContract['systems.list'].output;
     expect(
-      output.safeParse([{ id: 'nintendo-64', enabled: true, games: 2, missing: 1 }]).success,
+      output.safeParse([{ id: 'nintendo-64', enabled: true, games: 2, missing: 1, review: 0 }])
+        .success,
     ).toBe(true);
     expect(
       output.safeParse([{ id: 'nintendo-64', enabled: true, games: -1, missing: 0 }]).success,

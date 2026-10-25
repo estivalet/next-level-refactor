@@ -5,6 +5,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-25
+
+M6 — Scraping & media: ScreenScraper art and details for one game with a preview, or a whole
+system in a resumable background batch; art written where NextLevelOS finds it and shown at
+once. User guide: `docs/02-design/scraping-guide.md`.
+
 ### Added
 - M6a scraper core (FR-SCR-3, US-D6): **Settings → Scraper** keeps the ScreenScraper account and
   the developer id/password (D15) in the Windows credential store (`secrets.bin`, encrypted with
@@ -25,7 +31,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   game only on an exact hash match or a single close candidate and marks the rest for review
   (D18), never touches fields you edited, pauses when the daily quota runs out (resuming on
   its own) or the network or credentials fail, and picks up where it left off after a
-  restart. Its controls arrive in the Library with M6d.
+  restart.
+- M6d batch scrape in the Library (FR-SCR-2, US-C6): **Scrape ▾** next to Scan ▾ (a system, or
+  the selected games) with a rules dialog from your Settings → Scraper defaults; progress,
+  Pause / Resume / Cancel and the reason for a pause in the header; a finished summary with
+  **Show Needs review**, a new Filter entry listing the games a batch couldn't match on its
+  own, with a count in the status bar.
 
 ### Changed
 - Game art kinds follow the NextLevelOS folder names (D16): `box-3d`, `cart-front` and

@@ -624,14 +624,17 @@
       "games_one": "{{count}} jogo",
       "games_other": "{{count}} jogos",
       "missing_one": "{{count}} ausente",
-      "missing_other": "{{count}} ausentes"
+      "missing_other": "{{count}} ausentes",
+      "review_one": "{{count}} precisa de revisão",
+      "review_other": "{{count}} precisam de revisão"
     },
     "tabs": {
       "label": "Filtro",
       "all": "Todos",
       "favorites": "Favoritos",
       "hidden": "Ocultos",
-      "missing": "Ausentes"
+      "missing": "Ausentes",
+      "needsReview": "Precisa de revisão"
     },
     "sort": {
       "label": "Ordenar",
@@ -877,6 +880,37 @@
         "notFound": "Não encontrado no ScreenScraper",
         "failed": "A última busca falhou"
       }
+    },
+    "batch": {
+      "button": "Buscar dados",
+      "menu": "Buscar dados",
+      "system": "Buscar dados de {{system}}…",
+      "selected_one": "Buscar dados de {{count}} jogo selecionado…",
+      "selected_other": "Buscar dados de {{count}} jogos selecionados…",
+      "selectedTitle_one": "{{count}} jogo selecionado",
+      "selectedTitle_other": "{{count}} jogos selecionados",
+      "rulesTitle": "Buscar dados de {{title}}",
+      "onlyMissing": "Só arte e campos que faltam",
+      "rulesHelp": "Um jogo só é preenchido quando o ScreenScraper o reconhece pelo arquivo ou encontra uma única opção próxima; os demais vão para Precisa de revisão. Campos que você editou nunca mudam.",
+      "start": "Iniciar",
+      "close": "Fechar",
+      "running": "Buscando {{done}}/{{total}} · aplicados {{applied}} · revisão {{review}}",
+      "pause": "Pausar",
+      "resume": "Retomar",
+      "cancel": "Cancelar busca",
+      "openSettings": "Abrir Configurações",
+      "showReview": "Mostrar Precisa de revisão",
+      "finished": "{{done}} jogos buscados · aplicados {{applied}} · revisão {{review}} · não encontrados {{notFound}} · falhas {{failed}}",
+      "paused": {
+        "quota": "Cota diária esgotada — retoma às {{time}} ({{done}}/{{total}})",
+        "network": "Pausado: o ScreenScraper não responde ({{done}}/{{total}})",
+        "credentials": "Pausado: o ScreenScraper recusou a conta ({{done}}/{{total}})",
+        "user": "Pausado ({{done}}/{{total}})",
+        "media": "Pausado: a arte não pôde ser salva — verifique a pasta de mídia ({{done}}/{{total}})",
+        "error": "Pausado após um erro — veja o log ({{done}}/{{total}})"
+      },
+      "busy": "Já há uma busca em lote em andamento ou pausada. Cancele-a primeiro.",
+      "noSystem": "Nenhum sistema do ScreenScraper definido para {{systems}}. Escolha um em Configurações → Sistemas (ou busque um jogo com Buscar dados…, que pergunta)."
     }
   },
   "frontend": {

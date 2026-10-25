@@ -189,6 +189,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
         enabled: own[system.id]?.enabled ?? false,
         games: counts.get(system.id)?.games ?? 0,
         missing: counts.get(system.id)?.missing ?? 0,
+        review: counts.get(system.id)?.review ?? 0,
       }));
     },
     'scan.start': ({ systemIds }) => library().scan.start(systemIds),

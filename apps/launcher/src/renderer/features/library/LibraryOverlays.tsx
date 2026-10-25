@@ -7,6 +7,8 @@ import { useRemoveFromCollection } from './collectionsApi.ts';
 import { EditMetadataDialog } from './EditMetadataDialog.tsx';
 import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
+import { BatchRulesDialog } from '../scrape/BatchRulesDialog.tsx';
+import { useBatchOverlay } from '../scrape/useBatchOverlay.ts';
 import { ScrapeDialog } from '../scrape/ScrapeDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
 import { SmartFilterDialogs, type SmartFilterDialogState } from './SmartFilterDialog.tsx';
@@ -19,6 +21,7 @@ export function useOverlays() {
   const [relinking, setRelinking] = useState<number | null>(null);
   const [launchOptions, setLaunchOptions] = useState<number | null>(null);
   const [scraping, setScraping] = useState<number | null>(null);
+  const batch = useBatchOverlay();
   const [collection, setCollection] = useState<CollectionDialogState | null>(null);
   const [smartFilter, setSmartFilter] = useState<SmartFilterDialogState | null>(null);
   return {
@@ -51,6 +54,7 @@ export function useOverlays() {
     closeScrape: () => {
       setScraping(null);
     },
+    ...batch,
     closeCollection: () => {
       setCollection(null);
     },
@@ -108,6 +112,9 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
           },
         ]
       : [];
+  if (ids.length > 1 && overlays.canBatch) {
+    collectionItems.push(overlays.batchItem(ids));
+  }
   if (shown) {
     collectionItems.push({
       key: 'remove',
@@ -160,6 +167,9 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
       {overlays.relinking !== null && (
         <RelinkDialog gameId={overlays.relinking} onClose={overlays.closeRelink} />
+      )}
+      {overlays.batchRules && (
+        <BatchRulesDialog {...overlays.batchRules} onClose={overlays.closeBatch} />
       )}
       {overlays.scraping !== null && (
         <ScrapeDialog gameId={overlays.scraping} onClose={overlays.closeScrape} />

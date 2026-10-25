@@ -72,7 +72,7 @@ export function gameDetails(row: GameRow, overrides: Partial<GameDetails> = {}):
 export function libraryResponses(
   games: GameRow[],
   systems: SystemSummary[] = [
-    { id: 'nintendo-64', enabled: true, games: games.length, missing: 0 },
+    { id: 'nintendo-64', enabled: true, games: games.length, missing: 0, review: 0 },
   ],
 ): FakeResponses {
   const inTab = (game: GameRow, tab: GameListQuery['tab']) => {

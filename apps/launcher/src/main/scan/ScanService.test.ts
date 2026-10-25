@@ -135,7 +135,7 @@ describe('ScanService', () => {
     expect(events[0]?.payload).toMatchObject({ systemsTotal: 1, systemId: null });
     expect(events[3]?.payload).toMatchObject({ systemsDone: 1, systemsTotal: 1, filesSeen: 2 });
     expect(library.repo.systemCounts()).toEqual([
-      { systemId: 'nintendo-64', games: 2, missing: 0 },
+      { systemId: 'nintendo-64', games: 2, missing: 0, review: 0 },
     ]);
   });
 
@@ -195,7 +195,7 @@ describe('ScanService', () => {
       { systemId: 'nintendo-64', present: 0, added: 0, moved: 0, restored: 0, missing: 1 },
     ]);
     expect(library.repo.systemCounts()).toEqual([
-      { systemId: 'nintendo-64', games: 1, missing: 1 },
+      { systemId: 'nintendo-64', games: 1, missing: 1, review: 0 },
     ]);
 
     await rename(`${roms}-away`, roms);
@@ -245,7 +245,7 @@ describe('ScanService', () => {
       systems: [{ systemId: 'nintendo-64' }],
     });
     expect(library.repo.systemCounts()).toEqual([
-      { systemId: 'nintendo-64', games: 1, missing: 0 },
+      { systemId: 'nintendo-64', games: 1, missing: 0, review: 0 },
     ]);
   });
 
