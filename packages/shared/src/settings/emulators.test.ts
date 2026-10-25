@@ -6,7 +6,7 @@ const PROFILE_ID = '01900000-0000-7000-8000-000000000002';
 
 function withProfile(profile: Record<string, unknown>, emulator: Record<string, unknown> = {}) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     emulators: [
       { id: EMULATOR_ID, name: 'RetroArch', executable: 'E:\\emu\\ra\\retroarch.exe', ...emulator },
     ],

@@ -83,9 +83,9 @@ describe('app.quit', () => {
 describe('settings channels', () => {
   it('FR-SET-2: settings.save rejects unknown keys', () => {
     const input = ipcContract['settings.save'].input;
-    expect(input.safeParse({ settings: { schemaVersion: 1 }, baseRevision: 0 }).success).toBe(true);
+    expect(input.safeParse({ settings: { schemaVersion: 2 }, baseRevision: 0 }).success).toBe(true);
     expect(
-      input.safeParse({ settings: { schemaVersion: 1 }, baseRevision: 0, extra: 1 }).success,
+      input.safeParse({ settings: { schemaVersion: 2 }, baseRevision: 0, extra: 1 }).success,
     ).toBe(false);
   });
 

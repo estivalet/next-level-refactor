@@ -25,6 +25,7 @@ import {
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
+import { CredentialStatusSchema, ScraperAccountSchema } from '../scraper/schema.ts';
 import {
   SmartFilterNameSchema,
   SmartFilterQuerySchema,
@@ -84,6 +85,8 @@ export type BackupInfo = z.output<typeof BackupInfoSchema>;
 export type AppPathKey = (typeof APP_PATH_KEYS)[number];
 
 /** Every IPC channel between renderer and main, with its input and output schemas. */
+const secretValue = z.string().min(1).max(200).nullable().optional();
+
 export const ipcContract = {
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
@@ -275,6 +278,20 @@ export const ipcContract = {
     input: z.strictObject({ themeId: z.string().regex(THEME_ID) }),
     output: z.void(),
   },
+  /** Which ScreenScraper credentials the OS store holds (FR-SCR-3); never the values. */
+  'scraper.credentials.status': { input: z.void(), output: CredentialStatusSchema },
+  /** Sets the given credentials (omitted = unchanged, null = removed). */
+  'scraper.credentials.set': {
+    input: z.strictObject({
+      devId: secretValue,
+      devPassword: secretValue,
+      user: secretValue,
+      password: secretValue,
+    }),
+    output: CredentialStatusSchema,
+  },
+  /** One ScreenScraper request with the stored credentials (Settings → Scraper → Test). */
+  'scraper.test': { input: z.void(), output: ScraperAccountSchema },
   'settings.get': { input: z.void(), output: SettingsLoadSchema },
   'settings.save': {
     input: z.strictObject({ settings: SettingsSchema, baseRevision: z.number().int() }),

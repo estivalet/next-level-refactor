@@ -153,4 +153,26 @@ describe('SettingsService export and import', () => {
     const { service } = await setup();
     expect(await service.exportTo()).toEqual({ ok: true, value: { status: 'cancelled' } });
   });
+
+  it('a v1 file is migrated on load and its exact bytes are backed up at the next save (D16)', async () => {
+    const fixture = await newFixture();
+    const v1 = JSON.stringify({
+      schemaVersion: 1,
+      themes: { entries: { 'big-box': { art: { gameArt: { all: ['screenshot-title'] } } } } },
+    });
+    await writeFile(join(fixture.dir, 'settings.json'), v1);
+    const service = new SettingsService(fixture.deps);
+    await service.load();
+    expect(current(service).themes.entries['big-box']?.art?.gameArt).toEqual({
+      all: ['screenshot-game-title'],
+    });
+    await saveOk(service, current(service));
+    const backups = await readdir(join(fixture.dir, 'backups'));
+    expect(backups).toHaveLength(1);
+    expect(await readFile(join(fixture.dir, 'backups', backups[0] ?? ''), 'utf8')).toBe(v1);
+    const saved = JSON.parse(await readFile(join(fixture.dir, 'settings.json'), 'utf8')) as {
+      schemaVersion: number;
+    };
+    expect(saved.schemaVersion).toBe(2);
+  });
 });

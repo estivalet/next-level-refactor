@@ -13,7 +13,7 @@ export const DEFAULT_GAME_BACKGROUND_SOURCES: GameBackgroundSource[] = [
   'screenshot',
 ];
 /** Game media kinds tried, in order, for the `screenshot` background source. */
-export const SCREENSHOT_KINDS = ['screenshot-game-play', 'screenshot-title', 'screenshot-select'];
+export const SCREENSHOT_KINDS = ['screenshot-game-play', 'screenshot-game-title'];
 
 export const logoPaths = (name: string, art: ThemeArtConfig) => [
   `logo/${art.logoVariant}/${name}.png`,

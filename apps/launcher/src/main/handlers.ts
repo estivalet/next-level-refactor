@@ -5,6 +5,7 @@ import {
   type SystemDefinition,
   type AppPathKey,
   type Result,
+  type ScraperAccount,
   type SettingsSnapshot,
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
@@ -24,6 +25,8 @@ import type { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
+import { createCredentialHandlers } from './scraper/credentialHandlers.ts';
+import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
 import { createImportHandlers } from './import/importHandlers.ts';
 import type { ImportService } from './import/ImportService.ts';
@@ -68,6 +71,10 @@ export interface MainDeps {
   pathExists: (path: string) => boolean;
   /** UUIDv7 for menus and menu nodes. */
   newId: () => string;
+  /** OS-encrypted secrets (`secrets.bin`, FR-SCR-3). */
+  secrets: SecretsLike;
+  /** Settings → Scraper → Test: one ScreenScraper request with the stored credentials. */
+  scraperAccount: () => Promise<ScraperAccount>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -128,6 +135,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
         );
       },
     }),
+    ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
     ...createLaunchHandlers({
       launch: () => {
         const { launch, launches } = library();

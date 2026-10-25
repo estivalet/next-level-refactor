@@ -31,12 +31,14 @@ but never rewrites, except media written by the scraper and games installed from
 
 ## 2. Settings (`settings.json`)
 
-Only the app writes this file. Every field has a default, so an empty file `{ "schemaVersion": 1 }`
-is valid and the app fills the rest.
+Only the app writes this file. Every field has a default, so an empty file `{ "schemaVersion": 2 }`
+is valid and the app fills the rest. Older files are migrated on load (`main/settings/migrate.ts`);
+the next save backs up the old file first. v1 → v2 (M6) renames `screenshot-title` to
+`screenshot-game-title` and drops `screenshot-select` in `themes.entries[*].art.gameArt` (D16).
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
-`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, `scraper` (`regionPriority`, `languagePriority`, `artKinds`, `fields`) and `storage.media` since M6a (schema v2), and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
@@ -45,7 +47,7 @@ file invalid.
 
 ```ts
 type Settings = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   general: {
     language: 'en' | 'pt-BR';
     bootTarget: { kind: 'lastTheme' } | { kind: 'theme'; themeId: string } | { kind: 'desktop' };
@@ -70,11 +72,11 @@ type Settings = {
   };
   input: InputSettings;
   scraper: {
-    provider: 'screenscraper';
     regionPriority: string[];                 // e.g. ['us','wor','eu','jp']
     languagePriority: string[];
     artKinds: GameArtKind[];
-    hasCredentials: boolean;                  // credentials themselves live in the OS keychain
+    fields: ScrapeField[];                    // batch defaults; never 'title' in a batch (D19)
+    // No hasCredentials: presence is read from the secret store (scraper.credentials.status), so it can't drift.
   };
   kiosk: { enabled: boolean; pinHash: string | null; hide: ('desktop'|'settings'|'themeSwitcher'|'catalog')[] };
   sync: { enabled: boolean };
@@ -143,10 +145,12 @@ The only tokens allowed in `args`, `cwd` and `env` values. Unknown tokens fail v
 
 - Saves are atomic (write `settings.json.tmp`, fsync, rename). The previous file goes to
   `backups/settings-<ISO>.json`; the newest 10 are kept.
-- On load: parse → migrate (`schemaVersion` n → n+1, backup first) → validate. An invalid file is
+- On load: parse → migrate in memory (`schemaVersion` n → n+1; the file on disk changes at the next write, which backs up the old file first) → validate. An invalid file is
   never overwritten silently: the app offers *Restore latest backup* or *Reset to defaults*.
 - Secrets (ScreenScraper password, refresh token) are **never** in this file; they use Electron
-  `safeStorage`-encrypted entries in `secrets.bin`.
+  `safeStorage`-encrypted entries in `secrets.bin`. Since M6a it holds `screenscraper.devId`,
+  `screenscraper.devPassword`, `screenscraper.user`, `screenscraper.password` (D15: the
+  developer pair is user-entered until an ADR before M10 decides how the app ships it).
 
 ### 2.3 Resolution: which emulator runs a game
 
@@ -317,8 +321,9 @@ game deletes its row (cascade) after confirmation.
 
 ### Game art kinds
 
-`box-front`, `box-back`, `fanart`, `video`, `screenshot-game-play`, `screenshot-title`,
-`screenshot-select`, `logo-clear`, `marquee`. Folder on disk: `<systemDir>/media/<kind>/<romName>.<ext>`
+`box-front`, `box-back`, `box-3d`, `cart-front`, `fanart`, `video`, `screenshot-game-play`,
+`screenshot-game-title`, `logo-clear`, `marquee` (D16: the NextLevelOS folder names; any other
+folder under `media/` is still indexed, but Settings and the scraper offer these). Folder on disk: `<systemDir>/media/<kind>/<romName>.<ext>`
 (current convention) or `<central>/<systemId>/<kind>/…`.
 
 ### Menu art kinds (theme packs and assets folder)

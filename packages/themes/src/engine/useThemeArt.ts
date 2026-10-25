@@ -34,7 +34,7 @@ export const DEFAULT_ART_CONFIG: ThemeArtConfig = {
 /** Game tile kinds when a theme's `gameArt` names none for the system. */
 export const DEFAULT_TILE_KINDS = [
   'box-front',
-  'screenshot-title',
+  'screenshot-game-title',
   'screenshot-game-play',
   'logo-clear',
 ];

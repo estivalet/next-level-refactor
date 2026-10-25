@@ -16,6 +16,13 @@ export const ERROR_CODES = {
   LAUNCH_FAILED: 'errors.launchFailed',
   ALREADY_RUNNING: 'errors.alreadyRunning',
   BUSY: 'errors.busy',
+  SCRAPER_CREDENTIALS: 'errors.scraperCredentials',
+  SCRAPER_QUOTA: 'errors.scraperQuota',
+  SCRAPER_UNAVAILABLE: 'errors.scraperUnavailable',
+  SCRAPER_NETWORK: 'errors.scraperNetwork',
+  NO_SCRAPER_SYSTEM: 'errors.noScraperSystem',
+  NO_CREDENTIALS: 'errors.noCredentials',
+  SECRETS_UNAVAILABLE: 'errors.secretsUnavailable',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

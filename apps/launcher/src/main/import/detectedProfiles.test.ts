@@ -15,7 +15,7 @@ const detected: DetectedEmulator[] = [
 
 function settings() {
   return SettingsSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: 2,
     systems: {
       'atari-2600': { enabled: true },
       'sony-playstation': { enabled: true, defaultProfileId: PROFILE },

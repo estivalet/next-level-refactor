@@ -5,6 +5,21 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+- M6a scraper core (FR-SCR-3, US-D6): **Settings → Scraper** keeps the ScreenScraper account and
+  the developer id/password (D15) in the Windows credential store (`secrets.bin`, encrypted with
+  Electron `safeStorage`), never in settings, backups or logs; **Test** shows the account and
+  today's request count. The same page orders regions and languages and picks the art kinds and
+  fields a batch scrape fills. Under the hood: a TypeScript ScreenScraper client ported from
+  NextLevelOS (title matching, hash identify, metadata, art selection) with quota limits and a
+  response cache.
+
+### Changed
+- Game art kinds follow the NextLevelOS folder names (D16): `box-3d`, `cart-front` and
+  `screenshot-game-title` are offered, `screenshot-select` is gone. Settings move to schema
+  version 2; saved theme game-art lists are renamed on load (the next save backs up the old
+  file).
+
 ## [0.5.0] - 2026-10-24
 
 M5 — Menus, collections & import: menus as user data with a visual Menu Editor and live

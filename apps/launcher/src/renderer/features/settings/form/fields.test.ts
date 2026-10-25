@@ -24,7 +24,7 @@ describe('fieldsOf', () => {
 
 describe('issuesByPath', () => {
   it('FR-SET-2: maps each invalid field to a message key', () => {
-    const result = SettingsSchema.safeParse({ schemaVersion: 1, general: { language: 'xx' } });
+    const result = SettingsSchema.safeParse({ schemaVersion: 2, general: { language: 'xx' } });
     if (result.success) throw new Error('expected failure');
     expect(issuesByPath(result.error)).toEqual({
       'general.language': 'errors.validation.invalid_value',
@@ -36,7 +36,7 @@ describe('issuesByPath for custom checks', () => {
   it('FR-LIB-1: a storage location check maps to its own message key', () => {
     const location = { id: '01928c3e-0000-7000-8000-000000000001', name: 'a', priority: 1 };
     const result = SettingsSchema.safeParse({
-      schemaVersion: 1,
+      schemaVersion: 2,
       storage: {
         locations: [
           { ...location, path: 'E:/roms' },
