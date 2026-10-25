@@ -126,16 +126,33 @@ requirements:
     PageUp/PageDown; ContextMenu key or Shift+F10 opens the menu). A collection adds a toolbar:
     sort (manual / title / year), Move up / Move down (manual), Add games… (since M5c), Rename,
     Delete (asks first). In manual order rows also drag into a new place (see S11).
-  - Right: details (title, system, facts, filters, description), Favorite, 1–5 stars (choosing
-    the same star clears), Edit details, Open folder; a missing game shows since when, the
-    expected path and **Relink…**.
+  - Right: details (box art from the media index since M6b, title, system, scrape status,
+    facts, filters, description), Favorite, 1–5 stars (choosing the same star clears), Edit
+    details, Open folder; a missing game shows since when, the expected path and **Relink…**.
+    The scrape status line reads "Scraped <date>", "Needs review", "Not found on
+    ScreenScraper" or "Last scrape failed"; a game never scraped shows none.
   - Status bar: "N games · N missing", Filter (All, Favorites, Hidden, Missing), Sort (title,
     year, rating, recently added) for systems, and what is shown.
-  - Context menu as built: Play (M3), Edit details…, Add to / Remove from favorites, Hide /
-    Unhide, Add to collection…, Remove from collection (in a collection), Launch options… (M3),
-    Open folder, Show missing reason… (opens Relink). **Play with… and Scrape… are left out
-    until M6** (owner decision 2026-10-21). Add to collection opens a dialog listing the
-    collections.
+  - Context menu as built: Play (M3), Edit details…, Scrape… (M6b, one game), Add to / Remove
+    from favorites, Hide / Unhide, Add to collection…, Remove from collection (in a
+    collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink).
+    **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
+    listing the collections.
+  - **Scrape… (M6b, FR-SCR-1, FR-SCR-5, US-C5, D19):** "Scrape: <title>" searches on open —
+    by ROM hash first (files under 512 MiB, not .m3u/.cue/.gdi; never for missing games),
+    then by title with relaxed variants — and preselects the best candidate (thumbnail,
+    name, year · region, similarity %, "Exact match" for a hash hit). The **Search title**
+    box searches again by title, skipping the cache. Below, the preview lists every art kind
+    ("Already have a local file" / "Missing locally" / "Not on ScreenScraper", disabled)
+    and every field (current value struck through, scraped value). Ticked at first: missing
+    art and empty fields; **Overwrite existing** ticks everything available. Title and
+    fields the user edited (lock icon, "Edited by you…") are never ticked for the user;
+    ticking one writes it and it stays locked. **Apply** writes the art next to the ROMs
+    (`<system folder>/media/<kind>/<rom stem>.png|.jpg|.mp4`, D17) and the fields, then
+    closes; kinds that fail are listed ("Video: could not be saved in the media folder")
+    and the dialog stays open. A system without a ScreenScraper id shows a system picker
+    (**Save system**, **Reload list**) and searches again. Errors (credentials, quota,
+    network) show translated. Esc or **Close** closes; late answers are ignored.
   - **Play (M3, FR-EMU-6, US-C2):** the **Play** button in the details panel, Play in the menu,
     Enter or double-click on a row or a search result. The button is disabled for missing games
     and while a game is starting or running (one at a time); the menu leaves Play out then. While it runs the launcher window is minimized and the Library
