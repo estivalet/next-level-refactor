@@ -53,7 +53,8 @@
     "suspended": "Esta conta está suspensa.",
     "deviceLimit": "Esta conta está conectada em dispositivos demais. Remova um para continuar.",
     "notAllowed": "Esta conta Google não está autorizada.",
-    "rateLimited": "Tentativas demais. Aguarde um minuto e tente de novo."
+    "rateLimited": "Tentativas demais. Aguarde um minuto e tente de novo.",
+    "apiUnreachable": "Não foi possível falar com o NextLevel. Verifique sua conexão e tente de novo."
   },
   "shell": {
     "window": {
@@ -1204,6 +1205,12 @@
       "genre": "Gênero",
       "players": "Jogadores",
       "rating": "Nota"
+    }
+  },
+  "auth": {
+    "browser": {
+      "ok": "Você já pode voltar ao NextLevel.",
+      "cancelled": "O login foi cancelado. Você pode fechar esta aba."
     }
   }
 }

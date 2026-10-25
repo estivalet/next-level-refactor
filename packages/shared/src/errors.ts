@@ -30,6 +30,7 @@ export const ERROR_CODES = {
   DEVICE_LIMIT: 'errors.deviceLimit',
   NOT_ALLOWED: 'errors.notAllowed',
   RATE_LIMITED: 'errors.rateLimited',
+  API_UNREACHABLE: 'errors.apiUnreachable',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

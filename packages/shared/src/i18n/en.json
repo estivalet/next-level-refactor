@@ -53,7 +53,8 @@
     "suspended": "This account is suspended.",
     "deviceLimit": "This account is signed in on too many devices. Remove one to continue.",
     "notAllowed": "This Google account isn't authorized.",
-    "rateLimited": "Too many attempts. Wait a minute and try again."
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
+    "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again."
   },
   "shell": {
     "window": {
@@ -1204,6 +1205,12 @@
       "genre": "Genre",
       "players": "Players",
       "rating": "Rating"
+    }
+  },
+  "auth": {
+    "browser": {
+      "ok": "You can return to NextLevel.",
+      "cancelled": "Sign-in was cancelled. You can close this tab."
     }
   }
 }

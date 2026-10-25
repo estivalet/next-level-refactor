@@ -22,7 +22,11 @@ async function listen(timeoutMs = 5000) {
 const settle = <T>(promise: Promise<T>, ms = 100) =>
   Promise.race([
     promise,
-    new Promise<'pending'>((resolve) => setTimeout(() => { resolve('pending'); }, ms)),
+    new Promise<'pending'>((resolve) =>
+      setTimeout(() => {
+        resolve('pending');
+      }, ms),
+    ),
   ]);
 
 describe('PKCE (RFC 7636, ADR-006)', () => {
