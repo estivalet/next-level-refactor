@@ -112,7 +112,7 @@ flowchart LR
 | `LaunchService` | Resolves launch profile, renders the template, validates, spawns, waits, records launch log |
 | `DownloadService` | Queue, resumable HTTP range downloads, checksum, install into managed storage, uninstall |
 | `AuthService` | Loopback OAuth flow, token storage (`safeStorage`), refresh, entitlement cache + grace logic |
-| `ScraperService` | ScreenScraper client (TypeScript port of `scrappers/`), rate limiting, cache |
+| `ScraperService` | As built (M6): `main/scraper/` — ScreenScraper client (TypeScript port of `scrappers/`) with quota gate and SQLite response cache, `ScrapeService` (single game: hash then title search, preview, apply through `MediaWriter`), `BatchScrapeService` (one persisted job in `scrape_jobs`, one game at a time, D18 auto-apply rules, pauses on quota / credentials / network, resumes at launch) |
 | `MediaIndex` | Records which media files exist per game; serves `nextlevel://media/<gameId>/<kind>?v=<version>` with Range support (the version, the file's mtime, changes the URL when a scrape replaces the file) |
 | `ImportService` | NextLevelOS importer with dry-run report |
 | `SyncService` | (M10) push/pull settings, menus, collections, user state |
