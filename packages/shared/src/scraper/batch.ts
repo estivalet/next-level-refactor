@@ -25,8 +25,18 @@ export const BatchScopeSchema = z.union([
   z.strictObject({ gameIds: z.array(z.number().int().positive()).min(1).max(50_000) }),
 ]);
 
-/** `error`: something unexpected (e.g. the library could not be written); see the log. */
-export const BATCH_PAUSE_REASONS = ['quota', 'network', 'credentials', 'user', 'error'] as const;
+/**
+ * `media`: art could not be saved for several games in a row (unwritable or unplugged folder);
+ * `error`: something unexpected (e.g. the library could not be written); see the log.
+ */
+export const BATCH_PAUSE_REASONS = [
+  'quota',
+  'network',
+  'credentials',
+  'user',
+  'media',
+  'error',
+] as const;
 
 export const BatchStatusSchema = z.object({
   jobId: z.number().int().positive().nullable(),

@@ -165,7 +165,14 @@ export class ScreenScraperClient {
     signal?: AbortSignal,
   ): Promise<{ bytes: Buffer; contentType: string | null }> {
     const response = await this.send(url, signal);
-    if (!response.ok) return fail('SCRAPER_NETWORK', `HTTP ${String(response.status)}`);
+    if (!response.ok) {
+      // Quota and credential refusals must reach a batch as such (it pauses on them); a file
+      // ScreenScraper doesn't have is NOT_FOUND.
+      const { status } = response;
+      if (status === 430 || status === 431) this.deps.quota.exhausted();
+      const code = status === 404 || status === 410 ? 'NOT_FOUND' : statusError(status);
+      return fail(code, `HTTP ${String(status)}`);
+    }
     return {
       bytes: Buffer.from(await this.body(response, (r) => r.arrayBuffer())),
       contentType: response.headers.get('content-type'),

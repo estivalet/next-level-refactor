@@ -25,7 +25,7 @@ export interface BatchDeps {
     search: (input: { gameId: number }) => Promise<ScrapeSearchResult>;
     apply: (
       input: ScrapeApplyInput,
-      opts: { candidates: number; regions?: string[] },
+      opts: { candidates: number; regions?: string[]; batch: true },
     ) => Promise<ScrapeApplyResult>;
   };
   games: Pick<GameRepository, 'get'>;
@@ -35,6 +35,8 @@ export interface BatchDeps {
   quota: () => { exhaustedUntil: string | null };
   /** A scan or import is running. */
   blocked: () => boolean;
+  /** A system's ScreenScraper id (settings, then catalog), or null. */
+  screenscraperId: (systemId: string) => number | null;
   emit: EmitEvent;
   log: { error(context: object, msg: string): void };
   clock: () => Date;
@@ -45,8 +47,17 @@ export interface BatchDeps {
 
 /** Consecutive network failures before the job pauses (Review Focus 4). */
 const NETWORK_TRIES = 3;
+/** Games in a row whose art could not be saved before the job pauses (`media`). */
+const MEDIA_TRIES = 3;
 const BUSY_WAIT_MS = 5000;
 const QUOTA_FALLBACK_MS = 60 * 60 * 1000;
+
+const noSystem = (systemIds: string[]) =>
+  new AppErrorException({
+    code: 'NO_SCRAPER_SYSTEM',
+    message: ERROR_CODES.NO_SCRAPER_SYSTEM,
+    details: { systemIds },
+  });
 
 const busy = () =>
   new AppErrorException({ code: 'BUSY', message: ERROR_CODES.BUSY, details: { batch: true } });
@@ -64,6 +75,7 @@ export class BatchScrapeService {
   private stop: 'pause' | 'cancel' | null = null;
   private current: BatchStatus['current'] = null;
   private networkFails = 0;
+  private mediaFails = 0;
   private cancelTimer: (() => void) | null = null;
 
   constructor(private readonly deps: BatchDeps) {
@@ -98,12 +110,22 @@ export class BatchScrapeService {
   // eslint-disable-next-line @typescript-eslint/require-await -- refusals reject, never throw
   async begin(scope: BatchScope, rules: BatchRules): Promise<BatchStatus> {
     this.assertCanStart();
+    const unmapped = this.systemsOf(scope).filter((id) => this.deps.screenscraperId(id) === null);
+    if (unmapped.length > 0) throw noSystem(unmapped);
     const total = countGames(this.deps.db, scope, rules);
     this.job = this.store.create(scope, rules, total, this.deps.clock());
     this.stop = null;
     this.networkFails = 0;
     this.drive();
     return this.status();
+  }
+
+  private systemsOf(scope: BatchScope): string[] {
+    if ('systemIds' in scope) return [...new Set(scope.systemIds)];
+    return this.deps.db.$client
+      .prepare('select distinct system_id from games where id in (select value from json_each(?))')
+      .pluck()
+      .all(JSON.stringify(scope.gameIds)) as string[];
   }
 
   /** Stops after the current game. */
@@ -167,14 +189,29 @@ export class BatchScrapeService {
 
   private drive(): void {
     this.emitProgress();
+    // Each run starts from a settled loop, and nothing here may reject: a rejected loop would
+    // skip every later run until restart.
     this.loop = this.loop
+      .catch(() => undefined)
       .then(() => this.run())
       .catch((error: unknown) => {
-        // The job must not stay "running" with no loop behind it.
-        this.deps.log.error({ error, jobId: this.job?.id }, 'batch scrape stopped');
-        this.current = null;
-        if (this.job?.status === 'running') this.pauseFor('error', null);
+        this.stopped(error);
       });
+  }
+
+  /** The job must not stay "running" with no loop behind it. */
+  private stopped(error: unknown): void {
+    this.current = null;
+    try {
+      this.deps.log.error({ error, jobId: this.job?.id }, 'batch scrape stopped');
+      if (this.job?.status === 'running') this.pauseFor('error', null);
+    } catch {
+      // The library can't be written either: keep the pause in memory; the row says running,
+      // so the job resumes at the next launch.
+      if (this.job?.status === 'running') {
+        Object.assign(this.job, { status: 'paused', pausedReason: 'error', resumeAt: null });
+      }
+    }
   }
 
   private async run(): Promise<void> {
@@ -187,11 +224,14 @@ export class BatchScrapeService {
       }
       await this.handle(next.gameId);
       const stop = this.stop;
-      // handle() may have paused the job (quota, credentials, network).
-      if (stop && this.running()) {
-        this.stop = null;
-        if (stop === 'cancel') this.job.status = 'cancelled';
-        else Object.assign(this.job, { status: 'paused', pausedReason: 'user' });
+      this.stop = null;
+      if (stop === 'cancel') {
+        // Even when the game just paused the job (quota): a cancelled job never resumes.
+        this.clearTimer();
+        this.job.status = 'cancelled';
+        this.save();
+      } else if (stop === 'pause' && this.running()) {
+        Object.assign(this.job, { status: 'paused', pausedReason: 'user' });
         this.save();
       }
     }
@@ -204,16 +244,29 @@ export class BatchScrapeService {
     this.current = { gameId, title: game.title };
     this.emitProgress();
     try {
+      const targets = batchTargets(job.rules, game, this.deps.media);
+      if (targets.kinds.length === 0 && targets.fields.length === 0) {
+        // Nothing this game may receive (e.g. only locked fields chosen): no request at all.
+        this.advance(gameId, null);
+        return;
+      }
       const found = await this.deps.scraper.search({ gameId });
       const outcome = decide(found);
       if (outcome.kind === 'apply') {
-        const targets = batchTargets(job.rules, game, this.deps.media);
         const result = await this.deps.scraper.apply(
           { gameId, providerGameId: outcome.providerGameId, ...targets },
-          { candidates: found.candidates.length, regions: job.rules.regions },
+          { candidates: found.candidates.length, regions: job.rules.regions, batch: true },
         );
         this.networkFails = 0;
-        this.advance(gameId, result.game.scrape?.status === 'failed' ? 'failed' : 'applied');
+        const unsaved =
+          result.written.length === 0 && result.failed.some((f) => f.code === 'write');
+        this.mediaFails = unsaved ? this.mediaFails + 1 : 0;
+        const failed = unsaved || result.game.scrape?.status === 'failed';
+        this.advance(gameId, failed ? 'failed' : 'applied');
+        if (this.mediaFails >= MEDIA_TRIES) {
+          this.mediaFails = 0;
+          this.pauseFor('media', null);
+        }
       } else {
         this.networkFails = 0;
         this.mark(gameId, game.systemId, outcome.kind, found.candidates.length, null);
@@ -269,12 +322,13 @@ export class BatchScrapeService {
     this.deps.emit('library.changed', { systems: [systemId], gameIds: [gameId] });
   }
 
-  private advance(gameId: number, tally: Tally): void {
+  /** `null`: the game needed nothing; it still counts as done. */
+  private advance(gameId: number, tally: Tally | null): void {
     const job = this.job;
     if (!job) return;
     job.cursorGameId = gameId;
     job.done += 1;
-    job[tally] += 1;
+    if (tally) job[tally] += 1;
     this.save();
   }
 

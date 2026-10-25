@@ -437,3 +437,33 @@ describe('ScrapeService.apply for a batch (FR-SCR-2)', () => {
     ]);
   });
 });
+
+describe('ScrapeService.apply in a batch: transport failures (review)', () => {
+  it('a quota refusal on a download rejects the whole apply, writing nothing', async () => {
+    const { service, gameId, scrapes, games } = await setup({
+      routes: { 'mediaJeu.php': () => ({ status: 430 }) },
+    });
+    const error = await appErrorOfAsync(() =>
+      service.apply(
+        { gameId, providerGameId: 500, kinds: ['box-front'], fields: ['genre'] },
+        { batch: true },
+      ),
+    );
+    expect(error.code).toBe('SCRAPER_QUOTA');
+    expect(scrapes.get(gameId)).toBeNull();
+    expect(games.get(gameId).genre).toBeNull();
+  });
+
+  it('the single-game dialog still reports it per kind', async () => {
+    const { service, gameId } = await setup({
+      routes: { 'mediaJeu.php': () => ({ status: 430 }) },
+    });
+    const result = await service.apply({
+      gameId,
+      providerGameId: 500,
+      kinds: ['box-front'],
+      fields: [],
+    });
+    expect(result.failed).toEqual([{ kind: 'box-front', code: 'download' }]);
+  });
+});

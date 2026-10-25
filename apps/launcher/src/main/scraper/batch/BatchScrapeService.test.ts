@@ -49,7 +49,17 @@ afterEach(async () => {
 /** Scripted searches per game title: each search takes the next step for that game. */
 function setup(
   script: Record<string, Step[]>,
-  opts: { blocked?: boolean; exhaustedUntil?: string | null; failMark?: boolean } = {},
+  opts: {
+    blocked?: boolean;
+    exhaustedUntil?: string | null;
+    failMark?: boolean;
+    /** Per title: the apply rejects with this code, or every art write fails. */
+    applyStep?: Record<string, ErrorCode | 'writeFail'>;
+    /** Systems without a ScreenScraper id. */
+    noSystem?: string[];
+    /** Runs before each search (e.g. to break the database). */
+    onSearch?: (n: number) => void;
+  } = {},
 ) {
   const games = new GameRepository(library.db, (row) => row.relPath);
   const media = new MediaRepository(library.db);
@@ -63,6 +73,7 @@ function setup(
   const scraper = {
     search: ({ gameId }: { gameId: number }) => {
       searched.push(gameId);
+      opts.onSearch?.(searched.length);
       const steps = script[games.get(gameId).title] ?? [];
       const step = steps.length > 1 ? steps.shift() : steps[0];
       if (step === undefined) return Promise.resolve(candidates());
@@ -70,6 +81,15 @@ function setup(
     },
     apply: (input: ScrapeApplyInput, o: { candidates: number }) => {
       applied.push({ input, candidates: o.candidates });
+      const step = opts.applyStep?.[games.get(input.gameId).title];
+      if (step === 'writeFail') {
+        return Promise.resolve({
+          written: [],
+          failed: input.kinds.map((kind) => ({ kind, code: 'write' as const })),
+          game: games.get(input.gameId),
+        });
+      }
+      if (step) return Promise.reject(fail(step));
       scrapes.set(input.gameId, {
         status: 'scraped',
         providerGameId: input.providerGameId,
@@ -100,6 +120,7 @@ function setup(
       },
       quota: () => ({ exhaustedUntil: opts.exhaustedUntil ?? null }),
       blocked: () => opts.blocked ?? false,
+      screenscraperId: (systemId) => (opts.noSystem?.includes(systemId) ? null : 4),
       emit: (event, payload) => {
         events.push({ event, payload });
       },
@@ -247,11 +268,114 @@ describe('BatchScrapeService (FR-SCR-2, D18)', () => {
 
   it('a per-game error counts failed and the batch goes on', async () => {
     const [bad = 0] = seedGames(library.db, 'snes', ['Bad', 'Good']);
-    const { service, scrapes } = setup({ Bad: ['NO_SCRAPER_SYSTEM'], Good: [HASH] });
+    const { service, scrapes } = setup({ Bad: ['NOT_FOUND'], Good: [HASH] });
     await service.begin({ systemIds: ['snes'] }, RULES);
     await service.idle();
     expect(counts(service.status())).toEqual([2, 1, 0, 0, 1]);
-    expect(scrapes.get(bad)).toMatchObject({ status: 'failed', error: 'NO_SCRAPER_SYSTEM' });
+    expect(scrapes.get(bad)).toMatchObject({ status: 'failed', error: 'NOT_FOUND' });
+  });
+
+  it('review: a quota refusal during the downloads pauses; the game is redone on resume', async () => {
+    seedGames(library.db, 'snes', ['One', 'Two']);
+    const { service, applied } = setup(
+      { One: [HASH], Two: [HASH] },
+      { applyStep: { Two: 'SCRAPER_QUOTA' }, exhaustedUntil: '2026-10-25T22:00:00.000Z' },
+    );
+    await service.begin({ systemIds: ['snes'] }, RULES);
+    await service.idle();
+    expect(service.status()).toMatchObject({
+      state: 'paused',
+      pausedReason: 'quota',
+      done: 1,
+      failed: 0,
+    });
+    expect(applied).toHaveLength(2);
+  });
+
+  it('review: a system without a ScreenScraper id is refused at start, not failed game by game', async () => {
+    seedGames(library.db, 'snes', ['One']);
+    const [n64 = 0] = seedGames(library.db, 'n64', ['Two']);
+    const { service } = setup({}, { noSystem: ['n64'] });
+    await expect(service.begin({ systemIds: ['snes', 'n64'] }, RULES)).rejects.toMatchObject({
+      error: { code: 'NO_SCRAPER_SYSTEM', details: { systemIds: ['n64'] } },
+    });
+    await expect(service.begin({ gameIds: [n64] }, RULES)).rejects.toMatchObject({
+      error: { code: 'NO_SCRAPER_SYSTEM' },
+    });
+    expect(service.status().state).toBe('idle');
+  });
+
+  it('review: a locked empty field is not a gap; a game with nothing to write is never searched', async () => {
+    const [locked = 0] = seedGames(library.db, 'snes', [{ title: 'Locked', genre: 'X' }]);
+    const first = setup({ Locked: [HASH] });
+    first.games.updateMetadata(locked, { developer: null }, new Date(NOW));
+    for (const kind of ['box-front', 'logo-clear'] as const) {
+      first.media.upsert({ gameId: locked, kind, path: `C:/${kind}.png`, size: 1, version: 1 });
+    }
+    await first.service.begin({ systemIds: ['snes'] }, { ...RULES, fields: ['developer'] });
+    await first.service.idle();
+    expect(first.service.status()).toMatchObject({ state: 'finished', total: 0, done: 0 });
+    const again = setup({ Locked: [HASH] });
+    await again.service.begin(
+      { systemIds: ['snes'] },
+      { ...RULES, onlyMissing: false, kinds: [], fields: ['developer'] },
+    );
+    await again.service.idle();
+    expect(again.searched).toEqual([]);
+    expect(again.service.status()).toMatchObject({ state: 'finished', done: 1, applied: 0 });
+    expect(first.searched).toEqual([]);
+  });
+
+  it('review: every art write failing counts failed; three such games in a row pause (media)', async () => {
+    seedGames(library.db, 'snes', ['A', 'B', 'C', 'D']);
+    const { service } = setup(
+      { A: [HASH], B: [HASH], C: [HASH], D: [HASH] },
+      { applyStep: { A: 'writeFail', B: 'writeFail', C: 'writeFail', D: 'writeFail' } },
+    );
+    await service.begin({ systemIds: ['snes'] }, RULES);
+    await service.idle();
+    expect(service.status()).toMatchObject({
+      state: 'paused',
+      pausedReason: 'media',
+      done: 3,
+      failed: 3,
+      applied: 0,
+    });
+  });
+
+  it('review: cancel wins over a quota pause hit by the current game', async () => {
+    seedGames(library.db, 'snes', ['One']);
+    const hooks = { cancel: () => undefined as unknown };
+    const { service, advance, searched } = setup(
+      { One: ['SCRAPER_QUOTA', HASH] },
+      { exhaustedUntil: '2026-10-25T22:00:00.000Z', onSearch: () => hooks.cancel() },
+    );
+    hooks.cancel = () => service.cancel();
+    await service.begin({ systemIds: ['snes'] }, RULES);
+    await service.idle();
+    expect(service.status().state).toBe('finished');
+    advance(24 * 3600 * 1000);
+    await service.idle();
+    expect(searched).toHaveLength(1);
+  });
+
+  it('review: a library write failing in the error path never wedges the loop', async () => {
+    seedGames(library.db, 'snes', ['One', 'Two']);
+    const { service, logged, searched } = setup(
+      { One: [HASH], Two: [HASH] },
+      {
+        onSearch: (n) => {
+          if (n === 1) library.db.$client.exec('alter table scrape_jobs rename to broken');
+        },
+      },
+    );
+    await service.begin({ systemIds: ['snes'] }, RULES);
+    await service.idle();
+    expect(logged.length).toBeGreaterThan(0);
+    library.db.$client.exec('alter table broken rename to scrape_jobs');
+    await service.resume();
+    await service.idle();
+    expect(searched.length).toBeGreaterThan(1);
   });
 
   it('a restart resumes a running job from its cursor; a future quota pause waits', async () => {

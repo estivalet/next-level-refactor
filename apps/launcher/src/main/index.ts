@@ -284,6 +284,10 @@ function startLibrary(
     scrapes: new ScrapeRepository(db),
     quota: () => scraperQuota.state(),
     blocked: () => scan.status().running || importer.running(),
+    screenscraperId: (systemId) =>
+      currentSettings(settings).systems[systemId]?.screenscraperId ??
+      getSystem(systemId)?.scraper.screenscraperId ??
+      null,
     emit,
     log,
     clock: () => new Date(),

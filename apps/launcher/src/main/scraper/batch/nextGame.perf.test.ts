@@ -73,6 +73,7 @@ describe('batch performance', () => {
       scrapes: new ScrapeRepository(library.db),
       quota: () => ({ exhaustedUntil: null }),
       blocked: () => false,
+      screenscraperId: () => 4,
       emit: () => undefined,
       log: { error: () => undefined },
       clock: () => new Date(),

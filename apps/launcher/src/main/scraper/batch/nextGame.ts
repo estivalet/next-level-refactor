@@ -39,9 +39,11 @@ function where(scope: BatchScope, rules: BatchRules) {
       params.kinds = JSON.stringify([...new Set(rules.kinds)]);
       params.kindCount = new Set(rules.kinds).size;
     }
+    // A field the user edited is never written (D19), so an empty locked field is no gap.
     for (const field of new Set(rules.fields)) {
       const column = FIELD_COLUMNS[field];
-      lacks.push(`(m.${column} is null or m.${column} = '')`);
+      lacks.push(`((m.${column} is null or m.${column} = '')
+        and not exists (select 1 from json_each(m.locked_fields) l where l.value = '${field}'))`);
     }
     parts.push(lacks.length > 0 ? `(${lacks.join(' or ')})` : '0');
   }

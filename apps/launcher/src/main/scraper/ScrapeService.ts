@@ -59,7 +59,17 @@ export interface ScrapeServiceDeps {
 export interface ApplyOptions {
   candidates?: number;
   regions?: readonly string[];
+  /** From a batch: quota, credential and network failures reject the apply (it pauses). */
+  batch?: boolean;
 }
+
+/** Failures of the service, not of one file: a batch pauses on them instead of going on. */
+const TRANSPORT = new Set([
+  'SCRAPER_QUOTA',
+  'SCRAPER_CREDENTIALS',
+  'SCRAPER_NETWORK',
+  'SCRAPER_UNAVAILABLE',
+]);
 
 const MAX_THUMBS = 200;
 /** Candidates past this many get no thumbnail: each costs a rate-limited request. */
@@ -233,7 +243,10 @@ export class ScrapeService {
         download = await this.deps.client.download(url);
         const usable = kind === 'video' ? download.bytes.length > 0 : isImage(download.bytes);
         if (!usable) throw new Error('not media');
-      } catch {
+      } catch (error) {
+        if (opts.batch && error instanceof AppErrorException && TRANSPORT.has(error.error.code)) {
+          throw error;
+        }
         failed.push({ kind, code: 'download' });
         continue;
       }
