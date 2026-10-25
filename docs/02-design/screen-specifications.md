@@ -31,12 +31,14 @@ relevant), **populated**.
 - Actions: Sign in, Cancel (while waiting), Quit.
 - States: idle, waiting-for-browser (with timeout 5 min), error (with message + retry), not-allowed ("This Google account isn't authorized" when sign-up is closed).
 - Gamepad: A = sign in.
+- As built (M7b): the reasons shown are cancelled, browser timeout, not authorized, PC signed out (revoked), "Connect to the internet to continue" (offline past the grace), can't reach NextLevel, and a generic failure — each with **Try again**. The maintenance banner (D28) shows above the card. A device-limit step lists the account's devices with **Remove and continue** (US-A4); Cancel signs out. A suspended account sees "This account is suspended" with Sign out only (FR-AUTH-7).
 
 ## S3 Subscribe
 
 - Contents: user avatar/email, plan cards (name, price month/year, device limit, what the catalog includes), "Sign out".
 - Actions: Choose plan → opens browser checkout; "I've already paid" → refresh.
 - States: waiting-for-payment (polling indicator), payment-failed (from `past_due`), suspended (no plans, contact text).
+- M7 (billing off, D21): a placeholder — "Subscriptions aren't open yet", the account's email, Sign out. Plan cards arrive in M8.
 
 ## S4 First-run wizard
 
@@ -317,6 +319,8 @@ Remove from collection is in the game's context menu.
 
 Profile (Google name/email/avatar), plan + renewal date + "Manage billing" (opens portal),
 devices list with Revoke, Sign out.
+
+As built (M7b, D24): profile; "Default plan — billing not enabled" (admins: Administrator); last check time (or "Offline — access until …") with **Refresh**; devices (this PC marked, Revoke on the others; offline: "Can't reach NextLevel"); a note when Windows couldn't store the sign-in. With sign-in off (development, D25) it says so. Billing lines come in M8.
 
 ## S13 Admin console screens
 

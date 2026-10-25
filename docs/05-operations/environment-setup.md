@@ -52,7 +52,10 @@ npm run db:seed -w apps/api # creates plans, scopes and the bootstrap admin from
 
 The API validates these at startup (Zod) and refuses to start with a clear message if any are invalid.
 
-Launcher dev config: `apps/launcher/.env.development` → `NEXTLEVEL_API_URL=http://localhost:4000`.
+Launcher dev config: the API address is fixed per build (`MAIN_VITE_API_URL`, default
+`http://localhost:4000`). Development builds also honour `NEXTLEVEL_API_URL` (another API) and
+`NEXTLEVEL_AUTH=off` (no sign-in gate, D25); packaged builds ignore both. End-to-end tests run
+with sign-in off except `e2e/auth.spec.ts`, which starts the real API in-process with the stub.
 The launcher stores its own data under `%APPDATA%/NextLevel-dev` in development so it never
 touches a production install.
 There you'll find `settings.json`, `backups/` and `logs/main.log`. End-to-end tests set

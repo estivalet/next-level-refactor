@@ -35,6 +35,7 @@ const DEFAULT_RESPONSES: FakeResponses = {
   'app.version': () => ok('0.0.0'),
   'settings.get': () => ok({ kind: 'ok', snapshot: { settings: defaultSettings(), revision: 0 } }),
   'settings.backups.list': () => ok([]),
+  'auth.state': () => ok({ kind: 'disabled' }),
 };
 
 /**

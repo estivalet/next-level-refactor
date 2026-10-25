@@ -41,6 +41,7 @@ Electron `safeStorage` (DPAPI on Windows) and written atomically. They never app
 |---|---|---|
 | `screenscraper.devId`, `screenscraper.devPassword` | M6a | ScreenScraper developer credentials (D15) |
 | `screenscraper.user`, `screenscraper.password` | M6a | The user's ScreenScraper account |
+| `auth.session` | M7b | The sign-in: device id, refresh token, profile, last entitlement and when it was checked (JSON). The 15-minute access token is kept in memory only |
 
 ## 3. Launcher hardening (Electron)
 

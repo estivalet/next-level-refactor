@@ -43,7 +43,8 @@ export function launch(
   );
   return electron.launch({
     args: [appDir],
-    env: { ...env, ...extraEnv, NEXTLEVEL_USER_DATA: dataDir },
+    // Sign-in is off unless a test turns it on (D25); auth.spec.ts passes NEXTLEVEL_AUTH: 'on'.
+    env: { ...env, NEXTLEVEL_AUTH: 'off', ...extraEnv, NEXTLEVEL_USER_DATA: dataDir },
   });
 }
 

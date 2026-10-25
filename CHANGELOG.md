@@ -14,6 +14,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   mode (allow-list by default), bootstrap admins from `ADMIN_EMAILS`, the Default plan while
   billing is off, a 3-device limit with "remove one to continue", `/v1/me` and devices, rate
   limits. `npm run dev` now starts the API, the admin console and the launcher together.
+- Launcher sign-in (M7b): Sign in with Google in the system browser (PKCE + loopback), the
+  session in the Windows credential store, an hourly entitlement check, 14 days offline with an
+  Offline indicator, "Connect to the internet to continue" after that (library untouched),
+  suspended and not-authorized screens, "remove a device to continue", the maintenance banner,
+  and the **Account** app (profile, plan, devices with Revoke, Refresh, Sign out).
 
 ### Fixed
 

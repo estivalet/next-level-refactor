@@ -1,6 +1,8 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApp } from '../../apps/registry.ts';
+import { BannerStrip } from '../auth/BannerStrip.tsx';
+import { OfflineBadge } from '../auth/OfflineBadge.tsx';
 import { FrontendLayer } from '../frontend/FrontendLayer.tsx';
 import { MenuPreviewLayer } from '../frontend/MenuPreviewLayer.tsx';
 import { useFrontend } from '../frontend/useFrontend.ts';
@@ -46,6 +48,9 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e1b4b] font-sans text-slate-200 select-none">
+      <div inert={covered} className="contents">
+        <BannerStrip />
+      </div>
       <main
         ref={workArea}
         inert={covered}
@@ -71,6 +76,9 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
       {frontend.mounted && (
         <div inert={frontend.preview !== null} className="contents">
           <FrontendLayer />
+          {frontend.visible && (
+            <OfflineBadge className="pointer-events-none fixed top-3 right-3 z-[110]" />
+          )}
         </div>
       )}
       {frontend.preview && <MenuPreviewLayer draft={frontend.preview} onClose={frontend.hide} />}

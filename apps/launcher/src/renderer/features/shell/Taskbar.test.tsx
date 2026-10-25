@@ -79,7 +79,7 @@ describe('Taskbar', () => {
     renderShell();
     await user.click(taskbar().getByRole('button', { name: 'Start' }));
     await user.click(screen.getByRole('button', { name: 'Quit' }));
-    expect(calls).toEqual(['app.quit']);
+    expect(calls.filter((channel) => channel !== 'auth.state')).toEqual(['app.quit']);
   });
 
   it('FR-SHELL-4: the tray shows the time', () => {
