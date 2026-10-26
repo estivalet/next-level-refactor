@@ -5,6 +5,13 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-25
+
+M7 — Accounts: only allowed accounts reach the launcher. Google sign-in in the system browser,
+14 days of offline play, devices you can see and revoke, and an admin console for users,
+settings and the audit log. Billing is off until M8 (everyone allowed is on the Default plan).
+User guide: `docs/02-design/accounts-guide.md`.
+
 ### Added
 
 - `apps/api` (M7a): Fastify + Drizzle over SQLite, run by Node 24 from TypeScript. Env checked at
