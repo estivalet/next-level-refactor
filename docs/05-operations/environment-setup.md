@@ -23,9 +23,9 @@ How to get the monorepo running on a development machine. Applies once the new r
 git clone <repo-url> nextlevel
 cd nextlevel
 npm install                 # installs all workspaces, rebuilds native modules for Electron
-cp apps/api/.env.example apps/api/.env
-npm run db:migrate -w apps/api
-npm run db:seed -w apps/api # creates plans, scopes and the bootstrap admin from ADMIN_EMAILS
+cp apps/api/.env.example apps/api/.env   # then set JWT_SECRET (the file says how)
+# The API creates and migrates its database and seeds the Default plan when it starts;
+# ADMIN_EMAILS accounts become admins the first time they sign in.
 ```
 
 ## Environment variables (`apps/api/.env`)

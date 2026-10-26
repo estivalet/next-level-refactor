@@ -82,7 +82,7 @@
     "settings": {
       "title": "Configurações",
       "graceDays": "Tolerância offline (dias)",
-      "graceHelp": "Quanto tempo um launcher pode funcionar sem falar com a API (1–90).",
+      "graceHelp": "Quanto tempo um launcher pode funcionar sem falar com a API (1–30).",
       "signUpMode": "Quem pode entrar",
       "modes": {
         "open": "Qualquer conta Google",

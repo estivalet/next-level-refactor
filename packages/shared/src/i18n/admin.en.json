@@ -82,7 +82,7 @@
     "settings": {
       "title": "Settings",
       "graceDays": "Offline grace (days)",
-      "graceHelp": "How long a launcher may run without reaching the API (1–90).",
+      "graceHelp": "How long a launcher may run without reaching the API (1–30).",
       "signUpMode": "Who can sign in",
       "modes": {
         "open": "Anyone with a Google account",

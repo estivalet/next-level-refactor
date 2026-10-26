@@ -351,7 +351,7 @@ Unchanged from the current app: `logo/clear|silver|steel`, `background/wallpaper
 | `downloads` | `id` PK, `user_id`, `device_id`, `file_id`, `issued_at`, `ip_hash` | |
 | `audit_log` | `id` PK, `actor_id`, `action`, `target_type`, `target_id`, `before` json, `after` json, `at` | append-only |
 | `stripe_events` | `id` PK (Stripe event id), `type`, `received_at`, `processed_at`? | webhook idempotency |
-| `app_settings` | `key` PK, `value` json | `graceDays` (14, 1–90), `signUpMode` (`open`/`allowList`/`closed`, default `allowList`), `allowList` (lowercased emails), `banner` (≤ 280 chars or null); seeded with these defaults |
+| `app_settings` | `key` PK, `value` json | `graceDays` (14, 1–30: never past the 30-day refresh token), `signUpMode` (`open`/`allowList`/`closed`, default `allowList`), `allowList` (lowercased emails), `banner` (≤ 280 chars or null); seeded with these defaults |
 | `admin_sessions` | `id` PK, `token_hash` UNIQUE (SHA-256 of the `nl_session` cookie), `user_id` FK, `created_at`, `last_seen_at` | admin console sessions; 8 h idle timeout |
 | `sync_documents` | `user_id`, `kind` (`settings`/`menus`/`collections`/`userState`), `revision` int, `data` json, `updated_at` | PK(`user_id`,`kind`); M10 |
 

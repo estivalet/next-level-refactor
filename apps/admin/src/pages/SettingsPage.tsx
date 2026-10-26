@@ -59,7 +59,7 @@ function SettingsForm({
   ];
   const invalid = lines.filter((line) => !EmailSchema.safeParse(line).success);
   const graceDays = Number(grace);
-  const graceOk = Number.isInteger(graceDays) && graceDays >= 1 && graceDays <= 90;
+  const graceOk = Number.isInteger(graceDays) && graceDays >= 1 && graceDays <= 30;
   const patch: AppSettingsPatch = {
     ...(graceDays !== saved.graceDays ? { graceDays } : {}),
     ...(mode !== saved.signUpMode ? { signUpMode: mode } : {}),
@@ -82,7 +82,7 @@ function SettingsForm({
         help={t('admin.settings.graceHelp')}
         type="number"
         min={1}
-        max={90}
+        max={30}
         value={grace}
         onChange={(event) => {
           setGrace(event.target.value);

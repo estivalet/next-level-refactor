@@ -22,8 +22,11 @@ const banner = z.preprocess(
 export const SIGN_UP_MODES = ['open', 'allowList', 'closed'] as const;
 
 export const AppSettingsSchema = z.strictObject({
-  /** Days the launcher may run offline after its last entitlement check (FR-AUTH-5). */
-  graceDays: z.number().int().min(1).max(90),
+  /**
+   * Days the launcher may run offline after its last entitlement check (FR-AUTH-5). At most 30:
+   * the refresh token lives 30 days, so a longer grace would end in "signed out", not reconnect.
+   */
+  graceDays: z.number().int().min(1).max(30),
   /** Who may sign in: anyone, `ADMIN_EMAILS` + the allow-list, or existing users only. */
   signUpMode: z.enum(SIGN_UP_MODES),
   allowList,

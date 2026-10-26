@@ -5,6 +5,18 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-25
+
+M7 — Accounts: only allowed accounts reach the launcher. Google sign-in in the system browser,
+14 days of offline play, devices you can see and revoke, and an admin console for users,
+settings and the audit log. Billing is off until M8 (everyone allowed is on the Default plan).
+User guide: `docs/02-design/accounts-guide.md`.
+
+**Not yet verified:** sign-in with a real Google account. Automated tests and CI use the
+`AUTH_STUB=1` sign-in stub; the owner's check with real Google clients (D26) is still to come.
+The offline grace can be set from 1 to 30 days (a sign-in lasts 30 days). The admin console's
+end-to-end test needs Chromium (`npx playwright install chromium`).
+
 ### Added
 
 - `apps/api` (M7a): Fastify + Drizzle over SQLite, run by Node 24 from TypeScript. Env checked at
