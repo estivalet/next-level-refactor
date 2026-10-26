@@ -19,6 +19,7 @@ async function boundaryErrors(file: string, code: string): Promise<string[]> {
 beforeAll(async () => {
   await boundaryErrors('packages/shared/src/index.ts', '');
   await boundaryErrors('apps/launcher/src/renderer/main.tsx', '');
+  await boundaryErrors('apps/api/src/app.ts', '');
 }, 60_000);
 
 describe('architecture §3 dependency rule', () => {
@@ -61,8 +62,6 @@ describe('architecture §3 dependency rule', () => {
   });
 
   it('apps may import packages', async () => {
-    expect(await boundaryErrors('apps/api/src/index.ts', "import '@nextlevel/shared';")).toEqual(
-      [],
-    );
+    expect(await boundaryErrors('apps/api/src/app.ts', "import '@nextlevel/shared';")).toEqual([]);
   });
 });

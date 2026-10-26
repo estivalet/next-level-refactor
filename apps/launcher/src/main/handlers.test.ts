@@ -3,6 +3,7 @@ import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { memorySecrets } from './secrets/testing.ts';
+import { DISABLED_AUTH } from './auth/authHandlers.ts';
 import { createHandlers, type MainDeps } from './handlers.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { SettingsService } from './settings/SettingsService.ts';
@@ -18,6 +19,7 @@ async function setup() {
   const warn = vi.fn();
   await settings.load();
   const deps: MainDeps = {
+    auth: DISABLED_AUTH,
     settings,
     artIndex: { index: () => Promise.reject(new Error('no art index in this test')) },
     appVersion: () => '1.0.0',

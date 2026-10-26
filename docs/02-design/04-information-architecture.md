@@ -96,6 +96,11 @@ sequenceDiagram
 
 ### F2 — Boot routing
 
+As built (M7b): `BootGate` loads settings (language first), then `AuthGate` routes by main's
+`AuthState`; a stored session is refreshed online, or allowed offline while
+`last check − 5 min ≤ now < last check + grace` on this PC's clock. The entitlement is checked
+again every hour while signed in. Development builds can turn the gate off (`NEXTLEVEL_AUTH=off`).
+
 ```mermaid
 flowchart TD
   S[Start] --> T{Refresh token stored?}

@@ -53,7 +53,8 @@
     "suspended": "This account is suspended.",
     "deviceLimit": "This account is signed in on too many devices. Remove one to continue.",
     "notAllowed": "This Google account isn't authorized.",
-    "rateLimited": "Too many attempts. Wait a minute and try again."
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
+    "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again."
   },
   "shell": {
     "window": {
@@ -91,6 +92,9 @@
     },
     "menuEditor": {
       "title": "Menu Editor"
+    },
+    "account": {
+      "title": "Account"
     }
   },
   "settings": {
@@ -1205,5 +1209,56 @@
       "players": "Players",
       "rating": "Rating"
     }
+  },
+  "auth": {
+    "browser": {
+      "ok": "You can return to NextLevel.",
+      "cancelled": "Sign-in was cancelled. You can close this tab."
+    },
+    "checking": "Checking your account…",
+    "intro": "Sign in to play.",
+    "signIn": "Sign in with Google",
+    "waiting": "Waiting for your browser…",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "quit": "Quit",
+    "signOut": "Sign out",
+    "reason": {
+      "cancelled": "Sign-in was cancelled.",
+      "timeout": "The browser didn't answer in time.",
+      "notAllowed": "This Google account isn't authorized.",
+      "revoked": "This PC was signed out. Sign in again.",
+      "offlineExpired": "Connect to the internet to continue.",
+      "unreachable": "Can't reach NextLevel. Check your connection and try again.",
+      "error": "Sign-in failed. Try again."
+    },
+    "subscribe": {
+      "title": "Subscriptions aren't open yet",
+      "body": "{{email}} has no active plan yet. Subscriptions open soon."
+    },
+    "suspended": {
+      "title": "This account is suspended",
+      "body": "{{email}} can't use NextLevel right now. Contact the operator if you think this is a mistake. Your games and settings on this PC are untouched."
+    },
+    "deviceLimit": {
+      "title": "Too many devices",
+      "body": "Your account is signed in on as many devices as your plan allows. Remove one to continue.",
+      "remove": "Remove and continue"
+    },
+    "offline": "Offline",
+    "offlineUntil": "Offline — access until {{date}}",
+    "bannerDismiss": "Dismiss"
+  },
+  "account": {
+    "plan": "{{plan}} plan — billing not enabled",
+    "admin": "Administrator",
+    "checked": "Last checked {{time}}",
+    "refresh": "Refresh",
+    "devices": "Devices",
+    "thisDevice": "This PC",
+    "revoke": "Revoke",
+    "lastSeen": "Last seen {{time}}",
+    "notRemembered": "Windows couldn't store your sign-in securely, so you'll sign in again next time.",
+    "disabled": "Sign-in is turned off in this development build."
   }
 }

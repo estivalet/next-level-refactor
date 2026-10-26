@@ -1,13 +1,14 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../settings/settingsApi.ts';
+import { AuthGate } from '../auth/AuthGate.tsx';
 import { BootRouteContext, useBootRoute } from './bootRoute.ts';
 import { RecoveryScreen } from './RecoveryScreen.tsx';
 import { Splash } from './Splash.tsx';
 
 /**
- * Boot routing: splash while settings load, recovery when they can't be used, otherwise the
- * shell, starting in the front-end or on the desktop per the boot target (FR-THM-5). Keeps the
+ * Boot routing: splash while settings load, recovery when they can't be used, then the sign-in
+ * gate (FR-AUTH-*), then the shell, starting in the front-end or on the desktop per the boot target (FR-THM-5). Keeps the
  * UI language in sync with the saved setting.
  */
 export function BootGate({ children }: { children: ReactNode }) {
@@ -39,5 +40,10 @@ export function BootGate({ children }: { children: ReactNode }) {
   }
   // At boot, show the shell only once the language matches, so it never flashes in English.
   if (!booted || !route.data) return <Splash />;
-  return <BootRouteContext value={route.data}>{children}</BootRouteContext>;
+  // The gate layer (IA §1): after settings, so its screens are in the user's language.
+  return (
+    <AuthGate>
+      <BootRouteContext value={route.data}>{children}</BootRouteContext>
+    </AuthGate>
+  );
 }

@@ -29,6 +29,7 @@ import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
 import { createCredentialHandlers } from './scraper/credentialHandlers.ts';
 import { createBatchHandlers } from './scraper/batch/batchHandlers.ts';
 import type { BatchScrapeService } from './scraper/batch/BatchScrapeService.ts';
+import { createAuthHandlers, type AuthApi } from './auth/authHandlers.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
@@ -84,6 +85,8 @@ export interface MainDeps {
   scraperAccount: () => Promise<ScraperAccount>;
   /** ScreenScraper's system list (cached 30 days unless `refresh`). */
   scraperSystems: (opts: { refresh?: boolean | undefined }) => Promise<ScraperSystem[]>;
+  /** Sign-in and the entitlement (FR-AUTH-*); `DISABLED_AUTH` when sign-in is off. */
+  auth: AuthApi;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -146,6 +149,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
     ...createBatchHandlers({ batch: () => library().batch }),
+    ...createAuthHandlers(deps.auth),
     ...createScrapeHandlers({
       service: () => library().scrape,
       systems: deps.scraperSystems,
