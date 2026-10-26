@@ -68,10 +68,10 @@ describe('app settings (FR-ADM-4, D22)', () => {
     expect(AppSettingsSchema.parse(defaultAppSettings())).toEqual(defaultAppSettings());
   });
 
-  it('grace days run from 1 to 90', () => {
+  it('FR-AUTH-5: grace days run from 1 to 30 — never past the 30-day refresh token', () => {
     const at = (graceDays: number) =>
       AppSettingsSchema.safeParse({ ...defaultAppSettings(), graceDays }).success;
-    expect([at(0), at(1), at(90), at(91)]).toEqual([false, true, true, false]);
+    expect([at(0), at(1), at(30), at(31)]).toEqual([false, true, true, false]);
   });
 
   it('allow-list emails are trimmed, lowercased and de-duplicated; a bad one is refused', () => {
