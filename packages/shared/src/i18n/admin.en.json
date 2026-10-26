@@ -1,0 +1,98 @@
+{
+  "admin": {
+    "title": "NextLevel Admin",
+    "language": "Language",
+    "nav": {
+      "users": "Users",
+      "audit": "Audit log",
+      "settings": "Settings",
+      "signOut": "Sign out"
+    },
+    "signIn": {
+      "title": "Sign in to the admin console",
+      "button": "Sign in with Google",
+      "notAdmin": "This account isn't an admin.",
+      "cancelled": "Sign-in was cancelled."
+    },
+    "roles": {
+      "admin": "Admin",
+      "subscriber": "Subscriber"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "users": {
+      "title": "Users",
+      "search": "Search email or name",
+      "statusFilter": "Status",
+      "allStatuses": "All",
+      "email": "Email",
+      "role": "Role",
+      "plan": "Plan",
+      "statusColumn": "Status",
+      "devices": "Devices",
+      "lastSeen": "Last seen",
+      "never": "Never",
+      "loadMore": "Load more",
+      "empty": "No users found.",
+      "defaultPlan": "Default",
+      "noPlan": "—"
+    },
+    "user": {
+      "back": "All users",
+      "role": "Role",
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend",
+      "suspendTitle": "Suspend {{email}}",
+      "reason": "Reason",
+      "reasonHelp": "Shown in the audit log. The launcher locks at its next check (within an hour).",
+      "suspendedBecause": "Suspended: {{reason}}",
+      "cancel": "Cancel",
+      "devices": "Devices",
+      "noDevices": "No devices.",
+      "revoke": "Revoke",
+      "revokeTitle": "Sign {{name}} out?",
+      "revokeBody": "That launcher is signed out at its next request.",
+      "revoked": "Revoked",
+      "audit": "Audit trail",
+      "lastAdmin": "You can't remove the last admin.",
+      "self": "You can't do that to your own account."
+    },
+    "audit": {
+      "title": "Audit log",
+      "actor": "Admin id",
+      "target": "Target id",
+      "time": "Time",
+      "admin": "Admin",
+      "action": "Action",
+      "targetColumn": "Target",
+      "changes": "Changes",
+      "empty": "Nothing yet.",
+      "actions": {
+        "user.role": "Role changed",
+        "user.suspend": "Suspended",
+        "user.unsuspend": "Unsuspended",
+        "device.revoke": "Device revoked",
+        "settings.update": "Settings changed"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "graceDays": "Offline grace (days)",
+      "graceHelp": "How long a launcher may run without reaching the API (1–90).",
+      "signUpMode": "Who can sign in",
+      "modes": {
+        "open": "Anyone with a Google account",
+        "allowList": "Admins and the allow-list",
+        "closed": "Existing accounts only"
+      },
+      "allowList": "Allow-list (one email per line)",
+      "invalidEmails": "Not an email: {{lines}}",
+      "banner": "Maintenance banner",
+      "bannerCount": "{{count}}/280",
+      "save": "Save",
+      "saved": "Saved."
+    }
+  }
+}
