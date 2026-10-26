@@ -29,8 +29,9 @@ export function useSignOut() {
   return useMutation({
     mutationFn: () => apiFetch('/v1/auth/session/logout', { method: 'POST', schema: z.unknown() }),
     onSettled: () => {
-      client.clear();
+      // The session query stays (the app watches it); everything else belonged to the admin.
       client.setQueryData(SESSION_KEY, null);
+      client.removeQueries({ predicate: (query) => query.queryKey[0] !== SESSION_KEY[0] });
     },
   });
 }
