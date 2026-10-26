@@ -66,10 +66,25 @@ describe('admin console sign-in (ADR-006, security §2)', () => {
     }
   });
 
-  it('a callback whose state does not match the start cookie is refused', async () => {
+  it('a callback without a matching start (forged, or the 10-minute cookie expired) goes back with expired', async () => {
     const { app } = await setup();
     const response = await app.inject({ url: '/v1/auth/google/callback?code=x&state=forged' });
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(302);
+    expect(response.headers.location).toBe('/?error=expired');
+    expect(response.cookies.some((c) => c.name === 'nl_session' && c.value)).toBe(false);
+  });
+
+  it('a code Google refuses comes back as failed, not as "not an admin"', async () => {
+    const { app } = await setup();
+    const jar = new CookieJar();
+    const start = await app.inject({ url: '/v1/auth/google/start' });
+    jar.take(start);
+    const state = new URL(String(start.headers.location)).searchParams.get('state') ?? '';
+    const response = await app.inject({
+      url: `/v1/auth/google/callback?code=stub.bogus&state=${state}`,
+      headers: { cookie: jar.header() },
+    });
+    expect(response.headers.location).toBe('/?error=failed');
   });
 
   it('cancelling at Google comes back as error=cancelled', async () => {

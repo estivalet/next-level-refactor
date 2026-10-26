@@ -13,13 +13,17 @@ export function useSession() {
   useEffect(
     () =>
       onUnauthenticated(() => {
-        client.setQueryData(SESSION_KEY, null);
+        // Only a live session is re-checked; the check's own 401 must not trigger another.
+        if (client.getQueryData(SESSION_KEY)) {
+          void client.invalidateQueries({ queryKey: SESSION_KEY });
+        }
       }),
     [client],
   );
   return useQuery({
     queryKey: SESSION_KEY,
-    queryFn: () => apiFetch('/v1/auth/session', { schema: SessionSchema }).catch(() => null),
+    queryFn: () =>
+      apiFetch('/v1/auth/session', { schema: SessionSchema, notify: false }).catch(() => null),
     retry: false,
   });
 }

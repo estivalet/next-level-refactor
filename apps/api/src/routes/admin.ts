@@ -100,6 +100,8 @@ export function adminRoutes(app: FastifyInstance, ctx: ApiContext): void {
     (request) => {
       const before = loadAppSettings(ctx.db);
       const after = AppSettingsSchema.parse({ ...before, ...request.body });
+      // Saving what is already there changes nothing, so nothing is logged.
+      if (JSON.stringify(before) === JSON.stringify(after)) return before;
       return audited(
         ctx,
         actor(request),

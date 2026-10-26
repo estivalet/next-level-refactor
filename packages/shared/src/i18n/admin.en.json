@@ -12,7 +12,9 @@
       "title": "Sign in to the admin console",
       "button": "Sign in with Google",
       "notAdmin": "This account isn't an admin.",
-      "cancelled": "Sign-in was cancelled."
+      "cancelled": "Sign-in was cancelled.",
+      "expired": "That sign-in took too long. Sign in again.",
+      "failed": "Google sign-in didn't work. Try again."
     },
     "roles": {
       "admin": "Admin",

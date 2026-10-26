@@ -2,6 +2,7 @@ import { Button, TextField } from '@nextlevel/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAudit } from '../api/hooks.ts';
+import { errorKey } from '../errors.ts';
 import { AuditTable } from './AuditTable.tsx';
 
 /** S13 Audit log (FR-ADM-5): newest first, filter by admin or target id. */
@@ -30,6 +31,11 @@ export function AuditPage() {
           }}
         />
       </div>
+      {audit.isError && (
+        <p role="alert" className="text-sm text-[#ff8a80]">
+          {t(errorKey(audit.error))}
+        </p>
+      )}
       <AuditTable entries={entries} label={t('admin.audit.title')} />
       {audit.hasNextPage && (
         <div>

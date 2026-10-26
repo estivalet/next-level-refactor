@@ -17,6 +17,13 @@ export function UserDetailPage({ id }: { id: string }) {
   const [suspending, setSuspending] = useState(false);
   const [revoking, setRevoking] = useState<Device | null>(null);
   const detail = user.data;
+  if (user.isError) {
+    return (
+      <p role="alert" className="text-sm text-[#ff8a80]">
+        {t(errorKey(user.error))}
+      </p>
+    );
+  }
   if (!detail) return null;
   const failure = patch.error ?? revoke.error;
   const when = (iso: string | null) => formatTime(iso, i18n.language, t('admin.users.never'));

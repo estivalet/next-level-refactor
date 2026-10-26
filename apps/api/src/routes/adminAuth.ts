@@ -13,7 +13,7 @@ import { SCOPES, type IdentityProvider } from '../auth/identity.ts';
 import { profileOf } from '../auth/session.ts';
 import { admit } from '../auth/signIn.ts';
 import type { ApiContext } from '../context.ts';
-import { apiError } from '../errors.ts';
+import { ApiError, apiError } from '../errors.ts';
 
 const OAUTH_COOKIE = 'nl_oauth';
 const OAUTH_TTL_S = 10 * 60;
@@ -80,9 +80,8 @@ export function adminAuthRoutes(app: FastifyInstance, ctx: ApiContext, web: Iden
       const unsigned = raw ? request.unsignCookie(raw) : null;
       const saved = unsigned?.valid ? parseOauth(unsigned.value) : null;
       void reply.clearCookie(OAUTH_COOKIE, { path: '/v1/auth/google' });
-      if (!saved || saved.state !== request.query.state) {
-        throw apiError('VALIDATION_FAILED', 'The sign-in could not be matched; start again.');
-      }
+      // Forged, or the 10-minute start cookie expired (someone lingered at Google): start again.
+      if (!saved || saved.state !== request.query.state) return reply.redirect(back('expired'));
       if (request.query.error || !request.query.code) return reply.redirect(back('cancelled'));
       let user;
       try {
@@ -97,8 +96,9 @@ export function adminAuthRoutes(app: FastifyInstance, ctx: ApiContext, web: Iden
           users: ctx.users,
           now: ctx.clock(),
         });
-      } catch {
-        return reply.redirect(back('notAdmin'));
+      } catch (error) {
+        const refused = error instanceof ApiError && error.code === 'NOT_ALLOWED';
+        return reply.redirect(back(refused ? 'notAdmin' : 'failed'));
       }
       if (user.role !== 'admin' || user.status !== 'active')
         return reply.redirect(back('notAdmin'));

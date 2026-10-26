@@ -2,7 +2,7 @@ import { Button, Select, Table, TextField } from '@nextlevel/ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUsers } from '../api/hooks.ts';
-import { formatTime } from '../errors.ts';
+import { errorKey, formatTime } from '../errors.ts';
 import { hrefOf } from '../router.ts';
 
 /** S13 Users (FR-ADM-1): search, status filter, newest first, Load more. */
@@ -49,6 +49,11 @@ export function UsersPage() {
           ]}
         />
       </div>
+      {users.isError && (
+        <p role="alert" className="text-sm text-[#ff8a80]">
+          {t(errorKey(users.error))}
+        </p>
+      )}
       <Table
         label={t('admin.users.title')}
         columns={[
@@ -59,7 +64,7 @@ export function UsersPage() {
           t('admin.users.devices'),
           t('admin.users.lastSeen'),
         ]}
-        empty={users.isPending ? '' : t('admin.users.empty')}
+        empty={users.isSuccess ? t('admin.users.empty') : ''}
         rows={rows.map((row) => ({
           key: row.id,
           cells: [

@@ -72,6 +72,20 @@ describe('Users (S13, FR-ADM-1)', () => {
   });
 });
 
+describe('read errors (S13)', () => {
+  it('a list that cannot be loaded says so instead of "no users"', async () => {
+    stubApi({
+      'GET /v1/admin/users': () => ({
+        status: 500,
+        body: { error: { code: 'INTERNAL', message: 'm', requestId: 'r' } },
+      }),
+    });
+    renderPage(<UsersPage />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Something went wrong');
+    expect(screen.queryByText('No users found.')).not.toBeInTheDocument();
+  });
+});
+
 describe('User detail (S13, US-F3, FR-AUTH-7)', () => {
   it('US-F3: Suspend needs a reason and sends it; the status updates', async () => {
     const u = userEvent.setup();
@@ -202,5 +216,15 @@ describe('Settings (S13, FR-ADM-4)', () => {
       allowList: ['a@x.test', 'b@x.test'],
       banner: 'Back at 22:00',
     });
+  });
+
+  it('FR-ADM-4: an email that only differs in case or repeats is not a change', async () => {
+    const u = userEvent.setup();
+    stubApi({ 'GET /v1/admin/settings': () => ({ body: SETTINGS }) });
+    renderPage(<SettingsPage />);
+    const list = await screen.findByLabelText('Allow-list (one email per line)');
+    await u.clear(list);
+    await u.type(list, 'A@X.test{enter}a@x.test');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 });

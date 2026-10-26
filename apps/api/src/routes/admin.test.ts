@@ -104,6 +104,26 @@ describe('admin users (FR-ADM-1, FR-AUTH-7, US-F3)', () => {
     ]);
   });
 
+  it('FR-ADM-1: a search with _ or % matches those characters literally', async () => {
+    const { app, admin, db } = await setup();
+    await signIn(app, 'subscriber');
+    db.$client
+      .prepare(
+        "update users set email = 'first_last@example.test' where email = 'subscriber@nextlevel.test'",
+      )
+      .run();
+    const underscore = await app.inject({
+      url: '/v1/admin/users?q=first_last',
+      headers: adminHeaders(admin),
+    });
+    expect(underscore.json<Users>().items.map((u) => u.email)).toEqual(['first_last@example.test']);
+    const percent = await app.inject({
+      url: '/v1/admin/users?q=%25',
+      headers: adminHeaders(admin),
+    });
+    expect(percent.json<Users>().items).toEqual([]);
+  });
+
   it('US-F3: suspend needs a reason, is audited, and the launcher sees it at its next check', async () => {
     const { app, admin } = await setup();
     const player = await signIn(app, 'subscriber');
@@ -140,7 +160,7 @@ describe('admin users (FR-ADM-1, FR-AUTH-7, US-F3)', () => {
     });
   });
 
-  it('the last active admin cannot be demoted or suspended; nor can an admin demote themselves', async () => {
+  it('an admin cannot demote or suspend themselves (so the last admin always stays)', async () => {
     const { app, admin } = await setup();
     const me = (await app.inject({ url: '/v1/auth/session', headers: adminHeaders(admin) })).json<{
       user: { id: string };
@@ -224,6 +244,54 @@ describe('admin settings and audit (FR-ADM-4, FR-ADM-5, C11)', () => {
     expect(response.statusCode).toBe(500);
     const settings = await app.inject({ url: '/v1/admin/settings', headers: adminHeaders(admin) });
     expect(settings.json()).toMatchObject({ graceDays: 14 });
+  });
+
+  it('C11: a role change or device revoke whose audit entry fails is not made', async () => {
+    const { app, admin, db } = await setup();
+    const player = await signIn(app, 'subscriber');
+    db.$client.exec(
+      "create trigger no_audit before insert on audit_log begin select raise(abort, 'audit down'); end;",
+    );
+    const role = await app.inject({
+      method: 'PATCH',
+      url: `/v1/admin/users/${player.user.id}`,
+      headers: adminHeaders(admin, true),
+      payload: { role: 'admin' },
+    });
+    expect(role.statusCode).toBe(500);
+    const revoke = await app.inject({
+      method: 'DELETE',
+      url: `/v1/admin/users/${player.user.id}/devices/${player.deviceId}`,
+      headers: adminHeaders(admin, true),
+    });
+    expect(revoke.statusCode).toBe(500);
+    expect(
+      db.$client.prepare('select role from users where id = ?').pluck().get(player.user.id),
+    ).toBe('subscriber');
+    expect(
+      db.$client
+        .prepare('select revoked_at from devices where id = ?')
+        .pluck()
+        .get(player.deviceId),
+    ).toBeNull();
+    const refresh = await app.inject({
+      method: 'POST',
+      url: '/v1/auth/refresh',
+      payload: { refreshToken: player.refreshToken, deviceId: player.deviceId },
+    });
+    expect(refresh.statusCode).toBe(200);
+  });
+
+  it('FR-ADM-5: a settings save that changes nothing writes no audit entry', async () => {
+    const { app, admin } = await setup();
+    await app.inject({
+      method: 'PATCH',
+      url: '/v1/admin/settings',
+      headers: adminHeaders(admin, true),
+      payload: { graceDays: 14 },
+    });
+    const audit = await app.inject({ url: '/v1/admin/audit', headers: adminHeaders(admin) });
+    expect(audit.json<{ items: unknown[] }>().items).toEqual([]);
   });
 
   it('FR-ADM-5: every change is in the audit log with who, what and before/after; filters work', async () => {

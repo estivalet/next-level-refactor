@@ -70,4 +70,47 @@ describe('console sign-in (S13, ADR-006 web flow)', () => {
     await u.click(await screen.findByRole('button', { name: 'Sign out' }));
     expect(await screen.findByRole('link', { name: 'Sign in with Google' })).toBeVisible();
   });
+
+  it('Review Focus 5: a tab whose admin was demoted meanwhile goes back to sign-in', async () => {
+    let demoted = false;
+    stubApi({
+      'GET /v1/auth/session': () =>
+        demoted
+          ? {
+              status: 401,
+              body: { error: { code: 'UNAUTHENTICATED', message: 'm', requestId: 'r' } },
+            }
+          : {
+              body: {
+                user: {
+                  id: 'u1',
+                  email: 'admin@x.test',
+                  name: 'A',
+                  avatarUrl: null,
+                  role: 'admin',
+                },
+                csrf: 'c',
+              },
+            },
+      'GET /v1/admin/users': () => {
+        demoted = true;
+        return {
+          status: 403,
+          body: { error: { code: 'FORBIDDEN', message: 'm', requestId: 'r' } },
+        };
+      },
+    });
+    render(<App />);
+    expect(await screen.findByRole('link', { name: 'Sign in with Google' })).toBeVisible();
+  });
+
+  it.each([
+    ['expired', 'That sign-in took too long. Sign in again.'],
+    ['failed', "Google sign-in didn't work. Try again."],
+  ])('?error=%s is explained', async (error, text) => {
+    noSession();
+    window.history.replaceState(null, '', `/?error=${error}`);
+    render(<App />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(text);
+  });
 });

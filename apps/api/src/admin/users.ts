@@ -5,7 +5,7 @@ import type {
   AdminUserSummary,
   Page,
 } from '@nextlevel/shared';
-import { and, count, desc, eq, like, lt, or, sql, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, lt, or, sql, type SQL } from 'drizzle-orm';
 import { entitlementOf } from '../auth/session.ts';
 import type { ApiContext } from '../context.ts';
 import { devices, users } from '../db/schema.ts';
@@ -40,11 +40,11 @@ function afterCursor(cursor: string | undefined): SQL | undefined {
 /** FR-ADM-1: newest first; `q` matches email or name ignoring case. */
 export function listUsers(ctx: ApiContext, query: AdminUserQuery): Page<AdminUserSummary> {
   const limit = query.limit ?? 50;
+  // `%`, `_` and `\` in the search are literal: escaped, with an explicit ESCAPE (SQLite has none).
   const q = query.q?.toLowerCase().replace(/[%_\\]/g, (c) => `\\${c}`);
+  const contains = (column: SQL) => sql`${column} like ${`%${q ?? ''}%`} escape '\\'`;
   const filters = [
-    q
-      ? or(like(sql`lower(${users.email})`, `%${q}%`), like(sql`lower(${users.name})`, `%${q}%`))
-      : undefined,
+    q ? or(contains(sql`lower(${users.email})`), contains(sql`lower(${users.name})`)) : undefined,
     query.status ? eq(users.status, query.status) : undefined,
     afterCursor(query.cursor),
   ].filter((f): f is SQL => f !== undefined);
@@ -103,6 +103,7 @@ export function patchUser(
   const promote = patch.role === 'admin' && user.role === 'subscriber';
   if ((demote || suspend) && user.role === 'admin') {
     if (user.id === actorId) throw apiError('CONFLICT', undefined, { reason: 'self' });
+    // Defensive: the actor is an active admin, so with `self` refused this needs a second path in.
     if (user.status === 'active' && activeAdmins(ctx) <= 1) {
       throw apiError('CONFLICT', undefined, { reason: 'lastAdmin' });
     }

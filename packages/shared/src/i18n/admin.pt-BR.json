@@ -12,7 +12,9 @@
       "title": "Entrar no console de administração",
       "button": "Entrar com Google",
       "notAdmin": "Esta conta não é de administrador.",
-      "cancelled": "O login foi cancelado."
+      "cancelled": "O login foi cancelado.",
+      "expired": "O login demorou demais. Entre novamente.",
+      "failed": "O login com Google não funcionou. Tente de novo."
     },
     "roles": {
       "admin": "Administrador",

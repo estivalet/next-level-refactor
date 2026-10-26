@@ -3,7 +3,10 @@ import type { ZodType } from 'zod';
 
 const listeners = new Set<() => void>();
 
-/** Called on every 401: the session ended (idle, signed out elsewhere, demoted). */
+/**
+ * Called when the session may be gone: a 401 (idle, signed out elsewhere) or a 403 FORBIDDEN /
+ * SUSPENDED (demoted or suspended since signing in, Review Focus 5). The app re-checks it.
+ */
 export function onUnauthenticated(listener: () => void): () => void {
   listeners.add(listener);
   return () => {
@@ -22,7 +25,13 @@ function csrfToken(): string | null {
  */
 export async function apiFetch<T>(
   path: string,
-  opts: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown; schema: ZodType<T> },
+  opts: {
+    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+    body?: unknown;
+    schema: ZodType<T>;
+    /** False for the session check itself, so its own 401 can't start another check. */
+    notify?: boolean;
+  },
 ): Promise<T> {
   const method = opts.method ?? 'GET';
   const headers: Record<string, string> = {};
@@ -38,8 +47,12 @@ export async function apiFetch<T>(
   const text = await response.text();
   const json: unknown = text ? JSON.parse(text) : undefined;
   if (!response.ok) {
-    if (response.status === 401) for (const listener of listeners) listener();
     const envelope = ApiErrorEnvelopeSchema.safeParse(json);
+    const code = envelope.success ? envelope.data.error.code : null;
+    const lost = response.status === 401 || code === 'FORBIDDEN' || code === 'SUSPENDED';
+    if (lost && opts.notify !== false) {
+      for (const listener of listeners) listener();
+    }
     throw new AppErrorException(
       envelope.success
         ? {

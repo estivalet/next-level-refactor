@@ -9,8 +9,16 @@ type Settings = NonNullable<ReturnType<typeof useAppSettings>['data']>;
 
 /** S13 Settings (FR-ADM-4): grace days, sign-up mode, allow-list, maintenance banner. */
 export function SettingsPage() {
+  const { t } = useTranslation();
   const settings = useAppSettings();
   const [justSaved, setJustSaved] = useState(false);
+  if (settings.isError) {
+    return (
+      <p role="alert" className="text-sm text-[#ff8a80]">
+        {t(errorKey(settings.error))}
+      </p>
+    );
+  }
   // Remount the form when the saved settings change, so it starts from them.
   return settings.data ? (
     <SettingsForm
@@ -40,10 +48,15 @@ function SettingsForm({
   const [list, setList] = useState(saved.allowList.join('\n'));
   const [banner, setBanner] = useState(saved.banner ?? '');
 
-  const lines = list
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
+  // Normalized as the server does (trimmed, lowercased, once each), so equal lists compare equal.
+  const lines = [
+    ...new Set(
+      list
+        .split('\n')
+        .map((line) => line.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
   const invalid = lines.filter((line) => !EmailSchema.safeParse(line).success);
   const graceDays = Number(grace);
   const graceOk = Number.isInteger(graceDays) && graceDays >= 1 && graceDays <= 90;
