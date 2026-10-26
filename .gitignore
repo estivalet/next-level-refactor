@@ -30,3 +30,6 @@ test-results/
 !.vscode/extensions.json
 .DS_Store
 Thumbs.db
+
+# API local database
+apps/api/data/

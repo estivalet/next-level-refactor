@@ -36,15 +36,19 @@ npm run db:seed -w apps/api # creates plans, scopes and the bootstrap admin from
 | `PORT` | `4000` | yes |
 | `PUBLIC_URL` | `http://localhost:4000` | yes |
 | `DATABASE_URL` | `file:./data/nextlevel.db` | yes |
-| `JWT_SECRET` | 64 random bytes, base64 | yes |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | from Google Cloud console (Desktop + Web clients) | yes (or `AUTH_STUB=1`) |
-| `ADMIN_EMAILS` | `owner@example.com` | yes (bootstrap admin) |
-| `BILLING_ENABLED` | `false` | yes; `true` from M8 |
+| `JWT_SECRET` | 64 random bytes, base64 (≥ 32 bytes) | yes |
+| `JWT_SECRET_PREVIOUS` | the secret before a rotation | no; access tokens signed with it still verify |
+| `GOOGLE_CLIENT_ID_DESKTOP` / `GOOGLE_CLIENT_SECRET_DESKTOP` | Google Cloud **Desktop app** client (launcher loopback sign-in) | yes, unless `AUTH_STUB=1` |
+| `GOOGLE_CLIENT_ID_WEB` / `GOOGLE_CLIENT_SECRET_WEB` | Google Cloud **Web application** client (admin console) | yes, unless `AUTH_STUB=1` |
+| `AUTH_STUB` | `1` | no; development and tests only, refused with `NODE_ENV=production` |
+| `ADMIN_EMAILS` | `owner@example.com` (comma list) | yes (bootstrap admin: becomes admin when its account is created) |
+| `BILLING_ENABLED` | `false` | yes; must be `false` until M8 |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | test keys | when billing enabled |
 | `STORAGE_DRIVER` | `local` or `s3` | yes |
 | `STORAGE_LOCAL_DIR` | `./data/files` | when `local` |
 | `S3_ENDPOINT` / `S3_BUCKET` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | R2 values | when `s3` |
-| `ADMIN_ORIGIN` | `http://localhost:5174` | dev only (CORS) |
+| `ADMIN_ORIGIN` | `http://localhost:5174` | dev only: where the admin sign-in returns (the Vite dev server) |
+| `ADMIN_DIST` | `../admin/dist` | no; the built admin console the API serves at `/` |
 
 The API validates these at startup (Zod) and refuses to start with a clear message if any are invalid.
 
@@ -67,7 +71,7 @@ read or write your dev data.
 | `npm run typecheck` | `tsc -b` across project references |
 | `npm test` | Vitest, all workspaces |
 | `npm run test:e2e` | Playwright (launcher + admin) |
-| `npm run db:migrate -w apps/api` / `db:generate` | apply / create Drizzle migrations |
+| `npm run db:generate -w apps/api` | create a Drizzle migration after a schema change (the API applies pending migrations at start) |
 | `npm run build` | build all apps |
 | `npm run package -w apps/launcher` | build installer into `apps/launcher/dist` |
 
@@ -77,12 +81,17 @@ read or write your dev data.
 2. OAuth consent screen: External, app name, support email, scopes `openid email profile`.
 3. Credentials → **Desktop app** client (for the launcher loopback flow) and **Web application**
    client with redirect `http://localhost:4000/v1/auth/google/callback` (admin).
-4. Put IDs/secrets in `apps/api/.env`. While the app is "Testing", add test users.
+4. Put the Desktop client in `GOOGLE_CLIENT_ID_DESKTOP` / `GOOGLE_CLIENT_SECRET_DESKTOP` and the
+   Web client in `GOOGLE_CLIENT_ID_WEB` / `GOOGLE_CLIENT_SECRET_WEB` in `apps/api/.env`. While the
+   app is "Testing", add test users.
 
 ## Working without internet / Google
 
-Set `AUTH_STUB=1` in the API: the launcher's sign-in completes against a local stub that lets you
-pick a test user (`admin`, `subscriber`, `expired`, `suspended`). Never enabled in production builds.
+Set `AUTH_STUB=1` in the API: sign-in (launcher and admin console) goes to a local page that lets
+you pick a test user — `admin`, `subscriber`, `suspended` or `outsider`, signing in as
+`<persona>@nextlevel.test`. `admin`, `subscriber` and `suspended` count as allow-listed;
+`suspended` is created suspended; `outsider` is refused (`NOT_ALLOWED`). Put
+`admin@nextlevel.test` in `ADMIN_EMAILS` to get a stub admin. Never enabled in production.
 
 ## Troubleshooting
 

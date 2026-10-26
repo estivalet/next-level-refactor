@@ -26,7 +26,7 @@ describe('architecture §3 dependency rule', () => {
     "import '@nextlevel/api';",
     "import '@nextlevel/launcher';",
     "import '@nextlevel/admin/src/index.ts';",
-    "import '../../../apps/api/src/index.ts';",
+    "import '../../../apps/api/src/app.ts';",
   ])('packages never import apps: %s', async (code) => {
     expect(await boundaryErrors('packages/shared/src/index.ts', code)).toHaveLength(1);
     expect(await boundaryErrors('packages/ui/src/index.ts', code)).toHaveLength(1);

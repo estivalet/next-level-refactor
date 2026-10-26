@@ -5,6 +5,16 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+
+- `apps/api` (M7a): Fastify + Drizzle over SQLite, run by Node 24 from TypeScript. Env checked at
+  start, one error envelope with request ids, OpenAPI at `/v1/openapi.json`, health check.
+- Launcher sign-in on the API: Google (or the `AUTH_STUB=1` personas) code exchange with PKCE,
+  access tokens (15 min) and rotating refresh tokens (30 days, reuse revokes the device), sign-up
+  mode (allow-list by default), bootstrap admins from `ADMIN_EMAILS`, the Default plan while
+  billing is off, a 3-device limit with "remove one to continue", `/v1/me` and devices, rate
+  limits. `npm run dev` now starts the API, the admin console and the launcher together.
+
 ### Fixed
 
 - Batch scrape: the summary says "1 game" in the singular; done never shows above the total;

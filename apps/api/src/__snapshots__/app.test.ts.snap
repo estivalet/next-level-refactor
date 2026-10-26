@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json is an OpenAPI 3.1 document of the routes (test strategy: contract) 1`] = `
+[
+  "/v1/auth/complete",
+  "/v1/auth/google/exchange",
+  "/v1/auth/launcher-config",
+  "/v1/auth/logout",
+  "/v1/auth/refresh",
+  "/v1/health",
+  "/v1/me",
+  "/v1/me/devices",
+  "/v1/me/devices/{id}",
+  "/v1/me/entitlement",
+]
+`;

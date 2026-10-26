@@ -14,7 +14,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 ## 1. HTTP API conventions
 
 - Base path `/v1`. JSON only (`Content-Type: application/json`), UTF-8.
-- **Auth:** launcher → `Authorization: Bearer <accessToken>` (JWT, 15 min). Admin console →
+- **Auth:** launcher → `Authorization: Bearer <accessToken>` (JWT, 15 min; a revoked device's token is refused at once). Every route declares a role (`public`, `device`, `admin`); registering one without a role fails at start. Admin console →
   httpOnly `nl_session` cookie. Webhooks → provider signature.
 - **IDs** are strings. **Timestamps** ISO-8601 UTC.
 - **Pagination:** `?cursor=<opaque>&limit=<1..100>` → `{ items: [...], nextCursor: string | null }`.
@@ -35,6 +35,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | `NOT_FOUND` | 404 | |
 | `CONFLICT` | 409 | Revision mismatch (sync, admin edits) |
 | `RATE_LIMITED` | 429 | `Retry-After` header set |
+| `NOT_ALLOWED` | 403 | Sign-up mode doesn't admit this Google account (D22) |
 | `INTERNAL` | 500 | Logged with `requestId` |
 
 ## 2. Endpoints
@@ -43,9 +44,12 @@ Entity shapes are defined in [data-model.md](data-model.md).
 
 | Method & path | Who | Body → Response |
 |---|---|---|
-| `POST /v1/auth/google/exchange` | launcher | `{ code, codeVerifier, redirectUri, device: { id?, name, platform, appVersion } }` → `{ accessToken, refreshToken, deviceId, entitlement }` |
+| `GET /v1/auth/launcher-config` | launcher | → `{ authorizeUrl, clientId, scopes, banner }` (Google's authorize URL and the Desktop client id; with `AUTH_STUB=1` the stub's) |
+| `POST /v1/auth/google/exchange` | launcher | `{ code, codeVerifier, redirectUri (http://127.0.0.1:<port>/callback), device: { name, platform, appVersion } }` → `{ accessToken, refreshToken, deviceId, user, entitlement, banner }`; a new account needs sign-up mode to admit it (`NOT_ALLOWED`); the plan's device limit reached → `409 DEVICE_LIMIT` with `details: { ticket, devices }` |
+| `POST /v1/auth/complete` | launcher | `{ ticket, revokeDeviceId, device }` → same as exchange: revokes that device and finishes the sign-in (ticket valid 5 min, once) |
 | `POST /v1/auth/refresh` | launcher | `{ refreshToken, deviceId }` → `{ accessToken, refreshToken }` (rotated; reuse revokes the device) |
-| `POST /v1/auth/logout` | launcher | `{ refreshToken }` → `204` |
+| `POST /v1/auth/logout` | launcher | `{ refreshToken }` → `204`; revokes the device (frees its slot) |
+| `GET /v1/auth/stub/authorize` | browser | Development only (`AUTH_STUB=1`): persona picker (`admin`, `subscriber`, `suspended`, `outsider`), or straight back to `redirect_uri` with `login_hint=<persona>` |
 | `GET /v1/auth/google/start` | admin (browser) | → `302` to Google with state cookie |
 | `GET /v1/auth/google/callback` | admin (browser) | → sets `nl_session`, `302 /` (admins only; others get an error page) |
 | `POST /v1/auth/session/logout` | admin | → clears cookie |
@@ -55,9 +59,9 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | Method & path | Body → Response |
 |---|---|
 | `GET /v1/me` | → `{ user, entitlement }` |
-| `GET /v1/me/entitlement` | → `Entitlement` (launcher polls hourly and after checkout) |
-| `GET /v1/me/devices` | → `Device[]` |
-| `DELETE /v1/me/devices/:id` | → `204` |
+| `GET /v1/me/entitlement` | → `{ entitlement, banner }` (launcher polls hourly and after checkout) |
+| `GET /v1/me/devices` | → `Device[]`: the devices not revoked, oldest first; `current` marks the caller |
+| `DELETE /v1/me/devices/:id` | → `204`; another user's device → `NOT_FOUND`; the calling device → `CONFLICT` (`details.reason: 'current'`, sign out instead) |
 | `POST /v1/me/billing/checkout` | `{ planSlug, interval: 'month'|'year' }` → `{ url }` (Stripe Checkout) |
 | `POST /v1/me/billing/portal` | → `{ url }` (Stripe Customer Portal) |
 | `GET /v1/plans` | → public plan list (name, prices, device limit, scope names) |
@@ -107,7 +111,11 @@ Entity shapes are defined in [data-model.md](data-model.md).
 
 ### Rate limits (defaults)
 
-Auth endpoints 10/min/IP; download URL issue 60/hour/user; everything else 300/min/user.
+Auth endpoints 10/min/IP; download URL issue 60/hour/user; everything else 300/min (counted per address: the limit runs before authentication). `RATE_LIMITED` carries `Retry-After`.
+
+### Logging
+
+Requests are logged by method and path only (no query string: OAuth codes and states travel there; no client address). Tokens, codes and emails never appear in a log line.
 
 ---
 

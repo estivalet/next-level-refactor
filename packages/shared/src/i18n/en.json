@@ -46,7 +46,14 @@
     "scraperNetwork": "Could not reach ScreenScraper. Check your internet connection.",
     "noScraperSystem": "This system has no ScreenScraper system id yet.",
     "noCredentials": "Enter your ScreenScraper credentials in Settings → Scraper first.",
-    "secretsUnavailable": "Windows could not encrypt the credentials, so they were not saved."
+    "secretsUnavailable": "Windows could not encrypt the credentials, so they were not saved.",
+    "unauthenticated": "Your sign-in has expired. Sign in again.",
+    "forbidden": "You don't have access to that.",
+    "subscriptionRequired": "An active subscription is required.",
+    "suspended": "This account is suspended.",
+    "deviceLimit": "This account is signed in on too many devices. Remove one to continue.",
+    "notAllowed": "This Google account isn't authorized.",
+    "rateLimited": "Too many attempts. Wait a minute and try again."
   },
   "shell": {
     "window": {

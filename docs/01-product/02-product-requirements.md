@@ -11,7 +11,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-AUTH-1 | Users sign in with Google. No passwords are stored by the service. | M |
 | FR-AUTH-2 | The launcher signs in through the system browser (not an embedded web view) and receives a session from the API. | M |
 | FR-AUTH-3 | Two roles: `admin` and `subscriber`. A user without an active or in-grace subscription may sign in but only sees the subscribe screen. | M |
-| FR-AUTH-4 | Admins are designated in the admin console or by an environment allow-list at first boot (bootstrap admin). | M |
+| FR-AUTH-4 | Admins are designated in the admin console or by an environment allow-list at first boot (bootstrap admin). An `ADMIN_EMAILS` address becomes admin when its account is created; a later demotion in the console sticks. | M |
 | FR-AUTH-5 | The launcher works offline for up to the grace period (default 14 days, admin-configurable) after its last successful entitlement check. After that it shows the sign-in screen; local data is untouched. | M |
 | FR-AUTH-6 | Users can sign out; sign-out removes tokens from the device and leaves the local library intact. | M |
 | FR-AUTH-7 | An admin can suspend a user; the suspension takes effect at the launcher's next entitlement check (at most 1 hour while online). | M |
@@ -138,7 +138,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 
 | ID | Requirement | P |
 |---|---|---|
-| FR-ADM-1 | Users: list, search, view subscription and devices, grant complimentary access, suspend/unsuspend, change role. | M |
+| FR-ADM-1 | Users: list, search, view subscription and devices, grant complimentary access, suspend/unsuspend, change role. Complimentary grants arrive with plans in M8 (D23). | M |
 | FR-ADM-2 | Plans: create, edit, archive; set price IDs, device limit, catalog scopes. | M |
 | FR-ADM-3 | Catalog: create items, upload files, attach art and metadata, attach license record, publish/unpublish. | M |
 | FR-ADM-4 | Settings: grace period, sign-up open/closed (allow-list mode), maintenance banner text. | M |
