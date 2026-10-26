@@ -32,6 +32,17 @@ export const AppSettingsSchema = z.strictObject({
 
 export const AppSettingsPatchSchema = AppSettingsSchema.partial();
 
+/**
+ * The same settings as a response: plain types without the input normalizing (Zod can't encode
+ * through transforms, and the API's serializer encodes responses).
+ */
+export const AppSettingsViewSchema = z.object({
+  graceDays: z.number().int(),
+  signUpMode: z.enum(SIGN_UP_MODES),
+  allowList: z.array(z.string()),
+  banner: z.string().nullable(),
+});
+
 export function defaultAppSettings(): AppSettings {
   return { graceDays: 14, signUpMode: 'allowList', allowList: [], banner: null };
 }
