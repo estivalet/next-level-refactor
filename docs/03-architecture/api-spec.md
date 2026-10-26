@@ -50,9 +50,10 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | `POST /v1/auth/refresh` | launcher | `{ refreshToken, deviceId }` → `{ accessToken, refreshToken }` (rotated; reuse revokes the device) |
 | `POST /v1/auth/logout` | launcher | `{ refreshToken }` → `204`; revokes the device (frees its slot) |
 | `GET /v1/auth/stub/authorize` | browser | Development only (`AUTH_STUB=1`): persona picker (`admin`, `subscriber`, `suspended`, `outsider`), or straight back to `redirect_uri` with `login_hint=<persona>` |
-| `GET /v1/auth/google/start` | admin (browser) | → `302` to Google with state cookie |
-| `GET /v1/auth/google/callback` | admin (browser) | → sets `nl_session`, `302 /` (admins only; others get an error page) |
-| `POST /v1/auth/session/logout` | admin | → clears cookie |
+| `GET /v1/auth/google/start` | admin (browser) | → `302` to Google (or the stub) with PKCE; state + verifier in a signed, httpOnly, `SameSite=Lax`, 10-minute `nl_oauth` cookie |
+| `GET /v1/auth/google/callback` | admin (browser) | state checked against the cookie (else `400`); active admins get `nl_session` (httpOnly, `SameSite=Strict`, hashed in `admin_sessions`, 8 h idle) + `nl_csrf` (readable) and `302` to `ADMIN_ORIGIN` or `/`; everyone else `302 /?error=notAdmin`, a cancel `/?error=cancelled` |
+| `GET /v1/auth/session` | admin (browser) | → `{ user, csrf }` or `401` |
+| `POST /v1/auth/session/logout` | admin | → `204`; session row deleted, cookies cleared |
 
 ### Me
 
@@ -84,6 +85,16 @@ Entity shapes are defined in [data-model.md](data-model.md).
 
 ### Admin (role `admin`; every mutation writes `audit_log`)
 
+As built in M7c: cookie session + `X-CSRF-Token` equal to the `nl_csrf` cookie on every write
+(`FORBIDDEN` otherwise); a demoted or suspended admin is refused on the next request
+(`FORBIDDEN` / `SUSPENDED`). Users: `?q=` (email or name, any case), `?status=`, cursor pages,
+newest first; detail has devices and the last 20 audit entries about the user or their devices;
+PATCH refuses suspending without a reason (`VALIDATION_FAILED`), and an admin demoting or
+suspending themselves or the last active admin (`CONFLICT`, `details.reason: 'self' | 'lastAdmin'`).
+Audit actions: `user.role`, `user.suspend`, `user.unsuspend`, `device.revoke`, `settings.update`.
+Grants, plans, scopes, catalog and stats arrive in M8–M9. With `ADMIN_DIST` the API serves the
+built console at `/` (any non-`/v1` path falls back to `index.html`).
+
 | Method & path | Purpose |
 |---|---|
 | `GET /v1/admin/users?q=&status=&plan=` · `GET /v1/admin/users/:id` | List / detail |
@@ -98,7 +109,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | `PUT /v1/admin/catalog/items/:id/license` | Attach/replace license record |
 | `POST /v1/admin/catalog/items/:id/publish` · `…/unpublish` | Publish requires license + ≥1 file |
 | `GET /v1/admin/audit?actor=&target=&cursor=` | Audit log |
-| `GET/PATCH /v1/admin/settings` | Grace days, sign-up mode, allow-list, banner |
+| `GET/PATCH /v1/admin/settings` | Grace days, sign-up mode, allow-list, banner (since M7c; PATCH takes any subset) |
 | `GET /v1/admin/stats` | Dashboard numbers |
 
 ### Webhooks & health

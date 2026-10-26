@@ -19,6 +19,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   Offline indicator, "Connect to the internet to continue" after that (library untouched),
   suspended and not-authorized screens, "remove a device to continue", the maintenance banner,
   and the **Account** app (profile, plan, devices with Revoke, Refresh, Sign out).
+- Admin console v0 (M7c, `apps/admin`): Google sign-in for admins (cookie session, CSRF,
+  8 h idle), **Users** (search, filter, detail with role, Suspend with a reason, Unsuspend,
+  devices with Revoke, audit trail), **Settings** (offline grace days, who can sign in,
+  allow-list, maintenance banner) and the **Audit log**; English and Portuguese. Every admin
+  change is recorded with who, what, when and before/after.
 
 ### Fixed
 
