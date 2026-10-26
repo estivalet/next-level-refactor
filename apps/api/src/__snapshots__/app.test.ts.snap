@@ -2,11 +2,19 @@
 
 exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json is an OpenAPI 3.1 document of the routes (test strategy: contract) 1`] = `
 [
+  "/v1/admin/audit",
+  "/v1/admin/settings",
+  "/v1/admin/users",
+  "/v1/admin/users/{id}",
+  "/v1/admin/users/{id}/devices/{deviceId}",
   "/v1/auth/complete",
   "/v1/auth/google/exchange",
+  "/v1/auth/google/start",
   "/v1/auth/launcher-config",
   "/v1/auth/logout",
   "/v1/auth/refresh",
+  "/v1/auth/session",
+  "/v1/auth/session/logout",
   "/v1/health",
   "/v1/me",
   "/v1/me/devices",

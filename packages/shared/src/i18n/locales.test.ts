@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { GeneralSchema, fieldMeta } from '../settings/schema.ts';
 import en from './en.json';
 import ptBR from './pt-BR.json';
+import adminEn from './admin.en.json';
+import adminPtBR from './admin.pt-BR.json';
 
 function flatten(node: unknown, prefix = ''): Record<string, unknown> {
   if (typeof node !== 'object' || node === null) return { [prefix]: node };
@@ -14,6 +16,13 @@ function flatten(node: unknown, prefix = ''): Record<string, unknown> {
 describe('locales', () => {
   it('NFR-I18N-1: pt-BR has exactly the same keys as en', () => {
     expect(Object.keys(flatten(ptBR)).sort()).toEqual(Object.keys(flatten(en)).sort());
+  });
+
+  it('NFR-I18N-1: the admin console has the same keys in pt-BR, none empty (D27)', () => {
+    expect(Object.keys(flatten(adminPtBR)).sort()).toEqual(Object.keys(flatten(adminEn)).sort());
+    for (const [key, value] of Object.entries(flatten(adminPtBR))) {
+      expect(typeof value === 'string' && value.length > 0, key).toBe(true);
+    }
   });
 
   it('NFR-I18N-1: no translation is empty', () => {

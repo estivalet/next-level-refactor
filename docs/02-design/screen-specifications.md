@@ -332,3 +332,13 @@ As built (M7b, D24): profile; "Default plan — billing not enabled" (admins: Ad
 | Catalog | Table (title, system, scope, license status, published); editor tabs: Metadata · Files (upload with progress, checksum) · Art · License (type, rights holder, permission document upload, terms) · Publish |
 | Audit log | Filterable table: time, admin, action, target, diff |
 | Settings | Grace period days, sign-up mode (open / allow-list / closed), allow-list emails, maintenance banner |
+
+As built in M7c (D27): a sidebar (Users, Audit log, Settings, language, Sign out) and a sign-in page
+(**Sign in with Google**; "This account isn't an admin" / "Sign-in was cancelled" on return).
+**Users**: search (after a 300 ms pause), status filter, columns email · role · plan · status ·
+devices · last seen, Load more. **User detail**: role select, Suspend (dialog, reason required) /
+Unsuspend, devices with a confirmed Revoke, the audit trail; refusals for the last admin and for
+your own account are explained. **Audit log**: admin-id and target-id filters, only the changed keys
+shown. **Settings**: grace days (1–90), who can sign in (radio), allow-list (one email per line, bad
+lines named), banner with a 280 counter; Save is enabled only when something changed. Dashboard,
+Plans and Catalog come in M8–M9.

@@ -21,7 +21,7 @@
 | Integration (API) | Vitest + Fastify `inject` | Routes with a real SQLite file, fake Google/Stripe clients | every commit |
 | Contract | Vitest | Every IPC channel and API route has schema round-trip tests; OpenAPI snapshot | every commit |
 | End-to-end launcher | Playwright (`_electron`) | Boot routing, first-run wizard, browse with keyboard, launch fake emulator, settings save | PR to main + nightly |
-| End-to-end admin | Playwright | Sign-in (stubbed OAuth), create/publish item, grant comp | PR to main |
+| End-to-end admin | Playwright (Chromium; `apps/admin/e2e`) | Since M7c: stub sign-in, a subscriber refused, suspend with reason, change a setting, both in the audit log, sign out. Later: create/publish item, grant comp | PR to main |
 | Visual | Playwright screenshots | One screenshot per theme per level with fixture data | PR to main (diff reviewed) |
 | Performance | Vitest + script | NFR-PERF targets with a generated 200k-game library. Since M2c, `GameRepository.perf.test.ts` checks NFR-PERF-2 (first page of a 10k-game system ≤ 300 ms) and NFR-PERF-3 (search over 200k games ≤ 150 ms) on every run; on CI (`CI` set) the budgets are ×3 (`perfBudget`), a smoke check for the slower shared runners | every commit (M2c bounds); weekly + before release |
 | Manual | Checklist | Real emulators, real gamepads, real Google/Stripe test mode, installer | before release |

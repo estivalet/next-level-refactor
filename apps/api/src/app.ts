@@ -1,3 +1,4 @@
+import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
@@ -10,6 +11,7 @@ import {
 import { createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
 import { v7 as uuidv7 } from 'uuid';
 import pkg from '../package.json' with { type: 'json' };
+import { adminGuard } from './auth/adminSession.ts';
 import { GOOGLE_JWKS_URL, googleProvider } from './auth/google.ts';
 import type { IdentityProviders } from './auth/identity.ts';
 import { stubProviders, type StubProviders } from './auth/stub.ts';
@@ -18,6 +20,9 @@ import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
 import { registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
+import { adminRoutes } from './routes/admin.ts';
+import { adminAuthRoutes } from './routes/adminAuth.ts';
+import { adminStaticRoutes } from './routes/adminStatic.ts';
 import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
 import { launcherConfigRoutes } from './routes/launcherConfig.ts';
@@ -71,6 +76,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     done(null, payload);
   });
   await app.register(helmet);
+  // Signed cookies (the OAuth state) use the JWT secret.
+  await app.register(cookie, { secret: deps.env.jwtSecret.toString('base64') });
   // api-spec rate limits: 300/min per address by default; auth routes set 10/min. The limit runs
   // before authentication, so it counts per address, not per user.
   await app.register(rateLimit, { max: 300, timeWindow: '1 minute' });
@@ -83,7 +90,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   });
   requireRouteRoles(app);
   const ctx = createContext(deps);
-  installGuards(app, ctx);
+  installGuards(app, ctx, adminGuard(ctx));
 
   app.get('/v1/openapi.json', { config: { role: 'public' }, schema: { hide: true } }, () =>
     app.swagger(),
@@ -93,6 +100,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   launcherConfigRoutes(app, identity.desktop, deps.db);
   launcherAuthRoutes(app, ctx, identity.desktop);
   meRoutes(app, ctx);
+  adminAuthRoutes(app, ctx, identity.web);
+  adminRoutes(app, ctx);
+  if (deps.env.adminDist) adminStaticRoutes(app, deps.env.adminDist);
   if ('issue' in identity) stubRoutes(app, identity, deps.env.publicUrl);
   return app;
 }

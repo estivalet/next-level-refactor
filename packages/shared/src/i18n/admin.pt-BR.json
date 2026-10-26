@@ -1,0 +1,100 @@
+{
+  "admin": {
+    "title": "NextLevel Admin",
+    "language": "Idioma",
+    "nav": {
+      "users": "Usuários",
+      "audit": "Auditoria",
+      "settings": "Configurações",
+      "signOut": "Sair"
+    },
+    "signIn": {
+      "title": "Entrar no console de administração",
+      "button": "Entrar com Google",
+      "notAdmin": "Esta conta não é de administrador.",
+      "cancelled": "O login foi cancelado.",
+      "expired": "O login demorou demais. Entre novamente.",
+      "failed": "O login com Google não funcionou. Tente de novo."
+    },
+    "roles": {
+      "admin": "Administrador",
+      "subscriber": "Assinante"
+    },
+    "status": {
+      "active": "Ativo",
+      "suspended": "Suspenso"
+    },
+    "users": {
+      "title": "Usuários",
+      "search": "Buscar e-mail ou nome",
+      "statusFilter": "Situação",
+      "allStatuses": "Todos",
+      "email": "E-mail",
+      "role": "Papel",
+      "plan": "Plano",
+      "statusColumn": "Situação",
+      "devices": "Dispositivos",
+      "lastSeen": "Visto por último",
+      "never": "Nunca",
+      "loadMore": "Carregar mais",
+      "empty": "Nenhum usuário encontrado.",
+      "defaultPlan": "Padrão",
+      "noPlan": "—"
+    },
+    "user": {
+      "back": "Todos os usuários",
+      "role": "Papel",
+      "suspend": "Suspender",
+      "unsuspend": "Reativar",
+      "suspendTitle": "Suspender {{email}}",
+      "reason": "Motivo",
+      "reasonHelp": "Aparece na auditoria. O launcher bloqueia na próxima verificação (em até uma hora).",
+      "suspendedBecause": "Suspenso: {{reason}}",
+      "cancel": "Cancelar",
+      "devices": "Dispositivos",
+      "noDevices": "Nenhum dispositivo.",
+      "revoke": "Revogar",
+      "revokeTitle": "Desconectar {{name}}?",
+      "revokeBody": "Esse launcher é desconectado na próxima requisição.",
+      "revoked": "Revogado",
+      "audit": "Histórico",
+      "lastAdmin": "Não é possível remover o último administrador.",
+      "self": "Você não pode fazer isso com a sua própria conta."
+    },
+    "audit": {
+      "title": "Auditoria",
+      "actor": "Id do administrador",
+      "target": "Id do alvo",
+      "time": "Quando",
+      "admin": "Administrador",
+      "action": "Ação",
+      "targetColumn": "Alvo",
+      "changes": "Alterações",
+      "empty": "Nada ainda.",
+      "actions": {
+        "user.role": "Papel alterado",
+        "user.suspend": "Suspenso",
+        "user.unsuspend": "Reativado",
+        "device.revoke": "Dispositivo revogado",
+        "settings.update": "Configurações alteradas"
+      }
+    },
+    "settings": {
+      "title": "Configurações",
+      "graceDays": "Tolerância offline (dias)",
+      "graceHelp": "Quanto tempo um launcher pode funcionar sem falar com a API (1–90).",
+      "signUpMode": "Quem pode entrar",
+      "modes": {
+        "open": "Qualquer conta Google",
+        "allowList": "Administradores e a lista de permitidos",
+        "closed": "Somente contas existentes"
+      },
+      "allowList": "Lista de permitidos (um e-mail por linha)",
+      "invalidEmails": "Não é um e-mail: {{lines}}",
+      "banner": "Aviso de manutenção",
+      "bannerCount": "{{count}}/280",
+      "save": "Salvar",
+      "saved": "Salvo."
+    }
+  }
+}

@@ -20,6 +20,8 @@ declare module 'fastify' {
   interface FastifyRequest {
     /** Set on `device` routes after the Bearer token checks out. */
     device?: DeviceAuth;
+    /** Set on `admin` routes after the console session checks out. */
+    admin?: { userId: string; email: string };
   }
 }
 

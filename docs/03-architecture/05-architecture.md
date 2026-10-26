@@ -203,7 +203,8 @@ files via a route that verifies an HMAC-signed token with the same expiry semant
 
 React SPA (Vite) using `packages/ui` and TanStack Query against the API. Auth by web OAuth
 redirect; the API sets an httpOnly, `SameSite=Strict` session cookie. Served as static files by
-the API in production (one origin, no CORS) — **(proposed)**.
+the API in production (one origin, no CORS; `ADMIN_DIST`, D27). In development Vite runs on
+:5174 and proxies `/v1` to the API, so the console and the API still share cookies.
 
 ## 7. Cross-cutting concerns
 

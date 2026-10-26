@@ -18,12 +18,15 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      # Electron tests drive the Electron binary installed by npm ci; no browser download needed.
+      # Launcher e2e drives the Electron binary from npm ci; the admin console e2e needs Chromium.
+      - run: npx playwright install chromium
       - run: npm run test:e2e
       # Playwright writes a page snapshot per failure; keep it so CI-only failures can be read.
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-test-results
-          path: apps/launcher/test-results
+          path: |
+            apps/launcher/test-results
+            apps/admin/test-results
           retention-days: 7
