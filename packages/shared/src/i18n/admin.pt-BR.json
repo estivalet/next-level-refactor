@@ -41,7 +41,17 @@
       "loadMore": "Carregar mais",
       "empty": "Nenhum usuário encontrado.",
       "defaultPlan": "Padrão",
-      "noPlan": "—"
+      "noPlan": "—",
+      "accessFilter": "Acesso",
+      "planFilter": "Plano",
+      "allPlans": "Todos",
+      "access": {
+        "all": "Todos",
+        "active": "Ativo",
+        "grace": "Pagamento falhou",
+        "none": "Sem acesso",
+        "comp": "Cortesia"
+      }
     },
     "user": {
       "back": "Todos os usuários",
@@ -78,7 +88,14 @@
         "user.suspend": "Suspenso",
         "user.unsuspend": "Reativado",
         "device.revoke": "Dispositivo revogado",
-        "settings.update": "Configurações alteradas"
+        "settings.update": "Configurações alteradas",
+        "plan.create": "Plano criado",
+        "plan.update": "Plano alterado",
+        "scope.create": "Escopo criado",
+        "scope.update": "Escopo alterado",
+        "grant.create": "Acesso de cortesia concedido",
+        "grant.revoke": "Acesso de cortesia revogado",
+        "user.delete": "Conta excluída"
       }
     },
     "settings": {
@@ -150,6 +167,52 @@
       "save": "Salvar",
       "new": "Novo escopo",
       "add": "Adicionar escopo"
+    },
+    "subscription": {
+      "title": "Assinatura",
+      "none": "Sem assinatura.",
+      "history": "Histórico de assinaturas",
+      "source": {
+        "stripe": "Stripe",
+        "comp": "Cortesia"
+      },
+      "status": {
+        "active": "Ativa",
+        "past_due": "Pagamento falhou",
+        "canceled": "Cancelada",
+        "expired": "Expirada"
+      },
+      "until": "até {{date}}",
+      "untilRevoked": "até ser revogada",
+      "renews": "renova em {{date}}",
+      "ends": "termina em {{date}}",
+      "stripeId": "Assinatura no Stripe",
+      "columns": {
+        "source": "Origem",
+        "plan": "Plano",
+        "status": "Status",
+        "end": "Termina",
+        "created": "Criada",
+        "by": "Concedida por",
+        "note": "Nota"
+      },
+      "grant": "Conceder acesso de cortesia",
+      "plan": "Plano",
+      "expiresAt": "Até (opcional)",
+      "expiresHelp": "Vazio: até ser revogada. O acesso termina no fim desse dia (UTC).",
+      "note": "Nota",
+      "noteHelp": "Motivo, para o log de auditoria (até 500 caracteres).",
+      "grantButton": "Conceder",
+      "cancel": "Cancelar",
+      "revoke": "Revogar cortesia",
+      "revokeTitle": "Revogar o acesso de cortesia?",
+      "revokeBody": "O launcher bloqueia na próxima verificação (em até uma hora).",
+      "reasons": {
+        "subscribed": "Este usuário paga pelo Stripe — ele precisa cancelar antes.",
+        "archived": "Este plano está arquivado.",
+        "past": "A data final já passou.",
+        "notActive": "Esta cortesia já terminou."
+      }
     }
   }
 }

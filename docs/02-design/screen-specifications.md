@@ -353,3 +353,11 @@ that is not the right interval, not active, unknown, already on another plan, in
 (on Yearly), or no billing provider; a taken slug; archiving Default. **Catalog scopes**: each scope
 edits its name and description in place (Save per row); a New scope row adds one (taken slug
 explained).
+**Users** gains Access (All, Active, Payment failed, No access, Complimentary) and Plan filters;
+the Plan column is the plan of each user's entitlement. **User detail** gains Subscription: the
+current one ("Stripe · Basic · Active · renews …" with the Stripe subscription id as copyable
+text, or "Complimentary · … · until …/until revoked" with **Revoke grant**, confirmed) and the
+history (source, plan, status, end, created, granted by, note). **Grant complimentary access**
+opens a dialog: plan (archived plans left out), optional last day (access ends at the end of that
+day, UTC), note (required, ≤ 500); "This user pays through Stripe — they must cancel first" and
+the other refusals show in the dialog.

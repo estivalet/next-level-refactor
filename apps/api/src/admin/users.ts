@@ -18,7 +18,8 @@ import { planAccessFilter } from './userFilters.ts';
 
 const activeDevices = sql<number>`(select count(*) from ${devices} where ${devices.userId} = ${users.id} and ${devices.revokedAt} is null)`;
 
-function summary(user: UserRow, deviceCount: number): AdminUserSummary {
+function summary(ctx: ApiContext, user: UserRow, deviceCount: number): AdminUserSummary {
+  const plan = entitlementOf(ctx, user).plan;
   return {
     id: user.id,
     email: user.email,
@@ -27,6 +28,7 @@ function summary(user: UserRow, deviceCount: number): AdminUserSummary {
     role: user.role,
     status: user.status,
     devices: deviceCount,
+    plan: plan ? { slug: plan.slug, name: plan.name } : null,
     lastSeenAt: user.lastSeenAt,
     createdAt: user.createdAt,
   };
@@ -58,7 +60,7 @@ export function listUsers(ctx: ApiContext, query: AdminUserQuery): Page<AdminUse
     .orderBy(desc(users.createdAt), desc(users.id))
     .limit(limit + 1)
     .all();
-  const items = rows.slice(0, limit).map((row) => summary(row.user, row.devices));
+  const items = rows.slice(0, limit).map((row) => summary(ctx, row.user, row.devices));
   const last = items.at(-1);
   const nextCursor =
     rows.length > limit && last
@@ -73,7 +75,7 @@ export function userDetail(ctx: ApiContext, id: string): AdminUserDetail {
   const all = ctx.devices.all(user.id);
   const active = all.filter((d) => d.revokedAt === null).length;
   return {
-    ...summary(user, active),
+    ...summary(ctx, user, active),
     suspendedReason: user.suspendedReason,
     entitlement: entitlementOf(ctx, user),
     devices: all.map((row) => toDevice(row, null)),

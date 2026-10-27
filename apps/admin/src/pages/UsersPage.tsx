@@ -2,15 +2,19 @@ import { Button, Select, Table, TextField } from '@nextlevel/ui';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUsers } from '../api/hooks.ts';
+import { usePlans } from '../api/plans.ts';
 import { errorKey, formatTime } from '../errors.ts';
 import { hrefOf } from '../router.ts';
 
-/** S13 Users (FR-ADM-1): search, status filter, newest first, Load more. */
+/** S13 Users (FR-ADM-1, D38): search, status, access and plan filters, newest first, Load more. */
 export function UsersPage() {
   const { t, i18n } = useTranslation();
   const [text, setText] = useState('');
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
+  const [access, setAccess] = useState('');
+  const [plan, setPlan] = useState('');
+  const plans = usePlans();
   // The search runs when typing pauses for 300 ms.
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,7 +24,7 @@ export function UsersPage() {
       clearTimeout(timer);
     };
   }, [text]);
-  const users = useUsers({ q, status });
+  const users = useUsers({ q, status, access, plan });
   const rows = users.data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
@@ -46,6 +50,28 @@ export function UsersPage() {
             { value: '', label: t('admin.users.allStatuses') },
             { value: 'active', label: t('admin.status.active') },
             { value: 'suspended', label: t('admin.status.suspended') },
+          ]}
+        />
+        <Select
+          label={t('admin.users.accessFilter')}
+          value={access}
+          onChange={(event) => {
+            setAccess(event.target.value);
+          }}
+          options={(['all', 'active', 'grace', 'none', 'comp'] as const).map((value) => ({
+            value: value === 'all' ? '' : value,
+            label: t(`admin.users.access.${value}`),
+          }))}
+        />
+        <Select
+          label={t('admin.users.planFilter')}
+          value={plan}
+          onChange={(event) => {
+            setPlan(event.target.value);
+          }}
+          options={[
+            { value: '', label: t('admin.users.allPlans') },
+            ...(plans.data ?? []).map((item) => ({ value: item.slug, label: item.name })),
           ]}
         />
       </div>
@@ -76,7 +102,7 @@ export function UsersPage() {
               {row.email}
             </a>,
             t(`admin.roles.${row.role}`),
-            row.role === 'admin' ? t('admin.users.noPlan') : t('admin.users.defaultPlan'),
+            row.plan?.name ?? t('admin.users.noPlan'),
             t(`admin.status.${row.status}`),
             row.devices,
             formatTime(row.lastSeenAt, i18n.language, t('admin.users.never')),
