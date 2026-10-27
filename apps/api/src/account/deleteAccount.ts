@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne } from 'drizzle-orm';
+import { and, eq, inArray, ne, or, sql } from 'drizzle-orm';
 import { audited } from '../admin/audit.ts';
 import type { ApiContext } from '../context.ts';
 import {
@@ -23,6 +23,23 @@ function scrub(value: unknown): unknown {
       Object.entries(value)
         .filter(([key]) => !PERSONAL.has(key))
         .map(([key, inner]) => [key, scrub(inner)]),
+    );
+  }
+  return value;
+}
+
+/**
+ * The user as they appear inside other rows' snapshots (e.g. `grantedBy: { id, email }` in a
+ * grant they gave someone else): any object carrying their id loses its personal fields.
+ */
+function scrubPerson(value: unknown, userId: string): unknown {
+  if (Array.isArray(value)) return value.map((item) => scrubPerson(item, userId));
+  if (value && typeof value === 'object') {
+    const own = (value as { id?: unknown }).id === userId;
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => !(own && PERSONAL.has(key)))
+        .map(([key, inner]) => [key, scrubPerson(inner, userId)]),
     );
   }
   return value;
@@ -68,6 +85,22 @@ function removeRows(ctx: ApiContext, user: UserRow): void {
     ctx.db
       .update(auditLog)
       .set({ before: scrub(entry.before), after: scrub(entry.after) })
+      .where(eq(auditLog.id, entry.id))
+      .run();
+  }
+  // Rows about other people that still name this user (ids are unique uuids).
+  const mention = `%${user.id}%`;
+  for (const entry of ctx.db
+    .select()
+    .from(auditLog)
+    .where(or(sql`${auditLog.before} like ${mention}`, sql`${auditLog.after} like ${mention}`))
+    .all()) {
+    ctx.db
+      .update(auditLog)
+      .set({
+        before: scrubPerson(entry.before, user.id),
+        after: scrubPerson(entry.after, user.id),
+      })
       .where(eq(auditLog.id, entry.id))
       .run();
   }

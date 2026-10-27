@@ -1,8 +1,18 @@
+import { AppErrorException } from '@nextlevel/shared';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDeleteAccount } from '../auth/authApi.ts';
 import { INPUT, Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
 import { errorMessageKey } from '../settings/settingsApi.ts';
+
+/** An admin is refused until demoted (D36); anything else is the code's own message. */
+function deleteErrorKey(error: unknown): string {
+  const reason =
+    error instanceof AppErrorException
+      ? (error.error.details as { reason?: unknown } | undefined)?.reason
+      : undefined;
+  return reason === 'admin' ? 'account.data.adminFirst' : errorMessageKey(error);
+}
 
 /**
  * Delete account (D36): says what happens (subscription cancelled now, no automatic refund, the
@@ -53,7 +63,7 @@ export function DeleteAccountDialog({ email, onClose }: { email: string; onClose
         />
         {remove.isError && (
           <p role="alert" className="text-sm text-[#ff8a80]">
-            {t(errorMessageKey(remove.error))}
+            {t(deleteErrorKey(remove.error))}
           </p>
         )}
       </div>

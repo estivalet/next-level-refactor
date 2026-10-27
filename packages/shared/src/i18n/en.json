@@ -1300,7 +1300,8 @@
       "deleteBody": "Your account, devices and subscription are deleted. A paid subscription is cancelled now, with no automatic refund. Your games and settings on this PC stay as they are.",
       "confirmLabel": "Type your email to confirm",
       "confirm": "Delete account",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "adminFirst": "Admin accounts must be changed to subscriber in the admin console first."
     }
   },
   "billingReturn": {

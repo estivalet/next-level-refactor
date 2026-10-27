@@ -1300,7 +1300,8 @@
       "deleteBody": "Sua conta, dispositivos e assinatura são excluídos. Uma assinatura paga é cancelada agora, sem reembolso automático. Seus jogos e configurações neste PC continuam como estão.",
       "confirmLabel": "Digite seu e-mail para confirmar",
       "confirm": "Excluir conta",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "adminFirst": "Contas de administrador precisam ser mudadas para assinante no console antes."
     }
   },
   "billingReturn": {

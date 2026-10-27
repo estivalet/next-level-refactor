@@ -237,6 +237,9 @@ describe('Delete account (security §5, D36)', () => {
         .pluck()
         .get(launcher.user.id),
     ).toBeGreaterThan(0);
+    // Their email is gone from the audit log too, including the grant they gave (grantedBy).
+    const audit = db.$client.prepare('select before, after from audit_log').all();
+    expect(JSON.stringify(audit)).not.toContain(EMAIL);
     const again = await signIn(app, 'subscriber');
     expect(again.user.id).not.toBe(launcher.user.id);
   });

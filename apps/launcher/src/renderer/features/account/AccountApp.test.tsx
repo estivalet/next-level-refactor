@@ -215,6 +215,23 @@ describe('Your data (security §5, D36)', () => {
     });
   });
 
+  it('an admin is told to be demoted first', async () => {
+    const user = userEvent.setup();
+    dataSetup({
+      'account.delete': () => err('CONFLICT', 'errors.conflict', { reason: 'admin' }),
+    });
+    await user.click(await screen.findByRole('button', { name: 'Delete account…' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete your NextLevel account?' });
+    await user.type(
+      within(dialog).getByLabelText('Type your email to confirm'),
+      'player@example.test',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Delete account' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Admin accounts must be changed to subscriber in the admin console first.',
+    );
+  });
+
   it('billing unavailable is shown in the dialog and nothing else happens', async () => {
     const user = userEvent.setup();
     dataSetup({
