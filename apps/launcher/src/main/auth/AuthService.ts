@@ -30,6 +30,7 @@ export interface AuthDeps {
     | 'entitlement'
     | 'devices'
     | 'revokeDevice'
+    | 'deleteAccount'
   >;
   secrets: SecretsLike;
   openBrowser: (url: string) => Promise<void>;
@@ -189,6 +190,17 @@ export class AuthService {
     }
     await this.#clear();
     return this.#signedOut(null);
+  }
+
+  /**
+   * Delete account (D36): the API cancels billing and deletes the account; then this PC forgets
+   * the session and shows "Your account was deleted". Errors (BILLING_UNAVAILABLE, a wrong
+   * email) leave the launcher signed in.
+   */
+  async deleteAccount(confirmEmail: string): Promise<AuthState> {
+    await this.#withAccess((token) => this.#deps.api.deleteAccount(token, confirmEmail));
+    await this.#clear();
+    return this.#signedOut('deleted');
   }
 
   /** A call with a fresh access token; API errors come back as `AppErrorException`s. */

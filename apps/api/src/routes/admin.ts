@@ -9,12 +9,14 @@ import {
   AppSettingsViewSchema,
   AuditEntrySchema,
   AuditQuerySchema,
+  DeleteAccountRequestSchema,
   GrantRequestSchema,
   PageSchema,
 } from '@nextlevel/shared';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
+import { deleteAccount } from '../account/deleteAccount.ts';
 import { audited, auditPage } from '../admin/audit.ts';
 import { grantComp, revokeComp } from '../admin/grants.ts';
 import { listUsers, patchUser, revokeUserDevice, userDetail } from '../admin/users.ts';
@@ -72,6 +74,15 @@ export function adminRoutes(app: FastifyInstance, ctx: ApiContext): void {
     { config, schema: { params: z.object({ id, deviceId: id }) } },
     (request, reply) => {
       revokeUserDevice(ctx, actor(request), request.params.id, request.params.deviceId);
+      return reply.status(204).send();
+    },
+  );
+
+  route.delete(
+    '/v1/admin/users/:id',
+    { config, schema: { params: z.object({ id }), body: DeleteAccountRequestSchema } },
+    async (request, reply) => {
+      await deleteAccount(ctx, request.params.id, request.body.confirmEmail, actor(request));
       return reply.status(204).send();
     },
   );

@@ -212,6 +212,41 @@ describe('revoke refusals (review)', () => {
   });
 });
 
+describe('Delete account (D36)', () => {
+  it('asks for the email, deletes, and goes back to Users', async () => {
+    const u = userEvent.setup();
+    window.location.hash = '#/users/u2';
+    const calls = stubApi({
+      'GET /v1/admin/users/u2': () => ({ body: detail([]) }),
+      'GET /v1/admin/plans': () => ({ body: PLANS }),
+      'DELETE /v1/admin/users/u2': () => ({ status: 204 }),
+    });
+    renderPage(<UserDetailPage id="u2" />);
+    await u.click(await screen.findByRole('button', { name: 'Delete account…' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete player@example.test?' });
+    const confirm = within(dialog).getByRole('button', { name: 'Delete account' });
+    expect(confirm).toBeDisabled();
+    await u.type(within(dialog).getByLabelText('Type the email to confirm'), 'Player@Example.test');
+    await u.click(confirm);
+    await waitFor(() => {
+      expect(window.location.hash).toBe('#/users');
+    });
+    expect(calls.find((c) => c.method === 'DELETE')?.body).toEqual({
+      confirmEmail: 'Player@Example.test',
+    });
+  });
+
+  it('is not offered for admins', async () => {
+    stubApi({
+      'GET /v1/admin/users/u2': () => ({ body: { ...detail([]), role: 'admin' } }),
+      'GET /v1/admin/plans': () => ({ body: PLANS }),
+    });
+    renderPage(<UserDetailPage id="u2" />);
+    await screen.findByRole('region', { name: 'Subscription' });
+    expect(screen.queryByRole('button', { name: 'Delete account…' })).not.toBeInTheDocument();
+  });
+});
+
 describe('Users filters (D38)', () => {
   it('access and plan filters go to the API; the plan column comes from the entitlement', async () => {
     const u = userEvent.setup();

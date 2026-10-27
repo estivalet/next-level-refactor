@@ -33,6 +33,8 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
       ),
       openPortal: () => (calls.push('portal'), Promise.resolve()),
       stopWaiting: () => (calls.push('stop'), SIGNED_OUT),
+      exportData: () => (calls.push('export'), Promise.resolve({ saved: true })),
+      deleteAccount: (email) => (calls.push(['delete', email]), Promise.resolve(SIGNED_OUT)),
     };
     const handlers = createAuthHandlers(auth);
     expect(handlers['auth.state']()).toEqual(SIGNED_OUT);
@@ -47,6 +49,8 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
     await handlers['auth.openCheckout']({ planSlug: 'basic', interval: 'month' });
     await handlers['auth.openPortal']();
     await handlers['auth.stopWaiting']();
+    expect(await handlers['account.export']()).toEqual({ saved: true });
+    await handlers['account.delete']({ confirmEmail: 'p@example.test' });
     expect(calls).toEqual([
       'signIn',
       'cancel',
@@ -57,6 +61,8 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
       ['checkout', 'basic', 'month'],
       'portal',
       'stop',
+      'export',
+      ['delete', 'p@example.test'],
     ]);
   });
 
@@ -66,6 +72,7 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
     expect(await handlers['auth.signIn']()).toEqual({ kind: 'disabled' });
     expect(await handlers['auth.devices.list']()).toEqual([]);
     expect(await handlers['auth.plans']()).toEqual({ billingEnabled: false, plans: [] });
+    expect(await handlers['account.export']()).toEqual({ saved: false });
     expect(await handlers['auth.openCheckout']({ planSlug: 'basic', interval: 'month' })).toEqual({
       kind: 'disabled',
     });

@@ -77,6 +77,13 @@ describe('sign-in gate (IA §1, S2, US-A1..A3)', () => {
     expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible();
   });
 
+  it('D36: after deleting the account the sign-in screen says so (not as an error)', async () => {
+    setup(SIGNED_OUT('deleted'));
+    expect(await screen.findByText('Your account was deleted.')).toHaveAttribute('role', 'status');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+  });
+
   it('D28: the maintenance banner shows on the sign-in screen', async () => {
     setup(SIGNED_OUT(null, 'Maintenance tonight at 22:00'));
     expect(await screen.findByText('Maintenance tonight at 22:00')).toBeVisible();

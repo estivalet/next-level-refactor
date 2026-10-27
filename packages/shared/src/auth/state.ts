@@ -11,6 +11,8 @@ export const SIGNED_OUT_REASONS = [
   'offlineExpired',
   'unreachable',
   'error',
+  /** The account was deleted from this launcher (D36). */
+  'deleted',
 ] as const;
 
 export const AuthStateSchema = z.discriminatedUnion('kind', [

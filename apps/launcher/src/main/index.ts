@@ -113,6 +113,16 @@ const menuWatch = createMenuWatch(
 );
 const emit = menuWatch.emit;
 
+/** A Save dialog for a JSON file; null when cancelled. */
+async function pickJsonSavePath(defaultName: string): Promise<string | null> {
+  const window = BrowserWindow.getFocusedWindow();
+  const options = { defaultPath: defaultName, filters: JSON_FILES };
+  const result = await (window
+    ? dialog.showSaveDialog(window, options)
+    : dialog.showSaveDialog(options));
+  return result.canceled || !result.filePath ? null : result.filePath;
+}
+
 async function start(): Promise<void> {
   const settings = new SettingsService({
     dir: dataDir,
@@ -122,14 +132,7 @@ async function start(): Promise<void> {
       emit('settings.changed', snapshot);
     },
     dialogs: {
-      pickExportPath: async (defaultName) => {
-        const window = BrowserWindow.getFocusedWindow();
-        const options = { defaultPath: defaultName, filters: JSON_FILES };
-        const result = await (window
-          ? dialog.showSaveDialog(window, options)
-          : dialog.showSaveDialog(options));
-        return result.canceled || !result.filePath ? null : result.filePath;
-      },
+      pickExportPath: pickJsonSavePath,
       pickImportPath: async () => {
         const window = BrowserWindow.getFocusedWindow();
         const options = { filters: JSON_FILES, properties: ['openFile' as const] };
@@ -206,6 +209,11 @@ async function start(): Promise<void> {
     appVersion: app.getVersion(),
     language: () => currentSettings(settings).general.language,
     openExternal: (url) => shell.openExternal(url),
+    // e2e (development builds only): Download my data saves without a dialog.
+    pickSavePath: (name) => {
+      const e2eFile = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FILE'];
+      return e2eFile ? Promise.resolve(e2eFile) : pickJsonSavePath(name);
+    },
   });
   app.on('will-quit', () => {
     signIn.dispose();

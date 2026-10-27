@@ -213,6 +213,17 @@
         "past": "A data final já passou.",
         "notActive": "Esta cortesia já terminou."
       }
+    },
+    "deleteUser": {
+      "open": "Excluir conta…",
+      "title": "Excluir {{email}}?",
+      "body": "A conta, seus dispositivos e assinaturas são excluídos. Uma assinatura no Stripe é cancelada agora, sem reembolso automático (reembolse manualmente no Stripe se preciso). As entradas de auditoria ficam, sem o e-mail.",
+      "confirmLabel": "Digite o e-mail para confirmar",
+      "confirm": "Excluir conta",
+      "reasons": {
+        "admin": "Administradores precisam ser rebaixados antes de excluir a conta.",
+        "email": "O e-mail não confere."
+      }
     }
   }
 }

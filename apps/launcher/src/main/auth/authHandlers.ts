@@ -13,7 +13,9 @@ type AuthChannel =
   | 'auth.plans'
   | 'auth.openCheckout'
   | 'auth.openPortal'
-  | 'auth.stopWaiting';
+  | 'auth.stopWaiting'
+  | 'account.export'
+  | 'account.delete';
 
 /** What the auth channels need from main's AuthService. */
 export interface AuthApi {
@@ -29,6 +31,8 @@ export interface AuthApi {
   openCheckout(planSlug: string, interval: BillingInterval): Promise<AuthState>;
   openPortal(): Promise<void>;
   stopWaiting(): AuthState;
+  exportData(): Promise<{ saved: boolean }>;
+  deleteAccount(confirmEmail: string): Promise<AuthState>;
 }
 
 const disabled: AuthState = { kind: 'disabled' };
@@ -47,6 +51,8 @@ export const DISABLED_AUTH: AuthApi = {
   openCheckout: () => Promise.resolve(disabled),
   openPortal: () => Promise.resolve(),
   stopWaiting: () => disabled,
+  exportData: () => Promise.resolve({ saved: false }),
+  deleteAccount: () => Promise.resolve(disabled),
 };
 
 /** Launcher sign-in channels (api-spec §3 Auth). */
@@ -64,5 +70,7 @@ export function createAuthHandlers(auth: AuthApi): Pick<IpcHandlers, AuthChannel
     'auth.openCheckout': ({ planSlug, interval }) => auth.openCheckout(planSlug, interval),
     'auth.openPortal': () => auth.openPortal(),
     'auth.stopWaiting': () => auth.stopWaiting(),
+    'account.export': () => auth.exportData(),
+    'account.delete': ({ confirmEmail }) => auth.deleteAccount(confirmEmail),
   };
 }

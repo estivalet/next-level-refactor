@@ -143,4 +143,15 @@ describe('API client (FR-AUTH-5: offline means "keep the grace")', () => {
       code: 'BILLING_UNAVAILABLE',
     });
   });
+
+  it('account: export with the token; delete sends the typed email (D36)', async () => {
+    const { api, requests } = client({ status: 204 });
+    await api.deleteAccount('t', 'p@example.test');
+    expect(requests.map((r) => [r.init?.method, r.url, r.init?.body])).toEqual([
+      ['DELETE', 'http://api.test/v1/me', '{"confirmEmail":"p@example.test"}'],
+    ]);
+    const exported = client({ status: 200, body: { nope: true } });
+    expect(await failureOf(exported.api.exportData('t'))).toEqual({ kind: 'offline' });
+    expect(exported.requests[0]?.url).toBe('http://api.test/v1/me/export');
+  });
 });

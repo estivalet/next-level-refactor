@@ -1231,7 +1231,8 @@
       "revoked": "This PC was signed out. Sign in again.",
       "offlineExpired": "Connect to the internet to continue.",
       "unreachable": "Can't reach NextLevel. Check your connection and try again.",
-      "error": "Sign-in failed. Try again."
+      "error": "Sign-in failed. Try again.",
+      "deleted": "Your account was deleted."
     },
     "subscribe": {
       "title": "Subscriptions aren't open yet",
@@ -1289,6 +1290,18 @@
       "compOpen": "{{plan}} · Complimentary · until revoked",
       "none": "No active plan",
       "manage": "Manage billing"
+    },
+    "data": {
+      "title": "Your data",
+      "download": "Download my data",
+      "saved": "Saved.",
+      "delete": "Delete account…",
+      "deleteTitle": "Delete your NextLevel account?",
+      "deleteBody": "Your account, devices and subscription are deleted. A paid subscription is cancelled now, with no automatic refund. Your games and settings on this PC stay as they are.",
+      "confirmLabel": "Type your email to confirm",
+      "confirm": "Delete account",
+      "cancel": "Cancel",
+      "adminFirst": "Admin accounts must be changed to subscriber in the admin console first."
     }
   },
   "billingReturn": {

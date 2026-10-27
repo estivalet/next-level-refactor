@@ -19,10 +19,16 @@ export function SignInScreen({ state }: { state: SignInState }) {
 
   return (
     <GateFrame title={t('auth.intro')} banner={state.kind === 'signedOut' ? state.banner : null}>
-      {reason && (
-        <p role="alert" className="text-sm text-[#ff8a80]">
-          {t(`auth.reason.${reason}`)}
+      {reason === 'deleted' ? (
+        <p role="status" className="text-sm text-slate-300">
+          {t('auth.reason.deleted')}
         </p>
+      ) : (
+        reason && (
+          <p role="alert" className="text-sm text-[#ff8a80]">
+            {t(`auth.reason.${reason}`)}
+          </p>
+        )
       )}
       {waiting ? (
         <div className="flex items-center gap-3">
@@ -44,7 +50,7 @@ export function SignInScreen({ state }: { state: SignInState }) {
         <div className="flex flex-wrap gap-2">
           {/* Enter (or the gamepad's A, mapped to Enter) on the focused button signs in. */}
           <button type="button" autoFocus className={PRIMARY} onClick={start}>
-            {reason ? t('auth.retry') : t('auth.signIn')}
+            {reason && reason !== 'deleted' ? t('auth.retry') : t('auth.signIn')}
           </button>
           <button
             type="button"
