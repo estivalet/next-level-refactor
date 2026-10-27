@@ -138,7 +138,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 
 | ID | Requirement | P |
 |---|---|---|
-| FR-ADM-1 | Users: list, search, view subscription and devices, grant complimentary access, suspend/unsuspend, change role. Complimentary grants arrive with plans in M8 (D23). | M |
+| FR-ADM-1 | Users: list, search, view subscription and devices, grant complimentary access, suspend/unsuspend, change role. Complimentary grants: M8 (plan, optional end, note; D35); also Delete account (D36). | M |
 | FR-ADM-2 | Plans: create, edit, archive; set price IDs, device limit, catalog scopes. | M |
 | FR-ADM-3 | Catalog: create items, upload files, attach art and metadata, attach license record, publish/unpublish. | M |
 | FR-ADM-4 | Settings: grace period, sign-up open/closed (allow-list mode), maintenance banner text. | M |

@@ -109,6 +109,9 @@ and then only game identifiers/metadata, never files), browsing analytics withou
 
 ## 6. Compliance checklist (before charging money)
 
+Still open after M8 (D31): billing runs in Stripe test mode only; these items are the go-live
+steps in M10, before live keys.
+
 - [ ] Privacy policy published (data above, processors, rights, contact)
 - [ ] Terms of service (subscription terms, acceptable use, account sharing, termination, content rules)
 - [ ] Content policy enforced ([content-policy.md](content-policy.md))

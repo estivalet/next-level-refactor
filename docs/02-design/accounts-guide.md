@@ -23,6 +23,7 @@ If something goes wrong the sign-in screen says why, with **Try again**:
 | Sign-in was cancelled | You pressed Cancel on Google's page or in NextLevel |
 | The browser didn't answer in time | Nothing came back within 5 minutes (also when you just close Google's tab) |
 | This Google account isn't authorized | The operator hasn't allowed this account (see allow-list below) |
+| Your account was deleted. | You deleted it from Account (shown as a notice, not an error) |
 | This PC was signed out. Sign in again. | The device was removed (Revoke or "Remove and continue" on another PC, or the operator), or the sign-in was used from a copy of this PC's data |
 | Can't reach NextLevel | The service is down or there is no internet |
 | Sign-in failed | Anything else; try again |
@@ -46,6 +47,31 @@ checked (**Refresh** checks now), and your devices — **Revoke** signs another 
 check. **Sign out** removes the sign-in from this PC and frees its slot; your library stays.
 (Signed out while offline, the PC keeps its slot until you revoke it from another PC.) Admins
 see **Administrator** instead of a plan.
+
+### Subscribing (when billing is on)
+
+Without an active plan the launcher shows **Choose a plan** after signing in. Pick **Monthly**
+or **Yearly**, then **Choose** on a plan: Stripe's checkout page opens in your browser (NextLevel
+never sees your card). Pay there; the launcher shows "Waiting for your payment…" and unlocks by
+itself as soon as the payment goes through (usually seconds; **I've already paid** checks now).
+Changed your mind? **Choose another plan**. There is no free trial.
+
+In **Account**, the plan line says what you pay and until when ("Basic · Monthly · Renews on
+12 Nov 2026"). **Manage billing** opens Stripe's billing page in your browser: change the plan
+or the card, see invoices, or cancel. Cancelling keeps access until the end of the paid period
+("Ends on …"). If a payment fails, Account says "Payment failed — update your payment details"
+and you keep playing while Stripe retries; if every retry fails, the launcher asks you to
+subscribe again. A complimentary plan from the operator shows "Complimentary · until …" and has
+nothing to pay; offline play stops on its last day.
+
+### Your data
+
+**Account → Download my data** saves a JSON file (`nextlevel-data-<date>.json`, where you choose)
+with what the service keeps about you: profile, devices, subscriptions and the changes the
+operator made to your account. **Delete account…** asks you to type your email: it cancels a
+paid subscription at once (no automatic refund — ask the operator), deletes the account and its
+devices on the service, and signs this PC out. Your games, settings, menus and collections on
+this PC stay as they are. Signing in again later starts a new account.
 
 ### Suspended accounts
 
@@ -115,6 +141,26 @@ failed" in the console); if every retry fails, access ends. Cancelling in the Cu
 keeps access to the end of the paid period. Refunds are done by hand in the Stripe Dashboard.
 Setting up Stripe test mode, or the stub that needs no Stripe account:
 `docs/05-operations/environment-setup.md`.
+
+### Plans, scopes and complimentary access
+
+**Plans** lists every plan with its prices, devices, scopes and how many people are on it.
+**New plan** or a plan's name opens the editor: name, device limit (1–20), catalog scopes,
+and the Stripe price ids for monthly and yearly (copy them from the Stripe Dashboard; the amount
+is read from Stripe when you save and shown under the field). A refused price says why on the
+field. **Archived** takes a plan off sale; the people on it keep it. The Default plan can't be
+archived. **Catalog scopes** are the groups of catalog items a plan includes (used from M9).
+
+In a user's page, **Subscription** shows what gives them access (Stripe subscription with its
+id, or a complimentary grant) and the history. **Grant complimentary access** picks a plan, an
+optional last day (access ends at the end of that day, UTC) and a note for the audit log; a new
+grant replaces the current one, and someone paying through Stripe must cancel first.
+**Revoke grant** ends it (the launcher locks within an hour). The Users list filters by access
+(Active, Payment failed, No access, Complimentary) and by plan.
+
+**Delete account…** on a user (not for admins: demote first) needs their email typed: a Stripe
+subscription is cancelled at once without a refund (refund by hand in Stripe if needed), and
+the account is deleted; audit entries stay without the email.
 
 ### Audit log
 

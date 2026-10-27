@@ -5,17 +5,40 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-27
+
+M8 — Subscriptions, in **Stripe test mode only** (D31): plans with monthly/yearly prices, the
+launcher's Subscribe screen with Stripe Checkout, the Customer Portal for billing, webhooks that
+keep access in step with Stripe, complimentary grants, and — before anyone is charged —
+Download my data and Delete account. Billing is switched by `BILLING_ENABLED`; with it off
+(the default) everyone allowed stays on the Default plan as in 0.7. `BILLING_STUB=1` runs the
+whole flow without a Stripe account. Live keys, Stripe Tax and the compliance checklist are M10.
+Guide: `docs/02-design/accounts-guide.md`; setup: `docs/05-operations/environment-setup.md`.
+
 ### Added
 
 - Billing contracts and data (M8a): plans with Stripe prices, catalog scopes, subscriptions,
   `stripe_events` (migration `0001_billing`). Admin API for plans, scopes and complimentary grants
   (audited); public `GET /v1/plans`. With `BILLING_ENABLED=true` access follows the current
   subscription (payment failed → grace; offline access stops at a grant's end); the device limit
-  comes from the plan. Users list filters by plan and access.
-- Billing provider (M8b): Stripe Checkout and Customer Portal in test mode (ADR-009 accepted), or
-  the `BILLING_STUB=1` fake with signed webhooks. `POST /v1/me/billing/checkout` and `/portal`,
-  a return page in English and Portuguese, and `POST /v1/webhooks/stripe` (signature checked,
-  idempotent, state re-read from Stripe).
+  comes from the plan.
+- Billing provider (M8b): Stripe Checkout and Customer Portal (ADR-009 accepted), or the
+  `BILLING_STUB=1` fake with signed webhooks. `POST /v1/me/billing/checkout` and `/portal` (one
+  payable checkout per user), a return page in English and Portuguese, and
+  `POST /v1/webhooks/stripe` (signature checked, idempotent, state re-read from Stripe).
+- Launcher (M8c): Subscribe screen (Monthly/Yearly, plan cards, waiting for the payment, unlocks
+  without a restart), Account billing line and **Manage billing**.
+- Admin console (M8d): Plans and Catalog scopes pages, the Subscription panel with complimentary
+  grants and revoke, Users filters by access and plan.
+- Download my data and Delete account (M8e, D36) in the launcher's Account app and the admin
+  console: Stripe is cancelled first (nothing is deleted if it can't be), audit entries lose the
+  email, former admins are kept as anonymous tombstones.
+
+### Changed
+
+- The Users list's Plan column shows each user's real plan (it said "Default" for everyone).
+- `BILLING_ENABLED=true` is accepted (M7 refused it); new `BILLING_STUB`, `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET`.
 
 ## [0.7.0] - 2026-10-25
 
