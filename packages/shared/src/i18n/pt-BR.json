@@ -1235,7 +1235,25 @@
     },
     "subscribe": {
       "title": "As assinaturas ainda não estão abertas",
-      "body": "{{email}} ainda não tem um plano ativo. As assinaturas abrem em breve."
+      "body": "{{email}} ainda não tem um plano ativo. As assinaturas abrem em breve.",
+      "choose": "Escolha um plano",
+      "intro": "Pague com segurança pelo Stripe no seu navegador. O NextLevel é liberado assim que o pagamento for aprovado.",
+      "period": "Período de cobrança",
+      "month": "Mensal",
+      "year": "Anual",
+      "perMonth": "{{price}} / mês",
+      "perYear": "{{price}} / ano",
+      "monthlyOnly": "Só mensal",
+      "yearlyOnly": "Só anual",
+      "devices": "Dispositivos: {{count}}",
+      "choosePlan": "Escolher {{plan}}",
+      "chooseShort": "Escolher",
+      "none": "Nenhum plano à venda no momento. Tente mais tarde.",
+      "loading": "Carregando planos…",
+      "waiting": "Aguardando seu pagamento…",
+      "waitingHint": "Conclua o pagamento no navegador. Esta tela se atualiza sozinha.",
+      "paid": "Já paguei",
+      "another": "Escolher outro plano"
     },
     "suspended": {
       "title": "Esta conta está suspensa",
@@ -1260,7 +1278,18 @@
     "revoke": "Revogar",
     "lastSeen": "Visto por último: {{time}}",
     "notRemembered": "O Windows não conseguiu guardar seu login com segurança; você vai entrar de novo na próxima vez.",
-    "disabled": "O login está desativado nesta versão de desenvolvimento."
+    "disabled": "O login está desativado nesta versão de desenvolvimento.",
+    "billing": {
+      "month": "Mensal",
+      "year": "Anual",
+      "renews": "{{plan}} · {{interval}} · Renova em {{date}}",
+      "ends": "{{plan}} · {{interval}} · Termina em {{date}}",
+      "pastDue": "O pagamento falhou — atualize seus dados de pagamento",
+      "compUntil": "{{plan}} · Cortesia · até {{date}}",
+      "compOpen": "{{plan}} · Cortesia · até ser revogada",
+      "none": "Nenhum plano ativo",
+      "manage": "Gerenciar cobrança"
+    }
   },
   "billingReturn": {
     "success": {

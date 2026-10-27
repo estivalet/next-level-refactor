@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { DeviceSchema } from '../api/auth.ts';
+import { CheckoutRequestSchema, PlansResponseSchema } from '../api/billing.ts';
 import { AuthStateSchema } from '../auth/state.ts';
 
 const deviceId = z.string().min(1).max(100);
@@ -24,4 +25,12 @@ export const authContract = {
     input: z.strictObject({ deviceId }),
     output: z.array(DeviceSchema),
   },
+  /** The plans on sale (S3); no sign-in needed. */
+  'auth.plans': { input: z.void(), output: PlansResponseSchema },
+  /** Opens Stripe Checkout in the browser and waits for the payment (IA F7, US-A2). */
+  'auth.openCheckout': { input: CheckoutRequestSchema, output: AuthStateSchema },
+  /** Opens the Stripe Customer Portal in the browser (S12 Manage billing). */
+  'auth.openPortal': { input: z.void(), output: z.void() },
+  /** "Choose another plan": stops waiting for the payment. */
+  'auth.stopWaiting': { input: z.void(), output: AuthStateSchema },
 } as const;

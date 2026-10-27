@@ -3,14 +3,19 @@ import {
   DeviceSchema,
   EntitlementResponseSchema,
   LauncherConfigSchema,
+  PlansResponseSchema,
+  RedirectResponseSchema,
   SessionResponseSchema,
   TokenPairSchema,
+  type CheckoutRequest,
   type CompleteRequest,
   type Device,
   type EntitlementResponse,
   type ErrorCode,
   type ExchangeRequest,
   type LauncherConfig,
+  type PlansResponse,
+  type RedirectResponse,
   type RefreshRequest,
   type SessionResponse,
   type TokenPair,
@@ -81,6 +86,19 @@ export class ApiClient {
     return this.#call('DELETE', path, null, { access });
   }
 
+  /** The plans on sale: public, no token. */
+  plans(): Promise<PlansResponse> {
+    return this.#call('GET', '/v1/plans', PlansResponseSchema);
+  }
+
+  checkout(access: string, body: CheckoutRequest): Promise<RedirectResponse> {
+    return this.#call('POST', '/v1/me/billing/checkout', RedirectResponseSchema, { body, access });
+  }
+
+  portal(access: string): Promise<RedirectResponse> {
+    return this.#call('POST', '/v1/me/billing/portal', RedirectResponseSchema, { access });
+  }
+
   async #call<T>(
     method: string,
     path: string,
@@ -110,8 +128,20 @@ export class ApiClient {
     } finally {
       clearTimeout(timer);
     }
-    if (response.status >= 500 || response.status === 429) throw offline();
     const json = parse(text);
+    // The API is up but Stripe isn't: say so, rather than "can't reach NextLevel".
+    if (response.status === 503) {
+      const envelope = ApiErrorEnvelopeSchema.safeParse(json);
+      if (envelope.success && envelope.data.error.code === 'BILLING_UNAVAILABLE') {
+        throw new ApiFailure({
+          kind: 'api',
+          status: 503,
+          code: 'BILLING_UNAVAILABLE',
+          details: undefined,
+        });
+      }
+    }
+    if (response.status >= 500 || response.status === 429) throw offline();
     if (!response.ok) {
       const envelope = ApiErrorEnvelopeSchema.safeParse(json);
       if (!envelope.success) throw offline();

@@ -117,4 +117,30 @@ describe('API client (FR-AUTH-5: offline means "keep the grace")', () => {
       ['DELETE', 'http://api.test/v1/me/devices/d%201'],
     ]);
   });
+
+  it('billing: plans without a token; checkout and portal with it (FR-SUB-2)', async () => {
+    const plans = client({ status: 200, body: { billingEnabled: true, plans: [] } });
+    expect(await plans.api.plans()).toEqual({ billingEnabled: true, plans: [] });
+    expect(plans.requests[0]?.url).toBe('http://api.test/v1/plans');
+    expect(new Headers(plans.requests[0]?.init?.headers).has('authorization')).toBe(false);
+    const redirect = client({ status: 200, body: { url: 'https://checkout.stripe.com/c/x' } });
+    await redirect.api.checkout('t', { planSlug: 'basic', interval: 'year' });
+    await redirect.api.portal('t');
+    expect(redirect.requests.map((r) => [r.init?.method, r.url, r.init?.body])).toEqual([
+      ['POST', 'http://api.test/v1/me/billing/checkout', '{"planSlug":"basic","interval":"year"}'],
+      ['POST', 'http://api.test/v1/me/billing/portal', undefined],
+    ]);
+  });
+
+  it('503 BILLING_UNAVAILABLE is an api failure, not offline (the API is up, Stripe is not)', async () => {
+    const { api } = client({
+      status: 503,
+      body: { error: { code: 'BILLING_UNAVAILABLE', message: 'm', requestId: 'r' } },
+    });
+    expect(await failureOf(api.portal('t'))).toMatchObject({
+      kind: 'api',
+      status: 503,
+      code: 'BILLING_UNAVAILABLE',
+    });
+  });
 });

@@ -6,13 +6,13 @@ import { GateFrame, SECONDARY } from './GateFrame.tsx';
 
 type SignedIn = Extract<AuthState, { kind: 'signedIn' }>;
 
-function SignOutButton() {
+export function SignOutButton({ autoFocus = true }: { autoFocus?: boolean }) {
   const { t } = useTranslation();
   const signOut = useSignOut();
   return (
     <button
       type="button"
-      autoFocus
+      autoFocus={autoFocus}
       disabled={signOut.isPending}
       className={SECONDARY}
       onClick={() => {
@@ -21,21 +21,6 @@ function SignOutButton() {
     >
       {t('auth.signOut')}
     </button>
-  );
-}
-
-/** S3 Subscribe — a placeholder until M8: billing is off, so nobody should land here (D21). */
-export function SubscribeScreen({ state }: { state: SignedIn }) {
-  const { t } = useTranslation();
-  return (
-    <GateFrame title={t('auth.subscribe.title')} banner={state.banner}>
-      <p className="text-sm text-slate-300">
-        {t('auth.subscribe.body', { email: state.user.email })}
-      </p>
-      <div>
-        <SignOutButton />
-      </div>
-    </GateFrame>
   );
 }
 

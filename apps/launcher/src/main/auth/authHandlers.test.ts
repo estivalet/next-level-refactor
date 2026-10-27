@@ -26,6 +26,13 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
       resolveDeviceLimit: (id) => (calls.push(['resolve', id]), Promise.resolve(SIGNED_OUT)),
       devices: () => Promise.resolve([device]),
       revokeDevice: (id) => (calls.push(['revoke', id]), Promise.resolve([])),
+      plans: () => Promise.resolve({ billingEnabled: true, plans: [] }),
+      openCheckout: (slug, interval) => (
+        calls.push(['checkout', slug, interval]),
+        Promise.resolve(SIGNED_OUT)
+      ),
+      openPortal: () => (calls.push('portal'), Promise.resolve()),
+      stopWaiting: () => (calls.push('stop'), SIGNED_OUT),
     };
     const handlers = createAuthHandlers(auth);
     expect(handlers['auth.state']()).toEqual(SIGNED_OUT);
@@ -36,6 +43,10 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
     await handlers['auth.resolveDeviceLimit']({ revokeDeviceId: 'd1' });
     expect(await handlers['auth.devices.list']()).toEqual([device]);
     await handlers['auth.devices.revoke']({ deviceId: 'd2' });
+    expect(await handlers['auth.plans']()).toEqual({ billingEnabled: true, plans: [] });
+    await handlers['auth.openCheckout']({ planSlug: 'basic', interval: 'month' });
+    await handlers['auth.openPortal']();
+    await handlers['auth.stopWaiting']();
     expect(calls).toEqual([
       'signIn',
       'cancel',
@@ -43,6 +54,9 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
       'refresh',
       ['resolve', 'd1'],
       ['revoke', 'd2'],
+      ['checkout', 'basic', 'month'],
+      'portal',
+      'stop',
     ]);
   });
 
@@ -51,5 +65,9 @@ describe('auth channels (FR-AUTH-2, FR-AUTH-6, FR-AUTH-8)', () => {
     expect(handlers['auth.state']()).toEqual({ kind: 'disabled' });
     expect(await handlers['auth.signIn']()).toEqual({ kind: 'disabled' });
     expect(await handlers['auth.devices.list']()).toEqual([]);
+    expect(await handlers['auth.plans']()).toEqual({ billingEnabled: false, plans: [] });
+    expect(await handlers['auth.openCheckout']({ planSlug: 'basic', interval: 'month' })).toEqual({
+      kind: 'disabled',
+    });
   });
 });

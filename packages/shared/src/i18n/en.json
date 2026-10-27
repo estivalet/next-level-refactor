@@ -1235,7 +1235,25 @@
     },
     "subscribe": {
       "title": "Subscriptions aren't open yet",
-      "body": "{{email}} has no active plan yet. Subscriptions open soon."
+      "body": "{{email}} has no active plan yet. Subscriptions open soon.",
+      "choose": "Choose a plan",
+      "intro": "Pay securely with Stripe in your browser. NextLevel unlocks as soon as the payment goes through.",
+      "period": "Billing period",
+      "month": "Monthly",
+      "year": "Yearly",
+      "perMonth": "{{price}} / month",
+      "perYear": "{{price}} / year",
+      "monthlyOnly": "Monthly only",
+      "yearlyOnly": "Yearly only",
+      "devices": "Devices: {{count}}",
+      "choosePlan": "Choose {{plan}}",
+      "chooseShort": "Choose",
+      "none": "No plans are on sale right now. Try again later.",
+      "loading": "Loading plans…",
+      "waiting": "Waiting for your payment…",
+      "waitingHint": "Finish the payment in your browser. This screen updates by itself.",
+      "paid": "I've already paid",
+      "another": "Choose another plan"
     },
     "suspended": {
       "title": "This account is suspended",
@@ -1260,7 +1278,18 @@
     "revoke": "Revoke",
     "lastSeen": "Last seen {{time}}",
     "notRemembered": "Windows couldn't store your sign-in securely, so you'll sign in again next time.",
-    "disabled": "Sign-in is turned off in this development build."
+    "disabled": "Sign-in is turned off in this development build.",
+    "billing": {
+      "month": "Monthly",
+      "year": "Yearly",
+      "renews": "{{plan}} · {{interval}} · Renews on {{date}}",
+      "ends": "{{plan}} · {{interval}} · Ends on {{date}}",
+      "pastDue": "Payment failed — update your payment details",
+      "compUntil": "{{plan}} · Complimentary · until {{date}}",
+      "compOpen": "{{plan}} · Complimentary · until revoked",
+      "none": "No active plan",
+      "manage": "Manage billing"
+    }
   },
   "billingReturn": {
     "success": {

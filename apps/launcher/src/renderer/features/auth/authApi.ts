@@ -1,4 +1,4 @@
-import type { AuthState, Device } from '@nextlevel/shared';
+import type { AuthState, BillingInterval, Device } from '@nextlevel/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
@@ -6,6 +6,7 @@ import { unwrap } from '../settings/settingsApi.ts';
 
 const AUTH_KEY = ['auth.state'] as const;
 const DEVICES_KEY = ['auth.devices.list'] as const;
+const PLANS_KEY = ['auth.plans'] as const;
 
 /**
  * The sign-in state as main sees it (FR-AUTH-*): read once, then kept current by
@@ -63,6 +64,32 @@ export function useRevokeDevice() {
       unwrap(await getBridge().invoke('auth.devices.revoke', { deviceId })),
     onSuccess: (devices) => {
       client.setQueryData<Device[]>(DEVICES_KEY, devices);
+    },
+  });
+}
+
+/** The plans on sale (S3). */
+export function usePlans() {
+  return useQuery({
+    queryKey: PLANS_KEY,
+    queryFn: async () => unwrap(await getBridge().invoke('auth.plans')),
+    retry: false,
+  });
+}
+
+/** Opens Checkout in the browser; main then waits for the payment (IA F7). */
+export const useOpenCheckout = () =>
+  useAuthCall(async (input: { planSlug: string; interval: BillingInterval }) =>
+    unwrap(await getBridge().invoke('auth.openCheckout', input)),
+  );
+export const useStopWaiting = () =>
+  useAuthCall(async () => unwrap(await getBridge().invoke('auth.stopWaiting')));
+
+/** Opens the Stripe Customer Portal in the browser (S12 Manage billing). */
+export function useOpenPortal() {
+  return useMutation({
+    mutationFn: async () => {
+      unwrap(await getBridge().invoke('auth.openPortal'));
     },
   });
 }

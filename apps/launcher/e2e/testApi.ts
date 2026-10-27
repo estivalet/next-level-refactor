@@ -26,17 +26,30 @@ function freePort(): Promise<number> {
  * The real NextLevel API for launcher e2e: in-process, on a temp database, with the sign-in stub
  * (`AUTH_STUB=1`) and a random port. Nothing leaves the machine.
  */
-export async function startTestApi(opts: { settings?: Partial<AppSettings> } = {}) {
+export async function startTestApi(
+  opts: { settings?: Partial<AppSettings>; billing?: boolean } = {},
+) {
   const dir = await mkdtemp(join(tmpdir(), 'nextlevel-e2e-api-'));
   const db = openDb(join(dir, 'api.db'));
   if (opts.settings) saveAppSettings(db, opts.settings);
+  if (opts.billing) {
+    // A plan on sale through the billing stub (D32): R$ 19,90 a month.
+    db.$client
+      .prepare(
+        `insert into plans (id, slug, name, device_limit, scope_ids, stripe_price_monthly,
+           price_monthly_amount, currency, created_at)
+         values ('plan-basic', 'basic', 'Basic', 2, '[]', 'price_stub_month_1990_brl', 1990, 'brl', ?)`,
+      )
+      .run(new Date().toISOString());
+  }
   const env = loadEnv({
     NODE_ENV: 'test',
     PUBLIC_URL: 'http://127.0.0.1',
     DATABASE_URL: 'file:unused.db',
     JWT_SECRET: Buffer.alloc(32, 3).toString('base64'),
     ADMIN_EMAILS: 'admin@nextlevel.test',
-    BILLING_ENABLED: 'false',
+    BILLING_ENABLED: opts.billing ? 'true' : 'false',
+    ...(opts.billing ? { BILLING_STUB: '1' } : {}),
     AUTH_STUB: '1',
   });
   // The stub's authorize URL names the API's own address, so the port is chosen first.

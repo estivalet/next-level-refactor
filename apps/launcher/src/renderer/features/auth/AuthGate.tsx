@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { Splash } from '../boot/Splash.tsx';
-import { DeviceLimitScreen, SubscribeScreen, SuspendedScreen } from './AccountScreens.tsx';
+import { DeviceLimitScreen, SuspendedScreen } from './AccountScreens.tsx';
 import { useAuthState } from './authApi.ts';
 import { SignInScreen } from './SignInScreen.tsx';
+import { SubscribeScreen } from './SubscribeScreen.tsx';
 
 /**
  * The gate layer (IA §1, F2): nothing of the launcher shows until the account may use it —
