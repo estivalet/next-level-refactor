@@ -341,15 +341,15 @@ Unchanged from the current app: `logo/clear|silver|steel`, `background/wallpaper
 | `users` | `id` PK, `google_sub` UNIQUE, `email`, `name`, `avatar_url`, `role` (`admin`/`subscriber`), `status` (`active`/`suspended`), `suspended_reason`?, `created_at`, `last_seen_at` | `role=subscriber` is the default; access still needs a subscription |
 | `devices` | `id` PK, `user_id` FK, `name`, `platform`, `app_version`, `created_at`, `last_seen_at`, `revoked_at`? | |
 | `refresh_tokens` | `id` PK, `device_id` FK, `token_hash` (SHA-256), `expires_at`, `replaced_by`?, `revoked_at`? | rotation + reuse detection |
-| `plans` | `id` PK, `slug` UNIQUE, `name`, `device_limit`, `scope_ids` json, `stripe_price_monthly`?, `stripe_price_yearly`?, `archived` bool | seeded: `default` ("Default", 3 devices, no scopes), the plan of every allowed user while billing is off (D21) |
-| `subscriptions` | `id` PK, `user_id` FK, `plan_id` FK, `source` (`stripe`/`comp`/`devmode`), `status` (`active`/`past_due`/`canceled`/`expired`), `current_period_end`, `stripe_customer_id`?, `stripe_subscription_id`?, `granted_by`?, `note`? | one current per user; from M8 (none while billing is off) |
-| `catalog_scopes` | `id` PK, `slug`, `name`, `description` | e.g. `homebrew-8bit` |
+| `plans` | `id` PK, `slug` UNIQUE, `name`, `device_limit`, `scope_ids` json, `stripe_price_monthly`?, `stripe_price_yearly`?, `price_monthly_amount`?, `price_yearly_amount`?, `currency`?, `archived` bool, `created_at` | seeded: `default` ("Default", 3 devices, no scopes): the plan of every allowed user while billing is off (D21) and the device limit of users with no plan; can't be archived. Amounts (minor units) and currency are read from Stripe when a price id is saved: active, recurring, matching interval, one currency for both. Archived plans keep existing subscribers but can't be bought or granted |
+| `subscriptions` | `id` PK, `user_id` FK, `plan_id` FK, `source` (`stripe`/`comp`), `status` (`active`/`past_due`/`canceled`/`expired`), `interval` (`month`/`year`)?, `current_period_end`?, `cancel_at_period_end` bool, `stripe_customer_id`?, `stripe_subscription_id` UNIQUE?, `granted_by` FK?, `note`?, `created_at`, `updated_at` | index `user_id`. The **current** row is the newest that gives access: comp `active` with no end or an end in the future, or Stripe `active`/`past_due`. One access-giving Stripe subscription or comp grant per user (D35). Stripe to ours: `active`/`trialing` → `active`, `past_due` → `past_due`, `canceled` → `canceled`, `unpaid`/`incomplete_expired`/`paused` → `expired`, `incomplete` not stored. Comp: `current_period_end` = the grant's end (null = until revoked); revoke → `canceled` |
+| `catalog_scopes` | `id` PK, `slug` UNIQUE, `name`, `description`, `created_at` | e.g. `homebrew-8bit`; plans pick scopes from M8, items use them from M9 (D37) |
 | `catalog_items` | `id` PK, `slug` UNIQUE, `title`, `system_id`, `scope_id` FK, `description`, `year`, `developer`, `publisher`, `genre`, `players`, `license_id` FK, `on_lapse` (`keep`/`remove`), `status` (`draft`/`published`/`unpublished`), `published_at`?, `version` int | publish requires `license_id` |
 | `catalog_files` | `id` PK, `item_id` FK, `filename`, `size`, `sha256`, `storage_key`, `role` (`rom`/`disc`/`extra`) | |
 | `catalog_media` | `item_id` FK, `kind`, `storage_key` | game art kinds |
 | `licenses` | `id` PK, `type` (`author-permission`/`freeware`/`open-source`/`public-domain`/`commercial-license`), `rights_holder`, `contact`, `terms`, `evidence_key`?, `territories` json?, `starts_at`?, `expires_at`?, `verified_by` FK, `verified_at` | see content policy |
 | `downloads` | `id` PK, `user_id`, `device_id`, `file_id`, `issued_at`, `ip_hash` | |
-| `audit_log` | `id` PK, `actor_id`, `action`, `target_type`, `target_id`, `before` json, `after` json, `at` | append-only |
+| `audit_log` | `id` PK, `actor_id`, `action`, `target_type` (`user`/`device`/`settings`/`plan`/`scope`/`subscription`), `target_id`, `before` json, `after` json, `at` | append-only |
 | `stripe_events` | `id` PK (Stripe event id), `type`, `received_at`, `processed_at`? | webhook idempotency |
 | `app_settings` | `key` PK, `value` json | `graceDays` (14, 1–30: never past the 30-day refresh token), `signUpMode` (`open`/`allowList`/`closed`, default `allowList`), `allowList` (lowercased emails), `banner` (≤ 280 chars or null); seeded with these defaults |
 | `admin_sessions` | `id` PK, `token_hash` UNIQUE (SHA-256 of the `nl_session` cookie), `user_id` FK, `created_at`, `last_seen_at` | admin console sessions; 8 h idle timeout |
@@ -365,11 +365,23 @@ type Entitlement = {
   plan: { slug: string; name: string; deviceLimit: number } | null;
   scopes: string[];               // catalog scope slugs
   checkedAt: string;              // server time
-  offlineUntil: string;           // checkedAt + grace days; launcher refuses after this offline
+  offlineUntil: string;           // checkedAt + grace days, capped at a known end (below)
+  subscription?: {                // the current subscription; null/absent when there is none
+    source: 'stripe' | 'comp';
+    status: 'active' | 'past_due' | 'canceled' | 'expired';
+    interval: 'month' | 'year' | null;
+    periodEnd: string | null;     // paid-until or grant end; null = grant until revoked
+    cancelAtPeriodEnd: boolean;
+  } | null;
 };
 ```
 
-Admins always get `status: 'active'` and all scopes.
+Admins always get `status: 'active'` and all scopes. Suspended → `suspended`. Billing off
+(FR-SUB-5) → `active` on the Default plan. Billing on: the current subscription decides.
+Stripe `past_due` → `grace` (Stripe's retry window, FR-SUB-3); any other current row →
+`active` on its plan; no current row → `none` (`plan: null`, no scopes; the launcher shows
+Subscribe). `offlineUntil` never passes a known end: the comp grant's end, or the period end
+when `cancelAtPeriodEnd` (US-F2).
 
 ---
 

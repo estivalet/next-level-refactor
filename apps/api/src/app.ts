@@ -15,6 +15,7 @@ import { adminGuard } from './auth/adminSession.ts';
 import { GOOGLE_JWKS_URL, googleProvider } from './auth/google.ts';
 import type { IdentityProviders } from './auth/identity.ts';
 import { stubProviders, type StubProviders } from './auth/stub.ts';
+import type { BillingProvider } from './billing/provider.ts';
 import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
@@ -22,11 +23,13 @@ import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
 import { adminRoutes } from './routes/admin.ts';
 import { adminAuthRoutes } from './routes/adminAuth.ts';
+import { adminPlanRoutes } from './routes/adminPlans.ts';
 import { adminStaticRoutes } from './routes/adminStatic.ts';
 import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
 import { launcherConfigRoutes } from './routes/launcherConfig.ts';
 import { meRoutes } from './routes/me.ts';
+import { planRoutes } from './routes/plans.ts';
 import { stubRoutes } from './routes/stub.ts';
 
 export interface AppDeps {
@@ -39,6 +42,8 @@ export interface AppDeps {
   fetch?: typeof fetch;
   /** Google's signing keys; tests inject a local set. */
   googleJwks?: JWTVerifyGetKey;
+  /** The billing provider; tests inject a fake. Null: no prices or checkout. */
+  billing?: BillingProvider | null;
 }
 
 /** The stub with `AUTH_STUB=1`, else the Google Desktop and Web clients. */
@@ -90,7 +95,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     transform: jsonSchemaTransform,
   });
   requireRouteRoles(app);
-  const ctx = createContext(deps);
+  const ctx = createContext({ ...deps, billing: deps.billing ?? null });
   installGuards(app, ctx, adminGuard(ctx));
 
   app.get('/v1/openapi.json', { config: { role: 'public' }, schema: { hide: true } }, () =>
@@ -103,6 +108,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   meRoutes(app, ctx);
   adminAuthRoutes(app, ctx, identity.web);
   adminRoutes(app, ctx);
+  adminPlanRoutes(app, ctx);
+  planRoutes(app, ctx);
   if (deps.env.adminDist) adminStaticRoutes(app, deps.env.adminDist);
   if ('issue' in identity) stubRoutes(app, identity, deps.env.publicUrl);
   return app;

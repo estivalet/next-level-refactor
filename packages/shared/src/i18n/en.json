@@ -54,7 +54,8 @@
     "deviceLimit": "This account is signed in on too many devices. Remove one to continue.",
     "notAllowed": "This Google account isn't authorized.",
     "rateLimited": "Too many attempts. Wait a minute and try again.",
-    "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again."
+    "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again.",
+    "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes."
   },
   "shell": {
     "window": {

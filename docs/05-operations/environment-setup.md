@@ -42,8 +42,10 @@ cp apps/api/.env.example apps/api/.env   # then set JWT_SECRET (the file says ho
 | `GOOGLE_CLIENT_ID_WEB` / `GOOGLE_CLIENT_SECRET_WEB` | Google Cloud **Web application** client (admin console) | yes, unless `AUTH_STUB=1` |
 | `AUTH_STUB` | `1` | no; development and tests only, refused with `NODE_ENV=production` |
 | `ADMIN_EMAILS` | `owner@example.com` (comma list) | yes (bootstrap admin: becomes admin when its account is created) |
-| `BILLING_ENABLED` | `false` | yes; must be `false` until M8 |
-| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | test keys | when billing enabled |
+| `BILLING_ENABLED` | `false` or `true` | yes; `true` = access needs an active or past-due Stripe subscription or an active comp grant (D33) |
+| `BILLING_STUB` | `1` | no; fake Checkout/Portal and signed webhooks (D32); development and tests only, refused with `NODE_ENV=production` |
+| `STRIPE_SECRET_KEY` | `sk_test_…` | when `BILLING_ENABLED=true` and `BILLING_STUB` is not `1` |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_…` (from `stripe listen` or the Dashboard endpoint) | when `BILLING_ENABLED=true` and `BILLING_STUB` is not `1`; the stub uses a fixed dev value |
 | `STORAGE_DRIVER` | `local` or `s3` | yes |
 | `STORAGE_LOCAL_DIR` | `./data/files` | when `local` |
 | `S3_ENDPOINT` / `S3_BUCKET` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | R2 values | when `s3` |

@@ -38,6 +38,7 @@ const detail = (overrides: Record<string, unknown> = {}) => ({
     },
   ],
   audit: [],
+  subscriptions: [],
   ...overrides,
 });
 

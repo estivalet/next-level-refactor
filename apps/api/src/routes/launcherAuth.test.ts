@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { adminHeaders, adminSignIn } from '../../test/adminSignIn.ts';
 import { createTestApp } from '../../test/testApp.ts';
 import {
   bearer,
@@ -124,6 +125,41 @@ describe('device limit (FR-AUTH-8, US-A4)', () => {
     });
     expect(logout.statusCode).toBe(204);
     expect((await exchange(app, 'subscriber', { ...DEVICE, name: 'D' })).statusCode).toBe(200);
+  });
+});
+
+describe('device limit with billing on (FR-SUB-4, D33)', () => {
+  const BILLING_ON = { BILLING_ENABLED: 'true', BILLING_STUB: '1' };
+
+  it("the limit comes from the entitlement's plan: a 1-device comp plan refuses a 2nd PC", async () => {
+    const { app } = await setup({ rawEnv: BILLING_ON });
+    const first = await signIn(app, 'subscriber', 'PC 1');
+    const admin = await adminSignIn(app, 'admin');
+    const write = { headers: adminHeaders(admin, true) };
+    await app.inject({
+      ...write,
+      method: 'POST',
+      url: '/v1/admin/plans',
+      payload: { slug: 'solo', name: 'Solo', deviceLimit: 1, scopeIds: [] },
+    });
+    const granted = await app.inject({
+      ...write,
+      method: 'POST',
+      url: `/v1/admin/users/${first.user.id}/grants`,
+      payload: { planSlug: 'solo', expiresAt: null, note: 'One PC' },
+    });
+    expect(granted.statusCode).toBe(200);
+    const second = await exchange(app, 'subscriber', { ...DEVICE, name: 'PC 2' });
+    expect(second.json()).toMatchObject({ error: { code: 'DEVICE_LIMIT' } });
+  });
+
+  it("a user with no subscription signs in (none) and has the Default plan's limit", async () => {
+    const { app } = await setup({ rawEnv: BILLING_ON });
+    for (const name of ['A', 'B', 'C']) {
+      expect((await signIn(app, 'subscriber', name)).entitlement.status).toBe('none');
+    }
+    const fourth = await exchange(app, 'subscriber', { ...DEVICE, name: 'D' });
+    expect(fourth.json()).toMatchObject({ error: { code: 'DEVICE_LIMIT' } });
   });
 });
 

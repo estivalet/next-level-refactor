@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SubscriptionSummarySchema } from './billing.ts';
 
 // HTTP contracts between the launcher and the API (api-spec §2 Auth / Me, ADR-006).
 
@@ -23,6 +24,8 @@ export const EntitlementSchema = z.object({
   checkedAt: isoTime,
   /** `checkedAt` + grace days: the launcher refuses to run offline after this (FR-AUTH-5). */
   offlineUntil: isoTime,
+  /** What gives access when billing is on; optional so v0.7 stored sessions still parse. */
+  subscription: SubscriptionSummarySchema.nullable().optional(),
 });
 
 export const UserProfileSchema = z.object({

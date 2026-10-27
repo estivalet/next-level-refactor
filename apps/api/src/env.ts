@@ -23,7 +23,20 @@ export interface Env {
   authStub: boolean;
   adminDist: string | null;
   adminOrigin: string | null;
+  /**
+   * `enabled`: access needs a subscription or comp grant (D33). `mode`: which provider serves
+   * prices and checkout: `stub` with `BILLING_STUB=1` (D32), `stripe` with keys, else `none`.
+   */
+  billing: {
+    enabled: boolean;
+    mode: 'stripe' | 'stub' | 'none';
+    secretKey: string | null;
+    webhookSecret: string | null;
+  };
 }
+
+/** The stub signs its own webhooks with this; it is not a secret. */
+export const STUB_WEBHOOK_SECRET = 'whsec_nextlevel_stub_development_only';
 
 export class EnvError extends Error {
   readonly problems: string[];
@@ -72,9 +85,23 @@ const EnvSchema = z
           : list,
       z.array(EmailSchema).min(1, 'needs at least one email'),
     ),
-    BILLING_ENABLED: z.enum(['true', 'false']).refine((value) => value === 'false', {
-      message: 'must be false: billing arrives in M8',
-    }),
+    BILLING_ENABLED: z.enum(['true', 'false']).transform((value) => value === 'true'),
+    BILLING_STUB: z
+      .enum(['0', '1'])
+      .optional()
+      .transform((value) => value === '1'),
+    STRIPE_SECRET_KEY: optional.refine(
+      (value) => value === null || /^sk_(test|live)_/.test(value),
+      {
+        message: 'must be a Stripe secret key (sk_test_… or sk_live_…)',
+      },
+    ),
+    STRIPE_WEBHOOK_SECRET: optional.refine(
+      (value) => value === null || value.startsWith('whsec_'),
+      {
+        message: 'must be a Stripe webhook signing secret (whsec_…)',
+      },
+    ),
     AUTH_STUB: z
       .enum(['0', '1'])
       .optional()
@@ -93,7 +120,37 @@ const EnvSchema = z
         }
       }
     }
+    if (env.BILLING_STUB && env.NODE_ENV === 'production') {
+      ctx.addIssue({ code: 'custom', path: ['BILLING_STUB'], message: 'is refused in production' });
+    }
+    if (env.BILLING_ENABLED && !env.BILLING_STUB) {
+      for (const key of ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'] as const) {
+        if (env[key] === null) {
+          ctx.addIssue({
+            code: 'custom',
+            path: [key],
+            message: 'is required with BILLING_ENABLED=true unless BILLING_STUB=1',
+          });
+        }
+      }
+    }
   });
+
+function billingOf(env: z.output<typeof EnvSchema>): Env['billing'] {
+  const enabled = env.BILLING_ENABLED;
+  if (env.BILLING_STUB) {
+    return { enabled, mode: 'stub', secretKey: null, webhookSecret: STUB_WEBHOOK_SECRET };
+  }
+  if (env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET) {
+    return {
+      enabled,
+      mode: 'stripe',
+      secretKey: env.STRIPE_SECRET_KEY,
+      webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    };
+  }
+  return { enabled, mode: 'none', secretKey: null, webhookSecret: null };
+}
 
 export function loadEnv(source: Record<string, string | undefined>): Env {
   const parsed = EnvSchema.safeParse(source);
@@ -128,5 +185,6 @@ export function loadEnv(source: Record<string, string | undefined>): Env {
     authStub: env.AUTH_STUB,
     adminDist: env.ADMIN_DIST,
     adminOrigin: env.ADMIN_ORIGIN ?? null,
+    billing: billingOf(env),
   };
 }

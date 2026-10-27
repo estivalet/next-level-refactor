@@ -13,7 +13,7 @@ to change **Status** to `Superseded by ADR-XXX`; write a new ADR instead.
 | [006](ADR-006-google-sign-in.md) | Google sign-in via system browser + PKCE; API issues its own tokens | Accepted |
 | [007](ADR-007-backend.md) | Fastify + Drizzle + SQLite backend, Postgres-ready | Accepted |
 | [008](ADR-008-admin-console.md) | Separate admin web console; roles enforced by the API | Accepted |
-| [009](ADR-009-stripe.md) | Stripe hosted Checkout/Portal for billing | Proposed |
+| [009](ADR-009-stripe.md) | Stripe hosted Checkout/Portal for billing | Accepted |
 | [010](ADR-010-themes-package.md) | Themes engine as a platform-neutral package behind a host interface | Accepted |
 | [011](ADR-011-stable-ids.md) | Stable slug IDs for systems | Accepted |
 | [012](ADR-012-rights-cleared-catalog.md) | The catalog holds rights-cleared content only | Accepted |

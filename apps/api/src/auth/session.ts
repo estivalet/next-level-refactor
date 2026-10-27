@@ -1,7 +1,9 @@
 import type { DeviceInfo, Entitlement, SessionResponse, UserProfile } from '@nextlevel/shared';
 import type { ApiContext } from '../context.ts';
-import { computeEntitlement } from '../entitlements/entitlement.ts';
+import { computeEntitlement, type PlanSummary } from '../entitlements/entitlement.ts';
 import { apiError } from '../errors.ts';
+import { toPlanSummary } from '../plans/PlanRepository.ts';
+import { currentSubscription } from '../subscriptions/current.ts';
 import { toDevice } from '../users/DeviceRepository.ts';
 import type { UserRow } from '../users/UserRepository.ts';
 import { signTicket } from './tokens.ts';
@@ -16,11 +18,34 @@ export function profileOf(user: UserRow): UserProfile {
   };
 }
 
-export function entitlementOf(ctx: ApiContext, user: UserRow): Entitlement {
-  return computeEntitlement(user, ctx.defaultPlan(), ctx.settings(), ctx.clock());
+/** The plan every allowed user is on while billing is off (D21); its limit applies to no-plan users. */
+export function defaultPlanOf(ctx: ApiContext): PlanSummary {
+  const row = ctx.plans.bySlug('default');
+  if (!row) throw new Error('the Default plan is missing (openDb seeds it)');
+  return toPlanSummary(row, ctx.scopes.list());
 }
 
-/** Throws `DEVICE_LIMIT` with a ticket when the user's plan has no free device slot (US-A4). */
+export function entitlementOf(ctx: ApiContext, user: UserRow): Entitlement {
+  const now = ctx.clock();
+  const scopes = ctx.scopes.list();
+  const billing = ctx.env.billing.enabled;
+  const row = billing ? currentSubscription(ctx.subscriptions.forUser(user.id), now) : null;
+  const plan = row ? ctx.plans.byId(row.planId) : undefined;
+  return computeEntitlement({
+    user,
+    billing,
+    defaultPlan: defaultPlanOf(ctx),
+    current: row && plan ? { row, plan: toPlanSummary(plan, scopes) } : null,
+    allScopes: scopes.map((scope) => scope.slug),
+    settings: ctx.settings(),
+    now,
+  });
+}
+
+/**
+ * Throws `DEVICE_LIMIT` with a ticket when the user's plan has no free device slot (US-A4). Users
+ * without a plan (billing on, no subscription) get the Default plan's limit.
+ */
 export async function assertDeviceSlot(
   ctx: ApiContext,
   user: UserRow,
@@ -28,7 +53,8 @@ export async function assertDeviceSlot(
 ): Promise<void> {
   if (user.role === 'admin') return;
   const active = ctx.devices.active(user.id);
-  if (active.length < ctx.defaultPlan().deviceLimit) return;
+  const limit = entitlementOf(ctx, user).plan?.deviceLimit ?? defaultPlanOf(ctx).deviceLimit;
+  if (active.length < limit) return;
   const ticket = await signTicket({ sub: user.id, device }, ctx.keys, ctx.clock());
   throw apiError('DEVICE_LIMIT', undefined, {
     ticket,
