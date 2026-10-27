@@ -4,7 +4,7 @@ import type { UserRow } from '../users/UserRepository.ts';
 import { computeEntitlement, type PlanSummary } from './entitlement.ts';
 
 const NOW = new Date('2026-10-25T12:00:00.000Z');
-const PLAN: PlanSummary = { slug: 'default', name: 'Default', deviceLimit: 3, scopeIds: [] };
+const PLAN: PlanSummary = { slug: 'default', name: 'Default', deviceLimit: 3, scopes: [] };
 const USER: UserRow = {
   id: 'u1',
   googleSub: 'g',

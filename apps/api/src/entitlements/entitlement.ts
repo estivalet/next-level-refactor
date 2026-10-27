@@ -5,7 +5,8 @@ export interface PlanSummary {
   slug: string;
   name: string;
   deviceLimit: number;
-  scopeIds: string[];
+  /** Catalog scope slugs. */
+  scopes: string[];
 }
 
 const DAY_MS = 24 * 3600_000;
@@ -34,6 +35,6 @@ export function computeEntitlement(
     ...base,
     status: 'active',
     plan: { slug: plan.slug, name: plan.name, deviceLimit: plan.deviceLimit },
-    scopes: plan.scopeIds,
+    scopes: plan.scopes,
   };
 }

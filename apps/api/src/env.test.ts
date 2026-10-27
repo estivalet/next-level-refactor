@@ -76,10 +76,56 @@ describe('API environment (environment-setup, ADR-007)', () => {
     expect(env.authStub).toBe(false);
   });
 
-  it('billing arrives in M8: BILLING_ENABLED=true is refused (D21)', () => {
+  it('billing on without the stub needs both Stripe keys (D33)', () => {
     expect(problems({ ...STUB, BILLING_ENABLED: 'true' })).toEqual([
-      expect.stringMatching(/^BILLING_ENABLED.*M8/),
+      expect.stringMatching(/^STRIPE_SECRET_KEY/),
+      expect.stringMatching(/^STRIPE_WEBHOOK_SECRET/),
     ]);
+    const env = loadEnv({
+      ...STUB,
+      BILLING_ENABLED: 'true',
+      STRIPE_SECRET_KEY: 'sk_test_abc',
+      STRIPE_WEBHOOK_SECRET: 'whsec_abc',
+    });
+    expect(env.billing).toEqual({
+      enabled: true,
+      mode: 'stripe',
+      secretKey: 'sk_test_abc',
+      webhookSecret: 'whsec_abc',
+    });
+  });
+
+  it('Stripe keys must look like Stripe keys', () => {
+    expect(
+      problems({ ...STUB, STRIPE_SECRET_KEY: 'pk_test_abc', STRIPE_WEBHOOK_SECRET: 'abc' }),
+    ).toEqual([
+      expect.stringMatching(/^STRIPE_SECRET_KEY/),
+      expect.stringMatching(/^STRIPE_WEBHOOK_SECRET/),
+    ]);
+  });
+
+  it('the billing stub needs no keys and is refused in production (D32)', () => {
+    const env = loadEnv({ ...STUB, BILLING_ENABLED: 'true', BILLING_STUB: '1' });
+    expect(env.billing).toMatchObject({ enabled: true, mode: 'stub', secretKey: null });
+    expect(env.billing.webhookSecret).toMatch(/^whsec_/);
+    expect(
+      problems({
+        ...STUB,
+        ...GOOGLE,
+        AUTH_STUB: undefined,
+        NODE_ENV: 'production',
+        BILLING_STUB: '1',
+      }),
+    ).toEqual([expect.stringMatching(/^BILLING_STUB.*production/)]);
+  });
+
+  it('billing off without keys has no provider', () => {
+    expect(loadEnv(STUB).billing).toEqual({
+      enabled: false,
+      mode: 'none',
+      secretKey: null,
+      webhookSecret: null,
+    });
   });
 
   it('at least one bootstrap admin email is required (FR-AUTH-4)', () => {
