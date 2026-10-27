@@ -23,6 +23,7 @@ import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
 import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
+import { accountRoutes } from './routes/account.ts';
 import { adminRoutes } from './routes/admin.ts';
 import { adminAuthRoutes } from './routes/adminAuth.ts';
 import { adminPlanRoutes } from './routes/adminPlans.ts';
@@ -143,6 +144,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   launcherConfigRoutes(app, identity.desktop, deps.db);
   launcherAuthRoutes(app, ctx, identity.desktop);
   meRoutes(app, ctx);
+  accountRoutes(app, ctx);
   adminAuthRoutes(app, ctx, identity.web);
   adminRoutes(app, ctx);
   adminPlanRoutes(app, ctx);

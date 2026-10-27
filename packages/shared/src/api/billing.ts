@@ -50,6 +50,51 @@ export const CheckoutRequestSchema = z.strictObject({
 /** A Stripe Checkout or Customer Portal page (or the stub's) for the launcher to open. */
 export const RedirectResponseSchema = z.object({ url: z.url() });
 
+/** "Download my data" (security §5): the account as the service holds it, minus secrets. */
+export const AccountExportSchema = z.object({
+  exportedAt: isoTime,
+  user: z.object({
+    id: z.string(),
+    email: z.string(),
+    name: z.string(),
+    avatarUrl: z.string().nullable(),
+    role: z.enum(['admin', 'subscriber']),
+    status: z.enum(['active', 'suspended']),
+    createdAt: isoTime,
+    lastSeenAt: isoTime.nullable(),
+  }),
+  devices: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      platform: z.string(),
+      appVersion: z.string(),
+      createdAt: isoTime,
+      lastSeenAt: isoTime,
+      revokedAt: isoTime.nullable(),
+    }),
+  ),
+  subscriptions: z.array(
+    z.object({
+      source: SubscriptionSummarySchema.shape.source,
+      status: SubscriptionSummarySchema.shape.status,
+      plan: z.object({ slug: z.string(), name: z.string() }),
+      interval: BillingIntervalSchema.nullable(),
+      periodEnd: isoTime.nullable(),
+      createdAt: isoTime,
+    }),
+  ),
+  /** What admins changed about this account; who did it is not included. */
+  audit: z.array(
+    z.object({ action: z.string(), at: isoTime, before: z.unknown(), after: z.unknown() }),
+  ),
+});
+
+/** Deleting an account is confirmed by typing its email (D36). */
+export const DeleteAccountRequestSchema = z.strictObject({
+  confirmEmail: z.string().trim().min(1).max(320),
+});
+
 /** Minor units → the locale's currency text, with the currency's own decimals (JPY 0, BHD 3). */
 export function formatPrice(price: Price, locale: string): string {
   const format = new Intl.NumberFormat(locale, {
@@ -69,3 +114,5 @@ export type PublicPlan = z.output<typeof PublicPlanSchema>;
 export type PlansResponse = z.output<typeof PlansResponseSchema>;
 export type CheckoutRequest = z.output<typeof CheckoutRequestSchema>;
 export type RedirectResponse = z.output<typeof RedirectResponseSchema>;
+export type AccountExport = z.output<typeof AccountExportSchema>;
+export type DeleteAccountRequest = z.output<typeof DeleteAccountRequestSchema>;

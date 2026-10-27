@@ -62,6 +62,8 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | `GET /v1/me` | → `{ user, entitlement }` |
 | `GET /v1/me/entitlement` | → `{ entitlement, banner }` (launcher polls hourly and after checkout) |
 | `GET /v1/me/devices` | → `Device[]`: the devices not revoked, oldest first; `current` marks the caller |
+| `GET /v1/me/export` | → `AccountExport`: profile, devices (revoked too), subscriptions, audit entries about the account (no secrets, no other people) — security §5 |
+| `DELETE /v1/me` | `{ confirmEmail }` → `204`; wrong email → `VALIDATION_FAILED` (`reason: 'email'`); an admin → `CONFLICT` (`admin`); Stripe down while cancelling → `503 BILLING_UNAVAILABLE`, nothing deleted |
 | `DELETE /v1/me/devices/:id` | → `204`; another user's device → `NOT_FOUND`; the calling device → `CONFLICT` (`details.reason: 'current'`, sign out instead) |
 | `POST /v1/me/billing/checkout` | `{ planSlug, interval: 'month'|'year' }` → `{ url }` (Stripe Checkout, or the stub's page with `BILLING_STUB=1`); `CONFLICT` `details.reason`: `billingOff`, `subscribed` (already has a Stripe subscription or comp grant giving access); an unknown, archived or price-less plan → `NOT_FOUND`; `SUSPENDED`; Stripe down → `503 BILLING_UNAVAILABLE` |
 | `POST /v1/me/billing/portal` | → `{ url }` (Stripe Customer Portal); `CONFLICT` `billingOff` or `noCustomer` |
@@ -110,6 +112,7 @@ built console at `/` (any non-`/v1` path falls back to `index.html`).
 | `PATCH /v1/admin/users/:id` | `{ role?, status?, suspendedReason? }` |
 | `POST /v1/admin/users/:id/grants` | `{ planSlug, expiresAt, note }` complimentary subscription → `AdminSubscription` |
 | `DELETE /v1/admin/users/:id/grants/:subscriptionId` | Revoke a comp grant → `204` |
+| `DELETE /v1/admin/users/:id` | `{ confirmEmail }` → `204`, audited `user.delete` (no email); same refusals as `DELETE /v1/me` |
 | `DELETE /v1/admin/users/:id/devices/:deviceId` | Revoke device |
 | `GET/POST /v1/admin/plans` · `PATCH /v1/admin/plans/:id` | Plans |
 | `GET/POST /v1/admin/scopes` · `PATCH /v1/admin/scopes/:id` | Catalog scopes |

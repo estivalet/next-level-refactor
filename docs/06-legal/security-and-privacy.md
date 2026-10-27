@@ -89,6 +89,18 @@ and then only game identifiers/metadata, never files), browsing analytics withou
 - **Access/export:** Account screen → "Download my data" (JSON of all rows tied to the user).
 - **Deletion:** Account screen → "Delete account" → cancels subscription, deletes user rows,
   pseudonymizes audit and download logs, deletes sync documents within 30 days.
+- As built (M8e, D36): **Download my data** (`GET /v1/me/export`) returns the profile, every
+  device (revoked ones too), the subscriptions and the audit entries about the account, without
+  token hashes, Google ids, console sessions or who made a change. **Delete account**
+  (`DELETE /v1/me`, or an admin's `DELETE /v1/admin/users/:id`) needs the account's email typed
+  again; admins must be demoted first. A Stripe subscription still billing is cancelled at once
+  (no automatic refund; refunds by hand in Stripe); if Stripe can't be reached nothing is deleted
+  (`BILLING_UNAVAILABLE`, try again). Then in one transaction: refresh tokens, devices, console
+  sessions and the user's subscriptions are deleted, audit snapshots about the account lose
+  email, name, avatar and suspension reason, and the user row is deleted — or, when the audit log
+  or another user's grant points at it (a former admin), kept as a tombstone with no email,
+  name, avatar or Google id (signing in again makes a new account). An admin's deletion is
+  audited as `user.delete` without the email. The launcher's local library is not touched.
 - **Correction:** profile data comes from Google; refreshed at each sign-in.
 - Legal basis: contract (account, billing), legitimate interest (security logs), consent
   (crash reports, sync).

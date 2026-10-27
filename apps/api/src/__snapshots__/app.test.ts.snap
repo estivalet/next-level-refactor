@@ -29,6 +29,7 @@ exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json 
   "/v1/me/devices",
   "/v1/me/devices/{id}",
   "/v1/me/entitlement",
+  "/v1/me/export",
   "/v1/plans",
 ]
 `;
