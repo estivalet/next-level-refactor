@@ -131,6 +131,21 @@ export function SubscribeScreen({ state }: { state: SignedIn }) {
           {t(errorMessageKey(error))}
         </p>
       )}
+      {plans.isError && (
+        <div>
+          <button
+            type="button"
+            autoFocus
+            className={SECONDARY}
+            disabled={plans.isFetching}
+            onClick={() => {
+              void plans.refetch();
+            }}
+          >
+            {t('auth.retry')}
+          </button>
+        </div>
+      )}
       <div>
         <SignOutButton autoFocus={false} />
       </div>

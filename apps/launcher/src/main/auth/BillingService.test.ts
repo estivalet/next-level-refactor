@@ -168,6 +168,21 @@ describe('checkout from the launcher (US-A2, IA F7)', () => {
   });
 });
 
+describe('waiting ends with the session (review)', () => {
+  it('offline past the grace while waiting, then reconnecting: no stale Waiting screen', async () => {
+    const b = await billingSetup();
+    await b.billing.openCheckout('basic', 'month');
+    b.advance(15 * DAY);
+    b.queues.refresh.push({ kind: 'offline' });
+    await b.service.refreshEntitlement();
+    expect(b.service.state()).toMatchObject({ kind: 'signedOut', reason: 'offlineExpired' });
+    await b.poll();
+    expect(b.polling()).toBe(false);
+    await b.service.refreshEntitlement();
+    expect(b.service.state()).toMatchObject({ kind: 'signedIn', waitingForPayment: false });
+  });
+});
+
 describe('plans and portal (S3, S12)', () => {
   it('plans come from the public list; the portal opens billing.stripe.com', async () => {
     const b = await billingSetup();

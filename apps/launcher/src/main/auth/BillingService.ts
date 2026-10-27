@@ -88,7 +88,7 @@ export class BillingService {
 
   async #poll(deadline: number): Promise<void> {
     if (this.#deps.auth.state().kind !== 'signedIn') {
-      this.#stop();
+      this.stopWaiting();
       return;
     }
     if (this.#deps.clock().getTime() >= deadline) {

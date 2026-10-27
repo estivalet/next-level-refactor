@@ -291,6 +291,7 @@ export class AuthService {
     }
     this.#ticket = null;
     this.#generation += 1;
+    this.#waiting = false;
     this.#banner = session.banner;
     this.#tokens.set(session.accessToken);
     await this.#vault.probe();
@@ -326,6 +327,8 @@ export class AuthService {
   }
 
   async #signedOut(reason: SignedOutReason | null): Promise<AuthState> {
+    // A wait for a payment ends with the signed-in state; signing in again starts fresh.
+    this.#waiting = false;
     if (reason === null && this.#banner === null) {
       this.#banner = await this.#deps.api.launcherConfig().then(
         (config) => config.banner,

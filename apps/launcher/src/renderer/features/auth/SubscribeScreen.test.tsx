@@ -117,6 +117,21 @@ describe('S3 Subscribe (US-A2, FR-AUTH-3)', () => {
     expect(screen.getByRole('button', { name: 'Sign out' })).toBeVisible();
   });
 
+  it('plans that failed to load can be loaded again', async () => {
+    const user = userEvent.setup();
+    let calls = 0;
+    setup(NONE, PLANS, {
+      'auth.plans': () => {
+        calls += 1;
+        return calls === 1 ? err('API_UNREACHABLE', 'errors.apiUnreachable') : ok(PLANS);
+      },
+    });
+    expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach NextLevel");
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByRole('article', { name: 'Basic' })).toBeVisible();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('a failed checkout is explained', async () => {
     const user = userEvent.setup();
     setup(NONE, PLANS, {
