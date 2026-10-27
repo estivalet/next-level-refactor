@@ -35,6 +35,7 @@ import { launcherConfigRoutes } from './routes/launcherConfig.ts';
 import { meRoutes } from './routes/me.ts';
 import { planRoutes } from './routes/plans.ts';
 import { stubRoutes } from './routes/stub.ts';
+import { webhookRoutes } from './routes/webhooks.ts';
 
 export interface AppDeps {
   env: Env;
@@ -143,6 +144,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   adminPlanRoutes(app, ctx);
   planRoutes(app, ctx);
   billingRoutes(app, ctx);
+  await webhookRoutes(app, ctx);
   if (billing && deps.billing === undefined && deps.env.billing.mode === 'stub') {
     billingStubRoutes(app, ctx, billing as StubBilling);
   }
