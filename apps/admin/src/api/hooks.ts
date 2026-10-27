@@ -1,4 +1,5 @@
 import {
+  AdminSubscriptionSchema,
   AdminUserDetailSchema,
   AdminUserSummarySchema,
   AppSettingsViewSchema,
@@ -6,6 +7,7 @@ import {
   PageSchema,
   type AdminUserPatch,
   type AppSettingsPatch,
+  type GrantRequest,
 } from '@nextlevel/shared';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -21,15 +23,14 @@ const query = (params: Record<string, string | undefined>) => {
   return search ? `?${search}` : '';
 };
 
-export function useUsers(filters: { q: string; status: string }) {
+export function useUsers(filters: { q: string; status: string; access: string; plan: string }) {
   return useInfiniteQuery({
     queryKey: ['users', filters],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
-      apiFetch(
-        `/v1/admin/users${query({ q: filters.q, status: filters.status, cursor: pageParam })}`,
-        { schema: UsersPage },
-      ),
+      apiFetch(`/v1/admin/users${query({ ...filters, cursor: pageParam })}`, {
+        schema: UsersPage,
+      }),
     getNextPageParam: (page) => page.nextCursor ?? undefined,
   });
 }
@@ -74,6 +75,37 @@ export function useRevokeUserDevice(userId: string) {
     },
   });
 }
+
+/** Complimentary grants (FR-SUB-4): the detail, the lists and the audit log refetch. */
+function useGrantWrite<T>(userId: string, call: (input: T) => Promise<unknown>) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: call,
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['user', userId] });
+      void client.invalidateQueries({ queryKey: ['users'] });
+      void client.invalidateQueries({ queryKey: ['plans'] });
+      void client.invalidateQueries({ queryKey: ['audit'] });
+    },
+  });
+}
+
+export const useGrant = (userId: string) =>
+  useGrantWrite(userId, (body: GrantRequest) =>
+    apiFetch(`/v1/admin/users/${encodeURIComponent(userId)}/grants`, {
+      method: 'POST',
+      body,
+      schema: AdminSubscriptionSchema,
+    }),
+  );
+
+export const useRevokeGrant = (userId: string) =>
+  useGrantWrite(userId, (subscriptionId: string) =>
+    apiFetch(
+      `/v1/admin/users/${encodeURIComponent(userId)}/grants/${encodeURIComponent(subscriptionId)}`,
+      { method: 'DELETE', schema: z.unknown() },
+    ),
+  );
 
 export function useAudit(filters: { actor: string; target: string }) {
   return useInfiniteQuery({

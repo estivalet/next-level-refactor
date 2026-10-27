@@ -341,5 +341,23 @@ devices · last seen, Load more. **User detail**: role select, Suspend (dialog, 
 Unsuspend, devices with a confirmed Revoke, the audit trail; refusals for the last admin and for
 your own account are explained. **Audit log**: admin-id and target-id filters, only the changed keys
 shown. **Settings**: grace days (1–90), who can sign in (radio), allow-list (one email per line, bad
-lines named), banner with a 280 counter; Save is enabled only when something changed. Dashboard,
-Plans and Catalog come in M8–M9.
+lines named), banner with a 280 counter; Save is enabled only when something changed. Dashboard
+(D38) and Catalog come in M9.
+
+As built in M8d (FR-ADM-2, US-F4): sidebar gains **Plans** and **Catalog scopes**. **Plans**: name
+(link) with an Archived badge, slug, prices ("R$ 19,90 / month · … / year"), devices, scopes,
+subscribers; **New plan**. **Plan editor**: slug (fixed after creation), name, device limit (1–20),
+scope checkboxes, monthly and yearly Stripe price ids (the stored amount under each), Archived
+(existing plans); Save only when something changed. Server refusals show on their field: a price
+that is not the right interval, not active, unknown, already on another plan, in another currency
+(on Yearly), or no billing provider; a taken slug; archiving Default. **Catalog scopes**: each scope
+edits its name and description in place (Save per row); a New scope row adds one (taken slug
+explained).
+**Users** gains Access (All, Active, Payment failed, No access, Complimentary) and Plan filters;
+the Plan column is the plan of each user's entitlement. **User detail** gains Subscription: the
+current one ("Stripe · Basic · Active · renews …" with the Stripe subscription id as copyable
+text, or "Complimentary · … · until …/until revoked" with **Revoke grant**, confirmed) and the
+history (source, plan, status, end, created, granted by, note). **Grant complimentary access**
+opens a dialog: plan (archived plans left out), optional last day (access ends at the end of that
+day, UTC), note (required, ≤ 500); "This user pays through Stripe — they must cancel first" and
+the other refusals show in the dialog.

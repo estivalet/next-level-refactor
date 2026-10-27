@@ -27,6 +27,8 @@ export const AdminUserSummarySchema = z.object({
   status: userStatus,
   /** Devices not revoked. */
   devices: z.number().int().min(0),
+  /** The plan of the user's entitlement now; null for admins and users without access. */
+  plan: z.object({ slug: z.string(), name: z.string() }).nullable(),
   lastSeenAt: isoTime.nullable(),
   createdAt: isoTime,
 });

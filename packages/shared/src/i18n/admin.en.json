@@ -6,7 +6,9 @@
       "users": "Users",
       "audit": "Audit log",
       "settings": "Settings",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "plans": "Plans",
+      "scopes": "Catalog scopes"
     },
     "signIn": {
       "title": "Sign in to the admin console",
@@ -39,7 +41,17 @@
       "loadMore": "Load more",
       "empty": "No users found.",
       "defaultPlan": "Default",
-      "noPlan": "—"
+      "noPlan": "—",
+      "accessFilter": "Access",
+      "planFilter": "Plan",
+      "allPlans": "All",
+      "access": {
+        "all": "All",
+        "active": "Active",
+        "grace": "Payment failed",
+        "none": "No access",
+        "comp": "Complimentary"
+      }
     },
     "user": {
       "back": "All users",
@@ -76,7 +88,14 @@
         "user.suspend": "Suspended",
         "user.unsuspend": "Unsuspended",
         "device.revoke": "Device revoked",
-        "settings.update": "Settings changed"
+        "settings.update": "Settings changed",
+        "plan.create": "Plan created",
+        "plan.update": "Plan changed",
+        "scope.create": "Scope created",
+        "scope.update": "Scope changed",
+        "grant.create": "Complimentary access granted",
+        "grant.revoke": "Complimentary access revoked",
+        "user.delete": "Account deleted"
       }
     },
     "settings": {
@@ -95,6 +114,105 @@
       "bannerCount": "{{count}}/280",
       "save": "Save",
       "saved": "Saved."
+    },
+    "plans": {
+      "title": "Plans",
+      "new": "New plan",
+      "newTitle": "New plan",
+      "empty": "No plans yet.",
+      "name": "Name",
+      "slug": "Slug",
+      "slugHelp": "Lowercase letters, digits and dashes; fixed after creation.",
+      "prices": "Prices",
+      "devices": "Devices",
+      "deviceLimit": "Device limit",
+      "scopes": "Scopes",
+      "subscribers": "Subscribers",
+      "archived": "Archived",
+      "archivedHelp": "Archived plans keep the people on them but can no longer be bought or granted.",
+      "month": "{{price}} / month",
+      "year": "{{price}} / year",
+      "noPrice": "—",
+      "priceMonthly": "Monthly Stripe price id",
+      "priceYearly": "Yearly Stripe price id",
+      "priceHelp": "Leave empty for no price. The amount is read from Stripe when you save.",
+      "stored": "Stored: {{price}}",
+      "noScopes": "No catalog scopes yet.",
+      "save": "Save",
+      "saved": "Saved.",
+      "back": "All plans",
+      "notFound": "This plan no longer exists.",
+      "reasons": {
+        "interval": "This Stripe price is not a {{interval}} recurring price.",
+        "inactive": "This Stripe price is not active.",
+        "unknownPrice": "Stripe has no price with this id.",
+        "currency": "Both prices must be in the same currency.",
+        "billingOff": "No billing provider is configured, so price ids can't be checked.",
+        "priceTaken": "This price is already on another plan.",
+        "slugTaken": "This slug is already used.",
+        "defaultPlan": "The Default plan can't be archived."
+      },
+      "intervals": {
+        "month": "monthly",
+        "year": "yearly"
+      }
+    },
+    "scopes": {
+      "title": "Catalog scopes",
+      "intro": "Plans pick scopes; catalog items use them from M9.",
+      "empty": "No scopes yet.",
+      "name": "Name",
+      "slug": "Slug",
+      "description": "Description",
+      "save": "Save",
+      "new": "New scope",
+      "add": "Add scope"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "none": "No subscription.",
+      "history": "Subscription history",
+      "source": {
+        "stripe": "Stripe",
+        "comp": "Complimentary"
+      },
+      "status": {
+        "active": "Active",
+        "past_due": "Payment failed",
+        "canceled": "Canceled",
+        "expired": "Expired"
+      },
+      "until": "until {{date}}",
+      "untilRevoked": "until revoked",
+      "renews": "renews {{date}}",
+      "ends": "ends {{date}}",
+      "stripeId": "Stripe subscription",
+      "columns": {
+        "source": "Source",
+        "plan": "Plan",
+        "status": "Status",
+        "end": "Ends",
+        "created": "Created",
+        "by": "Granted by",
+        "note": "Note"
+      },
+      "grant": "Grant complimentary access",
+      "plan": "Plan",
+      "expiresAt": "Until (optional)",
+      "expiresHelp": "Empty: until revoked. Access ends at the end of that day (UTC).",
+      "note": "Note",
+      "noteHelp": "Why, for the audit log (up to 500 characters).",
+      "grantButton": "Grant",
+      "cancel": "Cancel",
+      "revoke": "Revoke grant",
+      "revokeTitle": "Revoke the complimentary access?",
+      "revokeBody": "The launcher locks at its next check (within an hour).",
+      "reasons": {
+        "subscribed": "This user pays through Stripe — they must cancel first.",
+        "archived": "This plan is archived.",
+        "past": "The end date has passed.",
+        "notActive": "This grant has already ended."
+      }
     }
   }
 }

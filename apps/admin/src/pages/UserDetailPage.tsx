@@ -6,9 +6,13 @@ import { usePatchUser, useRevokeUserDevice, useUser } from '../api/hooks.ts';
 import { errorKey, formatTime } from '../errors.ts';
 import { hrefOf } from '../router.ts';
 import { AuditTable } from './AuditTable.tsx';
+import { SubscriptionPanel } from './SubscriptionPanel.tsx';
 import { SuspendDialog } from './SuspendDialog.tsx';
 
-/** S13 user detail (FR-ADM-1, FR-AUTH-7, US-F3): role, suspension, devices, audit trail. */
+/**
+ * S13 user detail (FR-ADM-1, FR-AUTH-7, US-F3, FR-SUB-4): role, suspension, subscription and
+ * grants, devices, audit trail.
+ */
 export function UserDetailPage({ id }: { id: string }) {
   const { t, i18n } = useTranslation();
   const user = useUser(id);
@@ -82,6 +86,7 @@ export function UserDetailPage({ id }: { id: string }) {
           {t(errorKey(failure))}
         </p>
       )}
+      <SubscriptionPanel userId={detail.id} subscriptions={detail.subscriptions} />
       <h2 className="text-sm font-semibold text-white">{t('admin.user.devices')}</h2>
       <Table
         label={t('admin.user.devices')}

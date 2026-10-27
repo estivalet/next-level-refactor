@@ -1,16 +1,6 @@
-import type { BillingInterval, Price, PublicPlan } from '@nextlevel/shared';
+import { formatPrice, type BillingInterval, type PublicPlan } from '@nextlevel/shared';
 import { useTranslation } from 'react-i18next';
 import { PRIMARY } from './GateFrame.tsx';
-
-/** Minor units → the locale's currency text (Global Constraints: money). */
-export function formatPrice(price: Price, locale: string): string {
-  const format = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: price.currency.toUpperCase(),
-  });
-  const digits = format.resolvedOptions().maximumFractionDigits ?? 2;
-  return format.format(price.amount / 10 ** digits);
-}
 
 /** One plan on the Subscribe screen (S3): price for the chosen period, devices, scopes. */
 export function PlanCard({

@@ -50,6 +50,16 @@ export const CheckoutRequestSchema = z.strictObject({
 /** A Stripe Checkout or Customer Portal page (or the stub's) for the launcher to open. */
 export const RedirectResponseSchema = z.object({ url: z.url() });
 
+/** Minor units → the locale's currency text, with the currency's own decimals (JPY 0, BHD 3). */
+export function formatPrice(price: Price, locale: string): string {
+  const format = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: price.currency.toUpperCase(),
+  });
+  const digits = format.resolvedOptions().maximumFractionDigits ?? 2;
+  return format.format(price.amount / 10 ** digits);
+}
+
 export type PlanSlug = z.output<typeof PlanSlugSchema>;
 export type BillingInterval = z.output<typeof BillingIntervalSchema>;
 export type SubscriptionSummary = z.output<typeof SubscriptionSummarySchema>;

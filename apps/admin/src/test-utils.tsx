@@ -43,6 +43,7 @@ export const user = (id: string, email: string, overrides: Record<string, unknow
   role: 'subscriber',
   status: 'active',
   devices: 1,
+  plan: { slug: 'default', name: 'Default' },
   lastSeenAt: '2026-10-25T10:00:00.000Z',
   createdAt: '2026-10-01T10:00:00.000Z',
   ...overrides,

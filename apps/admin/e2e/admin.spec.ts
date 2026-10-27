@@ -46,3 +46,36 @@ test('US-F3, FR-ADM-1/4/5: an admin suspends a subscriber, changes a setting, an
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByRole('link', { name: 'Sign in with Google' })).toBeVisible();
 });
+
+test('FR-ADM-2, FR-SUB-4, US-F2: an admin makes a plan and grants it to a subscriber; audited', async ({
+  page,
+  browser,
+}) => {
+  // The subscriber's account exists once they have tried to sign in.
+  const other = await browser.newContext();
+  await signIn(await other.newPage(), 'subscriber');
+  await other.close();
+  await signIn(page, 'admin');
+
+  await page.getByRole('link', { name: 'Plans' }).click();
+  await page.getByRole('link', { name: 'New plan' }).click();
+  await page.getByLabel('Slug').fill('friends');
+  await page.getByLabel('Name').fill('Friends');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByRole('heading', { name: 'Friends' })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Users' }).click();
+  await page.getByRole('link', { name: 'subscriber@nextlevel.test' }).click();
+  await page.getByRole('button', { name: 'Grant complimentary access' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Grant complimentary access' });
+  await dialog.getByLabel('Plan').selectOption('friends');
+  await dialog.getByLabel('Note').fill('Beta tester');
+  await dialog.getByRole('button', { name: 'Grant' }).click();
+  const panel = page.getByRole('region', { name: 'Subscription' });
+  await expect(panel.getByText(/Complimentary · Friends · Active · until revoked/)).toBeVisible();
+
+  await page.getByRole('link', { name: 'Audit log' }).click();
+  const audit = page.getByRole('table', { name: 'Audit log' });
+  await expect(audit.getByText('Plan created')).toBeVisible();
+  await expect(audit.getByText('Complimentary access granted')).toBeVisible();
+});

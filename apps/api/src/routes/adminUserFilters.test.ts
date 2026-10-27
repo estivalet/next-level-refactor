@@ -54,6 +54,14 @@ describe('users by plan and access (D38, FR-ADM-1)', () => {
     expect(await emails('plan=basic')).toEqual(['subscriber@nextlevel.test']);
     expect(await emails('plan=default')).toEqual([]);
     expect(await emails('plan=basic&q=nobody')).toEqual([]);
+    const plans = (
+      await app.inject({ url: '/v1/admin/users', headers: adminHeaders(admin) })
+    ).json<{ items: Array<{ email: string; plan: { slug: string; name: string } | null }> }>()
+      .items;
+    expect(Object.fromEntries(plans.map((u) => [u.email, u.plan]))).toMatchObject({
+      'subscriber@nextlevel.test': { slug: 'basic', name: 'Basic' },
+      'admin@nextlevel.test': null,
+    });
     const detail = await app.inject({
       url: `/v1/admin/users/${subscriber.user.id}`,
       headers: adminHeaders(admin),
