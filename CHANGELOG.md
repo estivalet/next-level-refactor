@@ -5,6 +5,18 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+
+- Billing contracts and data (M8a): plans with Stripe prices, catalog scopes, subscriptions,
+  `stripe_events` (migration `0001_billing`). Admin API for plans, scopes and complimentary grants
+  (audited); public `GET /v1/plans`. With `BILLING_ENABLED=true` access follows the current
+  subscription (payment failed → grace; offline access stops at a grant's end); the device limit
+  comes from the plan. Users list filters by plan and access.
+- Billing provider (M8b): Stripe Checkout and Customer Portal in test mode (ADR-009 accepted), or
+  the `BILLING_STUB=1` fake with signed webhooks. `POST /v1/me/billing/checkout` and `/portal`,
+  a return page in English and Portuguese, and `POST /v1/webhooks/stripe` (signature checked,
+  idempotent, state re-read from Stripe).
+
 ## [0.7.0] - 2026-10-25
 
 M7 — Accounts: only allowed accounts reach the launcher. Google sign-in in the system browser,
