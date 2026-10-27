@@ -7,6 +7,7 @@ import { ApiClient } from './ApiClient.ts';
 import { apiBaseUrl } from './apiUrl.ts';
 import { DISABLED_AUTH, type AuthApi } from './authHandlers.ts';
 import { AuthService } from './AuthService.ts';
+import { BillingService } from './BillingService.ts';
 import { startLoopback } from './loopback.ts';
 
 const DAY_MS = 24 * 3600_000;
@@ -72,12 +73,20 @@ export function createAuth(opts: {
         await fetch(`${url}&login_hint=${persona}`, { redirect: 'follow' });
       }
     : opts.openExternal;
+  const api = new ApiClient({
+    baseUrl,
+    fetch: (input, init) => fetch(input, init),
+    timeoutMs: API_TIMEOUT_MS,
+  });
+  const clock = () => new Date(Date.now() + offsetMs);
+  const every = (ms: number, run: () => void) => {
+    const timer = setInterval(run, ms);
+    return () => {
+      clearInterval(timer);
+    };
+  };
   const service = new AuthService({
-    api: new ApiClient({
-      baseUrl,
-      fetch: (input, init) => fetch(input, init),
-      timeoutMs: API_TIMEOUT_MS,
-    }),
+    api,
     secrets: opts.secrets,
     openBrowser,
     loopback: startLoopback,
@@ -90,13 +99,8 @@ export function createAuth(opts: {
       const text = escapeHtml(mainText(opts.language(), `auth.browser.${outcome}`));
       return `<!doctype html><meta charset="utf-8"><title>NextLevel</title><p style="font:16px sans-serif;margin:3em;text-align:center">${text}</p>`;
     },
-    clock: () => new Date(Date.now() + offsetMs),
-    every: (ms, run) => {
-      const timer = setInterval(run, ms);
-      return () => {
-        clearInterval(timer);
-      };
-    },
+    clock,
+    every,
     emit: (state) => {
       opts.emit('auth.changed', state);
     },
@@ -104,10 +108,35 @@ export function createAuth(opts: {
     apiOrigin: baseUrl,
     disabled: false,
   });
-  return {
+  // Checkout and the Portal always open in the real browser (the e2e pays through the API).
+  const billing = new BillingService({
     auth: service,
+    api,
+    openBrowser: opts.openExternal,
+    apiOrigin: baseUrl,
+    every,
+    clock,
+    log: opts.log,
+  });
+  const auth: AuthApi = {
+    state: () => service.state(),
+    signIn: () => service.signIn(),
+    cancelSignIn: () => service.cancelSignIn(),
+    signOut: () => service.signOut(),
+    refreshEntitlement: () => service.refreshEntitlement(),
+    resolveDeviceLimit: (id) => service.resolveDeviceLimit(id),
+    devices: () => service.devices(),
+    revokeDevice: (id) => service.revokeDevice(id),
+    plans: () => billing.plans(),
+    openCheckout: (slug, interval) => billing.openCheckout(slug, interval),
+    openPortal: () => billing.openPortal(),
+    stopWaiting: () => billing.stopWaiting(),
+  };
+  return {
+    auth,
     start: () => service.start(),
     dispose: () => {
+      billing.dispose();
       service.dispose();
     },
   };

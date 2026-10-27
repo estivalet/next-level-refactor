@@ -75,6 +75,8 @@ export class AuthService {
    */
   #generation = 0;
   #stopTimer: (() => void) | null = null;
+  /** Checkout is open and BillingService is polling (IA F7). */
+  #waiting = false;
 
   constructor(deps: AuthDeps) {
     this.#deps = deps;
@@ -189,6 +191,21 @@ export class AuthService {
     return this.#signedOut(null);
   }
 
+  /** A call with a fresh access token; API errors come back as `AppErrorException`s. */
+  accessCall<T>(call: (token: string) => Promise<T>): Promise<T> {
+    return this.#withAccess(call);
+  }
+
+  /** Shows or ends "Waiting for your payment…" on the signed-in state. */
+  setWaiting(waiting: boolean): AuthState {
+    if (this.#waiting === waiting || this.#state.kind !== 'signedIn') {
+      this.#waiting = waiting && this.#state.kind === 'signedIn';
+      return this.#state;
+    }
+    this.#waiting = waiting;
+    return this.#set({ ...this.#state, waitingForPayment: waiting });
+  }
+
   devices(): Promise<Device[]> {
     return this.#withAccess((token) => this.#deps.api.devices(token));
   }
@@ -245,7 +262,11 @@ export class AuthService {
         await this.#signedOut('revoked');
       }
       if (failure?.kind === 'api') {
-        throw new AppErrorException({ code: failure.code, message: ERROR_CODES[failure.code] });
+        throw new AppErrorException({
+          code: failure.code,
+          message: ERROR_CODES[failure.code],
+          ...(failure.details === undefined ? {} : { details: failure.details }),
+        });
       }
       throw unreachable();
     }
@@ -285,6 +306,7 @@ export class AuthService {
 
   async #clear(): Promise<void> {
     this.#generation += 1;
+    this.#waiting = false;
     this.#tokens.reset();
     await this.#vault.clear();
   }
@@ -299,6 +321,7 @@ export class AuthService {
       offline,
       banner: this.#banner,
       remembered: this.#vault.remembered(),
+      waitingForPayment: this.#waiting,
     });
   }
 

@@ -35,6 +35,8 @@ export const AuthStateSchema = z.discriminatedUnion('kind', [
     banner: z.string().nullable(),
     /** False when the OS store is unavailable: the sign-in lasts until quit. */
     remembered: z.boolean(),
+    /** Checkout is open in the browser and main is polling the entitlement (IA F7). */
+    waitingForPayment: z.boolean().optional(),
   }),
 ]);
 

@@ -1,4 +1,4 @@
-import type { AuthState, Device } from '@nextlevel/shared';
+import type { AuthState, BillingInterval, Device, PlansResponse } from '@nextlevel/shared';
 import type { IpcHandlers } from '../ipc/router.ts';
 
 type AuthChannel =
@@ -9,7 +9,11 @@ type AuthChannel =
   | 'auth.refreshEntitlement'
   | 'auth.resolveDeviceLimit'
   | 'auth.devices.list'
-  | 'auth.devices.revoke';
+  | 'auth.devices.revoke'
+  | 'auth.plans'
+  | 'auth.openCheckout'
+  | 'auth.openPortal'
+  | 'auth.stopWaiting';
 
 /** What the auth channels need from main's AuthService. */
 export interface AuthApi {
@@ -21,6 +25,10 @@ export interface AuthApi {
   resolveDeviceLimit(revokeDeviceId: string): Promise<AuthState>;
   devices(): Promise<Device[]>;
   revokeDevice(deviceId: string): Promise<Device[]>;
+  plans(): Promise<PlansResponse>;
+  openCheckout(planSlug: string, interval: BillingInterval): Promise<AuthState>;
+  openPortal(): Promise<void>;
+  stopWaiting(): AuthState;
 }
 
 const disabled: AuthState = { kind: 'disabled' };
@@ -35,6 +43,10 @@ export const DISABLED_AUTH: AuthApi = {
   resolveDeviceLimit: () => Promise.resolve(disabled),
   devices: () => Promise.resolve([]),
   revokeDevice: () => Promise.resolve([]),
+  plans: () => Promise.resolve({ billingEnabled: false, plans: [] }),
+  openCheckout: () => Promise.resolve(disabled),
+  openPortal: () => Promise.resolve(),
+  stopWaiting: () => disabled,
 };
 
 /** Launcher sign-in channels (api-spec §3 Auth). */
@@ -48,5 +60,9 @@ export function createAuthHandlers(auth: AuthApi): Pick<IpcHandlers, AuthChannel
     'auth.resolveDeviceLimit': ({ revokeDeviceId }) => auth.resolveDeviceLimit(revokeDeviceId),
     'auth.devices.list': () => auth.devices(),
     'auth.devices.revoke': ({ deviceId }) => auth.revokeDevice(deviceId),
+    'auth.plans': () => auth.plans(),
+    'auth.openCheckout': ({ planSlug, interval }) => auth.openCheckout(planSlug, interval),
+    'auth.openPortal': () => auth.openPortal(),
+    'auth.stopWaiting': () => auth.stopWaiting(),
   };
 }
