@@ -2,24 +2,22 @@ import {
   AppErrorException,
   DeviceLimitDetailsSchema,
   ERROR_CODES,
-  SessionRecordSchema,
   type AuthState,
   type Device,
   type DeviceInfo,
-  type SessionRecord,
   type SessionResponse,
   type SignedOutReason,
 } from '@nextlevel/shared';
 import type { SecretsLike } from '../secrets/SecretStore.ts';
+import { AccessTokens } from './AccessTokens.ts';
 import { ApiFailure, type ApiClient } from './ApiClient.ts';
+import { browserSignIn } from './browserSignIn.ts';
 import type { startLoopback } from './loopback.ts';
-import { createPkce } from './pkce.ts';
-import { authorizeUrlAllowed, offlineAllowed } from './rules.ts';
+import type { createPkce } from './pkce.ts';
+import { offlineAllowed } from './rules.ts';
+import { SessionVault } from './SessionVault.ts';
 
 export const CHECK_EVERY_MS = 60 * 60_000;
-const BROWSER_WAIT_MS = 5 * 60_000;
-/** Access tokens live 15 minutes; renew a little before. */
-const ACCESS_FRESH_MS = 13 * 60_000;
 
 export interface AuthDeps {
   api: Pick<
@@ -63,12 +61,10 @@ const unreachable = () =>
  */
 export class AuthService {
   readonly #deps: AuthDeps;
+  readonly #vault: SessionVault;
+  readonly #tokens: AccessTokens;
   #state: AuthState = { kind: 'checking' };
-  #session: SessionRecord | null = null;
-  #access: { token: string; at: number } | null = null;
-  #remembered = true;
   #banner: string | null = null;
-  #refreshing: Promise<void> | null = null;
   #checking: Promise<AuthState> | null = null;
   #signIn: { close(): void } | null = null;
   #ticket: string | null = null;
@@ -82,6 +78,13 @@ export class AuthService {
 
   constructor(deps: AuthDeps) {
     this.#deps = deps;
+    this.#vault = new SessionVault(deps.secrets, deps.log);
+    this.#tokens = new AccessTokens({
+      api: deps.api,
+      vault: this.#vault,
+      clock: deps.clock,
+      generation: () => this.#generation,
+    });
     if (deps.disabled) this.#state = { kind: 'disabled' };
   }
 
@@ -95,8 +98,7 @@ export class AuthService {
     this.#stopTimer = this.#deps.every(CHECK_EVERY_MS, () => {
       if (this.#state.kind === 'signedIn') void this.refreshEntitlement();
     });
-    this.#session = await this.#load();
-    if (this.#session) await this.refreshEntitlement();
+    if (await this.#vault.load()) await this.refreshEntitlement();
     else await this.#signedOut(null);
   }
 
@@ -106,7 +108,7 @@ export class AuthService {
   }
 
   refreshEntitlement(): Promise<AuthState> {
-    if (this.#deps.disabled || !this.#session) return Promise.resolve(this.#state);
+    if (this.#deps.disabled || !this.#hasSession()) return Promise.resolve(this.#state);
     this.#checking ??= this.#check().finally(() => {
       this.#checking = null;
     });
@@ -116,7 +118,7 @@ export class AuthService {
   async signIn(): Promise<AuthState> {
     if (this.#deps.disabled || this.#state.kind === 'signingIn') return this.#state;
     // A kept session (offline past the grace, US-A3) reconnects without the browser.
-    if (this.#session) {
+    if (this.#hasSession()) {
       const state = await this.refreshEntitlement();
       if (this.#hasSession()) return state;
     }
@@ -133,49 +135,21 @@ export class AuthService {
   }
 
   async #browserSignIn(): Promise<AuthState> {
-    let config;
-    try {
-      config = await this.#deps.api.launcherConfig();
-    } catch {
-      return this.#signedOut('unreachable');
-    }
-    this.#banner = config.banner;
-    if (this.#cancelled()) return this.#signedOut('cancelled');
-    if (!authorizeUrlAllowed(config.authorizeUrl, this.#deps.apiOrigin)) {
-      this.#deps.log.warn({}, 'sign-in refused: unexpected authorize URL');
-      return this.#signedOut('error');
-    }
-    const pkce = (this.#deps.pkce ?? createPkce)();
-    const loop = await this.#deps.loopback({
-      state: pkce.state,
-      timeoutMs: BROWSER_WAIT_MS,
-      page: this.#deps.page,
+    const result = await browserSignIn(this.#deps, {
+      cancelled: () => this.#cancelled(),
+      onLoop: (loop) => {
+        this.#signIn = loop;
+      },
+      onBanner: (banner) => {
+        this.#banner = banner;
+      },
     });
-    this.#signIn = loop;
-    if (this.#cancelled()) loop.close();
-    const url = new URL(config.authorizeUrl);
-    for (const [key, value] of Object.entries({
-      client_id: config.clientId,
-      redirect_uri: loop.redirectUri,
-      response_type: 'code',
-      scope: config.scopes.join(' '),
-      code_challenge: pkce.challenge,
-      code_challenge_method: 'S256',
-      state: pkce.state,
-      prompt: 'select_account',
-    })) {
-      url.searchParams.set(key, value);
-    }
-    if (!this.#cancelled()) await this.#deps.openBrowser(url.toString());
-    const result = await loop.result;
-    this.#signIn = null;
-    if ('cancelled' in result) return this.#signedOut('cancelled');
-    if ('timeout' in result) return this.#signedOut('timeout');
+    if ('outcome' in result) return this.#signedOut(result.outcome);
     return this.#finish(() =>
       this.#deps.api.exchange({
         code: result.code,
-        codeVerifier: pkce.verifier,
-        redirectUri: loop.redirectUri,
+        codeVerifier: result.verifier,
+        redirectUri: result.redirectUri,
         device: this.#deps.device(),
       }),
     );
@@ -183,7 +157,7 @@ export class AuthService {
 
   // Read through methods: these fields change while a sign-in awaits.
   #hasSession(): boolean {
-    return this.#session !== null;
+    return this.#vault.current() !== null;
   }
 
   #cancelled(): boolean {
@@ -205,7 +179,7 @@ export class AuthService {
   }
 
   async signOut(): Promise<AuthState> {
-    const session = this.#session;
+    const session = this.#vault.current();
     if (this.#deps.disabled) return this.#state;
     if (session) {
       // The device slot is freed when the API hears it; offline, the tokens still go (FR-AUTH-6).
@@ -230,18 +204,17 @@ export class AuthService {
   }
 
   async #check(): Promise<AuthState> {
-    const session = this.#session;
+    const session = this.#vault.current();
     if (!session) return this.#state;
     const generation = this.#generation;
     try {
-      await this.#refresh();
-      const token = this.#access?.token ?? '';
-      const answer = await this.#deps.api.entitlement(token);
+      await this.#tokens.refresh();
+      const answer = await this.#deps.api.entitlement(this.#tokens.token());
       if (generation !== this.#generation) return this.#state;
       this.#banner = answer.banner;
-      await this.#store({
+      await this.#vault.store({
         ...session,
-        refreshToken: this.#session?.refreshToken ?? session.refreshToken,
+        refreshToken: this.#vault.current()?.refreshToken ?? session.refreshToken,
         entitlement: answer.entitlement,
         localCheckedAt: this.#deps.clock().toISOString(),
       });
@@ -254,40 +227,17 @@ export class AuthService {
         return this.#signedOut('revoked');
       }
       if (failure === null) this.#deps.log.warn({ error }, 'entitlement check failed');
-      const current = this.#session;
+      const current = this.#vault.current();
       if (current && offlineAllowed(current, this.#deps.clock())) return this.#signedIn(true);
       // The session stays: reconnecting signs back in without the browser (US-A3).
       return this.#signedOut('offlineExpired');
     }
   }
 
-  /** One refresh at a time; the rotated token is stored before anything else uses it. */
-  #refresh(): Promise<void> {
-    this.#refreshing ??= (async () => {
-      const session = this.#session;
-      if (!session) throw new Error('no session');
-      const generation = this.#generation;
-      const pair = await this.#deps.api.refresh({
-        refreshToken: session.refreshToken,
-        deviceId: session.deviceId,
-      });
-      if (generation !== this.#generation) throw new Error('signed out meanwhile');
-      this.#access = { token: pair.accessToken, at: this.#deps.clock().getTime() };
-      await this.#store({ ...session, refreshToken: pair.refreshToken });
-    })().finally(() => {
-      this.#refreshing = null;
-    });
-    return this.#refreshing;
-  }
-
   async #withAccess<T>(call: (token: string) => Promise<T>): Promise<T> {
-    if (!this.#session) throw unreachable();
+    if (!this.#hasSession()) throw unreachable();
     try {
-      const access = this.#access;
-      if (!access || this.#deps.clock().getTime() - access.at > ACCESS_FRESH_MS) {
-        await this.#refresh();
-      }
-      return await call(this.#access?.token ?? '');
+      return await this.#tokens.withAccess(call);
     } catch (error) {
       const failure = failureOf(error);
       if (failure?.kind === 'api' && failure.status === 401) {
@@ -321,9 +271,9 @@ export class AuthService {
     this.#ticket = null;
     this.#generation += 1;
     this.#banner = session.banner;
-    this.#access = { token: session.accessToken, at: this.#deps.clock().getTime() };
-    this.#remembered = await this.#deps.secrets.available().catch(() => false);
-    await this.#store({
+    this.#tokens.set(session.accessToken);
+    await this.#vault.probe();
+    await this.#vault.store({
       deviceId: session.deviceId,
       refreshToken: session.refreshToken,
       user: session.user,
@@ -333,38 +283,14 @@ export class AuthService {
     return this.#signedIn(false);
   }
 
-  async #load(): Promise<SessionRecord | null> {
-    try {
-      const raw = await this.#deps.secrets.get('auth.session');
-      if (raw === null) return null;
-      const parsed = SessionRecordSchema.safeParse(JSON.parse(raw));
-      return parsed.success ? parsed.data : null;
-    } catch {
-      return null;
-    }
-  }
-
-  /** Keeps the session in memory, and in the OS store when it is available. */
-  async #store(session: SessionRecord): Promise<void> {
-    this.#session = session;
-    if (!this.#remembered) return;
-    try {
-      await this.#deps.secrets.setMany({ 'auth.session': JSON.stringify(session) });
-    } catch (error) {
-      this.#remembered = false;
-      this.#deps.log.warn({ code: (error as { code?: string }).code }, 'sign-in not remembered');
-    }
-  }
-
   async #clear(): Promise<void> {
     this.#generation += 1;
-    this.#session = null;
-    this.#access = null;
-    await this.#deps.secrets.setMany({ 'auth.session': null }).catch(() => undefined);
+    this.#tokens.reset();
+    await this.#vault.clear();
   }
 
   #signedIn(offline: boolean): AuthState {
-    const session = this.#session;
+    const session = this.#vault.current();
     if (!session) return this.#state;
     return this.#set({
       kind: 'signedIn',
@@ -372,7 +298,7 @@ export class AuthService {
       entitlement: session.entitlement,
       offline,
       banner: this.#banner,
-      remembered: this.#remembered,
+      remembered: this.#vault.remembered(),
     });
   }
 

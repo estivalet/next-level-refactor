@@ -18,7 +18,7 @@ import { stubProviders, type StubProviders } from './auth/stub.ts';
 import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
-import { registerErrorHandling } from './errors.ts';
+import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
 import { adminRoutes } from './routes/admin.ts';
 import { adminAuthRoutes } from './routes/adminAuth.ts';
@@ -67,6 +67,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     logger: deps.log ?? false,
     genReqId: () => uuidv7(),
     requestIdHeader: false,
+    frameworkErrors,
   });
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);

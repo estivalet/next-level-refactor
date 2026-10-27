@@ -120,3 +120,26 @@ describe('admin console sign-in (ADR-006, security §2)', () => {
     expect(me.statusCode).toBe(401);
   });
 });
+
+describe('stale console sessions (M7 minor)', () => {
+  const count = (db: { $client: { prepare(sql: string): { pluck(): { get(): unknown } } } }) =>
+    db.$client.prepare('select count(*) from admin_sessions').pluck().get();
+
+  it('an idle-expired session is deleted when presented', async () => {
+    const { app, db, clock } = await setup();
+    const session = await adminSignIn(app, 'admin');
+    clock.advance(8 * 3600_000 + 1000);
+    const me = await app.inject({ url: '/v1/auth/session', headers: adminHeaders(session) });
+    expect(me.statusCode).toBe(401);
+    expect(count(db)).toBe(0);
+  });
+
+  it('a new admin sign-in deletes every idle-expired session', async () => {
+    const { app, db, clock } = await setup();
+    await adminSignIn(app, 'admin');
+    await adminSignIn(app, 'admin');
+    clock.advance(8 * 3600_000 + 1000);
+    await adminSignIn(app, 'admin');
+    expect(count(db)).toBe(1);
+  });
+});

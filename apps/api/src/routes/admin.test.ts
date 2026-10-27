@@ -323,3 +323,49 @@ describe('admin settings and audit (FR-ADM-4, FR-ADM-5, C11)', () => {
     });
   });
 });
+
+describe('console sessions follow role changes (M7 minor)', () => {
+  const sessions = (
+    db: { $client: { prepare(sql: string): { pluck(): { get(...a: unknown[]): unknown } } } },
+    email: string,
+  ) =>
+    db.$client
+      .prepare(
+        'select count(*) from admin_sessions s join users u on u.id = s.user_id where u.email = ?',
+      )
+      .pluck()
+      .get(email);
+
+  it.each([
+    ['demoting', { role: 'subscriber' }],
+    ['suspending', { status: 'suspended', suspendedReason: 'abuse' }],
+  ])('%s an admin deletes their console sessions', async (_name, patch) => {
+    const { app, admin, db } = await setup();
+    // The subscriber persona exists once it has signed in somewhere.
+    await signIn(app, 'subscriber', 'PC');
+    const found = (
+      await app.inject({ url: '/v1/admin/users?q=subscriber', headers: adminHeaders(admin) })
+    ).json<Users>().items[0];
+    expect(found).toBeDefined();
+    const promote = await app.inject({
+      method: 'PATCH',
+      url: `/v1/admin/users/${found?.id ?? ''}`,
+      headers: adminHeaders(admin, true),
+      payload: { role: 'admin' },
+    });
+    expect(promote.statusCode).toBe(200);
+    const second = await adminSignIn(app, 'subscriber');
+    expect(sessions(db, 'subscriber@nextlevel.test')).toBe(1);
+
+    const change = await app.inject({
+      method: 'PATCH',
+      url: `/v1/admin/users/${found?.id ?? ''}`,
+      headers: adminHeaders(admin, true),
+      payload: patch,
+    });
+    expect(change.statusCode).toBe(200);
+    expect(sessions(db, 'subscriber@nextlevel.test')).toBe(0);
+    const after = await app.inject({ url: '/v1/auth/session', headers: adminHeaders(second) });
+    expect(after.statusCode).toBe(401);
+  });
+});

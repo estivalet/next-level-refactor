@@ -71,6 +71,7 @@ export function DeviceLimitScreen({
         label={t('account.devices')}
         actionLabel={t('auth.deviceLimit.remove')}
         busy={resolve.isPending}
+        focusFirst
         onAction={(device) => {
           resolve.mutate(device.id);
         }}

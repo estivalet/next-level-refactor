@@ -55,4 +55,28 @@ describe('admin console files (architecture §6: one origin)', () => {
       expect(response.body, url).not.toContain('secret');
     }
   });
+
+  it('a malformed %-escape gets the API error envelope, on pages and API paths alike', async () => {
+    const app = await setup();
+    for (const url of ['/%E0%A4%A', '/v1/admin/users/%ZZ']) {
+      const response = await app.inject({ url });
+      expect(response.statusCode, url).toBe(400);
+      const body = response.json<{ error: Record<string, unknown> }>();
+      expect(Object.keys(body.error).sort(), url).toEqual(['code', 'message', 'requestId']);
+      expect(body.error, url).toMatchObject({
+        code: 'VALIDATION_FAILED',
+        requestId: response.headers['x-request-id'],
+      });
+    }
+  });
+
+  it('hashed assets are cached for a year; pages are revalidated', async () => {
+    const app = await setup();
+    const js = await app.inject({ url: '/assets/app.js' });
+    expect(js.headers['cache-control']).toBe('public, max-age=31536000, immutable');
+    for (const url of ['/', '/index.html', '/users']) {
+      const page = await app.inject({ url });
+      expect(page.headers['cache-control'], url).toBe('no-cache');
+    }
+  });
 });

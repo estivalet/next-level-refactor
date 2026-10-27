@@ -109,6 +109,8 @@ describe('sign-in gate (IA §1, S2, US-A1..A3)', () => {
     expect(await screen.findByText('Office')).toBeVisible();
     const buttons = screen.getAllByRole('button', { name: 'Remove and continue' });
     expect(buttons).toHaveLength(3);
+    // Keyboard and gamepad users start on the first choice.
+    expect(buttons[0]).toHaveFocus();
     await user.click(buttons[1] as HTMLElement);
     expect(fake.calls.find((c) => c.channel === 'auth.resolveDeviceLimit')?.input).toEqual({
       revokeDeviceId: 'd2',

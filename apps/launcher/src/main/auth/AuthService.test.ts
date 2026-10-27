@@ -230,6 +230,35 @@ describe('sign-in (US-A1, US-A4, FR-AUTH-6)', () => {
     expect(await done).toMatchObject({ kind: 'signedOut', reason: 'cancelled' });
   });
 
+  it('D28: a banner the admin cleared since boot is gone after a cancelled sign-in', async () => {
+    const t = setup();
+    t.queues.config.push({ authorizeUrl: 'https://x', clientId: 'c', scopes: [], banner: 'Old' });
+    await t.service.start();
+    expect(t.service.state()).toMatchObject({ banner: 'Old' });
+    t.queues.config.push({
+      authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+      clientId: 'c',
+      scopes: [],
+      banner: null,
+    });
+    const done = t.service.signIn();
+    await t.browse({ cancelled: true });
+    expect(await done).toEqual({ kind: 'signedOut', reason: 'cancelled', banner: null });
+  });
+
+  it('D28: the fresh banner is kept when the browser half fails', async () => {
+    const t = setup({ loopbackFails: true });
+    t.queues.config.push({ authorizeUrl: 'https://x', clientId: 'c', scopes: [], banner: 'Old' });
+    await t.service.start();
+    t.queues.config.push({
+      authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+      clientId: 'c',
+      scopes: [],
+      banner: 'New',
+    });
+    expect(await t.service.signIn()).toEqual({ kind: 'signedOut', reason: 'error', banner: 'New' });
+  });
+
   it('FR-AUTH-6: sign-out tells the API, removes the session, and survives the API being down', async () => {
     const t = setup({ session: storedSession(T0) });
     await t.service.start();

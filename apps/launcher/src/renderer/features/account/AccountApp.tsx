@@ -96,6 +96,11 @@ export function AccountApp() {
             }}
           />
         )}
+        {revoke.isError && (
+          <p role="alert" className="text-sm text-[#ff8a80]">
+            {t(errorMessageKey(revoke.error))}
+          </p>
+        )}
       </section>
     </div>
   );
