@@ -1261,5 +1261,20 @@
     "lastSeen": "Last seen {{time}}",
     "notRemembered": "Windows couldn't store your sign-in securely, so you'll sign in again next time.",
     "disabled": "Sign-in is turned off in this development build."
+  },
+  "billingReturn": {
+    "success": {
+      "title": "Payment received",
+      "body": "Your subscription is being activated."
+    },
+    "cancelled": {
+      "title": "Checkout cancelled",
+      "body": "Nothing was charged."
+    },
+    "portal": {
+      "title": "Billing updated",
+      "body": "Changes can take a minute to reach NextLevel."
+    },
+    "back": "You can close this tab and return to NextLevel."
   }
 }

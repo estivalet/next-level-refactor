@@ -16,6 +16,8 @@ import { GOOGLE_JWKS_URL, googleProvider } from './auth/google.ts';
 import type { IdentityProviders } from './auth/identity.ts';
 import { stubProviders, type StubProviders } from './auth/stub.ts';
 import type { BillingProvider } from './billing/provider.ts';
+import { stripeProvider } from './billing/stripeProvider.ts';
+import { stubProvider, type StubBilling } from './billing/stubProvider.ts';
 import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
@@ -25,6 +27,8 @@ import { adminRoutes } from './routes/admin.ts';
 import { adminAuthRoutes } from './routes/adminAuth.ts';
 import { adminPlanRoutes } from './routes/adminPlans.ts';
 import { adminStaticRoutes } from './routes/adminStatic.ts';
+import { billingRoutes } from './routes/billing.ts';
+import { billingStubRoutes } from './routes/billingStub.ts';
 import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
 import { launcherConfigRoutes } from './routes/launcherConfig.ts';
@@ -42,7 +46,7 @@ export interface AppDeps {
   fetch?: typeof fetch;
   /** Google's signing keys; tests inject a local set. */
   googleJwks?: JWTVerifyGetKey;
-  /** The billing provider; tests inject a fake. Null: no prices or checkout. */
+  /** The billing provider; tests inject a fake. Default: from `Env.billing.mode`. */
   billing?: BillingProvider | null;
 }
 
@@ -61,6 +65,33 @@ function identityProviders(deps: AppDeps): IdentityProviders | StubProviders {
     desktop: googleProvider({ ...shared, ...env.google.desktop }),
     web: googleProvider({ ...shared, ...env.google.web }),
   };
+}
+
+/**
+ * The provider for `Env.billing.mode` (D31/D32). The stub delivers its webhooks to this app's
+ * own webhook route, as Stripe would over HTTP.
+ */
+function billingProvider(deps: AppDeps, app: FastifyInstance): BillingProvider | null {
+  const { billing } = deps.env;
+  if (billing.mode === 'stub' && billing.webhookSecret) {
+    return stubProvider({
+      publicUrl: deps.env.publicUrl,
+      webhookSecret: billing.webhookSecret,
+      clock: deps.clock,
+      deliver: async (raw, signature) => {
+        await app.inject({
+          method: 'POST',
+          url: '/v1/webhooks/stripe',
+          headers: { 'content-type': 'application/json', 'stripe-signature': signature },
+          payload: raw,
+        });
+      },
+    });
+  }
+  if (billing.mode === 'stripe' && billing.secretKey && billing.webhookSecret) {
+    return stripeProvider({ secretKey: billing.secretKey, webhookSecret: billing.webhookSecret });
+  }
+  return null;
 }
 
 /**
@@ -95,7 +126,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     transform: jsonSchemaTransform,
   });
   requireRouteRoles(app);
-  const ctx = createContext({ ...deps, billing: deps.billing ?? null });
+  const billing = deps.billing === undefined ? billingProvider(deps, app) : deps.billing;
+  const ctx = createContext({ ...deps, billing });
   installGuards(app, ctx, adminGuard(ctx));
 
   app.get('/v1/openapi.json', { config: { role: 'public' }, schema: { hide: true } }, () =>
@@ -110,6 +142,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   adminRoutes(app, ctx);
   adminPlanRoutes(app, ctx);
   planRoutes(app, ctx);
+  billingRoutes(app, ctx);
+  if (billing && deps.billing === undefined && deps.env.billing.mode === 'stub') {
+    billingStubRoutes(app, ctx, billing as StubBilling);
+  }
   if (deps.env.adminDist) adminStaticRoutes(app, deps.env.adminDist);
   if ('issue' in identity) stubRoutes(app, identity, deps.env.publicUrl);
   return app;
