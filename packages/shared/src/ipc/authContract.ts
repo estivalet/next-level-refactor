@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { DeviceSchema } from '../api/auth.ts';
-import { CheckoutRequestSchema, PlansResponseSchema } from '../api/billing.ts';
+import {
+  CheckoutRequestSchema,
+  DeleteAccountRequestSchema,
+  PlansResponseSchema,
+} from '../api/billing.ts';
 import { AuthStateSchema } from '../auth/state.ts';
 
 const deviceId = z.string().min(1).max(100);
@@ -33,4 +37,8 @@ export const authContract = {
   'auth.openPortal': { input: z.void(), output: z.void() },
   /** "Choose another plan": stops waiting for the payment. */
   'auth.stopWaiting': { input: z.void(), output: AuthStateSchema },
+  /** Download my data: main fetches it and asks where to save it (security §5). */
+  'account.export': { input: z.void(), output: z.object({ saved: z.boolean() }) },
+  /** Delete account, confirmed by the typed email; signs out with reason `deleted` (D36). */
+  'account.delete': { input: DeleteAccountRequestSchema, output: AuthStateSchema },
 } as const;

@@ -6,6 +6,8 @@ import type { SecretsLike } from '../secrets/SecretStore.ts';
 import { ApiClient } from './ApiClient.ts';
 import { apiBaseUrl } from './apiUrl.ts';
 import { DISABLED_AUTH, type AuthApi } from './authHandlers.ts';
+import { atomicWrite } from '../fs/atomicWrite.ts';
+import { exportAccountData } from './accountData.ts';
 import { AuthService } from './AuthService.ts';
 import { BillingService } from './BillingService.ts';
 import { startLoopback } from './loopback.ts';
@@ -57,6 +59,8 @@ export function createAuth(opts: {
   appVersion: string;
   language: () => Settings['general']['language'];
   openExternal: (url: string) => Promise<void>;
+  /** The Save dialog for Download my data; null when cancelled. */
+  pickSavePath: (defaultName: string) => Promise<string | null>;
 }): { auth: AuthApi; start(): Promise<void>; dispose(): void } {
   const hooks = devHooks(opts.isPackaged, opts.env);
   if (hooks.disabled) {
@@ -140,6 +144,15 @@ export function createAuth(opts: {
     openCheckout: (slug, interval) => billing.openCheckout(slug, interval),
     openPortal: () => billing.openPortal(),
     stopWaiting: () => billing.stopWaiting(),
+    exportData: () =>
+      exportAccountData({
+        auth: service,
+        api,
+        pickPath: opts.pickSavePath,
+        write: (file, data) => atomicWrite(file, data),
+        clock,
+      }),
+    deleteAccount: (email) => service.deleteAccount(email),
   };
   return {
     auth,

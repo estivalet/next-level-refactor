@@ -93,3 +93,16 @@ export function useOpenPortal() {
     },
   });
 }
+
+/** Download my data: main asks where to save it (security §5). */
+export function useExportData() {
+  return useMutation({
+    mutationFn: async () => unwrap(await getBridge().invoke('account.export')),
+  });
+}
+
+/** Delete account (D36): success signs out with reason `deleted`. */
+export const useDeleteAccount = () =>
+  useAuthCall(async (confirmEmail: string) =>
+    unwrap(await getBridge().invoke('account.delete', { confirmEmail })),
+  );

@@ -173,3 +173,60 @@ describe('Account billing (S12, FR-SUB-2)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach NextLevel");
   });
 });
+
+describe('Your data (security §5, D36)', () => {
+  function dataSetup(extra: Parameters<typeof installFakeBridge>[0] = {}) {
+    const fake = installFakeBridge({
+      'auth.state': () => ok(signedIn()),
+      'auth.devices.list': () => ok([]),
+      'account.export': () => ok({ saved: true }),
+      'account.delete': () => ok({ kind: 'signedOut', reason: 'deleted', banner: null }),
+      ...extra,
+    });
+    renderInShell(<AccountApp />);
+    return fake;
+  }
+
+  it('Download my data saves through main and says so', async () => {
+    const user = userEvent.setup();
+    const fake = dataSetup();
+    await user.click(await screen.findByRole('button', { name: 'Download my data' }));
+    expect(fake.channels()).toContain('account.export');
+    expect(await screen.findByText('Saved.')).toBeVisible();
+  });
+
+  it('Delete account needs the email typed (any case) and explains what happens', async () => {
+    const user = userEvent.setup();
+    const fake = dataSetup();
+    await user.click(await screen.findByRole('button', { name: 'Delete account…' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete your NextLevel account?' });
+    expect(dialog).toHaveTextContent(/cancelled now/);
+    expect(dialog).toHaveTextContent(/no automatic refund/);
+    expect(dialog).toHaveTextContent(/games and settings on this PC stay/);
+    const confirm = within(dialog).getByRole('button', { name: 'Delete account' });
+    expect(confirm).toBeDisabled();
+    await user.type(
+      within(dialog).getByLabelText('Type your email to confirm'),
+      'PLAYER@example.test',
+    );
+    await user.click(confirm);
+    expect(fake.calls.find((c) => c.channel === 'account.delete')?.input).toEqual({
+      confirmEmail: 'PLAYER@example.test',
+    });
+  });
+
+  it('billing unavailable is shown in the dialog and nothing else happens', async () => {
+    const user = userEvent.setup();
+    dataSetup({
+      'account.delete': () => err('BILLING_UNAVAILABLE', 'errors.billingUnavailable'),
+    });
+    await user.click(await screen.findByRole('button', { name: 'Delete account…' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete your NextLevel account?' });
+    await user.type(
+      within(dialog).getByLabelText('Type your email to confirm'),
+      'player@example.test',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Delete account' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('Billing is unavailable');
+  });
+});

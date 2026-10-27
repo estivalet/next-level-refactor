@@ -107,6 +107,25 @@ export const useRevokeGrant = (userId: string) =>
     ),
   );
 
+/** Delete account (D36); the lists and the audit log refetch, the detail is gone. */
+export function useDeleteUser(userId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (confirmEmail: string) =>
+      apiFetch(`/v1/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE',
+        body: { confirmEmail },
+        schema: z.unknown(),
+      }),
+    onSuccess: () => {
+      client.removeQueries({ queryKey: ['user', userId] });
+      void client.invalidateQueries({ queryKey: ['users'] });
+      void client.invalidateQueries({ queryKey: ['plans'] });
+      void client.invalidateQueries({ queryKey: ['audit'] });
+    },
+  });
+}
+
 export function useAudit(filters: { actor: string; target: string }) {
   return useInfiniteQuery({
     queryKey: ['audit', filters],

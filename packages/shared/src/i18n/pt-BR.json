@@ -1231,7 +1231,8 @@
       "revoked": "Este PC foi desconectado. Entre novamente.",
       "offlineExpired": "Conecte-se à internet para continuar.",
       "unreachable": "Não foi possível falar com o NextLevel. Verifique sua conexão e tente de novo.",
-      "error": "O login falhou. Tente de novo."
+      "error": "O login falhou. Tente de novo.",
+      "deleted": "Sua conta foi excluída."
     },
     "subscribe": {
       "title": "As assinaturas ainda não estão abertas",
@@ -1289,6 +1290,17 @@
       "compOpen": "{{plan}} · Cortesia · até ser revogada",
       "none": "Nenhum plano ativo",
       "manage": "Gerenciar cobrança"
+    },
+    "data": {
+      "title": "Seus dados",
+      "download": "Baixar meus dados",
+      "saved": "Salvo.",
+      "delete": "Excluir conta…",
+      "deleteTitle": "Excluir sua conta NextLevel?",
+      "deleteBody": "Sua conta, dispositivos e assinatura são excluídos. Uma assinatura paga é cancelada agora, sem reembolso automático. Seus jogos e configurações neste PC continuam como estão.",
+      "confirmLabel": "Digite seu e-mail para confirmar",
+      "confirm": "Excluir conta",
+      "cancel": "Cancelar"
     }
   },
   "billingReturn": {

@@ -11,6 +11,7 @@ import { DeviceList } from '../auth/DeviceList.tsx';
 import { SECONDARY } from '../auth/GateFrame.tsx';
 import { errorMessageKey } from '../settings/settingsApi.ts';
 import { BillingSection } from './BillingSection.tsx';
+import { DataSection } from './DataSection.tsx';
 
 /** S12 Account (D24): profile, plan, last check with Refresh, devices with Revoke, Sign out. */
 export function AccountApp() {
@@ -34,7 +35,7 @@ export function AccountApp() {
   const { user, entitlement } = signedIn;
 
   return (
-    <div className="flex h-full flex-col gap-6 overflow-y-auto bg-[#0b0b0f] p-6 text-slate-300">
+    <div className="relative flex h-full flex-col gap-6 overflow-y-auto bg-[#0b0b0f] p-6 text-slate-300">
       <section className="flex items-center gap-4">
         {/* No Google avatar: the window loads no remote content (security §3, CSP img-src). */}
         <UserRound aria-hidden="true" className="h-12 w-12 rounded-full bg-white/5 p-2" />
@@ -100,6 +101,7 @@ export function AccountApp() {
           </p>
         )}
       </section>
+      <DataSection email={user.email} />
     </div>
   );
 }

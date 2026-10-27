@@ -1,4 +1,5 @@
 import {
+  AccountExportSchema,
   ApiErrorEnvelopeSchema,
   DeviceSchema,
   EntitlementResponseSchema,
@@ -7,6 +8,7 @@ import {
   RedirectResponseSchema,
   SessionResponseSchema,
   TokenPairSchema,
+  type AccountExport,
   type CheckoutRequest,
   type CompleteRequest,
   type Device,
@@ -84,6 +86,14 @@ export class ApiClient {
   revokeDevice(access: string, deviceId: string): Promise<void> {
     const path = `/v1/me/devices/${encodeURIComponent(deviceId)}`;
     return this.#call('DELETE', path, null, { access });
+  }
+
+  exportData(access: string): Promise<AccountExport> {
+    return this.#call('GET', '/v1/me/export', AccountExportSchema, { access });
+  }
+
+  deleteAccount(access: string, confirmEmail: string): Promise<void> {
+    return this.#call('DELETE', '/v1/me', null, { access, body: { confirmEmail } });
   }
 
   /** The plans on sale: public, no token. */

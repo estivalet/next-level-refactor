@@ -84,6 +84,7 @@ export function fakeApi(now: () => number) {
     refresh: [] as Step<{ accessToken: string; refreshToken: string }>[],
     entitlement: [] as Step<EntitlementResponse>[],
     devices: [] as Step<Device[]>[],
+    deleteAccount: [] as Step<undefined>[],
   };
   const session = (): SessionResponse => ({
     accessToken: 'a-new',
@@ -133,6 +134,10 @@ export function fakeApi(now: () => number) {
     devices: (access: string) => {
       calls.push(`devices:${access}`);
       return answer(queues.devices.shift(), () => [device('d1', true), device('d2')]);
+    },
+    deleteAccount: (_access: string, confirmEmail: string) => {
+      calls.push(`deleteAccount:${confirmEmail}`);
+      return answer(queues.deleteAccount.shift(), () => undefined);
     },
     revokeDevice: (access: string, id: string) => {
       calls.push(`revoke:${access}:${id}`);

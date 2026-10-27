@@ -1,3 +1,5 @@
+import { readFile, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { freshDataDir, launch } from './launch.ts';
 import { startTestApi } from './testApi.ts';
@@ -122,6 +124,42 @@ test('US-A2: Subscribe → Choose → the stub Checkout is paid → the launcher
   await expect(account.getByRole('button', { name: 'Manage billing' })).toBeVisible();
 
   await app.close();
+  await api.close();
+  await data.remove();
+});
+
+test('D36, security §5: download my data, then delete the account; the library stays', async () => {
+  const api = await startTestApi();
+  const data = await freshDataDir();
+  const exported = join(data.dir, 'my-data.json');
+  const app = await launch(data.dir, {
+    ...signedInEnv(api.url, 'subscriber'),
+    NEXTLEVEL_E2E_PICK_FILE: exported,
+  });
+  const page = await app.firstWindow();
+  await page.getByRole('button', { name: 'Sign in with Google' }).click();
+  await desktopApps(page).getByRole('button', { name: 'Account' }).dblclick();
+  const account = page.getByRole('dialog', { name: 'Account' });
+
+  await account.getByRole('button', { name: 'Download my data' }).click();
+  await expect(account.getByText('Saved.')).toBeVisible();
+  const file = JSON.parse(await readFile(exported, 'utf8')) as { user: { email: string } };
+  expect(file.user.email).toBe('subscriber@nextlevel.test');
+  const library = (await stat(join(data.dir, 'library.db'))).isFile();
+
+  await account.getByRole('button', { name: 'Delete account…' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Delete your NextLevel account?' });
+  await dialog.getByLabel('Type your email to confirm').fill('subscriber@nextlevel.test');
+  await dialog.getByRole('button', { name: 'Delete account' }).click();
+  await expect(page.getByText('Your account was deleted.')).toBeVisible();
+  await app.close();
+
+  // The local library is untouched: still there, and it opens with sign-in off.
+  expect(library).toBe(true);
+  expect((await stat(join(data.dir, 'library.db'))).isFile()).toBe(true);
+  const offline = await launch(data.dir);
+  await expect(desktopApps(await offline.firstWindow())).toBeVisible();
+  await offline.close();
   await api.close();
   await data.remove();
 });

@@ -213,6 +213,17 @@
         "past": "The end date has passed.",
         "notActive": "This grant has already ended."
       }
+    },
+    "deleteUser": {
+      "open": "Delete account…",
+      "title": "Delete {{email}}?",
+      "body": "The account, its devices and subscriptions are deleted. A Stripe subscription is cancelled now, with no automatic refund (refund by hand in Stripe if needed). Audit entries stay, without the email.",
+      "confirmLabel": "Type the email to confirm",
+      "confirm": "Delete account",
+      "reasons": {
+        "admin": "Admins must be demoted before their account can be deleted.",
+        "email": "The email does not match."
+      }
     }
   }
 }

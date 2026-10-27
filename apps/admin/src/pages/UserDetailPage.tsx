@@ -6,6 +6,7 @@ import { usePatchUser, useRevokeUserDevice, useUser } from '../api/hooks.ts';
 import { errorKey, formatTime } from '../errors.ts';
 import { hrefOf } from '../router.ts';
 import { AuditTable } from './AuditTable.tsx';
+import { DeleteUserDialog } from './DeleteUserDialog.tsx';
 import { SubscriptionPanel } from './SubscriptionPanel.tsx';
 import { SuspendDialog } from './SuspendDialog.tsx';
 
@@ -20,6 +21,7 @@ export function UserDetailPage({ id }: { id: string }) {
   const revoke = useRevokeUserDevice(id);
   const [suspending, setSuspending] = useState(false);
   const [revoking, setRevoking] = useState<Device | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const detail = user.data;
   if (user.isError) {
     return (
@@ -81,6 +83,18 @@ export function UserDetailPage({ id }: { id: string }) {
           </Button>
         )}
       </header>
+      {detail.role !== 'admin' && (
+        <div>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setDeleting(true);
+            }}
+          >
+            {t('admin.deleteUser.open')}
+          </Button>
+        </div>
+      )}
       {failure && (
         <p role="alert" className="text-sm text-[#ff8a80]">
           {t(errorKey(failure))}
@@ -114,6 +128,15 @@ export function UserDetailPage({ id }: { id: string }) {
       />
       <h2 className="text-sm font-semibold text-white">{t('admin.user.audit')}</h2>
       <AuditTable entries={detail.audit} label={t('admin.user.audit')} />
+      {deleting && (
+        <DeleteUserDialog
+          userId={detail.id}
+          email={detail.email}
+          onClose={() => {
+            setDeleting(false);
+          }}
+        />
+      )}
       {suspending && (
         <SuspendDialog
           email={detail.email}
