@@ -13,7 +13,8 @@ export function PlanEditor({ id }: { id: string | null }) {
   const plans = usePlans();
   const scopes = useScopes();
   const [justSaved, setJustSaved] = useState(false);
-  const error = plans.error ?? scopes.error;
+  // A failed background refetch keeps the data it had: only a first load failure is shown.
+  const error = (plans.data ? null : plans.error) ?? (scopes.data ? null : scopes.error);
   if (error) {
     return (
       <p role="alert" className="text-sm text-[#ff8a80]">

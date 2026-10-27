@@ -38,12 +38,19 @@ function useWrite<TInput, TOutput>(call: (input: TInput) => Promise<TOutput>, ke
   });
 }
 
-export const useCreatePlan = () =>
-  useWrite(
-    (body: AdminPlanCreate) =>
+/** The new plan goes into the list at once: its editor opens before the refetch lands. */
+export function useCreatePlan() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: AdminPlanCreate) =>
       apiFetch('/v1/admin/plans', { method: 'POST', body, schema: AdminPlanSchema }),
-    'plans',
-  );
+    onSuccess: (plan) => {
+      client.setQueryData<AdminPlan[]>(['plans'], (list) => [...(list ?? []), plan]);
+      void client.invalidateQueries({ queryKey: ['plans'] });
+      void client.invalidateQueries({ queryKey: ['audit'] });
+    },
+  });
+}
 
 /** The saved plan goes straight into the list, so the editor starts from it at once. */
 export function useUpdatePlan(id: string) {

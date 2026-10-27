@@ -2,6 +2,8 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage, stubApi } from '../test-utils.tsx';
+import { useRoute } from '../router.ts';
+import { Page } from './Page.tsx';
 import { PlanEditor } from './PlanEditor.tsx';
 import { PlansPage } from './PlansPage.tsx';
 import { ScopesPage } from './ScopesPage.tsx';
@@ -89,6 +91,32 @@ describe('Plan editor (FR-ADM-2, US-F4)', () => {
     await vi.waitFor(() => {
       expect(window.location.hash).toBe('#/plans/p9');
     });
+  });
+
+  it('a created plan opens at once, even before (or without) the list refetch', async () => {
+    const u = userEvent.setup();
+    let created = false;
+    stubApi({
+      'GET /v1/admin/plans': () =>
+        created
+          ? { status: 500, body: { error: { code: 'INTERNAL', message: 'm', requestId: 'r' } } }
+          : { body: [] },
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+      'POST /v1/admin/plans': () => {
+        created = true;
+        return { body: plan({ id: 'p9' }) };
+      },
+    });
+    window.location.hash = '#/plans/new';
+    function Routed() {
+      return <Page route={useRoute()} />;
+    }
+    renderPage(<Routed />);
+    await u.type(await screen.findByLabelText('Slug'), 'basic');
+    await u.type(screen.getByLabelText('Name'), 'Basic');
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('heading', { name: 'Basic' })).toBeVisible();
+    expect(screen.queryByText('This plan no longer exists.')).not.toBeInTheDocument();
   });
 
   it('an existing plan: slug read-only, stored amount shown, only changes are sent', async () => {

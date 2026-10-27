@@ -183,6 +183,35 @@ describe('Subscription panel (S13, FR-SUB-4, US-F2)', () => {
   });
 });
 
+describe('revoke refusals (review)', () => {
+  it('a grant that already ended is explained, not a generic conflict', async () => {
+    const u = userEvent.setup();
+    stubApi({
+      'GET /v1/admin/users/u2': () => ({
+        body: detail([
+          sub({
+            id: 'c1',
+            source: 'comp',
+            stripeSubscriptionId: null,
+            interval: null,
+            periodEnd: null,
+          }),
+        ]),
+      }),
+      'GET /v1/admin/plans': () => ({ body: PLANS }),
+      'DELETE /v1/admin/users/u2/grants/c1': () => conflict('notActive'),
+    });
+    renderPage(<UserDetailPage id="u2" />);
+    const panel = await screen.findByRole('region', { name: 'Subscription' });
+    await u.click(within(panel).getByRole('button', { name: 'Revoke grant' }));
+    const confirm = screen.getByRole('dialog', { name: 'Revoke the complimentary access?' });
+    await u.click(within(confirm).getByRole('button', { name: 'Revoke grant' }));
+    expect(await within(panel).findByRole('alert')).toHaveTextContent(
+      'This grant has already ended.',
+    );
+  });
+});
+
 describe('Users filters (D38)', () => {
   it('access and plan filters go to the API; the plan column comes from the entitlement', async () => {
     const u = userEvent.setup();

@@ -1,4 +1,4 @@
-import type { AdminSubscription } from '@nextlevel/shared';
+import { AppErrorException, type AdminSubscription } from '@nextlevel/shared';
 import { Button, Dialog, Table } from '@nextlevel/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,13 @@ import { errorKey, formatTime } from '../errors.ts';
 import { GrantDialog } from './GrantDialog.tsx';
 
 const gives = (sub: AdminSubscription) => sub.status === 'active' || sub.status === 'past_due';
+
+/** A grant that ended (or was revoked elsewhere) meanwhile gets its own message. */
+const revokeErrorKey = (error: unknown) =>
+  error instanceof AppErrorException &&
+  (error.error.details as { reason?: unknown } | undefined)?.reason === 'notActive'
+    ? 'admin.subscription.reasons.notActive'
+    : errorKey(error);
 
 /** S13 user detail → Subscription (FR-SUB-4, US-F2): the current one, the history, grants. */
 export function SubscriptionPanel({
@@ -72,6 +79,7 @@ export function SubscriptionPanel({
           {current.source === 'comp' && (
             <Button
               variant="danger"
+              disabled={revoke.isPending}
               onClick={() => {
                 setRevoking(current);
               }}
@@ -85,7 +93,7 @@ export function SubscriptionPanel({
       )}
       {revoke.error && (
         <p role="alert" className="text-sm text-[#ff8a80]">
-          {t(errorKey(revoke.error))}
+          {t(revokeErrorKey(revoke.error))}
         </p>
       )}
       {subscriptions.length > 0 && (
