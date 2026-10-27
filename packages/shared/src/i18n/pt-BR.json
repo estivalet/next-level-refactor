@@ -1261,5 +1261,20 @@
     "lastSeen": "Visto por último: {{time}}",
     "notRemembered": "O Windows não conseguiu guardar seu login com segurança; você vai entrar de novo na próxima vez.",
     "disabled": "O login está desativado nesta versão de desenvolvimento."
+  },
+  "billingReturn": {
+    "success": {
+      "title": "Pagamento recebido",
+      "body": "Sua assinatura está sendo ativada."
+    },
+    "cancelled": {
+      "title": "Pagamento cancelado",
+      "body": "Nada foi cobrado."
+    },
+    "portal": {
+      "title": "Cobrança atualizada",
+      "body": "As mudanças podem levar um minuto para chegar ao NextLevel."
+    },
+    "back": "Você pode fechar esta aba e voltar ao NextLevel."
   }
 }

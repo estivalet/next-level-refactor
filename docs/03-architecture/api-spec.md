@@ -63,7 +63,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | `GET /v1/me/entitlement` | → `{ entitlement, banner }` (launcher polls hourly and after checkout) |
 | `GET /v1/me/devices` | → `Device[]`: the devices not revoked, oldest first; `current` marks the caller |
 | `DELETE /v1/me/devices/:id` | → `204`; another user's device → `NOT_FOUND`; the calling device → `CONFLICT` (`details.reason: 'current'`, sign out instead) |
-| `POST /v1/me/billing/checkout` | `{ planSlug, interval: 'month'|'year' }` → `{ url }` (Stripe Checkout, or the stub's page with `BILLING_STUB=1`); `CONFLICT` `details.reason`: `billingOff`, `subscribed` (already has access-giving billing), `archived`, `noPrice`; Stripe down → `503 BILLING_UNAVAILABLE` |
+| `POST /v1/me/billing/checkout` | `{ planSlug, interval: 'month'|'year' }` → `{ url }` (Stripe Checkout, or the stub's page with `BILLING_STUB=1`); `CONFLICT` `details.reason`: `billingOff`, `subscribed` (already has a Stripe subscription or comp grant giving access); an unknown, archived or price-less plan → `NOT_FOUND`; `SUSPENDED`; Stripe down → `503 BILLING_UNAVAILABLE` |
 | `POST /v1/me/billing/portal` | → `{ url }` (Stripe Customer Portal); `CONFLICT` `billingOff` or `noCustomer` |
 | `GET /v1/billing/return?result=success|cancelled|portal` | Public page after Checkout/Portal: "You can return to NextLevel" (en/pt-BR by `Accept-Language`) |
 | `GET /v1/plans` | Public, no auth → `{ billingEnabled, plans: [{ slug, name, deviceLimit, scopes: [{ slug, name }], prices: { month, year } }] }`: non-archived plans with at least one price; a price is `{ amount (minor units), currency }` or null; never calls Stripe |
@@ -98,7 +98,8 @@ from M8 `plan.create`, `plan.update`, `scope.create`, `scope.update`, `grant.cre
 slug → `CONFLICT` `slugTaken`; a price id is read from Stripe (`VALIDATION_FAILED` `reason`:
 `interval`, `inactive`, `currency`; no billing provider → `CONFLICT` `billingOff`); archiving
 `default` → `CONFLICT` `defaultPlan`. Grants: `{ planSlug, expiresAt (null = until revoked),
-note (1–500) }`; refused for a user with an active or past-due Stripe subscription (`CONFLICT`
+note (1–500) }`; a plan whose Stripe price is already on another plan → `CONFLICT` `priceTaken`;
+grants are refused for a user with an active or past-due Stripe subscription (`CONFLICT`
 `subscribed`) or an archived plan (`archived`); a new grant replaces an active one. Catalog
 and stats arrive in M9. With `ADMIN_DIST` the API serves the
 built console at `/` (any non-`/v1` path falls back to `index.html`).

@@ -91,7 +91,33 @@ You can't demote or suspend yourself, so there is always an admin left.
 
 Changing the allow-list never signs anyone out; to stop an existing account, suspend it.
 
+### Billing (M8)
+
+`BILLING_ENABLED` in the API's environment is the switch (D33):
+
+- **Off:** everyone allowed in is on the **Default** plan (3 devices).
+- **On:** players need an active or payment-failed Stripe subscription, or a complimentary
+  grant. Everyone else can sign in but sees **Subscribe** in the launcher. Admins never need one.
+  Users with no plan get the Default plan's device limit.
+
+Plans have a name, a device limit, catalog scopes and up to two Stripe prices (monthly,
+yearly). Saving a price id checks it with Stripe: active, recurring, the right interval, one
+currency per plan, and not already on another plan. **Default** can't be archived; an archived
+plan keeps the people on it but can't be bought or granted. There is no free trial (D34).
+
+A **complimentary grant** gives a user a plan with an optional end date and a required note. It
+can be revoked, and a new grant replaces the current one. A user who pays through Stripe can't
+get a grant until their subscription ends. When a grant ends, the launcher stops at the end
+date even offline.
+
+When a payment fails, Stripe retries for some days and the player keeps access ("payment
+failed" in the console); if every retry fails, access ends. Cancelling in the Customer Portal
+keeps access to the end of the paid period. Refunds are done by hand in the Stripe Dashboard.
+Setting up Stripe test mode, or the stub that needs no Stripe account:
+`docs/05-operations/environment-setup.md`.
+
 ### Audit log
 
-Every change made in the console — role, suspension, device revoke, settings — is recorded with
+Every change made in the console — role, suspension, device revoke, settings, plans, scopes,
+complimentary grants — is recorded with
 who did it, when, and what changed (before → after). Filter by admin id or target id.

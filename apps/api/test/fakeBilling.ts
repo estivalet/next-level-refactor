@@ -1,16 +1,34 @@
 import type { BillingProvider, ProviderPrice } from '../src/billing/provider.ts';
 import { apiError } from '../src/errors.ts';
 
-/** Prices a test can read through `ctx.billing`; an unknown id is refused like Stripe would. */
-export function fakeBilling(prices: ProviderPrice[] = []): BillingProvider {
+const unused = () => Promise.reject(new Error('not used by this test'));
+
+/**
+ * Prices a test can read through `ctx.billing`; an unknown id is refused like Stripe would.
+ * `overrides` replace single methods (a failing checkout, a subscription to read).
+ */
+export function fakeBilling(
+  prices: ProviderPrice[] = [],
+  overrides: Partial<BillingProvider> = {},
+): BillingProvider {
   const byId = new Map(prices.map((price) => [price.id, price]));
   return {
     getPrice: (id) => {
       const price = byId.get(id);
-      if (!price)
+      if (!price) {
         return Promise.reject(apiError('VALIDATION_FAILED', undefined, { reason: 'unknownPrice' }));
+      }
       return Promise.resolve(price);
     },
+    createCheckout: unused,
+    expireCheckout: () => Promise.resolve(),
+    createPortal: unused,
+    getSubscription: unused,
+    cancelNow: unused,
+    verifyEvent: () => {
+      throw new Error('not used by this test');
+    },
+    ...overrides,
   };
 }
 

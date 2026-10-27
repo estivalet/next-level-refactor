@@ -80,9 +80,26 @@ Logs never contain tokens, email addresses or IPs in clear text (user ID and has
 ## 6. Runbooks
 
 ### Webhook backlog
-1. Check Stripe dashboard → Developers → Webhooks for failed deliveries.
-2. Fix cause, then "Resend" failed events; idempotency makes this safe.
+1. Check Stripe dashboard → Developers → Webhooks for failed deliveries, and
+   `select id, type, received_at from stripe_events where processed_at is null`.
+2. Fix cause, then "Resend" failed events; idempotency makes this safe (an event already
+   processed is answered without work; each event re-reads the subscription from Stripe, so
+   order doesn't matter).
 3. Confirm `subscriptions` rows updated; affected launchers refresh within an hour.
+
+### "stripe event not applied" in the log
+The event was stored as processed but changed nothing (`reason` in the log line):
+- `unknownPrice`: the subscription's price is on no plan. The Customer Portal offered a price the
+  plans don't carry. Make the Portal's products match the plans (environment-setup → Stripe),
+  put the price on the right plan, then resend the event from Stripe.
+- `unknownUser`: no `userId` metadata, or the user was deleted. Subscriptions made outside
+  NextLevel's checkout are not ours; cancel or refund them in Stripe by hand.
+- `userChanged`: the subscription's `userId` metadata was edited in Stripe. Put it back.
+
+### BILLING_UNAVAILABLE (503)
+Stripe couldn't be reached or answered with an error. Players see "Billing is unavailable right
+now"; nothing was charged or changed. Check https://status.stripe.com and the API log (Stripe
+ids only). Webhooks that failed the same way are retried by Stripe for up to 3 days.
 
 ### Restore database
 1. Stop API container. 2. Download the chosen backup from the backup bucket. 3. Replace the DB

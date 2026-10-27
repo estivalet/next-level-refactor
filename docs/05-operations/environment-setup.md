@@ -90,6 +90,32 @@ read or write your dev data.
    Web client in `GOOGLE_CLIENT_ID_WEB` / `GOOGLE_CLIENT_SECRET_WEB` in `apps/api/.env`. While the
    app is "Testing", add test users.
 
+## Stripe test mode (once, D31)
+
+M8 uses Stripe in **test mode only**; live keys are a go-live step (M10).
+
+1. Stripe Dashboard in **Test mode** → Product catalog: one product per plan, each with a
+   recurring **monthly** and/or **yearly** price in one currency.
+2. Settings → Billing → **Customer portal**: allow cancelling **at the end of the billing
+   period**, allow switching plans, and list exactly the prices the NextLevel plans use.
+3. Developers → API keys: put the secret key (`sk_test_…`) in `STRIPE_SECRET_KEY`.
+4. Webhooks to your machine: install the [Stripe CLI](https://docs.stripe.com/stripe-cli), then
+   `stripe login` and `stripe listen --forward-to localhost:4000/v1/webhooks/stripe`. Put the
+   `whsec_…` it prints in `STRIPE_WEBHOOK_SECRET`. Leave `BILLING_STUB` unset.
+5. Set `BILLING_ENABLED=true`, start the API, and in the admin console give each plan its Stripe
+   price ids (the API reads the amounts from Stripe).
+6. Pay with Stripe's test card `4242 4242 4242 4242`, any future date, any CVC.
+
+## Working without Stripe (billing stub, D32)
+
+`BILLING_STUB=1` replaces Stripe with fake Checkout and Portal pages on the API itself, marked
+"TEST — no real payment". Plans take stub price ids of the form
+`price_stub_<month|year>_<amount in minor units>_<currency>`, e.g. `price_stub_month_1990_brl`.
+**Pay** creates the subscription; the Portal page has Cancel at period end, Resume, Payment
+fails, Renew, End now and Switch buttons. Each sends signed webhooks to the API like Stripe does.
+Stub state lives in memory: restarting the API forgets stub subscriptions (the database keeps
+its rows). Never enabled in production.
+
 ## Working without internet / Google
 
 Set `AUTH_STUB=1` in the API: sign-in (launcher and admin console) goes to a local page that lets
@@ -103,6 +129,7 @@ you pick a test user — `admin`, `subscriber`, `suspended` or `outsider`, signi
 | Symptom | Fix |
 |---|---|
 | `better-sqlite3` "was compiled against a different Node.js version" | `npm run rebuild -w apps/launcher` |
+| Paid in Stripe but the launcher still shows Subscribe | `stripe listen` must be running with its `whsec_…` in `STRIPE_WEBHOOK_SECRET`; check the API log for `stripe event not applied` (price not on any plan) |
 | Electron window blank in dev | Vite dev server not up; check the `dev` script output port |
 | Google sign-in returns `redirect_uri_mismatch` | Launcher must use the Desktop client; admin the Web client |
 | Webhooks not arriving locally | `stripe listen --forward-to localhost:4000/v1/webhooks/stripe` |
