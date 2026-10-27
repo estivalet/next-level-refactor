@@ -47,6 +47,7 @@ export function openDb(file: string): ApiDb {
         name: 'Default',
         deviceLimit: 3,
         scopeIds: [],
+        createdAt: new Date().toISOString(),
       })
       .onConflictDoNothing({ target: schema.plans.slug })
       .run();

@@ -31,6 +31,7 @@ export const ERROR_CODES = {
   NOT_ALLOWED: 'errors.notAllowed',
   RATE_LIMITED: 'errors.rateLimited',
   API_UNREACHABLE: 'errors.apiUnreachable',
+  BILLING_UNAVAILABLE: 'errors.billingUnavailable',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

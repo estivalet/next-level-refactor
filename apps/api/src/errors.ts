@@ -17,6 +17,7 @@ const STATUS: Partial<Record<ErrorCode, number>> = {
   DEVICE_LIMIT: 409,
   RATE_LIMITED: 429,
   INTERNAL: 500,
+  BILLING_UNAVAILABLE: 503,
 };
 
 export const MESSAGES: Partial<Record<ErrorCode, string>> = {
@@ -31,6 +32,7 @@ export const MESSAGES: Partial<Record<ErrorCode, string>> = {
   DEVICE_LIMIT: 'Device limit reached.',
   RATE_LIMITED: 'Too many requests.',
   INTERNAL: 'Something went wrong.',
+  BILLING_UNAVAILABLE: 'Billing is unavailable right now.',
 };
 
 /** An expected failure a route throws; the error handler turns it into the envelope. */

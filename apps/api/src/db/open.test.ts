@@ -1,7 +1,10 @@
-import { mkdtemp, rm } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { defaultAppSettings } from '@nextlevel/shared';
+import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { afterEach, describe, expect, it } from 'vitest';
 import { loadAppSettings } from '../settings/AppSettingsRepository.ts';
 import { openDb } from './open.ts';
@@ -29,6 +32,50 @@ describe('service database (data model §5, ADR-007)', () => {
       .all();
     expect(plans).toEqual([{ slug: 'default', name: 'Default', deviceLimit: 3 }]);
     expect(loadAppSettings(db)).toEqual(defaultAppSettings());
+    db.$client.close();
+  });
+
+  it('a database from migration 0000 migrates and keeps the Default plan (M8)', async () => {
+    const path = await file();
+    const first = await mkdtemp(join(tmpdir(), 'nextlevel-api-m0-'));
+    dirs.push(first);
+    const migrations = join(import.meta.dirname, 'migrations');
+    await mkdir(join(first, 'meta'));
+    await copyFile(join(migrations, '0000_init.sql'), join(first, '0000_init.sql'));
+    const journal = JSON.parse(
+      await readFile(join(migrations, 'meta', '_journal.json'), 'utf8'),
+    ) as {
+      entries: unknown[];
+    };
+    await writeFile(
+      join(first, 'meta', '_journal.json'),
+      JSON.stringify({ ...journal, entries: journal.entries.slice(0, 1) }),
+    );
+    const client = new Database(path);
+    migrate(drizzle(client), { migrationsFolder: first });
+    client
+      .prepare(
+        `insert into plans (id, slug, name, device_limit, scope_ids)
+         values ('plan-default', 'default', 'Default', 3, '[]')`,
+      )
+      .run();
+    client.close();
+
+    const db = openDb(path);
+    const plans = db.$client.prepare('select slug, created_at as createdAt from plans').all() as {
+      slug: string;
+      createdAt: string;
+    }[];
+    expect(plans).toHaveLength(1);
+    expect(plans[0]?.slug).toBe('default');
+    expect(Number.isNaN(Date.parse(plans[0]?.createdAt ?? ''))).toBe(false);
+    const tables = db.$client
+      .prepare("select name from sqlite_master where type = 'table' order by name")
+      .pluck()
+      .all();
+    expect(tables).toEqual(
+      expect.arrayContaining(['catalog_scopes', 'subscriptions', 'stripe_events']),
+    );
     db.$client.close();
   });
 

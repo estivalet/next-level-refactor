@@ -75,6 +75,7 @@ export function userDetail(ctx: ApiContext, id: string): AdminUserDetail {
     entitlement: entitlementOf(ctx, user),
     devices: all.map((row) => toDevice(row, null)),
     audit: auditPage(ctx, { targets: [user.id, ...all.map((d) => d.id)], limit: 20 }).items,
+    subscriptions: [],
   };
 }
 
