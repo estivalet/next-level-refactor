@@ -48,6 +48,7 @@ export function googleProvider(opts: {
       try {
         const { payload } = await jwtVerify(idToken, opts.jwks, {
           issuer: ISSUERS,
+          algorithms: ['RS256'],
           audience: opts.clientId,
           currentDate: opts.clock(),
         });

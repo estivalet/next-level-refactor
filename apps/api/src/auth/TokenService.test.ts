@@ -100,6 +100,40 @@ describe('refresh tokens (ADR-006, C7)', () => {
   });
 });
 
+describe('refresh-token pruning (M7 minor)', () => {
+  const tokensOf = (deviceId: string) =>
+    db.$client
+      .prepare('select count(*) from refresh_tokens where device_id = ?')
+      .pluck()
+      .get(deviceId);
+
+  it('a sign-in deletes tokens expired over a day ago, keeping rotated ones until they expire', async () => {
+    const { service, device, devices, user, clock } = setup();
+    const first = await service.issue(device.id);
+    await service.rotate(first.refreshToken, device.id);
+    expect(tokensOf(device.id)).toBe(2);
+    clock.advance(10 * DAY);
+    await service.issue(devices.create(user.id, DEVICE, clock.read()).id);
+    // The replaced token stays: presenting it again must still count as reuse.
+    expect(tokensOf(device.id)).toBe(2);
+    clock.advance(22 * DAY);
+    await service.issue(devices.create(user.id, DEVICE, clock.read()).id);
+    expect(tokensOf(device.id)).toBe(0);
+  });
+
+  it("a sign-in deletes a revoked device's tokens a day after the revoke", async () => {
+    const { service, device, devices, user, clock } = setup();
+    await service.issue(device.id);
+    service.revokeDevice(device.id);
+    clock.advance(DAY / 2);
+    await service.issue(devices.create(user.id, DEVICE, clock.read()).id);
+    expect(tokensOf(device.id)).toBe(1);
+    clock.advance(DAY);
+    await service.issue(devices.create(user.id, DEVICE, clock.read()).id);
+    expect(tokensOf(device.id)).toBe(0);
+  });
+});
+
 describe('access tokens and tickets (ADR-006, security §2)', () => {
   const claims = { sub: 'u1', did: 'd1', role: 'subscriber' as const };
 

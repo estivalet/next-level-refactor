@@ -218,6 +218,19 @@ describe('Settings (S13, FR-ADM-4)', () => {
     });
   });
 
+  it('NFR-A11Y-1: fields point at their help and error text', async () => {
+    const u = userEvent.setup();
+    stubApi({ 'GET /v1/admin/settings': () => ({ body: SETTINGS }) });
+    renderPage(<SettingsPage />);
+    const grace = await screen.findByLabelText('Offline grace (days)');
+    expect(grace).toHaveAccessibleDescription(/1–30/);
+    const list = screen.getByLabelText('Allow-list (one email per line)');
+    expect(list).not.toHaveAttribute('aria-describedby');
+    await u.type(list, '{enter}nope');
+    expect(list).toHaveAttribute('aria-invalid', 'true');
+    expect(list).toHaveAccessibleDescription('Not an email: nope');
+  });
+
   it('FR-ADM-4: an email that only differs in case or repeats is not a change', async () => {
     const u = userEvent.setup();
     stubApi({ 'GET /v1/admin/settings': () => ({ body: SETTINGS }) });

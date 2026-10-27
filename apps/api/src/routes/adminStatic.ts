@@ -27,16 +27,20 @@ export function adminStaticRoutes(app: FastifyInstance, root: string): void {
       return {
         body: await readFile(file),
         type: TYPES[extname(file)] ?? 'application/octet-stream',
+        immutable: file.startsWith(join(base, 'assets') + sep),
       };
     } catch {
       return null;
     }
   };
   app.get('/*', { config: { role: 'public' }, schema: { hide: true } }, async (request, reply) => {
+    // Fastify has already refused malformed escapes (frameworkErrors in errors.ts).
     const path = decodeURIComponent(request.url.split('?')[0] ?? '/');
     if (path.startsWith('/v1/') || path === '/v1') throw apiError('NOT_FOUND');
     const found = (path !== '/' ? await read(path) : null) ?? (await read('index.html'));
     if (!found) throw apiError('NOT_FOUND');
-    return reply.type(found.type).send(found.body);
+    // Vite names built assets by content hash; the page itself must be revalidated.
+    const cache = found.immutable ? 'public, max-age=31536000, immutable' : 'no-cache';
+    return reply.type(found.type).header('cache-control', cache).send(found.body);
   });
 }

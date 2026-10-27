@@ -1,5 +1,5 @@
 import type { TokenPair } from '@nextlevel/shared';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt } from 'drizzle-orm';
 import type { ApiDb } from '../db/open.ts';
 import { devices, refreshTokens, users } from '../db/schema.ts';
 import { apiError } from '../errors.ts';
@@ -20,6 +20,7 @@ export class TokenService {
   /** A first pair for a device that was just created. */
   async issue(deviceId: string): Promise<TokenPair> {
     const now = this.#deps.clock();
+    this.#prune(now);
     const refreshToken = this.#insert(deviceId, now);
     return { accessToken: await this.#access(deviceId, now), refreshToken };
   }
@@ -72,6 +73,21 @@ export class TokenService {
         .where(and(eq(refreshTokens.deviceId, deviceId), isNull(refreshTokens.revokedAt)))
         .run();
     });
+  }
+
+  /**
+   * Drops tokens that can no longer matter: expired over a day ago, or of a device revoked over
+   * a day ago. Rotated tokens stay until they expire, so presenting one is still caught as reuse.
+   */
+  #prune(now: Date): void {
+    const dayAgo = new Date(now.getTime() - 24 * 3600_000).toISOString();
+    const { db } = this.#deps;
+    const revoked = db
+      .select({ id: devices.id })
+      .from(devices)
+      .where(lt(devices.revokedAt, dayAgo));
+    db.delete(refreshTokens).where(lt(refreshTokens.expiresAt, dayAgo)).run();
+    db.delete(refreshTokens).where(inArray(refreshTokens.deviceId, revoked)).run();
   }
 
   #insert(deviceId: string, now: Date, tx: Pick<ApiDb, 'insert'> = this.#deps.db): string {

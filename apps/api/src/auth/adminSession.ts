@@ -1,5 +1,5 @@
-import { randomBytes } from 'node:crypto';
-import { eq } from 'drizzle-orm';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { eq, lt } from 'drizzle-orm';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { ApiContext } from '../context.ts';
 import { adminSessions } from '../db/schema.ts';
@@ -21,7 +21,13 @@ const cookieBase = (ctx: ApiContext) => ({
 /** Starts a session for an admin and sets both cookies. */
 export function startAdminSession(ctx: ApiContext, reply: FastifyReply, userId: string): void {
   const token = randomBytes(32).toString('base64url');
-  const at = ctx.clock().toISOString();
+  const now = ctx.clock();
+  const at = now.toISOString();
+  // Sessions nobody came back to are removed here, so the table doesn't keep them forever.
+  ctx.db
+    .delete(adminSessions)
+    .where(lt(adminSessions.lastSeenAt, new Date(now.getTime() - IDLE_MS).toISOString()))
+    .run();
   ctx.db
     .insert(adminSessions)
     .values({ id: ctx.newId(), tokenHash: hashToken(token), userId, createdAt: at, lastSeenAt: at })
@@ -77,7 +83,15 @@ export function assertCsrf(request: FastifyRequest): void {
   if (request.method === 'GET' || request.method === 'HEAD') return;
   const cookie = request.cookies[CSRF_COOKIE];
   const header = request.headers['x-csrf-token'];
-  if (!cookie || typeof header !== 'string' || header !== cookie) throw apiError('FORBIDDEN');
+  if (!cookie || typeof header !== 'string' || !sameSecret(header, cookie)) {
+    throw apiError('FORBIDDEN');
+  }
+}
+
+function sameSecret(a: string, b: string): boolean {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
 }
 
 /** The `admin` role guard: a live session of an active admin, CSRF on writes. */

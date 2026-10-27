@@ -1,5 +1,5 @@
 import type { ApiErrorEnvelope, ErrorCode } from '@nextlevel/shared';
-import type { FastifyError, FastifyInstance } from 'fastify';
+import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 
 // One error envelope for every failure (api-spec §1). Messages are English defaults; clients
@@ -68,6 +68,21 @@ const redact = (text: string | undefined) =>
 function loggable(error: Error): Record<string, unknown> {
   const cause = error.cause instanceof Error ? error.cause.name : undefined;
   return { type: error.name, message: redact(error.message), stack: redact(error.stack), cause };
+}
+
+/**
+ * Fastify's router refuses some requests before any hook runs (a malformed `%` escape, a bad
+ * header): those get the envelope too. Passed as the `frameworkErrors` option.
+ */
+export function frameworkErrors(
+  _error: FastifyError,
+  request: FastifyRequest,
+  reply: FastifyReply,
+): void {
+  void reply
+    .status(400)
+    .header('x-request-id', request.id)
+    .send(envelope('VALIDATION_FAILED', MESSAGES.VALIDATION_FAILED ?? '', request.id));
 }
 
 export function registerErrorHandling(app: FastifyInstance): void {

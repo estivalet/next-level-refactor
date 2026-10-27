@@ -108,4 +108,36 @@ describe('Google identity provider (FR-AUTH-1, ADR-006, security §2)', () => {
     expect(error).toMatchObject({ code: 'UNAUTHENTICATED' });
     expect((error as Error).message).not.toMatch(/leaky|invalid_grant/);
   });
+
+  it('only RS256 tokens are accepted, even when the key set holds another kind of key', async () => {
+    const ec = await generateKeyPair('ES256', { extractable: true });
+    const ecJwk = { ...(await exportJWK(ec.publicKey)), kid: 'k2' };
+    const token = await new SignJWT({ email: 'player@example.test', email_verified: true })
+      .setProtectedHeader({ alg: 'ES256', kid: 'k2' })
+      .setSubject('google-sub-1')
+      .setIssuer('https://accounts.google.com')
+      .setAudience(CLIENT)
+      .setIssuedAt(Math.floor(NOW.getTime() / 1000) - 10)
+      .setExpirationTime(new Date(NOW.getTime() + 3600_000))
+      .sign(ec.privateKey);
+    const provider = googleProvider({
+      clientId: CLIENT,
+      clientSecret: 'client-secret',
+      fetch: () =>
+        Promise.resolve(
+          new Response(JSON.stringify({ id_token: token }), {
+            headers: { 'content-type': 'application/json' },
+          }),
+        ),
+      jwks: createLocalJWKSet({ keys: [jwk, ecJwk] }),
+      clock: () => NOW,
+    });
+    await expect(
+      provider.exchange({
+        code: 'c',
+        codeVerifier: 'v'.repeat(43),
+        redirectUri: 'http://127.0.0.1:5000/callback',
+      }),
+    ).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+  });
 });

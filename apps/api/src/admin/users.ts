@@ -8,7 +8,7 @@ import type {
 import { and, count, desc, eq, lt, or, sql, type SQL } from 'drizzle-orm';
 import { entitlementOf } from '../auth/session.ts';
 import type { ApiContext } from '../context.ts';
-import { devices, users } from '../db/schema.ts';
+import { adminSessions, devices, users } from '../db/schema.ts';
 import { apiError } from '../errors.ts';
 import { toDevice } from '../users/DeviceRepository.ts';
 import type { UserRow } from '../users/UserRepository.ts';
@@ -147,6 +147,10 @@ export function patchUser(
         })
         .where(eq(users.id, user.id))
         .run();
+      // A former admin's open console tabs end at once, not at their next request.
+      if (demote || suspend) {
+        ctx.db.delete(adminSessions).where(eq(adminSessions.userId, user.id)).run();
+      }
     });
   }
   return userDetail(ctx, user.id);

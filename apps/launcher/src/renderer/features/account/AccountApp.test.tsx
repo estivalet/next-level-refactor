@@ -61,6 +61,19 @@ describe('Account app (S12, D24, FR-AUTH-6, FR-AUTH-8)', () => {
     expect(await screen.findByText(/Can't reach NextLevel/)).toBeVisible();
   });
 
+  it('a revoke that fails says why under the list', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'auth.state': () => ok(signedIn()),
+      'auth.devices.list': () => ok([device('d1', 'Den', true), device('d2', 'Office')]),
+      'auth.devices.revoke': () => err('API_UNREACHABLE', 'errors.apiUnreachable'),
+    });
+    renderInShell(<AccountApp />);
+    await user.click(await screen.findByRole('button', { name: 'Revoke' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Can't reach NextLevel/);
+    expect(screen.getByText('Office')).toBeVisible();
+  });
+
   it('D25: with sign-in off it says so', async () => {
     installFakeBridge({ 'auth.state': () => ok({ kind: 'disabled' }) });
     renderInShell(<AccountApp />);
