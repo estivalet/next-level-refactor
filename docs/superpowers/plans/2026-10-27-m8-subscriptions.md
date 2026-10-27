@@ -17,7 +17,7 @@ Before anyone is charged, users can download their data and delete their account
   harmless.
 - `apps/launcher`: `AuthService` is split first (M8-0). Billing and account calls go to a new
   `main/auth/BillingService.ts`, with the IPC channels `auth.plans`, `auth.openCheckout`,
-  `auth.openPortal`, `account.export` and `account.delete`. Renderer: the real S3 Subscribe
+  `auth.openPortal`, `auth.stopWaiting`, `account.export` and `account.delete`. Renderer: the real S3 Subscribe
   screen, plus billing lines and data/delete sections in the Account app.
 - `apps/admin`: Plans and Scopes pages; Subscription panel (grant/revoke) and Delete account on
   user detail; Users filters for plan and access.
@@ -75,7 +75,7 @@ Asked in one batch on 2026-10-27; all answered "recommended".
 
 **Calls made in planning (no owner decision; reviewers may challenge):**
 - Stripe status → ours: `active`/`trialing` → `active`; `past_due` → `past_due`; `canceled` →
-  `canceled`; `unpaid`/`incomplete_expired` → `expired`; `incomplete` → not stored (no access
+  `canceled`; `unpaid`/`incomplete_expired`/`paused` → `expired`; `incomplete` → not stored (no access
   yet). Entitlement: `active` → `active`; `past_due` → `grace` (Stripe's retry window, FR-SUB-3);
   anything else → `none`.
 - Cancelling in the Portal is "at period end": Stripe keeps `active` with
@@ -101,9 +101,13 @@ Asked in one batch on 2026-10-27; all answered "recommended".
   stored as processed with a warning log; access doesn't change. The ops runbook says the Portal's
   products must match the plans.
 - Admins can't delete their own account or be deleted (`CONFLICT`, `reason: 'admin'`): demote
-  first. That way no audit row ever loses its actor (`audit_log.actor_id` FK). Self-deletion from
-  the launcher is not an admin action and writes no audit entry; an admin deletion writes
-  `user.delete` with the email removed from `before`.
+  first. A user who was ever an audit actor or a grant's `granted_by` (a former admin) is not
+  deleted but **tombstoned**: the row stays (FKs from the append-only `audit_log` and
+  `subscriptions.granted_by` keep pointing at it), with `email` → `deleted-<id>@deleted.invalid`,
+  `name` → `Deleted user`, `avatar_url` null, `google_sub` → `deleted:<id>` (so signing in again
+  creates a new account), `status` `suspended`, `suspended_reason` null. Everyone else's row is
+  deleted. Self-deletion from the launcher is not an admin action and writes no audit entry; an
+  admin deletion writes `user.delete` with the email removed from `before`.
 - The `default` plan can't be archived (`CONFLICT`, `reason: 'defaultPlan'`). Archived plans keep
   working for existing subscriptions and comp grants, but they don't appear in `/v1/plans` and
   can't be granted or bought.
@@ -184,7 +188,7 @@ Asked in one batch on 2026-10-27; all answered "recommended".
     presented; a new admin sign-in deletes every idle-expired session.
   - `auth/adminSession` CSRF: a header of a different length than the cookie → `FORBIDDEN` (no
     throw from `timingSafeEqual`).
-  - `routes/adminStatic.test.ts`: `GET /%E0%A4%A` → 404 envelope (not 500); `/assets/x.js` has
+  - `routes/adminStatic.test.ts`: `GET /%E0%A4%A` → 400 `VALIDATION_FAILED` envelope (Fastify's router refuses it; ledger ruling); `/assets/x.js` has
     `Cache-Control: public, max-age=31536000, immutable`; `index.html` (and the fallback) has
     `no-cache`.
   - `auth/google.test.ts`: an ID token signed HS256 with a key from the JWKS → `UNAUTHENTICATED`.
@@ -215,7 +219,7 @@ Asked in one batch on 2026-10-27; all answered "recommended".
 - Produces:
   - `class SessionVault { constructor(secrets: SecretsLike, log); load(): Promise<SessionRecord | null>; store(s: SessionRecord): Promise<void>; clear(): Promise<void>; current(): SessionRecord | null; remembered(): boolean; probe(): Promise<void> /* sets remembered from secrets.available() */ }`
   - `class AccessTokens { constructor(deps: { api: Pick<ApiClient,'refresh'>; vault: SessionVault; clock; generation: () => number }); withAccess<T>(call: (token: string) => Promise<T>): Promise<T> /* refreshes when older than 13 min */; refresh(): Promise<void> /* single-flight */; set(token: string): void; reset(): void }`
-  - `browserSignIn(deps, isCancelled: () => boolean, onLoop: (loop) => void): Promise<{ code; verifier; redirectUri; banner } | { outcome: SignedOutReason }>`
+  - `browserSignIn(deps, hooks: { cancelled(); onLoop(loop | null); onBanner(banner) }): Promise<{ code; verifier; redirectUri } | { outcome: SignedOutReason }>`
   - `AuthService` keeps its public methods unchanged. Task 8 adds `accessCall<T>(call: (token: string) => Promise<T>): Promise<T>` (public; wraps `withAccess` with the 401 → `revoked` handling), so BillingService needs no token handling of its own.
 
 - [ ] **Step 1: Failing tests:** `SessionVault`: a store failure flips `remembered()` to false and
@@ -649,9 +653,10 @@ Asked in one batch on 2026-10-27; all answered "recommended".
     (mismatch → `VALIDATION_FAILED`, `reason: 'email'`); admin → `CONFLICT` `admin`; cancel the
     access-giving Stripe subscription through `ctx.billing.cancelNow` (failure →
     `BILLING_UNAVAILABLE`, nothing deleted). Then one transaction: delete refresh tokens,
-    devices, admin sessions and subscriptions; scrub `email`/`name`/`suspendedReason` from
-    `before`/`after` of audit rows that target the user or their devices; delete the user;
-    write `user.delete` when an admin acted.
+    devices, admin sessions and the user's own subscriptions; scrub `email`/`name`/
+    `suspendedReason` from `before`/`after` of audit rows that target the user or their devices;
+    then tombstone the user (an audit actor or some grant's `granted_by`, see the calls above) or
+    delete the row; write `user.delete` when an admin acted.
 
 - [ ] **Step 1: Failing tests** (security §5):
   - Export contains the user's devices and subscriptions, and no field named `tokenHash` or
@@ -665,6 +670,9 @@ Asked in one batch on 2026-10-27; all answered "recommended".
   - Admin deletion of another subscriber → 204 + `user.delete` audit without email; deleting an
     admin → `CONFLICT` `admin`.
   - Signing in again after deletion creates a new account (subject to sign-up mode).
+  - A demoted former admin with audit entries and a comp grant they gave to someone else →
+    deleted as a tombstone: 204, no FK error, the audit entries and the other user's grant stay,
+    the tombstone has no email/name/avatar/Google id, and their Google sign-in makes a new account.
 - [ ] **Step 2: Run** `npx vitest run apps/api/src/routes/account.test.ts apps/api/src/routes/admin.test.ts` → FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** the same → PASS.

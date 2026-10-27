@@ -6,29 +6,36 @@ import { authorizeUrlAllowed } from './rules.ts';
 const BROWSER_WAIT_MS = 5 * 60_000;
 
 export type BrowserSignInResult =
-  | { code: string; verifier: string; redirectUri: string; banner: string | null }
-  | { outcome: SignedOutReason; banner: string | null };
+  { code: string; verifier: string; redirectUri: string } | { outcome: SignedOutReason };
+
+export interface BrowserSignInHooks {
+  cancelled: () => boolean;
+  /** The listener, so Cancel can close it (null once it answered). */
+  onLoop: (loop: { close(): void } | null) => void;
+  /** The maintenance banner from the launcher config, as soon as it arrives (D28). */
+  onBanner: (banner: string | null) => void;
+}
 
 /**
  * The browser half of a sign-in (ADR-006, IA F1): launcher config → PKCE → loopback → system
- * browser → the code. `onLoop` hands the listener to the caller so Cancel can close it.
+ * browser → the code.
  */
 export async function browserSignIn(
   deps: Pick<AuthDeps, 'api' | 'loopback' | 'pkce' | 'page' | 'openBrowser' | 'apiOrigin' | 'log'>,
-  cancelled: () => boolean,
-  onLoop: (loop: { close(): void } | null) => void,
+  hooks: BrowserSignInHooks,
 ): Promise<BrowserSignInResult> {
+  const { cancelled, onLoop } = hooks;
   let config;
   try {
     config = await deps.api.launcherConfig();
   } catch {
-    return { outcome: 'unreachable', banner: null };
+    return { outcome: 'unreachable' };
   }
-  const banner = config.banner;
-  if (cancelled()) return { outcome: 'cancelled', banner };
+  hooks.onBanner(config.banner);
+  if (cancelled()) return { outcome: 'cancelled' };
   if (!authorizeUrlAllowed(config.authorizeUrl, deps.apiOrigin)) {
     deps.log.warn({}, 'sign-in refused: unexpected authorize URL');
-    return { outcome: 'error', banner };
+    return { outcome: 'error' };
   }
   const pkce = (deps.pkce ?? createPkce)();
   const loop = await deps.loopback({
@@ -54,7 +61,7 @@ export async function browserSignIn(
   if (!cancelled()) await deps.openBrowser(url.toString());
   const result = await loop.result;
   onLoop(null);
-  if ('cancelled' in result) return { outcome: 'cancelled', banner };
-  if ('timeout' in result) return { outcome: 'timeout', banner };
-  return { code: result.code, verifier: pkce.verifier, redirectUri: loop.redirectUri, banner };
+  if ('cancelled' in result) return { outcome: 'cancelled' };
+  if ('timeout' in result) return { outcome: 'timeout' };
+  return { code: result.code, verifier: pkce.verifier, redirectUri: loop.redirectUri };
 }

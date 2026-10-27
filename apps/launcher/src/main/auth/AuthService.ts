@@ -135,14 +135,15 @@ export class AuthService {
   }
 
   async #browserSignIn(): Promise<AuthState> {
-    const result = await browserSignIn(
-      this.#deps,
-      () => this.#cancelled(),
-      (loop) => {
+    const result = await browserSignIn(this.#deps, {
+      cancelled: () => this.#cancelled(),
+      onLoop: (loop) => {
         this.#signIn = loop;
       },
-    );
-    this.#banner = result.banner ?? this.#banner;
+      onBanner: (banner) => {
+        this.#banner = banner;
+      },
+    });
     if ('outcome' in result) return this.#signedOut(result.outcome);
     return this.#finish(() =>
       this.#deps.api.exchange({
