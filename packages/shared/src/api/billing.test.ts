@@ -5,6 +5,7 @@ import {
   AuditEntrySchema,
   CheckoutRequestSchema,
   EntitlementSchema,
+  formatPrice,
   GrantRequestSchema,
   PlansResponseSchema,
 } from '../index.ts';
@@ -85,6 +86,12 @@ describe('billing contracts (FR-SUB-1..5)', () => {
     expect(response({ amount: 1990, currency: 'brl' })).toBe(true);
     expect(response({ amount: 19.9, currency: 'brl' })).toBe(false);
     expect(response({ amount: 1990, currency: 'BRL' })).toBe(false);
+  });
+
+  it("prices format in the locale with the currency's own decimals", () => {
+    expect(formatPrice({ amount: 1990, currency: 'brl' }, 'en')).toBe('R$19.90');
+    expect(formatPrice({ amount: 500, currency: 'jpy' }, 'en')).toBe('¥500');
+    expect(formatPrice({ amount: 1500, currency: 'bhd' }, 'en')).toMatch(/1\.500/);
   });
 
   it('audit entries can target plans, scopes and subscriptions', () => {
