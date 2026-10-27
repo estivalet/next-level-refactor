@@ -91,8 +91,10 @@ describe('sign-in gate (IA §1, S2, US-A1..A3)', () => {
     expect(fake.channels()).toContain('auth.signOut');
   });
 
-  it('FR-AUTH-3, D21: no entitlement shows the Subscribe placeholder with Sign out', async () => {
-    setup(signedIn({}, { status: 'none', plan: null }));
+  it('FR-AUTH-3, D21: no entitlement with billing off shows the placeholder with Sign out', async () => {
+    setup(signedIn({}, { status: 'none', plan: null }), {
+      'auth.plans': () => ok({ billingEnabled: false, plans: [] }),
+    });
     expect(
       await screen.findByRole('heading', { name: "Subscriptions aren't open yet" }),
     ).toBeVisible();

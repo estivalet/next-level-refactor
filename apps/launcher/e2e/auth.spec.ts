@@ -103,3 +103,25 @@ test('US-A4: with 3 devices already, remove one and continue', async () => {
   await api.close();
   await data.remove();
 });
+
+test('US-A2: Subscribe → Choose → the stub Checkout is paid → the launcher unlocks, no restart', async () => {
+  const api = await startTestApi({ billing: true });
+  const data = await freshDataDir();
+  const app = await launch(data.dir, signedInEnv(api.url, 'subscriber'));
+  const page = await app.firstWindow();
+
+  await page.getByRole('button', { name: 'Sign in with Google' }).click();
+  await expect(page.getByRole('heading', { name: 'Choose a plan' })).toBeVisible();
+  const basic = page.getByRole('article', { name: 'Basic' });
+  await expect(basic.getByText(/19\.90/)).toBeVisible();
+  await basic.getByRole('button', { name: 'Choose Basic' }).click();
+  await expect(desktopApps(page)).toBeVisible({ timeout: 10_000 });
+  await desktopApps(page).getByRole('button', { name: 'Account' }).dblclick();
+  const account = page.getByRole('dialog', { name: 'Account' });
+  await expect(account.getByText(/Basic · Monthly · Renews on/)).toBeVisible();
+  await expect(account.getByRole('button', { name: 'Manage billing' })).toBeVisible();
+
+  await app.close();
+  await api.close();
+  await data.remove();
+});

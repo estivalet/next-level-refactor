@@ -38,7 +38,8 @@ relevant), **populated**.
 - Contents: user avatar/email, plan cards (name, price month/year, device limit, what the catalog includes), "Sign out".
 - Actions: Choose plan → opens browser checkout; "I've already paid" → refresh.
 - States: waiting-for-payment (polling indicator), payment-failed (from `past_due`), suspended (no plans, contact text).
-- M7 (billing off, D21): a placeholder — "Subscriptions aren't open yet", the account's email, Sign out. Plan cards arrive in M8.
+- M7 (billing off, D21): a placeholder — "Subscriptions aren't open yet", the account's email, Sign out.
+- As built (M8c, US-A2): "Choose a plan" with a Monthly/Yearly toggle (Monthly first) and one card per plan on sale: name, price for the period in the UI locale's currency format, "Devices: N", scope names, **Choose** (the first choosable one has focus). A plan without a price for the period says "Monthly only" / "Yearly only" and can't be chosen. Choose opens Stripe Checkout in the browser; the screen shows "Waiting for your payment…" with a progress bar, **I've already paid** (checks now) and **Choose another plan**, while main checks every 3 s for up to 2 minutes; the launcher unlocks as soon as the payment is seen. Errors (billing unavailable, offline) show under the cards. Sign out is always there. With billing off it stays the M7 notice. A payment-failed subscription is in its grace, so it reaches the launcher; the Account app says so.
 
 ## S4 First-run wizard
 
@@ -320,7 +321,7 @@ Remove from collection is in the game's context menu.
 Profile (Google name/email/avatar), plan + renewal date + "Manage billing" (opens portal),
 devices list with Revoke, Sign out.
 
-As built (M7b, D24): profile; "Default plan — billing not enabled" (admins: Administrator); last check time (or "Offline — access until …") with **Refresh**; devices (this PC marked, Revoke on the others; offline: "Can't reach NextLevel"); a note when Windows couldn't store the sign-in. With sign-in off (development, D25) it says so. Billing lines come in M8.
+As built (M7b, D24): profile; "Default plan — billing not enabled" (admins: Administrator); last check time (or "Offline — access until …") with **Refresh**; devices (this PC marked, Revoke on the others; offline: "Can't reach NextLevel"); a note when Windows couldn't store the sign-in. With sign-in off (development, D25) it says so. As built (M8c): the plan line follows the subscription — "Basic · Monthly · Renews on 12 Nov 2026", "… · Ends on …" after cancelling in the Portal, "Payment failed — update your payment details" (an alert) for a failed payment, "Basic · Complimentary · until …" or "until revoked" for a grant; Stripe subscriptions get **Manage billing** (the Stripe Customer Portal in the browser). With billing off it is the M7 line.
 
 ## S13 Admin console screens
 

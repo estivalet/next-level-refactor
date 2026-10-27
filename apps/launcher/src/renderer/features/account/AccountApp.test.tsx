@@ -102,3 +102,74 @@ describe('Account app (S12, D24, FR-AUTH-6, FR-AUTH-8)', () => {
     expect(document.querySelector('img')).toBeNull();
   });
 });
+
+const BASIC = { slug: 'basic', name: 'Basic', deviceLimit: 2 };
+const stripe = (overrides: Record<string, unknown> = {}) => ({
+  source: 'stripe' as const,
+  status: 'active' as const,
+  interval: 'month' as const,
+  periodEnd: '2026-11-12T12:00:00.000Z',
+  cancelAtPeriodEnd: false,
+  ...overrides,
+});
+
+function billingSetup(subscription: unknown, status: 'active' | 'grace' = 'active') {
+  return installFakeBridge({
+    'auth.state': () =>
+      ok(signedIn({}, { plan: BASIC, status, subscription } as Record<string, unknown>)),
+    'auth.devices.list': () => ok([]),
+    'auth.openPortal': () => ok(undefined),
+  });
+}
+
+function renderBilling(subscription: unknown, status: 'active' | 'grace' = 'active') {
+  const fake = billingSetup(subscription, status);
+  renderInShell(<AccountApp />);
+  return fake;
+}
+
+describe('Account billing (S12, FR-SUB-2)', () => {
+  it('a Stripe subscription renews on its date; Manage billing opens the portal', async () => {
+    const user = userEvent.setup();
+    const fake = renderBilling(stripe());
+    expect(await screen.findByText(/Basic · Monthly · Renews on .*2026/)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Manage billing' }));
+    expect(fake.channels()).toContain('auth.openPortal');
+  });
+
+  it('cancelled at period end → "Ends on"', async () => {
+    renderBilling(stripe({ cancelAtPeriodEnd: true, interval: 'year' }));
+    expect(await screen.findByText(/Basic · Yearly · Ends on/)).toBeVisible();
+  });
+
+  it('payment failed is an alert with Manage billing', async () => {
+    renderBilling(stripe({ status: 'past_due' }), 'grace');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Payment failed — update your payment details',
+    );
+    expect(screen.getByRole('button', { name: 'Manage billing' })).toBeVisible();
+  });
+
+  it('complimentary: until a date or until revoked, and no Manage billing', async () => {
+    renderBilling({ ...stripe(), source: 'comp', interval: null });
+    expect(await screen.findByText(/Basic · Complimentary · until .*2026/)).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Manage billing' })).not.toBeInTheDocument();
+  });
+
+  it('complimentary without an end says until revoked', async () => {
+    renderBilling({ ...stripe(), source: 'comp', interval: null, periodEnd: null });
+    expect(await screen.findByText('Basic · Complimentary · until revoked')).toBeVisible();
+  });
+
+  it('a failed portal open is explained', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'auth.state': () => ok(signedIn({}, { plan: BASIC, subscription: stripe() })),
+      'auth.devices.list': () => ok([]),
+      'auth.openPortal': () => err('API_UNREACHABLE', 'errors.apiUnreachable'),
+    });
+    renderInShell(<AccountApp />);
+    await user.click(await screen.findByRole('button', { name: 'Manage billing' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach NextLevel");
+  });
+});

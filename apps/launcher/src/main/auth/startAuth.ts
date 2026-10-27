@@ -43,7 +43,8 @@ export function devHooks(
 /**
  * Builds the launcher's sign-in (FR-AUTH-*). Development builds honour, for e2e and local work:
  * `NEXTLEVEL_AUTH=off` (no gate, D25), `NEXTLEVEL_API_URL`, `NEXTLEVEL_E2E_BROWSER=stub:<persona>`
- * (the "browser" fetches the stub's authorize URL, which redirects to the loopback) and
+ * (the "browser" fetches the stub's authorize URL, which redirects to the loopback, and pays a
+ * billing-stub Checkout) and
  * `NEXTLEVEL_E2E_CLOCK_OFFSET_DAYS`. Packaged builds ignore all of them.
  */
 export function createAuth(opts: {
@@ -108,11 +109,19 @@ export function createAuth(opts: {
     apiOrigin: baseUrl,
     disabled: false,
   });
-  // Checkout and the Portal always open in the real browser (the e2e pays through the API).
+  // The e2e "browser" pays a stub Checkout at once (POST …/pay), as a player would in the page.
+  const billingBrowser = persona
+    ? async (url: string) => {
+        await fetch(url);
+        if (url.includes('/v1/billing/stub/checkout/')) {
+          await fetch(`${url}/pay`, { method: 'POST', redirect: 'manual' });
+        }
+      }
+    : opts.openExternal;
   const billing = new BillingService({
     auth: service,
     api,
-    openBrowser: opts.openExternal,
+    openBrowser: billingBrowser,
     apiOrigin: baseUrl,
     every,
     clock,

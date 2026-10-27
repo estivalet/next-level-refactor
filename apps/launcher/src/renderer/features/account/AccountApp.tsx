@@ -10,6 +10,7 @@ import {
 import { DeviceList } from '../auth/DeviceList.tsx';
 import { SECONDARY } from '../auth/GateFrame.tsx';
 import { errorMessageKey } from '../settings/settingsApi.ts';
+import { BillingSection } from './BillingSection.tsx';
 
 /** S12 Account (D24): profile, plan, last check with Refresh, devices with Revoke, Sign out. */
 export function AccountApp() {
@@ -31,7 +32,6 @@ export function AccountApp() {
   }
   if (!signedIn) return null;
   const { user, entitlement } = signedIn;
-  const plan = entitlement.plan;
 
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto bg-[#0b0b0f] p-6 text-slate-300">
@@ -54,9 +54,7 @@ export function AccountApp() {
         </button>
       </section>
       <section className="flex flex-col gap-1">
-        <p className="text-sm text-slate-200">
-          {plan ? t('account.plan', { plan: plan.name }) : t('account.admin')}
-        </p>
+        <BillingSection entitlement={entitlement} />
         <div className="flex items-center gap-3">
           <p className="text-xs text-slate-500">
             {signedIn.offline
