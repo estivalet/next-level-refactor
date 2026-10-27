@@ -11,6 +11,8 @@ exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json 
   "/v1/admin/users",
   "/v1/admin/users/{id}",
   "/v1/admin/users/{id}/devices/{deviceId}",
+  "/v1/admin/users/{id}/grants",
+  "/v1/admin/users/{id}/grants/{subscriptionId}",
   "/v1/auth/complete",
   "/v1/auth/google/exchange",
   "/v1/auth/google/start",

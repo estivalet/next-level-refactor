@@ -13,6 +13,8 @@ import { apiError } from '../errors.ts';
 import { toDevice } from '../users/DeviceRepository.ts';
 import type { UserRow } from '../users/UserRepository.ts';
 import { audited, auditPage, type AuditInput } from './audit.ts';
+import { adminSubscriptions } from './grants.ts';
+import { planAccessFilter } from './userFilters.ts';
 
 const activeDevices = sql<number>`(select count(*) from ${devices} where ${devices.userId} = ${users.id} and ${devices.revokedAt} is null)`;
 
@@ -46,6 +48,7 @@ export function listUsers(ctx: ApiContext, query: AdminUserQuery): Page<AdminUse
   const filters = [
     q ? or(contains(sql`lower(${users.email})`), contains(sql`lower(${users.name})`)) : undefined,
     query.status ? eq(users.status, query.status) : undefined,
+    planAccessFilter(ctx, query),
     afterCursor(query.cursor),
   ].filter((f): f is SQL => f !== undefined);
   const rows = ctx.db
@@ -75,7 +78,7 @@ export function userDetail(ctx: ApiContext, id: string): AdminUserDetail {
     entitlement: entitlementOf(ctx, user),
     devices: all.map((row) => toDevice(row, null)),
     audit: auditPage(ctx, { targets: [user.id, ...all.map((d) => d.id)], limit: 20 }).items,
-    subscriptions: [],
+    subscriptions: adminSubscriptions(ctx, user.id),
   };
 }
 

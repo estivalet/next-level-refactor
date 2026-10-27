@@ -1,4 +1,5 @@
 import {
+  AdminSubscriptionSchema,
   AdminUserDetailSchema,
   AdminUserPatchSchema,
   AdminUserQuerySchema,
@@ -8,12 +9,14 @@ import {
   AppSettingsViewSchema,
   AuditEntrySchema,
   AuditQuerySchema,
+  GrantRequestSchema,
   PageSchema,
 } from '@nextlevel/shared';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { audited, auditPage } from '../admin/audit.ts';
+import { grantComp, revokeComp } from '../admin/grants.ts';
 import { listUsers, patchUser, revokeUserDevice, userDetail } from '../admin/users.ts';
 import type { ApiContext } from '../context.ts';
 import { apiError } from '../errors.ts';
@@ -69,6 +72,28 @@ export function adminRoutes(app: FastifyInstance, ctx: ApiContext): void {
     { config, schema: { params: z.object({ id, deviceId: id }) } },
     (request, reply) => {
       revokeUserDevice(ctx, actor(request), request.params.id, request.params.deviceId);
+      return reply.status(204).send();
+    },
+  );
+
+  route.post(
+    '/v1/admin/users/:id/grants',
+    {
+      config,
+      schema: {
+        params: z.object({ id }),
+        body: GrantRequestSchema,
+        response: { 200: AdminSubscriptionSchema },
+      },
+    },
+    (request) => grantComp(ctx, actor(request), request.params.id, request.body),
+  );
+
+  route.delete(
+    '/v1/admin/users/:id/grants/:subscriptionId',
+    { config, schema: { params: z.object({ id, subscriptionId: id }) } },
+    (request, reply) => {
+      revokeComp(ctx, actor(request), request.params.id, request.params.subscriptionId);
       return reply.status(204).send();
     },
   );
