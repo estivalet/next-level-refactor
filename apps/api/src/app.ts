@@ -90,7 +90,11 @@ function billingProvider(deps: AppDeps, app: FastifyInstance): BillingProvider |
     });
   }
   if (billing.mode === 'stripe' && billing.secretKey && billing.webhookSecret) {
-    return stripeProvider({ secretKey: billing.secretKey, webhookSecret: billing.webhookSecret });
+    return stripeProvider({
+      secretKey: billing.secretKey,
+      webhookSecret: billing.webhookSecret,
+      log: app.log,
+    });
   }
   return null;
 }

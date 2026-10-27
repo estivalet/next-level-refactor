@@ -1,7 +1,7 @@
 import type { FastifyBaseLogger } from 'fastify';
 import type { ApiContext } from '../context.ts';
 import type { SubscriptionRow } from '../subscriptions/SubscriptionRepository.ts';
-import type { BillingEvent, ProviderSubscriptionStatus } from './provider.ts';
+import type { BillingEvent, BillingProvider, ProviderSubscriptionStatus } from './provider.ts';
 
 // Webhook events are only triggers (ADR-009): the subscription they name is re-read from the
 // provider and upserted, so duplicates and out-of-order delivery end in the provider's state.
@@ -34,6 +34,27 @@ export function ourStatus(status: ProviderSubscriptionStatus): SubscriptionRow['
   }
 }
 
+/** Per context: the last read-and-write of each subscription, so they run one at a time. */
+const chains = new WeakMap<ApiContext, Map<string, Promise<unknown>>>();
+
+/**
+ * Runs `task` after every earlier task for the same subscription. A read started later then
+ * always sees at least what an earlier read saw, so a slow stale read can't overwrite a newer
+ * state (Review Focus 1: concurrent deliveries).
+ */
+function inTurn<T>(ctx: ApiContext, key: string, task: () => Promise<T>): Promise<T> {
+  const byKey = chains.get(ctx) ?? new Map<string, Promise<unknown>>();
+  chains.set(ctx, byKey);
+  const previous = byKey.get(key) ?? Promise.resolve();
+  const run = previous.then(task, task);
+  const settled = run.catch(() => undefined);
+  byKey.set(key, settled);
+  void settled.then(() => {
+    if (byKey.get(key) === settled) byKey.delete(key);
+  });
+  return run;
+}
+
 /**
  * Applies one verified event. Unknown prices and users are logged (Stripe ids only, never
  * emails) and change nothing: access follows our plans, and the runbook says the Portal's
@@ -44,8 +65,20 @@ export async function processEvent(
   event: BillingEvent,
   log: FastifyBaseLogger,
 ): Promise<'applied' | 'ignored'> {
-  if (!HANDLED_EVENTS.has(event.type) || !event.subscriptionId || !ctx.billing) return 'ignored';
-  const sub = await ctx.billing.getSubscription(event.subscriptionId);
+  const { subscriptionId } = event;
+  const billing = ctx.billing;
+  if (!HANDLED_EVENTS.has(event.type) || !subscriptionId || !billing) return 'ignored';
+  return inTurn(ctx, subscriptionId, () => apply(ctx, event, subscriptionId, billing, log));
+}
+
+async function apply(
+  ctx: ApiContext,
+  event: BillingEvent,
+  subscriptionId: string,
+  billing: BillingProvider,
+  log: FastifyBaseLogger,
+): Promise<'applied' | 'ignored'> {
+  const sub = await billing.getSubscription(subscriptionId);
   const status = ourStatus(sub.status);
   if (status === null) return 'ignored';
   const notApplied = (reason: string) => {

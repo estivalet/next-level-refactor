@@ -14,6 +14,12 @@ function provider(ctx: ApiContext): BillingProvider {
   return ctx.billing;
 }
 
+/**
+ * The user's last Checkout session, expired before a new one opens so that only one can be paid
+ * (Review Focus 3). In memory: one API process; a restart forgets at most a 24-hour session.
+ */
+const openSessions = new WeakMap<ApiContext, Map<string, string>>();
+
 const returnUrl = (ctx: ApiContext, result: 'success' | 'cancelled' | 'portal') =>
   `${ctx.env.publicUrl}/v1/billing/return?result=${result}`;
 
@@ -36,7 +42,14 @@ export async function startCheckout(
   if (ctx.subscriptions.forUser(user.id).some((row) => givesAccess(row, now))) {
     throw apiError('CONFLICT', undefined, { reason: 'subscribed' });
   }
-  return billing.createCheckout({
+  const open = openSessions.get(ctx) ?? new Map<string, string>();
+  openSessions.set(ctx, open);
+  const previous = open.get(user.id);
+  if (previous) {
+    await billing.expireCheckout(previous);
+    open.delete(user.id);
+  }
+  const session = await billing.createCheckout({
     userId: user.id,
     email: user.email,
     customerId: ctx.subscriptions.latestCustomerId(user.id),
@@ -44,6 +57,8 @@ export async function startCheckout(
     successUrl: returnUrl(ctx, 'success'),
     cancelUrl: returnUrl(ctx, 'cancelled'),
   });
+  open.set(user.id, session.id);
+  return { url: session.url };
 }
 
 /** The Customer Portal of the user's Stripe customer (manage, switch, cancel). */

@@ -103,6 +103,15 @@ describe('checkout (FR-SUB-2, S3)', () => {
     });
   });
 
+  it('Review Focus 3: a second checkout expires the first, so only one can be paid', async () => {
+    const { checkout, app } = await setup();
+    const first = new URL((await checkout()).json<{ url: string }>().url).pathname;
+    const second = new URL((await checkout()).json<{ url: string }>().url).pathname;
+    expect(second).not.toBe(first);
+    expect((await app.inject({ method: 'POST', url: `${first}/pay` })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'POST', url: `${second}/pay` })).statusCode).toBe(303);
+  });
+
   it('a provider that is down is 503 BILLING_UNAVAILABLE', async () => {
     const billing = fakeBilling([], {
       createCheckout: () => Promise.reject(apiError('BILLING_UNAVAILABLE')),

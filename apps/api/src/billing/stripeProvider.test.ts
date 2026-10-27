@@ -35,6 +35,7 @@ interface Sent {
 
 function setup(respond: (sent: Sent) => { status: number; body: unknown } | Error) {
   const sent: Sent[] = [];
+  const warnings: Array<Record<string, unknown>> = [];
   const fakeFetch = (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
     const url = new URL(input instanceof Request ? input.url : String(input));
     const request = {
@@ -57,8 +58,9 @@ function setup(respond: (sent: Sent) => { status: number; body: unknown } | Erro
     webhookSecret: WEBHOOK_SECRET,
     httpClient: Stripe.createFetchHttpClient(fakeFetch),
     maxNetworkRetries: 0,
+    log: { warn: (fields: Record<string, unknown>) => warnings.push(fields) },
   });
-  return { provider, sent };
+  return { provider, sent, warnings };
 }
 
 describe('Stripe provider (ADR-009, D31)', () => {
@@ -124,6 +126,7 @@ describe('Stripe provider (ADR-009, D31)', () => {
       cancelUrl: 'http://localhost:4000/v1/billing/return?result=cancelled',
     };
     expect(await provider.createCheckout({ ...input, customerId: 'cus_fake1' })).toEqual({
+      id: 'cs_fake',
       url: 'https://checkout.stripe.com/c/fake',
     });
     await provider.createCheckout({ ...input, customerId: null });
@@ -148,6 +151,43 @@ describe('Stripe provider (ADR-009, D31)', () => {
     await expect(
       failing.provider.createPortal({ customerId: 'cus_fake1', returnUrl: 'http://x.test' }),
     ).rejects.toMatchObject({ code: 'BILLING_UNAVAILABLE' });
+  });
+
+  it('a Stripe failure is logged with its status, type, code and request id, no secrets', async () => {
+    const { provider, warnings } = setup(() => ({
+      status: 400,
+      body: {
+        error: {
+          type: 'invalid_request_error',
+          message: 'No configuration provided for the customer portal.',
+        },
+      },
+    }));
+    await expect(
+      provider.createPortal({ customerId: 'cus_fake1', returnUrl: 'http://x.test' }),
+    ).rejects.toMatchObject({ code: 'BILLING_UNAVAILABLE' });
+    expect(warnings).toEqual([
+      expect.objectContaining({
+        statusCode: 400,
+        type: 'StripeInvalidRequestError',
+        requestId: 'req_fake',
+      }),
+    ]);
+    expect(JSON.stringify(warnings)).not.toContain('sk_test');
+  });
+
+  it('expiring a checkout session posts expire; one already completed or expired is fine', async () => {
+    const { provider, sent } = setup((request) =>
+      request.path.includes('cs_done')
+        ? { status: 400, body: { error: { type: 'invalid_request_error', message: 'complete' } } }
+        : { status: 200, body: { id: 'cs_open', object: 'checkout.session', status: 'expired' } },
+    );
+    await provider.expireCheckout('cs_open');
+    await provider.expireCheckout('cs_done');
+    expect(sent.map((s) => [s.method, s.path])).toEqual([
+      ['POST', '/v1/checkout/sessions/cs_open/expire'],
+      ['POST', '/v1/checkout/sessions/cs_done/expire'],
+    ]);
   });
 
   it('cancelNow deletes the subscription', async () => {

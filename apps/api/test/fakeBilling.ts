@@ -21,6 +21,7 @@ export function fakeBilling(
       return Promise.resolve(price);
     },
     createCheckout: unused,
+    expireCheckout: () => Promise.resolve(),
     createPortal: unused,
     getSubscription: unused,
     cancelNow: unused,

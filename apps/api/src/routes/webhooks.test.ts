@@ -192,6 +192,37 @@ describe('webhook idempotency and order (Review Focus 1)', () => {
   });
 });
 
+describe('concurrent deliveries (Review Focus 1)', () => {
+  it('a slow read started before a cancel cannot overwrite it: reads per subscription take turns', async () => {
+    let state: 'active' | 'canceled' = 'active';
+    let releaseFirst: () => void = () => undefined;
+    let calls = 0;
+    const holder: { stub?: ReturnType<typeof stubProvider> } = {};
+    const app = await manualApp({
+      getSubscription: async (id) => {
+        calls += 1;
+        const seen = state;
+        const sub = await (holder.stub as NonNullable<typeof holder.stub>).getSubscription(id);
+        if (calls === 1) await new Promise<void>((resolve) => (releaseFirst = resolve));
+        return { ...sub, status: seen };
+      },
+    });
+    holder.stub = app.stub;
+    const sub = await app.pay();
+    const [completed, created] = app.captured;
+    if (!completed || !created) throw new Error('no events');
+    const slow = app.post(completed);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    state = 'canceled';
+    const fast = app.post(created);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    releaseFirst();
+    expect((await slow).statusCode).toBe(200);
+    expect((await fast).statusCode).toBe(200);
+    expect(app.rows()).toEqual([expect.objectContaining({ sid: sub.id, status: 'canceled' })]);
+  });
+});
+
 describe('webhook failures (FR-SUB-3, security §4)', () => {
   it('a bad signature is 400 and stores no event', async () => {
     const { captured, post, pay, db } = await manualApp();

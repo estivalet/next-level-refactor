@@ -51,7 +51,9 @@ export interface CheckoutInput {
 export interface BillingProvider {
   /** Rejects with `VALIDATION_FAILED` (`reason: 'unknownPrice'`) for an unknown price. */
   getPrice(priceId: string): Promise<ProviderPrice>;
-  createCheckout(input: CheckoutInput): Promise<{ url: string }>;
+  createCheckout(input: CheckoutInput): Promise<{ id: string; url: string }>;
+  /** Closes an open Checkout session; one already completed or expired is fine. */
+  expireCheckout(sessionId: string): Promise<void>;
   createPortal(input: { customerId: string; returnUrl: string }): Promise<{ url: string }>;
   getSubscription(id: string): Promise<ProviderSubscription>;
   cancelNow(subscriptionId: string): Promise<void>;

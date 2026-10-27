@@ -12,19 +12,35 @@ import {
 
 const API_VERSION = Stripe.API_VERSION;
 
+export interface WarnLog {
+  warn(fields: Record<string, unknown>, message?: string): void;
+}
+
 /**
  * Every Stripe failure (network, 5xx, rate limit, a request Stripe refused) is "billing
  * unavailable, try again" for the caller, except a 404 the caller maps itself (unknown price).
+ * The failure is logged with Stripe's status, type, code and request id: never the key or body.
  */
-async function call<T>(request: () => Promise<T>, notFound?: () => Error): Promise<T> {
+async function call<T>(
+  log: WarnLog | undefined,
+  request: () => Promise<T>,
+  notFound?: () => Error,
+): Promise<T> {
   try {
     return await request();
   } catch (error) {
-    if (notFound && error instanceof Stripe.errors.StripeError && error.statusCode === 404) {
-      throw notFound();
-    }
-    if (error instanceof Stripe.errors.StripeError) throw apiError('BILLING_UNAVAILABLE');
-    throw error;
+    if (!(error instanceof Stripe.errors.StripeError)) throw error;
+    if (notFound && error.statusCode === 404) throw notFound();
+    log?.warn(
+      {
+        statusCode: error.statusCode,
+        type: error.type,
+        code: error.code,
+        requestId: error.requestId,
+      },
+      'stripe request failed',
+    );
+    throw apiError('BILLING_UNAVAILABLE');
   }
 }
 
@@ -70,6 +86,7 @@ export function stripeProvider(config: {
   /** Tests inject a fake HTTP client; production uses the SDK's own. */
   httpClient?: ReturnType<typeof Stripe.createFetchHttpClient>;
   maxNetworkRetries?: number;
+  log?: WarnLog;
 }): BillingProvider {
   const stripe = new Stripe(config.secretKey, {
     apiVersion: API_VERSION,
@@ -78,19 +95,23 @@ export function stripeProvider(config: {
   });
   return {
     getPrice: (priceId) =>
-      call(async () => {
-        const price = await stripe.prices.retrieve(priceId);
-        return {
-          id: price.id,
-          amount: price.unit_amount ?? 0,
-          currency: price.currency,
-          interval: intervalOf(price.recurring?.interval),
-          active: price.active,
-        };
-      }, unknownPrice),
+      call(
+        config.log,
+        async () => {
+          const price = await stripe.prices.retrieve(priceId);
+          return {
+            id: price.id,
+            amount: price.unit_amount ?? 0,
+            currency: price.currency,
+            interval: intervalOf(price.recurring?.interval),
+            active: price.active,
+          };
+        },
+        unknownPrice,
+      ),
 
     createCheckout: (input) =>
-      call(async () => {
+      call(config.log, async () => {
         const session = await stripe.checkout.sessions.create({
           mode: 'subscription',
           line_items: [{ price: input.priceId, quantity: 1 }],
@@ -101,11 +122,21 @@ export function stripeProvider(config: {
           cancel_url: input.cancelUrl,
         });
         if (!session.url) throw apiError('BILLING_UNAVAILABLE');
-        return { url: session.url };
+        return { id: session.id, url: session.url };
       }),
 
+    expireCheckout: async (sessionId) => {
+      try {
+        await stripe.checkout.sessions.expire(sessionId);
+      } catch (error) {
+        // Already completed or expired: nothing left to close.
+        if (error instanceof Stripe.errors.StripeInvalidRequestError) return;
+        await call(config.log, () => Promise.reject(error as Error));
+      }
+    },
+
     createPortal: ({ customerId, returnUrl }) =>
-      call(async () => {
+      call(config.log, async () => {
         const session = await stripe.billingPortal.sessions.create({
           customer: customerId,
           return_url: returnUrl,
@@ -114,10 +145,10 @@ export function stripeProvider(config: {
       }),
 
     getSubscription: (id) =>
-      call(async () => toSubscription(await stripe.subscriptions.retrieve(id))),
+      call(config.log, async () => toSubscription(await stripe.subscriptions.retrieve(id))),
 
     cancelNow: (id) =>
-      call(async () => {
+      call(config.log, async () => {
         await stripe.subscriptions.cancel(id);
       }),
 

@@ -114,7 +114,12 @@ export function stubProvider(deps: {
     createCheckout: (input) => {
       const id = nextId('cs');
       sessions.set(id, { ...input, id });
-      return Promise.resolve({ url: `${deps.publicUrl}/v1/billing/stub/checkout/${id}` });
+      return Promise.resolve({ id, url: `${deps.publicUrl}/v1/billing/stub/checkout/${id}` });
+    },
+
+    expireCheckout: (id) => {
+      sessions.delete(id);
+      return Promise.resolve();
     },
 
     createPortal: ({ customerId }) =>
