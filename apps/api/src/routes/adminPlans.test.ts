@@ -122,6 +122,35 @@ describe('admin plans (FR-SUB-1, FR-ADM-2)', () => {
     });
   });
 
+  it('a price id already on another plan, archived or not, is CONFLICT priceTaken', async () => {
+    const { send } = await setup();
+    const old = (
+      await send('POST', '/v1/admin/plans', {
+        ...BASIC,
+        stripePriceMonthly: PRICES.basicMonthBrl.id,
+      })
+    ).json<AdminPlan>();
+    await send('PATCH', `/v1/admin/plans/${old.id}`, { archived: true });
+    const copy = await send('POST', '/v1/admin/plans', {
+      ...BASIC,
+      slug: 'copy',
+      stripePriceMonthly: PRICES.basicMonthBrl.id,
+    });
+    expect(copy.json()).toMatchObject({
+      error: { code: 'CONFLICT', details: { reason: 'priceTaken' } },
+    });
+    const other = (
+      await send('POST', '/v1/admin/plans', { ...BASIC, slug: 'other' })
+    ).json<AdminPlan>();
+    const patch = await send('PATCH', `/v1/admin/plans/${other.id}`, {
+      stripePriceMonthly: PRICES.basicMonthBrl.id,
+    });
+    expect(patch.json()).toMatchObject({ error: { details: { reason: 'priceTaken' } } });
+    // Saving a plan that keeps its own price is fine.
+    const same = await send('PATCH', `/v1/admin/plans/${old.id}`, { name: 'Basic (old)' });
+    expect(same.statusCode).toBe(200);
+  });
+
   it('without a billing provider a price id is CONFLICT billingOff', async () => {
     const { send } = await setup(null);
     const response = await send('POST', '/v1/admin/plans', {

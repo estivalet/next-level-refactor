@@ -9,13 +9,15 @@ import { audited, type AuditInput } from './audit.ts';
 // One access-giving subscription per user: a grant replaces an active grant and is refused for
 // someone paying through Stripe.
 
+/** An ended comp grant stays `active` in the table (time ends it); the console shows `expired`. */
 function toAdminSubscription(ctx: ApiContext, row: SubscriptionRow): AdminSubscription {
   const plan = ctx.plans.byId(row.planId);
+  const ended = row.source === 'comp' && row.status === 'active' && !givesAccess(row, ctx.clock());
   const giver = row.grantedBy ? ctx.users.byId(row.grantedBy) : undefined;
   return {
     id: row.id,
     source: row.source,
-    status: row.status,
+    status: ended ? 'expired' : row.status,
     plan: { slug: plan?.slug ?? '', name: plan?.name ?? '' },
     periodEnd: row.currentPeriodEnd,
     cancelAtPeriodEnd: row.cancelAtPeriodEnd,
@@ -97,8 +99,8 @@ export function revokeComp(
 ): void {
   const row = ctx.subscriptions.byId(subscriptionId);
   if (!row || row.userId !== userId || row.source !== 'comp') throw apiError('NOT_FOUND');
-  if (row.status !== 'active') throw apiError('CONFLICT', undefined, { reason: 'notActive' });
   const now = ctx.clock();
+  if (!givesAccess(row, now)) throw apiError('CONFLICT', undefined, { reason: 'notActive' });
   audited(ctx, actorId, [revokeEntry(ctx, row, now)], () => {
     ctx.subscriptions.setStatus(row.id, 'canceled', now);
   });

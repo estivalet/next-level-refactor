@@ -74,6 +74,17 @@ async function resolvePrices(
   };
 }
 
+/** A Stripe price sells one plan only: webhooks map a price back to its plan (`byPriceId`). */
+function assertPricesFree(ctx: ApiContext, ids: PriceIds, planId: string | null): void {
+  for (const priceId of [ids.stripePriceMonthly, ids.stripePriceYearly]) {
+    if (priceId === null) continue;
+    const holder = ctx.plans.byPriceId(priceId);
+    if (holder && holder.plan.id !== planId) {
+      throw apiError('CONFLICT', undefined, { reason: 'priceTaken' });
+    }
+  }
+}
+
 function assertScopes(ctx: ApiContext, scopeIds: readonly string[]): void {
   const known = new Set(ctx.scopes.list().map((scope) => scope.id));
   const unknown = scopeIds.filter((id) => !known.has(id));
@@ -119,6 +130,7 @@ export async function createPlan(
     stripePriceMonthly: body.stripePriceMonthly ?? null,
     stripePriceYearly: body.stripePriceYearly ?? null,
   };
+  assertPricesFree(ctx, ids, null);
   // The provider is called before the transaction: no network inside a write.
   const prices = await resolvePrices(ctx, ids, null);
   const row: PlanRow = {
@@ -162,6 +174,7 @@ export async function updatePlan(
     stripePriceYearly:
       patch.stripePriceYearly === undefined ? row.stripePriceYearly : patch.stripePriceYearly,
   };
+  assertPricesFree(ctx, ids, id);
   const prices = await resolvePrices(ctx, ids, row);
   const next: PlanRow = {
     ...row,

@@ -135,6 +135,18 @@ describe('complimentary grants (US-F2, FR-SUB-4, D35)', () => {
     expect(other.statusCode).toBe(404);
   });
 
+  it('an ended grant shows as expired and cannot be revoked', async () => {
+    const { grant, send, userId, clock } = await setup();
+    const sub = (await grant({ expiresAt: '2026-10-25T13:00:00.000Z' })).json<AdminSubscription>();
+    clock.advance(2 * 3600_000);
+    const detail = (await send('GET', `/v1/admin/users/${userId}`)).json<AdminUserDetail>();
+    expect(detail.subscriptions.map((s) => s.status)).toEqual(['expired']);
+    const revoke = await send('DELETE', `/v1/admin/users/${userId}/grants/${sub.id}`);
+    expect(revoke.json()).toMatchObject({
+      error: { code: 'CONFLICT', details: { reason: 'notActive' } },
+    });
+  });
+
   it('a new grant replaces the active one: old canceled, one audit entry each', async () => {
     const { grant, send, userId } = await setup();
     const first = (await grant()).json<AdminSubscription>();
