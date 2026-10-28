@@ -58,7 +58,8 @@ export function stubProvider(deps: {
   publicUrl: string;
   webhookSecret: string;
   clock: () => Date;
-  deliver: (raw: string, signature: string) => Promise<void>;
+  /** Posts the event to the webhook route; answers its HTTP status (undefined: not known). */
+  deliver: (raw: string, signature: string) => Promise<number | undefined>;
 }): StubBilling {
   const sessions = new Map<string, StubSession>();
   const subscriptions = new Map<string, ProviderSubscription>();
@@ -73,7 +74,8 @@ export function stubProvider(deps: {
     return `t=${timestamp},v1=${hmac(timestamp, payload)}`;
   };
 
-  const emit = (type: string, object: Record<string, unknown>) => {
+  /** Sends one event; a webhook route that refused it fails the action (BILLING_UNAVAILABLE). */
+  const emit = async (type: string, object: Record<string, unknown>): Promise<void> => {
     const raw = JSON.stringify({
       id: nextId('evt'),
       object: 'event',
@@ -81,7 +83,13 @@ export function stubProvider(deps: {
       created: Math.floor(deps.clock().getTime() / 1000),
       data: { object },
     });
-    return deps.deliver(raw, sign(raw));
+    const status = await deps.deliver(raw, sign(raw));
+    if (typeof status === 'number' && status >= 300) {
+      throw apiError('BILLING_UNAVAILABLE', 'The webhook route refused the event.', {
+        reason: 'webhook',
+        status,
+      });
+    }
   };
 
   const subscriptionObject = (sub: ProviderSubscription) => ({

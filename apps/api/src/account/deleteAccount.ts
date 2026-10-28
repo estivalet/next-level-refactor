@@ -13,8 +13,11 @@ import { ApiError, apiError } from '../errors.ts';
 import { isPayingStripe } from '../subscriptions/current.ts';
 import type { UserRow } from '../users/UserRepository.ts';
 
-/** Personal fields removed from audit snapshots about a deleted account. */
-const PERSONAL = new Set(['email', 'name', 'suspendedReason', 'avatarUrl']);
+/**
+ * Personal fields removed from audit snapshots about a deleted account (its user, devices and
+ * subscriptions): free text such as a grant's note or a device's name may name a person too.
+ */
+const PERSONAL = new Set(['email', 'name', 'suspendedReason', 'avatarUrl', 'note']);
 
 function scrub(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(scrub);

@@ -243,4 +243,23 @@ describe('Delete account (security §5, D36)', () => {
     const again = await signIn(app, 'subscriber');
     expect(again.user.id).not.toBe(launcher.user.id);
   });
+  it('after deletion, grant notes and device names are gone from audit snapshots', async () => {
+    const { adminSend, launcher, db } = await setup();
+    await adminSend('POST', `/v1/admin/users/${launcher.user.id}/grants`, {
+      planSlug: 'basic',
+      expiresAt: null,
+      note: 'Cousin Ana from Porto',
+    });
+    await adminSend('DELETE', `/v1/admin/users/${launcher.user.id}/devices/${launcher.deviceId}`);
+    const audit = () =>
+      JSON.stringify(db.$client.prepare('select before, after from audit_log').all());
+    expect(audit()).toContain('Cousin Ana from Porto');
+    expect(audit()).toContain('Living room');
+    const done = await adminSend('DELETE', `/v1/admin/users/${launcher.user.id}`, {
+      confirmEmail: EMAIL,
+    });
+    expect(done.statusCode).toBe(204);
+    expect(audit()).not.toContain('Cousin Ana from Porto');
+    expect(audit()).not.toContain('Living room');
+  });
 });

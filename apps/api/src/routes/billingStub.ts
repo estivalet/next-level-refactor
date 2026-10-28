@@ -1,10 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { checkoutPage, portalPage } from '../billing/stubPages.ts';
+import { checkoutPage, portalPage, webhookFailedPage } from '../billing/stubPages.ts';
 import type { StubBilling } from '../billing/stubProvider.ts';
 import type { ApiContext } from '../context.ts';
-import { apiError } from '../errors.ts';
+import { ApiError, apiError } from '../errors.ts';
 
 // /v1/billing/stub/* — the stub's Checkout and Portal (BILLING_STUB=1 only, D32). The session
 // and customer ids in the URL are the only key, as with Stripe's hosted pages.
@@ -39,7 +39,13 @@ export function billingStubRoutes(app: FastifyInstance, ctx: ApiContext, stub: S
     async (request, reply) => {
       const session = stub.session(request.params.session);
       if (!session) throw apiError('NOT_FOUND');
-      await stub.pay(session.id);
+      try {
+        await stub.pay(session.id);
+      } catch (error) {
+        // Paid, but our webhook route failed: say so instead of claiming success.
+        if (!(error instanceof ApiError) || error.code !== 'BILLING_UNAVAILABLE') throw error;
+        return reply.status(502).type('text/html; charset=utf-8').send(webhookFailedPage());
+      }
       return reply.redirect(session.successUrl, 303);
     },
   );

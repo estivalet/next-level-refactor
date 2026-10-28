@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { apiError } from '../errors.ts';
+import { ApiError, apiError } from '../errors.ts';
 import {
   eventOf,
   type BillingProvider,
@@ -11,6 +11,9 @@ import {
 // version is pinned to the one this SDK ships with; card data never reaches us.
 
 const API_VERSION = Stripe.API_VERSION;
+
+/** Statuses Stripe can't cancel again. */
+const ENDED = new Set<string>(['canceled', 'incomplete_expired']);
 
 export interface WarnLog {
   warn(fields: Record<string, unknown>, message?: string): void;
@@ -145,12 +148,31 @@ export function stripeProvider(config: {
       }),
 
     getSubscription: (id) =>
-      call(config.log, async () => toSubscription(await stripe.subscriptions.retrieve(id))),
+      call(
+        config.log,
+        async () => toSubscription(await stripe.subscriptions.retrieve(id)),
+        () => apiError('NOT_FOUND', undefined, { reason: 'subscriptionGone' }),
+      ),
 
-    cancelNow: (id) =>
-      call(config.log, async () => {
+    cancelNow: async (id) => {
+      try {
         await stripe.subscriptions.cancel(id);
-      }),
+      } catch (error) {
+        const fail = (): Promise<never> => call(config.log, () => Promise.reject(error as Error));
+        if (!(error instanceof Stripe.errors.StripeInvalidRequestError)) return fail();
+        // Stripe refuses to cancel one deleted (404) or already canceled (400): both are done.
+        if (error.statusCode === 404) return;
+        const gone = () => apiError('NOT_FOUND');
+        const current = await call(config.log, () => stripe.subscriptions.retrieve(id), gone).catch(
+          (failure: unknown) => {
+            if (failure instanceof ApiError && failure.code === 'NOT_FOUND') return null;
+            throw failure;
+          },
+        );
+        if (current === null || ENDED.has(current.status)) return;
+        return fail();
+      }
+    },
 
     verifyEvent: (rawBody, signature) => {
       let payload: unknown;

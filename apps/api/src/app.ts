@@ -81,12 +81,13 @@ function billingProvider(deps: AppDeps, app: FastifyInstance): BillingProvider |
       webhookSecret: billing.webhookSecret,
       clock: deps.clock,
       deliver: async (raw, signature) => {
-        await app.inject({
+        const response = await app.inject({
           method: 'POST',
           url: '/v1/webhooks/stripe',
           headers: { 'content-type': 'application/json', 'stripe-signature': signature },
           payload: raw,
         });
+        return response.statusCode;
       },
     });
   }

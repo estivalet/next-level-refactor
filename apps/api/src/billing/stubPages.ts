@@ -36,6 +36,16 @@ ${body}
 const button = (action: string, label: string) =>
   `<form method="post" action="${escape(action)}"><button type="submit">${escape(label)}</button></form>`;
 
+export function webhookFailedPage(): string {
+  return page(
+    'Webhook failed',
+    `<section>
+<p>The payment went through in the stub, but the API's webhook route refused the event, so
+nothing was stored. Check the API log.</p>
+</section>`,
+  );
+}
+
 export function checkoutPage(session: StubSession, base: string): string {
   return page(
     'Checkout',

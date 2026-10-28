@@ -106,6 +106,20 @@ M8 uses Stripe in **test mode only**; live keys are a go-live step (M10).
    price ids (the API reads the amounts from Stripe).
 6. Pay with Stripe's test card `4242 4242 4242 4242`, any future date, any CVC.
 
+### Register a webhook endpoint (staging or production)
+
+`stripe listen` covers your machine. An API reachable from the internet gets a real endpoint:
+
+1. Developers → Webhooks → **Add endpoint**: URL `https://<api host>/v1/webhooks/stripe`.
+2. **API version**: the one the API pins (`Stripe.API_VERSION` of the installed `stripe`
+   package, shown in `apps/api/src/billing/stripeProvider.ts`). Events in another version may
+   not parse the same way.
+3. **Events** (exactly these six, from the API spec): `checkout.session.completed`,
+   `customer.subscription.created`, `customer.subscription.updated`,
+   `customer.subscription.deleted`, `invoice.payment_failed`, `invoice.paid`.
+4. Copy the endpoint's signing secret (`whsec_…`) into that server's `STRIPE_WEBHOOK_SECRET`.
+5. Send a test event from the endpoint page: the API log shows it and Stripe shows `200`.
+
 ## Working without Stripe (billing stub, D32)
 
 `BILLING_STUB=1` replaces Stripe with fake Checkout and Portal pages on the API itself, marked

@@ -6,6 +6,7 @@ import { createTestApp, FakeClock } from '../../test/testApp.ts';
 import type { BillingProvider } from '../billing/provider.ts';
 import { stubProvider } from '../billing/stubProvider.ts';
 import { STUB_WEBHOOK_SECRET } from '../env.ts';
+import { apiError } from '../errors.ts';
 
 const closers: Array<() => Promise<void>> = [];
 afterEach(async () => {
@@ -109,7 +110,7 @@ async function manualApp(overrides: Partial<BillingProvider> = {}) {
     clock: clock.read,
     deliver: (raw, signature) => {
       captured.push({ raw, signature });
-      return Promise.resolve();
+      return Promise.resolve(200);
     },
   });
   let reads = 0;
@@ -165,7 +166,10 @@ async function manualApp(overrides: Partial<BillingProvider> = {}) {
   };
   const rows = () =>
     test.db.$client
-      .prepare('select user_id as userId, status, stripe_subscription_id as sid from subscriptions')
+      .prepare(
+        `select user_id as userId, status, stripe_subscription_id as sid,
+           cancel_at_period_end as cape from subscriptions`,
+      )
       .all();
   return { ...test, stub, captured, post, pay, rows, plan, launcher, lines, reads: () => reads };
 }
@@ -188,7 +192,7 @@ describe('webhook idempotency and order (Review Focus 1)', () => {
     const sub = await pay();
     await stub.act(sub.id, 'cancelAtPeriodEnd');
     for (const event of [...captured].reverse()) expect((await post(event)).statusCode).toBe(200);
-    expect(rows()).toEqual([expect.objectContaining({ sid: sub.id, status: 'active' })]);
+    expect(rows()).toEqual([expect.objectContaining({ sid: sub.id, status: 'active', cape: 1 })]);
   });
 });
 
@@ -283,5 +287,86 @@ describe('webhook failures (FR-SUB-3, security §4)', () => {
     expect(db.$client.prepare('select processed_at from stripe_events').pluck().all()).toEqual([
       expect.any(String),
     ]);
+  });
+});
+
+describe('webhook edge cases (M8b, M8e minors)', () => {
+  const processed = (db: {
+    $client: { prepare(sql: string): { pluck(): { all(): unknown[] } } };
+  }) => db.$client.prepare('select processed_at from stripe_events').pluck().all();
+
+  it('a subscription Stripe no longer has (404) is logged and the event stored as processed', async () => {
+    const holder: { fail: boolean } = { fail: false };
+    const app = await manualApp({
+      getSubscription: (id) =>
+        holder.fail
+          ? Promise.reject(apiError('NOT_FOUND', undefined, { reason: 'subscriptionGone' }))
+          : app.stub.getSubscription(id),
+    });
+    await app.pay();
+    holder.fail = true;
+    const [event] = app.captured;
+    if (!event) throw new Error('no event');
+    expect((await app.post(event)).statusCode).toBe(200);
+    expect(processed(app.db)).toEqual([expect.any(String)]);
+    expect(app.lines.join('\n')).toContain('subscriptionGone');
+    expect(app.rows()).toEqual([]);
+  });
+
+  it('a second access-giving subscription for one user logs duplicateSubscription', async () => {
+    const { captured, post, pay, rows, lines } = await manualApp();
+    await pay();
+    await pay();
+    for (const event of captured) expect((await post(event)).statusCode).toBe(200);
+    expect(rows()).toHaveLength(2);
+    expect(lines.filter((line) => line.includes('duplicateSubscription')).length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it('an event for a tombstoned user is ignored', async () => {
+    const { captured, post, pay, rows, lines, db, launcher } = await manualApp();
+    await pay();
+    db.$client
+      .prepare("update users set email = ?, status = 'suspended' where id = ?")
+      .run(`deleted-${launcher.user.id}@deleted.invalid`, launcher.user.id);
+    for (const event of captured) expect((await post(event)).statusCode).toBe(200);
+    expect(rows()).toEqual([]);
+    expect(lines.join('\n')).toContain('unknownUser');
+  });
+});
+
+describe('stub Pay (M8b minor)', () => {
+  it('stub Pay shows an error page when the webhook route failed', async () => {
+    const test = await createTestApp({ rawEnv: BILLING_ON });
+    closers.push(test.close);
+    const admin = await adminSignIn(test.app, 'admin');
+    await test.app.inject({
+      method: 'POST',
+      url: '/v1/admin/plans',
+      headers: adminHeaders(admin, true),
+      payload: {
+        slug: 'basic',
+        name: 'Basic',
+        deviceLimit: 2,
+        scopeIds: [],
+        stripePriceMonthly: MONTH,
+      },
+    });
+    const launcher = await signIn(test.app, 'subscriber');
+    test.db.$client.exec(
+      "create trigger no_rows before insert on subscriptions begin select raise(abort, 'down'); end",
+    );
+    const checkout = await test.app.inject({
+      method: 'POST',
+      url: '/v1/me/billing/checkout',
+      headers: bearer(launcher.accessToken),
+      payload: { planSlug: 'basic', interval: 'month' },
+    });
+    const url = checkout.json<{ url: string }>().url;
+    const paid = await test.app.inject({ method: 'POST', url: `${pathOf(url)}/pay` });
+    expect(paid.statusCode).toBe(502);
+    expect(paid.headers.location).toBeUndefined();
+    expect(paid.headers['content-type']).toContain('text/html');
   });
 });
