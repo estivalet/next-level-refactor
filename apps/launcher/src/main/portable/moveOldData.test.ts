@@ -84,4 +84,43 @@ describe('moving old data into the portable folder (D50)', () => {
     expect(await exists(from)).toBe(true);
     expect(await moveOldData({ from: join(from, 'nothing'), to: join(to, 'other') })).toBe('none');
   });
+  it('an old folder that cannot be deleted after a good copy is still moved', async () => {
+    const { from, to } = await oldTree();
+    const result = await moveOldData({
+      from,
+      to,
+      fs: {
+        ...fs,
+        rm: async (path, options) => {
+          if (String(path) === from) throw Object.assign(new Error('busy'), { code: 'EBUSY' });
+          await fs.rm(path, options);
+        },
+      },
+    });
+    expect(result).toBe('moved');
+    expect(await readFile(join(to, 'settings.json'), 'utf8')).toBe('{"schemaVersion":1}');
+  });
+
+  it('cleanup never removes a folder holding files it did not copy (a second instance)', async () => {
+    const { from, to } = await oldTree();
+    let copies = 0;
+    const result = await moveOldData({
+      from,
+      to,
+      fs: {
+        ...fs,
+        copyFile: async (source: PathLike, target: PathLike) => {
+          copies += 1;
+          if (copies === 1) {
+            // Another launcher copied into the same new folder meanwhile.
+            await fs.writeFile(join(to, 'backups', 'theirs.json'), 'theirs');
+          }
+          if (copies === 3) throw Object.assign(new Error('disk full'), { code: 'ENOSPC' });
+          await fs.copyFile(source, target);
+        },
+      },
+    });
+    expect(result).toHaveProperty('failed');
+    expect(await readFile(join(to, 'backups', 'theirs.json'), 'utf8')).toBe('theirs');
+  });
 });

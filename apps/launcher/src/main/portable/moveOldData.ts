@@ -1,7 +1,10 @@
 import * as nodeFs from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 
-export type FsLike = Pick<typeof nodeFs, 'readdir' | 'stat' | 'mkdir' | 'copyFile' | 'rm'>;
+export type FsLike = Pick<
+  typeof nodeFs,
+  'readdir' | 'stat' | 'mkdir' | 'copyFile' | 'rm' | 'rmdir'
+>;
 
 const exists = (fs: FsLike, path: string) =>
   fs.stat(path).then(
@@ -24,12 +27,12 @@ export async function moveOldData(o: {
   const fs = o.fs ?? nodeFs;
   if (!(await exists(fs, o.from))) return 'none';
   if (await exists(fs, join(o.to, 'settings.json'))) return 'none';
-  const created: string[] = [];
+  const created: Array<{ path: string; dir: boolean }> = [];
   const makeDir = async (dir: string) => {
     if (await exists(fs, dir)) return;
     await makeDir(dirname(dir));
     await fs.mkdir(dir);
-    created.push(dir);
+    created.push({ path: dir, dir: true });
   };
   const copyTree = async (source: string, target: string): Promise<void> => {
     await makeDir(target);
@@ -42,7 +45,7 @@ export async function moveOldData(o: {
       }
       if (await exists(fs, to)) continue;
       await fs.copyFile(from, to);
-      created.push(to);
+      created.push({ path: to, dir: false });
       const [a, b] = await Promise.all([fs.stat(from), fs.stat(to)]);
       if (a.size !== b.size) throw new Error(`size differs: ${relative(o.from, from)}`);
     }
@@ -50,12 +53,17 @@ export async function moveOldData(o: {
   try {
     await copyTree(o.from, o.to);
   } catch (error) {
-    for (const path of created.reverse()) {
-      await fs.rm(path, { recursive: true, force: true }).catch(() => undefined);
+    // Only what this move made: a folder is removed only once empty, so files someone else put
+    // there meanwhile (a second launcher) stay.
+    for (const item of created.reverse()) {
+      const remove = item.dir ? fs.rmdir(item.path) : fs.rm(item.path, { force: true });
+      await remove.catch(() => undefined);
     }
     const code = (error as NodeJS.ErrnoException).code;
     return { failed: code ? `${code}: ${String(error)}` : String(error) };
   }
-  await fs.rm(o.from, { recursive: true, force: true });
+  // Everything is safe in the new folder; an old folder that can't go (a file held open) stays,
+  // and the next boot sees settings.json here and leaves it alone.
+  await fs.rm(o.from, { recursive: true, force: true }).catch(() => undefined);
   return 'moved';
 }

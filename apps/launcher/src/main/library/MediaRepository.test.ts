@@ -88,4 +88,32 @@ describe('MediaRepository', () => {
     library.db.delete(games).where(eq(games.id, a)).run();
     expect(media.path(a, 'box-front')).toBeNull();
   });
+  it('D50: a moved NextLevel folder moves media paths inside it, and only those', async () => {
+    const { library, media, a, b, c } = await setup();
+    media.upsert({
+      gameId: a,
+      kind: 'box-front',
+      path: 'E:\\NextLevel\\media\\a.png',
+      size: 1,
+      version: 0,
+    });
+    media.upsert({
+      gameId: b,
+      kind: 'box-front',
+      path: 'E:\\NextLevel2\\b.png',
+      size: 1,
+      version: 0,
+    });
+    media.upsert({ gameId: c, kind: 'box-front', path: 'D:\\art\\c.png', size: 1, version: 0 });
+    expect(media.relocate('E:\\NextLevel', 'F:\\NextLevel')).toBe(1);
+    const paths = library.db.$client
+      .prepare('select path from game_media order by path')
+      .pluck()
+      .all();
+    expect(paths).toEqual([
+      'D:\\art\\c.png',
+      'E:\\NextLevel2\\b.png',
+      'F:\\NextLevel\\media\\a.png',
+    ]);
+  });
 });

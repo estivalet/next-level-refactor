@@ -6,7 +6,7 @@ import type { Settings } from './schema.ts';
 const unify = (path: string) => path.replace(/\//g, '\\').replace(/\\+$/, '');
 
 /** `path` moved from under `from` to under `to`, or null when it isn't inside `from`. */
-function moved(path: string, from: string, to: string): string | null {
+export function relocatedPath(path: string, from: string, to: string): string | null {
   const p = unify(path);
   const f = unify(from);
   const lower = p.toLowerCase();
@@ -32,7 +32,7 @@ export function relocatePaths(
 ): { settings: Settings; changed: number } {
   let changed = 0;
   const move = (path: string): string => {
-    const next = moved(path, from, to);
+    const next = relocatedPath(path, from, to);
     if (next === null) return path;
     changed += 1;
     return next;

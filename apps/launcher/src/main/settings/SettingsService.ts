@@ -140,24 +140,33 @@ export class SettingsService {
   /**
    * Boot (D50): when the NextLevel folder is not where it was last time (another drive letter or
    * PC), settings paths inside the old folder are rewritten to the new one, after the usual
-   * backup. The first portable boot only records the folder. Answers how many paths moved.
+   * backup. The first portable boot only records the folder. Answers the old folder when it
+   * moved (the library's media paths follow it) and how many settings paths changed. A write that
+   * fails is logged and never stops the boot.
    */
-  adoptRoot(root: string): Promise<number> {
+  adoptRoot(root: string): Promise<{ movedFrom: string | null; changed: number }> {
+    const none = { movedFrom: null, changed: 0 };
     return this.exclusive(async () => {
-      if (this.state.kind !== 'ok') return 0;
+      if (this.state.kind !== 'ok') return none;
       const settings = this.state.snapshot.settings;
       const last = settings.general.lastRoot;
-      if (last !== null && sameFolder(last, root)) return 0;
+      if (last !== null && sameFolder(last, root)) return none;
       const relocated =
         last === null ? { settings, changed: 0 } : relocatePaths(settings, last, root);
-      await this.write({
-        ...relocated.settings,
-        general: { ...relocated.settings.general, lastRoot: root },
-      });
-      if (relocated.changed > 0) {
+      try {
+        await this.write({
+          ...relocated.settings,
+          general: { ...relocated.settings.general, lastRoot: root },
+        });
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        this.deps.log.warn({ code }, 'settings paths could not follow the moved folder');
+        return none;
+      }
+      if (last !== null) {
         this.deps.log.warn({ changed: relocated.changed }, 'NextLevel folder moved; paths updated');
       }
-      return relocated.changed;
+      return { movedFrom: last, changed: relocated.changed };
     });
   }
 

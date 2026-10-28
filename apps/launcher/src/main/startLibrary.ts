@@ -47,6 +47,10 @@ export interface LibraryHost {
   launcherWindow: { minimize(): void; restore(): void };
   /** `<data>\temp` (D50), emptied at boot. */
   tempDir: string;
+  /** The environment emulators start with (TMP/TEMP as the player had them). */
+  baseEnv: NodeJS.ProcessEnv;
+  /** The NextLevel folder moved since last boot: media paths follow (D50). */
+  moved: { from: string; to: string } | null;
 }
 
 export const currentSettings = (settings: SettingsService) => {
@@ -61,7 +65,7 @@ export function startLibrary(
   scraperQuota: Pick<QuotaGate, 'state'>,
   host: LibraryHost,
 ): MainDeps['library'] {
-  const { dataDir, emit, menuWatch, launcherWindow, tempDir } = host;
+  const { dataDir, emit, menuWatch, launcherWindow, tempDir, baseEnv, moved } = host;
   let db: ReturnType<typeof openLibrary>;
   try {
     db = openLibrary(join(dataDir, 'library.db'), {
@@ -74,6 +78,16 @@ export function startLibrary(
   }
   const repo = new LibraryRepository(db);
   const media = new MediaRepository(db);
+  if (moved) {
+    try {
+      log.info(
+        { changed: media.relocate(moved.from, moved.to) },
+        'media paths followed the folder',
+      );
+    } catch (error) {
+      log.warn({ error }, 'media paths could not follow the moved folder');
+    }
+  }
   const folderExists = (dir: string) =>
     stat(dir).then(
       (info) => info.isDirectory(),
@@ -114,7 +128,7 @@ export function startLibrary(
     // ADR-014: packaged builds run 7za.exe from outside the asar archive.
     extractor: sevenZipExtractor(path7za.replace('app.asar', 'app.asar.unpacked')),
     tempDir,
-    baseEnv: process.env,
+    baseEnv,
     log,
   });
   launch.cleanupStaleExtractions().catch((error: unknown) => {

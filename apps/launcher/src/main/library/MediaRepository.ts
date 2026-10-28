@@ -1,3 +1,4 @@
+import { relocatedPath } from '@nextlevel/shared';
 import type { GameMediaRow } from '../scan/media.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
@@ -33,6 +34,29 @@ export class MediaRepository {
       for (const row of rows) insert.run(row.gameId, row.kind, row.path, row.size, row.version);
     })();
     return true;
+  }
+
+  /**
+   * The NextLevel folder moved (D50): media files inside it are at the same place under the new
+   * folder. One transaction; answers how many rows changed.
+   */
+  relocate(from: string, to: string): number {
+    const client = this.db.$client;
+    const rows = client.prepare('select rowid as id, path from game_media').all() as Array<{
+      id: number;
+      path: string;
+    }>;
+    const update = client.prepare('update game_media set path = ? where rowid = ?');
+    let changed = 0;
+    client.transaction(() => {
+      for (const row of rows) {
+        const next = relocatedPath(row.path, from, to);
+        if (next === null) continue;
+        update.run(next, row.id);
+        changed += 1;
+      }
+    })();
+    return changed;
   }
 
   /** Adds or replaces one game's file of a kind, e.g. after a scrape wrote it (FR-SCR-5). */

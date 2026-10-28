@@ -24,6 +24,8 @@ import { electronPaths } from './portable/portableRoot.ts';
 
 // D50: everything the launcher writes lives in its own folder; set before `ready`.
 const portable = setPortablePaths();
+// One launcher at a time: two would race moving old data in and writing the same files.
+if (!app.requestSingleInstanceLock()) app.exit(0);
 const dataDir = portable.data;
 // Must happen before the app is ready (FR-THM-6).
 protocol.registerSchemesAsPrivileged([NEXTLEVEL_SCHEME]);
@@ -119,7 +121,7 @@ async function pickJsonSavePath(defaultName: string): Promise<string | null> {
 }
 
 async function start(): Promise<void> {
-  if (!(await preparePortable(dataDir))) return;
+  if (!(await preparePortable(portable))) return;
   const settings = new SettingsService({
     dir: dataDir,
     clock: () => new Date(),
@@ -140,7 +142,7 @@ async function start(): Promise<void> {
     },
   });
   await settings.load();
-  await settings.adoptRoot(portable.root);
+  const adopted = await settings.adoptRoot(portable.root);
   // A theme switch right before quitting must still be remembered (FR-THM-5).
   let settingsSettled = false;
   app.on('before-quit', (event) => {
@@ -183,6 +185,8 @@ async function start(): Promise<void> {
     menuWatch,
     launcherWindow,
     tempDir: electronPaths(dataDir).temp,
+    baseEnv: portable.originalEnv,
+    moved: adopted.movedFrom ? { from: adopted.movedFrom, to: portable.root } : null,
   });
   const artPaths = () => {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
