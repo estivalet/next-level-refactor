@@ -268,4 +268,17 @@ describe('Stripe provider (ADR-009, D31)', () => {
       code: 'BILLING_UNAVAILABLE',
     });
   });
+
+  it('a 404 on cancel or read is logged with its request id (a key for another account would hide a live one)', async () => {
+    const { provider, warnings } = setup(() => ({
+      status: 404,
+      body: { error: { type: 'invalid_request_error', code: 'resource_missing' } },
+    }));
+    await provider.cancelNow('sub_gone');
+    await provider.getSubscription('sub_gone').catch(() => undefined);
+    expect(warnings).toEqual([
+      expect.objectContaining({ statusCode: 404, code: 'resource_missing', requestId: 'req_fake' }),
+      expect.objectContaining({ statusCode: 404, code: 'resource_missing', requestId: 'req_fake' }),
+    ]);
+  });
 });

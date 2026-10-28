@@ -337,3 +337,30 @@ describe('plan editor polish (M8d minors)', () => {
     expect(await within(saved).findByText('Saved.')).toBeVisible();
   });
 });
+
+describe('plan editor and other admins (review)', () => {
+  it("another admin's change arrives in untouched fields and is never sent back", async () => {
+    const u = userEvent.setup();
+    let current = plan();
+    const calls = stubApi({
+      'GET /v1/admin/plans': () => ({ body: [current] }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+      'PATCH /v1/admin/plans/p1': () => ({ body: current }),
+    });
+    const view = renderPage(<PlanEditor id="p1" />);
+    expect(await screen.findByLabelText('Name')).toHaveValue('Basic');
+    current = plan({ name: 'Basic 2', stripePriceMonthly: 'price_b' });
+    await view.client.invalidateQueries();
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).toHaveValue('Basic 2');
+    });
+    expect(screen.getByLabelText('Monthly Stripe price id')).toHaveValue('price_b');
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save).toBeDisabled();
+    const devices = screen.getByLabelText('Device limit');
+    await u.clear(devices);
+    await u.type(devices, '3');
+    await u.click(save);
+    expect(calls.find((c) => c.method === 'PATCH')?.body).toEqual({ deviceLimit: 3 });
+  });
+});

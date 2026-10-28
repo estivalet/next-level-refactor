@@ -185,6 +185,8 @@ describe('Subscribe errors and focus (M8c minors)', () => {
     const choose = await screen.findByRole('button', { name: 'Choose Basic' });
     await user.click(choose);
     expect(choose).toHaveAttribute('aria-disabled', 'true');
+    // It looks pending too, not only to a screen reader.
+    expect(choose).toHaveClass('aria-disabled:opacity-50');
     expect(choose).not.toBeDisabled();
     expect(choose).toHaveFocus();
   });

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 export const GATE_BUTTON =
-  'rounded-lg px-4 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50';
+  'rounded-lg px-4 py-2 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:opacity-50';
 export const PRIMARY = `${GATE_BUTTON} bg-[#990033] text-white hover:bg-[#b3003c]`;
 export const SECONDARY = `${GATE_BUTTON} bg-white/10 text-slate-200 hover:bg-white/15`;
 

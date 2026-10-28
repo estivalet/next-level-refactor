@@ -21,7 +21,8 @@ export interface WarnLog {
 
 /**
  * Every Stripe failure (network, 5xx, rate limit, a request Stripe refused) is "billing
- * unavailable, try again" for the caller, except a 404 the caller maps itself (unknown price).
+ * unavailable, try again" for the caller, except a 404 the caller maps itself (unknown price,
+ * a subscription that is gone).
  * The failure is logged with Stripe's status, type, code and request id: never the key or body.
  */
 async function call<T>(
@@ -33,18 +34,26 @@ async function call<T>(
     return await request();
   } catch (error) {
     if (!(error instanceof Stripe.errors.StripeError)) throw error;
+    warnStripe(log, error);
     if (notFound && error.statusCode === 404) throw notFound();
-    log?.warn(
-      {
-        statusCode: error.statusCode,
-        type: error.type,
-        code: error.code,
-        requestId: error.requestId,
-      },
-      'stripe request failed',
-    );
     throw apiError('BILLING_UNAVAILABLE');
   }
+}
+
+/** Every refusal is logged, a mapped 404 too: a key for another Stripe account looks like one. */
+function warnStripe(
+  log: WarnLog | undefined,
+  error: InstanceType<typeof Stripe.errors.StripeError>,
+) {
+  log?.warn(
+    {
+      statusCode: error.statusCode,
+      type: error.type,
+      code: error.code,
+      requestId: error.requestId,
+    },
+    'stripe request failed',
+  );
 }
 
 const STATUSES: readonly ProviderSubscriptionStatus[] = [
@@ -161,7 +170,10 @@ export function stripeProvider(config: {
         const fail = (): Promise<never> => call(config.log, () => Promise.reject(error as Error));
         if (!(error instanceof Stripe.errors.StripeInvalidRequestError)) return fail();
         // Stripe refuses to cancel one deleted (404) or already canceled (400): both are done.
-        if (error.statusCode === 404) return;
+        if (error.statusCode === 404) {
+          warnStripe(config.log, error);
+          return;
+        }
         const gone = () => apiError('NOT_FOUND');
         const current = await call(config.log, () => stripe.subscriptions.retrieve(id), gone).catch(
           (failure: unknown) => {
