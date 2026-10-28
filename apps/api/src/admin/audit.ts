@@ -14,11 +14,12 @@ export interface AuditInput {
 
 /**
  * Runs an admin change and its audit entries in one transaction (FR-ADM-5, C11): if the log
- * can't be written, the change isn't made either. The log is append-only.
+ * can't be written, the change isn't made either. The log is append-only. `actorId` null: a
+ * system action (a license expiring, M9).
  */
 export function audited<T>(
   ctx: ApiContext,
-  actorId: string,
+  actorId: string | null,
   entries: readonly AuditInput[],
   mutate: () => T,
 ): T {
@@ -56,14 +57,14 @@ export function auditPage(
   const rows = ctx.db
     .select({ entry: auditLog, actorEmail: users.email })
     .from(auditLog)
-    .innerJoin(users, eq(users.id, auditLog.actorId))
+    .leftJoin(users, eq(users.id, auditLog.actorId))
     .where(filters.length > 0 ? and(...filters) : undefined)
     .orderBy(desc(auditLog.at), desc(auditLog.id))
     .limit(opts.limit + 1)
     .all();
   const items = rows.slice(0, opts.limit).map(({ entry, actorEmail }) => ({
     id: entry.id,
-    actor: { id: entry.actorId, email: actorEmail },
+    actor: entry.actorId === null ? null : { id: entry.actorId, email: actorEmail ?? '' },
     action: entry.action,
     targetType: entry.targetType,
     targetId: entry.targetId,

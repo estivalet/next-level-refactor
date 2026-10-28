@@ -22,7 +22,7 @@ export function AuditTable({ entries, label }: { entries: readonly AuditEntry[];
         key: entry.id,
         cells: [
           formatTime(entry.at, i18n.language, ''),
-          entry.actor.email,
+          entry.actor?.email ?? t('admin.audit.system'),
           t(`admin.audit.actions.${entry.action}`, { defaultValue: entry.action }),
           <span
             key="target"

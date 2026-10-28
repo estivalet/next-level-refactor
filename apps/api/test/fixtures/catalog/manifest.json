@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "item": "star-hopper",
+      "filename": "Star Hopper (v1.1).nes",
+      "size": 8192,
+      "sha256": "5d015c4a22b01eeec5daf54fcfdf345ae9043b97b59005645db4fe6e9fa95de1"
+    },
+    {
+      "item": "moss-garden",
+      "filename": "Moss Garden.gb",
+      "size": 8192,
+      "sha256": "1ac5ee2676c32dc2bc7dea45a6889dbf53951cb9434ae29b86fc4591bc4bd1c7"
+    },
+    {
+      "item": "moss-garden",
+      "filename": "manual.txt",
+      "size": 1024,
+      "sha256": "e1056f6c61ffcf8414b5e29d8c5c3fee0bc09d145ff24e8e3ce11a38863bb3f9"
+    },
+    {
+      "item": "orbit-drift",
+      "filename": "Orbit Drift.sfc",
+      "size": 12288,
+      "sha256": "ffcdbd0b6ead09e4cdc986d8012541c97644cd7c8b0ea544268463375846d12c"
+    },
+    {
+      "item": "tide-runner",
+      "filename": "Tide Runner.md",
+      "size": 12288,
+      "sha256": "2381a73a94cc2ccf23503650b975265e79ee5d2eb5eff1b7c53bf27d27263256"
+    },
+    {
+      "item": "lantern-deep",
+      "filename": "Lantern Deep.cue",
+      "size": 512,
+      "sha256": "d8d4718afc0a709f11a1e016e477a5905d317eebda17646a9b71f6dc5f4332f4"
+    },
+    {
+      "item": "lantern-deep",
+      "filename": "Lantern Deep.bin",
+      "size": 16384,
+      "sha256": "cd6a7c03626dd3386f54f7c81c1e1cc8c1d77f5dde85001d2511ed39055e7878"
+    }
+  ]
+}

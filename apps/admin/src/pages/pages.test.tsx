@@ -202,6 +202,31 @@ describe('Audit log (S13, FR-ADM-5)', () => {
     expect(within(row).getByText('graceDays: 14 → 7')).toBeVisible();
     expect(within(row).queryByText(/banner/)).not.toBeInTheDocument();
   });
+
+  it('a system action (no actor, e.g. a license expiring) shows System', async () => {
+    stubApi({
+      'GET /v1/admin/audit': () => ({
+        body: {
+          items: [
+            {
+              id: 'a2',
+              actor: null,
+              action: 'item.unpublish',
+              targetType: 'item',
+              targetId: 'i1',
+              before: { status: 'published' },
+              after: { status: 'unpublished' },
+              at: '2026-10-25T12:00:00.000Z',
+            },
+          ],
+          nextCursor: null,
+        },
+      }),
+    });
+    renderPage(<AuditPage />);
+    const row = (await screen.findByText('i1', { exact: false })).closest('tr') as HTMLElement;
+    expect(within(row).getByText('System')).toBeVisible();
+  });
 });
 
 describe('Settings (S13, FR-ADM-4)', () => {
