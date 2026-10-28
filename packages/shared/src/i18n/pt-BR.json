@@ -1320,5 +1320,8 @@
       "body": "As mudanças podem levar um minuto para chegar ao NextLevel."
     },
     "back": "Você pode fechar esta aba e voltar ao NextLevel."
+  },
+  "portable": {
+    "notWritable": "O NextLevel não consegue gravar na própria pasta. Mova a pasta do NextLevel para um lugar onde você possa gravar, como C:\\NextLevel, e abra-o de novo."
   }
 }

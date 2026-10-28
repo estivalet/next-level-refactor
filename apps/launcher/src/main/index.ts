@@ -19,20 +19,15 @@ import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { currentSettings, startLibrary } from './startLibrary.ts';
-import { userDataPath } from './userData.ts';
+import { preparePortable, setPortablePaths } from './portable/boot.ts';
+import { electronPaths } from './portable/portableRoot.ts';
 
-app.setPath(
-  'userData',
-  userDataPath({
-    appData: app.getPath('appData'),
-    isPackaged: app.isPackaged,
-    override: process.env['NEXTLEVEL_USER_DATA'],
-  }),
-);
-const dataDir = app.getPath('userData');
+// D50: everything the launcher writes lives in its own folder; set before `ready`.
+const portable = setPortablePaths();
+const dataDir = portable.data;
 // Must happen before the app is ready (FR-THM-6).
 protocol.registerSchemesAsPrivileged([NEXTLEVEL_SCHEME]);
-const logsDir = join(dataDir, 'logs');
+const logsDir = electronPaths(dataDir).logs;
 initLogger(logsDir);
 
 const devServerUrl = app.isPackaged ? undefined : process.env['ELECTRON_RENDERER_URL'];
@@ -124,6 +119,7 @@ async function pickJsonSavePath(defaultName: string): Promise<string | null> {
 }
 
 async function start(): Promise<void> {
+  if (!(await preparePortable(dataDir))) return;
   const settings = new SettingsService({
     dir: dataDir,
     clock: () => new Date(),
@@ -185,6 +181,7 @@ async function start(): Promise<void> {
     emit,
     menuWatch,
     launcherWindow,
+    tempDir: electronPaths(dataDir).temp,
   });
   const artPaths = () => {
     const { assetsPath, themesPath } = currentSettings(settings).storage;

@@ -45,6 +45,8 @@ export interface LibraryHost {
   emit: EmitEvent;
   menuWatch: { watch(fingerprint: () => string): void };
   launcherWindow: { minimize(): void; restore(): void };
+  /** `<data>\temp` (D50), emptied at boot. */
+  tempDir: string;
 }
 
 export const currentSettings = (settings: SettingsService) => {
@@ -59,7 +61,7 @@ export function startLibrary(
   scraperQuota: Pick<QuotaGate, 'state'>,
   host: LibraryHost,
 ): MainDeps['library'] {
-  const { dataDir, emit, menuWatch, launcherWindow } = host;
+  const { dataDir, emit, menuWatch, launcherWindow, tempDir } = host;
   let db: ReturnType<typeof openLibrary>;
   try {
     db = openLibrary(join(dataDir, 'library.db'), {
@@ -111,7 +113,7 @@ export function startLibrary(
     window: launcherWindow,
     // ADR-014: packaged builds run 7za.exe from outside the asar archive.
     extractor: sevenZipExtractor(path7za.replace('app.asar', 'app.asar.unpacked')),
-    tempDir: app.getPath('temp'),
+    tempDir,
     baseEnv: process.env,
     log,
   });

@@ -1320,5 +1320,8 @@
       "body": "Changes can take a minute to reach NextLevel."
     },
     "back": "You can close this tab and return to NextLevel."
+  },
+  "portable": {
+    "notWritable": "NextLevel can't write to its folder. Move the NextLevel folder somewhere you can write, like C:\\NextLevel, and start it again."
   }
 }
