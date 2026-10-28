@@ -121,6 +121,22 @@ describe('admin console sign-in (ADR-006, security §2)', () => {
   });
 });
 
+describe('CSRF (M8-0 minor)', () => {
+  it('an equal-length wrong CSRF token is refused', async () => {
+    const { app } = await setup();
+    const session = await adminSignIn(app, 'admin');
+    const wrong = session.csrf.replace(/./g, (c) => (c === 'A' ? 'B' : 'A'));
+    expect(wrong).toHaveLength(session.csrf.length);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/auth/session/logout',
+      headers: { cookie: session.jar.header(), 'x-csrf-token': wrong },
+    });
+    expect(response.statusCode).toBe(403);
+    expect(response.json()).toMatchObject({ error: { code: 'FORBIDDEN' } });
+  });
+});
+
 describe('stale console sessions (M7 minor)', () => {
   const count = (db: { $client: { prepare(sql: string): { pluck(): { get(): unknown } } } }) =>
     db.$client.prepare('select count(*) from admin_sessions').pluck().get();

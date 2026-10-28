@@ -56,7 +56,11 @@ export const refreshTokens = sqliteTable(
     replacedBy: text('replaced_by'),
     revokedAt: text('revoked_at'),
   },
-  (table) => [index('refresh_tokens_device').on(table.deviceId)],
+  (table) => [
+    index('refresh_tokens_device').on(table.deviceId),
+    // Sign-in prunes expired tokens by expiry.
+    index('refresh_tokens_expires_at').on(table.expiresAt),
+  ],
 );
 
 export const plans = sqliteTable('plans', {

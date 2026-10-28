@@ -122,4 +122,20 @@ describe('API pipeline (api-spec §1, architecture §5.2)', () => {
     expect(text).toContain('Failed query');
     expect(text).not.toContain('secret@example.test');
   });
+  it('a too-long URL keeps its 414 in the envelope, is logged, and carries helmet headers', async () => {
+    const lines: string[] = [];
+    const { app, close } = await createTestApp({
+      log: { ...logOptions('production'), stream: { write: (line: string) => lines.push(line) } },
+    });
+    closers.push(close);
+    const long = 'a'.repeat(300);
+    const response = await app.inject({ url: `/v1/admin/users/${long}` });
+    expect(response.statusCode).toBe(414);
+    expect(response.json()).toMatchObject({ error: { code: 'VALIDATION_FAILED' } });
+    expect(response.headers['x-content-type-options']).toBe('nosniff');
+    const warnings = lines.map((line) => JSON.parse(line) as { level: number; msg: string });
+    expect(
+      warnings.filter((entry) => entry.level === 40 && entry.msg === 'router refused'),
+    ).toHaveLength(1);
+  });
 });

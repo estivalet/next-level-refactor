@@ -1,6 +1,7 @@
 import type { ApiErrorEnvelope, ErrorCode } from '@nextlevel/shared';
 import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
+import helmet from 'helmet';
 
 // One error envelope for every failure (api-spec §1). Messages are English defaults; clients
 // show their own translation of the code.
@@ -72,19 +73,27 @@ function loggable(error: Error): Record<string, unknown> {
   return { type: error.name, message: redact(error.message), stack: redact(error.stack), cause };
 }
 
+/** Helmet's headers, for replies that skip the hooks @fastify/helmet sets them in. */
+const securityHeaders = helmet();
+
 /**
- * Fastify's router refuses some requests before any hook runs (a malformed `%` escape, a bad
- * header): those get the envelope too. Passed as the `frameworkErrors` option.
+ * Fastify's router refuses some requests before any hook runs (a malformed `%` escape (400), a
+ * parameter over `maxParamLength` (414)): those get the envelope, keep their status, are logged
+ * and still carry helmet's headers. Passed as the `frameworkErrors` option.
  */
 export function frameworkErrors(
-  _error: FastifyError,
+  error: FastifyError,
   request: FastifyRequest,
   reply: FastifyReply,
 ): void {
-  void reply
-    .status(400)
-    .header('x-request-id', request.id)
-    .send(envelope('VALIDATION_FAILED', MESSAGES.VALIDATION_FAILED ?? '', request.id));
+  const status = error.statusCode === 414 ? 414 : 400;
+  request.log.warn({ code: error.code, status }, 'router refused');
+  securityHeaders(request.raw, reply.raw, () => {
+    void reply
+      .status(status)
+      .header('x-request-id', request.id)
+      .send(envelope('VALIDATION_FAILED', MESSAGES.VALIDATION_FAILED ?? '', request.id));
+  });
 }
 
 export function registerErrorHandling(app: FastifyInstance): void {

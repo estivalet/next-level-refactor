@@ -81,4 +81,39 @@ describe('users by plan and access (D38, FR-ADM-1)', () => {
     expect(await emails('plan=default')).toEqual(['subscriber@nextlevel.test']);
     expect(await emails('access=none')).toEqual([]);
   });
+  it('access=grace lists the past-due Stripe subscriber only', async () => {
+    const test = await createTestApp({ rawEnv: { BILLING_ENABLED: 'true', BILLING_STUB: '1' } });
+    closers.push(test.close);
+    const { app, db } = test;
+    const admin = await adminSignIn(app, 'admin');
+    const subscriber = await signIn(app, 'subscriber');
+    const plan = (
+      await app.inject({
+        method: 'POST',
+        url: '/v1/admin/plans',
+        headers: adminHeaders(admin, true),
+        payload: { slug: 'basic', name: 'Basic', deviceLimit: 2, scopeIds: [] },
+      })
+    ).json<{ id: string }>();
+    const emails = async (query: string) =>
+      (await app.inject({ url: `/v1/admin/users?${query}`, headers: adminHeaders(admin) }))
+        .json<Users>()
+        .items.map((u) => u.email);
+    expect(await emails('access=grace')).toEqual([]);
+    db.$client
+      .prepare(
+        `insert into subscriptions (id, user_id, plan_id, source, status, stripe_subscription_id,
+           current_period_end, created_at, updated_at)
+         values ('s-due', ?, ?, 'stripe', 'past_due', 'sub_due', ?, ?, ?)`,
+      )
+      .run(
+        subscriber.user.id,
+        plan.id,
+        '2099-01-01T00:00:00.000Z',
+        '2026-10-01T00:00:00.000Z',
+        '2026-10-01T00:00:00.000Z',
+      );
+    expect(await emails('access=grace')).toEqual(['subscriber@nextlevel.test']);
+    expect(await emails('access=active')).not.toContain('subscriber@nextlevel.test');
+  });
 });
