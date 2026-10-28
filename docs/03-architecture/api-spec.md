@@ -74,10 +74,15 @@ Entity shapes are defined in [data-model.md](data-model.md).
 
 | Method & path | Body → Response |
 |---|---|
-| `GET /v1/catalog/items?system=&q=&scope=&cursor=&limit=` | → page of `CatalogItemSummary` |
-| `GET /v1/catalog/items/:id` | → `CatalogItem` (metadata, files with size+sha256, media URLs, license summary, `version`) |
-| `POST /v1/catalog/items/:id/downloads` | `{ deviceId }` → `{ files: [{ fileId, filename, size, sha256, url, expiresAt }] }` |
-| `GET /v1/catalog/changes?since=<ISO>` | → `{ updated: id[], removed: [{ id, onLapse }] }` (launcher sync of installed items) |
+Role `device`. Visible = published, in a scope of the caller's entitlement, license not expired (admins: every scope). Anything else is `NOT_FOUND`, never a hint it exists (C8). Entitlement `none` → `SUBSCRIPTION_REQUIRED`; `suspended` → `SUSPENDED`. Nothing is cached: plan and publish changes show on the next request.
+
+| Method & path | Body → Response |
+|---|---|
+| `GET /v1/catalog/items?system=&genre=&q=&scope=&starter=&cursor=&limit=` | → `{ items: CatalogItemSummary[], nextCursor }` in title order; `q` matches title or developer (any case); `genre` exact (any case); `starter=true` = the Starter set (D46); `limit` 1–100 (50) |
+| `GET /v1/catalog/items/:id` | → `CatalogItem` (metadata, ready files with size + sha256, art URLs valid 1 h, license type, holder and terms, `version`) |
+| `POST /v1/catalog/items/:id/downloads` | `{ deviceId }` (the caller's own device → else `FORBIDDEN`) → `{ files: [{ fileId, filename, size, sha256, url, expiresAt }] }`; URLs valid 10 min; one `downloads` row per file with `ip_hash`; 60 per hour per user |
+| `POST /v1/catalog/status` | `{ items: [{ id, version }] }` (≤ 5,000) → `{ items: [{ id, state: 'current'|'update'|'gone', version, onLapse }] }`; `gone`: unpublished, license expired, outside the caller's scopes, or unknown (`onLapse` the item's, `keep` when unknown). Replaces the planned `GET /v1/catalog/changes` (a `since` list can't see one user's scope change) |
+| `GET /v1/files/:token` | Role `public`: the signed token (HMAC, key derived from `JWT_SECRET`) names the file or art, user and device. `200`, or `206` for one `Range: bytes=a-b` / `a-` with `Content-Range`, `416` past the end; `Accept-Ranges: bytes`, `ETag` = sha256. Bad or expired token → `401 UNAUTHENTICATED`; revoked device or suspended user → `403 FORBIDDEN`; file no longer there → `410` (`NOT_FOUND` envelope) |
 
 ### Sync (M10)
 
@@ -147,7 +152,7 @@ Auth endpoints 10/min/IP; download URL issue 60/hour/user; everything else 300/m
 
 ### Logging
 
-Requests are logged by method and path only (no query string: OAuth codes and states travel there; no client address). Tokens, codes and emails never appear in a log line.
+Requests are logged by method and route pattern (`/v1/files/:token`, never the token), or the path without its query string when no route matched (OAuth codes and states travel in the query; no client address). Tokens, codes, download URLs, addresses and emails never appear in a log line.
 
 ---
 

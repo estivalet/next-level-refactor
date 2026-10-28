@@ -4,12 +4,15 @@ import {
   CatalogQuerySchema,
   DownloadGrantSchema,
   DownloadRequestSchema,
+  InstallStatusRequestSchema,
+  InstallStatusSchema,
 } from '@nextlevel/shared';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { catalogCaller, catalogPage, toCatalogItem, visibleItem } from '../catalog/visible.ts';
 import { issueDownloads } from '../catalog/downloads.ts';
+import { installStatus } from '../catalog/status.ts';
 import type { ApiContext } from '../context.ts';
 
 const params = z.object({ id: z.string().min(1).max(100) });
@@ -48,5 +51,15 @@ export function catalogRoutes(app: FastifyInstance, ctx: ApiContext): void {
         request.body.deviceId,
         request.ip,
       ),
+  );
+
+  // The launcher's sync at boot and hourly (D43): POST because the list can be 5,000 items.
+  route.post(
+    '/v1/catalog/status',
+    {
+      config,
+      schema: { body: InstallStatusRequestSchema, response: { 200: InstallStatusSchema } },
+    },
+    (request) => installStatus(ctx, catalogCaller(ctx, request), request.body),
   );
 }

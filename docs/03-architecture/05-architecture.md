@@ -196,8 +196,12 @@ envelope (see api-spec). OpenAPI is generated from the same Zod schemas.
 ### 5.3 Downloads
 
 The API never streams large files through its own process in production: it signs a URL
-(S3/R2 presigned, 10-minute expiry) and logs the issue. In development, `LocalDiskStore` serves
-files via a route that verifies an HMAC-signed token with the same expiry semantics.
+(S3/R2 presigned, 10-minute expiry) and logs the issue. Until then (M9, D40), the API runs
+locally with `LocalDiskStore` (`FILES_DIR`): `POST /v1/catalog/items/:id/downloads` signs one
+URL per file — `/v1/files/<token>`, an HMAC-SHA256 token naming the file, user and device, valid
+10 minutes (art: 1 hour) — and logs the issue with an `ip_hash`. The files route verifies the
+token, refuses a revoked device or suspended user, and serves one byte range so the launcher can
+resume. Uploads stream through the API (`FileStore.put` hashes while writing).
 
 ## 6. Admin console
 
