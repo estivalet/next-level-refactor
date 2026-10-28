@@ -99,6 +99,11 @@ export function frameworkErrors(
 export function registerErrorHandling(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError, request, reply) => {
     if (error instanceof ApiError) {
+      // RATE_LIMITED from a route's own limit says when to try again (in seconds).
+      const retryAfter = (error.details as { retryAfter?: unknown } | undefined)?.retryAfter;
+      if (error.code === 'RATE_LIMITED' && typeof retryAfter === 'number') {
+        void reply.header('retry-after', String(retryAfter));
+      }
       return reply
         .status(error.status)
         .send(envelope(error.code, error.message, request.id, error.details));

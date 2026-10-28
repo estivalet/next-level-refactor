@@ -128,7 +128,7 @@ describe('API pipeline (api-spec §1, architecture §5.2)', () => {
       log: { ...logOptions('production'), stream: { write: (line: string) => lines.push(line) } },
     });
     closers.push(close);
-    const long = 'a'.repeat(300);
+    const long = 'a'.repeat(600);
     const response = await app.inject({ url: `/v1/admin/users/${long}` });
     expect(response.statusCode).toBe(414);
     expect(response.json()).toMatchObject({ error: { code: 'VALIDATION_FAILED' } });

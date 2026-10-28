@@ -3,8 +3,9 @@ import type { Env } from './env.ts';
 
 /**
  * Fastify/pino logger options (architecture §7: no PII beyond the user id in logs). A request is
- * logged by method and path only: query strings can carry OAuth codes and states, and the
- * client address is personal data.
+ * logged by method and route pattern (`/v1/files/:token`, never the token: security §2), or the
+ * path without its query string when no route matched: query strings can carry OAuth codes and
+ * states, and the client address is personal data.
  */
 export function logOptions(nodeEnv: Env['nodeEnv']): Record<string, unknown> {
   return {
@@ -12,7 +13,7 @@ export function logOptions(nodeEnv: Env['nodeEnv']): Record<string, unknown> {
     serializers: {
       req: (request: FastifyRequest) => ({
         method: request.method,
-        path: request.url.split('?')[0],
+        path: request.routeOptions.url ?? request.url.split('?')[0],
       }),
     },
   };

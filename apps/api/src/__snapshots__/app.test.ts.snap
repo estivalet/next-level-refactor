@@ -36,6 +36,7 @@ exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json 
   "/v1/billing/return",
   "/v1/catalog/items",
   "/v1/catalog/items/{id}",
+  "/v1/catalog/items/{id}/downloads",
   "/v1/health",
   "/v1/me",
   "/v1/me/billing/checkout",
