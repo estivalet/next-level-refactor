@@ -5,7 +5,7 @@ import {
   type FileRole,
 } from '@nextlevel/shared';
 import { getSystem } from '@nextlevel/system-catalog';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
 import type { Readable } from 'node:stream';
 import { audited } from '../admin/audit.ts';
 import type { ApiContext } from '../context.ts';
@@ -46,16 +46,28 @@ export function itemOrNotFound(ctx: ApiContext, itemId: string): ItemRow {
   return item;
 }
 
-/** A published item's files or art changed: installed copies get Update available (D42). */
+/**
+ * An item's files or art changed: once it has ever been published, installed copies must see
+ * Update available (D42), even if it is unpublished right now and published again later. The
+ * bump is done in SQL, so two changes are two bumps.
+ */
 function touch(ctx: ApiContext, item: ItemRow): void {
   ctx.db
     .update(catalogItems)
     .set({
-      version: item.status === 'published' ? item.version + 1 : item.version,
+      ...(item.publishedAt === null ? {} : { version: sql`${catalogItems.version} + 1` }),
       updatedAt: ctx.clock().toISOString(),
     })
     .where(eq(catalogItems.id, item.id))
     .run();
+}
+
+/**
+ * Removes stored bytes after the change is committed. A failure (a file held open on Windows)
+ * doesn't undo or fail the change: the bytes are left behind.
+ */
+export async function dropStored(ctx: ApiContext, key: string): Promise<void> {
+  await ctx.files.delete(key).catch(() => undefined);
 }
 
 /** `rom`/`disc` names need one of the system's extensions; `extra` (manuals) any safe name. */
@@ -150,7 +162,7 @@ export async function completeUpload(
       touch(ctx, item);
     },
   );
-  for (const old of replaced) await ctx.files.delete(old.storageKey);
+  for (const old of replaced) await dropStored(ctx, old.storageKey);
   return toAdminFile(ready);
 }
 
@@ -198,7 +210,7 @@ export async function removeFile(
       touch(ctx, item);
     },
   );
-  await ctx.files.delete(row.storageKey);
+  await dropStored(ctx, row.storageKey);
 }
 
 /** Sets one art kind (`item.media.set`); the previous file of that kind is replaced. */
@@ -244,7 +256,7 @@ export async function putMedia(
       touch(ctx, item);
     },
   );
-  if (before) await ctx.files.delete(before.storageKey);
+  if (before) await dropStored(ctx, before.storageKey);
   return after;
 }
 
@@ -275,5 +287,5 @@ export async function removeMedia(
       touch(ctx, item);
     },
   );
-  await ctx.files.delete(row.storageKey);
+  await dropStored(ctx, row.storageKey);
 }

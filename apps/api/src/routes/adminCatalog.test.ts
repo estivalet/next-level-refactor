@@ -178,4 +178,12 @@ describe('the publish gate (C10, D44)', () => {
     expect(noCsrf.statusCode).toBe(403);
     expect(t.db.$client.prepare('select status from catalog_items').pluck().get()).toBe('draft');
   });
+  it('a license that has not started yet blocks [licenseNotStarted]', async () => {
+    const t = await setup();
+    const id = await t.createItem();
+    await t.makePublishable(id, { startsAt: '2026-11-01T00:00:00.000Z' });
+    expect(blockedBy(await t.send('POST', `${t.base(id)}/publish`)).details.blockers).toEqual([
+      'licenseNotStarted',
+    ]);
+  });
 });

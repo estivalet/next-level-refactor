@@ -29,7 +29,7 @@ export function seedItem(
   db.$client
     .prepare(
       `insert into catalog_items (id, slug, title, system_id, scope_id, status, version,
-         created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         published_at, created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id,
@@ -39,6 +39,8 @@ export function seedItem(
       scopeId,
       opts.status ?? 'draft',
       opts.version ?? 1,
+      // A published item always has a first publish time.
+      (opts.status ?? 'draft') === 'published' ? AT : null,
       AT,
       AT,
     );

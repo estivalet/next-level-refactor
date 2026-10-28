@@ -23,6 +23,7 @@ export const ITEM_STATUS = ['draft', 'published', 'unpublished'] as const;
 export const PUBLISH_BLOCKERS = [
   'license',
   'licenseUnverified',
+  'licenseNotStarted',
   'licenseExpired',
   'onLapse',
   'files',

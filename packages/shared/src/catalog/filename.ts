@@ -13,8 +13,12 @@ export function safeSlug(slug: string): boolean {
 const FORBIDDEN = /[\\/:*?"<>|]/;
 // eslint-disable-next-line no-control-regex -- control characters are exactly what is refused
 const CONTROL = /[\u0000-\u001f\u007f]/;
-/** Windows device names, with or without an extension (`CON`, `nul.txt`, `COM1.nes`). */
-const RESERVED = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
+/**
+ * Windows device names (`CON`, `CONIN$`, `COM0`–`COM9`, `COM¹`…). Windows matches them on the
+ * part before the first dot with trailing spaces dropped: `nul.txt` and `CON .nes` are devices.
+ */
+const RESERVED = /^(con|prn|aux|nul|conin\$|conout\$|(com|lpt)[0-9\u00b9\u00b2\u00b3])$/i;
+const deviceName = (name: string) => RESERVED.test(name.split('.')[0]?.replace(/ +$/, '') ?? '');
 
 /**
  * A single path segment, 1–200 characters, that Windows accepts as a file name: no separators or
@@ -25,7 +29,7 @@ export function safeFilename(name: string, extensions?: readonly string[]): bool
   if (name.length < 1 || name.length > 200) return false;
   if (FORBIDDEN.test(name) || CONTROL.test(name)) return false;
   if (name === '.' || name === '..' || name.endsWith('.') || name.endsWith(' ')) return false;
-  if (RESERVED.test(name)) return false;
+  if (deviceName(name)) return false;
   if (extensions === undefined) return true;
   const dot = name.lastIndexOf('.');
   if (dot <= 0) return false;

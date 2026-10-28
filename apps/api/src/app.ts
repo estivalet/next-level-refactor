@@ -22,6 +22,7 @@ import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
 import type { ApiContext, UploadLimits } from './context.ts';
+import type { FileStore } from './storage/FileStore.ts';
 import { runMaintenance } from './catalog/maintenance.ts';
 import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
@@ -57,6 +58,8 @@ export interface AppDeps {
   billing?: BillingProvider | null;
   /** Upload limits; tests lower them (Global Constraints). */
   limits?: Partial<UploadLimits>;
+  /** The file store over `FILES_DIR`; tests wrap it. Default: the local disk (D40). */
+  files?: (filesDir: string) => FileStore;
 }
 
 /** The stub with `AUTH_STUB=1`, else the Google Desktop and Web clients. */

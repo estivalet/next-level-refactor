@@ -5,7 +5,7 @@ import { audited, type AuditInput } from '../admin/audit.ts';
 import type { ApiContext } from '../context.ts';
 import { catalogItems, licenses } from '../db/schema.ts';
 import { apiError } from '../errors.ts';
-import { itemOrNotFound } from './files.ts';
+import { dropStored, itemOrNotFound } from './files.ts';
 import { itemDetail, licenseOf, toAdminLicense } from './items.ts';
 
 // License records (content policy §2–4, D44): one per item. Replacing it clears verification and
@@ -67,7 +67,7 @@ export async function putLicense(
       .run();
     if (old) ctx.db.delete(licenses).where(eq(licenses.id, old.id)).run();
   });
-  if (old?.evidenceKey) await ctx.files.delete(old.evidenceKey);
+  if (old?.evidenceKey) await dropStored(ctx, old.evidenceKey);
   return itemDetail(ctx, itemId);
 }
 
@@ -121,7 +121,7 @@ export async function putEvidence(
         .run();
     },
   );
-  if (license.evidenceKey) await ctx.files.delete(license.evidenceKey);
+  if (license.evidenceKey) await dropStored(ctx, license.evidenceKey);
   return itemDetail(ctx, itemId);
 }
 

@@ -6,6 +6,8 @@ import { adminHeaders, adminSignIn } from '../../test/adminSignIn.ts';
 import { seedItem } from '../../test/catalogSeed.ts';
 import { signIn } from '../../test/launcherSignIn.ts';
 import { createTestApp } from '../../test/testApp.ts';
+import type { FileStore } from '../storage/FileStore.ts';
+import { LocalDiskStore } from '../storage/LocalDiskStore.ts';
 
 const closers: Array<() => Promise<void>> = [];
 afterEach(async () => {
@@ -15,11 +17,14 @@ afterEach(async () => {
 const ROM = Buffer.from('NEXTLEVEL TEST FIXTURE star hopper\n'.repeat(40));
 const sha = (body: Buffer) => createHash('sha256').update(body).digest('hex');
 
-async function setup(limits?: { upload?: number }) {
-  const test = await createTestApp(limits ? { limits } : {});
+async function setup(limits?: { upload?: number }, files?: (dir: string) => FileStore) {
+  const test = await createTestApp({
+    ...(limits ? { limits } : {}),
+    ...(files ? { files } : {}),
+  });
   closers.push(test.close);
   const admin = await adminSignIn(test.app, 'admin');
-  const json = (method: 'POST' | 'DELETE', url: string, payload?: object) =>
+  const json = (method: 'POST' | 'PUT' | 'DELETE', url: string, payload?: object) =>
     test.app.inject({
       method,
       url,
@@ -230,5 +235,72 @@ describe('catalog uploads (FR-ADM-3, US-F1, D41)', () => {
       role: 'rom',
     });
     expect(started.statusCode).toBe(404);
+  });
+  it('a file changed while unpublished bumps version once the item was ever published', async () => {
+    const t = await setup();
+    seedItem(t.db, { status: 'unpublished' });
+    t.db.$client
+      .prepare("update catalog_items set published_at = '2026-10-01T00:00:00.000Z'")
+      .run();
+    await t.upload('item-1', 'hop.nes', ROM);
+    expect(t.one('select version from catalog_items')).toBe(2);
+  });
+
+  it('a storage delete that fails after the change still answers success (the bytes are left)', async () => {
+    let failDeletes = false;
+    const t = await setup(undefined, (dir) => {
+      const store = new LocalDiskStore(dir);
+      const remove = store.delete.bind(store);
+      store.delete = (key) =>
+        failDeletes
+          ? Promise.reject(Object.assign(new Error('busy'), { code: 'EBUSY' }))
+          : remove(key);
+      return store;
+    });
+    seedItem(t.db);
+    const file = (await t.upload('item-1', 'hop.nes', ROM)).json<{ id: string }>();
+    failDeletes = true;
+    const removed = await t.json('DELETE', `/v1/admin/catalog/items/item-1/files/${file.id}`);
+    expect(removed.statusCode).toBe(204);
+    expect(t.one('select count(*) from catalog_files')).toBe(0);
+  });
+
+  it('the raw upload routes refuse a player and a missing CSRF token, storing nothing', async () => {
+    const t = await setup();
+    seedItem(t.db);
+    await t.json('PUT', '/v1/admin/catalog/items/item-1/license', {
+      type: 'freeware',
+      rightsHolder: 'Pals',
+      contact: 'p@example.test',
+      terms: 'ok',
+    });
+    const started = await t.json('POST', '/v1/admin/catalog/items/item-1/files', {
+      filename: 'a.nes',
+      role: 'rom',
+    });
+    const { uploadUrl } = started.json<{ uploadUrl: string }>();
+    const player = await signIn(t.app, 'subscriber');
+    const urls: Array<[string, string]> = [
+      [uploadUrl, 'application/octet-stream'],
+      ['/v1/admin/catalog/items/item-1/media/box-front', 'image/png'],
+      ['/v1/admin/catalog/items/item-1/license/evidence?filename=p.txt', 'text/plain'],
+    ];
+    for (const [url, type] of urls) {
+      const noCsrf = await t.app.inject({
+        method: 'PUT',
+        url,
+        headers: { ...adminHeaders(t.admin), 'content-type': type },
+        payload: ROM,
+      });
+      expect(noCsrf.statusCode, url).toBe(403);
+      const asPlayer = await t.app.inject({
+        method: 'PUT',
+        url,
+        headers: { authorization: `Bearer ${player.accessToken}`, 'content-type': type },
+        payload: ROM,
+      });
+      expect([401, 403], url).toContain(asPlayer.statusCode);
+    }
+    expect(await t.stored()).toEqual([]);
   });
 });

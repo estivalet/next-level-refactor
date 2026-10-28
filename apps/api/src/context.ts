@@ -57,6 +57,7 @@ export function createContext(deps: {
   clock: () => Date;
   billing: BillingProvider | null;
   limits?: Partial<UploadLimits>;
+  files?: (filesDir: string) => FileStore;
 }): ApiContext {
   const { env, db, clock } = deps;
   const newId = () => uuidv7();
@@ -75,7 +76,7 @@ export function createContext(deps: {
     subscriptions: new SubscriptionRepository(db),
     billing: deps.billing,
     settings: () => loadAppSettings(db),
-    files: new LocalDiskStore(env.filesDir),
+    files: deps.files ? deps.files(env.filesDir) : new LocalDiskStore(env.filesDir),
     limits: { ...DEFAULT_LIMITS, ...deps.limits },
   };
 }
