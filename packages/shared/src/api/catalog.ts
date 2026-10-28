@@ -162,7 +162,10 @@ export const CompleteUploadSchema = z.strictObject({ sha256: sha256.optional() }
 
 export const CatalogQuerySchema = z.object({
   system: z.string().regex(SYSTEM_ID).optional(),
+  genre: z.string().trim().max(100).optional(),
   q: z.string().trim().max(100).optional(),
+  /** `true`: only the Starter set (D46). */
+  starter: z.enum(['true', 'false']).optional(),
   scope: CatalogSlugSchema.optional(),
   cursor: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),

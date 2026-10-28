@@ -44,7 +44,11 @@ export async function catalogAdmin(app: FastifyInstance) {
     });
     const created = await send('POST', '/v1/admin/catalog/items', {
       slug,
-      title: 'Star Hopper',
+      // star-hopper → Star Hopper
+      title: slug.replace(
+        /(^|-)([a-z])/g,
+        (_m, sep: string, c: string) => `${sep ? ' ' : ''}${c.toUpperCase()}`,
+      ),
       systemId: extra.systemId ?? 'nintendo-nes',
       scopeSlug: extra.scopeSlug ?? 'homebrew-8bit',
     });
@@ -68,12 +72,16 @@ export async function catalogAdmin(app: FastifyInstance) {
   ) => raw(`${base(id)}/license/evidence?filename=permission.txt`, body, type);
 
   /** Everything publishing needs: a verified license, on_lapse and a ROM. */
-  const makePublishable = async (id: string, license: Record<string, unknown> = {}) => {
+  const makePublishable = async (
+    id: string,
+    license: Record<string, unknown> = {},
+    filename = 'Star Hopper.nes',
+  ) => {
     await putLicense(id, license);
     await putEvidence(id);
     await send('POST', `${base(id)}/license/verify`);
     await send('PATCH', base(id), { onLapse: 'keep' });
-    await uploadFile(id);
+    await uploadFile(id, filename);
   };
 
   return {
