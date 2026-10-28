@@ -3,6 +3,11 @@
 exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json is an OpenAPI 3.1 document of the routes (test strategy: contract) 1`] = `
 [
   "/v1/admin/audit",
+  "/v1/admin/catalog/items/{id}/files",
+  "/v1/admin/catalog/items/{id}/files/{fileId}",
+  "/v1/admin/catalog/items/{id}/files/{fileId}/complete",
+  "/v1/admin/catalog/items/{id}/media/{kind}",
+  "/v1/admin/catalog/uploads/{fileId}",
   "/v1/admin/plans",
   "/v1/admin/plans/{id}",
   "/v1/admin/scopes",

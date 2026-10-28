@@ -21,6 +21,7 @@ import { stubProvider, type StubBilling } from './billing/stubProvider.ts';
 import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
+import type { UploadLimits } from './context.ts';
 import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
 import { accountRoutes } from './routes/account.ts';
@@ -29,6 +30,7 @@ import { adminAuthRoutes } from './routes/adminAuth.ts';
 import { adminPlanRoutes } from './routes/adminPlans.ts';
 import { adminStaticRoutes } from './routes/adminStatic.ts';
 import { billingRoutes } from './routes/billing.ts';
+import { adminCatalogFileRoutes } from './routes/adminCatalogFiles.ts';
 import { billingStubRoutes } from './routes/billingStub.ts';
 import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
@@ -50,6 +52,8 @@ export interface AppDeps {
   googleJwks?: JWTVerifyGetKey;
   /** The billing provider; tests inject a fake. Default: from `Env.billing.mode`. */
   billing?: BillingProvider | null;
+  /** Upload limits; tests lower them (Global Constraints). */
+  limits?: Partial<UploadLimits>;
 }
 
 /** The stub with `AUTH_STUB=1`, else the Google Desktop and Web clients. */
@@ -152,6 +156,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   planRoutes(app, ctx);
   billingRoutes(app, ctx);
   await webhookRoutes(app, ctx);
+  await adminCatalogFileRoutes(app, ctx);
   if (billing && deps.billing === undefined && deps.env.billing.mode === 'stub') {
     billingStubRoutes(app, ctx, billing as StubBilling);
   }

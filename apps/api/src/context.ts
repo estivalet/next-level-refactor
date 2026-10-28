@@ -1,3 +1,5 @@
+import type { FileStore } from './storage/FileStore.ts';
+import { LocalDiskStore } from './storage/LocalDiskStore.ts';
 import type { AppSettings } from '@nextlevel/shared';
 import { v7 as uuidv7 } from 'uuid';
 import { jwtKeys, type JwtKeys } from './auth/tokens.ts';
@@ -28,13 +30,33 @@ export interface ApiContext {
   /** Null when no provider is configured (`Env.billing.mode` `none`). */
   billing: BillingProvider | null;
   settings: () => AppSettings;
+  /** Catalog files, art and license evidence (D40). */
+  files: FileStore;
+  /** Upload limits in bytes (Global Constraints); tests lower them. */
+  limits: UploadLimits;
 }
+
+export interface UploadLimits {
+  /** A catalog file: 4 GiB (D41). */
+  upload: number;
+  /** One art file: 50 MiB. */
+  media: number;
+  /** A license evidence file: 20 MiB. */
+  evidence: number;
+}
+
+export const DEFAULT_LIMITS: UploadLimits = {
+  upload: 4 * 1024 ** 3,
+  media: 50 * 1024 ** 2,
+  evidence: 20 * 1024 ** 2,
+};
 
 export function createContext(deps: {
   env: Env;
   db: ApiDb;
   clock: () => Date;
   billing: BillingProvider | null;
+  limits?: Partial<UploadLimits>;
 }): ApiContext {
   const { env, db, clock } = deps;
   const newId = () => uuidv7();
@@ -53,5 +75,7 @@ export function createContext(deps: {
     subscriptions: new SubscriptionRepository(db),
     billing: deps.billing,
     settings: () => loadAppSettings(db),
+    files: new LocalDiskStore(env.filesDir),
+    limits: { ...DEFAULT_LIMITS, ...deps.limits },
   };
 }

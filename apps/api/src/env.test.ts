@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { EnvError, loadEnv } from './env.ts';
 
@@ -141,5 +142,12 @@ describe('API environment (environment-setup, ADR-007)', () => {
     expect(problems({ ...STUB, DATABASE_URL: 'postgres://x' })).toEqual([
       expect.stringMatching(/^DATABASE_URL/),
     ]);
+  });
+
+  it('files live next to the database unless FILES_DIR says otherwise (D40)', () => {
+    expect(loadEnv(STUB).filesDir).toBe(join('./data', 'files'));
+    expect(loadEnv({ ...STUB, FILES_DIR: 'D:/nextlevel-files' }).filesDir).toBe(
+      'D:/nextlevel-files',
+    );
   });
 });
