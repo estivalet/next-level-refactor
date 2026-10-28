@@ -25,10 +25,11 @@ export function PlanEditor({ id }: { id: string | null }) {
   if (!plans.data || !scopes.data) return null;
   const saved = id === null ? null : (plans.data.find((plan) => plan.id === id) ?? undefined);
   if (saved === undefined) return <p className="text-sm">{t('admin.plans.notFound')}</p>;
-  // Remount when the saved plan changes, so the form starts from it.
+  // One form per plan: a refetch (e.g. new subscriber counts) keeps what was typed; fields the
+  // form doesn't edit are read from `saved` as it arrives.
   return (
     <PlanForm
-      key={JSON.stringify(saved)}
+      key={saved?.id ?? 'new'}
       saved={saved}
       scopes={scopes.data}
       justSaved={justSaved}
@@ -81,10 +82,23 @@ function PlanForm({
     deviceLimit <= 20 &&
     (saved !== null || /^[a-z0-9-]{2,40}$/.test(slug));
   const changed = saved ? Object.keys(patch).length > 0 : slug !== '' || name !== '';
+  // A refusal goes on the price fields of the request that was sent, not of the form now.
+  const sent = save.variables as
+    { stripePriceMonthly?: string | null; stripePriceYearly?: string | null } | undefined;
+  const sentPrice = (key: 'stripePriceMonthly' | 'stripePriceYearly') =>
+    sent !== undefined && (saved ? key in sent : (sent[key] ?? null) !== null);
   const errors = fieldErrors(save.error, {
-    priceMonthly: priceMonthly !== (saved?.stripePriceMonthly ?? null),
-    priceYearly: priceYearly !== (saved?.stripePriceYearly ?? null),
+    priceMonthly: sentPrice('stripePriceMonthly'),
+    priceYearly: sentPrice('stripePriceYearly'),
   });
+  const whyNot =
+    name.trim() === ''
+      ? 'admin.plans.whyName'
+      : !Number.isInteger(deviceLimit) || deviceLimit < 1 || deviceLimit > 20
+        ? 'admin.plans.whyDevices'
+        : saved === null && slug !== '' && !/^[a-z0-9-]{2,40}$/.test(slug)
+          ? 'admin.plans.whySlug'
+          : null;
   const fieldError = (field: PlanField) => {
     const found = errors[field];
     if (!found) return null;
@@ -99,7 +113,6 @@ function PlanForm({
 
   const submit = () => {
     if (saved) {
-      // The saved plan remounts this form, so the call's own onSuccess would never run.
       update.mutateAsync(patch).then(onSaved, () => undefined);
       return;
     }
@@ -217,9 +230,19 @@ function PlanForm({
         </p>
       )}
       <div className="flex items-center gap-3">
-        <Button type="submit" variant="primary" disabled={!changed || !valid || save.isPending}>
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={!changed || !valid || save.isPending}
+          aria-describedby={changed && whyNot ? 'plan-save-why' : undefined}
+        >
           {t('admin.plans.save')}
         </Button>
+        {changed && whyNot && (
+          <p id="plan-save-why" className="text-sm text-slate-400">
+            {t(whyNot)}
+          </p>
+        )}
         {justSaved && !changed && (
           <p role="status" className="text-sm text-emerald-300">
             {t('admin.plans.saved')}

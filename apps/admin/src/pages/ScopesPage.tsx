@@ -9,10 +9,24 @@ const slugTaken = (error: unknown) =>
   error instanceof AppErrorException &&
   (error.error.details as { reason?: unknown } | undefined)?.reason === 'slugTaken';
 
+/** The field a validation refusal names (`/name`, `/description`), if any. */
+function refusedField(error: unknown): 'name' | 'description' | null {
+  if (!(error instanceof AppErrorException)) return null;
+  const issues = (error.error.details as { issues?: unknown } | undefined)?.issues;
+  if (!Array.isArray(issues)) return null;
+  for (const issue of issues as Array<{ instancePath?: unknown }>) {
+    if (issue.instancePath === '/name') return 'name';
+    if (issue.instancePath === '/description') return 'description';
+  }
+  return null;
+}
+
 /** S13 Catalog scopes (US-F4, D37): edit names and descriptions in place, add new ones. */
 export function ScopesPage() {
   const { t } = useTranslation();
   const scopes = useScopes();
+  // Rows remount with their saved values, so "Saved." is kept here.
+  const [savedId, setSavedId] = useState<string | null>(null);
   return (
     <section className="flex max-w-3xl flex-col gap-4">
       <h1 className="text-lg font-semibold text-white">{t('admin.scopes.title')}</h1>
@@ -26,14 +40,29 @@ export function ScopesPage() {
         <p className="text-sm text-slate-500">{t('admin.scopes.empty')}</p>
       )}
       {scopes.data?.map((scope) => (
-        <ScopeRow key={JSON.stringify(scope)} scope={scope} />
+        <ScopeRow
+          key={JSON.stringify(scope)}
+          scope={scope}
+          justSaved={savedId === scope.id}
+          onSaved={() => {
+            setSavedId(scope.id);
+          }}
+        />
       ))}
       <NewScope />
     </section>
   );
 }
 
-function ScopeRow({ scope }: { scope: CatalogScope }) {
+function ScopeRow({
+  scope,
+  justSaved,
+  onSaved,
+}: {
+  scope: CatalogScope;
+  justSaved: boolean;
+  onSaved: () => void;
+}) {
   const { t } = useTranslation();
   const update = useUpdateScope(scope.id);
   const [name, setName] = useState(scope.name);
@@ -43,6 +72,8 @@ function ScopeRow({ scope }: { scope: CatalogScope }) {
     ...(description.trim() !== scope.description ? { description: description.trim() } : {}),
   };
   const changed = Object.keys(patch).length > 0;
+  const message = update.error ? t(errorKey(update.error)) : null;
+  const on = refusedField(update.error);
   return (
     <fieldset
       aria-label={scope.slug}
@@ -52,6 +83,7 @@ function ScopeRow({ scope }: { scope: CatalogScope }) {
         label={t('admin.scopes.name')}
         maxLength={60}
         value={name}
+        error={on === 'name' ? message : null}
         onChange={(event) => {
           setName(event.target.value);
         }}
@@ -61,19 +93,26 @@ function ScopeRow({ scope }: { scope: CatalogScope }) {
         help={scope.slug}
         maxLength={500}
         value={description}
-        error={update.error ? t(errorKey(update.error)) : null}
+        error={on === 'name' ? null : message}
         onChange={(event) => {
           setDescription(event.target.value);
         }}
       />
-      <Button
-        disabled={!changed || name.trim() === '' || update.isPending}
-        onClick={() => {
-          update.mutate(patch);
-        }}
-      >
-        {t('admin.scopes.save')}
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          disabled={!changed || name.trim() === '' || update.isPending}
+          onClick={() => {
+            update.mutate(patch, { onSuccess: onSaved });
+          }}
+        >
+          {t('admin.scopes.save')}
+        </Button>
+        {justSaved && !changed && (
+          <p role="status" className="text-sm text-emerald-300">
+            {t('admin.plans.saved')}
+          </p>
+        )}
+      </div>
     </fieldset>
   );
 }

@@ -155,7 +155,10 @@
       "intervals": {
         "month": "mensal",
         "year": "anual"
-      }
+      },
+      "whyName": "Informe um nome para salvar.",
+      "whyDevices": "Dispositivos deve ser um número inteiro de 1 a 20.",
+      "whySlug": "O slug usa de 2 a 40 letras minúsculas, dígitos e hifens."
     },
     "scopes": {
       "title": "Escopos do catálogo",
@@ -212,7 +215,9 @@
         "archived": "Este plano está arquivado.",
         "past": "A data final já passou.",
         "notActive": "Esta cortesia já terminou."
-      }
+      },
+      "noPlans": "Nenhum plano pode ser concedido: todos estão arquivados.",
+      "plansFailed": "Não foi possível carregar os planos, então nada pode ser concedido. Recarregue a página."
     },
     "deleteUser": {
       "open": "Excluir conta…",

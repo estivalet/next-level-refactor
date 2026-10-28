@@ -155,7 +155,10 @@
       "intervals": {
         "month": "monthly",
         "year": "yearly"
-      }
+      },
+      "whyName": "Enter a name to save.",
+      "whyDevices": "Devices must be a whole number from 1 to 20.",
+      "whySlug": "The slug uses 2–40 lowercase letters, digits and hyphens."
     },
     "scopes": {
       "title": "Catalog scopes",
@@ -212,7 +215,9 @@
         "archived": "This plan is archived.",
         "past": "The end date has passed.",
         "notActive": "This grant has already ended."
-      }
+      },
+      "noPlans": "No plan can be granted: every plan is archived.",
+      "plansFailed": "Plans couldn't be loaded, so nothing can be granted. Reload the page."
     },
     "deleteUser": {
       "open": "Delete account…",

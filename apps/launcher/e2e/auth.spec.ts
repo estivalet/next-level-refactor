@@ -145,18 +145,22 @@ test('D36, security §5: download my data, then delete the account; the library 
   await expect(account.getByText('Saved.')).toBeVisible();
   const file = JSON.parse(await readFile(exported, 'utf8')) as { user: { email: string } };
   expect(file.user.email).toBe('subscriber@nextlevel.test');
-  const library = (await stat(join(data.dir, 'library.db'))).isFile();
+  const libraryFile = join(data.dir, 'library.db');
+  const before = await stat(libraryFile);
 
   await account.getByRole('button', { name: 'Delete account…' }).click();
   const dialog = page.getByRole('dialog', { name: 'Delete your NextLevel account?' });
   await dialog.getByLabel('Type your email to confirm').fill('subscriber@nextlevel.test');
   await dialog.getByRole('button', { name: 'Delete account' }).click();
   await expect(page.getByText('Your account was deleted.')).toBeVisible();
+  // The local library is untouched by the deletion: same size, not rewritten.
+  const after = await stat(libraryFile);
+  expect(after.size).toBe(before.size);
+  expect(after.mtimeMs).toBe(before.mtimeMs);
   await app.close();
 
-  // The local library is untouched: still there, and it opens with sign-in off.
-  expect(library).toBe(true);
-  expect((await stat(join(data.dir, 'library.db'))).isFile()).toBe(true);
+  // ...and it still opens with sign-in off.
+  expect((await stat(libraryFile)).size).toBeGreaterThanOrEqual(before.size);
   const offline = await launch(data.dir);
   await expect(desktopApps(await offline.firstWindow())).toBeVisible();
   await offline.close();

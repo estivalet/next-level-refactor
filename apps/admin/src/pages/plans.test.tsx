@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage, stubApi } from '../test-utils.tsx';
@@ -228,5 +228,112 @@ describe('Catalog scopes (US-F4, D37)', () => {
     await u.type(within(add).getByLabelText('Name'), 'x');
     await u.click(within(add).getByRole('button', { name: 'Add scope' }));
     expect(await within(add).findByLabelText('Slug')).toHaveAccessibleDescription(/already used/);
+  });
+});
+
+describe('plan editor polish (M8d minors)', () => {
+  it('a price refusal shows under the price that was submitted, even after editing', async () => {
+    const u = userEvent.setup();
+    stubApi({
+      'GET /v1/admin/plans': () => ({ body: [plan()] }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+      'PATCH /v1/admin/plans/p1': () => conflict('VALIDATION_FAILED', 'inactive', 400),
+    });
+    renderPage(<PlanEditor id="p1" />);
+    const monthly = await screen.findByLabelText('Monthly Stripe price id');
+    await u.clear(monthly);
+    await u.type(monthly, 'price_new');
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByLabelText('Monthly Stripe price id')).toHaveAccessibleDescription(
+      /not active/,
+    );
+    await u.type(screen.getByLabelText('Yearly Stripe price id'), 'price_y');
+    expect(screen.getByLabelText('Monthly Stripe price id')).toHaveAccessibleDescription(
+      /not active/,
+    );
+    expect(screen.getByLabelText('Yearly Stripe price id')).not.toHaveAccessibleDescription(
+      /not active/,
+    );
+  });
+
+  it('a background refetch that changes subscribers keeps typed edits', async () => {
+    const u = userEvent.setup();
+    let current = plan();
+    stubApi({
+      'GET /v1/admin/plans': () => ({ body: [current] }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+    });
+    const view = renderPage(<PlanEditor id="p1" />);
+    const name = await screen.findByLabelText('Name');
+    await u.clear(name);
+    await u.type(name, 'Basic Plus');
+    current = plan({ subscribers: 9 });
+    await view.client.invalidateQueries();
+    await waitFor(() => {
+      expect(
+        view.client.getQueryData<Array<{ subscribers: number }>>(['plans'])?.[0]?.subscribers,
+      ).toBe(9);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.getByLabelText('Name')).toHaveValue('Basic Plus');
+  });
+
+  it('a disabled Save says why (empty name, device limit 1–20)', async () => {
+    const u = userEvent.setup();
+    stubApi({
+      'GET /v1/admin/plans': () => ({ body: [plan()] }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+    });
+    renderPage(<PlanEditor id="p1" />);
+    const name = await screen.findByLabelText('Name');
+    await u.clear(name);
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save).toBeDisabled();
+    expect(save).toHaveAccessibleDescription(/Enter a name/);
+    await u.type(name, 'Basic');
+    const devices = screen.getByLabelText('Device limit');
+    await u.clear(devices);
+    await u.type(devices, '25');
+    expect(save).toHaveAccessibleDescription(/1 to 20/);
+  });
+
+  it('a scope-row error shows under the field it names, and a saved scope shows Saved.', async () => {
+    const u = userEvent.setup();
+    let fail = true;
+    let scopes = SCOPES;
+    stubApi({
+      'GET /v1/admin/scopes': () => ({ body: scopes }),
+      'PATCH /v1/admin/scopes/s1': () =>
+        fail
+          ? {
+              status: 400,
+              body: {
+                error: {
+                  code: 'VALIDATION_FAILED',
+                  message: 'm',
+                  requestId: 'r',
+                  details: { issues: [{ instancePath: '/name', message: 'too long' }] },
+                },
+              },
+            }
+          : (() => {
+              scopes = SCOPES.map((scope) =>
+                scope.id === 's1' ? { ...scope, name: 'Demos' } : scope,
+              );
+              return { body: scopes[0] };
+            })(),
+    });
+    renderPage(<ScopesPage />);
+    const row = await screen.findByRole('group', { name: 'demos' });
+    const name = within(row).getByLabelText('Name');
+    await u.clear(name);
+    await u.type(name, 'Demos');
+    await u.click(within(row).getByRole('button', { name: 'Save' }));
+    expect(await within(row).findByLabelText('Name')).toHaveAccessibleDescription(/not valid/);
+    expect(within(row).getByLabelText('Description')).not.toHaveAccessibleDescription(/not valid/);
+    fail = false;
+    await u.click(within(row).getByRole('button', { name: 'Save' }));
+    const saved = await screen.findByRole('group', { name: 'demos' });
+    expect(await within(saved).findByText('Saved.')).toBeVisible();
   });
 });
