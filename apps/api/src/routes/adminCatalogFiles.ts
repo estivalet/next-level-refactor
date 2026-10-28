@@ -25,7 +25,7 @@ import { apiError } from '../errors.ts';
 const id = z.string().min(1).max(100);
 const config = { role: 'admin' as const };
 
-const actor = (request: FastifyRequest) => {
+export const adminActor = (request: FastifyRequest) => {
   if (!request.admin) throw apiError('UNAUTHENTICATED');
   return request.admin.userId;
 };
@@ -35,7 +35,7 @@ const actor = (request: FastifyRequest) => {
  * length is checked first: a body over `limit` is refused before a byte is read, so the client
  * gets the envelope instead of a reset connection.
  */
-const stream = (request: FastifyRequest, limit: number): Readable => {
+export const rawBody = (request: FastifyRequest, limit: number): Readable => {
   if (!(request.body instanceof Readable)) throw apiError('VALIDATION_FAILED', 'No body.');
   const length = Number(request.headers['content-length']);
   if (!Number.isInteger(length) || length < 0) {
@@ -81,7 +81,7 @@ export async function adminCatalogFileRoutes(app: FastifyInstance, ctx: ApiConte
     (request) =>
       completeUpload(
         ctx,
-        actor(request),
+        adminActor(request),
         request.params.id,
         request.params.fileId,
         request.body.sha256,
@@ -92,7 +92,7 @@ export async function adminCatalogFileRoutes(app: FastifyInstance, ctx: ApiConte
     '/v1/admin/catalog/items/:id/files/:fileId',
     { config, schema: { params: z.object({ id, fileId: id }) } },
     async (request, reply) => {
-      await removeFile(ctx, actor(request), request.params.id, request.params.fileId);
+      await removeFile(ctx, adminActor(request), request.params.id, request.params.fileId);
       return reply.status(204).send();
     },
   );
@@ -101,7 +101,7 @@ export async function adminCatalogFileRoutes(app: FastifyInstance, ctx: ApiConte
     '/v1/admin/catalog/items/:id/media/:kind',
     { config, schema: { params: z.object({ id, kind: CatalogMediaKindSchema }) } },
     async (request, reply) => {
-      await removeMedia(ctx, actor(request), request.params.id, request.params.kind);
+      await removeMedia(ctx, adminActor(request), request.params.id, request.params.kind);
       return reply.status(204).send();
     },
   );
@@ -120,7 +120,7 @@ export async function adminCatalogFileRoutes(app: FastifyInstance, ctx: ApiConte
         bodyLimit: ctx.limits.upload,
         schema: { params: z.object({ fileId: id }), response: { 200: UploadResultSchema } },
       },
-      (request) => receiveUpload(ctx, request.params.fileId, stream(request, ctx.limits.upload)),
+      (request) => receiveUpload(ctx, request.params.fileId, rawBody(request, ctx.limits.upload)),
     );
 
     raw.put(
@@ -136,11 +136,11 @@ export async function adminCatalogFileRoutes(app: FastifyInstance, ctx: ApiConte
       (request) =>
         putMedia(
           ctx,
-          actor(request),
+          adminActor(request),
           request.params.id,
           request.params.kind,
           request.headers['content-type'],
-          stream(request, ctx.limits.media),
+          rawBody(request, ctx.limits.media),
         ),
     );
     done();

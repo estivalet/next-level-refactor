@@ -21,7 +21,8 @@ import { stubProvider, type StubBilling } from './billing/stubProvider.ts';
 import { createContext } from './context.ts';
 import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
-import type { UploadLimits } from './context.ts';
+import type { ApiContext, UploadLimits } from './context.ts';
+import { runMaintenance } from './catalog/maintenance.ts';
 import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
 import { accountRoutes } from './routes/account.ts';
@@ -30,7 +31,9 @@ import { adminAuthRoutes } from './routes/adminAuth.ts';
 import { adminPlanRoutes } from './routes/adminPlans.ts';
 import { adminStaticRoutes } from './routes/adminStatic.ts';
 import { billingRoutes } from './routes/billing.ts';
+import { adminCatalogRoutes } from './routes/adminCatalog.ts';
 import { adminCatalogFileRoutes } from './routes/adminCatalogFiles.ts';
+import { adminCatalogLicenseRoutes } from './routes/adminCatalogLicense.ts';
 import { billingStubRoutes } from './routes/billingStub.ts';
 import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
@@ -157,10 +160,36 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   billingRoutes(app, ctx);
   await webhookRoutes(app, ctx);
   await adminCatalogFileRoutes(app, ctx);
+  adminCatalogRoutes(app, ctx);
+  await adminCatalogLicenseRoutes(app, ctx);
   if (billing && deps.billing === undefined && deps.env.billing.mode === 'stub') {
     billingStubRoutes(app, ctx, billing as StubBilling);
   }
   if (deps.env.adminDist) adminStaticRoutes(app, deps.env.adminDist);
   if ('issue' in identity) stubRoutes(app, identity, deps.env.publicUrl);
+  scheduleMaintenance(app, ctx);
   return app;
+}
+
+const MAINTENANCE_EVERY_MS = 10 * 60 * 1000;
+
+/**
+ * The catalog maintenance job (M9: license expiry, download log retention, abandoned uploads):
+ * once when the API is ready, then every 10 minutes; stopped on close.
+ */
+function scheduleMaintenance(app: FastifyInstance, ctx: ApiContext): void {
+  const run = () =>
+    runMaintenance(ctx).catch((error: unknown) => {
+      app.log.error({ err: error instanceof Error ? error.name : 'unknown' }, 'maintenance failed');
+    });
+  let timer: NodeJS.Timeout | undefined;
+  app.addHook('onReady', async () => {
+    await run();
+    timer = setInterval(() => void run(), MAINTENANCE_EVERY_MS);
+    timer.unref();
+  });
+  app.addHook('onClose', (_instance, done) => {
+    clearInterval(timer);
+    done();
+  });
 }

@@ -33,11 +33,16 @@ the website and the videos must say this consistently.
 
 ## 4. Publishing workflow
 
-1. Admin creates a draft item and uploads files (checksums computed).
-2. Admin attaches a license record and evidence file; marks it verified (records who/when).
-3. **Publish** is enabled only with a verified license (enforced in API — critical scenario C10).
+1. Admin creates a draft item and uploads files (size and SHA-256 computed by the API; a ROM or
+   disc file needs one of its system's extensions).
+2. Admin attaches a license record (one per item) and its evidence file (PDF, image, text or
+   email, ≤ 20 MiB); marks it verified, which records who and when. Verification needs the
+   evidence. Replacing the license clears verification and unpublishes the item.
+3. **Publish** is enabled only with a verified, unexpired license, an `on_lapse` choice (`keep` or
+   `remove`, no default) and at least one game file (enforced in API — critical scenario C10).
 4. Item shows license type and credit to subscribers.
-5. License `expires_at` triggers automatic unpublish and the item's `on_lapse` rule.
+5. License `expires_at` triggers automatic unpublish (recorded in the audit log as a system
+   action) and the item's `on_lapse` rule on installed copies.
 
 ## 5. Takedown process
 

@@ -116,11 +116,19 @@ built console at `/` (any non-`/v1` path falls back to `index.html`).
 | `DELETE /v1/admin/users/:id/devices/:deviceId` | Revoke device |
 | `GET/POST /v1/admin/plans` · `PATCH /v1/admin/plans/:id` | Plans |
 | `GET/POST /v1/admin/scopes` · `PATCH /v1/admin/scopes/:id` | Catalog scopes |
-| `GET/POST /v1/admin/catalog/items` · `GET/PATCH /v1/admin/catalog/items/:id` | Items |
-| `POST /v1/admin/catalog/items/:id/files` | Start upload → `{ uploadUrl, fileId }`; `POST …/files/:fileId/complete` verifies size + sha256 |
-| `POST /v1/admin/catalog/items/:id/media` | Upload art (same pattern) |
-| `PUT /v1/admin/catalog/items/:id/license` | Attach/replace license record |
-| `POST /v1/admin/catalog/items/:id/publish` · `…/unpublish` | Publish requires license + ≥1 file |
+| `GET /v1/admin/catalog/items?q=&status=&system=&scope=&cursor=&limit=` | Newest first → `{ items: AdminCatalogItemSummary[], nextCursor }` (M9b) |
+| `POST /v1/admin/catalog/items` | `CreateItem { slug, title, systemId, scopeSlug }` → `AdminCatalogItem` (draft); taken slug → `CONFLICT slugTaken`; unknown system/scope → `VALIDATION_FAILED system`/`scope`; audited `item.create` |
+| `GET/PATCH /v1/admin/catalog/items/:id` | `AdminCatalogItem` (with `files`, `media`, `license`, `publishBlockers`); PATCH takes any of title, description (≤ 4000), year, developer, publisher, genre, players, scopeSlug, onLapse, starter → audited `item.update` |
+| `POST /v1/admin/catalog/items/:id/files` | `{ filename, role }` (safe name; `rom`/`disc` need a system extension → else `VALIDATION_FAILED filename`) → `{ fileId, uploadUrl }` (a pending file) |
+| `PUT /v1/admin/catalog/uploads/:fileId` | Raw body (`Content-Length` required, ≤ 4 GiB → else `tooLarge`), streamed to storage → `{ size, sha256 }` |
+| `POST /v1/admin/catalog/items/:id/files/:fileId/complete` | `{ sha256? }` (must match → else `VALIDATION_FAILED checksum`, file deleted) → ready; replaces a ready file of the same name; a published item's `version` +1 (D41); audited `item.file.add` |
+| `DELETE /v1/admin/catalog/items/:id/files/:fileId` | `204`; a published item's last `rom`/`disc` → `CONFLICT lastFile`; `version` +1 when published; audited `item.file.remove` |
+| `PUT/DELETE /v1/admin/catalog/items/:id/media/:kind` | Art kind (game art kinds), raw png/jpeg/webp/gif/mp4/webm ≤ 50 MiB; audited `item.media.set`/`remove` |
+| `PUT /v1/admin/catalog/items/:id/license` | `LicenseInput` → replaces the item's license, unverified; a published item is unpublished in the same transaction (audited `item.license` + `item.unpublish`) |
+| `PUT /v1/admin/catalog/items/:id/license/evidence?filename=` | Raw pdf/png/jpeg/txt/eml ≤ 20 MiB; refused on a verified license (`CONFLICT verified`) |
+| `GET /v1/admin/catalog/items/:id/license/evidence` | The evidence as an attachment (admin only) |
+| `POST /v1/admin/catalog/items/:id/license/verify` | No evidence → `CONFLICT noEvidence`; records who/when; audited `item.license.verify` |
+| `POST /v1/admin/catalog/items/:id/publish` · `…/unpublish` | Publish needs a verified, unexpired license, `onLapse` and ≥ 1 ready `rom`/`disc` file → else `CONFLICT { reason: 'blocked', blockers }` (C10, D44); audited `item.publish`/`item.unpublish`. A maintenance job (at start, every 10 min) unpublishes items whose license expired (audited with no actor), deletes download records older than 12 months and uploads pending for 24 h |
 | `GET /v1/admin/audit?actor=&target=&cursor=` | Audit log |
 | `GET/PATCH /v1/admin/settings` | Grace days, sign-up mode, allow-list, banner (since M7c; PATCH takes any subset) |
 | `GET /v1/admin/stats` | Dashboard numbers |
