@@ -140,6 +140,7 @@ async function start(): Promise<void> {
     },
   });
   await settings.load();
+  await settings.adoptRoot(portable.root);
   // A theme switch right before quitting must still be remembered (FR-THM-5).
   let settingsSettled = false;
   app.on('before-quit', (event) => {

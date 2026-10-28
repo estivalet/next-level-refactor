@@ -34,7 +34,9 @@
 ### Secrets on the device
 
 The launcher keeps secrets in one file, `secrets.bin` in its data folder, encrypted with
-Electron `safeStorage` (DPAPI on Windows) and written atomically. They never appear in
+Electron `safeStorage` (DPAPI on Windows) and written atomically. DPAPI ties the file to the
+Windows user: a NextLevel folder copied to another PC or user can't decrypt it, so the launcher
+reads it as empty (sign in again, re-enter ScreenScraper credentials) and logs that once (D50). They never appear in
 `settings.json`, backups, IPC outputs, logs or crash reports, and the renderer never sees a value.
 
 | Key | Since | Holds |

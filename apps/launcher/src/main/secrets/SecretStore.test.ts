@@ -104,4 +104,18 @@ describe('SecretStore (FR-SCR-3)', () => {
     expect(await fresh.get('screenscraper.user')).toBe('player1');
     expect(await fresh.get('auth.session')).toBe('{"deviceId":"d"}');
   });
+
+  it('D50: undecryptable secrets (another PC or user) read as empty and log once', async () => {
+    await new SecretStore(file, fakeCipher(), log).setMany({ 'auth.session': '{"token":"x"}' });
+    const otherPc: Cipher = {
+      available: () => Promise.resolve(true),
+      encrypt: (text) => Promise.resolve(Buffer.from(text)),
+      decrypt: () => Promise.reject(new Error('DPAPI: key not valid for this user')),
+    };
+    const store = new SecretStore(file, otherPc, log);
+    expect(await store.get('auth.session')).toBeNull();
+    expect(await store.get('screenscraper.user')).toBeNull();
+    expect(await store.available()).toBe(true);
+    expect(log.warn).toHaveBeenCalledTimes(1);
+  });
 });

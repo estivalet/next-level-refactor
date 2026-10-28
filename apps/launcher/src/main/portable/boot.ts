@@ -1,7 +1,10 @@
 import { app, dialog } from 'electron';
 import { mkdir, rm } from 'node:fs/promises';
+import { join } from 'node:path';
 import { mainText } from '../i18n/mainText.ts';
+import { logger as log } from '../log.ts';
 import { checkWritable } from './checkWritable.ts';
+import { moveOldData } from './moveOldData.ts';
 import { electronPaths, portableRoot, type ElectronPathName } from './portableRoot.ts';
 
 /**
@@ -37,5 +40,21 @@ export async function preparePortable(data: string): Promise<boolean> {
   const temp = electronPaths(data).temp;
   await rm(temp, { recursive: true, force: true });
   await mkdir(temp, { recursive: true });
+  const moved = await moveOldData({ from: oldDataDir(), to: data });
+  if (typeof moved === 'object') {
+    log.error({ reason: moved.failed }, 'old data could not be moved');
+    dialog.showErrorBox('NextLevel', mainText(osLanguage(), 'portable.moveFailed'));
+    app.exit(1);
+    return false;
+  }
+  if (moved === 'moved') log.info({}, 'old data moved into the NextLevel folder');
   return true;
+}
+
+/**
+ * Where launchers before D50 kept their data. The only OS folder the launcher still reads, once,
+ * to bring that data in (moveOldData).
+ */
+function oldDataDir(): string {
+  return join(app.getPath('appData'), app.isPackaged ? 'NextLevel' : 'NextLevel-dev');
 }

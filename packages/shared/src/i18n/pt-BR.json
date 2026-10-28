@@ -129,7 +129,7 @@
         },
         "startWithWindows": {
           "label": "Iniciar com o Windows",
-          "help": "Abrir o NextLevel automaticamente quando você entrar no Windows."
+          "help": "Abrir o NextLevel automaticamente quando você entrar no Windows. Isso adiciona uma entrada de inicialização do Windows (nenhum arquivo); desligar remove a entrada."
         }
       }
     },
@@ -1322,6 +1322,7 @@
     "back": "Você pode fechar esta aba e voltar ao NextLevel."
   },
   "portable": {
-    "notWritable": "O NextLevel não consegue gravar na própria pasta. Mova a pasta do NextLevel para um lugar onde você possa gravar, como C:\\NextLevel, e abra-o de novo."
+    "notWritable": "O NextLevel não consegue gravar na própria pasta. Mova a pasta do NextLevel para um lugar onde você possa gravar, como C:\\NextLevel, e abra-o de novo.",
+    "moveFailed": "O NextLevel não conseguiu mover os seus dados da antiga pasta AppData para a própria pasta. Nada foi perdido: a pasta antiga está intacta. Verifique se há espaço livre e abra o NextLevel de novo."
   }
 }

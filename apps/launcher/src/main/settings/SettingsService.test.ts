@@ -141,3 +141,52 @@ describe('SettingsService', () => {
     });
   });
 });
+
+describe('a moved NextLevel folder (D50, Review Focus 5)', () => {
+  function rooted(lastRoot: string | null): Settings {
+    const settings = defaultSettings();
+    return {
+      ...settings,
+      general: { ...settings.general, lastRoot },
+      storage: {
+        ...settings.storage,
+        locations: [
+          {
+            id: '01a18273-adc6-74f5-84e4-af4637b87ce2',
+            name: 'Catalog',
+            path: 'E:\\NextLevel\\Catalog',
+            priority: 1,
+          },
+        ],
+      },
+    };
+  }
+
+  it('a different lastRoot rewrites paths after a backup and stores the new root', async () => {
+    const { service, file, dir } = await setup(JSON.stringify(rooted('E:\\NextLevel')));
+    await service.load();
+    expect(await service.adoptRoot('F:\\NextLevel')).toBe(1);
+    const saved = JSON.parse(await readFile(file, 'utf8')) as Settings;
+    expect(saved.general.lastRoot).toBe('F:\\NextLevel');
+    expect(saved.storage.locations[0]?.path).toBe('F:\\NextLevel\\Catalog');
+    expect(await backups(dir)).toHaveLength(1);
+  });
+
+  it('the same root changes nothing and writes nothing', async () => {
+    const { service, file, dir } = await setup(JSON.stringify(rooted('E:\\NextLevel')));
+    await service.load();
+    const before = await readFile(file, 'utf8');
+    expect(await service.adoptRoot('e:\\nextlevel\\')).toBe(0);
+    expect(await readFile(file, 'utf8')).toBe(before);
+    expect(await backups(dir)).toEqual([]);
+  });
+
+  it('a first portable boot records the root and moves nothing', async () => {
+    const { service, file } = await setup(JSON.stringify(rooted(null)));
+    await service.load();
+    expect(await service.adoptRoot('F:\\NextLevel')).toBe(0);
+    const saved = JSON.parse(await readFile(file, 'utf8')) as Settings;
+    expect(saved.general.lastRoot).toBe('F:\\NextLevel');
+    expect(saved.storage.locations[0]?.path).toBe('E:\\NextLevel\\Catalog');
+  });
+});

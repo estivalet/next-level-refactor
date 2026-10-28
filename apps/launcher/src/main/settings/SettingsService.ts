@@ -5,6 +5,8 @@ import {
   defaultSettings,
   err,
   ok,
+  relocatePaths,
+  sameFolder,
   type BackupInfo,
   type Result,
   type Settings,
@@ -132,6 +134,30 @@ export class SettingsService {
         return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, parsed.error.issues);
       }
       return ok(await this.write(parsed.data));
+    });
+  }
+
+  /**
+   * Boot (D50): when the NextLevel folder is not where it was last time (another drive letter or
+   * PC), settings paths inside the old folder are rewritten to the new one, after the usual
+   * backup. The first portable boot only records the folder. Answers how many paths moved.
+   */
+  adoptRoot(root: string): Promise<number> {
+    return this.exclusive(async () => {
+      if (this.state.kind !== 'ok') return 0;
+      const settings = this.state.snapshot.settings;
+      const last = settings.general.lastRoot;
+      if (last !== null && sameFolder(last, root)) return 0;
+      const relocated =
+        last === null ? { settings, changed: 0 } : relocatePaths(settings, last, root);
+      await this.write({
+        ...relocated.settings,
+        general: { ...relocated.settings.general, lastRoot: root },
+      });
+      if (relocated.changed > 0) {
+        this.deps.log.warn({ changed: relocated.changed }, 'NextLevel folder moved; paths updated');
+      }
+      return relocated.changed;
     });
   }
 
