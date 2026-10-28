@@ -43,6 +43,8 @@ export const GeneralSchema = z.object({
   startWithWindows: z.boolean().default(false).meta(field('general.startWithWindows')),
   /** ISO time the first-run wizard finished; null sends the user to the wizard (M9). */
   setupCompletedAt: z.iso.datetime().nullable().default(null),
+  /** The NextLevel folder at the last boot (D50); another one means the folder moved. */
+  lastRoot: z.string().nullable().default(null),
 });
 
 /** Compares Windows paths: case-insensitive, either slash, no trailing separator. */

@@ -94,7 +94,7 @@ describe('GeneralSection', () => {
       'The language of the launcher.',
     );
     expect(screen.getByRole('switch', { name: 'Start with Windows' })).toHaveAccessibleDescription(
-      'Open NextLevel automatically when you sign in to Windows.',
+      'Open NextLevel automatically when you sign in to Windows. This adds a Windows startup entry (no files); turning it off removes it.',
     );
   });
 

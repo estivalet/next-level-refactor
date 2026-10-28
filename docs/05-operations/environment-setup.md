@@ -58,8 +58,10 @@ Launcher dev config: the API address is fixed per build (`MAIN_VITE_API_URL`, de
 `http://localhost:4000`). Development builds also honour `NEXTLEVEL_API_URL` (another API) and
 `NEXTLEVEL_AUTH=off` (no sign-in gate, D25); packaged builds ignore both. End-to-end tests run
 with sign-in off except `e2e/auth.spec.ts`, which starts the real API in-process with the stub.
-The launcher stores its own data under `%APPDATA%/NextLevel-dev` in development so it never
-touches a production install.
+The launcher is portable (D50): in development it stores its data in `.nextlevel-dev\` at the
+repo root (gitignored), so it never touches a production install; a packaged build uses the
+`data\` folder next to `NextLevel.exe`. The first start after updating moves an older
+`%APPDATA%\NextLevel-dev` folder in and deletes it.
 There you'll find `settings.json`, `backups/` and `logs/main.log`. End-to-end tests set
 `NEXTLEVEL_USER_DATA` to a fresh temp folder (honoured only by development builds), so they never
 read or write your dev data.

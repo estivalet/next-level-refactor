@@ -129,7 +129,7 @@
         },
         "startWithWindows": {
           "label": "Start with Windows",
-          "help": "Open NextLevel automatically when you sign in to Windows."
+          "help": "Open NextLevel automatically when you sign in to Windows. This adds a Windows startup entry (no files); turning it off removes it."
         }
       }
     },
@@ -1320,5 +1320,9 @@
       "body": "Changes can take a minute to reach NextLevel."
     },
     "back": "You can close this tab and return to NextLevel."
+  },
+  "portable": {
+    "notWritable": "NextLevel can't write to its folder. Move the NextLevel folder somewhere you can write, like C:\\NextLevel, and start it again.",
+    "moveFailed": "NextLevel couldn't move your data from the old AppData folder into its own folder. Nothing was lost: the old folder is untouched. Check there is free space, then start NextLevel again."
   }
 }

@@ -7,13 +7,23 @@ There are four stores:
 
 | Store | Where | Format | Owner |
 |---|---|---|---|
-| Settings | `%APPDATA%/NextLevel/settings.json` (+ `backups/`) | JSON, Zod-validated | Launcher `SettingsService` |
-| Library | `%APPDATA%/NextLevel/library.db` | SQLite | Launcher `LibraryService` |
+| Settings | `<NextLevel folder>\data\settings.json` (+ `backups\`) | JSON, Zod-validated | Launcher `SettingsService` |
+| Library | `<NextLevel folder>\data\library.db` | SQLite | Launcher `LibraryService` |
 | System catalog | `packages/system-catalog` (bundled, read-only) | JSON, Zod-validated | Released with the launcher |
 | Service DB | API server volume | SQLite (→ Postgres) | API |
 
 Plus files on disk the user owns (ROMs, media, theme packs) which the launcher reads and indexes
 but never rewrites, except media written by the scraper and games installed from the catalog.
+
+**Portable (D50).** The launcher writes only inside its own folder: `<folder of NextLevel.exe>\data`
+holds `settings.json`, `backups\`, `library.db`, `secrets.bin`, `scraper-cache.sqlite`, `logs\`,
+`chromium\` (Chromium profile and caches), `crashes\` and `temp\` (emptied at every start). Nothing
+goes to `%APPDATA%`, `%LOCALAPPDATA%`, `%TEMP%` or Documents. Development uses
+`<repo>\.nextlevel-dev\`. The first portable start moves an older `%APPDATA%\NextLevel` folder in
+(each file copied and size-checked, then the old folder deleted; on any failure nothing changes
+and the launcher says so). `general.lastRoot` records the NextLevel folder; when it differs at
+start (another drive letter or PC), settings paths inside the old folder are rewritten to the
+new one after a settings backup.
 
 ---
 

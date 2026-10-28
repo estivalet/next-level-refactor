@@ -33,3 +33,6 @@ Thumbs.db
 
 # API local database
 apps/api/data/
+
+# Launcher data in development (D50)
+.nextlevel-dev/

@@ -5,6 +5,17 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Portable launcher (D50, M9a):** everything the launcher writes lives in its own folder —
+  `data\` next to `NextLevel.exe` (development: `.nextlevel-dev\` in the repo): settings,
+  library, secrets, logs, the Chromium profile, crash dumps and temp files. The first start moves
+  an older `%APPDATA%\NextLevel` folder in (size-checked, then deleted; on a failure nothing changes
+  and a dialog says so). A NextLevel folder moved to another drive letter or PC keeps its paths
+  (settings paths inside it follow, after a backup); on another PC the encrypted secrets can't
+  be read, so you sign in again. A folder the launcher can't write (e.g. under Program Files)
+  shows a dialog instead of starting.
+
 ### Fixed
 
 - API: a URL refused by the router keeps its status (414 for a too-long parameter), is logged
