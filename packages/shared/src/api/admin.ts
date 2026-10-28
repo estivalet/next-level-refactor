@@ -35,9 +35,10 @@ export const AdminUserSummarySchema = z.object({
 
 export const AuditEntrySchema = z.object({
   id: z.string(),
-  actor: z.object({ id: z.string(), email: z.string() }),
+  /** Null for system actions (a license expiring). */
+  actor: z.object({ id: z.string(), email: z.string() }).nullable(),
   action: z.string(),
-  targetType: z.enum(['user', 'device', 'settings', 'plan', 'scope', 'subscription']),
+  targetType: z.enum(['user', 'device', 'settings', 'plan', 'scope', 'subscription', 'item']),
   targetId: z.string(),
   before: z.unknown(),
   after: z.unknown(),

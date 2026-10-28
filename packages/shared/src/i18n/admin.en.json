@@ -96,7 +96,8 @@
         "grant.create": "Complimentary access granted",
         "grant.revoke": "Complimentary access revoked",
         "user.delete": "Account deleted"
-      }
+      },
+      "system": "System"
     },
     "settings": {
       "title": "Settings",

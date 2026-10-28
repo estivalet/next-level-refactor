@@ -45,6 +45,8 @@ export async function createTestApp(
   app: Awaited<ReturnType<typeof buildApp>>;
   db: ApiDb;
   clock: FakeClock;
+  /** The temp `FILES_DIR` of this app. */
+  filesDir: string;
   close: () => Promise<void>;
 }> {
   const dir = await mkdtemp(join(tmpdir(), 'nextlevel-api-'));
@@ -53,7 +55,7 @@ export async function createTestApp(
   if (settings) saveAppSettings(db, settings);
   const clock = new FakeClock();
   const app = await buildApp({
-    env: testEnv(rawEnv),
+    env: testEnv({ FILES_DIR: join(dir, 'files'), ...rawEnv }),
     db,
     clock: clock.read,
     log: false,
@@ -64,5 +66,5 @@ export async function createTestApp(
     db.$client.close();
     await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
   };
-  return { app, db, clock, close };
+  return { app, db, clock, filesDir: join(dir, 'files'), close };
 }

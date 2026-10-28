@@ -1,3 +1,4 @@
+import { dirname, join } from 'node:path';
 import { EmailSchema } from '@nextlevel/shared';
 import { z } from 'zod';
 
@@ -22,6 +23,8 @@ export interface Env {
   adminEmails: string[];
   authStub: boolean;
   adminDist: string | null;
+  /** Catalog files, art and license evidence (`FILES_DIR`, default `<database folder>/files`). */
+  filesDir: string;
   adminOrigin: string | null;
   /**
    * `enabled`: access needs a subscription or comp grant (D33). `mode`: which provider serves
@@ -107,6 +110,7 @@ const EnvSchema = z
       .optional()
       .transform((value) => value === '1'),
     ADMIN_DIST: optional,
+    FILES_DIR: optional,
     ADMIN_ORIGIN: z.url().optional(),
   })
   .superRefine((env, ctx) => {
@@ -184,6 +188,7 @@ export function loadEnv(source: Record<string, string | undefined>): Env {
     adminEmails: env.ADMIN_EMAILS,
     authStub: env.AUTH_STUB,
     adminDist: env.ADMIN_DIST,
+    filesDir: env.FILES_DIR ?? join(dirname(env.DATABASE_URL.slice('file:'.length)), 'files'),
     adminOrigin: env.ADMIN_ORIGIN ?? null,
     billing: billingOf(env),
   };

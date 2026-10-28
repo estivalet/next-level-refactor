@@ -96,7 +96,8 @@
         "grant.create": "Acesso de cortesia concedido",
         "grant.revoke": "Acesso de cortesia revogado",
         "user.delete": "Conta excluída"
-      }
+      },
+      "system": "Sistema"
     },
     "settings": {
       "title": "Configurações",

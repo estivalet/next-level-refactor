@@ -5,6 +5,15 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+
+- **Catalog admin API (M9b):** catalog items with files, art and one license record each.
+  Uploads stream through the API, which computes size and SHA-256 (4 GiB per file; local disk
+  storage, `FILES_DIR`). Publishing needs a verified, unexpired license with evidence, an
+  `on_lapse` choice and a game file (C10). Replacing a file bumps the item's version. Expired
+  licenses unpublish their items automatically; download records are kept 12 months. Every change
+  is in the audit log (system actions show as System). Migration `0003`.
+
 ### Changed
 
 - **Portable launcher (D50, M9a):** everything the launcher writes lives in its own folder —
