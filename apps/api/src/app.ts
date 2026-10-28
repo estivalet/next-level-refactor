@@ -36,6 +36,8 @@ import { adminCatalogRoutes } from './routes/adminCatalog.ts';
 import { adminCatalogFileRoutes } from './routes/adminCatalogFiles.ts';
 import { adminCatalogLicenseRoutes } from './routes/adminCatalogLicense.ts';
 import { billingStubRoutes } from './routes/billingStub.ts';
+import { catalogRoutes } from './routes/catalog.ts';
+import { fileRoutes } from './routes/files.ts';
 import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
 import { launcherConfigRoutes } from './routes/launcherConfig.ts';
@@ -120,6 +122,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     logger: deps.log ?? false,
     genReqId: () => uuidv7(),
     requestIdHeader: false,
+    // Download tokens (/v1/files/:token) are ~250 characters; longer parameters are 414.
+    routerOptions: { maxParamLength: 512 },
     frameworkErrors,
   });
   app.setValidatorCompiler(validatorCompiler);
@@ -165,6 +169,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   await adminCatalogFileRoutes(app, ctx);
   adminCatalogRoutes(app, ctx);
   await adminCatalogLicenseRoutes(app, ctx);
+  catalogRoutes(app, ctx);
+  fileRoutes(app, ctx);
   if (billing && deps.billing === undefined && deps.env.billing.mode === 'stub') {
     billingStubRoutes(app, ctx, billing as StubBilling);
   }

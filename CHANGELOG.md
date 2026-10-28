@@ -13,6 +13,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   `on_lapse` choice and a game file (C10). Replacing a file bumps the item's version. Expired
   licenses unpublish their items automatically; download records are kept 12 months. Every change
   is in the audit log (system actions show as System). Migration `0003`.
+- **Subscriber catalog API (M9c):** launchers browse the published items their plan's scopes
+  allow (filters by system, genre, text and the Starter set), get item details, and ask for
+  download URLs: one signed URL per file, valid 10 minutes, for their own device only, 60 per
+  hour; downloads resume with byte ranges. `POST /v1/catalog/status` tells the launcher which
+  installed items are current, have an update, or left the catalog (with the item's on_lapse
+  rule). Logs show the files route's pattern, never a token or download URL.
 
 ### Changed
 
