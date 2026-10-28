@@ -1,4 +1,4 @@
-import { err, ok, type AuthState, type PlansResponse } from '@nextlevel/shared';
+import { err, ok, type AuthState, type PlansResponse, type Result } from '@nextlevel/shared';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -53,12 +53,20 @@ function setup(
     'auth.signOut': () => ok({ kind: 'signedOut', reason: null, banner: null }),
     ...extra,
   });
-  render(
-    <QueryClientProvider client={createQueryClient()}>
+  const client = createQueryClient();
+  const view = render(
+    <QueryClientProvider client={client}>
       <SubscribeScreen state={state} />
     </QueryClientProvider>,
   );
-  return fake;
+  const rerender = (next: SignedIn) => {
+    view.rerender(
+      <QueryClientProvider client={client}>
+        <SubscribeScreen state={next} />
+      </QueryClientProvider>,
+    );
+  };
+  return { ...fake, rerender };
 }
 
 describe('S3 Subscribe (US-A2, FR-AUTH-3)', () => {
@@ -139,5 +147,68 @@ describe('S3 Subscribe (US-A2, FR-AUTH-3)', () => {
     });
     await user.click(await screen.findByRole('button', { name: 'Choose Basic' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Billing is unavailable');
+  });
+});
+
+describe('Subscribe errors and focus (M8c minors)', () => {
+  it("I've already paid / Choose another plan errors are shown", async () => {
+    const user = userEvent.setup();
+    setup({ ...NONE, waitingForPayment: true }, PLANS, {
+      'auth.refreshEntitlement': () => err('API_UNREACHABLE', 'errors.apiUnreachable'),
+      'auth.stopWaiting': () => err('INTERNAL', 'errors.internal'),
+    });
+    await user.click(await screen.findByRole('button', { name: "I've already paid" }));
+    expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach NextLevel");
+    await user.click(screen.getByRole('button', { name: 'Choose another plan' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Something went wrong');
+  });
+
+  it("after 2 minutes the Waiting view says we haven't seen the payment yet", async () => {
+    const { rerender } = setup({ ...NONE, waitingForPayment: true });
+    expect(await screen.findByText('Waiting for your payment…')).toBeVisible();
+    rerender({ ...NONE, waitingForPayment: false });
+    expect(await screen.findByText(/haven't seen your payment yet/)).toBeVisible();
+  });
+
+  it('Choose another plan does not say the payment was not seen', async () => {
+    const user = userEvent.setup();
+    const { rerender } = setup({ ...NONE, waitingForPayment: true });
+    await user.click(await screen.findByRole('button', { name: 'Choose another plan' }));
+    rerender({ ...NONE, waitingForPayment: false });
+    expect(await screen.findByRole('article', { name: 'Basic' })).toBeVisible();
+    expect(screen.queryByText(/haven't seen your payment yet/)).toBeNull();
+  });
+
+  it('pending buttons use aria-disabled and keep focus', async () => {
+    const user = userEvent.setup();
+    setup(NONE, PLANS, { 'auth.openCheckout': () => new Promise(() => undefined) });
+    const choose = await screen.findByRole('button', { name: 'Choose Basic' });
+    await user.click(choose);
+    expect(choose).toHaveAttribute('aria-disabled', 'true');
+    expect(choose).not.toBeDisabled();
+    expect(choose).toHaveFocus();
+  });
+
+  it('a browser that would not open is explained', async () => {
+    const user = userEvent.setup();
+    setup(NONE, PLANS, {
+      'auth.openCheckout': () => err('INTERNAL', 'errors.internal', { reason: 'browser' }),
+    });
+    await user.click(await screen.findByRole('button', { name: 'Choose Basic' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't open your browser");
+  });
+
+  it('with billing off, the not-open notice shows without a Choose a plan flash', async () => {
+    let answer: (value: Result<PlansResponse>) => void = () => undefined;
+    setup(NONE, PLANS, {
+      'auth.plans': () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        }),
+    });
+    expect(await screen.findByText('Loading plans…')).toBeVisible();
+    expect(screen.queryByText('Choose a plan')).toBeNull();
+    answer(ok({ billingEnabled: false, plans: [] }));
+    expect(await screen.findByText("Subscriptions aren't open yet")).toBeVisible();
   });
 });

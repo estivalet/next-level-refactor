@@ -8,7 +8,11 @@ const PLANS: PlansResponse = { billingEnabled: true, plans: [] };
 const CHECKOUT_URL = 'https://checkout.stripe.com/c/pay/cs_test_1';
 
 async function billingSetup(
-  opts: { checkout?: () => Promise<{ url: string }>; portal?: () => Promise<{ url: string }> } = {},
+  opts: {
+    checkout?: () => Promise<{ url: string }>;
+    portal?: () => Promise<{ url: string }>;
+    openBrowser?: (url: string) => Promise<void>;
+  } = {},
 ) {
   const t = setup({ session: storedSession(T0 - DAY) });
   t.queues.entitlement.push({
@@ -41,7 +45,7 @@ async function billingSetup(
     },
     openBrowser: (url) => {
       opened.push(url);
-      return Promise.resolve();
+      return opts.openBrowser ? opts.openBrowser(url) : Promise.resolve();
     },
     apiOrigin: 'http://localhost:4000',
     every: (_ms, run) => {
@@ -199,5 +203,70 @@ describe('plans and portal (S3, S12)', () => {
       error: { code: 'VALIDATION_FAILED' },
     });
     expect(b.opened).toEqual([]);
+  });
+});
+
+describe('opening the browser (M8c minors)', () => {
+  it('the browser opens the parsed href, not the raw string', async () => {
+    const b = await billingSetup({
+      checkout: () => Promise.resolve({ url: 'HTTPS://CHECKOUT.STRIPE.COM/c/pay/cs_test_1' }),
+    });
+    await b.billing.openCheckout('basic', 'month');
+    expect(b.opened).toEqual(['https://checkout.stripe.com/c/pay/cs_test_1']);
+  });
+
+  it('signing out while checkout is in flight opens no browser', async () => {
+    let answer: (value: { url: string }) => void = () => undefined;
+    const b = await billingSetup({
+      checkout: () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        }),
+    });
+    const opening = b.billing.openCheckout('basic', 'month');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await b.service.signOut();
+    answer({ url: CHECKOUT_URL });
+    const state = await opening;
+    expect(b.opened).toEqual([]);
+    expect(state).toMatchObject({ kind: 'signedOut' });
+    expect(b.polling()).toBe(false);
+  });
+
+  it('an openExternal rejection expires nothing on our side and logs billing.openFailed', async () => {
+    const b = await billingSetup({
+      openBrowser: () => Promise.reject(new Error('no handler for https')),
+    });
+    await expect(b.billing.openCheckout('basic', 'month')).rejects.toMatchObject({
+      error: { code: 'INTERNAL', details: { reason: 'browser' } },
+    });
+    expect(b.calls.filter((c) => c.startsWith('checkout'))).toHaveLength(1);
+    expect(b.warnings).toEqual([
+      [expect.objectContaining({ kind: 'checkout' }), 'billing.openFailed'],
+    ]);
+    expect(JSON.stringify(b.warnings)).not.toContain('cs_test_1');
+    expect(b.polling()).toBe(false);
+  });
+});
+
+describe('polling lifetime (M8c minors)', () => {
+  it("a poll in flight across stopWaiting + a new checkout doesn't end the new wait", async () => {
+    const b = await billingSetup();
+    await b.billing.openCheckout('basic', 'month');
+    b.queues.entitlement.push(none());
+    const stale = b.poll(); // its entitlement refresh is now in flight
+    b.billing.stopWaiting();
+    await b.billing.openCheckout('basic', 'month');
+    await stale;
+    expect(b.polling()).toBe(true);
+    expect(b.service.state()).toMatchObject({ waitingForPayment: true });
+  });
+
+  it('dispose stops polling', async () => {
+    const b = await billingSetup();
+    await b.billing.openCheckout('basic', 'month');
+    expect(b.polling()).toBe(true);
+    b.billing.dispose();
+    expect(b.polling()).toBe(false);
   });
 });

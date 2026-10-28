@@ -51,9 +51,13 @@ export function PlanCard({
           type="button"
           className={PRIMARY}
           autoFocus={autoFocus}
-          disabled={!price || busy}
+          // Pending stays focusable (aria-disabled), so a gamepad doesn't lose its place.
+          disabled={!price}
+          aria-disabled={busy || undefined}
           aria-label={t('auth.subscribe.choosePlan', { plan: plan.name })}
-          onClick={onChoose}
+          onClick={() => {
+            if (!busy) onChoose();
+          }}
         >
           {t('auth.subscribe.chooseShort')}
         </button>

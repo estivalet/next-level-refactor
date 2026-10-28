@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { billingUrlAllowed } from './billingUrls.ts';
+import { billingUrl, billingUrlAllowed } from './billingUrls.ts';
 
 const API = 'http://localhost:4000';
 
@@ -28,5 +28,12 @@ describe('billing URL allow-list (Global Constraints, security §2)', () => {
     'not a url',
   ])('%s is refused', (url) => {
     expect(billingUrlAllowed(url, 'checkout', API)).toBe(false);
+  });
+
+  it('answers the parsed href that was checked', () => {
+    expect(billingUrl('HTTPS://CHECKOUT.STRIPE.COM/c/pay/x', 'checkout', API)).toBe(
+      'https://checkout.stripe.com/c/pay/x',
+    );
+    expect(billingUrl('https://evil.test/x', 'checkout', API)).toBeNull();
   });
 });
