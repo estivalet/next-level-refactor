@@ -1,4 +1,4 @@
-import type { AuthState, BillingInterval } from '@nextlevel/shared';
+import { AppErrorException, type AuthState, type BillingInterval } from '@nextlevel/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorMessageKey } from '../settings/settingsApi.ts';
@@ -9,15 +9,34 @@ import { PlanCard } from './PlanCard.tsx';
 
 type SignedIn = Extract<AuthState, { kind: 'signedIn' }>;
 
+/** A browser that wouldn't open gets its own line; other failures read by their code. */
+function subscribeErrorKey(error: unknown): string {
+  const details =
+    error instanceof AppErrorException
+      ? (error.error.details as { reason?: unknown } | undefined)
+      : undefined;
+  return details?.reason === 'browser' ? 'auth.subscribe.browserFailed' : errorMessageKey(error);
+}
+
+function ErrorLine({ error }: { error: unknown }) {
+  const { t } = useTranslation();
+  return (
+    <p role="alert" className="text-sm text-[#ff8a80]">
+      {t(subscribeErrorKey(error))}
+    </p>
+  );
+}
+
 const TOGGLE = (pressed: boolean) =>
   `rounded-md px-3 py-1 text-sm focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${
     pressed ? 'bg-white/20 text-white' : 'text-slate-300 hover:bg-white/10'
   }`;
 
-function Waiting() {
+function Waiting({ onAnother }: { onAnother: () => void }) {
   const { t } = useTranslation();
   const refresh = useRefreshEntitlement();
   const stop = useStopWaiting();
+  const error = refresh.error ?? stop.error;
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-white">{t('auth.subscribe.waiting')}</p>
@@ -34,8 +53,10 @@ function Waiting() {
           type="button"
           autoFocus
           className={SECONDARY}
-          disabled={refresh.isPending}
+          aria-disabled={refresh.isPending || undefined}
           onClick={() => {
+            if (refresh.isPending) return;
+            stop.reset();
             refresh.mutate();
           }}
         >
@@ -44,13 +65,18 @@ function Waiting() {
         <button
           type="button"
           className={SECONDARY}
+          aria-disabled={stop.isPending || undefined}
           onClick={() => {
+            if (stop.isPending) return;
+            refresh.reset();
+            onAnother();
             stop.mutate();
           }}
         >
           {t('auth.subscribe.another')}
         </button>
       </div>
+      {error && <ErrorLine error={error} />}
     </div>
   );
 }
@@ -65,6 +91,27 @@ export function SubscribeScreen({ state }: { state: SignedIn }) {
   const plans = usePlans();
   const checkout = useOpenCheckout();
   const [interval, setPeriod] = useState<BillingInterval>('month');
+  // The wait ended by itself (main's 2-minute limit), not by "Choose another plan": say so.
+  const [waitSeen, setWaitSeen] = useState(Boolean(state.waitingForPayment));
+  const [choseAnother, setChoseAnother] = useState(false);
+  const [notSeen, setNotSeen] = useState(false);
+  const waiting = Boolean(state.waitingForPayment);
+  if (waiting !== waitSeen) {
+    setWaitSeen(waiting);
+    setNotSeen(!waiting && !choseAnother);
+    setChoseAnother(false);
+  }
+
+  // Neither "Choose a plan" nor "not open yet" until we know whether billing is on.
+  if (plans.isPending) {
+    return (
+      <GateFrame title={t('auth.subscribe.loading')} banner={state.banner}>
+        <div>
+          <SignOutButton autoFocus={false} />
+        </div>
+      </GateFrame>
+    );
+  }
 
   if (plans.data && !plans.data.billingEnabled) {
     return (
@@ -85,9 +132,14 @@ export function SubscribeScreen({ state }: { state: SignedIn }) {
   return (
     <GateFrame title={t('auth.subscribe.choose')} banner={state.banner}>
       {state.waitingForPayment ? (
-        <Waiting />
+        <Waiting
+          onAnother={() => {
+            setChoseAnother(true);
+          }}
+        />
       ) : (
         <>
+          {notSeen && <p className="text-sm text-amber-200">{t('auth.subscribe.notSeenYet')}</p>}
           <p className="text-sm text-slate-300">{t('auth.subscribe.intro')}</p>
           <div role="group" aria-label={t('auth.subscribe.period')} className="flex gap-1">
             {(['month', 'year'] as const).map((value) => (
@@ -104,9 +156,6 @@ export function SubscribeScreen({ state }: { state: SignedIn }) {
               </button>
             ))}
           </div>
-          {plans.isPending && (
-            <p className="text-sm text-slate-400">{t('auth.subscribe.loading')}</p>
-          )}
           {plans.data && list.length === 0 && (
             <p className="text-sm text-slate-400">{t('auth.subscribe.none')}</p>
           )}
@@ -126,11 +175,7 @@ export function SubscribeScreen({ state }: { state: SignedIn }) {
           </div>
         </>
       )}
-      {error && (
-        <p role="alert" className="text-sm text-[#ff8a80]">
-          {t(errorMessageKey(error))}
-        </p>
-      )}
+      {error && <ErrorLine error={error} />}
       {plans.isError && (
         <div>
           <button

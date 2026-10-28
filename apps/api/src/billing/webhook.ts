@@ -1,5 +1,7 @@
 import type { FastifyBaseLogger } from 'fastify';
 import type { ApiContext } from '../context.ts';
+import { ApiError } from '../errors.ts';
+import { isPayingStripe } from '../subscriptions/current.ts';
 import type { SubscriptionRow } from '../subscriptions/SubscriptionRepository.ts';
 import type { BillingEvent, BillingProvider, ProviderSubscriptionStatus } from './provider.ts';
 
@@ -78,17 +80,27 @@ async function apply(
   billing: BillingProvider,
   log: FastifyBaseLogger,
 ): Promise<'applied' | 'ignored'> {
-  const sub = await billing.getSubscription(subscriptionId);
-  const status = ourStatus(sub.status);
-  if (status === null) return 'ignored';
   const notApplied = (reason: string) => {
-    log.warn({ eventId: event.id, subscriptionId: sub.id, reason }, 'stripe event not applied');
+    log.warn({ eventId: event.id, subscriptionId, reason }, 'stripe event not applied');
     return 'ignored' as const;
   };
+  let sub;
+  try {
+    sub = await billing.getSubscription(subscriptionId);
+  } catch (error) {
+    // Deleted in Stripe: nothing left to read, and retrying for days won't bring it back.
+    if (error instanceof ApiError && error.code === 'NOT_FOUND') {
+      return notApplied('subscriptionGone');
+    }
+    throw error;
+  }
+  const status = ourStatus(sub.status);
+  if (status === null) return 'ignored';
   const priced = ctx.plans.byPriceId(sub.priceId);
   if (!priced) return notApplied('unknownPrice');
   const user = sub.userId ? ctx.users.byId(sub.userId) : undefined;
-  if (!user) return notApplied('unknownUser');
+  // A deleted account kept as a tombstone is nobody's: a late event must not attach rows to it.
+  if (!user || user.email.endsWith('@deleted.invalid')) return notApplied('unknownUser');
   const existing = ctx.subscriptions.byStripeId(sub.id);
   if (existing && existing.userId !== user.id) return notApplied('userChanged');
   const now = ctx.clock().toISOString();
@@ -108,5 +120,18 @@ async function apply(
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
   });
+  const row = ctx.subscriptions.byStripeId(sub.id);
+  if (row && isPayingStripe(row)) {
+    const others = ctx.subscriptions
+      .forUser(user.id)
+      .filter((other) => other.id !== row.id && isPayingStripe(other));
+    // Checkout refuses a second one (D35); one still appearing needs an operator to refund it.
+    if (others.length > 0) {
+      log.warn(
+        { eventId: event.id, subscriptionId: sub.id, reason: 'duplicateSubscription' },
+        'second paying subscription for one user',
+      );
+    }
+  }
   return 'applied';
 }

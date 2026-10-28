@@ -222,4 +222,63 @@ describe('Stripe provider (ADR-009, D31)', () => {
       expect.objectContaining({ code: 'VALIDATION_FAILED' }) as Error,
     );
   });
+  it('a subscription Stripe no longer has (404) is NOT_FOUND subscriptionGone', async () => {
+    const { provider } = setup(() => ({
+      status: 404,
+      body: { error: { type: 'invalid_request_error', code: 'resource_missing' } },
+    }));
+    await expect(provider.getSubscription('sub_gone')).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+      details: { reason: 'subscriptionGone' },
+    });
+  });
+
+  it('cancelNow of a subscription already canceled (or gone) at Stripe is done', async () => {
+    const { provider, sent } = setup((request) => {
+      if (request.path.endsWith('sub_gone')) {
+        return {
+          status: 404,
+          body: { error: { type: 'invalid_request_error', code: 'resource_missing' } },
+        };
+      }
+      if (request.method === 'DELETE') {
+        return {
+          status: 400,
+          body: { error: { type: 'invalid_request_error', message: 'already canceled' } },
+        };
+      }
+      return { status: 200, body: { ...SUBSCRIPTION, status: 'canceled' } };
+    });
+    await provider.cancelNow('sub_fake1');
+    await provider.cancelNow('sub_gone');
+    expect(sent.map((s) => [s.method, s.path])).toEqual([
+      ['DELETE', '/v1/subscriptions/sub_fake1'],
+      ['GET', '/v1/subscriptions/sub_fake1'],
+      ['DELETE', '/v1/subscriptions/sub_gone'],
+    ]);
+  });
+
+  it('cancelNow refused while the subscription is still live is BILLING_UNAVAILABLE', async () => {
+    const { provider } = setup((request) =>
+      request.method === 'DELETE'
+        ? { status: 400, body: { error: { type: 'invalid_request_error', message: 'nope' } } }
+        : { status: 200, body: SUBSCRIPTION },
+    );
+    await expect(provider.cancelNow('sub_fake1')).rejects.toMatchObject({
+      code: 'BILLING_UNAVAILABLE',
+    });
+  });
+
+  it('a 404 on cancel or read is logged with its request id (a key for another account would hide a live one)', async () => {
+    const { provider, warnings } = setup(() => ({
+      status: 404,
+      body: { error: { type: 'invalid_request_error', code: 'resource_missing' } },
+    }));
+    await provider.cancelNow('sub_gone');
+    await provider.getSubscription('sub_gone').catch(() => undefined);
+    expect(warnings).toEqual([
+      expect.objectContaining({ statusCode: 404, code: 'resource_missing', requestId: 'req_fake' }),
+      expect.objectContaining({ statusCode: 404, code: 'resource_missing', requestId: 'req_fake' }),
+    ]);
+  });
 });

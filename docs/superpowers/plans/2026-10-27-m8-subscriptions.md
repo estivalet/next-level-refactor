@@ -645,8 +645,8 @@ Asked in one batch on 2026-10-27; all answered "recommended".
 **Interfaces:**
 - Produces:
   - `GET /v1/me/export` (device) → `AccountExport { exportedAt; user: UserProfile & { status; createdAt; lastSeenAt }; devices: Device[] (revoked included); subscriptions: { source; status; plan; interval; periodEnd; createdAt }[]; audit: { action; at; before; after }[] /* entries about the user or their devices */ }`
-    — no token hashes, no admin session data, no other users' emails (the actor is shown as
-    `"admin"`).
+    — no token hashes, no admin session data, no other users' emails (who made an audited
+    change is left out).
   - `DELETE /v1/me` (device) body `{ confirmEmail }` → 204; `DELETE /v1/admin/users/:id` (admin)
     body `{ confirmEmail }` → 204, audited `user.delete`.
   - `deleteAccount(ctx, userId, actorId: string | null): Promise<void>`. Order: email check

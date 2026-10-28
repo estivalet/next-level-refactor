@@ -83,7 +83,8 @@ export function UserDetailPage({ id }: { id: string }) {
           </Button>
         )}
       </header>
-      {detail.role !== 'admin' && (
+      {/* A deleted account kept as a tombstone can't be deleted again. */}
+      {detail.role !== 'admin' && !detail.email.endsWith('@deleted.invalid') && (
         <div>
           <Button
             variant="danger"

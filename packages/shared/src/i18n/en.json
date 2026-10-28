@@ -1254,7 +1254,9 @@
       "waiting": "Waiting for your payment…",
       "waitingHint": "Finish the payment in your browser. This screen updates by itself.",
       "paid": "I've already paid",
-      "another": "Choose another plan"
+      "another": "Choose another plan",
+      "notSeenYet": "We haven't seen your payment yet. If you paid, it can take a few minutes to arrive: restart NextLevel later to check, or choose a plan again.",
+      "browserFailed": "Couldn't open your browser. Check that a default browser is set in Windows, then try again."
     },
     "suspended": {
       "title": "This account is suspended",

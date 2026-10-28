@@ -1,6 +1,7 @@
 import type { AdminPlan, AuditEntry, CatalogScope } from '@nextlevel/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { adminHeaders, adminSignIn } from '../../test/adminSignIn.ts';
+import { signIn } from '../../test/launcherSignIn.ts';
 import { fakeBilling, PRICES } from '../../test/fakeBilling.ts';
 import { createTestApp } from '../../test/testApp.ts';
 import type { BillingProvider } from '../billing/provider.ts';
@@ -250,5 +251,51 @@ describe('plan and scope routes are admin only (security §2)', () => {
       });
       expect(response.json(), `${method} ${url}`).toMatchObject({ error: { code: 'FORBIDDEN' } });
     }
+  });
+});
+
+describe('subscriber counts (M8a minor)', () => {
+  async function withRows() {
+    const test = await setup();
+    const plan = (await test.send('POST', '/v1/admin/plans', BASIC)).json<AdminPlan>();
+    await signIn(test.app, 'subscriber');
+    await signIn(test.app, 'suspended').catch(() => undefined);
+    const idOf = (email: string) =>
+      test.db.$client.prepare('select id from users where email = ?').pluck().get(email) as string;
+    const insert = (id: string, userId: string, source: 'comp' | 'stripe', status: string) =>
+      test.db.$client
+        .prepare(
+          `insert into subscriptions (id, user_id, plan_id, source, status, stripe_subscription_id,
+             created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          id,
+          userId,
+          plan.id,
+          source,
+          status,
+          source === 'stripe' ? `sub_${id}` : null,
+          '2026-10-01T00:00:00.000Z',
+          '2026-10-01T00:00:00.000Z',
+        );
+    const count = async () =>
+      (await test.send('GET', '/v1/admin/plans'))
+        .json<AdminPlan[]>()
+        .find((p) => p.slug === 'basic')?.subscribers;
+    return { ...test, idOf, insert, count };
+  }
+
+  it('subscriber counts count users, not rows (two rows for one user count 1)', async () => {
+    const { idOf, insert, count } = await withRows();
+    const user = idOf('subscriber@nextlevel.test');
+    insert('s1', user, 'comp', 'active');
+    insert('s2', user, 'stripe', 'active');
+    expect(await count()).toBe(1);
+  });
+
+  it('suspended users are not counted', async () => {
+    const { idOf, insert, count } = await withRows();
+    insert('s1', idOf('suspended@nextlevel.test'), 'stripe', 'active');
+    expect(await count()).toBe(0);
   });
 });

@@ -2,77 +2,12 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderPage, stubApi, user } from '../test-utils.tsx';
+import { conflict, detail, PLANS, sub } from './subscriptionFixtures.ts';
 import { UserDetailPage } from './UserDetailPage.tsx';
 import { UsersPage } from './UsersPage.tsx';
 
 afterEach(() => {
   vi.unstubAllGlobals();
-});
-
-const ENTITLEMENT = {
-  userId: 'u2',
-  role: 'subscriber',
-  status: 'active',
-  plan: { slug: 'basic', name: 'Basic', deviceLimit: 2 },
-  scopes: [],
-  checkedAt: '2026-10-25T12:00:00.000Z',
-  offlineUntil: '2026-11-08T12:00:00.000Z',
-};
-
-const sub = (overrides: Record<string, unknown> = {}) => ({
-  id: 's1',
-  source: 'stripe',
-  status: 'active',
-  plan: { slug: 'basic', name: 'Basic' },
-  periodEnd: '2026-11-12T12:00:00.000Z',
-  cancelAtPeriodEnd: false,
-  interval: 'month',
-  stripeSubscriptionId: 'sub_123',
-  grantedBy: null,
-  note: null,
-  createdAt: '2026-10-12T12:00:00.000Z',
-  ...overrides,
-});
-
-const PLANS = [
-  {
-    id: 'p1',
-    slug: 'basic',
-    name: 'Basic',
-    deviceLimit: 2,
-    scopeIds: [],
-    stripePriceMonthly: null,
-    stripePriceYearly: null,
-    prices: { month: null, year: null },
-    archived: false,
-    subscribers: 1,
-  },
-  {
-    id: 'p2',
-    slug: 'old',
-    name: 'Old',
-    deviceLimit: 1,
-    scopeIds: [],
-    stripePriceMonthly: null,
-    stripePriceYearly: null,
-    prices: { month: null, year: null },
-    archived: true,
-    subscribers: 0,
-  },
-];
-
-const detail = (subscriptions: unknown[]) => ({
-  ...user('u2', 'player@example.test'),
-  suspendedReason: null,
-  entitlement: ENTITLEMENT,
-  devices: [],
-  audit: [],
-  subscriptions,
-});
-
-const conflict = (reason: string) => ({
-  status: 409,
-  body: { error: { code: 'CONFLICT', message: 'm', requestId: 'r', details: { reason } } },
 });
 
 describe('Subscription panel (S13, FR-SUB-4, US-F2)', () => {

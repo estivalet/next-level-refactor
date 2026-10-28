@@ -1,6 +1,6 @@
 import { AppErrorException, type AdminSubscription } from '@nextlevel/shared';
 import { Button, Dialog, Table } from '@nextlevel/ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRevokeGrant } from '../api/hooks.ts';
 import { usePlans } from '../api/plans.ts';
@@ -29,7 +29,15 @@ export function SubscriptionPanel({
   const revoke = useRevokeGrant(userId);
   const [granting, setGranting] = useState(false);
   const [revoking, setRevoking] = useState<AdminSubscription | null>(null);
+  const grantButton = useRef<HTMLButtonElement>(null);
   const current = subscriptions.find(gives) ?? null;
+  const choices = plans.data?.filter((plan) => !plan.archived) ?? [];
+  // Why Grant can't be used: the plans didn't load, or every plan is archived.
+  const blocked = plans.isError
+    ? 'admin.subscription.plansFailed'
+    : plans.data && choices.length === 0
+      ? 'admin.subscription.noPlans'
+      : null;
   const date = (iso: string | null) => formatTime(iso, i18n.language, '—');
   const end = (sub: AdminSubscription) => {
     if (sub.source === 'comp') {
@@ -59,13 +67,20 @@ export function SubscriptionPanel({
           {t('admin.subscription.title')}
         </h2>
         <Button
-          disabled={!plans.data}
+          ref={grantButton}
+          disabled={!plans.data || blocked !== null}
+          aria-describedby={blocked ? 'grant-blocked' : undefined}
           onClick={() => {
             setGranting(true);
           }}
         >
           {t('admin.subscription.grant')}
         </Button>
+        {blocked && (
+          <p id="grant-blocked" className="text-xs text-slate-400">
+            {t(blocked)}
+          </p>
+        )}
       </div>
       {current ? (
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-200">
@@ -130,6 +145,9 @@ export function SubscriptionPanel({
           onClose={() => {
             setGranting(false);
           }}
+          onGranted={() => {
+            revoke.reset();
+          }}
         />
       )}
       {revoking && (
@@ -150,7 +168,12 @@ export function SubscriptionPanel({
               <Button
                 variant="danger"
                 onClick={() => {
-                  revoke.mutate(revoking.id);
+                  // The Revoke button goes away with the grant: focus lands on Grant instead.
+                  revoke.mutate(revoking.id, {
+                    onSettled: () => {
+                      grantButton.current?.focus();
+                    },
+                  });
                   setRevoking(null);
                 }}
               >

@@ -301,7 +301,11 @@ describe('front-end play (US-C2)', () => {
     await openN64();
     press('Enter');
     const dialog = await screen.findByRole('dialog', { name: /didn’t start/ });
-    expect(within(dialog).getByText(/emulator/i)).toBeInTheDocument();
+    expect(await within(dialog).findByText(/emulator/i)).toBeInTheDocument();
+    // Keys go to the focused element: wait until the dialog has taken focus.
+    await waitFor(() => {
+      expect(dialog).toHaveFocus();
+    });
     press('Enter');
     await waitFor(() => {
       expect(layer()).not.toBeVisible();

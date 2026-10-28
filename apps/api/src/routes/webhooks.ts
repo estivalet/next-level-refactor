@@ -10,8 +10,9 @@ import { eq } from 'drizzle-orm';
 /**
  * POST /v1/webhooks/stripe (api-spec §2, security §4): the raw body is verified against
  * `Stripe-Signature` before anything is parsed or stored. An event already processed is
- * answered at once; a processing failure answers 500 and leaves `processed_at` null, so
- * Stripe's retry runs it again.
+ * answered without work; two copies arriving together may both run, which is harmless (each
+ * re-reads the subscription and upserts it in turn). A processing failure answers 500 and leaves
+ * `processed_at` null, so Stripe's retry runs it again.
  */
 export async function webhookRoutes(app: FastifyInstance, ctx: ApiContext): Promise<void> {
   await app.register((scope, _opts, done) => {

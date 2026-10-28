@@ -1,7 +1,7 @@
 import type { PlanPrices } from '@nextlevel/shared';
-import { and, asc, count, eq, gt, inArray, isNull, or, sql } from 'drizzle-orm';
+import { and, asc, countDistinct, eq, gt, inArray, isNull, or, sql } from 'drizzle-orm';
 import type { ApiDb } from '../db/open.ts';
-import { plans, subscriptions } from '../db/schema.ts';
+import { plans, subscriptions, users } from '../db/schema.ts';
 import type { PlanSummary } from '../entitlements/entitlement.ts';
 import type { ScopeRow } from './ScopeRepository.ts';
 
@@ -54,8 +54,9 @@ export class PlanRepository {
   /** Access-giving subscriptions per plan id (the `currentSubscription` rule, in SQL). */
   subscriberCounts(now: Date): Map<string, number> {
     const rows = this.#db
-      .select({ planId: subscriptions.planId, n: count() })
+      .select({ planId: subscriptions.planId, n: countDistinct(subscriptions.userId) })
       .from(subscriptions)
+      .innerJoin(users, and(eq(users.id, subscriptions.userId), eq(users.status, 'active')))
       .where(
         or(
           and(

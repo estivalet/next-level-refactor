@@ -5,6 +5,31 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Fixed
+
+- API: a URL refused by the router keeps its status (414 for a too-long parameter), is logged
+  and carries the security headers; sign-in's token pruning uses an index on
+  `refresh_tokens.expires_at` (migration `0002`); plan subscriber counts count active users once.
+- Billing: a subscription deleted in Stripe is logged and its event stored instead of retried
+  for days; late events for a deleted account are ignored; a second paying subscription for one
+  user is logged; deleting an account whose subscription Stripe already cancelled succeeds; grant
+  notes leave the audit log with the account. The billing stub's Pay page says when the webhook
+  failed.
+- Launcher Subscribe screen: errors from "I've already paid" and "Choose another plan" are shown;
+  a wait that times out says the payment wasn't seen yet; a browser that won't open is explained;
+  pending buttons keep focus (gamepad); no "Choose a plan" flash when subscriptions aren't open;
+  no browser opens if you sign out while Checkout is being prepared.
+- Admin console: Grant explains when no plan can be granted, keeps the dialog open while the
+  grant is sent, refuses past dates in the picker and clears an old revoke error; focus returns
+  to Grant after a revoke; the plan editor keeps typed edits across refreshes, shows a price
+  refusal under the price that was sent and says why Save is disabled; scope rows show errors
+  under the field they name and "Saved."; no Delete account on a deleted (tombstone) user.
+
+### Docs
+
+- Registering a Stripe webhook endpoint for staging/production (events and API version).
+- M9 catalog plan (`docs/superpowers/plans/2026-10-28-m9-catalog.md`).
+
 ## [0.8.0] - 2026-10-27
 
 M8 — Subscriptions, in **Stripe test mode only** (D31): plans with monthly/yearly prices, the

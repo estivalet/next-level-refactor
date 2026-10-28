@@ -151,6 +151,30 @@ describe('User detail (S13, US-F3, FR-AUTH-7)', () => {
   });
 });
 
+describe('deleted accounts (M8e minor)', () => {
+  it('a deleted user (tombstone) shows no Delete account button', async () => {
+    stubApi({
+      'GET /v1/admin/users/u2': () => ({
+        body: detail({
+          email: 'deleted-u2@deleted.invalid',
+          name: 'Deleted user',
+          status: 'suspended',
+          devices: [],
+        }),
+      }),
+    });
+    renderPage(<UserDetailPage id="u2" />);
+    expect(await screen.findByText('deleted-u2@deleted.invalid')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Delete account…' })).toBeNull();
+  });
+
+  it('a live subscriber still has the Delete account button', async () => {
+    stubApi({ 'GET /v1/admin/users/u2': () => ({ body: detail() }) });
+    renderPage(<UserDetailPage id="u2" />);
+    expect(await screen.findByRole('button', { name: 'Delete account…' })).toBeVisible();
+  });
+});
+
 describe('Audit log (S13, FR-ADM-5)', () => {
   it('shows who did what to whom, with only the changed keys', async () => {
     stubApi({

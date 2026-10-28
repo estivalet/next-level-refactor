@@ -7,7 +7,7 @@ import {
 } from '@nextlevel/shared';
 import { ApiFailure, type ApiClient } from './ApiClient.ts';
 import type { AuthService } from './AuthService.ts';
-import { billingUrlAllowed } from './billingUrls.ts';
+import { billingUrl } from './billingUrls.ts';
 
 export const POLL_EVERY_MS = 3000;
 export const WAIT_FOR_PAYMENT_MS = 2 * 60_000;
@@ -25,6 +25,8 @@ export interface BillingDeps {
 
 const appError = (code: 'VALIDATION_FAILED' | 'API_UNREACHABLE') =>
   new AppErrorException({ code, message: ERROR_CODES[code] });
+
+const userOf = (state: AuthState) => (state.kind === 'signedIn' ? state.user.id : null);
 
 const hasAccess = (state: AuthState) =>
   state.kind === 'signedIn' &&
@@ -65,6 +67,7 @@ export class BillingService {
   }
 
   async #openCheckout(planSlug: string, interval: BillingInterval): Promise<AuthState> {
+    const user = userOf(this.#deps.auth.state());
     let url: string;
     try {
       url = (
@@ -77,6 +80,9 @@ export class BillingService {
       if (isSubscribed(error)) return this.#deps.auth.refreshEntitlement();
       throw error;
     }
+    // Signed out (or someone else signed in) while the request ran: that Checkout isn't theirs.
+    const now = this.#deps.auth.state();
+    if (user === null || userOf(now) !== user) return now;
     await this.#open(url, 'checkout');
     this.#stop();
     const deadline = this.#deps.clock().getTime() + WAIT_FOR_PAYMENT_MS;
@@ -115,12 +121,23 @@ export class BillingService {
   }
 
   async #open(url: string, kind: 'checkout' | 'portal'): Promise<void> {
-    if (!billingUrlAllowed(url, kind, this.#deps.apiOrigin)) {
-      // The URL itself is not logged: it may carry a session id.
+    const href = billingUrl(url, kind, this.#deps.apiOrigin);
+    // The URL itself is never logged: it may carry a session id.
+    if (href === null) {
       this.#deps.log.warn({ code: 'VALIDATION_FAILED', kind }, 'billing URL refused');
       throw appError('VALIDATION_FAILED');
     }
-    await this.#deps.openBrowser(url);
+    try {
+      await this.#deps.openBrowser(href);
+    } catch {
+      // The Checkout session stays open until Stripe expires it; nothing to undo here.
+      this.#deps.log.warn({ kind }, 'billing.openFailed');
+      throw new AppErrorException({
+        code: 'INTERNAL',
+        message: ERROR_CODES.INTERNAL,
+        details: { reason: 'browser' },
+      });
+    }
   }
 
   #stop(): void {

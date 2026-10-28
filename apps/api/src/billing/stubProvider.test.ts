@@ -12,7 +12,7 @@ function setup() {
     clock: clock.read,
     deliver: (raw, signature) => {
       delivered.push({ raw, signature });
-      return Promise.resolve();
+      return Promise.resolve(200);
     },
   });
   return { stub, clock, delivered };

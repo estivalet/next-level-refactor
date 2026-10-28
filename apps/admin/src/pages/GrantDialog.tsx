@@ -26,10 +26,12 @@ export function GrantDialog({
   userId,
   plans,
   onClose,
+  onGranted,
 }: {
   userId: string;
   plans: readonly AdminPlan[];
   onClose: () => void;
+  onGranted: () => void;
 }) {
   const { t } = useTranslation();
   const grant = useGrant(userId);
@@ -39,13 +41,20 @@ export function GrantDialog({
   const [note, setNote] = useState('');
   const trimmed = note.trim();
   const error = grantError(grant.error);
+  // While the request runs the dialog stays, so a late failure is still seen.
+  const close = () => {
+    if (!grant.isPending) onClose();
+  };
+  const today = new Date().toISOString().slice(0, 10);
   return (
     <Dialog
       title={t('admin.subscription.grant')}
-      onClose={onClose}
+      onClose={close}
       footer={
         <>
-          <Button onClick={onClose}>{t('admin.subscription.cancel')}</Button>
+          <Button aria-disabled={grant.isPending || undefined} onClick={close}>
+            {t('admin.subscription.cancel')}
+          </Button>
           <Button
             variant="primary"
             disabled={grant.isPending || planSlug === '' || trimmed === '' || trimmed.length > 500}
@@ -56,7 +65,12 @@ export function GrantDialog({
                   expiresAt: until ? `${until}T23:59:59.999Z` : null,
                   note: trimmed,
                 },
-                { onSuccess: onClose },
+                {
+                  onSuccess: () => {
+                    onGranted();
+                    onClose();
+                  },
+                },
               );
             }}
           >
@@ -78,6 +92,7 @@ export function GrantDialog({
           label={t('admin.subscription.expiresAt')}
           help={t('admin.subscription.expiresHelp')}
           type="date"
+          min={today}
           value={until}
           onChange={(event) => {
             setUntil(event.target.value);
