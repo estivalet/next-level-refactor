@@ -45,7 +45,12 @@ type Row = typeof catalogItems.$inferSelect & {
 };
 
 /** Visible items, optionally narrowed; empty scopes see nothing. */
-export function visibleRows(ctx: ApiContext, scopes: readonly string[], extra: SQL[] = []): Row[] {
+export function visibleRows(
+  ctx: ApiContext,
+  scopes: readonly string[],
+  extra: SQL[] = [],
+  limit?: number,
+): Row[] {
   if (scopes.length === 0) return [];
   const now = ctx.clock().toISOString();
   return ctx.db
@@ -68,6 +73,7 @@ export function visibleRows(ctx: ApiContext, scopes: readonly string[], extra: S
       ),
     )
     .orderBy(asc(catalogItems.title), asc(catalogItems.id))
+    .limit(limit ?? -1)
     .all()
     .map(({ item, ...rest }) => ({ ...item, ...rest }));
 }
@@ -172,7 +178,7 @@ export function catalogPage(
       : undefined,
     afterCursor(query.cursor),
   ].filter((f): f is SQL => f !== undefined);
-  const rows = visibleRows(ctx, scopes, extra);
+  const rows = visibleRows(ctx, scopes, extra, query.limit + 1);
   const page = rows.slice(0, query.limit);
   const last = page.at(-1);
   return {

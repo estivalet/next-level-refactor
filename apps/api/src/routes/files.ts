@@ -3,7 +3,10 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import type { ApiContext } from '../context.ts';
-import { catalogFiles, catalogMedia } from '../db/schema.ts';
+import { entitlementOf } from '../auth/session.ts';
+import { visibleRows } from '../catalog/visible.ts';
+import { catalogFiles, catalogItems, catalogMedia } from '../db/schema.ts';
+import type { UserRow } from '../users/UserRepository.ts';
 import { apiError, MESSAGES } from '../errors.ts';
 import { verifyFileToken, type FileTokenPayload } from '../storage/tokens.ts';
 
@@ -16,11 +19,27 @@ interface Stored {
   sha256: string;
 }
 
-function storedOf(ctx: ApiContext, token: FileTokenPayload): Stored | undefined {
+/**
+ * What the token names, while its item is still one the user may see: published, license not
+ * expired, in the user's scopes now (C8, C10). An item that left since the URL was issued is gone.
+ */
+function storedOf(ctx: ApiContext, token: FileTokenPayload, user: UserRow): Stored | undefined {
+  const stored = resolve(ctx, token);
+  if (!stored) return undefined;
+  const scopes = entitlementOf(ctx, user).scopes;
+  return visibleRows(ctx, scopes, [eq(catalogItems.id, stored.itemId)], 1).length > 0
+    ? stored
+    : undefined;
+}
+
+function resolve(
+  ctx: ApiContext,
+  token: FileTokenPayload,
+): (Stored & { itemId: string }) | undefined {
   if (token.kind === 'file') {
     const row = ctx.db.select().from(catalogFiles).where(eq(catalogFiles.id, token.id)).get();
     return row?.status === 'ready'
-      ? { key: row.storageKey, size: row.size, sha256: row.sha256 }
+      ? { itemId: row.itemId, key: row.storageKey, size: row.size, sha256: row.sha256 }
       : undefined;
   }
   const [itemId, kind] = token.id.split('/');
@@ -30,7 +49,7 @@ function storedOf(ctx: ApiContext, token: FileTokenPayload): Stored | undefined 
     .from(catalogMedia)
     .where(and(eq(catalogMedia.itemId, itemId), eq(catalogMedia.kind, kind)))
     .get();
-  return row ? { key: row.storageKey, size: row.size, sha256: row.sha256 } : undefined;
+  return row ? { itemId, key: row.storageKey, size: row.size, sha256: row.sha256 } : undefined;
 }
 
 /** `bytes=a-b` or `bytes=a-` → an inclusive range clipped to the size; null: not satisfiable. */
@@ -71,7 +90,7 @@ export function fileRoutes(app: FastifyInstance, ctx: ApiContext): void {
       ) {
         throw apiError('FORBIDDEN');
       }
-      const stored = storedOf(ctx, token);
+      const stored = storedOf(ctx, token, user);
       if (!stored || (await ctx.files.size(stored.key)) === null) return gone(reply, request.id);
       void reply
         .header('accept-ranges', 'bytes')

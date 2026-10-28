@@ -163,4 +163,21 @@ describe('subscriber catalog (FR-CAT-1, FR-CAT-2, C8, US-E1)', () => {
     expect(seen).toEqual(['a-game', 'b-game', 'c-game', 'd-game']);
     expect(new Set(seen).size).toBe(4);
   });
+  it('a page reads only the rows it needs (limit + 1), not the whole catalog', async () => {
+    const t = await setup();
+    for (const slug of ['a-game', 'b-game', 'c-game']) await t.publish(slug);
+    await t.planScopes(['homebrew-8bit']);
+    const statements: string[] = [];
+    const prepare = t.db.$client.prepare.bind(t.db.$client);
+    t.db.$client.prepare = (sql: string) => {
+      statements.push(sql);
+      return prepare(sql);
+    };
+    await t.get('/v1/catalog/items?limit=1');
+    t.db.$client.prepare = prepare;
+    const page = statements.find(
+      (sql) => sql.includes('from "catalog_items"') && sql.includes('order by'),
+    );
+    expect(page).toMatch(/limit \?/);
+  });
 });

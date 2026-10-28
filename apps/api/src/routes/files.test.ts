@@ -2,7 +2,10 @@ import type { DownloadGrant } from '@nextlevel/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { catalogWorld } from '../../test/catalogPlayer.ts';
 import { createTestApp } from '../../test/testApp.ts';
+import { createContext } from '../context.ts';
 import { logOptions } from '../log.ts';
+import { signFileToken } from '../storage/tokens.ts';
+import { testEnv } from '../../test/testApp.ts';
 
 const closers: Array<() => Promise<void>> = [];
 afterEach(async () => {
@@ -128,5 +131,53 @@ describe('the files route (FR-CAT-6, security §2, Review Focus 1)', () => {
     expect(art.body).toBe('png bytes');
     t.clock.advance(60 * 60 * 1000);
     expect((await t.fetchFile(item.boxArt)).statusCode).toBe(401);
+  });
+  it('a token names one thing: a media token with a file id, or a deleted file, serve nothing', async () => {
+    const t = await setup();
+    const file = await t.grant();
+    const ctx = createContext({
+      env: testEnv({ FILES_DIR: t.filesDir }),
+      db: t.db,
+      clock: t.clock.read,
+      billing: null,
+    });
+    const asMedia = signFileToken(ctx, {
+      kind: 'media',
+      id: file?.fileId ?? '',
+      userId: t.player.user.id,
+      deviceId: t.player.deviceId,
+      ttlMs: 60_000,
+    });
+    expect((await t.fetchFile(`http://localhost:4000/v1/files/${asMedia.token}`)).statusCode).toBe(
+      410,
+    );
+    // A second file exists; the first file's token still serves nothing once it is gone.
+    await t.admin.uploadFile(t.id, 'Extra Level.nes');
+    t.db.$client.prepare('delete from catalog_files where id = ?').run(file?.fileId);
+    expect((await t.fetchFile(file?.url ?? '')).statusCode).toBe(410);
+  });
+
+  it('an item unpublished, out of the plan, or with an expired license after issue is 410', async () => {
+    const t = await setup();
+    const url = (await t.grant())?.url ?? '';
+    expect((await t.fetchFile(url)).statusCode).toBe(200);
+    await t.admin.send('POST', `${t.admin.base(t.id)}/unpublish`);
+    expect((await t.fetchFile(url)).statusCode).toBe(410);
+    await t.admin.send('POST', `${t.admin.base(t.id)}/publish`);
+    expect((await t.fetchFile(url)).statusCode).toBe(200);
+    await t.planScopes([]);
+    expect((await t.fetchFile(url)).statusCode).toBe(410);
+    await t.planScopes(['homebrew-8bit']);
+    t.db.$client.prepare("update licenses set expires_at = '2026-10-25T11:00:00.000Z'").run();
+    expect((await t.fetchFile(url)).statusCode).toBe(410);
+  });
+
+  it('a token in a path no route matches is never logged either', async () => {
+    const t = await setup();
+    const url = (await t.grant())?.url ?? '';
+    const token = url.split('/').at(-1) ?? '';
+    await t.fetchFile(`${url}/`);
+    await t.app.inject({ method: 'POST', url: new URL(url).pathname });
+    expect(t.lines.join('\n')).not.toContain(token.split('.')[0] ?? 'never');
   });
 });
