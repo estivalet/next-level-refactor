@@ -239,7 +239,10 @@
         "central": "One central folder",
         "rescan": "Rescan to update art: art already in the library stays where the last scan found it.",
         "scanAll": "Scan all"
-      }
+      },
+      "managed": "Catalog games",
+      "managedHelp": "New catalog installs go here. Changing the folder affects new installs only: games already installed stay where they are.",
+      "changeFolder": "Change folder…"
     },
     "systems": {
       "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",

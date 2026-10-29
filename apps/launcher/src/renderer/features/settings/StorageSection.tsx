@@ -29,7 +29,10 @@ function move<T>(items: readonly T[], from: number, to: number): T[] {
   return next;
 }
 
-/** Settings → Storage (FR-LIB-1): base folders searched in priority order. */
+/**
+ * Settings → Storage (FR-LIB-1): base folders searched in priority order, the Catalog games
+ * folder last (D45).
+ */
 export function StorageSection() {
   const { t } = useTranslation();
   const pickFolder = usePickFolder();
@@ -55,6 +58,21 @@ export function StorageSection() {
     <SettingsSection>
       {({ draft, update, errors, dirty }) => {
         const locations = draft.storage.locations;
+        // The Catalog games folder (D45) is kept last: the others move among themselves.
+        const lastMovable = locations.filter((l) => !l.managed).length - 1;
+        const changeManaged = (id: string) => {
+          pickFolder.mutate(t('settings.storage.pickTitle'), {
+            onSuccess: (path) => {
+              if (!path) return;
+              update((current) =>
+                withLocations(
+                  current,
+                  current.storage.locations.map((l) => (l.id === id ? { ...l, path } : l)),
+                ),
+              );
+            },
+          });
+        };
         const set = (next: StorageLocation[]) => {
           update((current) => withLocations(current, next));
         };
@@ -109,50 +127,75 @@ export function StorageSection() {
                         {location.path}
                       </code>
                       {pathError && <p className="text-xs text-[#ff8a80]">{t(pathError)}</p>}
+                      {location.managed && (
+                        <p className="text-xs text-slate-400">
+                          {t('settings.storage.managedHelp')}
+                        </p>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      className={ICON_BUTTON}
-                      data-action="up"
-                      disabled={index === 0}
-                      aria-label={t('settings.storage.moveUp', { name: label })}
-                      onClick={() => {
-                        flushSync(() => {
-                          set(move(locations, index, index - 1));
-                        });
-                        focusAfterMove(location.id, 'up');
-                      }}
-                    >
-                      <ArrowUp aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      className={ICON_BUTTON}
-                      data-action="down"
-                      disabled={index === locations.length - 1}
-                      aria-label={t('settings.storage.moveDown', { name: label })}
-                      onClick={() => {
-                        flushSync(() => {
-                          set(move(locations, index, index + 1));
-                        });
-                        focusAfterMove(location.id, 'down');
-                      }}
-                    >
-                      <ArrowDown aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      className={ICON_BUTTON}
-                      aria-label={t('settings.storage.remove', { name: label })}
-                      onClick={() => {
-                        flushSync(() => {
-                          set(locations.filter((l) => l.id !== location.id));
-                        });
-                        focusAfterRemove(index);
-                      }}
-                    >
-                      <Trash2 aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    {location.managed ? (
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="rounded bg-sky-500/20 px-2 py-0.5 text-xs text-sky-200">
+                          {t('settings.storage.managed')}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={pickFolder.isPending}
+                          onClick={() => {
+                            changeManaged(location.id);
+                          }}
+                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                        >
+                          {t('settings.storage.changeFolder')}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={ICON_BUTTON}
+                          data-action="up"
+                          disabled={index === 0}
+                          aria-label={t('settings.storage.moveUp', { name: label })}
+                          onClick={() => {
+                            flushSync(() => {
+                              set(move(locations, index, index - 1));
+                            });
+                            focusAfterMove(location.id, 'up');
+                          }}
+                        >
+                          <ArrowUp aria-hidden="true" className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          className={ICON_BUTTON}
+                          data-action="down"
+                          disabled={index >= lastMovable}
+                          aria-label={t('settings.storage.moveDown', { name: label })}
+                          onClick={() => {
+                            flushSync(() => {
+                              set(move(locations, index, index + 1));
+                            });
+                            focusAfterMove(location.id, 'down');
+                          }}
+                        >
+                          <ArrowDown aria-hidden="true" className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          className={ICON_BUTTON}
+                          aria-label={t('settings.storage.remove', { name: label })}
+                          onClick={() => {
+                            flushSync(() => {
+                              set(locations.filter((l) => l.id !== location.id));
+                            });
+                            focusAfterRemove(index);
+                          }}
+                        >
+                          <Trash2 aria-hidden="true" className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
                   </li>
                 );
               })}

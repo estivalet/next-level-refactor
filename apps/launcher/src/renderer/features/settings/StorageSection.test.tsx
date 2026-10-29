@@ -205,4 +205,31 @@ describe('StorageSection media location (FR-SCR-4)', () => {
     expect(within(place).getByRole('radio', { name: 'Next to the ROMs' })).toBeChecked();
     expect(within(place).queryByText(/Rescan to update art/)).not.toBeInTheDocument();
   });
+
+  it('D45: the Catalog games folder is marked, stays last, and only its folder can change', async () => {
+    const user = userEvent.setup();
+    const managed: StorageLocation = {
+      id: '01928c3e-0000-7000-8000-00000000000c',
+      name: 'Catalog',
+      path: 'E:\\NextLevel\\Catalog',
+      priority: 2,
+      managed: true,
+    };
+    const { savedLocations } = setup([A, managed], {
+      'app.pickFolder': () => ok('F:\\Catalog'),
+    });
+    const row = (await screen.findByText('Catalog games')).closest('li') as HTMLElement;
+    expect(within(row).getByText(/New catalog installs go here/)).toBeVisible();
+    expect(within(row).queryByRole('button', { name: /Remove/ })).toBeNull();
+    expect(within(row).queryByRole('button', { name: /Move/ })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Move 2TB down' })).toBeDisabled();
+    await user.click(within(row).getByRole('button', { name: 'Change folder…' }));
+    expect(within(row).getByText('F:\\Catalog')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(savedLocations()?.[1]).toMatchObject({
+      id: managed.id,
+      path: 'F:\\Catalog',
+      managed: true,
+    });
+  });
 });

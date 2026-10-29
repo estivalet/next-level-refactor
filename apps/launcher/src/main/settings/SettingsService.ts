@@ -13,8 +13,10 @@ import {
   type SettingsLoad,
   type SettingsSnapshot,
 } from '@nextlevel/shared';
+import { randomUUID } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+import { keepManagedHistory } from '../catalog/managedLocation.ts';
 import { atomicWrite } from '../fs/atomicWrite.ts';
 import { backupCreatedAt, createBackup, listBackupIds, pruneBackups } from './backups.ts';
 import { migrate } from './migrate.ts';
@@ -117,7 +119,14 @@ export class SettingsService {
     if (!parsed.success) {
       return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, parsed.error.issues);
     }
-    return ok(await this.write(parsed.data));
+    // A new Catalog folder path keeps the old folder as an ordinary location (D45).
+    const kept = SettingsSchema.safeParse(
+      keepManagedHistory(this.state.snapshot.settings, parsed.data, randomUUID),
+    );
+    if (!kept.success) {
+      return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, kept.error.issues);
+    }
+    return ok(await this.write(kept.data));
   }
 
   /**

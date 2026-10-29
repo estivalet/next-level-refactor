@@ -93,7 +93,11 @@ type Settings = {
   experimental: Record<string, boolean>;
 };
 
-type StorageLocation = { id: string; name: string; path: string; priority: number; managed: boolean };
+type StorageLocation = { id: string; name: string; path: string; priority: number; managed?: boolean };
+// managed (M9e, D45): the Catalog games folder — at most one, saved last, added as
+// `<NextLevel folder>\Catalog` on the first install (D50). A save that changes its path keeps the old
+// folder as an ordinary location "<name> (old)" (same id, so installed games still resolve) and adds
+// the new path as a new managed location.
 
 type SystemSettings = {
   enabled: boolean;
@@ -325,6 +329,8 @@ erDiagram
 | `menu_nodes` | `id` PK, `menu_id` FK, `parent_id` FK?, `position` int, `type` (`category`/`system`/`collection`/`smartFilter`), `ref_id` text?, `name` text, `display_name`?, `short_name`?, `theme_id`?, `filter_tabs` bool?, `visible` bool | `name` is also the menu-art key (current convention) |
 | `launch_log` | `id` PK, `game_id` FK? (set null on delete), `game_title`, `profile_id`, `profile_name`, `argv` json (executable first), `cwd`, `test` bool, `started_at`, `ended_at`?, `exit_code` int?, `error_code` text?, `stderr_tail` text? (last 4 KiB) | keep last 1,000; titles and names are copies so rows outlive renames and deletes; `ended_at` null = still running or the launcher quit first |
 | `games_fts` | FTS5(`title`, content=`game_metadata`, content_rowid=`game_id`) | global search; triggers keep it in sync |
+| `downloads` | `id` PK (uuidv7), `catalog_item_id`, `version`, `item` json (the `CatalogItem` at queue time), `state` (`queued`/`downloading`/`paused`/`failed`/`done`), `paused_reason`? (`user`/`network`/`offline`), `bytes_done`, `bytes_total`, `error`? (`checksum`/`diskFull`/`network`/`refused`/`write`), `created_at`, `updated_at` | M9e (migration 0009); the queue survives restarts with partial files in `<data>\downloads\<id>\<fileId>.part`; a finished download's row is deleted |
+| `catalog_installs` | `game_id` PK FK cascade, `catalog_item_id` UNIQUE, `version`, `files` json (paths relative to the location, `/`-separated: exactly what the installer wrote), `location_id`, `state` (`current`/`update`/`gone`), `on_lapse` (`keep`/`remove`), `installed_at` | M9e; a catalog game is `<location>\<system folder>\<slug>\<filename>` with `rel_path` `<slug>/<filename>` of its first ROM/disc; uninstall deletes only `files`, then the row — or makes it `local` again when a local file is at the same path in another location |
 | `meta` | `key` PK, `value` | `schema_version` |
 
 **Deleting:** games are never deleted by a scan, only marked `missing`. Uninstalling a catalog
