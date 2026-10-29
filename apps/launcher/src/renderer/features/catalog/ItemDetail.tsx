@@ -1,10 +1,11 @@
 import { ArrowLeft } from 'lucide-react';
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { useCatalogItem, useInstall, useInstalled } from './catalogApi.ts';
 import { formatBytes, isOffline } from './catalogText.ts';
 import { useUninstallFlow } from './UninstallDialog.tsx';
+import { pressFocused, useCatalogInput } from './useCatalogInput.ts';
 
 const BUTTON =
   'rounded-lg px-3 py-1.5 text-sm font-medium focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-50';
@@ -29,8 +30,27 @@ export function ItemDetail({
   const flow = useUninstallFlow();
   const installedGame = useInstalled().data?.find((row) => row.itemId === itemId);
   const systems = useSystemCatalog().data ?? [];
+  const box = useRef<HTMLElement>(null);
+  const backButton = useRef<HTMLButtonElement>(null);
+  // Keyboard and gamepad (D47): back closes, arrows walk the buttons, select presses one.
+  const keys = useCatalogInput(box, (action) => {
+    if (action === 'back') onBack();
+    else if (action === 'select') pressFocused();
+    else if (action === 'up' || action === 'down' || action === 'left' || action === 'right') {
+      const buttons = [
+        ...(box.current?.querySelectorAll<HTMLButtonElement>('button') ?? []),
+      ].filter((button) => !button.disabled);
+      const at = buttons.findIndex((button) => button === document.activeElement);
+      const step = action === 'left' || action === 'up' ? -1 : 1;
+      buttons[Math.max(0, Math.min(at + step, buttons.length - 1))]?.focus();
+    }
+  });
+  useEffect(() => {
+    backButton.current?.focus();
+  }, []);
   const back = (
     <button
+      ref={backButton}
       type="button"
       onClick={onBack}
       className="flex w-fit items-center gap-1 text-sm text-sky-300 hover:underline"
@@ -41,14 +61,14 @@ export function ItemDetail({
   );
   if (!query.data) {
     return (
-      <div className="flex flex-col gap-3 p-4">
+      <section ref={box} {...keys} className="flex flex-col gap-3 p-4">
         {back}
         {query.error && (
           <p role="alert" className="text-sm text-slate-300">
             {t(isOffline(query.error) ? 'catalog.offline' : 'catalog.loadFailed')}
           </p>
         )}
-      </div>
+      </section>
     );
   }
   const item = query.data;
@@ -60,6 +80,8 @@ export function ItemDetail({
 
   return (
     <section
+      ref={box}
+      {...keys}
       aria-labelledby={titleId}
       className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4"
     >

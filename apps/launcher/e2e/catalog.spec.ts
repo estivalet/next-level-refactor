@@ -136,9 +136,10 @@ test('D43: unpublishing a remove item removes it at the next sync, with a notice
       .getByRole('dialog', { name: 'Account' })
       .getByRole('button', { name: 'Refresh' })
       .click();
-    await expect(catalog.getByRole('status')).toContainText(
-      'Removed because they left the catalog: Star Hopper',
-    );
+    // The notice is the shell's: it shows whatever window is open (D43).
+    await expect(
+      page.getByText('Removed because they left the catalog: Star Hopper'),
+    ).toBeVisible();
     // The Account window covers the desktop icons on small screens.
     await page
       .getByRole('dialog', { name: 'Account' })

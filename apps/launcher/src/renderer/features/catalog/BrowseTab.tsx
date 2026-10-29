@@ -1,14 +1,14 @@
-import { defaultSettings, type CatalogListItem, type DownloadSummary } from '@nextlevel/shared';
-import { useInputActions } from '@nextlevel/themes';
+import type { CatalogListItem, DownloadSummary } from '@nextlevel/shared';
 import { Search } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSettings, useSystemCatalog } from '../settings/settingsApi.ts';
+import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { useCatalogList, useDownloads } from './catalogApi.ts';
 import { isOffline } from './catalogText.ts';
 import { moveCardFocus } from './cardNav.ts';
 import { ItemCard } from './ItemCard.tsx';
 import { ItemDetail } from './ItemDetail.tsx';
+import { pressFocused, useCatalogInput } from './useCatalogInput.ts';
 
 const FIELD =
   'rounded-md border border-white/10 bg-black/30 px-2 py-1 text-sm text-white focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
@@ -39,8 +39,12 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
   const [system, setSystem] = useState('');
   const [genre, setGenre] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
-  const [focused, setFocused] = useState(false);
-  const container = useRef<HTMLDivElement>(null);
+  const cards = useRef<HTMLDivElement>(null);
+  const opened = useRef<string | null>(null);
+  const open = (itemId: string) => {
+    opened.current = itemId;
+    setSelected(itemId);
+  };
   const filtering = q !== '' || system !== '' || genre !== '';
 
   const all = useCatalogList({ limit: 100 });
@@ -57,36 +61,34 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
   );
   const downloads = useDownloads().data ?? [];
   const systems = useSystemCatalog().data ?? [];
-  const loaded = useSettings().data;
-  // The player's bindings (Settings → Input); the defaults until the settings arrive.
-  const input = useMemo(
-    () => (loaded?.kind === 'ok' ? loaded.snapshot.settings : defaultSettings()).input,
-    [loaded],
-  );
   const nameOf = (id: string) => systems.find((s) => s.id === id)?.name ?? id;
   const items = useMemo(() => all.data?.items ?? [], [all.data]);
   const bySystem = useMemo(() => {
     const groups = new Map<string, CatalogListItem[]>();
-    for (const item of items)
+    for (const item of items) {
       groups.set(item.systemId, [...(groups.get(item.systemId) ?? []), item]);
+    }
     return [...groups];
   }, [items]);
   const genres = [...new Set(items.map((item) => item.genre).filter(Boolean))].sort();
 
-  useInputActions({
-    targetRef: container,
-    enabled: focused && selected === null,
-    input,
-    onAction: (action) => {
-      const box = container.current;
-      if (!box) return;
-      if (action === 'up' || action === 'down' || action === 'left' || action === 'right') {
-        moveCardFocus(box, action);
-      } else if (action === 'select' && document.activeElement instanceof HTMLButtonElement) {
-        document.activeElement.click();
-      }
-    },
+  // Only the cards take arrows and select: the search box and filters keep their keys.
+  const keys = useCatalogInput(cards, (action) => {
+    const box = cards.current;
+    if (!box) return;
+    if (action === 'up' || action === 'down' || action === 'left' || action === 'right') {
+      moveCardFocus(box, action);
+    } else if (action === 'select') {
+      pressFocused();
+    }
   });
+  // Back from a detail: focus returns to the card that opened it.
+  useEffect(() => {
+    if (selected !== null || opened.current === null) return;
+    cards.current
+      ?.querySelector<HTMLElement>(`[data-item-id="${CSS.escape(opened.current)}"]`)
+      ?.focus();
+  }, [selected]);
 
   if (selected) {
     return (
@@ -117,7 +119,7 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
               item={item}
               systemName={nameOf(item.systemId)}
               download={downloads.find((d: DownloadSummary) => d.itemId === item.id)}
-              onOpen={setSelected}
+              onOpen={open}
             />
           </li>
         ))}
@@ -126,16 +128,7 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
   );
 
   return (
-    <div
-      ref={container}
-      className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4"
-      onFocus={() => {
-        setFocused(true);
-      }}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
-      }}
-    >
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex items-center gap-2 rounded-md border border-white/10 bg-black/30 px-2">
           <Search aria-hidden="true" className="h-4 w-4 text-slate-400" />
@@ -181,23 +174,25 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
           ))}
         </select>
       </div>
-      {filtering ? (
-        (results.data?.items.length ?? 0) === 0 && results.isSuccess ? (
-          <p className="text-sm text-slate-400">{t('catalog.noResults')}</p>
+      <div ref={cards} className="flex flex-col gap-4" {...keys}>
+        {filtering ? (
+          (results.data?.items.length ?? 0) === 0 && results.isSuccess ? (
+            <p className="text-sm text-slate-400">{t('catalog.noResults')}</p>
+          ) : (
+            row(t('catalog.results'), results.data?.items ?? [])
+          )
         ) : (
-          row(t('catalog.results'), results.data?.items ?? [])
-        )
-      ) : (
-        <>
-          {(starter.data?.items.length ?? 0) > 0 &&
-            row(t('catalog.starter'), starter.data?.items ?? [])}
-          {(fresh.data?.items.length ?? 0) > 0 && row(t('catalog.new'), fresh.data?.items ?? [])}
-          {bySystem.map(([id, list]) => row(nameOf(id), list, id))}
-          {all.isSuccess && items.length === 0 && (
-            <p className="text-sm text-slate-400">{t('catalog.empty')}</p>
-          )}
-        </>
-      )}
+          <>
+            {(starter.data?.items.length ?? 0) > 0 &&
+              row(t('catalog.starter'), starter.data?.items ?? [])}
+            {(fresh.data?.items.length ?? 0) > 0 && row(t('catalog.new'), fresh.data?.items ?? [])}
+            {bySystem.map(([id, list]) => row(nameOf(id), list, id))}
+            {all.isSuccess && items.length === 0 && (
+              <p className="text-sm text-slate-400">{t('catalog.empty')}</p>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

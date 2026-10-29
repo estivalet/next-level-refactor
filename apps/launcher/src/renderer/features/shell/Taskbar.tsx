@@ -7,6 +7,7 @@ import { useShell } from './ShellContext.tsx';
 import { StartMenu } from './StartMenu.tsx';
 import { OfflineBadge } from '../auth/OfflineBadge.tsx';
 import { TrayClock } from './TrayClock.tsx';
+import { CatalogRemovedNotice } from './CatalogRemovedNotice.tsx';
 import { TrayDownloads } from './TrayDownloads.tsx';
 import type { ShellWindow } from './windowManager.ts';
 
@@ -90,6 +91,7 @@ export function Taskbar() {
       <div className="flex items-center gap-2 px-2">
         <OfflineBadge />
         <TrayDownloads />
+        <CatalogRemovedNotice />
         <TrayClock />
       </div>
     </nav>

@@ -144,6 +144,40 @@ describe('Catalog app: Browse (S8, FR-CAT-1, D46, D47)', () => {
   });
 });
 
+describe('Catalog app: keyboard and gamepad stay where they belong (D47)', () => {
+  it('arrow keys in the search box edit the text; they never jump to the cards', async () => {
+    const u = userEvent.setup();
+    setup();
+    await screen.findByRole('list', { name: 'New' });
+    const search = screen.getByRole('searchbox', { name: 'Search the catalog' });
+    await u.click(search);
+    await u.keyboard('sta{ArrowLeft}r');
+    expect(search).toHaveFocus();
+    // The caret moved left inside the box before the "r".
+    expect(search).toHaveValue('stra');
+  });
+
+  it('in the detail, arrows move between its buttons and back returns to the card it came from', async () => {
+    const u = userEvent.setup();
+    setup({ 'catalog.installed': () => ok([installed({ itemId: 'i1' })]) });
+    const card = within(await screen.findByRole('list', { name: 'New' })).getAllByRole(
+      'button',
+    )[1] as HTMLElement;
+    card.focus();
+    await u.keyboard('{Enter}');
+    const panel = await screen.findByRole('region', { name: 'Star Hopper' });
+    await within(panel).findByRole('button', { name: 'Play' });
+    const install = within(panel).getByRole('button', { name: 'Install' });
+    expect(within(panel).getByRole('button', { name: 'Back to the catalog' })).toHaveFocus();
+    await u.keyboard('{ArrowRight}');
+    expect(install).toHaveFocus();
+    await u.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(document.activeElement?.getAttribute('data-item-id')).toBe('i1');
+    });
+  });
+});
+
 describe('Catalog app: item detail (US-E1, US-E2, US-E3)', () => {
   it('US-E1: the detail credits the license and shows description, screenshots and size; Install queues it', async () => {
     const u = userEvent.setup();
@@ -223,14 +257,5 @@ describe('Catalog app: offline, Installed, notices (FR-CAT-7, D43)', () => {
     const list = await screen.findByRole('list', { name: 'Installed games' });
     expect(within(list).getByText('Star Hopper')).toBeVisible();
     expect(within(list).getByText('No longer in the catalog')).toBeVisible();
-  });
-
-  it('D43: a catalog.removed event shows a notice listing the titles', async () => {
-    const t = setup();
-    await screen.findByRole('list', { name: 'New' });
-    t.bridge.emit('catalog.removed', { titles: ['Star Hopper', 'Moss Garden'] });
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      'Removed because they left the catalog: Star Hopper, Moss Garden',
-    );
   });
 });
