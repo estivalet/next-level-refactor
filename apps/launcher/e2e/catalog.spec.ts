@@ -17,6 +17,11 @@ function signedInEnv(url: string, extra: Record<string, string> = {}) {
 
 const desktopApps = (page: Page) => page.getByRole('navigation', { name: 'Desktop apps' });
 
+/** Closes a window: on small screens (CI) an open window covers the desktop icons. */
+async function closeWindow(page: Page, name: string) {
+  await page.getByRole('dialog', { name }).getByRole('button', { name: 'Close' }).click();
+}
+
 async function signInAndOpenCatalog(page: Page) {
   // A fresh data folder shows the sign-in; a restart with a stored session goes to the desktop.
   const signIn = page.getByRole('button', { name: 'Sign in with Google' });
@@ -61,15 +66,18 @@ test('US-E2, US-E3: install a fixture game, it is in the Library with art; unins
     await expect(detail.getByText("License: Author's permission · © Pixel Pals")).toBeVisible();
     await detail.getByRole('button', { name: 'Install' }).click();
     await expect(detail.getByRole('button', { name: 'Play' })).toBeVisible({ timeout: 20_000 });
+    await closeWindow(page, 'Catalog');
 
     const { library, results } = await findInLibrary(page, 'Star Hopper');
     await expect(results.getByRole('option')).toHaveCount(1);
     await results.getByRole('option').click();
     await expect(library.locator('img[src^="nextlevel://media/"]').first()).toBeVisible();
-    await library.getByRole('button', { name: 'Close' }).click();
+    await closeWindow(page, 'Library');
 
-    await detail.getByRole('button', { name: 'Uninstall' }).click();
-    await expect(detail.getByRole('button', { name: 'Install' })).toBeVisible();
+    const again = await openItem(await signInAndOpenCatalog(page), 'Star Hopper');
+    await again.getByRole('button', { name: 'Uninstall' }).click();
+    await expect(again.getByRole('button', { name: 'Install' })).toBeVisible();
+    await closeWindow(page, 'Catalog');
     // It was the only game: the Library is empty again.
     await expectEmptyLibrary(page);
     await app.close();
@@ -129,6 +137,7 @@ test('D43: unpublishing a remove item removes it at the next sync, with a notice
     await detail.getByRole('button', { name: 'Install' }).click();
     await expect(detail.getByRole('button', { name: 'Play' })).toBeVisible({ timeout: 20_000 });
 
+    await closeWindow(page, 'Catalog');
     await api.unpublish(id);
     // The sync runs after an entitlement check: Account → Refresh asks for one now.
     await desktopApps(page).getByRole('button', { name: 'Account' }).dblclick();
@@ -140,11 +149,7 @@ test('D43: unpublishing a remove item removes it at the next sync, with a notice
     await expect(
       page.getByText('Removed because they left the catalog: Star Hopper'),
     ).toBeVisible();
-    // The Account window covers the desktop icons on small screens.
-    await page
-      .getByRole('dialog', { name: 'Account' })
-      .getByRole('button', { name: 'Close' })
-      .click();
+    await closeWindow(page, 'Account');
     await expectEmptyLibrary(page);
     await app.close();
   } finally {
