@@ -106,6 +106,25 @@ describe('subscriber catalog (FR-CAT-1, FR-CAT-2, C8, US-E1)', () => {
     expect(slugs(await t.get('/v1/catalog/items'))).toEqual([]);
   });
 
+  it('S8 New row: sort=new lists the newest published first, with publishedAt, in one page', async () => {
+    const t = await setup();
+    await t.publish('star-hopper');
+    t.clock.advance(60_000);
+    await t.publish('moss-garden');
+    t.clock.advance(60_000);
+    await t.publish('orbit-drift');
+    await t.planScopes(['homebrew-8bit']);
+    const page = (await t.get('/v1/catalog/items?sort=new&limit=2')).json<CatalogPage>();
+    expect(page.items.map((item) => item.slug)).toEqual(['orbit-drift', 'moss-garden']);
+    expect(page.items[0]?.publishedAt).toBe('2026-10-25T12:02:00.000Z');
+    expect(page.nextCursor).toBeNull();
+    expect(slugs(await t.get('/v1/catalog/items'))).toEqual([
+      'moss-garden',
+      'orbit-drift',
+      'star-hopper',
+    ]);
+  });
+
   it('US-F1: a newly published item shows on the next request', async () => {
     const t = await setup();
     await t.admin.send('POST', '/v1/admin/scopes', {

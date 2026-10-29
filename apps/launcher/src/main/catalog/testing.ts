@@ -15,6 +15,7 @@ export const catalogItem = (overrides: Partial<CatalogItem> = {}): CatalogItem =
   license: { type: 'freeware', rightsHolder: 'Pixel Moth', terms: 'Share it.' },
   starter: false,
   version: 1,
+  publishedAt: '2026-10-28T10:00:00.000Z',
   boxArt: null,
   description: '',
   developer: 'Pixel Moth',

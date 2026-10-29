@@ -97,6 +97,9 @@
     },
     "account": {
       "title": "Conta"
+    },
+    "catalog": {
+      "title": "Catálogo"
     }
   },
   "settings": {
@@ -1328,5 +1331,91 @@
   "portable": {
     "notWritable": "O NextLevel não consegue gravar na própria pasta. Mova a pasta do NextLevel para um lugar onde você possa gravar, como C:\\NextLevel, e abra-o de novo.",
     "moveFailed": "O NextLevel não conseguiu mover os seus dados da antiga pasta AppData para a própria pasta. Nada foi perdido: a pasta antiga está intacta. Verifique se há espaço livre e abra o NextLevel de novo."
+  },
+  "catalog": {
+    "tabs": {
+      "browse": "Explorar",
+      "installed": "Instalados",
+      "downloads": "Downloads"
+    },
+    "search": "Buscar no catálogo",
+    "system": "Sistema",
+    "allSystems": "Todos os sistemas",
+    "genre": "Gênero",
+    "allGenres": "Todos os gêneros",
+    "starter": "Conjunto inicial",
+    "new": "Novos",
+    "results": "Resultados",
+    "noResults": "Nada encontrado.",
+    "empty": "O catálogo do seu plano está vazio por enquanto.",
+    "offline": "O catálogo precisa de conexão — os jogos instalados continuam jogáveis",
+    "loadFailed": "Não foi possível carregar o catálogo. Tente mais tarde.",
+    "actionFailed": "Não deu certo. Tente de novo.",
+    "back": "Voltar ao catálogo",
+    "screenshot": "Captura de tela",
+    "credit": "Licença: {{type}} · © {{holder}}",
+    "license": {
+      "author-permission": "Permissão do autor",
+      "freeware": "Freeware",
+      "open-source": "Código aberto",
+      "public-domain": "Domínio público",
+      "commercial-license": "Licenciado"
+    },
+    "state": {
+      "none": "Disponível",
+      "queued": "Na fila",
+      "downloading": "Baixando {{percent}}%",
+      "installed": "Instalado",
+      "update": "Atualização disponível",
+      "gone": "Não está mais no catálogo",
+      "failed": "Falha no download — tentar de novo",
+      "corrupted": "Download corrompido — tentar de novo"
+    },
+    "actions": {
+      "install": "Instalar",
+      "update": "Atualizar",
+      "play": "Jogar",
+      "uninstall": "Desinstalar"
+    },
+    "uninstall": {
+      "title": "Desinstalar {{title}}?",
+      "body": "Este jogo é favorito ou está numa coleção. Desinstalar apaga os arquivos e o remove de lá.",
+      "cancel": "Manter",
+      "confirm": "Desinstalar"
+    },
+    "installed": {
+      "title": "Jogos instalados",
+      "empty": "Nenhum jogo do catálogo instalado ainda.",
+      "version": "versão {{version}}"
+    },
+    "downloads": {
+      "title": "Downloads",
+      "empty": "Nenhum download.",
+      "queued": "Na fila",
+      "downloading": "Baixando {{percent}}%",
+      "done": "Instalando…",
+      "paused": {
+        "user": "Pausado",
+        "network": "Esperando a rede",
+        "offline": "Esperando ficar online"
+      },
+      "failed": {
+        "checksum": "Download corrompido — tentar de novo",
+        "diskFull": "Sem espaço em disco",
+        "network": "Falha no download — tentar de novo",
+        "refused": "O NextLevel recusou este download",
+        "write": "Não foi possível gravar o jogo no disco"
+      },
+      "pause": "Pausar",
+      "resume": "Continuar",
+      "retry": "Tentar de novo",
+      "cancel": "Cancelar",
+      "cancelLabel": "Cancelar {{title}}",
+      "progress": "Download de {{title}}",
+      "tray_one": "{{count}} download · {{percent}}%",
+      "tray_other": "{{count}} downloads · {{percent}}%"
+    },
+    "removed": "Removidos porque saíram do catálogo: {{titles}}",
+    "dismiss": "Fechar"
   }
 }

@@ -17,7 +17,6 @@ import type { SettingsService } from '../settings/SettingsService.ts';
 import { currentSettings } from '../startLibrary.ts';
 import { createCatalogApi } from './catalogApi.ts';
 import { CatalogClient } from './CatalogClient.ts';
-import type { CatalogApi } from './catalogHandlers.ts';
 import { CatalogSync } from './CatalogSync.ts';
 import { DownloadService, type DownloadLog } from './DownloadService.ts';
 import { fetchArt } from './fetchArt.ts';
@@ -45,7 +44,7 @@ export function startCatalog(o: {
   session: AuthService;
   emit: EmitEvent;
   log: DownloadLog;
-}): CatalogApi {
+}): ReturnType<typeof createCatalogApi> {
   const client = new CatalogClient(o.api, o.session);
   const locks = new ItemLocks();
   const installs = new CatalogInstallRepository(o.db);
@@ -126,5 +125,12 @@ export function startCatalog(o: {
     stopChecked();
     downloads.dispose();
   });
-  return createCatalogApi({ client, downloads, installer, installs, locks });
+  return createCatalogApi({
+    client,
+    downloads,
+    installer,
+    installs,
+    locks,
+    fetchArt: (url) => fetchArt(url, fetch),
+  });
 }

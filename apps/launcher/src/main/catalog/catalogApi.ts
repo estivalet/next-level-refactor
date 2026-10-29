@@ -1,5 +1,6 @@
 import {
   AppErrorException,
+  catalogArtUrl,
   ERROR_CODES,
   type DownloadSummary,
   type InstallState,
@@ -17,13 +18,33 @@ export interface CatalogApiDeps {
   installer: Pick<Installer, 'uninstall'>;
   installs: Pick<CatalogInstallRepository, 'all' | 'byItem'>;
   locks: ItemLocks;
+  /** One art file by its signed URL (fetchArt). */
+  fetchArt: (url: string) => Promise<{ bytes: Buffer; format: string } | null>;
 }
+
+const MIME: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+};
 
 /**
  * The catalog channels (FR-CAT-1..7): the API's items with where each stands on this PC, the
  * download queue, and uninstall under the item's lock (it waits for a running sync, D43).
  */
-export function createCatalogApi(deps: CatalogApiDeps): CatalogApi {
+export function createCatalogApi(deps: CatalogApiDeps): CatalogApi & {
+  /** For `nextlevel://catalog-art/<item>/<kind>`: the art main last saw for it (S8). */
+  art(itemId: string, kind: string): Promise<{ bytes: Buffer; mime: string } | null>;
+} {
+  // Signed art URLs stay in main (they carry tokens); the renderer gets nextlevel:// names.
+  const signed = new Map<string, string>();
+  const local = (itemId: string, kind: string, url: string) => {
+    signed.set(`${itemId}/${kind}`, url);
+    return catalogArtUrl(itemId, kind);
+  };
   const stateOf = (
     queue: readonly DownloadSummary[],
     itemId: string,
@@ -47,13 +68,29 @@ export function createCatalogApi(deps: CatalogApiDeps): CatalogApi {
         ...page,
         items: page.items.map((item) => ({
           ...item,
+          boxArt: item.boxArt ? local(item.id, 'box-front', item.boxArt) : null,
           installState: stateOf(queue, item.id, item.version),
         })),
       };
     },
     async get(itemId) {
       const item = await deps.client.get(itemId);
-      return { ...item, installState: stateOf(deps.downloads.list(), item.id, item.version) };
+      return {
+        ...item,
+        boxArt: item.boxArt ? local(item.id, 'box-front', item.boxArt) : null,
+        media: item.media.map((media) => ({
+          kind: media.kind,
+          url: local(item.id, media.kind, media.url),
+        })),
+        installState: stateOf(deps.downloads.list(), item.id, item.version),
+      };
+    },
+    async art(itemId, kind) {
+      const url = signed.get(`${itemId}/${kind}`);
+      if (!url) return null;
+      const fetched = await deps.fetchArt(url);
+      const mime = fetched ? MIME[fetched.format] : undefined;
+      return fetched && mime ? { bytes: fetched.bytes, mime } : null;
     },
     install: (itemId) => deps.downloads.install(itemId),
     uninstall: (itemId, confirm) => {

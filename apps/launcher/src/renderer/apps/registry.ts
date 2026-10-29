@@ -1,12 +1,13 @@
-import { Library, ListTree, Settings, UserRound, type LucideIcon } from 'lucide-react';
+import { Library, ListTree, Settings, Store, UserRound, type LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { AccountApp } from '../features/account/AccountApp.tsx';
+import { CatalogApp } from '../features/catalog/CatalogApp.tsx';
 import { LibraryApp } from '../features/library/LibraryApp.tsx';
 import { MenuEditorApp } from '../features/menus/MenuEditorApp.tsx';
 import { SettingsApp } from '../features/settings/SettingsApp.tsx';
 import type { AppParams } from '../features/shell/windowManager.ts';
 
-export type AppId = 'library' | 'menu-editor' | 'settings' | 'account';
+export type AppId = 'library' | 'catalog' | 'menu-editor' | 'settings' | 'account';
 
 export interface AppDefinition {
   id: AppId;
@@ -27,6 +28,14 @@ export const apps: readonly AppDefinition[] = [
     defaultSize: { width: 1200, height: 720 },
     singleInstance: true,
     Component: LibraryApp,
+  },
+  {
+    id: 'catalog',
+    titleKey: 'apps.catalog.title',
+    icon: Store,
+    defaultSize: { width: 1100, height: 720 },
+    singleInstance: true,
+    Component: CatalogApp,
   },
   {
     id: 'menu-editor',

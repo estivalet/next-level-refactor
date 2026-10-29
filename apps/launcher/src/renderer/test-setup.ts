@@ -13,3 +13,8 @@ class ResizeObserverStub {
   disconnect(): void {}
 }
 if (!('ResizeObserver' in globalThis)) globalThis.ResizeObserver = ResizeObserverStub;
+
+// jsdom has no layout, so no scrollIntoView; components call it when moving focus.
+Element.prototype.scrollIntoView = function scrollIntoView() {
+  return undefined;
+};

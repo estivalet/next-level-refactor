@@ -193,6 +193,24 @@ requirements:
 - Item detail: description, screenshots, license + credit, size, Install/Uninstall/Play.
 - Offline: "Catalog needs a connection — installed games still play".
 
+As built in M9f (FR-CAT-1, FR-CAT-2, US-E1, D46, D47): a desktop **Catalog** app (Store icon) with
+tabs Browse · Installed · Downloads (the tray indicator opens Downloads). **Browse**: search
+(300 ms pause), System and Genre filters; with no filter the rows are Starter set (hidden when the
+plan has none), New (newest published first, up to 12) and one row per system (title order); with a
+filter, a Results row. Cards show box art, title, system, size, the license type badge and the state
+(Available, Queued, Downloading n%, Installed, Update available, No longer in the catalog,
+"Download failed — retry", or "Download corrupted — retry" for a checksum failure). Arrow keys and
+a gamepad (the player's Settings → Input bindings) move across cards and rows; select opens one.
+**Item detail**: art, system · year · developer, "License: Freeware · © <holder>", size,
+description, screenshots; Install (or Retry after a failure), Update, Play and Uninstall by state;
+Uninstall asks "Uninstall <title>?" only for a favorite or a game in a collection (US-E3).
+**Installed**: this PC's catalog games (works offline) with Play, Update and Uninstall and a "No
+longer in the catalog" / "Update available" line. **Downloads**: each download's progress bar,
+state (Queued, Downloading n%, Paused, Waiting for the network, Waiting to be online, or why it
+failed) and Pause / Resume / Retry / Cancel. Games removed by the lapse rule show "Removed because
+they left the catalog: …" (dismissable). Art reaches the app as `nextlevel://catalog-art/…`: main
+fetches the signed URL.
+
 ## S9 Settings
 
 Left navigation of sections (see IA §1), right form pane.

@@ -78,7 +78,7 @@ Role `device`. Visible = published, in a scope of the caller's entitlement, lice
 
 | Method & path | Body → Response |
 |---|---|
-| `GET /v1/catalog/items?system=&genre=&q=&scope=&starter=&cursor=&limit=` | → `{ items: CatalogItemSummary[], nextCursor }` in title order; `q` matches title or developer (any case); `genre` exact (any case); `starter=true` = the Starter set (D46); `limit` 1–100 (50) |
+| `GET /v1/catalog/items?system=&genre=&q=&scope=&starter=&sort=&cursor=&limit=` | → `{ items: CatalogItemSummary[] (with `publishedAt`), nextCursor }` in title order, or newest published first with `sort=new` (one page, `nextCursor` null; M9f); `q` matches title or developer (any case); `genre` exact (any case); `starter=true` = the Starter set (D46); `limit` 1–100 (50) |
 | `GET /v1/catalog/items/:id` | → `CatalogItem` (metadata, ready files with size + sha256, art URLs valid 1 h, license type, holder and terms, `version`) |
 | `POST /v1/catalog/items/:id/downloads` | `{ deviceId }` (the caller's own device → else `FORBIDDEN`) → `{ files: [{ fileId, filename, size, sha256, url, expiresAt }] }`; URLs valid 10 min; one `downloads` row per file with `ip_hash`; 60 per hour per user |
 | `POST /v1/catalog/status` | `{ items: [{ id, version }] }` (≤ 5,000) → `{ items: [{ id, state: 'current'|'update'|'gone', version, onLapse }] }`; `gone`: unpublished, license expired, outside the caller's scopes, or unknown (`onLapse` the item's, `keep` when unknown). Replaces the planned `GET /v1/catalog/changes` (a `since` list can't see one user's scope change) |

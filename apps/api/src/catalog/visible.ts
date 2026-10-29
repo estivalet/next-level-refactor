@@ -6,7 +6,7 @@ import type {
   CatalogQuery,
   Entitlement,
 } from '@nextlevel/shared';
-import { and, asc, eq, gt, inArray, isNull, like, or, sql, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, isNull, like, or, sql, type SQL } from 'drizzle-orm';
 import type { FastifyRequest } from 'fastify';
 import { entitlementOf } from '../auth/session.ts';
 import type { ApiContext } from '../context.ts';
@@ -50,6 +50,8 @@ export function visibleRows(
   scopes: readonly string[],
   extra: SQL[] = [],
   limit?: number,
+  /** Default: title order. */
+  order?: SQL[],
 ): Row[] {
   if (scopes.length === 0) return [];
   const now = ctx.clock().toISOString();
@@ -72,7 +74,7 @@ export function visibleRows(
         ...extra,
       ),
     )
-    .orderBy(asc(catalogItems.title), asc(catalogItems.id))
+    .orderBy(...(order ?? [asc(catalogItems.title), asc(catalogItems.id)]))
     .limit(limit ?? -1)
     .all()
     .map(({ item, ...rest }) => ({ ...item, ...rest }));
@@ -120,6 +122,7 @@ function toSummary(ctx: ApiContext, caller: CatalogCaller, row: Row): CatalogIte
     license: { type: row.licenseType, rightsHolder: row.rightsHolder },
     starter: row.starter,
     version: row.version,
+    publishedAt: row.publishedAt,
     boxArt: box ? mediaUrl(ctx, caller, row.id, 'box-front') : null,
   };
 }
@@ -159,7 +162,7 @@ function afterCursor(cursor: string | undefined): SQL | undefined {
   );
 }
 
-/** A page in title order (`q`: title or developer, any case). */
+/** A page in title order (`q`: title or developer, any case), or newest first with `sort=new`. */
 export function catalogPage(
   ctx: ApiContext,
   caller: CatalogCaller,
@@ -169,6 +172,7 @@ export function catalogPage(
     ? caller.entitlement.scopes.filter((scope) => scope === query.scope)
     : caller.entitlement.scopes;
   const pattern = query.q ? `%${query.q.replace(/[%_]/g, '')}%` : undefined;
+  const newest = query.sort === 'new';
   const extra = [
     query.system ? eq(catalogItems.systemId, query.system) : undefined,
     query.genre ? sql`lower(${catalogItems.genre}) = ${query.genre.toLowerCase()}` : undefined,
@@ -176,13 +180,19 @@ export function catalogPage(
     pattern
       ? or(like(catalogItems.title, pattern), like(catalogItems.developer, pattern))
       : undefined,
-    afterCursor(query.cursor),
+    newest ? undefined : afterCursor(query.cursor),
   ].filter((f): f is SQL => f !== undefined);
-  const rows = visibleRows(ctx, scopes, extra, query.limit + 1);
+  const rows = visibleRows(
+    ctx,
+    scopes,
+    extra,
+    query.limit + 1,
+    newest ? [desc(catalogItems.publishedAt), desc(catalogItems.id)] : undefined,
+  );
   const page = rows.slice(0, query.limit);
   const last = page.at(-1);
   return {
     items: page.map((row) => toSummary(ctx, caller, row)),
-    nextCursor: rows.length > query.limit && last ? cursorOf(last) : null,
+    nextCursor: !newest && rows.length > query.limit && last ? cursorOf(last) : null,
   };
 }
