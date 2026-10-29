@@ -37,6 +37,7 @@ import type { ScreenScraperClient } from './scraper/screenscraper/client.ts';
 import type { QuotaGate } from './scraper/screenscraper/quota.ts';
 import { ScrapeRepository } from './library/ScrapeRepository.ts';
 import type { EmitEvent } from './ipc/events.ts';
+import { markExistingSetupComplete } from './settings/setupComplete.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
 /** What the library needs from the app shell (index.ts). */
@@ -51,6 +52,8 @@ export interface LibraryHost {
   baseEnv: NodeJS.ProcessEnv;
   /** The NextLevel folder moved since last boot: media paths follow (D50). */
   moved: { from: string; to: string } | null;
+  /** e2e (development builds only): mark setup complete so the wizard never shows. */
+  skipSetup?: boolean;
   /** The library is open: the catalog (M9e) builds on its database and repositories. */
   onOpened?: (parts: { db: LibraryDb; games: GameRepository; media: MediaRepository }) => void;
 }
@@ -218,6 +221,16 @@ export function startLibrary(
     },
   });
   batch.restore();
+  // D48: an install that already has folders or games never sees the first-run wizard.
+  const gameCount = repo.systemCounts().reduce((sum, row) => sum + row.games, 0);
+  const counted = host.skipSetup ? Number.MAX_SAFE_INTEGER : gameCount;
+  if (markExistingSetupComplete(currentSettings(settings), counted, new Date())) {
+    void settings
+      .update((current) => markExistingSetupComplete(current, counted, new Date()) ?? current)
+      .catch((error: unknown) => {
+        log.warn({ error }, 'could not mark setup complete');
+      });
+  }
   host.onOpened?.({ db, games, media });
   app.on('will-quit', () => {
     batch.dispose();

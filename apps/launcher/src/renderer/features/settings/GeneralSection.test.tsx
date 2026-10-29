@@ -157,4 +157,21 @@ describe('GeneralSection', () => {
       volume: 30,
     });
   });
+
+  it('D48: Run setup again clears setup completion when saved (the wizard shows at next start)', async () => {
+    const user = userEvent.setup();
+    const done = defaultSettings();
+    done.general = { ...done.general, setupCompletedAt: '2026-10-01T00:00:00.000Z' };
+    const bridge = installFakeBridge({
+      'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings: done, revision: 0 } }),
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+    });
+    renderInShell(<GeneralSection />);
+    await user.click(await screen.findByRole('button', { name: 'Run setup again' }));
+    expect(screen.getByText('The wizard will show at the next start.')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const saved = bridge.calls.find((call) => call.channel === 'settings.save')?.input as
+      { settings: Settings } | undefined;
+    expect(saved?.settings.general.setupCompletedAt).toBeNull();
+  });
 });

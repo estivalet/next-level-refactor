@@ -51,6 +51,16 @@ Five steps with a stepper, each with **Skip** and **Back**:
 4. **Theme**: gallery of theme previews; select one.
 5. **Done**: summary + "Start" (or "Browse catalog" when the library is empty).
 
+As built in M9g (FR-ONB-1, FR-ONB-2, D48): a full-screen card with "Step n of 5", the step title,
+the step body with its own **Next** (which saves that step), and a footer with **Back** and
+**Skip**. Systems is a ticked list (the popular systems for a new install) plus a search that adds
+any other system. Game folders lists folders in priority order (remove each) with **Add folder…**
+and **Scan now**; the scan shows "Scanning <system>" and then "<system> · n games". Emulators
+lists enabled systems with games: "Ready", or **Locate executable…** and an **Official site**
+link. Look is the Start in field (last theme, a theme, the desktop). Done counts the games and
+says **Start**, or **Browse catalog** when there are none. Theme previews (a gallery) are not built
+in M9.
+
 ## S5 Front-end (themes)
 
 Each theme is specified by its own doc in `packages/themes/src/<id>/README.md`, ported from the

@@ -123,6 +123,17 @@ Sign in → **Systems** (pre-selected popular ones) → **ROM folders** (add / s
 live counts → **Emulators** (for each enabled system with games: preset + pick executable /
 skip) → **Theme** (gallery) → front-end. Skipping all → Catalog "Starter set".
 
+As built (M9g, D48): after the sign-in gate, `BootGate` shows the wizard while
+`general.setupCompletedAt` is null, decided once per start (Settings → General → **Run setup again**
+clears it; the wizard shows at the next start). At boot main marks an existing install (any storage
+location or game) complete, so it never sees the wizard. Steps: Systems (popular ones ticked: NES,
+SNES, N64, Game Boy, GBC, GBA, Genesis, Mega Drive, Master System, PlayStation, PS2, MAME; search
+adds others) → Game folders (Add folder…, priority order, **Scan now** with live progress and games
+per system) → Emulators (each enabled system with games: Ready, or **Locate executable…** — the
+program becomes an emulator from its preset — and **Official site**, the system's best preset
+homepage; nothing is downloaded) → Look (where NextLevel starts) → Done: **Start** with games,
+**Browse catalog** without (the desktop with the Catalog open on Browse, Starter set first).
+
 ### F4 — Play a game
 
 Focus game → Play → resolve profile (game override → system default) → validate (executable

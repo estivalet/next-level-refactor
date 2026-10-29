@@ -66,3 +66,4 @@ export function presetForExecutable(fileName: string): EmulatorPreset | undefine
     preset.executableNames.some((exe) => exe.toLowerCase() === name),
   );
 }
+export { POPULAR_SYSTEM_IDS } from './popular.ts';
