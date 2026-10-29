@@ -4,6 +4,7 @@ import { computeEntitlement, type PlanSummary } from '../entitlements/entitlemen
 import { apiError } from '../errors.ts';
 import { toPlanSummary } from '../plans/PlanRepository.ts';
 import { currentSubscription } from '../subscriptions/current.ts';
+import type { SubscriptionRow } from '../subscriptions/SubscriptionRepository.ts';
 import { toDevice } from '../users/DeviceRepository.ts';
 import type { UserRow } from '../users/UserRepository.ts';
 import { signTicket } from './tokens.ts';
@@ -25,11 +26,23 @@ export function defaultPlanOf(ctx: ApiContext): PlanSummary {
   return toPlanSummary(row, ctx.scopes.list());
 }
 
-export function entitlementOf(ctx: ApiContext, user: UserRow): Entitlement {
+/**
+ * The user's entitlement. `current`: their current subscription when the caller already read it
+ * (a users page reads every row's at once); omitted, it is read here.
+ */
+export function entitlementOf(
+  ctx: ApiContext,
+  user: UserRow,
+  current?: SubscriptionRow | null,
+): Entitlement {
   const now = ctx.clock();
   const scopes = ctx.scopes.list();
   const billing = ctx.env.billing.enabled;
-  const row = billing ? currentSubscription(ctx.subscriptions.forUser(user.id), now) : null;
+  const row = !billing
+    ? null
+    : current !== undefined
+      ? current
+      : currentSubscription(ctx.subscriptions.forUser(user.id), now);
   const plan = row ? ctx.plans.byId(row.planId) : undefined;
   return computeEntitlement({
     user,

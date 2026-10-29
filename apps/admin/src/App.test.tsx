@@ -92,7 +92,8 @@ describe('console sign-in (S13, ADR-006 web flow)', () => {
                 csrf: 'c',
               },
             },
-      'GET /v1/admin/users': () => {
+      // The landing page (the dashboard) is the first admin call.
+      'GET /v1/admin/stats': () => {
         demoted = true;
         return {
           status: 403,

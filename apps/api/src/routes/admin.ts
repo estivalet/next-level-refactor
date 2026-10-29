@@ -1,4 +1,5 @@
 import {
+  AdminStatsSchema,
   AdminSubscriptionSchema,
   AdminUserDetailSchema,
   AdminUserPatchSchema,
@@ -23,6 +24,7 @@ import { listUsers, patchUser, revokeUserDevice, userDetail } from '../admin/use
 import type { ApiContext } from '../context.ts';
 import { apiError } from '../errors.ts';
 import { loadAppSettings, saveAppSettings } from '../settings/AppSettingsRepository.ts';
+import { adminStats } from '../stats/stats.ts';
 
 const id = z.string().min(1).max(100);
 
@@ -34,6 +36,10 @@ export function adminRoutes(app: FastifyInstance, ctx: ApiContext): void {
     if (!request.admin) throw apiError('UNAUTHENTICATED');
     return request.admin.userId;
   };
+
+  route.get('/v1/admin/stats', { config, schema: { response: { 200: AdminStatsSchema } } }, () =>
+    adminStats(ctx.db, ctx.clock()),
+  );
 
   route.get(
     '/v1/admin/users',

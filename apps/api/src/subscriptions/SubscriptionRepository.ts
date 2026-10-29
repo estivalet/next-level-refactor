@@ -23,11 +23,6 @@ export class SubscriptionRepository {
       .all();
   }
 
-  /** Every row, for list filters that apply the current-subscription rule per user. */
-  all(): SubscriptionRow[] {
-    return this.#db.select().from(subscriptions).all();
-  }
-
   byId(id: string): SubscriptionRow | undefined {
     return this.#db.select().from(subscriptions).where(eq(subscriptions.id, id)).get();
   }

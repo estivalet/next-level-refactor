@@ -20,6 +20,7 @@ exports[`API pipeline (api-spec §1, architecture §5.2) > GET /v1/openapi.json 
   "/v1/admin/scopes",
   "/v1/admin/scopes/{id}",
   "/v1/admin/settings",
+  "/v1/admin/stats",
   "/v1/admin/users",
   "/v1/admin/users/{id}",
   "/v1/admin/users/{id}/devices/{deviceId}",

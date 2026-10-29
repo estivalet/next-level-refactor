@@ -1,4 +1,5 @@
 import {
+  AdminStatsSchema,
   AdminSubscriptionSchema,
   AdminUserDetailSchema,
   AdminUserSummarySchema,
@@ -159,5 +160,13 @@ export function useSaveAppSettings() {
       client.setQueryData(['settings'], settings);
       void client.invalidateQueries({ queryKey: ['audit'] });
     },
+  });
+}
+
+/** The dashboard (FR-ADM-6, D49): computed by the API on each request. */
+export function useStats() {
+  return useQuery({
+    queryKey: ['stats'],
+    queryFn: () => apiFetch('/v1/admin/stats', { schema: AdminStatsSchema }),
   });
 }

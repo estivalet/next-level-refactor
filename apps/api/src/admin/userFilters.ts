@@ -5,7 +5,7 @@ import type { ApiContext } from '../context.ts';
 import { users } from '../db/schema.ts';
 import { computeEntitlement } from '../entitlements/entitlement.ts';
 import { toPlanSummary } from '../plans/PlanRepository.ts';
-import { currentSubscription } from '../subscriptions/current.ts';
+import { currentSubscriptions } from '../subscriptions/currentAll.ts';
 import type { SubscriptionRow } from '../subscriptions/SubscriptionRepository.ts';
 
 /**
@@ -20,10 +20,9 @@ export function planAccessFilter(ctx: ApiContext, query: AdminUserQuery): SQL | 
   const billing = ctx.env.billing.enabled;
   const scopes = ctx.scopes.list();
   const plans = new Map(ctx.plans.list().map((row) => [row.id, toPlanSummary(row, scopes)]));
-  const rowsByUser = new Map<string, SubscriptionRow[]>();
-  for (const row of billing ? ctx.subscriptions.all() : []) {
-    rowsByUser.set(row.userId, [...(rowsByUser.get(row.userId) ?? []), row]);
-  }
+  const currentByUser = billing
+    ? currentSubscriptions(ctx.db, now)
+    : new Map<string, SubscriptionRow>();
   const defaultPlan = defaultPlanOf(ctx);
   const allScopes = scopes.map((scope) => scope.slug);
   const ids = ctx.db
@@ -31,7 +30,7 @@ export function planAccessFilter(ctx: ApiContext, query: AdminUserQuery): SQL | 
     .from(users)
     .all()
     .filter((user) => {
-      const row = currentSubscription(rowsByUser.get(user.id) ?? [], now);
+      const row = currentByUser.get(user.id) ?? null;
       const plan = row ? plans.get(row.planId) : undefined;
       const current = row && plan ? { row, plan } : null;
       const entitlement = computeEntitlement({

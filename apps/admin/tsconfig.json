@@ -4,5 +4,15 @@
     "types": ["vite/client"]
   },
   "include": ["src", "e2e", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"],
-  "references": [{ "path": "../../packages/shared" }, { "path": "../../packages/ui" }]
+  "references": [
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/system-catalog"
+    },
+    {
+      "path": "../../packages/ui"
+    }
+  ]
 }

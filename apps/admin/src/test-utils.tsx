@@ -40,9 +40,11 @@ export function stubApi(routes: Record<string, Handler>) {
 
 export function renderPage(ui: ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return Object.assign(render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>), {
-    client,
-  });
+  // A wrapper, so `rerender` keeps the same client.
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  );
+  return Object.assign(render(ui, { wrapper }), { client });
 }
 
 export const user = (id: string, email: string, overrides: Record<string, unknown> = {}) => ({
@@ -58,3 +60,50 @@ export const user = (id: string, email: string, overrides: Record<string, unknow
   createdAt: '2026-10-01T10:00:00.000Z',
   ...overrides,
 });
+
+/** An upload the test settles: report progress, then answer. */
+export interface PendingUpload {
+  url: string;
+  headers: Record<string, string>;
+  body: unknown;
+  progress: (loaded: number, total: number) => void;
+  respond: (status: number, body: unknown) => void;
+}
+
+/** Replaces XMLHttpRequest (the console's uploads); each send lands in the returned list. */
+export function stubUploads() {
+  const uploads: PendingUpload[] = [];
+  class FakeXhr {
+    upload: { onprogress: ((event: ProgressEvent) => void) | null } = { onprogress: null };
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    status = 0;
+    responseText = '';
+    withCredentials = false;
+    #url = '';
+    #headers: Record<string, string> = {};
+    open(_method: string, url: string) {
+      this.#url = url;
+    }
+    setRequestHeader(name: string, value: string) {
+      this.#headers[name.toLowerCase()] = value;
+    }
+    send(body: unknown) {
+      uploads.push({
+        url: this.#url,
+        headers: this.#headers,
+        body,
+        progress: (loaded, total) => {
+          this.upload.onprogress?.({ lengthComputable: true, loaded, total } as ProgressEvent);
+        },
+        respond: (status, answer) => {
+          this.status = status;
+          this.responseText = JSON.stringify(answer);
+          this.onload?.();
+        },
+      });
+    }
+  }
+  vi.stubGlobal('XMLHttpRequest', FakeXhr);
+  return uploads;
+}

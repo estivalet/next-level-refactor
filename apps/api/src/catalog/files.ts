@@ -142,6 +142,20 @@ export async function completeUpload(
     .where(and(eq(catalogFiles.itemId, itemId), eq(catalogFiles.status, 'ready')))
     .all()
     .filter((other) => other.filename.toLowerCase() === row.filename.toLowerCase());
+  if (item.status === 'published' && row.role === 'extra') {
+    // An extra replacing the last game file would leave a published item without one (C10).
+    const gameLeft = ctx.db
+      .select()
+      .from(catalogFiles)
+      .where(and(eq(catalogFiles.itemId, itemId), eq(catalogFiles.status, 'ready')))
+      .all()
+      .some((other) => other.role !== 'extra' && !replaced.some((old) => old.id === other.id));
+    if (!gameLeft && replaced.some((old) => old.role !== 'extra')) {
+      await ctx.files.delete(row.storageKey);
+      ctx.db.delete(catalogFiles).where(eq(catalogFiles.id, fileId)).run();
+      throw apiError('CONFLICT', 'A published item needs a game file.', { reason: 'lastFile' });
+    }
+  }
   const ready = { ...row, status: 'ready' as const };
   audited(
     ctx,

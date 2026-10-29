@@ -18,7 +18,7 @@ function Console() {
   );
 }
 
-/** The admin console (ADR-008, S13): sign-in, then users, audit log and settings. */
+/** The admin console (ADR-008, S13): sign-in, then the dashboard and the other pages. */
 export function App() {
   const [client] = useState(
     () => new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } }),

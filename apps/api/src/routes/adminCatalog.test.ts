@@ -49,6 +49,29 @@ describe('catalog items (FR-CAT-8, FR-ADM-3)', () => {
     expect(t.actions()).toEqual(['item.create']);
   });
 
+  it('S13: the list shows each item license state: none, unverified, verified, expired', async () => {
+    const t = await setup();
+    const none = await t.createItem('no-license');
+    const unverified = await t.createItem('unverified');
+    await t.putLicense(unverified);
+    const verified = await t.createItem('verified');
+    await t.putLicense(verified);
+    await t.putEvidence(verified);
+    await t.send('POST', `${t.base(verified)}/license/verify`);
+    const expired = await t.createItem('expired');
+    await t.putLicense(expired, { expiresAt: '2020-01-01T00:00:00.000Z' });
+    const page = (await t.send('GET', '/v1/admin/catalog/items')).json<AdminCatalogPage>();
+    const state = Object.fromEntries(page.items.map((item) => [item.id, item.licenseState]));
+    expect(state).toEqual({
+      [none]: 'none',
+      [unverified]: 'unverified',
+      [verified]: 'verified',
+      [expired]: 'expired',
+    });
+    const detail = (await t.send('GET', t.base(verified))).json<AdminCatalogItem>();
+    expect(detail.licenseState).toBe('verified');
+  });
+
   it('a taken slug is CONFLICT slugTaken; an unknown system or scope is VALIDATION_FAILED', async () => {
     const t = await setup();
     await t.createItem();

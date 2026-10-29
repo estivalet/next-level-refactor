@@ -15,7 +15,7 @@ import type { ApiContext } from '../context.ts';
 import { catalogFiles, catalogItems, catalogMedia, catalogScopes, licenses } from '../db/schema.ts';
 import { apiError } from '../errors.ts';
 import { itemOrNotFound, toAdminFile } from './files.ts';
-import { publishBlockers } from './publish.ts';
+import { licenseState, publishBlockers } from './publish.ts';
 
 // Catalog items for the console (api-spec Admin catalog, FR-ADM-3, FR-CAT-8): every change is
 // audited with target type `item`.
@@ -25,7 +25,11 @@ type LicenseRow = typeof licenses.$inferSelect;
 
 const scopeSlugOf = (ctx: ApiContext, scopeId: string) => ctx.scopes.byId(scopeId)?.slug ?? '';
 
-export function toSummary(ctx: ApiContext, row: ItemRow): AdminCatalogItemSummary {
+export function toSummary(
+  ctx: ApiContext,
+  row: ItemRow,
+  license: LicenseRow | undefined | null,
+): AdminCatalogItemSummary {
   return {
     id: row.id,
     slug: row.slug,
@@ -34,6 +38,7 @@ export function toSummary(ctx: ApiContext, row: ItemRow): AdminCatalogItemSummar
     scopeSlug: scopeSlugOf(ctx, row.scopeId),
     status: row.status,
     starter: row.starter,
+    licenseState: licenseState(license, ctx.clock()),
     version: row.version,
     publishedAt: row.publishedAt,
     updatedAt: row.updatedAt,
@@ -69,7 +74,7 @@ export function itemDetail(ctx: ApiContext, itemId: string): AdminCatalogItem {
   const files = ctx.db.select().from(catalogFiles).where(eq(catalogFiles.itemId, itemId)).all();
   const media = ctx.db.select().from(catalogMedia).where(eq(catalogMedia.itemId, itemId)).all();
   return {
-    ...toSummary(ctx, row),
+    ...toSummary(ctx, row, license),
     description: row.description,
     year: row.year,
     developer: row.developer,
@@ -115,16 +120,17 @@ export function listItems(ctx: ApiContext, query: AdminCatalogQuery): AdminCatal
     afterCursor(query.cursor),
   ].filter((f): f is SQL => f !== undefined);
   const rows = ctx.db
-    .select()
+    .select({ item: catalogItems, license: licenses })
     .from(catalogItems)
+    .leftJoin(licenses, eq(licenses.id, catalogItems.licenseId))
     .where(filters.length > 0 ? and(...filters) : undefined)
     .orderBy(desc(catalogItems.createdAt), desc(catalogItems.id))
     .limit(query.limit + 1)
     .all();
   const page = rows.slice(0, query.limit);
-  const last = page.at(-1);
+  const last = page.at(-1)?.item;
   return {
-    items: page.map((row) => toSummary(ctx, row)),
+    items: page.map((row) => toSummary(ctx, row.item, row.license)),
     nextCursor: rows.length > query.limit && last ? cursorOf(last) : null,
   };
 }
