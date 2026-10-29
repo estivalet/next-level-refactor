@@ -22,9 +22,12 @@ const fileName = (path: string) => path.split(/[\\/]/).pop() ?? path;
 export function LocateEmulator({
   systemId,
   onLocated,
+  label,
 }: {
   systemId: string;
   onLocated?: () => void;
+  /** The button's text; "Locate executable…" by default. */
+  label?: string;
 }) {
   const { t } = useTranslation();
   const settings = useSettings();
@@ -62,7 +65,7 @@ export function LocateEmulator({
         }}
         className="rounded-lg bg-white/10 px-3 py-1 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-50"
       >
-        {t('setup.emulators.locate')}
+        {label ?? t('setup.emulators.locate')}
       </button>
       {preset?.homepage && (
         <a

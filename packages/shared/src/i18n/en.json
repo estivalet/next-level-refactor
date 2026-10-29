@@ -791,7 +791,8 @@
       "close": "Close",
       "exitCode": "Exit code {{code}}",
       "stderr": "Emulator output",
-      "untitled": "The game didn’t start"
+      "untitled": "The game didn’t start",
+      "locate": "Locate emulator…"
     },
     "launchOptions": {
       "title": "Launch options – {{title}}",

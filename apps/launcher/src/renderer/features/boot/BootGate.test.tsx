@@ -14,6 +14,7 @@ import { GeneralSection } from '../settings/GeneralSection.tsx';
 import { Desktop } from '../shell/Desktop.tsx';
 import { BootGate } from './BootGate.tsx';
 import { BootShell } from './BootShell.tsx';
+import { listItem } from '../catalog/catalogFixtures.ts';
 
 // changeLanguage is async; a switch started by one test can land after the previous reset.
 beforeEach(async () => {
@@ -288,6 +289,7 @@ describe('BootGate routing (FR-THM-5, D1)', () => {
 });
 
 describe('first-run wizard routing (FR-ONB-1, FR-ONB-2, D48)', () => {
+  const STARTER = listItem({ starter: true });
   const settingsAt = (setupCompletedAt: string | null): Settings => {
     const settings = defaultSettings();
     return { ...settings, general: { ...settings.general, setupCompletedAt } };
@@ -305,7 +307,8 @@ describe('first-run wizard routing (FR-ONB-1, FR-ONB-2, D48)', () => {
       },
       'systems.catalog': () => ok([]),
       'systems.list': () => ok([]),
-      'catalog.list': () => ok({ items: [], nextCursor: null }),
+      'catalog.list': (query) =>
+        ok({ items: query.starter === 'true' ? [STARTER] : [], nextCursor: null }),
       'catalog.installed': () => ok([]),
       'downloads.list': () => ok([]),
       'launch.running': () => ok(null),
@@ -328,7 +331,7 @@ describe('first-run wizard routing (FR-ONB-1, FR-ONB-2, D48)', () => {
     expect(screen.queryByRole('heading', { name: 'Choose your systems' })).toBeNull();
   });
 
-  it('FR-ONB-2: a new install sees the wizard; skipping everything lands in the Catalog', async () => {
+  it('FR-ONB-2 / US-B1: a new install sees the wizard; skipping everything lands in the Catalog with the Starter set', async () => {
     const u = userEvent.setup();
     boot(null);
     expect(await screen.findByRole('heading', { name: 'Choose your systems' })).toBeVisible();
@@ -340,5 +343,7 @@ describe('first-run wizard routing (FR-ONB-1, FR-ONB-2, D48)', () => {
       'aria-selected',
       'true',
     );
+    const starter = await within(catalog).findByRole('list', { name: 'Starter set' });
+    expect(within(starter).getByText('Star Hopper')).toBeInTheDocument();
   });
 });

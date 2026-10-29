@@ -791,7 +791,8 @@
       "close": "Fechar",
       "exitCode": "Código de saída {{code}}",
       "stderr": "Saída do emulador",
-      "untitled": "O jogo não iniciou"
+      "untitled": "O jogo não iniciou",
+      "locate": "Localizar emulador…"
     },
     "launchOptions": {
       "title": "Opções de execução – {{title}}",

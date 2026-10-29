@@ -115,7 +115,7 @@ describe('first-run wizard (FR-ONB-1, D48)', () => {
   it('the Emulators step lists enabled systems with games: Locate executable… and Official site', async () => {
     const u = userEvent.setup();
     const start = defaultSettings();
-    start.systems = { 'nintendo-nes': { enabled: true } } as Settings['systems'];
+    start.systems = { 'nintendo-nes': { enabled: true } };
     const t = setup(
       {
         'systems.list': () =>
