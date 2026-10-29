@@ -127,6 +127,26 @@ describe('the lapse rule (FR-CAT-7, D43)', () => {
     ]);
   });
 
+  it('an uninstall that fails (a running game holds its file) does not stop the others', async () => {
+    const t = await setup(() => [
+      gone('i1', 'remove'),
+      gone('i2', 'remove'),
+      { id: 'i3', state: 'update', version: 2, onLapse: 'keep' },
+    ]);
+    await t.install('i1', 'one');
+    await t.install('i2', 'two');
+    await t.install('i3', 'three');
+    const real = t.installer.uninstall.bind(t.installer);
+    t.installer.uninstall = (itemId, confirm) =>
+      itemId === 'i1' ? Promise.reject(new Error('EBUSY')) : real(itemId, confirm);
+    await t.sync.sync();
+    expect(t.removed).toEqual([['Game i2']]);
+    expect(t.rows('select catalog_item_id as id, state from catalog_installs order by 1')).toEqual([
+      { id: 'i1', state: 'current' },
+      { id: 'i3', state: 'update' },
+    ]);
+  });
+
   it('nothing installed asks nothing', async () => {
     const t = await setup(() => []);
     await t.sync.sync();

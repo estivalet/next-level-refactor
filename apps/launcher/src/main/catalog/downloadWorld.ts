@@ -148,6 +148,10 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
     installed,
     timeline,
     eventsOf,
+    /** Replaces what the API answers for the item (its files, its art URLs…). */
+    setItem: (item: CatalogItem) => {
+      items.set(item.id, item);
+    },
     logged,
     state,
     token: (itemId: string, fileId = 'f1') => `${itemId}-${fileId}`,

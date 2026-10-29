@@ -54,17 +54,22 @@ export class CatalogSync {
     }
     const removed: string[] = [];
     for (const item of answer.items) {
-      await this.#deps.locks.run(item.id, async () => {
-        const install = this.#deps.installs.byItem(item.id);
-        if (!install) return;
-        const onLapse = item.onLapse ?? install.onLapse;
-        if (item.state === 'gone' && onLapse === 'remove') {
-          await this.#deps.installer.uninstall(item.id, true);
-          removed.push(install.title);
-          return;
-        }
-        this.#deps.installs.setState(item.id, item.state, onLapse);
-      });
+      // One item failing (a running game holds its file) never stops the others.
+      await this.#deps.locks
+        .run(item.id, async () => {
+          const install = this.#deps.installs.byItem(item.id);
+          if (!install) return;
+          const onLapse = item.onLapse ?? install.onLapse;
+          if (item.state === 'gone' && onLapse === 'remove') {
+            await this.#deps.installer.uninstall(item.id, true);
+            removed.push(install.title);
+            return;
+          }
+          this.#deps.installs.setState(item.id, item.state, onLapse);
+        })
+        .catch((error: unknown) => {
+          this.#deps.log.warn({ itemId: item.id, error }, 'catalog lapse step failed');
+        });
     }
     if (removed.length > 0) this.#deps.emit('catalog.removed', { titles: removed });
   }

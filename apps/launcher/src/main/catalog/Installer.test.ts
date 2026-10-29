@@ -165,6 +165,62 @@ describe('installing catalog games (FR-CAT-3, US-E2, D45)', () => {
   });
 });
 
+describe('installs after the Catalog folder moved, discs and renames (D45)', () => {
+  it('an Update after a Catalog folder change removes the old version from the old folder', async () => {
+    const w = await installWorld(closers);
+    const v1 = w.item();
+    await w.installer.install(v1, await w.download(v1, { 'Star Hopper.nes': ROM }));
+    const old = w.moveCatalog(join(w.managed.path, '..', 'Catalog2'));
+    const v2 = w.item({ version: 2 });
+    await w.installer.install(v2, await w.download(v2, { 'Star Hopper.nes': Buffer.from('v2') }));
+    expect(existsSync(join(old.path, w.nesFolder, 'star-hopper'))).toBe(false);
+    const fresh = join(
+      w.managed.path,
+      '..',
+      'Catalog2',
+      w.nesFolder,
+      'star-hopper',
+      'Star Hopper.nes',
+    );
+    expect(await readFile(fresh)).toEqual(Buffer.from('v2'));
+    expect(w.row('select location_id as id from catalog_installs')).toEqual({
+      id: '0192f000-0000-7000-8000-0000000000a3',
+    });
+  });
+
+  it('a cue/bin item is played from its .cue, as a scan would pick it', async () => {
+    const w = await installWorld(closers);
+    const item = w.item({
+      systemId: 'sony-playstation',
+      files: [
+        { id: 'f1', filename: 'Lantern Deep.bin', size: 1, sha256: 'a', role: 'disc' },
+        { id: 'f2', filename: 'Lantern Deep.cue', size: 1, sha256: 'a', role: 'disc' },
+      ],
+    });
+    await w.installer.install(item, await w.download(item, {}));
+    expect(w.row('select rel_path as relPath from games')).toEqual({
+      relPath: 'star-hopper/Lantern Deep.cue',
+    });
+  });
+
+  it('an update that only changes a file name case keeps the new file', async () => {
+    const w = await installWorld(closers);
+    const v1 = w.item({
+      files: [{ id: 'f1', filename: 'Star Hopper.nes', size: 1, sha256: 'a', role: 'rom' }],
+    });
+    await w.installer.install(v1, await w.download(v1, {}));
+    const v2 = w.item({
+      version: 2,
+      files: [{ id: 'f2', filename: 'star hopper.nes', size: 1, sha256: 'a', role: 'rom' }],
+    });
+    await w.installer.install(v2, await w.download(v2, { 'star hopper.nes': Buffer.from('v2') }));
+    const folder = join(w.managed.path, w.nesFolder, 'star-hopper');
+    // Windows may keep the old entry's case; what matters is that the new bytes are there.
+    expect(await readdir(folder)).toHaveLength(1);
+    expect(await readFile(join(folder, 'star hopper.nes'))).toEqual(Buffer.from('v2'));
+  });
+});
+
 describe('uninstalling catalog games (FR-CAT-5, US-E3, Review Focus 4)', () => {
   it('US-E3 / FR-CAT-5: uninstall removes files and the library entry', async () => {
     const w = await installWorld(closers);

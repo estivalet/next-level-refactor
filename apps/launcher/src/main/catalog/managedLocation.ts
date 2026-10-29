@@ -6,6 +6,16 @@ const withLocations = (settings: Settings, locations: StorageLocation[]): Settin
   storage: { ...settings.storage, locations: orderedLocations(locations) },
 });
 
+/** "<name> (old)", or "(old 2)", "(old 3)"… when that name is taken (names are unique). */
+function oldName(name: string, locations: readonly StorageLocation[]): string {
+  const taken = new Set(locations.map((location) => location.name.toLowerCase()));
+  for (let n = 1; ; n += 1) {
+    const suffix = n === 1 ? ' (old)' : ` (old ${String(n)})`;
+    const candidate = `${name.slice(0, 40 - suffix.length)}${suffix}`;
+    if (!taken.has(candidate.toLowerCase())) return candidate;
+  }
+}
+
 /** The managed location last (D45), priorities renumbered. */
 function managedLast(locations: readonly StorageLocation[]): StorageLocation[] {
   return orderedLocations([
@@ -58,11 +68,7 @@ export function keepManagedHistory(
   const locations = next.storage.locations.flatMap((location): StorageLocation[] =>
     location.id === before.id
       ? [
-          {
-            ...before,
-            name: `${before.name} (old)`.slice(0, 40),
-            managed: false,
-          },
+          { ...before, name: oldName(before.name, next.storage.locations), managed: false },
           { ...after, id: newId(), managed: true },
         ]
       : [location],

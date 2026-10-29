@@ -60,6 +60,16 @@ async function move(from: string, to: string): Promise<void> {
   }
 }
 
+/**
+ * The file a game row points at, the way the scan picks it: a playlist (.m3u), else a cue sheet
+ * (.cue, whose .bin the scan hides), else the first ROM or disc.
+ */
+function mainFile(files: readonly VerifiedFile[]): VerifiedFile | undefined {
+  const games = files.filter((file) => file.role !== 'extra');
+  const ending = (ext: string) => games.find((file) => file.filename.toLowerCase().endsWith(ext));
+  return ending('.m3u') ?? ending('.cue') ?? games[0];
+}
+
 const folderOf = (settings: Settings, system: SystemDefinition) =>
   settings.systems[system.id]?.folderName ?? system.defaultFolderName;
 
@@ -89,7 +99,7 @@ export class Installer implements ItemInstaller {
           : safeFilename(file.filename, system.extensions);
       if (!ok) throw refused('filename');
     }
-    const main = files.find((file) => file.role !== 'extra');
+    const main = mainFile(files);
     if (!main) throw refused('files');
     const settings = this.#deps.settings();
     const location = await this.#deps.managedLocation();
@@ -107,7 +117,13 @@ export class Installer implements ItemInstaller {
       await move(file.path, join(itemDir, file.filename));
       written.push([folder, item.slug, file.filename].join('/'));
     }
-    if (previous) await this.#deleteFiles(previous, (rel) => !written.includes(rel));
+    if (previous) {
+      // Windows paths ignore case. Files in a former Catalog folder all go (D45): the scan would
+      // otherwise find the old version first.
+      const kept = new Set(written.map((rel) => rel.toLowerCase()));
+      const moved = previous.locationId !== location.id;
+      await this.#deleteFiles(previous, (rel) => moved || !kept.has(rel.toLowerCase()));
+    }
 
     const relPath = `${item.slug}/${main.filename}`;
     const facts = await stat(join(itemDir, main.filename));

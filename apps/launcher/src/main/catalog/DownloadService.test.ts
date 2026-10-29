@@ -191,6 +191,49 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     expect(w.installed).toHaveLength(1);
   });
 
+  it('Review Focus 2: a file id from the API that would leave the downloads folder is refused', async () => {
+    const w = await downloadWorld(closers);
+    const item = w.add('i1', [body('one')]);
+    const file = item.files[0];
+    if (!file) throw new Error('no file');
+    const evil = { ...file, id: '..\\..\\escaped' };
+    w.setItem({ ...item, files: [evil] });
+    w.server.serve('i1-..\\..\\escaped', body('one'));
+    const service = w.make();
+    await service.install('i1');
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'failed', error: 'refused' });
+    expect(existsSync(join(w.dir, '..', 'escaped.part'))).toBe(false);
+    expect(w.server.ranges).toEqual([]);
+  });
+
+  it('the item is fetched again before installing, so its art URLs are fresh', async () => {
+    const w = await downloadWorld(closers);
+    const item = w.add('i1', [body('one')]);
+    w.setItem({ ...item, media: [{ kind: 'box-front', url: 'stale-url' }] });
+    const service = w.make();
+    await service.install('i1');
+    w.setItem({ ...item, media: [{ kind: 'box-front', url: 'fresh-url' }] });
+    await service.idle();
+    expect(w.installed[0]?.item.media).toEqual([{ kind: 'box-front', url: 'fresh-url' }]);
+  });
+
+  it('cancelling the running download answers at once, even with others queued', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.add('i2', [body('two')]);
+    w.server.hold(w.token('i1'), 20);
+    w.server.hold(w.token('i2'), 20);
+    const service = w.make();
+    const first = await service.install('i1');
+    const second = await service.install('i2');
+    await until(() => existsSync(join(w.dir, first.id, 'f1.part')));
+    await service.cancel(first.id);
+    expect(service.list().map((d) => d.id)).toEqual([second.id]);
+    await service.cancel(second.id);
+    await service.idle();
+  });
+
   it('downloads run one at a time in queue order', async () => {
     const w = await downloadWorld(closers);
     w.add('i1', [body('one')]);

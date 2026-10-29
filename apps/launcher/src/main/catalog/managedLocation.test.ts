@@ -75,6 +75,27 @@ describe('the Catalog games folder (D45, D50)', () => {
     ]);
   });
 
+  it('a second folder change keeps both old folders under names that differ', () => {
+    const managed = { id: ID(2), name: 'Catalog', path: 'E:\\A', priority: 2, managed: true };
+    const ids = [ID(3), ID(4)];
+    const once = keepManagedHistory(
+      base([roms, managed]),
+      base([roms, { ...managed, path: 'E:\\B' }]),
+      () => ids.shift() ?? '',
+    );
+    const current = once.storage.locations.find((l) => l.managed);
+    if (!current) throw new Error('no managed');
+    const edited = once.storage.locations.map((l) => (l.managed ? { ...l, path: 'E:\\C' } : l));
+    const twice = keepManagedHistory(once, base(edited), () => ids.shift() ?? '');
+    expect(twice.storage.locations.map((l) => [l.name, l.path, l.managed ?? false])).toEqual([
+      ['ROMs', 'D:\\ROMs', false],
+      ['Catalog (old)', 'E:\\A', false],
+      ['Catalog (old 2)', 'E:\\B', false],
+      ['Catalog', 'E:\\C', true],
+    ]);
+    expect(SettingsSchema.safeParse(twice).success).toBe(true);
+  });
+
   it('settings refuse two managed locations', () => {
     const one = { id: ID(2), name: 'A', path: 'E:\\A', priority: 1, managed: true };
     const two = { id: ID(3), name: 'B', path: 'E:\\B', priority: 2, managed: true };

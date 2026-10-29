@@ -1,6 +1,7 @@
 import {
   AppErrorException,
   ERROR_CODES,
+  type CatalogItem,
   type DownloadFailure,
   type DownloadGrant,
   type DownloadSummary,
@@ -47,6 +48,8 @@ export interface DownloadDeps {
 type Stop = 'pause' | 'cancel' | 'quit';
 
 const PROGRESS_MS = 250;
+/** What an API file id may look like before it becomes a file name. */
+const SAFE_ID = /^[A-Za-z0-9-]{1,64}$/;
 
 const diskFree = async (dir: string) => {
   const info = await statfs(dir);
@@ -75,7 +78,7 @@ async function sha256Of(path: string): Promise<string> {
  */
 export class DownloadService {
   readonly #deps: DownloadDeps;
-  #running: { id: string; controller: AbortController } | null = null;
+  #running: { id: string; controller: AbortController; done: Promise<void> } | null = null;
   #loop: Promise<void> | null = null;
   readonly #lastProgress = new Map<string, number>();
   #disposed = false;
@@ -138,8 +141,10 @@ export class DownloadService {
   async cancel(id: string): Promise<void> {
     const row = this.#row(id);
     if (this.#running?.id === id) {
-      this.#running.controller.abort('cancel' satisfies Stop);
-      await this.idle();
+      const { controller, done } = this.#running;
+      controller.abort('cancel' satisfies Stop);
+      // Only this download: the queue goes on without the caller waiting for it.
+      await done;
       return;
     }
     await this.#discard(id);
@@ -179,7 +184,11 @@ export class DownloadService {
 
   async #run(row: DownloadRow): Promise<void> {
     const controller = new AbortController();
-    this.#running = { id: row.id, controller };
+    let finished: () => void = () => undefined;
+    const done = new Promise<void>((resolve) => {
+      finished = resolve;
+    });
+    this.#running = { id: row.id, controller, done };
     try {
       await this.#download(row, controller.signal);
     } catch (error) {
@@ -209,11 +218,17 @@ export class DownloadService {
       this.#fail(row, 'network');
     } finally {
       this.#running = null;
+      finished();
       this.#lastProgress.delete(row.id);
     }
   }
 
   async #download(row: DownloadRow, signal: AbortSignal): Promise<void> {
+    // File ids become part file names: anything but a plain id is refused (Review Focus 2).
+    if (!row.item.files.every((file) => SAFE_ID.test(file.id))) {
+      this.#fail(row, 'refused', { reason: 'fileId' });
+      return;
+    }
     const folder = join(this.#deps.dir, row.id);
     await mkdir(folder, { recursive: true });
     const part = (fileId: string) => join(folder, `${fileId}.part`);
@@ -267,10 +282,9 @@ export class DownloadService {
     const verified = await this.#verify(row, part);
     if (!verified) return;
     this.#progress({ ...row, state: 'downloading' }, row.bytesTotal, true);
+    const item = await this.#fresh(row);
     try {
-      await this.#deps.locks.run(row.itemId, () =>
-        this.#deps.installer.install(row.item, verified),
-      );
+      await this.#deps.locks.run(row.itemId, () => this.#deps.installer.install(item, verified));
     } catch (error) {
       this.#deps.log.error(
         { downloadId: row.id, itemId: row.itemId, error },
@@ -286,6 +300,19 @@ export class DownloadService {
       itemId: row.itemId,
       result: 'installed',
     });
+  }
+
+  /**
+   * The item as the catalog has it now: art URLs live an hour, and a download can take longer
+   * (or wait days paused). Files and version stay the ones downloaded; offline, the stored item.
+   */
+  async #fresh(row: DownloadRow): Promise<CatalogItem> {
+    try {
+      const now = await this.#deps.catalog.get(row.itemId);
+      return { ...now, files: row.item.files, version: row.item.version, size: row.item.size };
+    } catch {
+      return row.item;
+    }
   }
 
   /** Size and SHA-256 of every part (C9); a mismatching one is deleted. */

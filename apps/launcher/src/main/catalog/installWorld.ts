@@ -33,7 +33,7 @@ export async function installWorld(closers: Array<() => Promise<void>>) {
     path: join(temp.dir, 'roms'),
     priority: 1,
   };
-  const managed: StorageLocation = {
+  let managed: StorageLocation = {
     id: MANAGED_ID,
     name: 'Catalog',
     path: join(temp.dir, 'Catalog'),
@@ -41,7 +41,7 @@ export async function installWorld(closers: Array<() => Promise<void>>) {
     managed: true,
   };
   const base = defaultSettings();
-  const settings: Settings = {
+  let settings: Settings = {
     ...base,
     storage: { ...base.storage, locations: [local, managed] },
   };
@@ -91,7 +91,22 @@ export async function installWorld(closers: Array<() => Promise<void>>) {
   const rows = (sql: string, ...args: unknown[]): unknown[] =>
     library.db.$client.prepare(sql).all(...args);
 
+  /** Settings → Storage → Change folder: the old Catalog folder stays as an ordinary location. */
+  const moveCatalog = (path: string) => {
+    const old = { ...managed, name: 'Catalog (old)', managed: false };
+    managed = {
+      id: '0192f000-0000-7000-8000-0000000000a3',
+      name: 'Catalog',
+      path,
+      priority: 3,
+      managed: true,
+    };
+    settings = { ...settings, storage: { ...settings.storage, locations: [local, old, managed] } };
+    return old;
+  };
+
   return {
+    moveCatalog,
     db: library.db,
     repo: library.repo,
     installer,
