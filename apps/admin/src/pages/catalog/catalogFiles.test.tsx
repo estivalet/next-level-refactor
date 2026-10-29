@@ -53,6 +53,35 @@ describe('Files tab (D41, FR-ADM-3)', () => {
     });
   });
 
+  it('switching tabs during an upload keeps its progress; leaving the page asks first', async () => {
+    const u = userEvent.setup();
+    const uploads = stubUploads();
+    stubApi({
+      [`GET ${ITEM}`]: () => ({ body: item() }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+      [`POST ${ITEM}/files`]: () => ({
+        body: { fileId: 'f1', uploadUrl: '/v1/admin/catalog/uploads/f1' },
+      }),
+    });
+    const page = renderPage(<ItemEditor id="i1" tab="files" />);
+    await u.upload(await screen.findByLabelText('Upload a file'), fileOf('Star Hopper.nes'));
+    await waitFor(() => {
+      expect(uploads).toHaveLength(1);
+    });
+    act(() => {
+      uploads[0]?.progress(3, 10);
+    });
+    page.rerender(<ItemEditor id="i1" tab="license" />);
+    const leaving = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(leaving);
+    expect(leaving.defaultPrevented).toBe(true);
+    page.rerender(<ItemEditor id="i1" tab="files" />);
+    expect(screen.getByRole('progressbar', { name: 'Uploading Star Hopper.nes' })).toHaveAttribute(
+      'value',
+      '3',
+    );
+  });
+
   it('a refused filename is explained before anything is sent', async () => {
     const u = userEvent.setup();
     const uploads = stubUploads();
@@ -123,6 +152,28 @@ describe('Files tab (D41, FR-ADM-3)', () => {
     });
     expect(calls.find((call) => call.url === `${ITEM}/files`)?.body).toEqual({
       filename: 'Star Hopper.nes',
+      role: 'rom',
+    });
+  });
+
+  it('C10: a new upload named like an existing file keeps that file’s role', async () => {
+    const u = userEvent.setup();
+    const uploads = stubUploads();
+    const calls = stubApi({
+      [`GET ${ITEM}`]: () => ({ body: item({ files: [file()] }) }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+      [`POST ${ITEM}/files`]: () => ({
+        body: { fileId: 'f2', uploadUrl: '/v1/admin/catalog/uploads/f2' },
+      }),
+    });
+    renderPage(<ItemEditor id="i1" tab="files" />);
+    await u.selectOptions(await screen.findByLabelText('Role'), 'extra');
+    await u.upload(screen.getByLabelText('Upload a file'), fileOf('star hopper.NES'));
+    await waitFor(() => {
+      expect(uploads).toHaveLength(1);
+    });
+    expect(calls.find((call) => call.url === `${ITEM}/files`)?.body).toEqual({
+      filename: 'star hopper.NES',
       role: 'rom',
     });
   });

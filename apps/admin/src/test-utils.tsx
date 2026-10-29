@@ -40,9 +40,11 @@ export function stubApi(routes: Record<string, Handler>) {
 
 export function renderPage(ui: ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return Object.assign(render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>), {
-    client,
-  });
+  // A wrapper, so `rerender` keeps the same client.
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  );
+  return Object.assign(render(ui, { wrapper }), { client });
 }
 
 export const user = (id: string, email: string, overrides: Record<string, unknown> = {}) => ({

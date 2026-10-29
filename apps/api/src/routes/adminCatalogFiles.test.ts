@@ -138,6 +138,20 @@ describe('catalog uploads (FR-ADM-3, US-F1, D41)', () => {
     expect(await t.stored()).toHaveLength(1);
   });
 
+  it("C10: an extra replacing a published item's last ROM is CONFLICT lastFile; the ROM stays", async () => {
+    const t = await setup();
+    seedItem(t.db, { status: 'published' });
+    await t.upload('item-1', 'hop.nes', ROM);
+    const swap = await t.upload('item-1', 'HOP.nes', Buffer.from('notes'), { role: 'extra' });
+    expect(swap.json()).toMatchObject({
+      error: { code: 'CONFLICT', details: { reason: 'lastFile' } },
+    });
+    expect(t.rows('select role, status from catalog_files')).toEqual([
+      { role: 'rom', status: 'ready' },
+    ]);
+    expect(await t.stored()).toHaveLength(1);
+  });
+
   it('a draft item keeps version 1 while files change', async () => {
     const t = await setup();
     seedItem(t.db);

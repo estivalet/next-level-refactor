@@ -425,6 +425,12 @@
         "tooLarge": "O arquivo é grande demais.",
         "checksum": "O envio chegou corrompido: tente de novo.",
         "notUploaded": "O envio não terminou: tente de novo."
+      },
+      "scopeChange": {
+        "title": "Mudar o escopo?",
+        "bodyKeep": "Os jogadores cujo plano não inclui o novo escopo deixam de vê-lo no catálogo. As cópias instaladas continuam (Quando sair do catálogo: Manter).",
+        "bodyRemove": "Os jogadores cujo plano não inclui o novo escopo o perdem: as cópias instaladas são apagadas (Quando sair do catálogo: Remover).",
+        "action": "Mudar escopo"
       }
     },
     "dashboard": {

@@ -61,9 +61,17 @@ export function useCreateItem() {
   });
 }
 
-function useItemWrite<TInput, TOutput>(id: string, call: (input: TInput) => Promise<TOutput>) {
+/** Uploads carry this key, so the editor knows one is running (leave warning). */
+export const uploadKey = (id: string) => ['upload', id];
+
+function useItemWrite<TInput, TOutput>(
+  id: string,
+  call: (input: TInput) => Promise<TOutput>,
+  mutationKey?: readonly unknown[],
+) {
   const client = useQueryClient();
   return useMutation({
+    ...(mutationKey ? { mutationKey } : {}),
     mutationFn: call,
     onSuccess: (result) => {
       const parsed = AdminCatalogItemSchema.safeParse(result);
@@ -132,15 +140,19 @@ export const useUploadFile = (id: string) =>
       );
       return { file, uploaded };
     },
+    uploadKey(id),
   );
 
 export const useUploadMedia = (id: string) =>
-  useItemWrite(id, (input: { file: Blob; kind: CatalogMediaKind; onProgress: Progress }) =>
-    putBlob(`${itemPath(id)}/media/${input.kind}`, input.file, {
-      contentType: input.file.type || 'application/octet-stream',
-      schema: AdminCatalogMediaSchema,
-      onProgress: input.onProgress,
-    }),
+  useItemWrite(
+    id,
+    (input: { file: Blob; kind: CatalogMediaKind; onProgress: Progress }) =>
+      putBlob(`${itemPath(id)}/media/${input.kind}`, input.file, {
+        contentType: input.file.type || 'application/octet-stream',
+        schema: AdminCatalogMediaSchema,
+        onProgress: input.onProgress,
+      }),
+    uploadKey(id),
   );
 
 const EVIDENCE_TYPES: Record<string, string> = {
@@ -162,14 +174,17 @@ export const evidenceType = (file: File) =>
   'application/octet-stream';
 
 export const useUploadEvidence = (id: string) =>
-  useItemWrite(id, (input: { file: File; onProgress: Progress }) =>
-    putBlob(
-      `${itemPath(id)}/license/evidence?filename=${encodeURIComponent(input.file.name)}`,
-      input.file,
-      {
-        contentType: evidenceType(input.file),
-        schema: AdminCatalogItemSchema,
-        onProgress: input.onProgress,
-      },
-    ),
+  useItemWrite(
+    id,
+    (input: { file: File; onProgress: Progress }) =>
+      putBlob(
+        `${itemPath(id)}/license/evidence?filename=${encodeURIComponent(input.file.name)}`,
+        input.file,
+        {
+          contentType: evidenceType(input.file),
+          schema: AdminCatalogItemSchema,
+          onProgress: input.onProgress,
+        },
+      ),
+    uploadKey(id),
   );

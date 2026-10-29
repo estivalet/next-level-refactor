@@ -425,6 +425,12 @@
         "tooLarge": "The file is too large.",
         "checksum": "The upload was damaged on the way: try again.",
         "notUploaded": "The upload didn't finish: try again."
+      },
+      "scopeChange": {
+        "title": "Change the scope?",
+        "bodyKeep": "Players whose plan doesn't include the new scope lose it from the catalog. Their installed copies stay (When it leaves the catalog: Keep).",
+        "bodyRemove": "Players whose plan doesn't include the new scope lose it: their installed copies are deleted (When it leaves the catalog: Remove).",
+        "action": "Change scope"
       }
     },
     "dashboard": {

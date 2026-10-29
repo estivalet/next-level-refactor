@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useUpdateItem } from '../../api/catalog.ts';
 import { useScopes } from '../../api/plans.ts';
 import { catalogErrorKey } from './catalogText.ts';
+import { Confirm } from './Confirm.tsx';
 
 interface Draft {
   title: string;
@@ -43,6 +44,7 @@ export function MetadataTab({ item }: { item: AdminCatalogItem }) {
   // Only touched fields live here; the others follow the item as refetches bring it.
   const [edits, setEdits] = useState<Partial<Draft>>({});
   const [justSaved, setJustSaved] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const saved = draftOf(item);
   const value = <K extends keyof Draft>(key: K): Draft[K] => edits[key] ?? saved[key];
   const set = (key: keyof Draft) => (next: string) => {
@@ -89,17 +91,23 @@ export function MetadataTab({ item }: { item: AdminCatalogItem }) {
     />
   );
 
+  const save = () => {
+    update.mutate(patch, {
+      onSuccess: () => {
+        setEdits({});
+        setJustSaved(true);
+      },
+    });
+  };
+
   return (
     <form
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
-        update.mutate(patch, {
-          onSuccess: () => {
-            setEdits({});
-            setJustSaved(true);
-          },
-        });
+        // A published item leaving players' plans follows its on_lapse (D43): ask first.
+        if (item.status === 'published' && patch.scopeSlug !== undefined) setConfirming(true);
+        else save();
       }}
     >
       {text('title', 200)}
@@ -144,6 +152,21 @@ export function MetadataTab({ item }: { item: AdminCatalogItem }) {
           </p>
         )}
       </div>
+      {confirming && (
+        <Confirm
+          title={t('admin.catalog.scopeChange.title')}
+          body={t(
+            item.onLapse === 'remove'
+              ? 'admin.catalog.scopeChange.bodyRemove'
+              : 'admin.catalog.scopeChange.bodyKeep',
+          )}
+          action={t('admin.catalog.scopeChange.action')}
+          onConfirm={save}
+          onClose={() => {
+            setConfirming(false);
+          }}
+        />
+      )}
     </form>
   );
 }

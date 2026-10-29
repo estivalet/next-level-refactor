@@ -71,16 +71,19 @@ export function FilesTab({ item }: { item: AdminCatalogItem }) {
     );
   };
 
-  const choose = (choice: Choice) => {
+  const choose = (picked: Choice) => {
     setBadName(null);
+    // A same-name upload replaces that file, so it keeps the file's role (an extra must never
+    // stand in for a game file, C10).
+    const same = files.find(
+      (file) => file.filename.toLowerCase() === picked.filename.toLowerCase(),
+    );
+    const choice = same ? { ...picked, role: same.role } : picked;
     const problem = nameProblem(choice.filename, choice.role);
     if (problem) {
       setBadName(problem);
       return;
     }
-    const same = files.some(
-      (file) => file.filename.toLowerCase() === choice.filename.toLowerCase(),
-    );
     if (published && same) setReplacing(choice);
     else send(choice);
   };

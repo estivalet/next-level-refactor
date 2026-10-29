@@ -1,5 +1,7 @@
+import { useIsMutating } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCatalogItem } from '../../api/catalog.ts';
+import { uploadKey, useCatalogItem } from '../../api/catalog.ts';
 import { errorKey } from '../../errors.ts';
 import { CATALOG_TABS, hrefOf, type CatalogTab } from '../../router.ts';
 import { ArtTab } from './ArtTab.tsx';
@@ -13,6 +15,18 @@ import { PublishTab } from './PublishTab.tsx';
 export function ItemEditor({ id, tab }: { id: string; tab: CatalogTab }) {
   const { t } = useTranslation();
   const query = useCatalogItem(id);
+  const uploading = useIsMutating({ mutationKey: uploadKey(id) }) > 0;
+  // Leaving the page would cut an upload off: the browser asks first.
+  useEffect(() => {
+    if (!uploading) return;
+    const ask = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener('beforeunload', ask);
+    return () => {
+      window.removeEventListener('beforeunload', ask);
+    };
+  }, [uploading]);
   // A failed background refetch keeps the data it had: only a first load failure is shown.
   if (!query.data) {
     return query.error ? (
@@ -51,11 +65,22 @@ export function ItemEditor({ id, tab }: { id: string; tab: CatalogTab }) {
           </a>
         ))}
       </nav>
-      {tab === 'metadata' && <MetadataTab key={item.id} item={item} />}
-      {tab === 'files' && <FilesTab item={item} />}
-      {tab === 'art' && <ArtTab item={item} />}
-      {tab === 'license' && <LicenseTab key={item.license?.id ?? 'none'} item={item} />}
-      {tab === 'publish' && <PublishTab item={item} />}
+      {/* Every tab stays mounted, so an upload's progress and unsaved edits survive a switch. */}
+      <div hidden={tab !== 'metadata'}>
+        <MetadataTab key={item.id} item={item} />
+      </div>
+      <div hidden={tab !== 'files'}>
+        <FilesTab item={item} />
+      </div>
+      <div hidden={tab !== 'art'}>
+        <ArtTab item={item} />
+      </div>
+      <div hidden={tab !== 'license'}>
+        <LicenseTab key={item.license?.id ?? 'none'} item={item} />
+      </div>
+      <div hidden={tab !== 'publish'}>
+        <PublishTab item={item} />
+      </div>
     </section>
   );
 }

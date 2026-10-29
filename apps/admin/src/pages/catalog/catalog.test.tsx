@@ -278,6 +278,28 @@ describe('Metadata and Art tabs (FR-ADM-3)', () => {
     expect(sent(calls, 'PATCH')?.body).toEqual({ year: 2024, genre: 'Shooter' });
   });
 
+  it("D43: a published item's scope change asks first (players outside it lose the game)", async () => {
+    const u = userEvent.setup();
+    const calls = stubApi({
+      [`GET ${ITEM}`]: () => ({ body: ready({ status: 'published', onLapse: 'remove' }) }),
+      'GET /v1/admin/scopes': () => ({
+        body: [...SCOPES, { id: 's2', slug: 'premium', name: 'Premium', description: '' }],
+      }),
+      [`PATCH ${ITEM}`]: () => ({ body: ready({ status: 'published', scopeSlug: 'premium' }) }),
+    });
+    renderPage(<ItemEditor id="i1" tab="metadata" />);
+    await screen.findByRole('option', { name: 'Premium' });
+    await u.selectOptions(screen.getByLabelText('Scope'), 'premium');
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    const dialog = screen.getByRole('dialog', { name: 'Change the scope?' });
+    expect(dialog).toHaveTextContent('Remove');
+    expect(sent(calls, 'PATCH')).toBeUndefined();
+    await u.click(within(dialog).getByRole('button', { name: 'Change scope' }));
+    await waitFor(() => {
+      expect(sent(calls, 'PATCH')?.body).toEqual({ scopeSlug: 'premium' });
+    });
+  });
+
   it('art lists every kind; an upload sends the image type', async () => {
     const u = userEvent.setup();
     const uploads = stubUploads();
