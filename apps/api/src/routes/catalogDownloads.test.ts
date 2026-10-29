@@ -36,16 +36,20 @@ describe('download URLs (FR-CAT-6, security §2)', () => {
       }),
     ]);
     const rows = t.db.$client
-      .prepare('select user_id as userId, device_id as deviceId, ip_hash as ipHash from downloads')
+      .prepare(
+        'select user_id as userId, device_id as deviceId, item_id as itemId, ip_hash as ipHash from downloads',
+      )
       .all() as Array<{
       userId: string;
       deviceId: string;
+      itemId: string;
       ipHash: string;
     }>;
     expect(rows).toEqual([
       {
         userId: t.player.user.id,
         deviceId: t.player.deviceId,
+        itemId: t.id,
         ipHash: expect.stringMatching(/^[a-f0-9]{64}$/) as unknown,
       },
     ]);

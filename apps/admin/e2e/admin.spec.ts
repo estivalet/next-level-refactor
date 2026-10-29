@@ -12,6 +12,10 @@ test('US-F3, FR-ADM-1/4/5: an admin suspends a subscriber, changes a setting, an
   browser,
 }) => {
   await signIn(page, 'admin');
+  // FR-ADM-6: the console opens on the dashboard.
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Active subscribers' })).toBeVisible();
+  await page.getByRole('link', { name: 'Users' }).click();
   await expect(
     page.getByRole('table', { name: 'Users' }).getByText('admin@nextlevel.test'),
   ).toBeVisible();

@@ -26,6 +26,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   Mark verified once evidence is there; saving a new license on a published item warns it
   unpublishes it) and Publish (On lapse Keep/Remove with no default, Starter set, every blocker
   named, Publish/Unpublish). File names a system can't use are explained before uploading.
+- **Console Dashboard (M9d, D49):** the console opens on a dashboard: active subscribers
+  (paying · complimentary), MRR per currency, downloads in the last 7 days, a downloads-per-day
+  chart for 30 days (with a table view), the top 10 items, the 10 latest sign-ups and failed
+  payments (`GET /v1/admin/stats`). Download records now keep their item (migration `0004`).
 
 ### Changed
 

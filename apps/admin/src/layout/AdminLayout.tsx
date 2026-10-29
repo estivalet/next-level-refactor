@@ -1,5 +1,13 @@
 import { Button } from '@nextlevel/ui';
-import { BadgeDollarSign, Gamepad2, Layers, ScrollText, Settings, Users } from 'lucide-react';
+import {
+  BadgeDollarSign,
+  Gamepad2,
+  LayoutDashboard,
+  Layers,
+  ScrollText,
+  Settings,
+  Users,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSignOut } from '../api/session.ts';
@@ -7,6 +15,7 @@ import { LANGUAGES } from '../i18n.ts';
 import { hrefOf, type Route } from '../router.ts';
 
 const NAV = [
+  { page: 'dashboard', icon: LayoutDashboard, key: 'admin.nav.dashboard' },
   { page: 'users', icon: Users, key: 'admin.nav.users' },
   { page: 'plans', icon: BadgeDollarSign, key: 'admin.nav.plans' },
   { page: 'scopes', icon: Layers, key: 'admin.nav.scopes' },

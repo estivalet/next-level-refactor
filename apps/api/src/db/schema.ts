@@ -257,6 +257,8 @@ export const downloads = sqliteTable(
     userId: text('user_id').notNull(),
     deviceId: text('device_id').notNull(),
     fileId: text('file_id').notNull(),
+    /** The item the file belonged to, kept when the file is replaced or removed (dashboard). */
+    itemId: text('item_id').notNull().default(''),
     issuedAt: text('issued_at').notNull(),
     ipHash: text('ip_hash').notNull(),
   },

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { adminHeaders, adminSignIn } from '../../test/adminSignIn.ts';
 import { signIn } from '../../test/launcherSignIn.ts';
 import { createTestApp } from '../../test/testApp.ts';
@@ -115,5 +115,25 @@ describe('users by plan and access (D38, FR-ADM-1)', () => {
       );
     expect(await emails('access=grace')).toEqual(['subscriber@nextlevel.test']);
     expect(await emails('access=active')).not.toContain('subscriber@nextlevel.test');
+  });
+
+  it('FR-ADM-1: a users page reads the subscriptions table once, filtered or not', async () => {
+    const test = await createTestApp({ rawEnv: { BILLING_ENABLED: 'true', BILLING_STUB: '1' } });
+    closers.push(test.close);
+    const { app, db } = test;
+    const admin = await adminSignIn(app, 'admin');
+    await signIn(app, 'subscriber');
+    const prepare = vi.spyOn(db.$client, 'prepare');
+    const subscriptionQueries = async (query: string) => {
+      prepare.mockClear();
+      const response = await app.inject({
+        url: `/v1/admin/users${query}`,
+        headers: adminHeaders(admin),
+      });
+      expect(response.statusCode).toBe(200);
+      return prepare.mock.calls.filter(([text]) => /from "subscriptions"/.test(text)).length;
+    };
+    expect(await subscriptionQueries('')).toBe(1);
+    expect(await subscriptionQueries('?access=none')).toBe(2);
   });
 });

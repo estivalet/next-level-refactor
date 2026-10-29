@@ -369,3 +369,28 @@ describe('console sessions follow role changes (M7 minor)', () => {
     expect(after.statusCode).toBe(401);
   });
 });
+
+describe('dashboard stats route (FR-ADM-6, D38)', () => {
+  it('GET /v1/admin/stats answers the dashboard to an admin only', async () => {
+    const { app, admin } = await setup();
+    const subscriber = await signIn(app, 'subscriber');
+    const response = await app.inject({ url: '/v1/admin/stats', headers: adminHeaders(admin) });
+    expect(response.statusCode).toBe(200);
+    const stats = response.json<{
+      subscribers: unknown;
+      downloadsPerDay: unknown[];
+      recentSignups: Array<{ email: string }>;
+    }>();
+    expect(stats.subscribers).toEqual({ paying: 0, comp: 0 });
+    expect(stats.downloadsPerDay).toHaveLength(30);
+    expect(stats.recentSignups.map((u) => u.email).sort()).toEqual([
+      'admin@nextlevel.test',
+      'subscriber@nextlevel.test',
+    ]);
+    const asLauncher = await app.inject({
+      url: '/v1/admin/stats',
+      headers: bearer(subscriber.accessToken),
+    });
+    expect(asLauncher.statusCode).toBe(401);
+  });
+});

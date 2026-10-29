@@ -10,6 +10,8 @@ import { entitlementOf } from '../auth/session.ts';
 import type { ApiContext } from '../context.ts';
 import { adminSessions, devices, users } from '../db/schema.ts';
 import { apiError } from '../errors.ts';
+import { currentSubscriptions } from '../subscriptions/currentAll.ts';
+import type { SubscriptionRow } from '../subscriptions/SubscriptionRepository.ts';
 import { toDevice } from '../users/DeviceRepository.ts';
 import type { UserRow } from '../users/UserRepository.ts';
 import { audited, auditPage, type AuditInput } from './audit.ts';
@@ -18,8 +20,13 @@ import { planAccessFilter } from './userFilters.ts';
 
 const activeDevices = sql<number>`(select count(*) from ${devices} where ${devices.userId} = ${users.id} and ${devices.revokedAt} is null)`;
 
-function summary(ctx: ApiContext, user: UserRow, deviceCount: number): AdminUserSummary {
-  const plan = entitlementOf(ctx, user).plan;
+function summary(
+  ctx: ApiContext,
+  user: UserRow,
+  deviceCount: number,
+  current?: SubscriptionRow | null,
+): AdminUserSummary {
+  const plan = entitlementOf(ctx, user, current).plan;
   return {
     id: user.id,
     email: user.email,
@@ -60,7 +67,18 @@ export function listUsers(ctx: ApiContext, query: AdminUserQuery): Page<AdminUse
     .orderBy(desc(users.createdAt), desc(users.id))
     .limit(limit + 1)
     .all();
-  const items = rows.slice(0, limit).map((row) => summary(ctx, row.user, row.devices));
+  const page = rows.slice(0, limit);
+  // Every row's current subscription in one query (billing off: none is read).
+  const current = ctx.env.billing.enabled
+    ? currentSubscriptions(
+        ctx.db,
+        ctx.clock(),
+        page.map((row) => row.user.id),
+      )
+    : new Map<string, SubscriptionRow>();
+  const items = page.map((row) =>
+    summary(ctx, row.user, row.devices, current.get(row.user.id) ?? null),
+  );
   const last = items.at(-1);
   const nextCursor =
     rows.length > limit && last

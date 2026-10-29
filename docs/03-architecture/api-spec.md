@@ -108,7 +108,7 @@ slug → `CONFLICT` `slugTaken`; a price id is read from Stripe (`VALIDATION_FAI
 note (1–500) }`; a plan whose Stripe price is already on another plan → `CONFLICT` `priceTaken`;
 grants are refused for a user with an active or past-due Stripe subscription (`CONFLICT`
 `subscribed`) or an archived plan (`archived`); a new grant replaces an active one. Catalog
-and stats arrive in M9. With `ADMIN_DIST` the API serves the
+and stats came in M9 (M9b, M9d). With `ADMIN_DIST` the API serves the
 built console at `/` (any non-`/v1` path falls back to `index.html`).
 
 | Method & path | Purpose |
@@ -136,7 +136,7 @@ built console at `/` (any non-`/v1` path falls back to `index.html`).
 | `POST /v1/admin/catalog/items/:id/publish` · `…/unpublish` | Publish needs a verified, unexpired license, `onLapse` and ≥ 1 ready `rom`/`disc` file → else `CONFLICT { reason: 'blocked', blockers }` (C10, D44); audited `item.publish`/`item.unpublish`. A maintenance job (at start, every 10 min) unpublishes items whose license expired (audited with no actor), deletes download records older than 12 months and uploads pending for 24 h |
 | `GET /v1/admin/audit?actor=&target=&cursor=` | Audit log |
 | `GET/PATCH /v1/admin/settings` | Grace days, sign-up mode, allow-list, banner (since M7c; PATCH takes any subset) |
-| `GET /v1/admin/stats` | Dashboard numbers |
+| `GET /v1/admin/stats` | `AdminStats` (M9d, FR-ADM-6, D49), computed on request: `subscribers { paying, comp }` (current subscriptions, admins and suspended users left out; Stripe active and past-due are paying), `mrr [{ currency, amount }]` (active Stripe subscriptions at their plan's stored price: monthly + yearly ÷ 12, rounded to minor units), `downloads7d`, `downloadsPerDay [{ date, count }]` (30 UTC days, zero-filled; one download = one request, however many files), `topItems` (≤ 10, 30 days), `recentSignups` (10 newest), `pastDue [{ userId, email, periodEnd }]` |
 
 ### Webhooks & health
 

@@ -4,6 +4,7 @@ export const CATALOG_TABS = ['metadata', 'files', 'art', 'license', 'publish'] a
 export type CatalogTab = (typeof CATALOG_TABS)[number];
 
 export type Route =
+  | { page: 'dashboard' }
   | { page: 'users' }
   | { page: 'user'; id: string }
   | { page: 'plans' }
@@ -17,9 +18,9 @@ export type Route =
   | { page: 'settings' };
 
 /**
- * `#/users`, `#/users/<id>`, `#/plans`, `#/plans/new`, `#/plans/<id>`, `#/scopes`, `#/catalog`,
- * `#/catalog/new`, `#/catalog/<id>[/<tab>]`, `#/audit`, `#/settings`; anything else is the users
- * list.
+ * `#/` (the dashboard), `#/users`, `#/users/<id>`, `#/plans`, `#/plans/new`, `#/plans/<id>`, `#/scopes`, `#/catalog`,
+ * `#/catalog/new`, `#/catalog/<id>[/<tab>]`, `#/audit`, `#/settings`; anything else is the
+ * dashboard.
  */
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/');
@@ -36,11 +37,14 @@ export function parseRoute(hash: string): Route {
   if (parts[0] === 'catalog') return { page: 'catalog' };
   if (parts[0] === 'audit') return { page: 'audit' };
   if (parts[0] === 'settings') return { page: 'settings' };
-  return { page: 'users' };
+  if (parts[0] === 'users') return { page: 'users' };
+  return { page: 'dashboard' };
 }
 
 export function hrefOf(route: Route): string {
   switch (route.page) {
+    case 'dashboard':
+      return '#/';
     case 'user':
       return `#/users/${encodeURIComponent(route.id)}`;
     case 'plan':

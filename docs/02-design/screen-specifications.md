@@ -383,3 +383,11 @@ evidence first." until there is evidence, then "Verified by <email> on <time>". 
 When it leaves the catalog — Keep / Remove radios, none picked until the admin picks one,
 saved at once; **Starter set** checkbox; "Status: …"; "Before publishing" lists every
 blocker and **Publish** stays disabled until it is empty; **Unpublish** asks first.
+
+As built in M9d (FR-ADM-6, D49): **Dashboard** is the landing page (`#/`, first in the sidebar).
+Tiles: Active subscribers (total, "12 paying · 3 complimentary"), MRR (one amount per currency,
+or "No paid subscriptions yet."), Downloads, last 7 days. **Downloads per day** for the last 30
+UTC days: one-hue columns with a tooltip per day ("Oct 25 7 downloads") and **Show as table**;
+with no downloads it says so instead. Then three tables: Top items, last 30 days (title links to
+the item), Latest sign-ups (email links to the user, joined), Failed payments (email, paid
+until), each with its own empty text.

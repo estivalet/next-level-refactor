@@ -3,6 +3,7 @@
     "title": "NextLevel Admin",
     "language": "Language",
     "nav": {
+      "dashboard": "Dashboard",
       "users": "Users",
       "audit": "Audit log",
       "settings": "Settings",
@@ -425,6 +426,32 @@
         "checksum": "The upload was damaged on the way: try again.",
         "notUploaded": "The upload didn't finish: try again."
       }
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subscribers": "Active subscribers",
+      "subscribersSplit": "{{paying}} paying · {{comp}} complimentary",
+      "mrr": "MRR",
+      "noMrr": "No paid subscriptions yet.",
+      "downloads7d": "Downloads, last 7 days",
+      "chartTitle": "Downloads per day",
+      "chartLabel": "Downloads per day, last 30 days",
+      "noDownloads": "No downloads in the last 30 days.",
+      "downloadsCount_one": "{{count}} download",
+      "downloadsCount_other": "{{count}} downloads",
+      "showTable": "Show as table",
+      "tableLabel": "Downloads per day",
+      "date": "Day",
+      "downloads": "Downloads",
+      "topItems": "Top items, last 30 days",
+      "item": "Item",
+      "noTopItems": "No downloads yet.",
+      "signups": "Latest sign-ups",
+      "joined": "Joined",
+      "noSignups": "No sign-ups yet.",
+      "pastDue": "Failed payments",
+      "periodEnd": "Paid until",
+      "noPastDue": "No failed payments."
     }
   }
 }

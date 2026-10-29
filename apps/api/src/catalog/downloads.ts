@@ -76,6 +76,7 @@ export function issueDownloads(
           userId: caller.userId,
           deviceId,
           fileId: file.id,
+          itemId,
           issuedAt: at,
           ipHash: hash,
         })

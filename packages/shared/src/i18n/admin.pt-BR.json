@@ -3,6 +3,7 @@
     "title": "NextLevel Admin",
     "language": "Idioma",
     "nav": {
+      "dashboard": "Painel",
       "users": "Usuários",
       "audit": "Auditoria",
       "settings": "Configurações",
@@ -425,6 +426,32 @@
         "checksum": "O envio chegou corrompido: tente de novo.",
         "notUploaded": "O envio não terminou: tente de novo."
       }
+    },
+    "dashboard": {
+      "title": "Painel",
+      "subscribers": "Assinantes ativos",
+      "subscribersSplit": "{{paying}} pagantes · {{comp}} cortesia",
+      "mrr": "MRR",
+      "noMrr": "Nenhuma assinatura paga ainda.",
+      "downloads7d": "Downloads, últimos 7 dias",
+      "chartTitle": "Downloads por dia",
+      "chartLabel": "Downloads por dia, últimos 30 dias",
+      "noDownloads": "Nenhum download nos últimos 30 dias.",
+      "downloadsCount_one": "{{count}} download",
+      "downloadsCount_other": "{{count}} downloads",
+      "showTable": "Mostrar como tabela",
+      "tableLabel": "Downloads por dia",
+      "date": "Dia",
+      "downloads": "Downloads",
+      "topItems": "Itens mais baixados, últimos 30 dias",
+      "item": "Item",
+      "noTopItems": "Nenhum download ainda.",
+      "signups": "Cadastros recentes",
+      "joined": "Entrou em",
+      "noSignups": "Nenhum cadastro ainda.",
+      "pastDue": "Pagamentos com falha",
+      "periodEnd": "Pago até",
+      "noPastDue": "Nenhum pagamento com falha."
     }
   }
 }
