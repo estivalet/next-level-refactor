@@ -276,3 +276,44 @@ export const menuNodes = sqliteTable(
   },
   (table) => [index('menu_nodes_menu').on(table.menuId, table.parentId, table.position)],
 );
+
+/**
+ * Catalog downloads (FR-CAT-4, D47): the queue survives restarts, and so do partial files
+ * (`<data>\downloads\<id>\<fileId>.part`). `item` is the CatalogItem at queue time.
+ */
+export const downloads = sqliteTable(
+  'downloads',
+  {
+    id: text('id').primaryKey(),
+    catalogItemId: text('catalog_item_id').notNull(),
+    version: integer('version').notNull(),
+    item: text('item').notNull(),
+    state: text('state', { enum: ['queued', 'downloading', 'paused', 'failed', 'done'] }).notNull(),
+    pausedReason: text('paused_reason', { enum: ['user', 'network', 'offline'] }),
+    bytesDone: integer('bytes_done').notNull().default(0),
+    bytesTotal: integer('bytes_total').notNull(),
+    error: text('error'),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [index('downloads_item').on(table.catalogItemId)],
+);
+
+/**
+ * An installed catalog item (FR-CAT-3, FR-CAT-5, FR-CAT-7): the files the installer wrote
+ * (relative to the location, `/`-separated), so uninstall deletes exactly those.
+ */
+export const catalogInstalls = sqliteTable('catalog_installs', {
+  gameId: integer('game_id')
+    .primaryKey()
+    .references(() => games.id, { onDelete: 'cascade' }),
+  catalogItemId: text('catalog_item_id').notNull().unique(),
+  version: integer('version').notNull(),
+  files: text('files').notNull(),
+  locationId: text('location_id').notNull(),
+  state: text('state', { enum: ['current', 'update', 'gone'] })
+    .notNull()
+    .default('current'),
+  onLapse: text('on_lapse', { enum: ['keep', 'remove'] }).notNull(),
+  installedAt: text('installed_at').notNull(),
+});

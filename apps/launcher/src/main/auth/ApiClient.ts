@@ -109,6 +109,16 @@ export class ApiClient {
     return this.#call('POST', '/v1/me/billing/portal', RedirectResponseSchema, { access });
   }
 
+  /** Any API call (the catalog's): the same envelope, timeout and offline handling. */
+  request<T>(
+    method: 'GET' | 'POST',
+    path: string,
+    schema: z.ZodType<T>,
+    opts: { body?: unknown; access?: string } = {},
+  ): Promise<T> {
+    return this.#call(method, path, schema, opts);
+  }
+
   async #call<T>(
     method: string,
     path: string,

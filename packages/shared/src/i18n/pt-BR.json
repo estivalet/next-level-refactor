@@ -55,7 +55,8 @@
     "notAllowed": "Esta conta Google não está autorizada.",
     "rateLimited": "Tentativas demais. Aguarde um minuto e tente de novo.",
     "apiUnreachable": "Não foi possível falar com o NextLevel. Verifique sua conexão e tente de novo.",
-    "billingUnavailable": "A cobrança está indisponível no momento. Tente de novo em alguns minutos."
+    "billingUnavailable": "A cobrança está indisponível no momento. Tente de novo em alguns minutos.",
+    "downloadFailed": "O download não terminou. Tente de novo."
   },
   "shell": {
     "window": {

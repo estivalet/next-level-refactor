@@ -208,6 +208,11 @@ export class AuthService {
     return this.#withAccess(call);
   }
 
+  /** This PC's device id while a session is stored (catalog downloads are per device). */
+  deviceId(): string | null {
+    return this.#vault.current()?.deviceId ?? null;
+  }
+
   /** Shows or ends "Waiting for your payment…" on the signed-in state. */
   setWaiting(waiting: boolean): AuthState {
     if (this.#waiting === waiting || this.#state.kind !== 'signedIn') {

@@ -55,7 +55,8 @@
     "notAllowed": "This Google account isn't authorized.",
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again.",
-    "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes."
+    "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
+    "downloadFailed": "The download didn't finish. Try again."
   },
   "shell": {
     "window": {

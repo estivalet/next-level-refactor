@@ -53,6 +53,7 @@ import {
 import { EmulatorProfileSchema, EmulatorSchema } from '../settings/emulators.ts';
 import { SettingsSchema } from '../settings/schema.ts';
 import { authContract } from './authContract.ts';
+import { catalogContract } from './catalogContract.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
 
@@ -103,6 +104,7 @@ const secretValue = z.string().min(1).max(200).nullable().optional();
 
 export const ipcContract = {
   ...authContract,
+  ...catalogContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
   'app.paths': {
