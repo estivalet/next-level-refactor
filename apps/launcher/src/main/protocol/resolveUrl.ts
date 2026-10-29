@@ -25,7 +25,7 @@ export async function resolveNextlevelPath(
   deps: ResolveDeps,
 ): Promise<string | null> {
   if (parsed.kind === 'media') return deps.mediaPath(parsed.gameId, parsed.mediaKind);
-  if (parsed.kind === 'scrape-thumb') return null;
+  if (parsed.kind === 'scrape-thumb' || parsed.kind === 'catalog-art') return null;
   const base = parsed.root.kind === 'assets' ? deps.assetsPath : deps.themesPath;
   if (!base) return null;
   const root = parsed.root.kind === 'pack' ? join(base, parsed.root.themeId) : base;

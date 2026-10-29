@@ -17,6 +17,7 @@ const ITEM = {
   license: { type: 'freeware', rightsHolder: 'Pixel Moth' },
   starter: false,
   version: 1,
+  publishedAt: null,
   boxArt: null,
 };
 

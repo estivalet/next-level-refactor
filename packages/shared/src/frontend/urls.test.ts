@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { artUrl, mediaUrl, parseNextlevelUrl, scrapeThumbUrl } from './urls.ts';
+import { artUrl, catalogArtUrl, mediaUrl, parseNextlevelUrl, scrapeThumbUrl } from './urls.ts';
 
 describe('nextlevel URLs', () => {
   it('FR-THM-6: an art URL round-trips with spaces and accents', () => {
@@ -51,6 +51,26 @@ describe('nextlevel URLs', () => {
       'nextlevel://scrape-thumb/x',
       'nextlevel://scrape-thumb/1/2',
       'nextlevel://scrape-thumb/',
+    ]) {
+      expect(parseNextlevelUrl(bad), bad).toBeNull();
+    }
+  });
+
+  it('S8: catalog art is named by item id and art kind; main fetches the signed URL', () => {
+    expect(catalogArtUrl('0192f000-0000-7000-8000-000000000001', 'box-front')).toBe(
+      'nextlevel://catalog-art/0192f000-0000-7000-8000-000000000001/box-front',
+    );
+    expect(parseNextlevelUrl('nextlevel://catalog-art/i1/screenshot-game-play')).toEqual({
+      kind: 'catalog-art',
+      itemId: 'i1',
+      artKind: 'screenshot-game-play',
+    });
+    for (const bad of [
+      'nextlevel://catalog-art/i1',
+      'nextlevel://catalog-art/../x/box-front',
+      'nextlevel://catalog-art/i1/nope',
+      'nextlevel://catalog-art/i1/box-front/extra',
+      'nextlevel://catalog-art/i%2F1/box-front',
     ]) {
       expect(parseNextlevelUrl(bad), bad).toBeNull();
     }

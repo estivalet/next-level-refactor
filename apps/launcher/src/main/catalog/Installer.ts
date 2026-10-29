@@ -101,8 +101,9 @@ export class Installer implements ItemInstaller {
     }
     const main = mainFile(files);
     if (!main) throw refused('files');
-    const settings = this.#deps.settings();
+    // The first install may add the Catalog folder to settings: read them after.
     const location = await this.#deps.managedLocation();
+    const settings = this.#deps.settings();
     const folder = folderOf(settings, system);
     const itemDir = join(location.path, folder, item.slug);
     if (!inside(location.path, itemDir)) throw refused('slug');

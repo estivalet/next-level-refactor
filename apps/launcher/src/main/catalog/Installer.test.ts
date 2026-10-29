@@ -285,3 +285,15 @@ describe('uninstalling catalog games (FR-CAT-5, US-E3, Review Focus 4)', () => {
     );
   });
 });
+
+describe('the first install (D45)', () => {
+  it('writes art even when the Catalog folder is added by that install', async () => {
+    const w = await installWorld(closers, { managedOnFirstInstall: true });
+    w.art.set('https://api.test/v1/files/art', Buffer.from('png bytes'));
+    const item = w.item({ media: [{ kind: 'box-front', url: 'https://api.test/v1/files/art' }] });
+    await w.installer.install(item, await w.download(item, {}));
+    const art = w.row("select path from game_media where kind = 'box-front'") as
+      { path: string } | undefined;
+    expect(art?.path).toContain(join(w.managed.path, w.nesFolder, 'media'));
+  });
+});

@@ -171,6 +171,8 @@ export const CatalogQuerySchema = z.object({
   q: z.string().trim().max(100).optional(),
   /** `true`: only the Starter set (D46). */
   starter: z.enum(['true', 'false']).optional(),
+  /** `new`: newest published first, one page (the launcher's New row); default title order. */
+  sort: z.enum(['title', 'new']).optional(),
   scope: CatalogSlugSchema.optional(),
   cursor: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
@@ -189,6 +191,7 @@ export const CatalogItemSummarySchema = z.object({
   license: z.object({ type: LicenseTypeSchema, rightsHolder: z.string() }),
   starter: z.boolean(),
   version: z.number().int().min(1),
+  publishedAt: isoTime.nullable(),
   boxArt: z.string().nullable(),
 });
 

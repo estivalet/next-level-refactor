@@ -38,8 +38,13 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   NextLevel folder; changing it affects new installs only), with their metadata and art.
   Uninstall deletes only the files the catalog installed and asks first for a favorite or a
   game in a collection. After each online sign-in check, installed games whose items left the
-  catalog follow the item's rule: kept and marked, or removed with a notice. The UI comes in
-  M9f.
+  catalog follow the item's rule: kept and marked, or removed with a notice.
+- **Catalog app (M9f):** a desktop Catalog app with Browse (Starter set, New and one row per
+  system; search, system and genre filters; keyboard and gamepad), item details with the license
+  credit, Install / Update / Play / Uninstall, an Installed tab that works offline, and a Downloads
+  tab with pause, resume, retry and cancel. Games removed because they left the catalog are listed
+  in a notice. The taskbar tray shows running downloads (count and overall %); a click opens the
+  Downloads tab.
 
 ### Changed
 

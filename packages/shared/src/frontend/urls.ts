@@ -1,4 +1,4 @@
-import { MEDIA_KIND, THEME_ID } from './schema.ts';
+import { GAME_ART_KINDS, MEDIA_KIND, THEME_ID } from './schema.ts';
 
 // `nextlevel://` URLs (FR-THM-6). They name a game's media by id and kind, or a menu-art file by
 // root and relative path; never a raw disk path. Main resolves them inside the configured roots.
@@ -8,7 +8,8 @@ export type ArtRoot = { kind: 'assets' } | { kind: 'pack'; themeId: string };
 export type ParsedNextlevelUrl =
   | { kind: 'media'; gameId: number; mediaKind: string }
   | { kind: 'art'; root: ArtRoot; rel: string }
-  | { kind: 'scrape-thumb'; providerGameId: number };
+  | { kind: 'scrape-thumb'; providerGameId: number }
+  | { kind: 'catalog-art'; itemId: string; artKind: string };
 
 /** `version` (the file's mtime) changes the URL when a file is replaced, so no cached image stays. */
 export function mediaUrl(gameId: number, kind: string, version?: number): string {
@@ -19,6 +20,11 @@ export function mediaUrl(gameId: number, kind: string, version?: number): string
 /** A scrape candidate's box thumbnail, fetched by main (the real URL carries credentials). */
 export function scrapeThumbUrl(providerGameId: number): string {
   return `nextlevel://scrape-thumb/${String(providerGameId)}`;
+}
+
+/** A catalog item's art (S8), fetched by main: the signed API URL never reaches the renderer. */
+export function catalogArtUrl(itemId: string, kind: string): string {
+  return `nextlevel://catalog-art/${itemId}/${kind}`;
 }
 
 export function artUrl(root: ArtRoot, rel: string): string {
@@ -45,9 +51,16 @@ function decodeSegments(raw: string[]): string[] | null {
 
 /** Parses a `nextlevel://` URL; null for anything that is not a well-formed, in-root reference. */
 export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
-  const match = /^nextlevel:\/\/(media|art|scrape-thumb)\/(.*)$/.exec(url);
+  const match = /^nextlevel:\/\/(media|art|scrape-thumb|catalog-art)\/(.*)$/.exec(url);
   if (!match) return null;
   const parts = (match[2] ?? '').split('/');
+  if (match[1] === 'catalog-art') {
+    const [itemId, artKind, ...rest] = parts;
+    const known = (GAME_ART_KINDS as readonly string[]).includes(artKind ?? '');
+    return rest.length === 0 && itemId && /^[A-Za-z0-9-]{1,64}$/.test(itemId) && artKind && known
+      ? { kind: 'catalog-art', itemId, artKind }
+      : null;
+  }
   if (match[1] === 'scrape-thumb') {
     const id = match[2] ?? '';
     return /^[1-9]\d{0,15}$/.test(id) ? { kind: 'scrape-thumb', providerGameId: Number(id) } : null;

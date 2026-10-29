@@ -23,6 +23,7 @@ const summary = (id: string, version = 1): CatalogItemSummary => ({
   license: { type: 'freeware', rightsHolder: 'Pixel Moth' },
   starter: false,
   version,
+  publishedAt: null,
   boxArt: null,
 });
 
@@ -43,14 +44,26 @@ const download = (itemId: string, state: DownloadSummary['state']): DownloadSumm
 async function setup(downloads: DownloadSummary[]) {
   const w = await installWorld(closers);
   const uninstalls: string[] = [];
+  const fetched: string[] = [];
   const api = createCatalogApi({
     client: {
       list: () =>
         Promise.resolve({
-          items: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].map((id) => summary(id, id === 'i3' ? 2 : 1)),
+          items: ['i1', 'i2', 'i3', 'i4', 'i5', 'i6'].map((id) => ({
+            ...summary(id, id === 'i3' ? 2 : 1),
+            boxArt: id === 'i1' ? `https://api.test/v1/files/box-${id}` : null,
+          })),
           nextCursor: null,
         }),
-      get: (itemId) => Promise.resolve(w.item({ id: itemId })),
+      get: (itemId) =>
+        Promise.resolve(
+          w.item({
+            id: itemId,
+            media: [
+              { kind: 'screenshot-game-play', url: `https://api.test/v1/files/shot-${itemId}` },
+            ],
+          }),
+        ),
     },
     downloads: {
       list: () => downloads,
@@ -67,12 +80,16 @@ async function setup(downloads: DownloadSummary[]) {
     },
     installs: new CatalogInstallRepository(w.db),
     locks: new ItemLocks(),
+    fetchArt: (url) => {
+      fetched.push(url);
+      return Promise.resolve({ bytes: Buffer.from('png'), format: 'png' });
+    },
   });
   const installItem = async (id: string, slug: string) => {
     const item = w.item({ id, slug });
     await w.installer.install(item, await w.download(item, {}));
   };
-  return { ...w, api, uninstalls, installItem };
+  return { ...w, api, uninstalls, installItem, fetched };
 }
 
 describe('catalog channels behind the IPC (FR-CAT-1..7, US-E1..E3)', () => {
@@ -97,6 +114,23 @@ describe('catalog channels behind the IPC (FR-CAT-1..7, US-E1..E3)', () => {
       i5: 'queued',
       i6: 'failed',
     });
+  });
+
+  it('S8: art goes to the renderer as nextlevel://catalog-art URLs; main fetches the signed one', async () => {
+    const t = await setup([]);
+    const page = await t.api.list({ limit: 50 });
+    expect(page.items[0]?.boxArt).toBe('nextlevel://catalog-art/i1/box-front');
+    expect(page.items[1]?.boxArt).toBeNull();
+    const detail = await t.api.get('i1');
+    expect(detail.media).toEqual([
+      { kind: 'screenshot-game-play', url: 'nextlevel://catalog-art/i1/screenshot-game-play' },
+    ]);
+    expect(await t.api.art('i1', 'box-front')).toEqual({
+      bytes: Buffer.from('png'),
+      mime: 'image/png',
+    });
+    expect(t.fetched).toEqual(['https://api.test/v1/files/box-i1']);
+    expect(await t.api.art('i9', 'box-front')).toBeNull();
   });
 
   it('installed lists the installs with title, version and state', async () => {

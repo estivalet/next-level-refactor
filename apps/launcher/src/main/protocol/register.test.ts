@@ -37,6 +37,24 @@ describe('nextlevel:// handler', () => {
     expect((await thumbs(new Request('nextlevel://scrape-thumb/8'))).status).toBe(404);
   });
 
+  it('S8: serves catalog art that main fetched; unknown is 404', async () => {
+    const art = createNextlevelHandler({
+      mediaPath: () => null,
+      paths: () => ({ assetsPath: null, themesPath: null }),
+      catalogArt: (itemId, kind) =>
+        Promise.resolve(
+          itemId === 'i1' && kind === 'box-front'
+            ? { bytes: Buffer.from('png'), mime: 'image/png' }
+            : null,
+        ),
+    });
+    const res = await art(new Request('nextlevel://catalog-art/i1/box-front'));
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('image/png');
+    expect(await res.text()).toBe('png');
+    expect((await art(new Request('nextlevel://catalog-art/i2/box-front'))).status).toBe(404);
+  });
+
   it('FR-SCR-5: a versioned media URL serves the indexed file', async () => {
     const media = createNextlevelHandler({
       mediaPath: (id, kind) => (id === 3 && kind === 'box-front' ? join(root, 'win.ini') : null),

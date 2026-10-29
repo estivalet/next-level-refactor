@@ -7,6 +7,8 @@ import { useShell } from './ShellContext.tsx';
 import { StartMenu } from './StartMenu.tsx';
 import { OfflineBadge } from '../auth/OfflineBadge.tsx';
 import { TrayClock } from './TrayClock.tsx';
+import { CatalogRemovedNotice } from './CatalogRemovedNotice.tsx';
+import { TrayDownloads } from './TrayDownloads.tsx';
 import type { ShellWindow } from './windowManager.ts';
 
 const FOCUS_RING = 'focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
@@ -88,6 +90,8 @@ export function Taskbar() {
       <div className="mx-1 h-8 w-px bg-white/10" />
       <div className="flex items-center gap-2 px-2">
         <OfflineBadge />
+        <TrayDownloads />
+        <CatalogRemovedNotice />
         <TrayClock />
       </div>
     </nav>
