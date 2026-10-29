@@ -61,10 +61,21 @@ export function createAuth(opts: {
   openExternal: (url: string) => Promise<void>;
   /** The Save dialog for Download my data; null when cancelled. */
   pickSavePath: (defaultName: string) => Promise<string | null>;
-}): { auth: AuthApi; start(): Promise<void>; dispose(): void } {
+}): {
+  auth: AuthApi;
+  /** What the catalog calls the API with (M9e); null with sign-in off (no catalog). */
+  catalog: { api: ApiClient; service: AuthService } | null;
+  start(): Promise<void>;
+  dispose(): void;
+} {
   const hooks = devHooks(opts.isPackaged, opts.env);
   if (hooks.disabled) {
-    return { auth: DISABLED_AUTH, start: () => Promise.resolve(), dispose: () => undefined };
+    return {
+      auth: DISABLED_AUTH,
+      catalog: null,
+      start: () => Promise.resolve(),
+      dispose: () => undefined,
+    };
   }
   const baseUrl = apiBaseUrl({
     isPackaged: opts.isPackaged,
@@ -156,6 +167,7 @@ export function createAuth(opts: {
   };
   return {
     auth,
+    catalog: { api, service },
     start: () => service.start(),
     dispose: () => {
       billing.dispose();

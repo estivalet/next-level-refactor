@@ -24,7 +24,7 @@ import { GameRepository } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { MediaRepository } from './library/MediaRepository.ts';
-import { openLibrary } from './library/openLibrary.ts';
+import { openLibrary, type LibraryDb } from './library/openLibrary.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
@@ -51,6 +51,8 @@ export interface LibraryHost {
   baseEnv: NodeJS.ProcessEnv;
   /** The NextLevel folder moved since last boot: media paths follow (D50). */
   moved: { from: string; to: string } | null;
+  /** The library is open: the catalog (M9e) builds on its database and repositories. */
+  onOpened?: (parts: { db: LibraryDb; games: GameRepository; media: MediaRepository }) => void;
 }
 
 export const currentSettings = (settings: SettingsService) => {
@@ -216,6 +218,7 @@ export function startLibrary(
     },
   });
   batch.restore();
+  host.onOpened?.({ db, games, media });
   app.on('will-quit', () => {
     batch.dispose();
   });

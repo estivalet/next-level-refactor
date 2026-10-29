@@ -33,6 +33,19 @@ describe('boot routing (IA F2, C6 launcher side)', () => {
     expect(t.calls).toEqual(['refresh:r0', 'entitlement:a1']);
   });
 
+  it('D43: after each online check the listeners run (the catalog syncs); offline ones do not', async () => {
+    const t = setup({ session: storedSession(T0 - DAY) });
+    const seen: string[] = [];
+    t.service.onChecked(() => seen.push('checked'));
+    await t.service.start();
+    expect(seen).toEqual(['checked']);
+    expect(t.service.deviceId()).toBe('d1');
+    t.queues.refresh.push(OFFLINE);
+    await t.service.refreshEntitlement();
+    expect(t.service.state()).toMatchObject({ kind: 'signedIn', offline: true });
+    expect(seen).toEqual(['checked']);
+  });
+
   it('C6, US-A3: API down 13 days after the last check → signed in offline', async () => {
     const t = setup({ session: storedSession(T0 - 13 * DAY) });
     t.queues.refresh.push(OFFLINE);
