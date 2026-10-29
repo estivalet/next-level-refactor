@@ -27,6 +27,9 @@ Copy into the release PR/issue and tick every box. Skip a box only with a writte
 - [ ] Offline start within grace; offline start after grace shows sign-in; reconnect resumes
 - [ ] Kiosk mode lock/unlock
 - [ ] Download pause/resume across restart; checksum failure path
+- [ ] From a packaged build in a portable folder (e.g. `D:\NextLevel`): install a published test
+      item, play it, uninstall it; nothing is written outside the folder (D50: check `%APPDATA%`,
+      `%LOCALAPPDATA%`, `%TEMP%` and Documents stay untouched)
 - [ ] Importer on the owner's real NextLevelOS data: dry run reviewed, import verified
 
 ## Backend (when API changed)
