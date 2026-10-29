@@ -43,7 +43,8 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   system; search, system and genre filters; keyboard and gamepad), item details with the license
   credit, Install / Update / Play / Uninstall, an Installed tab that works offline, and a Downloads
   tab with pause, resume, retry and cancel. Games removed because they left the catalog are listed
-  in a notice.
+  in a notice. The taskbar tray shows running downloads (count and overall %); a click opens the
+  Downloads tab.
 
 ### Changed
 

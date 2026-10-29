@@ -23,7 +23,11 @@ export const MANAGED_ID = '0192f000-0000-7000-8000-0000000000a2';
  * The Installer over a temp library: a local location and the managed Catalog folder (both temp
  * folders), and parts written where a download would leave them.
  */
-export async function installWorld(closers: Array<() => Promise<void>>) {
+export async function installWorld(
+  closers: Array<() => Promise<void>>,
+  /** `true`: settings have no Catalog folder until the first install adds it (as at first use). */
+  opts: { managedOnFirstInstall?: boolean } = {},
+) {
   const library = await tempLibrary();
   const temp = await tempDir('nextlevel-install-');
   closers.push(library.cleanup, temp.cleanup);
@@ -43,7 +47,10 @@ export async function installWorld(closers: Array<() => Promise<void>>) {
   const base = defaultSettings();
   let settings: Settings = {
     ...base,
-    storage: { ...base.storage, locations: [local, managed] },
+    storage: {
+      ...base.storage,
+      locations: opts.managedOnFirstInstall ? [local] : [local, managed],
+    },
   };
   const changed: unknown[] = [];
   const art = new Map<string, Buffer>();
@@ -53,7 +60,15 @@ export async function installWorld(closers: Array<() => Promise<void>>) {
     media: new MediaRepository(library.db),
     writer: new MediaWriter({ toPng: (bytes) => bytes }),
     settings: () => settings,
-    managedLocation: () => Promise.resolve(managed),
+    managedLocation: () => {
+      if (!settings.storage.locations.some((l) => l.id === managed.id)) {
+        settings = {
+          ...settings,
+          storage: { ...settings.storage, locations: [...settings.storage.locations, managed] },
+        };
+      }
+      return Promise.resolve(managed);
+    },
     system: getSystem,
     fetchArt: (url) => {
       const bytes = art.get(url);

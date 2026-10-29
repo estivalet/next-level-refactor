@@ -44,7 +44,23 @@ export function startCatalog(o: {
   session: AuthService;
   emit: EmitEvent;
   log: DownloadLog;
+  /** e2e only (development builds): hold each file request back this long, so it can be paused. */
+  fileDelayMs?: number;
 }): ReturnType<typeof createCatalogApi> {
+  const delay = o.fileDelayMs ?? 0;
+  const fileFetch: typeof fetch =
+    delay > 0
+      ? async (input, init) => {
+          await new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(resolve, delay);
+            init?.signal?.addEventListener('abort', () => {
+              clearTimeout(timer);
+              reject(init.signal?.reason as Error);
+            });
+          });
+          return fetch(input, init);
+        }
+      : fetch;
   const client = new CatalogClient(o.api, o.session);
   const locks = new ItemLocks();
   const installs = new CatalogInstallRepository(o.db);
@@ -84,7 +100,7 @@ export function startCatalog(o: {
     catalog: client,
     installer,
     dir: join(o.dataDir, 'downloads'),
-    fetch,
+    fetch: fileFetch,
     emit: o.emit,
     log: o.log,
     clock: () => new Date(),

@@ -238,12 +238,18 @@ async function start(): Promise<void> {
       ? startCatalog({
           ...opened,
           settings,
-          root: portable.root,
+          // Packaged: <NextLevel folder>\Catalog (D45, D50). Development (and e2e): inside the
+          // data folder, never the repo.
+          root: app.isPackaged ? portable.root : dataDir,
           dataDir,
           api: signIn.catalog.api,
           session: signIn.catalog.service,
           emit,
           log,
+          // End-to-end tests pause a download mid-way; development builds only.
+          fileDelayMs: app.isPackaged
+            ? 0
+            : Number(process.env['NEXTLEVEL_E2E_DOWNLOAD_DELAY_MS'] ?? 0),
         })
       : undefined;
   catalogRef.current = gameCatalog;
