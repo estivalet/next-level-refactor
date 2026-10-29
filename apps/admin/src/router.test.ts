@@ -16,6 +16,24 @@ describe('console routes (S13)', () => {
     expect(parseRoute('#/scopes')).toEqual({ page: 'scopes' });
   });
 
+  it('FR-ADM-3: catalog routes carry the item and its tab (Metadata when missing or unknown)', () => {
+    expect(parseRoute('#/catalog')).toEqual({ page: 'catalog' });
+    expect(parseRoute('#/catalog/new')).toEqual({ page: 'catalogNew' });
+    expect(parseRoute('#/catalog/i1')).toEqual({ page: 'catalogItem', id: 'i1', tab: 'metadata' });
+    expect(parseRoute('#/catalog/i1/license')).toEqual({
+      page: 'catalogItem',
+      id: 'i1',
+      tab: 'license',
+    });
+    expect(parseRoute('#/catalog/i1/nope')).toEqual({
+      page: 'catalogItem',
+      id: 'i1',
+      tab: 'metadata',
+    });
+    const item = { page: 'catalogItem', id: 'a b', tab: 'files' } as const;
+    expect(parseRoute(hrefOf(item))).toEqual(item);
+  });
+
   it('links round-trip', () => {
     expect(parseRoute(hrefOf({ page: 'user', id: 'x/y' }))).toEqual({ page: 'user', id: 'x/y' });
     expect(parseRoute(hrefOf({ page: 'plan', id: 'p 1' }))).toEqual({ page: 'plan', id: 'p 1' });

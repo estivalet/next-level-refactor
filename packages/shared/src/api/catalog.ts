@@ -29,12 +29,16 @@ export const PUBLISH_BLOCKERS = [
   'files',
 ] as const;
 
+/** The license column of the console's list (S13): `expired` wins over the others. */
+export const LICENSE_STATES = ['none', 'unverified', 'notStarted', 'verified', 'expired'] as const;
+
 export const CatalogSlugSchema = z.string().max(CATALOG_SLUG_MAX).regex(CATALOG_SLUG);
 export const LicenseTypeSchema = z.enum(LICENSE_TYPES);
 export const OnLapseSchema = z.enum(ON_LAPSE);
 export const FileRoleSchema = z.enum(FILE_ROLES);
 export const ItemStatusSchema = z.enum(ITEM_STATUS);
 export const PublishBlockerSchema = z.enum(PUBLISH_BLOCKERS);
+export const LicenseStateSchema = z.enum(LICENSE_STATES);
 export const CatalogMediaKindSchema = z.enum(GAME_ART_KINDS);
 
 const text = (max: number) => z.string().trim().max(max);
@@ -91,6 +95,7 @@ export const AdminCatalogItemSummarySchema = z.object({
   scopeSlug: z.string(),
   status: ItemStatusSchema,
   starter: z.boolean(),
+  licenseState: LicenseStateSchema,
   version: z.number().int().min(1),
   publishedAt: isoTime.nullable(),
   updatedAt: isoTime,
@@ -248,6 +253,7 @@ export type OnLapse = z.output<typeof OnLapseSchema>;
 export type FileRole = z.output<typeof FileRoleSchema>;
 export type ItemStatus = z.output<typeof ItemStatusSchema>;
 export type PublishBlocker = z.output<typeof PublishBlockerSchema>;
+export type LicenseState = z.output<typeof LicenseStateSchema>;
 export type CatalogMediaKind = z.output<typeof CatalogMediaKindSchema>;
 export type LicenseInput = z.output<typeof LicenseInputSchema>;
 export type AdminLicense = z.output<typeof AdminLicenseSchema>;

@@ -361,3 +361,25 @@ history (source, plan, status, end, created, granted by, note). **Grant complime
 opens a dialog: plan (archived plans left out), optional last day (access ends at the end of that
 day, UTC), note (required, ≤ 500); "This user pays through Stripe — they must cancel first" and
 the other refusals show in the dialog.
+
+As built in M9d (FR-ADM-3, US-F1, C10): sidebar gains **Catalog**. **Catalog**: search (title or
+slug, 300 ms pause), status and scope filters, columns title (link) · system · scope · license
+(No license, Not verified, Not started, Verified, Expired) · status · version, Load more; **New
+item**: slug (fixed after creation), title, system, scope (a taken slug is explained on its
+field); it then opens the editor. **Item editor** (`#/catalog/<id>/<tab>`): title, system ·
+slug · version and a status badge over five tabs. *Metadata*: title, description, year,
+players, developer, publisher, genre, scope; Save sends only what changed. *Files*: table
+(file, role, size, SHA-256, **Replace…**, **Remove**); role + **Upload a file**; a progress bar
+with its percentage, then "<name> uploaded: <size> · SHA-256 <hash>"; a name the system can't
+use is explained before anything is sent ("…must end in .nes, … or .zip"); on a published
+item Replace (or uploading a file with an existing name) and Remove ask first (the version goes
+up, players see Update available); removing its last game file is explained. *Art*: one row
+per art kind (stored size and version, or None) with Upload/Remove. *License*: type, rights
+holder, contact, terms, territories (country codes), starts/expires on (UTC days); a note that
+saving replaces the license (evidence and verification start over), and on a published item a
+warning plus a confirmation that it unpublishes it. Evidence: the uploaded file as a download
+link, **Upload evidence** (off once verified), **Mark verified** disabled with "Upload the
+evidence first." until there is evidence, then "Verified by <email> on <time>". *Publish*:
+When it leaves the catalog — Keep / Remove radios, none picked until the admin picks one,
+saved at once; **Starter set** checkbox; "Status: …"; "Before publishing" lists every
+blocker and **Publish** stays disabled until it is empty; **Unpublish** asks first.

@@ -1,5 +1,5 @@
 import { Button } from '@nextlevel/ui';
-import { BadgeDollarSign, Layers, ScrollText, Settings, Users } from 'lucide-react';
+import { BadgeDollarSign, Gamepad2, Layers, ScrollText, Settings, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSignOut } from '../api/session.ts';
@@ -10,6 +10,7 @@ const NAV = [
   { page: 'users', icon: Users, key: 'admin.nav.users' },
   { page: 'plans', icon: BadgeDollarSign, key: 'admin.nav.plans' },
   { page: 'scopes', icon: Layers, key: 'admin.nav.scopes' },
+  { page: 'catalog', icon: Gamepad2, key: 'admin.nav.catalog' },
   { page: 'audit', icon: ScrollText, key: 'admin.nav.audit' },
   { page: 'settings', icon: Settings, key: 'admin.nav.settings' },
 ] as const;
@@ -31,7 +32,9 @@ export function AdminLayout({
       ? 'users'
       : route.page === 'plan' || route.page === 'planNew'
         ? 'plans'
-        : route.page;
+        : route.page === 'catalogItem' || route.page === 'catalogNew'
+          ? 'catalog'
+          : route.page;
   return (
     <div className="flex min-h-screen bg-[#0b0b0f] text-slate-300">
       <nav

@@ -14,9 +14,31 @@ export function onUnauthenticated(listener: () => void): () => void {
   };
 }
 
-function csrfToken(): string | null {
+export function csrfToken(): string | null {
   const match = /(?:^|;\s*)nl_csrf=([^;]*)/.exec(document.cookie);
   return match?.[1] ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * The error for a refused call: the envelope's code and details (INTERNAL without one). A lost
+ * session (401, FORBIDDEN, SUSPENDED) tells the listeners when `notify` is set.
+ */
+export function failure(status: number, json: unknown, notify: boolean): AppErrorException {
+  const envelope = ApiErrorEnvelopeSchema.safeParse(json);
+  const code = envelope.success ? envelope.data.error.code : null;
+  const lost = status === 401 || code === 'FORBIDDEN' || code === 'SUSPENDED';
+  if (lost && notify) {
+    for (const listener of listeners) listener();
+  }
+  return new AppErrorException(
+    envelope.success
+      ? {
+          code: envelope.data.error.code,
+          message: ERROR_CODES[envelope.data.error.code],
+          details: envelope.data.error.details,
+        }
+      : { code: 'INTERNAL', message: ERROR_CODES.INTERNAL },
+  );
 }
 
 /**
@@ -26,7 +48,7 @@ function csrfToken(): string | null {
 export async function apiFetch<T>(
   path: string,
   opts: {
-    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     body?: unknown;
     schema: ZodType<T>;
     /** False for the session check itself, so its own 401 can't start another check. */
@@ -46,22 +68,6 @@ export async function apiFetch<T>(
   });
   const text = await response.text();
   const json: unknown = text ? JSON.parse(text) : undefined;
-  if (!response.ok) {
-    const envelope = ApiErrorEnvelopeSchema.safeParse(json);
-    const code = envelope.success ? envelope.data.error.code : null;
-    const lost = response.status === 401 || code === 'FORBIDDEN' || code === 'SUSPENDED';
-    if (lost && opts.notify !== false) {
-      for (const listener of listeners) listener();
-    }
-    throw new AppErrorException(
-      envelope.success
-        ? {
-            code: envelope.data.error.code,
-            message: ERROR_CODES[envelope.data.error.code],
-            details: envelope.data.error.details,
-          }
-        : { code: 'INTERNAL', message: ERROR_CODES.INTERNAL },
-    );
-  }
+  if (!response.ok) throw failure(response.status, json, opts.notify !== false);
   return opts.schema.parse(json);
 }

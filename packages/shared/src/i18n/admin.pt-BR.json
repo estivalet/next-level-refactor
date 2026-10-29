@@ -8,7 +8,8 @@
       "settings": "Configurações",
       "signOut": "Sair",
       "plans": "Planos",
-      "scopes": "Escopos do catálogo"
+      "scopes": "Escopos do catálogo",
+      "catalog": "Catálogo"
     },
     "signIn": {
       "title": "Entrar no console de administração",
@@ -95,7 +96,17 @@
         "scope.update": "Escopo alterado",
         "grant.create": "Acesso de cortesia concedido",
         "grant.revoke": "Acesso de cortesia revogado",
-        "user.delete": "Conta excluída"
+        "user.delete": "Conta excluída",
+        "item.create": "Item criado",
+        "item.update": "Item alterado",
+        "item.file.add": "Arquivo adicionado",
+        "item.file.remove": "Arquivo removido",
+        "item.media.set": "Arte definida",
+        "item.media.remove": "Arte removida",
+        "item.license": "Licença salva",
+        "item.license.verify": "Licença verificada",
+        "item.publish": "Item publicado",
+        "item.unpublish": "Item despublicado"
       },
       "system": "Sistema"
     },
@@ -163,7 +174,7 @@
     },
     "scopes": {
       "title": "Escopos do catálogo",
-      "intro": "Os planos escolhem escopos; os itens do catálogo os usam a partir do M9.",
+      "intro": "Os planos escolhem escopos; cada item do catálogo pertence a um.",
       "empty": "Nenhum escopo ainda.",
       "name": "Nome",
       "slug": "Slug",
@@ -229,6 +240,190 @@
       "reasons": {
         "admin": "Administradores precisam ser rebaixados antes de excluir a conta.",
         "email": "O e-mail não confere."
+      }
+    },
+    "catalog": {
+      "title": "Catálogo",
+      "new": "Novo item",
+      "newTitle": "Novo item",
+      "back": "Todos os itens",
+      "search": "Buscar título ou slug",
+      "statusFilter": "Status",
+      "scopeFilter": "Escopo",
+      "all": "Todos",
+      "empty": "Nenhum item encontrado.",
+      "loadMore": "Carregar mais",
+      "columns": {
+        "title": "Título",
+        "system": "Sistema",
+        "scope": "Escopo",
+        "license": "Licença",
+        "status": "Status",
+        "version": "Versão"
+      },
+      "status": {
+        "draft": "Rascunho",
+        "published": "Publicado",
+        "unpublished": "Despublicado"
+      },
+      "licenseState": {
+        "none": "Sem licença",
+        "unverified": "Não verificada",
+        "notStarted": "Não iniciada",
+        "verified": "Verificada",
+        "expired": "Expirada"
+      },
+      "noScopes": "Crie um escopo de catálogo primeiro:",
+      "badSlug": "Letras minúsculas e números, separados por um hífen (no máximo 60).",
+      "pickSystem": "Escolha um sistema",
+      "create": "Criar",
+      "save": "Salvar",
+      "saved": "Salvo.",
+      "cancel": "Cancelar",
+      "uploading": "Enviando {{name}}",
+      "fields": {
+        "slug": "Slug",
+        "slugHelp": "Fixo depois de criado; dá nome à pasta do jogo nos PCs dos jogadores.",
+        "title": "Título",
+        "system": "Sistema",
+        "scope": "Escopo",
+        "description": "Descrição",
+        "year": "Ano",
+        "yearRange": "Um ano de 1950 a 2100, ou vazio.",
+        "players": "Jogadores",
+        "playersRange": "De 1 a 16, ou vazio.",
+        "developer": "Desenvolvedora",
+        "publisher": "Distribuidora",
+        "genre": "Gênero"
+      },
+      "tabs": {
+        "label": "Item",
+        "metadata": "Metadados",
+        "files": "Arquivos",
+        "art": "Arte",
+        "license": "Licença",
+        "publish": "Publicação"
+      },
+      "roles": {
+        "rom": "ROM",
+        "disc": "Disco",
+        "extra": "Extra"
+      },
+      "files": {
+        "title": "Arquivos",
+        "name": "Arquivo",
+        "role": "Função",
+        "size": "Tamanho",
+        "sha256": "SHA-256",
+        "empty": "Nenhum arquivo ainda.",
+        "upload": "Enviar um arquivo",
+        "uploadHelp": "Até 4 GB por arquivo. Um arquivo com o mesmo nome substitui o antigo; num item publicado os jogadores recebem uma atualização.",
+        "replace": "Substituir…",
+        "replaceLabel": "Substituir {{name}}",
+        "remove": "Remover",
+        "removeLabel": "Remover {{name}}",
+        "done": "{{name}} enviado: {{size}} · SHA-256 {{sha256}}",
+        "badName": "“{{name}}” não pode ser usado como nome de arquivo.",
+        "badExtension": "“{{name}}” não pode ser usado: uma ROM ou disco de {{system}} deve terminar em {{extensions}}.",
+        "replaceTitle": "Substituir {{name}}?",
+        "replaceBody": "O item está publicado: a versão sobe e os jogadores veem Atualização disponível.",
+        "replaceAction": "Substituir",
+        "removeTitle": "Remover {{name}}?",
+        "removeBody": "O arquivo é apagado.",
+        "removeBodyPublished": "O item está publicado: a versão sobe e os jogadores veem Atualização disponível."
+      },
+      "art": {
+        "title": "Arte",
+        "help": "Imagens ou vídeos, até 50 MB cada. Um novo envio substitui o antigo.",
+        "kind": "Tipo",
+        "current": "Armazenado",
+        "none": "Nenhum",
+        "stored": "{{size}} · versão {{version}}",
+        "upload": "Enviar…",
+        "uploadLabel": "Enviar {{name}}",
+        "remove": "Remover",
+        "removeLabel": "Remover {{name}}",
+        "kinds": {
+          "box-front": "Capa",
+          "box-back": "Contracapa",
+          "box-3d": "Caixa 3D",
+          "cart-front": "Cartucho",
+          "fanart": "Fan art",
+          "video": "Vídeo",
+          "screenshot-game-play": "Captura do jogo",
+          "screenshot-game-title": "Captura do título",
+          "logo-clear": "Logo",
+          "marquee": "Marquee"
+        }
+      },
+      "license": {
+        "type": "Tipo",
+        "types": {
+          "author-permission": "Permissão do autor",
+          "freeware": "Freeware",
+          "open-source": "Código aberto",
+          "public-domain": "Domínio público",
+          "commercial-license": "Licença comercial"
+        },
+        "rightsHolder": "Titular dos direitos",
+        "contact": "Contato",
+        "terms": "Termos",
+        "territories": "Territórios",
+        "territoriesHelp": "Códigos de país separados por vírgulas (BR, US). Vazio: mundo todo.",
+        "startsAt": "Começa em",
+        "expiresAt": "Expira em",
+        "datesHelp": "Opcional. Datas em UTC: a licença começa e termina no início do dia. Uma licença expirada despublica o item.",
+        "replaceNote": "Salvar substitui a licença: a evidência e a verificação recomeçam.",
+        "unpublishWarning": "Salvar uma nova licença despublica este item até a nova licença ser verificada.",
+        "replaceTitle": "Substituir a licença?",
+        "replaceAction": "Substituir e despublicar",
+        "save": "Salvar licença",
+        "evidence": "Evidência",
+        "saveFirst": "Salve a licença primeiro.",
+        "noEvidence": "Nenhuma evidência ainda.",
+        "uploadEvidence": "Enviar evidência",
+        "evidenceHelp": "O documento de permissão: PDF, PNG, JPEG, texto ou e-mail, até 20 MB.",
+        "evidenceType": "A evidência deve ser um PDF, PNG, JPEG, texto ou arquivo de e-mail.",
+        "verify": "Marcar como verificada",
+        "verifiedBy": "Verificada por {{email}} em {{time}}."
+      },
+      "publish": {
+        "onLapse": "Quando sair do catálogo",
+        "onLapseHelp": "Despublicado, licença expirada ou fora do plano do jogador. Escolha uma opção: não há padrão.",
+        "keep": "Manter",
+        "keepHelp": "As cópias instaladas continuam jogáveis, marcadas “Não está mais no catálogo”.",
+        "remove": "Remover",
+        "removeHelp": "As cópias instaladas são apagadas dos PCs dos jogadores, com um aviso.",
+        "starter": "Conjunto inicial",
+        "starterHelp": "Mostrado primeiro aos novos jogadores cujo plano o inclui.",
+        "status": "Status: {{status}}",
+        "blockersTitle": "Antes de publicar",
+        "publish": "Publicar",
+        "unpublish": "Despublicar",
+        "unpublishTitle": "Despublicar {{title}}?",
+        "unpublishBody": "Os jogadores não podem mais instalá-lo; as cópias instaladas seguem a escolha “Quando sair do catálogo”."
+      },
+      "blockers": {
+        "license": "Licença obrigatória",
+        "licenseUnverified": "Licença não verificada",
+        "licenseNotStarted": "A licença ainda não começou",
+        "licenseExpired": "Licença expirada",
+        "onLapse": "Escolha o que acontece quando sair do catálogo",
+        "files": "Adicione um arquivo de ROM ou disco"
+      },
+      "errors": {
+        "slugTaken": "Este slug já está em uso.",
+        "system": "Sistema desconhecido.",
+        "scope": "Escopo desconhecido.",
+        "lastFile": "Um item publicado precisa de pelo menos um arquivo de ROM ou disco.",
+        "type": "A arte deve ser uma imagem ou um vídeo.",
+        "verified": "A licença está verificada: salve uma nova licença para trocar a evidência.",
+        "noEvidence": "Envie a evidência primeiro.",
+        "noLicense": "Salve a licença primeiro.",
+        "blocked": "O item ainda não está pronto para publicar.",
+        "tooLarge": "O arquivo é grande demais.",
+        "checksum": "O envio chegou corrompido: tente de novo.",
+        "notUploaded": "O envio não terminou: tente de novo."
       }
     }
   }

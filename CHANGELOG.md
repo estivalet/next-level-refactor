@@ -19,6 +19,13 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   hour; downloads resume with byte ranges. `POST /v1/catalog/status` tells the launcher which
   installed items are current, have an update, or left the catalog (with the item's on_lapse
   rule). Logs show the files route's pattern, never a token or download URL.
+- **Console Catalog (M9d):** a Catalog page (search, status and scope filters; title, system,
+  scope, license state, status, version) and an item editor with Metadata, Files (upload with
+  progress, then the size and SHA-256 the API computed; Replace and Remove ask first on a
+  published item), Art (one image or video per kind), License (the record, evidence upload,
+  Mark verified once evidence is there; saving a new license on a published item warns it
+  unpublishes it) and Publish (On lapse Keep/Remove with no default, Starter set, every blocker
+  named, Publish/Unpublish). File names a system can't use are explained before uploading.
 
 ### Changed
 

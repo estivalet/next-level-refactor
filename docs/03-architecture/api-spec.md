@@ -121,7 +121,7 @@ built console at `/` (any non-`/v1` path falls back to `index.html`).
 | `DELETE /v1/admin/users/:id/devices/:deviceId` | Revoke device |
 | `GET/POST /v1/admin/plans` · `PATCH /v1/admin/plans/:id` | Plans |
 | `GET/POST /v1/admin/scopes` · `PATCH /v1/admin/scopes/:id` | Catalog scopes |
-| `GET /v1/admin/catalog/items?q=&status=&system=&scope=&cursor=&limit=` | Newest first → `{ items: AdminCatalogItemSummary[], nextCursor }` (M9b) |
+| `GET /v1/admin/catalog/items?q=&status=&system=&scope=&cursor=&limit=` | Newest first → `{ items: AdminCatalogItemSummary[], nextCursor }` (M9b); each summary has `licenseState` `none`/`unverified`/`notStarted`/`verified`/`expired` for the console's list (M9d; expired wins) |
 | `POST /v1/admin/catalog/items` | `CreateItem { slug, title, systemId, scopeSlug }` → `AdminCatalogItem` (draft); taken slug → `CONFLICT slugTaken`; unknown system/scope → `VALIDATION_FAILED system`/`scope`; audited `item.create` |
 | `GET/PATCH /v1/admin/catalog/items/:id` | `AdminCatalogItem` (with `files`, `media`, `license`, `publishBlockers`); PATCH takes any of title, description (≤ 4000), year, developer, publisher, genre, players, scopeSlug, onLapse, starter → audited `item.update` |
 | `POST /v1/admin/catalog/items/:id/files` | `{ filename, role }` (safe name; `rom`/`disc` need a system extension → else `VALIDATION_FAILED filename`) → `{ fileId, uploadUrl }` (a pending file) |
