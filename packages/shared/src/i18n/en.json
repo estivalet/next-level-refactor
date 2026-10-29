@@ -55,7 +55,8 @@
     "notAllowed": "This Google account isn't authorized.",
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again.",
-    "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes."
+    "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
+    "downloadFailed": "The download didn't finish. Try again."
   },
   "shell": {
     "window": {
@@ -238,7 +239,10 @@
         "central": "One central folder",
         "rescan": "Rescan to update art: art already in the library stays where the last scan found it.",
         "scanAll": "Scan all"
-      }
+      },
+      "managed": "Catalog games",
+      "managedHelp": "New catalog installs go here. Changing the folder affects new installs only: games already installed stay where they are.",
+      "changeFolder": "Change folder…"
     },
     "systems": {
       "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",

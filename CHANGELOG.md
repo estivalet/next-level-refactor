@@ -30,6 +30,16 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   (paying · complimentary), MRR per currency, downloads in the last 7 days, a downloads-per-day
   chart for 30 days (with a table view), the top 10 items, the 10 latest sign-ups and failed
   payments (`GET /v1/admin/stats`). Download records now keep their item (migration `0004`).
+- **Launcher catalog downloads and installs (M9e):** the launcher installs catalog games
+  through a download queue that survives restarts. Downloads run one at a time, resume from
+  their partial files, ask again once when a link has expired, pause when the network drops and
+  continue when it's back, and check every file's size and SHA-256 before installing. Games go
+  to the **Catalog games** folder (Settings → Storage; by default `Catalog` inside the
+  NextLevel folder; changing it affects new installs only), with their metadata and art.
+  Uninstall deletes only the files the catalog installed and asks first for a favorite or a
+  game in a collection. After each online sign-in check, installed games whose items left the
+  catalog follow the item's rule: kept and marked, or removed with a notice. The UI comes in
+  M9f.
 
 ### Changed
 

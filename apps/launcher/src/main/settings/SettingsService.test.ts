@@ -29,7 +29,7 @@ async function saveOk(service: SettingsService, settings: Settings) {
   const current = service.get();
   if (current.kind !== 'ok') throw new Error('not ok');
   const result = await service.save(settings, current.snapshot.revision);
-  if (!result.ok) throw new Error(result.error.code);
+  if (!result.ok) throw new Error(`${result.error.code} ${JSON.stringify(result.error.details)}`);
   return result.value;
 }
 
@@ -86,6 +86,34 @@ describe('SettingsService', () => {
     const snapshot = await saveOk(service, withLanguage('pt-BR'));
     expect(snapshot.revision).toBe(1);
     expect(JSON.parse(await readFile(file, 'utf8'))).toEqual(withLanguage('pt-BR'));
+  });
+
+  it('D45: saving a new Catalog folder path keeps the old one as an ordinary location', async () => {
+    const { service } = await setup();
+    await service.load();
+    const settings = defaultSettings();
+    const managed = {
+      id: '0192f000-0000-7000-8000-000000000002',
+      name: 'Catalog',
+      path: 'E:\\NextLevel\\Catalog',
+      priority: 1,
+      managed: true,
+    };
+    const first = await saveOk(service, {
+      ...settings,
+      storage: { ...settings.storage, locations: [managed] },
+    });
+    const moved = await saveOk(service, {
+      ...first.settings,
+      storage: { ...first.settings.storage, locations: [{ ...managed, path: 'F:\\Catalog' }] },
+    });
+    const locations = moved.settings.storage.locations;
+    expect(locations.map((l) => [l.name, l.path, l.managed])).toEqual([
+      ['Catalog (old)', 'E:\\NextLevel\\Catalog', false],
+      ['Catalog', 'F:\\Catalog', true],
+    ]);
+    expect(locations[0]?.id).toBe(managed.id);
+    expect(locations[1]?.id).not.toBe(managed.id);
   });
 
   it('save with a stale revision returns CONFLICT', async () => {

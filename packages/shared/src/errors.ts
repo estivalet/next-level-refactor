@@ -32,6 +32,8 @@ export const ERROR_CODES = {
   RATE_LIMITED: 'errors.rateLimited',
   API_UNREACHABLE: 'errors.apiUnreachable',
   BILLING_UNAVAILABLE: 'errors.billingUnavailable',
+  /** A catalog download failed; `details.reason` is a DownloadFailure. */
+  DOWNLOAD_FAILED: 'errors.downloadFailed',
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_CODES;

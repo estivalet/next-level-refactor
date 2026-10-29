@@ -60,6 +60,8 @@ export const StorageLocationSchema = z.object({
   path: z.string().trim().min(3),
   /** 1 = searched first; renumbered from the list order on save. */
   priority: z.number().int().min(1),
+  /** The Catalog games folder (D45): at most one, kept last; the launcher installs into it. */
+  managed: z.boolean().optional(),
 });
 
 export type StorageLocation = z.output<typeof StorageLocationSchema>;
@@ -81,6 +83,9 @@ const LocationsSchema = z.array(StorageLocationSchema).superRefine((locations, c
     paths.add(path);
     names.add(name);
   });
+  if (locations.filter((location) => location.managed).length > 1) {
+    ctx.addIssue({ code: 'custom', path: [], message: 'twoManaged' });
+  }
 });
 
 /** An optional absolute folder (art, theme packs); null = not set. */

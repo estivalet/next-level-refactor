@@ -2,6 +2,7 @@ export * from './errors.ts';
 export * from './result.ts';
 export * from './ipc/contract.ts';
 export * from './ipc/events.ts';
+export * from './ipc/catalogContract.ts';
 export * from './library/schema.ts';
 export * from './library/games.ts';
 export * from './library/collections.ts';

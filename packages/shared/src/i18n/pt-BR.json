@@ -55,7 +55,8 @@
     "notAllowed": "Esta conta Google não está autorizada.",
     "rateLimited": "Tentativas demais. Aguarde um minuto e tente de novo.",
     "apiUnreachable": "Não foi possível falar com o NextLevel. Verifique sua conexão e tente de novo.",
-    "billingUnavailable": "A cobrança está indisponível no momento. Tente de novo em alguns minutos."
+    "billingUnavailable": "A cobrança está indisponível no momento. Tente de novo em alguns minutos.",
+    "downloadFailed": "O download não terminou. Tente de novo."
   },
   "shell": {
     "window": {
@@ -238,7 +239,10 @@
         "central": "Uma pasta central",
         "rescan": "Faça uma nova varredura para atualizar a arte: a arte já na biblioteca fica onde a última varredura a encontrou.",
         "scanAll": "Varrer tudo"
-      }
+      },
+      "managed": "Jogos do catálogo",
+      "managedHelp": "As novas instalações do catálogo vão para cá. Mudar a pasta só afeta as novas instalações: os jogos já instalados ficam onde estão.",
+      "changeFolder": "Mudar pasta…"
     },
     "systems": {
       "intro": "Ative os sistemas que você joga. Cada um é procurado como uma pasta dentro dos seus locais de armazenamento.",

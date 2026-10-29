@@ -4,6 +4,7 @@ import { ImportProgressSchema } from '../import/report.ts';
 import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
 import { BatchStatusSchema } from '../scraper/batch.ts';
+import { catalogEvents } from './catalogContract.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
 
 /** Every event main sends to the renderer, with its payload schema. */
@@ -26,6 +27,7 @@ export const ipcEvents = {
   'scraper.batch.progress': BatchStatusSchema,
   /** The sign-in state changed (FR-AUTH-5..7): signed in or out, offline, suspended. */
   'auth.changed': AuthStateSchema,
+  ...catalogEvents,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;

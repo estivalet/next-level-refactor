@@ -78,6 +78,7 @@ export class AuthService {
   #stopTimer: (() => void) | null = null;
   /** Checkout is open and BillingService is polling (IA F7). */
   #waiting = false;
+  readonly #checked = new Set<() => void>();
 
   constructor(deps: AuthDeps) {
     this.#deps = deps;
@@ -208,6 +209,19 @@ export class AuthService {
     return this.#withAccess(call);
   }
 
+  /** Runs after each entitlement check that reached the API (the catalog syncs then, D43). */
+  onChecked(listener: () => void): () => void {
+    this.#checked.add(listener);
+    return () => {
+      this.#checked.delete(listener);
+    };
+  }
+
+  /** This PC's device id while a session is stored (catalog downloads are per device). */
+  deviceId(): string | null {
+    return this.#vault.current()?.deviceId ?? null;
+  }
+
   /** Shows or ends "Waiting for your payment…" on the signed-in state. */
   setWaiting(waiting: boolean): AuthState {
     if (this.#waiting === waiting || this.#state.kind !== 'signedIn') {
@@ -247,7 +261,9 @@ export class AuthService {
         entitlement: answer.entitlement,
         localCheckedAt: this.#deps.clock().toISOString(),
       });
-      return this.#signedIn(false);
+      const state = this.#signedIn(false);
+      for (const listener of this.#checked) listener();
+      return state;
     } catch (error) {
       if (generation !== this.#generation) return this.#state;
       const failure = failureOf(error);

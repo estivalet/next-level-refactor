@@ -18,7 +18,8 @@ import { accountOf, createScraperClient } from './scraper/runtime.ts';
 import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
-import { currentSettings, startLibrary } from './startLibrary.ts';
+import { startCatalog } from './catalog/startCatalog.ts';
+import { currentSettings, startLibrary, type LibraryHost } from './startLibrary.ts';
 import { preparePortable, setPortablePaths } from './portable/boot.ts';
 import { electronPaths } from './portable/portableRoot.ts';
 
@@ -179,6 +180,7 @@ async function start(): Promise<void> {
   app.on('will-quit', () => {
     scraper.cache.close();
   });
+  let libraryParts: Parameters<NonNullable<LibraryHost['onOpened']>>[0] | null = null;
   const library = startLibrary(settings, scraper.client, scraper.quota, {
     dataDir,
     emit,
@@ -187,6 +189,9 @@ async function start(): Promise<void> {
     tempDir: electronPaths(dataDir).temp,
     baseEnv: portable.originalEnv,
     moved: adopted.movedFrom ? { from: adopted.movedFrom, to: portable.root } : null,
+    onOpened: (parts) => {
+      libraryParts = parts;
+    },
   });
   const artPaths = () => {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
@@ -220,6 +225,21 @@ async function start(): Promise<void> {
   app.on('will-quit', () => {
     signIn.dispose();
   });
+  // The catalog needs the library and a sign-in (none with sign-in off, D25).
+  const opened = libraryParts as Parameters<NonNullable<LibraryHost['onOpened']>>[0] | null;
+  const gameCatalog =
+    opened && signIn.catalog
+      ? startCatalog({
+          ...opened,
+          settings,
+          root: portable.root,
+          dataDir,
+          api: signIn.catalog.api,
+          session: signIn.catalog.service,
+          emit,
+          log,
+        })
+      : undefined;
   const handlers = createHandlers({
     settings,
     appVersion: () => app.getVersion(),
@@ -242,6 +262,7 @@ async function start(): Promise<void> {
     newId: uuidv7,
     secrets,
     auth: signIn.auth,
+    ...(gameCatalog ? { gameCatalog } : {}),
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
     scraperSystems: (opts) => scraper.client.systems(opts),
     presets: emulatorPresets,
