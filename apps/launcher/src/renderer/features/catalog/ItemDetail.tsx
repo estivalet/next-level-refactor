@@ -2,8 +2,14 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
-import { useCatalogItem, useInstall, useInstalled } from './catalogApi.ts';
-import { formatBytes, isOffline } from './catalogText.ts';
+import {
+  useCatalogItem,
+  useDownloadAction,
+  useDownloads,
+  useInstall,
+  useInstalled,
+} from './catalogApi.ts';
+import { actionErrorKey, formatBytes, isOffline, stateText } from './catalogText.ts';
 import { useUninstallFlow } from './UninstallDialog.tsx';
 import { pressFocused, useCatalogInput } from './useCatalogInput.ts';
 
@@ -29,6 +35,10 @@ export function ItemDetail({
   const install = useInstall();
   const flow = useUninstallFlow();
   const installedGame = useInstalled().data?.find((row) => row.itemId === itemId);
+  const act = useDownloadAction();
+  const active = useDownloads().data?.find(
+    (row) => row.itemId === itemId && row.state !== 'failed',
+  );
   const systems = useSystemCatalog().data ?? [];
   const box = useRef<HTMLElement>(null);
   const backButton = useRef<HTMLButtonElement>(null);
@@ -76,7 +86,7 @@ export function ItemDetail({
   const canInstall = state === 'none' || state === 'failed';
   const canPlay = installedGame !== undefined;
   const screenshots = item.media.filter((media) => media.kind.startsWith('screenshot'));
-  const actionError = install.error ?? flow.error;
+  const actionError = install.error ?? act.error ?? flow.error;
 
   return (
     <section
@@ -111,6 +121,17 @@ export function ItemDetail({
           </p>
           <p className="text-xs text-slate-400">{formatBytes(item.size, i18n.language)}</p>
           {state === 'gone' && <p className="text-xs text-amber-200">{t('catalog.state.gone')}</p>}
+          {active && (
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-amber-200">{stateText(t, item, active)}</p>
+              <progress
+                aria-label={t('catalog.downloads.progress', { title: item.title })}
+                value={active.bytesDone}
+                max={Math.max(active.bytesTotal, 1)}
+                className="h-1.5 w-48"
+              />
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             {canInstall && (
               <button
@@ -134,6 +155,25 @@ export function ItemDetail({
                 className={`${BUTTON} bg-amber-600 text-white hover:bg-amber-500`}
               >
                 {t('catalog.actions.update')}
+              </button>
+            )}
+            {active && (
+              <button
+                type="button"
+                disabled={act.isPending}
+                onClick={() => {
+                  act.mutate({
+                    downloadId: active.id,
+                    action: active.state === 'paused' ? 'resume' : 'pause',
+                  });
+                }}
+                className={`${BUTTON} bg-white/10 text-white hover:bg-white/20`}
+              >
+                {t(
+                  active.state === 'paused'
+                    ? 'catalog.downloads.resume'
+                    : 'catalog.downloads.pause',
+                )}
               </button>
             )}
             {canPlay && (
@@ -162,7 +202,7 @@ export function ItemDetail({
           </div>
           {actionError && (
             <p role="alert" className="text-xs text-[#ff8a80]">
-              {t(isOffline(actionError) ? 'catalog.offline' : 'catalog.actionFailed')}
+              {t(actionErrorKey(actionError))}
             </p>
           )}
         </div>

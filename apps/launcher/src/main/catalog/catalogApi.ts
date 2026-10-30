@@ -89,9 +89,22 @@ export function createCatalogApi(deps: CatalogApiDeps): CatalogApi & {
       };
     },
     async art(itemId, kind) {
-      const url = signed.get(`${itemId}/${kind}`);
+      const key = `${itemId}/${kind}`;
+      const url = signed.get(key);
       if (!url) return null;
-      const fetched = await deps.fetchArt(url);
+      let fetched = await deps.fetchArt(url);
+      if (!fetched) {
+        // Signed art URLs live an hour: ask the API for the item again, then try once more.
+        const fresh = await deps.client.get(itemId).catch(() => null);
+        const again =
+          kind === 'box-front' && fresh?.boxArt
+            ? fresh.boxArt
+            : fresh?.media.find((media) => media.kind === kind)?.url;
+        if (again) {
+          signed.set(key, again);
+          fetched = await deps.fetchArt(again);
+        }
+      }
       const mime = fetched ? MIME[fetched.format] : undefined;
       return fetched && mime ? { bytes: fetched.bytes, mime } : null;
     },

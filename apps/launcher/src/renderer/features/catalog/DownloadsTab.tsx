@@ -2,7 +2,7 @@ import type { DownloadSummary } from '@nextlevel/shared';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useDownloadAction, useDownloads } from './catalogApi.ts';
-import { formatBytes, percentOf } from './catalogText.ts';
+import { actionErrorKey, formatBytes, percentOf } from './catalogText.ts';
 
 const BUTTON =
   'rounded-lg bg-white/10 px-3 py-1 text-xs font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-50';
@@ -24,6 +24,11 @@ export function DownloadsTab() {
   };
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
+      {act.error && (
+        <p role="alert" className="text-xs text-[#ff8a80]">
+          {t(actionErrorKey(act.error))}
+        </p>
+      )}
       {downloads.isSuccess && rows.length === 0 && (
         <p className="text-sm text-slate-400">{t('catalog.downloads.empty')}</p>
       )}

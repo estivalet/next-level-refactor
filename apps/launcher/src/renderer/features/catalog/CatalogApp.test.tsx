@@ -242,6 +242,93 @@ describe('Catalog app: item detail (US-E1, US-E2, US-E3)', () => {
   });
 });
 
+describe('Catalog app: download states and errors (S8, M10-0)', () => {
+  it('ItemCard shows Paused n % for a paused download', async () => {
+    setup({
+      'catalog.list': () => page([{ ...STAR, installState: 'downloading' }]),
+      'downloads.list': () =>
+        ok([
+          download({ state: 'paused', pausedReason: 'user', bytesDone: 4096, bytesTotal: 8192 }),
+        ]),
+    });
+    const card = (await screen.findAllByRole('button', { name: /Star Hopper/ }))[0] as HTMLElement;
+    expect(card).toHaveTextContent('Paused 50%');
+  });
+
+  it('ItemDetail shows progress and Pause while queued or downloading', async () => {
+    const u = userEvent.setup();
+    const t = setup({
+      'catalog.get': ({ itemId }) => ok(detail({ id: itemId, installState: 'downloading' })),
+      'downloads.list': () => ok([download({ bytesDone: 2048, bytesTotal: 8192 })]),
+      'downloads.pause': () => ok(undefined),
+    });
+    await u.click(
+      (await screen.findAllByRole('button', { name: /Star Hopper/ }))[0] as HTMLElement,
+    );
+    const panel = await screen.findByRole('region', { name: 'Star Hopper' });
+    expect(await within(panel).findByText('Downloading 25%')).toBeVisible();
+    expect(
+      within(panel).getByRole('progressbar', { name: 'Download of Star Hopper' }),
+    ).toBeVisible();
+    await u.click(within(panel).getByRole('button', { name: 'Pause' }));
+    expect(t.bridge.calls.find((c) => c.channel === 'downloads.pause')?.input).toEqual({
+      downloadId: 'd1',
+    });
+  });
+
+  it('a failed Update shows the error; offline shows the connection notice, not "action failed"', async () => {
+    const u = userEvent.setup();
+    let answer = err('INTERNAL', ERROR_CODES.INTERNAL);
+    setup({
+      'catalog.installed': () => ok([installed({ state: 'update' })]),
+      'catalog.install': () => answer,
+    });
+    await u.click(await screen.findByRole('tab', { name: 'Installed' }));
+    await u.click(await screen.findByRole('button', { name: 'Update' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent("That didn't work. Try again.");
+    answer = err('API_UNREACHABLE', ERROR_CODES.API_UNREACHABLE);
+    await u.click(screen.getByRole('button', { name: 'Update' }));
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Catalog needs a connection');
+    });
+  });
+
+  it('a failed download action shows the error', async () => {
+    const u = userEvent.setup();
+    setup({
+      'downloads.list': () => ok([download()]),
+      'downloads.pause': () => err('NOT_FOUND', ERROR_CODES.NOT_FOUND),
+    });
+    await u.click(await screen.findByRole('tab', { name: 'Downloads' }));
+    await u.click(await screen.findByRole('button', { name: 'Pause' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent("That didn't work. Try again.");
+  });
+
+  it('offline Browse shows Retry, which loads the catalog when back', async () => {
+    const u = userEvent.setup();
+    let offline = true;
+    setup({
+      'catalog.list': () =>
+        offline ? err('API_UNREACHABLE', ERROR_CODES.API_UNREACHABLE) : page([STAR]),
+    });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Catalog needs a connection');
+    offline = false;
+    await u.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByRole('list', { name: NES })).toBeVisible();
+  });
+
+  it('a results error shows the error row, not an empty Results row', async () => {
+    const u = userEvent.setup();
+    setup({
+      'catalog.list': (query: Partial<CatalogQuery>) =>
+        query.q ? err('INTERNAL', ERROR_CODES.INTERNAL) : page([STAR]),
+    });
+    await u.type(await screen.findByRole('searchbox', { name: 'Search the catalog' }), 'star');
+    expect(await screen.findByRole('alert')).toHaveTextContent("The catalog couldn't be loaded");
+    expect(screen.queryByRole('list', { name: 'Results' })).toBeNull();
+  });
+});
+
 describe('Catalog app: offline, Installed, notices (FR-CAT-7, D43)', () => {
   it('offline: the catalog says it needs a connection; Installed still works', async () => {
     const u = userEvent.setup();

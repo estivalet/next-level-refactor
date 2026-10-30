@@ -75,6 +75,54 @@ describe('first-run wizard (FR-ONB-1, D48)', () => {
     expect(t.last()?.systems['nintendo-64']?.enabled ?? false).toBe(false);
   });
 
+  it('SystemsStep keeps ticks across settings.changed', async () => {
+    const u = userEvent.setup();
+    const t = setup();
+    await u.click(await screen.findByRole('checkbox', { name: 'Nintendo 64' }));
+    // A scan (or another window) saves settings while the step is open.
+    const changed = { ...defaultSettings(), systems: { 'sega-genesis': { enabled: true } } };
+    t.bridge.emit('settings.changed', { settings: changed, revision: 5 });
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: 'Nintendo 64' })).not.toBeChecked();
+    });
+    expect(screen.getByRole('checkbox', { name: 'Nintendo NES' })).toBeChecked();
+  });
+
+  it('first run writes enabled:false for shown-but-unticked systems, so a scan keeps them off', async () => {
+    const u = userEvent.setup();
+    const t = setup();
+    await u.click(await screen.findByRole('checkbox', { name: 'Nintendo 64' }));
+    await u.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => {
+      expect(t.last()?.systems['nintendo-64']).toEqual({ enabled: false });
+    });
+    expect(t.last()?.systems['nintendo-nes']?.enabled).toBe(true);
+  });
+
+  it('DoneStep disables Finish while saving (one save on double click)', async () => {
+    const u = userEvent.setup();
+    let release: () => void = () => undefined;
+    const t = setup({
+      'settings.save': (input) =>
+        new Promise((resolve) => {
+          release = () => {
+            resolve(ok({ settings: input.settings, revision: 1 }));
+          };
+        }),
+    });
+    for (let i = 0; i < 4; i += 1) {
+      await u.click(await screen.findByRole('button', { name: 'Skip' }));
+    }
+    const finish = await screen.findByRole('button', { name: 'Browse catalog' });
+    await u.dblClick(finish);
+    expect(finish).toBeDisabled();
+    release();
+    await waitFor(() => {
+      expect(t.onDone).toHaveBeenCalledTimes(1);
+    });
+    expect(t.bridge.calls.filter((call) => call.channel === 'settings.save')).toHaveLength(1);
+  });
+
   it('US-B2: two folders go in priority order; Scan now saves them and scans, with counts per system', async () => {
     const u = userEvent.setup();
     const folders = ['F:\\Games\\Main', 'G:\\More'];

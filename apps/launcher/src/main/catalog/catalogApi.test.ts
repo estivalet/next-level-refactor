@@ -45,6 +45,7 @@ async function setup(downloads: DownloadSummary[]) {
   const w = await installWorld(closers);
   const uninstalls: string[] = [];
   const fetched: string[] = [];
+  const art = { fails: 0, gets: 0 };
   const api = createCatalogApi({
     client: {
       list: () =>
@@ -55,15 +56,17 @@ async function setup(downloads: DownloadSummary[]) {
           })),
           nextCursor: null,
         }),
-      get: (itemId) =>
-        Promise.resolve(
+      get: (itemId) => {
+        art.gets += 1;
+        return Promise.resolve(
           w.item({
             id: itemId,
             media: [
               { kind: 'screenshot-game-play', url: `https://api.test/v1/files/shot-${itemId}` },
             ],
           }),
-        ),
+        );
+      },
     },
     downloads: {
       list: () => downloads,
@@ -86,6 +89,10 @@ async function setup(downloads: DownloadSummary[]) {
     locks: new ItemLocks(),
     fetchArt: (url) => {
       fetched.push(url);
+      if (art.fails > 0) {
+        art.fails -= 1;
+        return Promise.resolve(null);
+      }
       return Promise.resolve({ bytes: Buffer.from('png'), format: 'png' });
     },
   });
@@ -93,7 +100,7 @@ async function setup(downloads: DownloadSummary[]) {
     const item = w.item({ id, slug });
     await w.installer.install(item, await w.download(item, {}));
   };
-  return { ...w, api, uninstalls, installItem, fetched };
+  return { ...w, api, uninstalls, installItem, fetched, art };
 }
 
 describe('catalog channels behind the IPC (FR-CAT-1..7, US-E1..E3)', () => {
@@ -135,6 +142,20 @@ describe('catalog channels behind the IPC (FR-CAT-1..7, US-E1..E3)', () => {
     });
     expect(t.fetched).toEqual(['https://api.test/v1/files/box-i1']);
     expect(await t.api.art('i9', 'box-front')).toBeNull();
+  });
+
+  it('art whose signed URL expired (1 h) is fetched again with a fresh one, once', async () => {
+    const t = await setup([]);
+    await t.api.get('i1');
+    t.art.fails = 1;
+    expect(await t.api.art('i1', 'screenshot-game-play')).toEqual({
+      bytes: Buffer.from('png'),
+      mime: 'image/png',
+    });
+    expect(t.art.gets).toBe(2);
+    t.art.fails = 2;
+    expect(await t.api.art('i1', 'screenshot-game-play')).toBeNull();
+    expect(t.art.gets).toBe(3);
   });
 
   it('installed lists the installs with title, version and state', async () => {

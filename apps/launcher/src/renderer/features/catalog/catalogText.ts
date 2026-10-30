@@ -29,7 +29,13 @@ export function stateText(
 ): string {
   switch (item.installState) {
     case 'downloading':
-      return t('catalog.state.downloading', { percent: download ? percentOf(download) : 0 });
+      // Main reports a paused download as downloading; the queue row says which.
+      return t(
+        download?.state === 'paused' ? 'catalog.state.paused' : 'catalog.state.downloading',
+        {
+          percent: download ? percentOf(download) : 0,
+        },
+      );
     case 'failed':
       return download?.error === 'checksum'
         ? t('catalog.state.corrupted')
@@ -47,3 +53,7 @@ export function reasonOf(error: unknown): string | null {
 
 export const isOffline = (error: unknown) =>
   error instanceof AppErrorException && error.error.code === 'API_UNREACHABLE';
+
+/** What a failed Install, Update, Uninstall or download action says. */
+export const actionErrorKey = (error: unknown) =>
+  isOffline(error) ? 'catalog.offline' : 'catalog.actionFailed';
