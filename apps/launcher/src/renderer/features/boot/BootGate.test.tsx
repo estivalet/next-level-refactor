@@ -346,4 +346,45 @@ describe('first-run wizard routing (FR-ONB-1, FR-ONB-2, D48)', () => {
     const starter = await within(catalog).findByRole('list', { name: 'Starter set' });
     expect(within(starter).getByText('Star Hopper')).toBeInTheDocument();
   });
+
+  it('Start after the wizard follows the boot target with the games the wizard found', async () => {
+    const u = userEvent.setup();
+    const games = new FakeThemeHost();
+    let current = settingsAt(null);
+    let revision = 1;
+    let found = false;
+    installFakeBridge({
+      'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings: current, revision } }),
+      'settings.save': (input) => {
+        current = input.settings;
+        revision += 1;
+        return ok({ settings: current, revision });
+      },
+      'systems.catalog': () => ok([]),
+      // The library is empty at boot; the wizard's scan finds games.
+      'systems.list': () => {
+        found = true;
+        return ok([{ id: 'nintendo-nes', enabled: true, games: 3, missing: 0, review: 0 }]);
+      },
+      'frontend.menu': () => ok(found ? FIXTURE_MENU : { title: 'NextLevel', items: [] }),
+      'frontend.games': async ({ nodeId }) => ok(await games.getGames(nodeId)),
+      'frontend.artIndex': () =>
+        ok({ packFiles: [], assetsFiles: [], manifest: null, warnings: [] }),
+      'frontend.themeOpened': () => ok(undefined),
+      'launch.running': () => ok(null),
+    });
+    render(
+      <QueryClientProvider client={createQueryClient()}>
+        <BootGate>
+          <BootShell initialBounds={{ width: 1200, height: 800 }}>
+            <Desktop />
+          </BootShell>
+        </BootGate>
+      </QueryClientProvider>,
+    );
+    await screen.findByRole('heading', { name: 'Choose your systems' });
+    for (let i = 0; i < 4; i += 1) await u.click(screen.getByRole('button', { name: 'Skip' }));
+    await u.click(await screen.findByRole('button', { name: 'Start' }));
+    expect(await screen.findByTestId('frontend-layer')).toBeInTheDocument();
+  });
 });

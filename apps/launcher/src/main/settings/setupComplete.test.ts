@@ -29,4 +29,10 @@ describe('existing installs skip the first-run wizard (D48)', () => {
     done.general = { ...done.general, setupCompletedAt: '2026-01-01T00:00:00.000Z' };
     expect(markExistingSetupComplete(done, 9, NOW)).toBeNull();
   });
+
+  it('D48: after Run setup again an install with folders still gets the wizard at the next start', () => {
+    const requested = withLocation(defaultSettings());
+    requested.general = { ...requested.general, setupCompletedAt: null, setupRequested: true };
+    expect(markExistingSetupComplete(requested, 12, NOW)).toBeNull();
+  });
 });

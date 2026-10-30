@@ -1446,7 +1446,9 @@
       "found": "Jogos encontrados",
       "none": "Nenhum jogo encontrado ainda.",
       "count_one": "{{system}} · {{count}} jogo",
-      "count_other": "{{system}} · {{count}} jogos"
+      "count_other": "{{system}} · {{count}} jogos",
+      "duplicate": "Esta pasta já está na lista.",
+      "scanFailed": "Não foi possível começar a procura. Tente de novo em instantes."
     },
     "emulators": {
       "title": "Configure os emuladores",
@@ -1457,7 +1459,8 @@
       "locate": "Localizar executável…",
       "officialSite": "Site oficial",
       "pickTitle": "Escolha o programa do emulador",
-      "locateFailed": "Não foi possível adicionar esse programa."
+      "locateFailed": "Não foi possível adicionar esse programa.",
+      "doesNotPlay": "Esse programa não roda {{system}}. Escolha outro ou baixe um no site oficial."
     },
     "theme": {
       "title": "Escolha um visual",

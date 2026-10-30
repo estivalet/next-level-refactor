@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../settings/settingsApi.ts';
 import { AuthGate } from '../auth/AuthGate.tsx';
 import { SetupWizard } from '../setup/SetupWizard.tsx';
-import { BootRouteContext, SetupLandingContext, useBootRoute } from './bootRoute.ts';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  BOOT_ROUTE_KEY,
+  BootRouteContext,
+  SetupLandingContext,
+  useBootRoute,
+} from './bootRoute.ts';
 import { RecoveryScreen } from './RecoveryScreen.tsx';
 import { Splash } from './Splash.tsx';
 
@@ -14,6 +20,7 @@ import { Splash } from './Splash.tsx';
  */
 export function BootGate({ children }: { children: ReactNode }) {
   const settings = useSettings();
+  const client = useQueryClient();
   // useTranslation re-renders this component when the language changes.
   const { i18n } = useTranslation();
   const loaded = settings.data?.kind === 'ok' ? settings.data.snapshot.settings : null;
@@ -54,8 +61,12 @@ export function BootGate({ children }: { children: ReactNode }) {
       {setup === 'wizard' ? (
         <SetupWizard
           onDone={(where) => {
-            setLanding(where);
-            setSetup('done');
+            // The route was decided before the wizard, with an empty library: decide it again
+            // (the wizard may have found games and picked a theme).
+            void client.refetchQueries({ queryKey: BOOT_ROUTE_KEY }).finally(() => {
+              setLanding(where);
+              setSetup('done');
+            });
           }}
         />
       ) : (

@@ -1,5 +1,5 @@
 import type { Settings } from '@nextlevel/shared';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSaveSettings, useSettings } from '../settings/settingsApi.ts';
 import { DoneStep } from './DoneStep.tsx';
@@ -20,6 +20,11 @@ export function SetupWizard({ onDone }: { onDone: (landing: 'catalog' | null) =>
   const settings = useSettings();
   const save = useSaveSettings();
   const [step, setStep] = useState(0);
+  const title = useRef<HTMLHeadingElement>(null);
+  // Each step's buttons go away when it changes: focus its title (NFR-A11Y-1).
+  useEffect(() => {
+    title.current?.focus();
+  }, [step]);
   const loaded = settings.data?.kind === 'ok' ? settings.data.snapshot : null;
   if (!loaded) return null;
   const persist = (next: Settings) =>
@@ -35,7 +40,11 @@ export function SetupWizard({ onDone }: { onDone: (landing: 'catalog' | null) =>
   const finish = (landing: 'catalog' | null) => {
     void persist({
       ...loaded.settings,
-      general: { ...loaded.settings.general, setupCompletedAt: new Date().toISOString() },
+      general: {
+        ...loaded.settings.general,
+        setupCompletedAt: new Date().toISOString(),
+        setupRequested: false,
+      },
     }).then(() => {
       onDone(landing);
     });
@@ -47,10 +56,15 @@ export function SetupWizard({ onDone }: { onDone: (landing: 'catalog' | null) =>
         aria-labelledby="setup-title"
         className="flex w-full max-w-2xl flex-col gap-5 rounded-2xl border border-white/10 bg-[#14141c] p-6 shadow-2xl"
       >
-        <p className="text-xs text-slate-400">
+        <p aria-live="polite" className="text-xs text-slate-400">
           {t('setup.step', { n: step + 1, total: STEPS.length })}
         </p>
-        <h2 id="setup-title" className="text-xl font-semibold text-white">
+        <h2
+          ref={title}
+          id="setup-title"
+          tabIndex={-1}
+          className="text-xl font-semibold text-white focus-visible:outline-none"
+        >
           {t(`setup.${name}.title`)}
         </h2>
         {name === 'systems' && <SystemsStep key={loaded.revision} {...props} />}

@@ -1446,7 +1446,9 @@
       "found": "Games found",
       "none": "No games found yet.",
       "count_one": "{{system}} · {{count}} game",
-      "count_other": "{{system}} · {{count}} games"
+      "count_other": "{{system}} · {{count}} games",
+      "duplicate": "This folder is already in the list.",
+      "scanFailed": "The scan couldn't start. Try again in a moment."
     },
     "emulators": {
       "title": "Set up emulators",
@@ -1457,7 +1459,8 @@
       "locate": "Locate executable…",
       "officialSite": "Official site",
       "pickTitle": "Choose the emulator program",
-      "locateFailed": "That program couldn't be added."
+      "locateFailed": "That program couldn't be added.",
+      "doesNotPlay": "That program doesn't play {{system}}. Pick another one, or get one from the official site."
     },
     "theme": {
       "title": "Pick a look",

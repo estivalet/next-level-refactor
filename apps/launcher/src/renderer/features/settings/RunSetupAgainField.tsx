@@ -22,7 +22,7 @@ export function RunSetupAgainField({ draft, update }: Pick<SettingsDraft, 'draft
         onClick={() => {
           update((current) => ({
             ...current,
-            general: { ...current.general, setupCompletedAt: null },
+            general: { ...current.general, setupCompletedAt: null, setupRequested: true },
           }));
         }}
         className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-50"

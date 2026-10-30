@@ -1,23 +1,15 @@
-import { addEmulator, type EmulatorPreset } from '@nextlevel/shared';
-import { getPresetProfile, getSystem, presetForExecutable } from '@nextlevel/system-catalog';
+import { getSystem } from '@nextlevel/system-catalog';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { v7 as uuidv7 } from 'uuid';
 import { getBridge } from '../../bridge.ts';
 import { unwrap, useSaveSettings, useSettings } from '../settings/settingsApi.ts';
-
-/** The preset a system plays best with (its first preset profile), for its Official site. */
-export function bestPreset(systemId: string): EmulatorPreset | undefined {
-  const first = getSystem(systemId)?.presetProfiles[0];
-  return first ? getPresetProfile(first)?.preset : undefined;
-}
-
-const fileName = (path: string) => path.split(/[\\/]/).pop() ?? path;
+import { bestPreset, emulatorForSystem } from './emulatorForSystem.ts';
 
 /**
  * Locate executable… and Official site for a system without an emulator (D48, US-B1): the
- * picked program becomes an emulator from its preset (by file name, else the system's best
- * preset) with the profiles for the enabled systems. No emulator is downloaded or installed.
+ * picked program plays the system afterwards (emulatorForSystem), or the player is told it can't.
+ * No emulator is downloaded or installed.
  */
 export function LocateEmulator({
   systemId,
@@ -43,12 +35,9 @@ export function LocateEmulator({
       );
       const loaded = settings.data?.kind === 'ok' ? settings.data.snapshot : null;
       if (!executable || !loaded) return false;
-      const next = addEmulator(loaded.settings, {
-        preset: presetForExecutable(fileName(executable)) ?? preset,
-        executable,
-        newId: uuidv7,
-      });
-      await save.mutateAsync({ settings: next, baseRevision: loaded.revision });
+      const result = emulatorForSystem(loaded.settings, systemId, executable, uuidv7);
+      if ('refused' in result) throw new Error(result.refused);
+      await save.mutateAsync({ settings: result.settings, baseRevision: loaded.revision });
       return true;
     },
     onSuccess: (located) => {
@@ -79,7 +68,9 @@ export function LocateEmulator({
       )}
       {locate.isError && (
         <span role="alert" className="text-xs text-[#ff8a80]">
-          {t('setup.emulators.locateFailed')}
+          {locate.error.message === 'doesNotPlay'
+            ? t('setup.emulators.doesNotPlay', { system: getSystem(systemId)?.name ?? systemId })
+            : t('setup.emulators.locateFailed')}
         </span>
       )}
     </span>

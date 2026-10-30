@@ -153,4 +153,13 @@ describe('first-run wizard (FR-ONB-1, D48)', () => {
       expect(t.onDone).toHaveBeenCalledWith(null);
     });
   });
+
+  it('NFR-A11Y-1: moving to a step puts focus on its title and announces the step', async () => {
+    const u = userEvent.setup();
+    setup();
+    await screen.findByRole('heading', { name: 'Choose your systems' });
+    await u.click(screen.getByRole('button', { name: 'Skip' }));
+    expect(screen.getByRole('heading', { name: 'Add your game folders' })).toHaveFocus();
+    expect(screen.getByText('Step 2 of 5')).toHaveAttribute('aria-live', 'polite');
+  });
 });

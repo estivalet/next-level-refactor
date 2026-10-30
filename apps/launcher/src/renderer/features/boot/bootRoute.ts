@@ -20,6 +20,8 @@ export function bootFrontend(target: BootTarget, hasGames: boolean): FrontendSta
   return OPEN;
 }
 
+export const BOOT_ROUTE_KEY = ['boot.route'] as const;
+
 /** Where the shell starts; set once by BootGate. */
 export const BootRouteContext = createContext<FrontendState>(FRONTEND_CLOSED);
 
@@ -34,7 +36,7 @@ export const SetupLandingContext = createContext<'catalog' | null>(null);
 export function useBootRoute(settings: Settings | null) {
   const client = useQueryClient();
   return useQuery({
-    queryKey: ['boot.route'],
+    queryKey: BOOT_ROUTE_KEY,
     enabled: settings !== null,
     staleTime: Infinity,
     gcTime: Infinity,

@@ -220,6 +220,9 @@ describe('Play from the Library (FR-EMU-6, US-C2)', () => {
       expect(bridge.calls.filter((c) => c.channel === 'launch.game')).toHaveLength(2);
     });
     expect(saved).toHaveLength(1);
+    // The located emulator really plays the system, although catalog installs never enabled it.
+    const settings = saved[0] as { profiles: Array<{ systems: string[] }> };
+    expect(settings.profiles.some((profile) => profile.systems.includes('nintendo-64'))).toBe(true);
     expect(screen.queryByRole('dialog', { name: 'Homebrew Demo didn’t start' })).toBeNull();
   });
 

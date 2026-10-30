@@ -58,6 +58,10 @@ or zero-filled dummy files.
 | C8 | Catalog scope filtering: a user never sees or downloads out-of-plan items | FR-CAT-1/6 |
 | C9 | Download checksum mismatch deletes the file and reports | FR-CAT-3 |
 | C10 | Publishing without a license is impossible (API and UI) | FR-CAT-8, ADR-012 |
+| C11 | Admin mutation without an audit entry fails the transaction | FR-ADM-5 |
+| C12 | `nextlevel://` serves only resolved library/settings paths; traversal attempts get 404 | NFR-SEC-1 |
+| C13 | Every theme is fully navigable with the gamepad mapping | FR-THM-3 |
+| C14 | Webhook replay is idempotent | FR-SUB-3 |
 
 As built (M9): **C8** `apps/api/src/routes/catalog.test.ts` (out-of-scope items are NOT_FOUND),
 `files.test.ts` (an issued URL stops working once the item leaves the plan); **C9**
@@ -66,10 +70,7 @@ and fails checksum"); **C10** `apps/api/src/routes/adminCatalog.test.ts` (the pu
 `adminCatalogFiles.test.ts` (an extra can't replace a published item's last game file) and
 `apps/admin/src/pages/catalog/catalog.test.tsx` (Publish disabled with every blocker named);
 end-to-end in `apps/admin/e2e/catalog.spec.ts` and `apps/launcher/e2e/catalog.spec.ts`.
-| C11 | Admin mutation without an audit entry fails the transaction | FR-ADM-5 |
-| C12 | `nextlevel://` serves only resolved library/settings paths; traversal attempts get 404 | NFR-SEC-1 |
-| C13 | Every theme is fully navigable with the gamepad mapping | FR-THM-3 |
-| C14 | Webhook replay is idempotent | FR-SUB-3 |
+
 
 ## 5. Environments
 
