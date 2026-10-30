@@ -1,6 +1,6 @@
 import type { EmulatorPreset, PresetProfile } from '../catalog/schema.ts';
 import type { EmulatorProfile } from './emulators.ts';
-import type { Settings, SystemSettings } from './schema.ts';
+import { normalizePath, type Settings, type SystemSettings } from './schema.ts';
 
 /** The file name without folder and extension: `C:\Emu\my-emu.exe` → `my-emu`. */
 function baseName(path: string): string {
@@ -33,34 +33,102 @@ export function profileFromPreset(
 
 /**
  * Adds an emulator (FR-EMU-2). From a preset it also gets the preset profiles that cover an
- * enabled system (FR-EMU-7); the rest can be added later with Add from preset.
+ * enabled system (FR-EMU-7); the rest can be added later with Add from preset. A program already
+ * set up is not added again: it gets only the preset profiles it doesn't have yet.
  */
 export function addEmulator(
   settings: Settings,
   input: { preset?: EmulatorPreset | undefined; executable: string; newId: () => string },
 ): Settings {
   const { preset, executable, newId } = input;
-  const emulatorId = newId();
+  const same = settings.emulators.find(
+    (emulator) => normalizePath(emulator.executable) === normalizePath(executable),
+  );
+  const emulatorId = same?.id ?? newId();
   const enabled = new Set(
     Object.entries(settings.systems)
       .filter(([, system]) => system.enabled)
       .map(([id]) => id),
   );
+  const have = new Set(
+    settings.profiles.filter((p) => p.emulatorId === emulatorId).map((p) => p.presetProfileId),
+  );
   const profiles = (preset?.profiles ?? [])
+    .filter((profile) => !have.has(profile.id))
     .filter((profile) => profile.systems.some((id) => enabled.has(id)))
     .map((profile) => profileFromPreset(profile, emulatorId, newId()));
   return {
     ...settings,
-    emulators: [
-      ...settings.emulators,
-      {
-        id: emulatorId,
-        name: emulatorNameFor(executable, preset),
-        ...(preset ? { presetId: preset.id } : {}),
-        executable,
-      },
-    ],
+    emulators: same
+      ? settings.emulators
+      : [
+          ...settings.emulators,
+          {
+            id: emulatorId,
+            name: emulatorNameFor(executable, preset),
+            ...(preset ? { presetId: preset.id } : {}),
+            executable,
+          },
+        ],
     profiles: [...settings.profiles, ...profiles],
+  };
+}
+
+/** A profile's settings without its ids, keys sorted, for comparing copies. */
+function profileContent(profile: EmulatorProfile): string {
+  return JSON.stringify(
+    Object.entries({ ...profile, id: '', emulatorId: '' }).sort(([a], [b]) => a.localeCompare(b)),
+  );
+}
+
+/**
+ * One emulator per program: later records of the same program are merged into the first, which
+ * takes over their profiles. An identical copy of a preset profile is dropped, keeping the copy a
+ * system default names; an edited copy is kept.
+ */
+export function mergeDuplicateEmulators(settings: Settings): Settings {
+  const firstOf = new Map<string, string>();
+  const mergedInto = new Map<string, string>();
+  for (const emulator of settings.emulators) {
+    const program = normalizePath(emulator.executable);
+    const first = firstOf.get(program);
+    if (first) mergedInto.set(emulator.id, first);
+    else firstOf.set(program, emulator.id);
+  }
+  if (mergedInto.size === 0) return settings;
+
+  const defaults = new Set(Object.values(settings.systems).map((s) => s.defaultProfileId));
+  const profiles = settings.profiles.map((p) => ({
+    ...p,
+    emulatorId: mergedInto.get(p.emulatorId) ?? p.emulatorId,
+  }));
+  // Copies a default names come first, so they are the ones kept.
+  const preferred = [...profiles].sort(
+    (a, b) => Number(defaults.has(b.id)) - Number(defaults.has(a.id)),
+  );
+  const kept: EmulatorProfile[] = [];
+  const replacedBy = new Map<string, string>();
+  for (const profile of preferred) {
+    const twin = profile.presetProfileId
+      ? kept.find(
+          (k) =>
+            k.emulatorId === profile.emulatorId && profileContent(k) === profileContent(profile),
+        )
+      : undefined;
+    if (twin) replacedBy.set(profile.id, twin.id);
+    else kept.push(profile);
+  }
+  const systems = Object.fromEntries(
+    Object.entries(settings.systems).map(([id, system]): [string, SystemSettings] => {
+      const replacement = system.defaultProfileId && replacedBy.get(system.defaultProfileId);
+      return [id, replacement ? { ...system, defaultProfileId: replacement } : system];
+    }),
+  );
+  return {
+    ...settings,
+    emulators: settings.emulators.filter((emulator) => !mergedInto.has(emulator.id)),
+    profiles: profiles.filter((profile) => !replacedBy.has(profile.id)),
+    systems,
   };
 }
 
