@@ -103,7 +103,7 @@ export function HyperspinTheme({
     levelKind: level?.kind,
     focusKey: isGames ? String(games.focusedGame?.id ?? '') : (focusedMenuItem?.name ?? ''),
     games: games.games,
-    systemName: level?.kind === 'games' ? level.node.name : '',
+    systemName: level?.kind === 'games' ? level.systemName : '',
   });
 
   useNavigationSound({
@@ -177,7 +177,7 @@ export function HyperspinTheme({
           onFocusChange={isGames ? tabbed.setDisplayFocus : nav.setFocus}
           wheel={wheel}
           art={art}
-          pointerName={level.kind === 'games' ? level.node.name : (focusedMenuItem?.name ?? '')}
+          pointerName={level.kind === 'games' ? level.systemName : (focusedMenuItem?.name ?? '')}
         />
       </div>
       <Footer isGames={isGames} input={input} />

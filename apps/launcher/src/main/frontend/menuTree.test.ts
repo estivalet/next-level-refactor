@@ -56,9 +56,9 @@ describe('buildMenuTree', () => {
     );
     const snes = tree.items[0]?.children[1];
     expect(snes?.children.map((node) => [node.id, node.filter, node.name])).toEqual([
-      ['s:snes:f:official', 'official', 'Super Nintendo'],
-      ['s:snes:f:homebrew', 'homebrew', 'Super Nintendo'],
-      ['s:snes:f:translation', 'translation', 'Super Nintendo'],
+      ['s:snes:f:official', 'official', 'Official'],
+      ['s:snes:f:homebrew', 'homebrew', 'Homebrew'],
+      ['s:snes:f:translation', 'translation', 'Translation'],
     ]);
     expect(snes?.children[1]).toMatchObject({
       type: 'filter',
