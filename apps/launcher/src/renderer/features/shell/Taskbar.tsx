@@ -9,11 +9,16 @@ import { OfflineBadge } from '../auth/OfflineBadge.tsx';
 import { TrayClock } from './TrayClock.tsx';
 import { CatalogRemovedNotice } from './CatalogRemovedNotice.tsx';
 import { TrayDownloads } from './TrayDownloads.tsx';
+import { dockCovered } from './dock.ts';
+import { useDockReveal } from './useDockReveal.ts';
 import type { ShellWindow } from './windowManager.ts';
 
 const FOCUS_RING = 'focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
 
-/** Floating dock: Start, one entry per open window, and the tray (FR-SHELL-4). */
+/**
+ * Floating dock over the desktop: Start, one entry per open window, and the tray (FR-SHELL-4).
+ * It slides away while a window reaches into its strip (see useDockReveal for bringing it back).
+ */
 export function Taskbar() {
   const { t } = useTranslation();
   const { state, dispatch } = useShell();
@@ -23,6 +28,11 @@ export function Taskbar() {
   const closeStart = useCallback(() => {
     setStartOpen(false);
   }, []);
+  const [focusInside, setFocusInside] = useState(false);
+  // The front-end layer owns the keyboard while it shows; the shell is inert then.
+  const revealed = useDockReveal(!frontend.visible);
+  const hidden =
+    dockCovered(state.windows, state.bounds) && !revealed && !startOpen && !focusInside;
 
   function activate(win: ShellWindow) {
     const isFront = state.focusedId === win.id && !win.minimized;
@@ -32,7 +42,16 @@ export function Taskbar() {
   return (
     <nav
       aria-label={t('shell.taskbar.label')}
-      className="relative z-10 mx-auto mb-3 flex items-center gap-2 rounded-3xl border border-white/10 bg-black/40 px-3 py-2 shadow-2xl backdrop-blur-2xl"
+      data-state={hidden ? 'hidden' : 'shown'}
+      onFocus={() => {
+        setFocusInside(true);
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocusInside(false);
+      }}
+      className={`absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-3xl border border-white/10 bg-black/40 px-3 py-2 shadow-2xl backdrop-blur-2xl transition-[translate,opacity] duration-300 ease-out ${
+        hidden ? 'pointer-events-none translate-y-[160%] opacity-0' : ''
+      }`}
     >
       {startOpen && <StartMenu onClose={closeStart} startButton={startButton} />}
       <button

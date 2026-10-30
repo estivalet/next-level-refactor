@@ -1,5 +1,5 @@
 import type { NextLevelBridge } from '@nextlevel/shared';
-import { render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -83,6 +83,58 @@ describe('Taskbar', () => {
     expect(
       calls.filter((channel) => channel !== 'auth.state' && channel !== 'downloads.list'),
     ).toEqual(['app.quit']);
+  });
+
+  it('FR-SHELL-4: the taskbar slides away when a window reaches into its strip', async () => {
+    const user = userEvent.setup();
+    renderShell();
+    const nav = screen.getByRole('navigation', { name: 'Taskbar' });
+    await user.dblClick(desktopIcons().getByRole('button', { name: 'Account' }));
+    expect(nav).toHaveAttribute('data-state', 'shown');
+
+    await user.dblClick(desktopIcons().getByRole('button', { name: 'Menu Editor' }));
+    expect(nav).toHaveAttribute('data-state', 'hidden');
+  });
+
+  it('FR-SHELL-4: backslash brings the hidden taskbar back and hides it again, not while typing', async () => {
+    const user = userEvent.setup();
+    renderInShell(
+      <>
+        <input aria-label="Notes" />
+        <Desktop taskbar={<Taskbar />} />
+      </>,
+    );
+    const nav = screen.getByRole('navigation', { name: 'Taskbar' });
+    await user.dblClick(desktopIcons().getByRole('button', { name: 'Menu Editor' }));
+
+    await user.keyboard('\\');
+    expect(nav).toHaveAttribute('data-state', 'shown');
+    await user.keyboard('\\');
+    expect(nav).toHaveAttribute('data-state', 'hidden');
+
+    await user.click(screen.getByRole('textbox', { name: 'Notes' }));
+    await user.keyboard('\\');
+    expect(nav).toHaveAttribute('data-state', 'hidden');
+  });
+
+  it('FR-SHELL-4: the bottom screen edge and keyboard focus bring the hidden taskbar back', async () => {
+    const user = userEvent.setup();
+    renderShell();
+    const nav = screen.getByRole('navigation', { name: 'Taskbar' });
+    await user.dblClick(desktopIcons().getByRole('button', { name: 'Menu Editor' }));
+
+    fireEvent.mouseMove(window, { clientY: window.innerHeight - 1 });
+    expect(nav).toHaveAttribute('data-state', 'shown');
+
+    fireEvent.mouseMove(window, { clientY: 10 });
+    await waitFor(() => {
+      expect(nav).toHaveAttribute('data-state', 'hidden');
+    });
+
+    act(() => {
+      within(nav).getByRole('button', { name: 'Start' }).focus();
+    });
+    expect(nav).toHaveAttribute('data-state', 'shown');
   });
 
   it('FR-SHELL-4: the tray shows the time', () => {

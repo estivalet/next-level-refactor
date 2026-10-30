@@ -1,3 +1,25 @@
 @import 'tailwindcss';
 /* Themes live in their own package; their classes must be generated too. */
 @source '../../../../packages/themes/src';
+
+/*
+ * Thin dark scrollbars without arrow buttons, matching the shell's windows (ported from
+ * NextLevelOS src/index.css @ 3d530b7). Only the ::-webkit-scrollbar rules: Chromium ignores
+ * them once scrollbar-color or scrollbar-width is set, and its standard scrollbar keeps arrows.
+ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.15) padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 0.3) padding-box;
+}

@@ -2,6 +2,7 @@ import {
   _electron as electron,
   expect,
   type ElectronApplication,
+  type Locator,
   type Page,
 } from '@playwright/test';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
@@ -61,4 +62,13 @@ export async function leaveFrontend(page: Page): Promise<void> {
   await expect(layer).toBeVisible();
   await page.keyboard.press('KeyM');
   await expect(layer).toBeHidden();
+}
+
+/** The taskbar, brought back first: it slides away while a window reaches into its strip. */
+export async function taskbar(page: Page): Promise<Locator> {
+  const height = await page.evaluate(() => window.innerHeight);
+  await page.mouse.move(200, height - 1);
+  const nav = page.getByRole('navigation', { name: 'Taskbar' });
+  await expect(nav).toHaveAttribute('data-state', 'shown');
+  return nav;
 }

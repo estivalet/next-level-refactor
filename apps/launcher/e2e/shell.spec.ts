@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { appVersion, freshDataDir, launch } from './launch.ts';
+import { appVersion, freshDataDir, launch, taskbar } from './launch.ts';
 
 test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the window, quit from Start', async () => {
   const data = await freshDataDir();
@@ -33,7 +33,7 @@ test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the 
     .toEqual([120, 80]);
 
   const closed = app.waitForEvent('close');
-  await page.getByRole('button', { name: 'Start' }).click();
+  await (await taskbar(page)).getByRole('button', { name: 'Start' }).click();
   await page.getByRole('button', { name: 'Quit' }).click();
   await closed;
   await data.remove();

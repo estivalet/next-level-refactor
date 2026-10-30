@@ -1,7 +1,7 @@
 import { expect, test, type ElectronApplication } from '@playwright/test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { appDir, freshDataDir, launch } from './launch.ts';
+import { appDir, freshDataDir, launch, taskbar } from './launch.ts';
 
 const FAKE_EMULATOR = join(appDir, 'test', 'fixtures', 'fake-emulator.mjs');
 const LOCATION = '01900000-0000-7000-8000-00000000a001';
@@ -87,10 +87,7 @@ test('FR-THM-1, FR-THM-5, US-C2: boot into Big Box, play, back on the same game,
     // FR-THM-3: M goes to the desktop; the taskbar's Front-end button comes back to the same game.
     await page.keyboard.press('KeyM');
     await expect(layer).toBeHidden();
-    await page
-      .getByRole('navigation', { name: 'Taskbar' })
-      .getByRole('button', { name: 'Front-end' })
-      .click();
+    await (await taskbar(page)).getByRole('button', { name: 'Front-end' }).click();
     await expect(layer).toBeVisible();
     await expect(card).toContainText('Homebrew Alpha');
 

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch } from './launch.ts';
+import { freshDataDir, launch, taskbar } from './launch.ts';
 
 const LOCATION = '01900000-0000-7000-8000-00000000a001';
 
@@ -61,7 +61,7 @@ test('FR-MENU-1, FR-MENU-3, US-D5: edit the generated menu, save, and the front-
     await editor.getByRole('button', { name: 'Close' }).click();
 
     // The front-end shows the new structure: Consoles › Nintendo 64, Sega Genesis.
-    await page.getByRole('button', { name: 'Front-end' }).click();
+    await (await taskbar(page)).getByRole('button', { name: 'Front-end' }).click();
     const layer = page.getByTestId('frontend-layer');
     await expect(layer).toBeVisible();
     const card = layer.locator('.bigbox-card');

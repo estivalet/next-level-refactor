@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch, leaveFrontend } from './launch.ts';
+import { freshDataDir, launch, leaveFrontend, taskbar } from './launch.ts';
 
 async function openLibrary(page: Page) {
   await page
@@ -167,7 +167,7 @@ test('FR-LIB-9, D8, FR-MENU-2: a smart filter made in the Library goes into the 
     await editor.getByRole('button', { name: 'Close' }).click();
 
     // The front-end lists it at the top level, after Nintendo.
-    await page.getByRole('button', { name: 'Front-end' }).click();
+    await (await taskbar(page)).getByRole('button', { name: 'Front-end' }).click();
     const card = page.getByTestId('frontend-layer').locator('.bigbox-card');
     await expect(card).toContainText('Nintendo');
     await page.keyboard.press('ArrowRight');
