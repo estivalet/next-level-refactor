@@ -71,6 +71,10 @@ async function setup(downloads: DownloadSummary[]) {
       pause: () => Promise.resolve(),
       resume: () => Promise.resolve(),
       cancel: () => Promise.resolve(),
+      cancelItem: (itemId) => {
+        uninstalls.push(`cancel ${itemId}`);
+        return Promise.resolve();
+      },
     },
     installer: {
       uninstall: (itemId, confirm) => {
@@ -151,7 +155,8 @@ describe('catalog channels behind the IPC (FR-CAT-1..7, US-E1..E3)', () => {
     const t = await setup([]);
     await t.installItem('i1', 'one');
     await t.api.uninstall('i1', false);
-    expect(t.uninstalls).toEqual(['i1:false']);
+    // Its active download (an Update) is cancelled first, so it can't reinstall afterwards.
+    expect(t.uninstalls).toEqual(['cancel i1', 'i1:false']);
     expect((await appErrorOfAsync(() => t.api.uninstall('i1', false))).code).toBe('NOT_FOUND');
   });
 });

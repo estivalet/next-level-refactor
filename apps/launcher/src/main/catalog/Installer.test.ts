@@ -1,9 +1,10 @@
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { copyFile, mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { appErrorOfAsync, seedGames } from '../library/testing.ts';
+import { appErrorOfAsync, seedGames, tempDir } from '../library/testing.ts';
 import { installWorld, LOCAL_ID, MANAGED_ID } from './installWorld.ts';
+import { moveFile } from './Installer.ts';
 
 const closers: Array<() => Promise<void>> = [];
 afterEach(async () => {
@@ -295,5 +296,52 @@ describe('the first install (D45)', () => {
     const art = w.row("select path from game_media where kind = 'box-front'") as
       { path: string } | undefined;
     expect(art?.path).toContain(join(w.managed.path, w.nesFolder, 'media'));
+  });
+});
+
+describe('moveFile across drives', () => {
+  const exdev = () => Object.assign(new Error('cross-device link'), { code: 'EXDEV' });
+
+  it('a cross-drive install copies to <dest>.part and renames', async () => {
+    const temp = await tempDir('nextlevel-move-');
+    closers.push(temp.cleanup);
+    const from = join(temp.dir, 'download.part');
+    const to = join(temp.dir, 'Star Hopper.nes');
+    await writeFile(from, ROM);
+    const renames: string[] = [];
+    await moveFile(from, to, {
+      rename: async (a, b) => {
+        renames.push(`${basename(String(a))} -> ${basename(String(b))}`);
+        if (String(a) === from) throw exdev();
+        await rename(a, b);
+      },
+      copyFile,
+    });
+    expect(renames).toEqual([
+      'download.part -> Star Hopper.nes',
+      'Star Hopper.nes.part -> Star Hopper.nes',
+    ]);
+    expect(await readFile(to)).toEqual(ROM);
+    expect(existsSync(from)).toBe(false);
+    expect(existsSync(`${to}.part`)).toBe(false);
+  });
+
+  it('a copy that breaks off leaves no half file at <dest>', async () => {
+    const temp = await tempDir('nextlevel-move-');
+    closers.push(temp.cleanup);
+    const from = join(temp.dir, 'download.part');
+    const to = join(temp.dir, 'Star Hopper.nes');
+    await writeFile(from, ROM);
+    const failed = moveFile(from, to, {
+      rename: () => Promise.reject(exdev()),
+      copyFile: async (_a, b) => {
+        await writeFile(b, ROM.subarray(0, 10));
+        throw Object.assign(new Error('disk full'), { code: 'ENOSPC' });
+      },
+    });
+    await expect(failed).rejects.toMatchObject({ code: 'ENOSPC' });
+    expect(existsSync(to)).toBe(false);
+    expect(existsSync(`${to}.part`)).toBe(false);
+    expect(await readFile(from)).toEqual(ROM);
   });
 });

@@ -245,6 +245,132 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     expect(w.timeline).toEqual(['grant i1', 'install i1', 'grant i2', 'install i2']);
   });
 
+  it('cancel during verify stops before install and removes the partial files', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    let open: () => void = () => undefined;
+    w.state.verifyGate = new Promise((resolve) => {
+      open = resolve;
+    });
+    const service = w.make();
+    const queued = await service.install('i1');
+    await until(() => w.state.verifying > 0);
+    await service.cancel(queued.id);
+    open();
+    await service.idle();
+    expect(w.installed).toEqual([]);
+    expect(service.list()).toEqual([]);
+    expect(existsSync(join(w.dir, queued.id))).toBe(false);
+    expect(w.eventsOf('downloads.finished').at(-1)).toMatchObject({ result: 'cancelled' });
+  });
+
+  it('pause during verify keeps the verified part and resumes without re-downloading', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    let open: () => void = () => undefined;
+    w.state.verifyGate = new Promise((resolve) => {
+      open = resolve;
+    });
+    const service = w.make();
+    const queued = await service.install('i1');
+    await until(() => w.state.verifying > 0);
+    await service.pause(queued.id);
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'paused', pausedReason: 'user' });
+    expect(w.installed).toEqual([]);
+    open();
+    w.state.verifyGate = null;
+    const requests = w.server.ranges.length;
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.server.ranges).toHaveLength(requests);
+    expect(w.installed[0]?.bytes).toEqual([body('one')]);
+  });
+
+  it('a 200 answer to a Range request restarts the count (bytesDone ≤ bytesTotal)', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.free = 10;
+    const service = w.make();
+    const queued = await service.install('i1');
+    await service.idle();
+    w.state.free = 10 ** 12;
+    await writeFile(join(w.dir, queued.id, 'f1.part'), body('one').subarray(0, 30));
+    w.server.ignoreRange(w.token('i1'));
+    w.server.cutAfter(w.token('i1'), 100);
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.server.ranges.at(-1)).toBe('bytes=30-');
+    expect(service.list()[0]).toMatchObject({ state: 'paused', bytesDone: 100 });
+  });
+
+  it('Resume right after Pause resumes (no lost resume)', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.server.hold(w.token('i1'), 50);
+    const service = w.make();
+    const queued = await service.install('i1');
+    const part = join(w.dir, queued.id, 'f1.part');
+    await until(() => existsSync(part) && statSync(part).size >= 50);
+    w.server.release(w.token('i1'));
+    await service.pause(queued.id);
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.installed[0]?.bytes).toEqual([body('one')]);
+    expect(service.list()).toEqual([]);
+  });
+
+  it('cancelling a queued download deletes its row before its folder; the loop never picks it up', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.add('i2', [body('two')]);
+    w.server.hold(w.token('i1'), 20);
+    const service = w.make();
+    const first = await service.install('i1');
+    const second = await service.install('i2');
+    const cancelling = service.cancel(second.id);
+    // Before the folder is touched, the row is already gone: the loop can't pick it up.
+    expect(w.repo.get(second.id)).toBeUndefined();
+    await cancelling;
+    await service.cancel(first.id);
+    await service.idle();
+    expect(w.timeline).not.toContain('grant i2');
+  });
+
+  it('a row that no longer parses is dropped and logged; the rest of the queue runs', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.add('i2', [body('two')]);
+    w.state.offline = true;
+    const service = w.make();
+    const bad = await service.install('i1');
+    await service.install('i2');
+    await service.idle();
+    w.db.$client.prepare('update downloads set item = \'{"old":1}\' where id = ?').run(bad.id);
+    w.state.offline = false;
+    service.networkBack();
+    await service.idle();
+    expect(w.installed.map((done) => done.item.id)).toEqual(['i2']);
+    expect(service.list()).toEqual([]);
+    expect(w.db.$client.prepare('select count(*) as n from downloads').get()).toEqual({ n: 0 });
+    expect(existsSync(join(w.dir, bad.id))).toBe(false);
+    expect(JSON.stringify(w.logged)).toContain('catalog download unreadable');
+  });
+
+  it('cancelItem cancels the active download of an item (uninstall, lapse removal)', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.server.hold(w.token('i1'), 20);
+    const service = w.make();
+    const queued = await service.install('i1');
+    await until(() => existsSync(join(w.dir, queued.id, 'f1.part')));
+    await service.cancelItem('i1');
+    await service.cancelItem('i-none');
+    await service.idle();
+    expect(service.list()).toEqual([]);
+    expect(w.installed).toEqual([]);
+  });
+
   it('download URLs are never logged', async () => {
     const w = await downloadWorld(closers);
     w.add('i1', [body('one')]);

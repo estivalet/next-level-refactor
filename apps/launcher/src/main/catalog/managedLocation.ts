@@ -1,4 +1,10 @@
-import { orderedLocations, type Settings, type StorageLocation } from '@nextlevel/shared';
+import {
+  AppErrorException,
+  orderedLocations,
+  type Result,
+  type Settings,
+  type StorageLocation,
+} from '@nextlevel/shared';
 import { join } from 'node:path';
 
 const withLocations = (settings: Settings, locations: StorageLocation[]): Settings => ({
@@ -74,4 +80,31 @@ export function keepManagedHistory(
       : [location],
   );
   return withLocations(next, managedLast(locations));
+}
+
+/**
+ * The Catalog games folder as the installer asks for it: the managed location, added to settings
+ * (one save) when missing, with its folder made. startCatalog calls it once at start, so
+ * Settings → Storage shows the Catalog row before the first install.
+ */
+export function managedLocationOf(o: {
+  current: () => Settings;
+  update: (change: (settings: Settings) => Settings) => Promise<Result<{ settings: Settings }>>;
+  root: string;
+  newId: () => string;
+  mkdir: (path: string) => Promise<unknown>;
+}): () => Promise<StorageLocation> {
+  return async () => {
+    const found = ensureManagedLocation(o.current(), o.root, o.newId);
+    let location = found.location;
+    if (found.added) {
+      const saved = await o.update(
+        (settings) => ensureManagedLocation(settings, o.root, o.newId).settings,
+      );
+      if (!saved.ok) throw new AppErrorException(saved.error);
+      location = saved.value.settings.storage.locations.find((l) => l.managed) ?? location;
+    }
+    await o.mkdir(location.path);
+    return location;
+  };
 }

@@ -10,6 +10,7 @@ export async function fakeFilesServer() {
   const refused = new Map<string, number>();
   const cuts = new Map<string, number>();
   const holds = new Map<string, number>();
+  const wholeOnly = new Set<string>();
   const ranges: Array<string | undefined> = [];
   const server: Server = createServer((request, response) => {
     const token = (request.url ?? '').replace(/^\/v1\/files\//, '');
@@ -24,7 +25,7 @@ export async function fakeFilesServer() {
       response.writeHead(404).end();
       return;
     }
-    const match = /^bytes=(\d+)-$/.exec(request.headers.range ?? '');
+    const match = wholeOnly.has(token) ? null : /^bytes=(\d+)-$/.exec(request.headers.range ?? '');
     const start = match ? Number(match[1]) : 0;
     if (start >= body.length && body.length > 0) {
       response.writeHead(416).end();
@@ -71,6 +72,10 @@ export async function fakeFilesServer() {
     /** Responses for this token stall after `bytes` bytes until `release`. */
     hold(token: string, bytes: number) {
       holds.set(token, bytes);
+    },
+    /** Answers this token with the whole file (200) even when a Range is asked for. */
+    ignoreRange(token: string) {
+      wholeOnly.add(token);
     },
     release(token: string) {
       holds.delete(token);

@@ -43,7 +43,17 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
     grantCalls: number;
     /** Answers the next grant instead of the default. */
     nextGrant: ((itemId: string) => Promise<DownloadGrant>) | null;
-  } = { free: 10 ** 12, offline: false, grantCalls: 0, nextGrant: null };
+    /** While set, checksums wait for it (a download held in verify). */
+    verifyGate: Promise<void> | null;
+    verifying: number;
+  } = {
+    free: 10 ** 12,
+    offline: false,
+    grantCalls: 0,
+    nextGrant: null,
+    verifyGate: null,
+    verifying: 0,
+  };
   const grants = (itemId: string): Promise<DownloadGrant> => {
     timeline.push(`grant ${itemId}`);
     state.grantCalls += 1;
@@ -111,6 +121,21 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
         return `d${String(ids)}`;
       },
       locks: new ItemLocks(),
+      hash: async (path, signal) => {
+        state.verifying += 1;
+        if (state.verifyGate) {
+          const gate = state.verifyGate;
+          await new Promise<void>((resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(signal.reason as Error);
+            });
+            void gate.then(resolve);
+          });
+        }
+        return createHash('sha256')
+          .update(await readFile(path))
+          .digest('hex');
+      },
     });
 
   /** Publishes an item; `bodies` are its files' bytes (a wrong `sha256` makes C9 fail). */
@@ -142,6 +167,7 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
   return {
     server,
     repo,
+    db: library.db,
     dir: temp.dir,
     make,
     add,

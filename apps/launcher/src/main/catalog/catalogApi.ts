@@ -14,7 +14,10 @@ import type { ItemLocks } from './itemLocks.ts';
 
 export interface CatalogApiDeps {
   client: Pick<CatalogClient, 'list' | 'get'>;
-  downloads: Pick<DownloadService, 'list' | 'install' | 'pause' | 'resume' | 'cancel'>;
+  downloads: Pick<
+    DownloadService,
+    'list' | 'install' | 'pause' | 'resume' | 'cancel' | 'cancelItem'
+  >;
   installer: Pick<Installer, 'uninstall'>;
   installs: Pick<CatalogInstallRepository, 'all' | 'byItem'>;
   locks: ItemLocks;
@@ -99,7 +102,10 @@ export function createCatalogApi(deps: CatalogApiDeps): CatalogApi & {
           new AppErrorException({ code: 'NOT_FOUND', message: ERROR_CODES.NOT_FOUND }),
         );
       }
-      return deps.locks.run(itemId, () => deps.installer.uninstall(itemId, confirm));
+      // Its download (an Update) is cancelled first, outside the lock its install step takes.
+      return deps.downloads
+        .cancelItem(itemId)
+        .then(() => deps.locks.run(itemId, () => deps.installer.uninstall(itemId, confirm)));
     },
     installed: () =>
       deps.installs.all().map((install) => ({

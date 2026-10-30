@@ -37,6 +37,7 @@ import type { ScreenScraperClient } from './scraper/screenscraper/client.ts';
 import type { QuotaGate } from './scraper/screenscraper/quota.ts';
 import { ScrapeRepository } from './library/ScrapeRepository.ts';
 import type { EmitEvent } from './ipc/events.ts';
+import { libraryCloser } from './library/libraryCloser.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
 /** What the library needs from the app shell (index.ts). */
@@ -52,7 +53,13 @@ export interface LibraryHost {
   /** The NextLevel folder moved since last boot: media paths follow (D50). */
   moved: { from: string; to: string } | null;
   /** The library is open: the catalog (M9e) builds on its database and repositories. */
-  onOpened?: (parts: { db: LibraryDb; games: GameRepository; media: MediaRepository }) => void;
+  onOpened?: (parts: {
+    db: LibraryDb;
+    games: GameRepository;
+    media: MediaRepository;
+    /** Runs at quit before the database closes (the download queue stops first). */
+    beforeClose: (step: () => void) => void;
+  }) => void;
 }
 
 export const currentSettings = (settings: SettingsService) => {
@@ -137,9 +144,12 @@ export function startLibrary(
     log.warn({ error }, 'could not remove old extraction folders');
   });
   // will-quit: after before-quit has let pending settings writes finish (start()).
+  const closer = libraryCloser(() => {
+    db.$client.close();
+  });
   app.on('will-quit', () => {
     scan.cancel();
-    db.$client.close();
+    closer.close();
   });
   const menus = new MenuRepository(db, () => new Date(), uuidv7);
   const smartFilters = new SmartFilterRepository(db, () => new Date());
@@ -218,9 +228,16 @@ export function startLibrary(
     },
   });
   batch.restore();
-  host.onOpened?.({ db, games, media });
-  app.on('will-quit', () => {
+  closer.beforeClose(() => {
     batch.dispose();
+  });
+  host.onOpened?.({
+    db,
+    games,
+    media,
+    beforeClose: (step) => {
+      closer.beforeClose(step);
+    },
   });
   return {
     scrape,

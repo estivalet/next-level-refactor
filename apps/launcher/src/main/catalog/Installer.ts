@@ -49,13 +49,27 @@ function inside(folder: string, path: string): boolean {
   return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel);
 }
 
-/** Rename, or copy then delete across drives (data on C:, the Catalog folder on D:). */
-async function move(from: string, to: string): Promise<void> {
+/**
+ * Rename, or across drives (data on C:, the Catalog folder on D:) copy to `<to>.part` and rename
+ * that, so a copy that breaks off never leaves a half file where the scan would find it.
+ */
+export async function moveFile(
+  from: string,
+  to: string,
+  fs: { rename: typeof rename; copyFile: typeof copyFile } = { rename, copyFile },
+): Promise<void> {
   try {
-    await rename(from, to);
+    await fs.rename(from, to);
   } catch (error) {
     if ((error as { code?: unknown }).code !== 'EXDEV') throw error;
-    await copyFile(from, to);
+    const part = `${to}.part`;
+    try {
+      await fs.copyFile(from, part);
+      await fs.rename(part, to);
+    } catch (copyError) {
+      await rm(part, { force: true });
+      throw copyError;
+    }
     await rm(from, { force: true });
   }
 }
@@ -115,7 +129,7 @@ export class Installer implements ItemInstaller {
     await mkdir(itemDir, { recursive: true });
     const written: string[] = [];
     for (const file of files) {
-      await move(file.path, join(itemDir, file.filename));
+      await moveFile(file.path, join(itemDir, file.filename));
       written.push([folder, item.slug, file.filename].join('/'));
     }
     if (previous) {
