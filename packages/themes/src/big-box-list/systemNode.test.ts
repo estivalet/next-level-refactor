@@ -23,6 +23,7 @@ const games = (n: MenuNode): Level => ({
   kind: 'games',
   node: n,
   systemId: n.systemId ?? null,
+  systemName: n.name,
   games: [],
   loading: false,
   lastFocusIndex: 0,

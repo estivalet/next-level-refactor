@@ -90,7 +90,7 @@ export function BigBoxListTheme({
     levelKind: level?.kind,
     focusKey: isGames ? String(focusedGame?.id ?? '') : (nav.focusedNode?.name ?? ''),
     games: controller.games,
-    systemName: level?.kind === 'games' ? level.node.name : '',
+    systemName: level?.kind === 'games' ? level.systemName : '',
   });
 
   const { accent, accentSoft } = accentFor(nav.state.stack[1]?.node?.name ?? null);

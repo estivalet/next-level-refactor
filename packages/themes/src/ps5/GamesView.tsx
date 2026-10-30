@@ -40,7 +40,7 @@ export function GamesView({
   }));
   const activeLabel = tabs.find((tab) => tab.id === tabbed.activeTabId)?.label ?? '';
   const iconImages = art
-    .menuBackgroundLayers(level.node.name)
+    .menuBackgroundLayers(level.systemName)
     .flatMap((layer) => (layer.kind === 'image' ? layer.candidates : []));
 
   return (
@@ -72,7 +72,7 @@ export function GamesView({
         <div className="ps5-games-title">
           <ArtTile
             imageCandidates={iconImages}
-            logoCandidates={art.logo(level.node.name)}
+            logoCandidates={art.logo(level.systemName)}
             label=""
             focused={false}
             className="ps5-games-icon"

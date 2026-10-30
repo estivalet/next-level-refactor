@@ -25,6 +25,7 @@ const gamesLevel = (games = [game(1), game(2), game(3)], loading = false): Level
   kind: 'games',
   node: systemNode('atari', 'Atari 2600'),
   systemId: 'atari',
+  systemName: 'Atari 2600',
   games,
   loading,
   lastFocusIndex: 0,

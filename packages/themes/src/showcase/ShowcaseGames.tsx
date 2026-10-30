@@ -37,10 +37,10 @@ export function ShowcaseGames({
   return (
     <GamesView
       title={title}
-      // A filter level ("Official", "Homebrew"…) has no logo of its own: show its system's
-      // logo, and the filter's name as text under it. Filter nodes carry the system's name.
-      systemLogo={art.logo(level.node.name)}
-      systemName={level.node.name}
+      // A filter level ("Official", "Homebrew"…) shows its system's logo, and the filter's
+      // name as text under it.
+      systemLogo={art.logo(level.systemName)}
+      systemName={level.systemName}
       filterLabel={isFilter ? title : undefined}
       game={focusedGame}
       videoCandidates={video ? [video] : []}

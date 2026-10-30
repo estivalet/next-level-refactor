@@ -13,8 +13,8 @@ import type { Level } from './types.ts';
 
 const atari = systemNode('atari', 'Atari 2600');
 const consoles = category('Consoles', [atari]);
-const favorite = filterNode('neogeo', 'SNK Neo Geo', 'favorite');
-const official = filterNode('neogeo', 'SNK Neo Geo', 'official');
+const favorite = filterNode('neogeo', 'Favorite', 'favorite');
+const official = filterNode('neogeo', 'Official', 'official');
 const neogeo = systemNode('neogeo', 'SNK Neo Geo', [favorite, official]);
 const collection = collectionNode(3, 'Trackball Classics');
 
@@ -63,16 +63,22 @@ describe('resolveLevel (FR-THM-1)', () => {
     expect(resolveLevel(atari, [consoles])).toMatchObject({
       kind: 'games',
       systemId: 'atari',
+      systemName: 'Atari 2600',
       loading: true,
       games: [],
     });
     expect(resolveLevel(favorite, [consoles, neogeo])).toMatchObject({
       kind: 'games',
       systemId: 'neogeo',
+      systemName: 'SNK Neo Geo',
       filter: 'favorite',
       loading: true,
     });
-    expect(resolveLevel(collection, [])).toMatchObject({ kind: 'games', systemId: null });
+    expect(resolveLevel(collection, [])).toMatchObject({
+      kind: 'games',
+      systemId: null,
+      systemName: 'Trackball Classics',
+    });
   });
 });
 

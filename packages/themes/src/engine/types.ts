@@ -19,6 +19,8 @@ export type Level =
       node: MenuNode;
       /** Nearest ancestor-or-self system; null for a collection. */
       systemId: string | null;
+      /** Art key for the system wallpaper and logo: the nearest system's name, else `node.name`. */
+      systemName: string;
       /** Present when the level came from a filter node. */
       filter?: string;
       /** On a level entered with `{ flattenFilters: true }`: the node's filter children, as tabs. */

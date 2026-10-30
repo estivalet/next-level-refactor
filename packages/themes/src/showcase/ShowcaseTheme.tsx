@@ -115,7 +115,7 @@ export function ShowcaseTheme({ onExit, inputEnabled = true, active = true }: Th
     levelKind: level?.kind,
     focusKey: isGames ? String(games.focusedGame?.id ?? '') : (focusedMenuItem?.name ?? ''),
     games: games.games,
-    systemName: level?.kind === 'games' ? level.node.name : '',
+    systemName: level?.kind === 'games' ? level.systemName : '',
   });
 
   useNavigationSound({

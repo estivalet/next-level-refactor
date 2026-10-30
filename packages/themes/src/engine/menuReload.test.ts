@@ -37,6 +37,7 @@ function inSaturn(): EngineState {
     kind: 'games',
     node: saturn,
     systemId: 'saturn',
+    systemName: saturn.name,
     games: [game(1), game(2), game(3)],
     loading: false,
     lastFocusIndex: 0,

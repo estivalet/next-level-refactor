@@ -90,7 +90,7 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
     levelKind: level?.kind,
     focusKey: focusedMenuItem?.name ?? '',
     games: games.games,
-    systemName: level?.kind === 'games' ? level.node.name : '',
+    systemName: level?.kind === 'games' ? level.systemName : '',
   });
 
   useNavigationSound({

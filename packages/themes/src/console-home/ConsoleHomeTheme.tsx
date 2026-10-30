@@ -75,7 +75,7 @@ export function ConsoleHomeTheme({
     levelKind: level?.kind,
     focusKey: isGames ? String(focusedGame?.id ?? '') : (focusedMenuItem?.name ?? ''),
     games: games.games,
-    systemName: level?.kind === 'games' ? level.node.name : '',
+    systemName: level?.kind === 'games' ? level.systemName : '',
   });
 
   useNavigationSound({

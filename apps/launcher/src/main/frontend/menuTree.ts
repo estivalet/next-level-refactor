@@ -50,8 +50,9 @@ export function filterNodes(
   );
   return ordered.map((filter) => ({
     id: `${baseId}:f:${filter}`,
-    // A filter shows its system's art, as in NextLevelOS `{ name, filter }` entries.
-    name: system.name,
+    // A filter has art of its own (`logo/clear/Official.png`), as NextLevelOS `{ name, filter }`
+    // entries did; its game list uses the system's art (the level's `systemName`).
+    name: readable(filter),
     display: readable(filter),
     ...(KNOWN_FILTERS.has(filter) ? { labelKey: `frontend.filters.${filter}` } : {}),
     type: 'filter' as const,

@@ -24,6 +24,19 @@ export function findSystemId(ancestors: readonly MenuNode[], node: MenuNode): st
   return null;
 }
 
+/**
+ * The art key of the nearest system node in `[...ancestors, node]`, else `node`'s own (a
+ * collection). A filter ("Official") has art of its own; its game list uses its system's.
+ */
+export function findSystemName(ancestors: readonly MenuNode[], node: MenuNode): string {
+  const chain = [...ancestors, node];
+  for (let i = chain.length - 1; i >= 0; i -= 1) {
+    const at = chain[i];
+    if (at?.type === 'system') return at.name;
+  }
+  return node.name;
+}
+
 /** What a theme shows for a node: its translated label when it has one, else its display name. */
 export function nodeLabel(node: MenuNode, t: (key: string) => string): string {
   return node.labelKey ? t(node.labelKey) : node.display;
@@ -39,6 +52,7 @@ export function resolveLevel(
     kind: 'games' as const,
     node,
     systemId,
+    systemName: findSystemName(ancestors, node),
     games: [],
     loading: true,
     lastFocusIndex: 0,
