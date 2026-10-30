@@ -5,7 +5,7 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
-## [0.9.0] - 2026-10-29
+## [0.9.0] - 2026-10-30
 
 M9 — Catalog & downloads. Admins publish rights-cleared games with a verified license in the
 console; subscribers browse what their plan includes, install them with resumable, checksum-
