@@ -44,7 +44,14 @@ export function launch(
   return electron.launch({
     args: [appDir],
     // Sign-in is off unless a test turns it on (D25); auth.spec.ts passes NEXTLEVEL_AUTH: 'on'.
-    env: { ...env, NEXTLEVEL_AUTH: 'off', ...extraEnv, NEXTLEVEL_USER_DATA: dataDir },
+    // The first-run wizard is skipped unless a test asks for it (setup.spec.ts: 'show').
+    env: {
+      ...env,
+      NEXTLEVEL_AUTH: 'off',
+      NEXTLEVEL_E2E_SETUP: 'skip',
+      ...extraEnv,
+      NEXTLEVEL_USER_DATA: dataDir,
+    },
   });
 }
 

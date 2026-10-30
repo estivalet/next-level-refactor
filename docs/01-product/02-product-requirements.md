@@ -62,13 +62,13 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 
 | ID | Requirement | P |
 |---|---|---|
-| FR-CAT-1 | Subscribers browse the catalog by system, genre and text search, filtered to what their plan allows. | M |
+| FR-CAT-1 | Subscribers browse the catalog by system, genre and text search, filtered to what their plan allows. Built in M9 (Catalog app Browse: Starter set, New, per-system rows; scopes enforced by the API, C8). | M |
 | FR-CAT-2 | Each catalog item shows title, system, description, art, size, license and rights holder/credit. | M |
-| FR-CAT-3 | Install downloads the files into a launcher-managed storage location, verifies SHA-256 checksums, and adds the game (with metadata and art) to the library. | M |
-| FR-CAT-4 | Downloads are resumable, queued, cancellable, and show progress. | M |
+| FR-CAT-3 | Install downloads the files into a launcher-managed storage location, verifies SHA-256 checksums, and adds the game (with metadata and art) to the library. Built in M9: the Catalog games folder (`<NextLevel folder>\Catalog` by default, D45). | M |
+| FR-CAT-4 | Downloads are resumable, queued, cancellable, and show progress. Built in M9: one at a time, queue and partial files survive restarts, an expired link is asked for again once. | M |
 | FR-CAT-5 | Installed catalog games can be uninstalled from the launcher. Local ROMs are never deleted by uninstall. | M |
 | FR-CAT-6 | Download URLs are short-lived and tied to the user; they cannot be shared. | M |
-| FR-CAT-7 | When a catalog item is removed or a subscription lapses, installed copies remain playable or are removed according to the item's license terms (field on the item). | M |
+| FR-CAT-7 | When a catalog item is removed or a subscription lapses, installed copies remain playable or are removed according to the item's license terms (field on the item). Built in M9: `on_lapse` keep/remove, applied after each online sign-in check (D43); a lapsed subscription locks the launcher and removes nothing. | M |
 | FR-CAT-8 | Every catalog item has a license record (see [content policy](../06-legal/content-policy.md)); items without one cannot be published. | M |
 
 ## 6. Themes & front-end mode (`FR-THM`)
@@ -129,7 +129,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 
 | ID | Requirement | P |
 |---|---|---|
-| FR-ONB-1 | First-run wizard: sign in → choose systems → add ROM folders (or skip) → pick emulator executables for enabled systems (or skip) → pick a theme. Every step can be skipped and revisited in Settings. | M |
+| FR-ONB-1 | First-run wizard: sign in → choose systems → add ROM folders (or skip) → pick emulator executables for enabled systems (or skip) → pick a theme. Every step can be skipped and revisited in Settings. Built in M9 (D48; Settings → General → Run setup again; existing installs skip it). | M |
 | FR-ONB-2 | A user who skips everything lands in the catalog with a suggested starter set. | M |
 | FR-IMP-1 | Import a current NextLevelOS data folder: storage, systems, launchers (as emulator profiles where possible), menus, gamelists, collections, favorites/hidden/played, themes, ScreenScraper IDs. | M |
 | FR-IMP-2 | The importer is a dry run first: it reports what maps, what doesn't, and why, before writing anything. | M |
@@ -140,10 +140,10 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 |---|---|---|
 | FR-ADM-1 | Users: list, search, view subscription and devices, grant complimentary access, suspend/unsuspend, change role. Complimentary grants: M8 (plan, optional end, note; D35); also Delete account (D36). | M |
 | FR-ADM-2 | Plans: create, edit, archive; set price IDs, device limit, catalog scopes. | M |
-| FR-ADM-3 | Catalog: create items, upload files, attach art and metadata, attach license record, publish/unpublish. | M |
+| FR-ADM-3 | Catalog: create items, upload files, attach art and metadata, attach license record, publish/unpublish. Built in M9 (console Catalog; see the catalog guide). | M |
 | FR-ADM-4 | Settings: grace period, sign-up open/closed (allow-list mode), maintenance banner text. | M |
 | FR-ADM-5 | Audit log of every admin action (who, what, when, before/after). | M |
-| FR-ADM-6 | Dashboard: active subscribers, downloads per day, top catalog items. | S |
+| FR-ADM-6 | Dashboard: active subscribers, downloads per day, top catalog items. Built in M9 (D49: plus MRR, latest sign-ups, failed payments). | S |
 
 ## 12. Non-functional requirements (`NFR`)
 

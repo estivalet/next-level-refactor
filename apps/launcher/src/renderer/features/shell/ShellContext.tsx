@@ -34,13 +34,18 @@ export function ShellProvider({
   children,
   initialBounds,
   initialFrontend = FRONTEND_CLOSED,
+  initialActions,
 }: {
   children: ReactNode;
   initialBounds: Bounds;
   /** Whether the launcher boots into the front-end (FR-THM-5). */
   initialFrontend?: FrontendState;
+  /** Windows to open as the shell starts (the Catalog after the wizard, FR-ONB-2). */
+  initialActions?: readonly WindowAction[];
 }) {
-  const [state, dispatch] = useReducer(windowReducer, initialBounds, initialWindowState);
+  const [state, dispatch] = useReducer(windowReducer, initialBounds, (bounds) =>
+    (initialActions ?? []).reduce(windowReducer, initialWindowState(bounds)),
+  );
   const [frontend, frontendDispatch] = useReducer(frontendReducer, initialFrontend);
   // Stable show/hide, so effects and memoized children don't rerun on every change.
   const actions = useMemo(

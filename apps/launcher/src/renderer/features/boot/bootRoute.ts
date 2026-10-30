@@ -20,18 +20,23 @@ export function bootFrontend(target: BootTarget, hasGames: boolean): FrontendSta
   return OPEN;
 }
 
+export const BOOT_ROUTE_KEY = ['boot.route'] as const;
+
 /** Where the shell starts; set once by BootGate. */
 export const BootRouteContext = createContext<FrontendState>(FRONTEND_CLOSED);
+
+/** An app the shell opens as it starts: the Catalog after the wizard's Browse catalog (FR-ONB-2). */
+export const SetupLandingContext = createContext<'catalog' | null>(null);
 
 /**
  * Decides once, at boot, whether the launcher opens in the front-end (FR-THM-5). A chosen theme
  * is recorded as the last used before the shell shows, so the front-end opens it. Anything that
- * fails here boots to the desktop. (The first-run wizard joins this routing in M9.)
+ * fails here boots to the desktop. The first-run wizard comes before it (BootGate, D48).
  */
 export function useBootRoute(settings: Settings | null) {
   const client = useQueryClient();
   return useQuery({
-    queryKey: ['boot.route'],
+    queryKey: BOOT_ROUTE_KEY,
     enabled: settings !== null,
     staleTime: Infinity,
     gcTime: Infinity,

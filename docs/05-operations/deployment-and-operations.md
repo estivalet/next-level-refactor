@@ -57,7 +57,7 @@ for TLS, Cloudflare R2 for files (no egress fees, which matters for game downloa
 | What | How | Frequency | Retention |
 |---|---|---|---|
 | API SQLite DB | `sqlite3 .backup` → gzip → R2 backup bucket (separate credentials) | nightly + before each migration | 30 daily, 12 monthly |
-| Catalog files | R2 bucket versioning on | continuous | 30 days of versions |
+| Catalog files | Until M10: `FILES_DIR` on the API machine (default `<database folder>/files`, D40) — back it up together with the database (same night, same retention); from M10: R2 bucket versioning on | nightly (M9) / continuous (M10) | 30 days of versions |
 | License evidence | same as catalog files, separate prefix | continuous | life of the item + 3 years |
 | Launcher user data | user's machine: settings backups (10), library DB backup before migrations | on change | — |
 
@@ -114,8 +114,14 @@ Admin console → user → Suspend (sessions die at next refresh, ≤ 15 min) �
 (refresh lifetime), remove the old one. Google/Stripe/R2 keys: create new, deploy, revoke old.
 
 ### Remove a catalog item urgently (takedown)
-Admin console → item → Unpublish → set `on_lapse = remove` → launchers remove installed copies at
-next `/catalog/changes` sync. Record the request and action in the audit log note.
+As built (M9): Admin console → Catalog → the item → **Publish** tab → set **When it leaves the
+catalog** to **Remove** (saved at once) → **Unpublish** (confirm). New download links stop at
+once (an issued link for an unpublished item answers 410). Installed copies are deleted at each
+launcher's next online sign-in check (at start and hourly), and the player sees which games
+went. The audit log records the change and the unpublish with the admin. If the license itself is
+the problem, saving a new license also unpublishes the item until it is verified again. Write the
+request (who asked, when, why) in the item's notes outside the system; the audit log has the
+actions.
 
 ## 7. Smoke test (after every deploy)
 

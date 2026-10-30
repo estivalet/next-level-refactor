@@ -1,6 +1,7 @@
 import { Gamepad2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LaunchErrorDetails, launchDetails } from '../launch/LaunchErrorDetails.tsx';
+import { LocateEmulator } from '../setup/LocateEmulator.tsx';
 import { useOpenApp } from '../shell/useOpenApp.ts';
 import { useGameDetails } from './libraryApi.ts';
 import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from './Modal.tsx';
@@ -25,7 +26,15 @@ function PlayingOverlay({ gameId }: { gameId: number }) {
 }
 
 /** Why a Play failed, the emulator's output, and a link to the setting that fixes it (US-C2). */
-function LaunchErrorDialog({ failure, onClose }: { failure: PlayFailure; onClose: () => void }) {
+function LaunchErrorDialog({
+  failure,
+  onClose,
+  onRetry,
+}: {
+  failure: PlayFailure;
+  onClose: () => void;
+  onRetry: () => void;
+}) {
   const { t } = useTranslation();
   const openApp = useOpenApp();
   const title = useGameDetails(failure.gameId).data?.title;
@@ -59,6 +68,17 @@ function LaunchErrorDialog({ failure, onClose }: { failure: PlayFailure; onClose
     >
       <div className="flex flex-col gap-3">
         <LaunchErrorDetails error={failure.error} />
+        {failure.error?.code === 'NO_PROFILE' && fix?.section === 'systems' && fix.id && (
+          // US-B1: no emulator for the system — point at one, or get it from its site.
+          <LocateEmulator
+            systemId={fix.id}
+            label={t('library.launchError.locate')}
+            onLocated={() => {
+              onClose();
+              onRetry();
+            }}
+          />
+        )}
         {exitCode !== undefined && (
           <p className="text-xs text-slate-300">
             {t('library.launchError.exitCode', { code: exitCode })}
@@ -82,7 +102,15 @@ export function PlayLayer({ play }: { play: Play }) {
   return (
     <>
       {play.runningGameId !== null && <PlayingOverlay gameId={play.runningGameId} />}
-      {play.failure && <LaunchErrorDialog failure={play.failure} onClose={play.dismiss} />}
+      {play.failure && (
+        <LaunchErrorDialog
+          failure={play.failure}
+          onClose={play.dismiss}
+          onRetry={() => {
+            if (play.failure) play.play(play.failure.gameId);
+          }}
+        />
+      )}
     </>
   );
 }

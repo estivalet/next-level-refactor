@@ -2,7 +2,14 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../settings/settingsApi.ts';
 import { AuthGate } from '../auth/AuthGate.tsx';
-import { BootRouteContext, useBootRoute } from './bootRoute.ts';
+import { SetupWizard } from '../setup/SetupWizard.tsx';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  BOOT_ROUTE_KEY,
+  BootRouteContext,
+  SetupLandingContext,
+  useBootRoute,
+} from './bootRoute.ts';
 import { RecoveryScreen } from './RecoveryScreen.tsx';
 import { Splash } from './Splash.tsx';
 
@@ -13,6 +20,7 @@ import { Splash } from './Splash.tsx';
  */
 export function BootGate({ children }: { children: ReactNode }) {
   const settings = useSettings();
+  const client = useQueryClient();
   // useTranslation re-renders this component when the language changes.
   const { i18n } = useTranslation();
   const loaded = settings.data?.kind === 'ok' ? settings.data.snapshot.settings : null;
@@ -22,6 +30,13 @@ export function BootGate({ children }: { children: ReactNode }) {
   // (that would close every window).
   const [booted, setBooted] = useState(false);
   if (!booted && language !== null && i18n.language === language) setBooted(true);
+  // The wizard is decided once, from the first usable settings (D48): "Run setup again" shows
+  // it at the next start, not at once.
+  const [setup, setSetup] = useState<'pending' | 'wizard' | 'done'>('pending');
+  if (setup === 'pending' && loaded) {
+    setSetup(loaded.general.setupCompletedAt === null ? 'wizard' : 'done');
+  }
+  const [landing, setLanding] = useState<'catalog' | null>(null);
 
   useEffect(() => {
     if (!language) return;
@@ -43,7 +58,22 @@ export function BootGate({ children }: { children: ReactNode }) {
   // The gate layer (IA §1): after settings, so its screens are in the user's language.
   return (
     <AuthGate>
-      <BootRouteContext value={route.data}>{children}</BootRouteContext>
+      {setup === 'wizard' ? (
+        <SetupWizard
+          onDone={(where) => {
+            // The route was decided before the wizard, with an empty library: decide it again
+            // (the wizard may have found games and picked a theme).
+            void client.refetchQueries({ queryKey: BOOT_ROUTE_KEY }).finally(() => {
+              setLanding(where);
+              setSetup('done');
+            });
+          }}
+        />
+      ) : (
+        <SetupLandingContext value={landing}>
+          <BootRouteContext value={route.data}>{children}</BootRouteContext>
+        </SetupLandingContext>
+      )}
     </AuthGate>
   );
 }

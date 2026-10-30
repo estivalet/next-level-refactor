@@ -19,6 +19,7 @@ import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { startCatalog } from './catalog/startCatalog.ts';
+import { markSetupAtBoot } from './settings/setupComplete.ts';
 import { currentSettings, startLibrary, type LibraryHost } from './startLibrary.ts';
 import { preparePortable, setPortablePaths } from './portable/boot.ts';
 import { electronPaths } from './portable/portableRoot.ts';
@@ -306,6 +307,13 @@ async function start(): Promise<void> {
     },
   });
   registerIpcRouter(ipcMain, createIpcRouter(handlers, log));
+  // D48: an existing install never sees the first-run wizard; decided before the window opens.
+  await markSetupAtBoot(
+    settings,
+    library?.repo.systemCounts().reduce((sum, row) => sum + row.games, 0) ?? 0,
+    // e2e (development builds only): the other tests start at the desktop.
+    { skip: !app.isPackaged && process.env['NEXTLEVEL_E2E_SETUP'] === 'skip', log },
+  );
   mainWindow = createWindow();
   // The gate shows "checking" until boot routing (F2) settles; it never blocks the window.
   signIn.start().catch((error: unknown) => {

@@ -414,7 +414,10 @@
         "help": "The sounds themes play when you move through menus and game lists.",
         "volume": "Theme sound volume",
         "volumeValue": "{{volume}} percent"
-      }
+      },
+      "runSetup": "Run setup again",
+      "runSetupHelp": "Shows the first-run wizard the next time NextLevel starts.",
+      "runSetupDone": "The wizard will show at the next start."
     },
     "themes": {
       "help": "The front-end opens the theme in use. Options sets each theme's art and settings; a save reaches an open theme at once.",
@@ -788,7 +791,8 @@
       "close": "Close",
       "exitCode": "Exit code {{code}}",
       "stderr": "Emulator output",
-      "untitled": "The game didn’t start"
+      "untitled": "The game didn’t start",
+      "locate": "Locate emulator…"
     },
     "launchOptions": {
       "title": "Launch options – {{title}}",
@@ -1417,5 +1421,58 @@
     },
     "removed": "Removed because they left the catalog: {{titles}}",
     "dismiss": "Dismiss"
+  },
+  "setup": {
+    "step": "Step {{n}} of {{total}}",
+    "back": "Back",
+    "skip": "Skip",
+    "next": "Next",
+    "saveFailed": "That couldn't be saved. Try again.",
+    "systems": {
+      "title": "Choose your systems",
+      "intro": "Pick the systems you play. You can change this any time in Settings → Systems.",
+      "list": "Systems",
+      "more": "Find another system"
+    },
+    "folders": {
+      "title": "Add your game folders",
+      "intro": "Add the folders that hold your systems' game folders. When a game is in more than one, the first folder wins.",
+      "list": "Game folders",
+      "add": "Add folder…",
+      "pickTitle": "Choose a game folder",
+      "remove": "Remove {{path}}",
+      "scan": "Scan now",
+      "scanning": "Scanning {{system}}",
+      "found": "Games found",
+      "none": "No games found yet.",
+      "count_one": "{{system}} · {{count}} game",
+      "count_other": "{{system}} · {{count}} games",
+      "duplicate": "This folder is already in the list.",
+      "scanFailed": "The scan couldn't start. Try again in a moment."
+    },
+    "emulators": {
+      "title": "Set up emulators",
+      "intro": "Each system needs an emulator. Point NextLevel at one you have, or get it from its official site.",
+      "list": "Systems with games",
+      "none": "No games yet — you can set emulators up later in Settings → Emulators.",
+      "ready": "Ready",
+      "locate": "Locate executable…",
+      "officialSite": "Official site",
+      "pickTitle": "Choose the emulator program",
+      "locateFailed": "That program couldn't be added.",
+      "doesNotPlay": "That program doesn't play {{system}}. Pick another one, or get one from the official site."
+    },
+    "theme": {
+      "title": "Pick a look",
+      "intro": "Choose where NextLevel starts: a theme or the desktop."
+    },
+    "done": {
+      "title": "You're all set",
+      "withGames_one": "{{count}} game is ready to play.",
+      "withGames_other": "{{count}} games are ready to play.",
+      "empty": "Your library is empty for now. Start with games from the catalog.",
+      "start": "Start",
+      "browse": "Browse catalog"
+    }
   }
 }

@@ -16,6 +16,7 @@ describe('SettingsSchema', () => {
       bootTarget: { kind: 'lastTheme' },
       startWithWindows: false,
       setupCompletedAt: null,
+      setupRequested: false,
       lastRoot: null,
     });
   });

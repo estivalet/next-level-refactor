@@ -5,6 +5,17 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-29
+
+M9 — Catalog & downloads. Admins publish rights-cleared games with a verified license in the
+console; subscribers browse what their plan includes, install them with resumable, checksum-
+verified downloads into a Catalog games folder, update and uninstall them; installed games follow
+each item's keep/remove rule when it leaves the catalog. A first-run wizard sets up new installs,
+the console opens on a dashboard, and the launcher is portable: it writes nothing outside its own
+folder. Catalog files are stored on the API machine's disk only (`FILES_DIR`); R2 storage comes
+with production deployment in M10. Real Google sign-in (D26) and Stripe test mode (D32) still wait
+for the owner's checks.
+
 ### Added
 
 - **Catalog admin API (M9b):** catalog items with files, art and one license record each.
@@ -45,6 +56,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   tab with pause, resume, retry and cancel. Games removed because they left the catalog are listed
   in a notice. The taskbar tray shows running downloads (count and overall %); a click opens the
   Downloads tab.
+- **First-run wizard (M9g, D48):** a new install walks through systems (popular ones ticked), game
+  folders with a scan, emulators (Locate executable… and the official site; nothing is
+  installed for you), where NextLevel starts, and Done. Skipping everything lands in the Catalog
+  on its Starter set. Existing installs never see it; Settings → General → Run setup again shows
+  it at the next start. Play on a game whose system has no emulator offers Locate emulator… and
+  the official site, then plays.
 
 ### Changed
 
@@ -79,6 +96,8 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Docs
 
+- Catalog guide (players and admins), the takedown runbook as built, `FILES_DIR` backups, where the
+  C8–C10 tests live, and a release check from a packaged portable build.
 - Registering a Stripe webhook endpoint for staging/production (events and API version).
 - M9 catalog plan (`docs/superpowers/plans/2026-10-28-m9-catalog.md`).
 

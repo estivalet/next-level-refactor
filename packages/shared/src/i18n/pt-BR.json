@@ -414,7 +414,10 @@
         "help": "Os sons que os temas tocam ao navegar por menus e listas de jogos.",
         "volume": "Volume dos sons dos temas",
         "volumeValue": "{{volume}} por cento"
-      }
+      },
+      "runSetup": "Executar a configuração de novo",
+      "runSetupHelp": "Mostra o assistente inicial na próxima vez que o NextLevel abrir.",
+      "runSetupDone": "O assistente vai aparecer na próxima abertura."
     },
     "themes": {
       "help": "O front-end abre o tema em uso. Opções define a arte e as configurações de cada tema; ao salvar, um tema aberto muda na hora.",
@@ -788,7 +791,8 @@
       "close": "Fechar",
       "exitCode": "Código de saída {{code}}",
       "stderr": "Saída do emulador",
-      "untitled": "O jogo não iniciou"
+      "untitled": "O jogo não iniciou",
+      "locate": "Localizar emulador…"
     },
     "launchOptions": {
       "title": "Opções de execução – {{title}}",
@@ -1417,5 +1421,58 @@
     },
     "removed": "Removidos porque saíram do catálogo: {{titles}}",
     "dismiss": "Fechar"
+  },
+  "setup": {
+    "step": "Passo {{n}} de {{total}}",
+    "back": "Voltar",
+    "skip": "Pular",
+    "next": "Avançar",
+    "saveFailed": "Não foi possível salvar. Tente de novo.",
+    "systems": {
+      "title": "Escolha seus sistemas",
+      "intro": "Marque os sistemas que você joga. Dá para mudar a qualquer momento em Configurações → Sistemas.",
+      "list": "Sistemas",
+      "more": "Procurar outro sistema"
+    },
+    "folders": {
+      "title": "Adicione suas pastas de jogos",
+      "intro": "Adicione as pastas que contêm as pastas de jogos dos sistemas. Quando um jogo está em mais de uma, vale a primeira.",
+      "list": "Pastas de jogos",
+      "add": "Adicionar pasta…",
+      "pickTitle": "Escolha uma pasta de jogos",
+      "remove": "Remover {{path}}",
+      "scan": "Procurar agora",
+      "scanning": "Procurando em {{system}}",
+      "found": "Jogos encontrados",
+      "none": "Nenhum jogo encontrado ainda.",
+      "count_one": "{{system}} · {{count}} jogo",
+      "count_other": "{{system}} · {{count}} jogos",
+      "duplicate": "Esta pasta já está na lista.",
+      "scanFailed": "Não foi possível começar a procura. Tente de novo em instantes."
+    },
+    "emulators": {
+      "title": "Configure os emuladores",
+      "intro": "Cada sistema precisa de um emulador. Indique um que você já tem ou baixe do site oficial.",
+      "list": "Sistemas com jogos",
+      "none": "Ainda não há jogos — configure os emuladores depois em Configurações → Emuladores.",
+      "ready": "Pronto",
+      "locate": "Localizar executável…",
+      "officialSite": "Site oficial",
+      "pickTitle": "Escolha o programa do emulador",
+      "locateFailed": "Não foi possível adicionar esse programa.",
+      "doesNotPlay": "Esse programa não roda {{system}}. Escolha outro ou baixe um no site oficial."
+    },
+    "theme": {
+      "title": "Escolha um visual",
+      "intro": "Escolha onde o NextLevel começa: um tema ou a área de trabalho."
+    },
+    "done": {
+      "title": "Tudo pronto",
+      "withGames_one": "{{count}} jogo pronto para jogar.",
+      "withGames_other": "{{count}} jogos prontos para jogar.",
+      "empty": "Sua biblioteca está vazia por enquanto. Comece com jogos do catálogo.",
+      "start": "Começar",
+      "browse": "Explorar o catálogo"
+    }
   }
 }

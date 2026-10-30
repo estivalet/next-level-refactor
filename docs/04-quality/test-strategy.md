@@ -63,6 +63,15 @@ or zero-filled dummy files.
 | C13 | Every theme is fully navigable with the gamepad mapping | FR-THM-3 |
 | C14 | Webhook replay is idempotent | FR-SUB-3 |
 
+As built (M9): **C8** `apps/api/src/routes/catalog.test.ts` (out-of-scope items are NOT_FOUND),
+`files.test.ts` (an issued URL stops working once the item leaves the plan); **C9**
+`apps/launcher/src/main/catalog/DownloadService.test.ts` ("a checksum mismatch deletes the file
+and fails checksum"); **C10** `apps/api/src/routes/adminCatalog.test.ts` (the publish gate),
+`adminCatalogFiles.test.ts` (an extra can't replace a published item's last game file) and
+`apps/admin/src/pages/catalog/catalog.test.tsx` (Publish disabled with every blocker named);
+end-to-end in `apps/admin/e2e/catalog.spec.ts` and `apps/launcher/e2e/catalog.spec.ts`.
+
+
 ## 5. Environments
 
 | Env | Launcher | API | Google | Stripe | Storage |

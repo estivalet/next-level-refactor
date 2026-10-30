@@ -192,6 +192,40 @@ describe('Play from the Library (FR-EMU-6, US-C2)', () => {
     ]);
   });
 
+  it('US-B1: no emulator for the system offers Locate emulator… and Official site; locating saves it and plays', async () => {
+    const user = userEvent.setup();
+    let located = false;
+    const saved: unknown[] = [];
+    const { bridge } = setup({
+      'launch.game': () =>
+        located
+          ? ok({ launchId: 11 })
+          : err('NO_PROFILE', 'errors.noProfile', {
+              fix: { section: 'systems', id: 'nintendo-64' },
+            }),
+      'app.pickFile': () => ok('C:\\Emu\\retroarch.exe'),
+      'settings.save': (input) => {
+        located = true;
+        saved.push(input.settings);
+        return ok({ settings: input.settings, revision: 1 });
+      },
+    });
+    await selectDemo(user);
+    await user.click(details().getByRole('button', { name: 'Play' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Homebrew Demo didn’t start' });
+    const site = within(dialog).getByRole('link', { name: 'Official site' });
+    expect(site.getAttribute('href')).toMatch(/^https:\/\//);
+    await user.click(within(dialog).getByRole('button', { name: 'Locate emulator…' }));
+    await waitFor(() => {
+      expect(bridge.calls.filter((c) => c.channel === 'launch.game')).toHaveLength(2);
+    });
+    expect(saved).toHaveLength(1);
+    // The located emulator really plays the system, although catalog installs never enabled it.
+    const settings = saved[0] as { profiles: Array<{ systems: string[] }> };
+    expect(settings.profiles.some((profile) => profile.systems.includes('nintendo-64'))).toBe(true);
+    expect(screen.queryByRole('dialog', { name: 'Homebrew Demo didn’t start' })).toBeNull();
+  });
+
   it('US-C2: a failure for a game whose details can’t be read still has a title', async () => {
     const { bridge } = setup({
       'library.games.get': () => err('NOT_FOUND', 'errors.notFound'),
