@@ -1,6 +1,6 @@
 import type { FileStore } from './storage/FileStore.ts';
 import { LocalDiskStore } from './storage/LocalDiskStore.ts';
-import type { AppSettings } from '@nextlevel/shared';
+import { MAX_UPLOAD_BYTES, type AppSettings } from '@nextlevel/shared';
 import { v7 as uuidv7 } from 'uuid';
 import { jwtKeys, type JwtKeys } from './auth/tokens.ts';
 import { TokenService } from './auth/TokenService.ts';
@@ -46,7 +46,7 @@ export interface UploadLimits {
 }
 
 export const DEFAULT_LIMITS: UploadLimits = {
-  upload: 4 * 1024 ** 3,
+  upload: MAX_UPLOAD_BYTES,
   media: 50 * 1024 ** 2,
   evidence: 20 * 1024 ** 2,
 };

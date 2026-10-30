@@ -98,6 +98,24 @@ describe('Files tab (D41, FR-ADM-3)', () => {
     expect(calls.some((call) => call.method === 'POST')).toBe(false);
   });
 
+  it('a file over 4 GiB is refused before anything is sent', async () => {
+    const u = userEvent.setup();
+    const uploads = stubUploads();
+    const calls = stubApi({
+      [`GET ${ITEM}`]: () => ({ body: item() }),
+      'GET /v1/admin/scopes': () => ({ body: SCOPES }),
+    });
+    renderPage(<ItemEditor id="i1" tab="files" />);
+    const huge = fileOf('Star Hopper.nes');
+    Object.defineProperty(huge, 'size', { value: 4 * 1024 ** 3 + 1 });
+    await u.upload(await screen.findByLabelText('Upload a file'), huge);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '“Star Hopper.nes” is larger than 4 GiB, the most a catalog file can be.',
+    );
+    expect(uploads).toHaveLength(0);
+    expect(calls.some((call) => call.method === 'POST')).toBe(false);
+  });
+
   it("the server's filename refusal is explained too", async () => {
     const u = userEvent.setup();
     stubUploads();

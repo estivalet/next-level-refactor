@@ -109,8 +109,28 @@ export async function receiveUpload(
 ): Promise<{ size: number; sha256: string }> {
   const row = ctx.db.select().from(catalogFiles).where(eq(catalogFiles.id, fileId)).get();
   if (row?.status !== 'pending') throw apiError('NOT_FOUND');
-  const stored = await ctx.files.put(row.storageKey, body, ctx.limits.upload);
-  ctx.db.update(catalogFiles).set(stored).where(eq(catalogFiles.id, fileId)).run();
+  const uploaded = () =>
+    apiError('CONFLICT', 'The file was already uploaded.', { reason: 'uploaded' });
+  if (row.sha256 !== '') throw uploaded();
+  // Each PUT writes its own key and only the first to finish is kept, so a second PUT still in
+  // flight can never change the bytes of a file that was completed meanwhile.
+  const storageKey = `files/${row.itemId}/${fileId}-${ctx.newId()}`;
+  const stored = await ctx.files.put(storageKey, body, ctx.limits.upload);
+  const claimed = ctx.db
+    .update(catalogFiles)
+    .set({ ...stored, storageKey })
+    .where(
+      and(
+        eq(catalogFiles.id, fileId),
+        eq(catalogFiles.status, 'pending'),
+        eq(catalogFiles.sha256, ''),
+      ),
+    )
+    .run();
+  if (claimed.changes === 0) {
+    await dropStored(ctx, storageKey);
+    throw uploaded();
+  }
   return stored;
 }
 

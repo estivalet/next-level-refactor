@@ -2,7 +2,7 @@
 
 How signing in works in NextLevel (M7), for players and for the operator. Billing arrives in M8:
 until then every allowed account is on the **Default** plan (3 devices; admins have no device
-limit).
+limit). Games from the online catalog: see the [catalog guide](catalog-guide.md).
 
 ## For players (the launcher)
 

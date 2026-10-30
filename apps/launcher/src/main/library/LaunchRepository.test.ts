@@ -70,18 +70,27 @@ describe('LaunchRepository', () => {
     });
   });
 
-  it('FR-EMU-10: the log keeps the newest 1,000 launches, newest first', () => {
-    for (let i = 0; i < 1001; i += 1) {
-      launches.start(start({ startedAt: new Date(Date.UTC(2026, 0, 1, 0, 0, i)).toISOString() }));
-    }
-    const page = launches.page(0, 2);
-    expect(page.total).toBe(1000);
-    expect(page.entries.map((e) => e.startedAt)).toEqual([
-      '2026-01-01T00:16:40.000Z',
-      '2026-01-01T00:16:39.000Z',
-    ]);
-    expect(launches.page(999, 5).entries[0]?.startedAt).toBe('2026-01-01T00:00:01.000Z');
-  });
+  it(
+    'FR-EMU-10: the log keeps the newest 1,000 launches, newest first',
+    { timeout: 20_000 },
+    () => {
+      // One transaction: 1,001 separate commits took over 5 s on slow CI runners.
+      library.db.$client.transaction(() => {
+        for (let i = 0; i < 1001; i += 1) {
+          launches.start(
+            start({ startedAt: new Date(Date.UTC(2026, 0, 1, 0, 0, i)).toISOString() }),
+          );
+        }
+      })();
+      const page = launches.page(0, 2);
+      expect(page.total).toBe(1000);
+      expect(page.entries.map((e) => e.startedAt)).toEqual([
+        '2026-01-01T00:16:40.000Z',
+        '2026-01-01T00:16:39.000Z',
+      ]);
+      expect(launches.page(999, 5).entries[0]?.startedAt).toBe('2026-01-01T00:00:01.000Z');
+    },
+  );
 
   it('FR-EMU-10: log rows outlive their game', () => {
     launches.start(start());

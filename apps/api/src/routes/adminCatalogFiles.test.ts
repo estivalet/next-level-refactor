@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { adminHeaders, adminSignIn } from '../../test/adminSignIn.ts';
@@ -110,6 +110,38 @@ describe('catalog uploads (FR-ADM-3, US-F1, D41)', () => {
       role: 'rom',
     });
     expect(wrong.json()).toMatchObject({ error: { details: { reason: 'filename' } } });
+  });
+
+  it('start upload refuses a filename over 100 characters (MAX_PATH once installed)', async () => {
+    const t = await setup();
+    seedItem(t.db);
+    const started = await t.json('POST', '/v1/admin/catalog/items/item-1/files', {
+      filename: 'a'.repeat(97) + '.nes',
+      role: 'rom',
+    });
+    expect(started.statusCode).toBe(400);
+    expect(started.json()).toMatchObject({ error: { code: 'VALIDATION_FAILED' } });
+  });
+
+  it('a second PUT to a file that already has its bytes is CONFLICT; the bytes stay', async () => {
+    const t = await setup();
+    seedItem(t.db);
+    const started = await t.json('POST', '/v1/admin/catalog/items/item-1/files', {
+      filename: 'hop.nes',
+      role: 'rom',
+    });
+    const { fileId, uploadUrl } = started.json<{ fileId: string; uploadUrl: string }>();
+    expect((await t.raw(uploadUrl, ROM)).statusCode).toBe(200);
+    const again = await t.raw(uploadUrl, Buffer.from('other bytes'));
+    expect(again.statusCode).toBe(409);
+    expect(again.json()).toMatchObject({ error: { code: 'CONFLICT' } });
+    const done = await t.json('POST', `/v1/admin/catalog/items/item-1/files/${fileId}/complete`, {
+      sha256: sha(ROM),
+    });
+    expect(done.statusCode).toBe(200);
+    expect(await t.stored()).toHaveLength(1);
+    const [path] = await t.stored();
+    expect(await readFile(path ?? '')).toEqual(ROM);
   });
 
   it('a wrong client checksum is refused and the pending file is deleted', async () => {

@@ -48,8 +48,16 @@ export class LocalDiskStore implements FileStore {
     return { size, sha256: hash.digest('hex') };
   }
 
+  /** Resolves once the file is open, so a missing one rejects (`ENOENT`) before any reply. */
   open(key: string, range?: { start: number; end: number }): Promise<Readable> {
-    return Promise.resolve(createReadStream(this.#path(key), range));
+    const stream = createReadStream(this.#path(key), range);
+    return new Promise((resolve, reject) => {
+      stream.once('open', () => {
+        stream.off('error', reject);
+        resolve(stream);
+      });
+      stream.once('error', reject);
+    });
   }
 
   async size(key: string): Promise<number | null> {

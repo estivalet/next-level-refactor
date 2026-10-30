@@ -113,9 +113,10 @@ M8 uses Stripe in **test mode only**; live keys are a go-live step (M10).
 `stripe listen` covers your machine. An API reachable from the internet gets a real endpoint:
 
 1. Developers → Webhooks → **Add endpoint**: URL `https://<api host>/v1/webhooks/stripe`.
-2. **API version**: the one the API pins (`Stripe.API_VERSION` of the installed `stripe`
-   package, shown in `apps/api/src/billing/stripeProvider.ts`). Events in another version may
-   not parse the same way.
+2. **API version**: the date string the API pins, today **`2026-09-30.endive`** (the installed
+   `stripe` package 23.0.1's `Stripe.API_VERSION`, used in `apps/api/src/billing/stripeProvider.ts`;
+   after a `stripe` upgrade, read it from `node_modules/stripe/esm/apiVersion.js`). Events in
+   another version may not parse the same way.
 3. **Events** (exactly these six, from the API spec): `checkout.session.completed`,
    `customer.subscription.created`, `customer.subscription.updated`,
    `customer.subscription.deleted`, `invoice.payment_failed`, `invoice.paid`.

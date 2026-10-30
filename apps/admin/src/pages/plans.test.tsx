@@ -216,6 +216,34 @@ describe('Catalog scopes (US-F4, D37)', () => {
     });
   });
 
+  it('a scope row keeps typed edits across a refetch that changes another row', async () => {
+    const u = userEvent.setup();
+    let saved = SCOPES;
+    stubApi({
+      'GET /v1/admin/scopes': () => ({ body: saved }),
+      'PATCH /v1/admin/scopes/s1': () => {
+        saved = SCOPES.map((scope) =>
+          scope.id === 's1' ? { ...scope, name: 'Demos' } : { ...scope },
+        );
+        return { body: saved[0] };
+      },
+    });
+    renderPage(<ScopesPage />);
+    const other = await screen.findByRole('group', { name: 'homebrew-8bit' });
+    await u.type(within(other).getByLabelText('Description'), ', SNES');
+    const row = screen.getByRole('group', { name: 'demos' });
+    await u.clear(within(row).getByLabelText('Name'));
+    await u.type(within(row).getByLabelText('Name'), 'Demos');
+    await u.click(within(row).getByRole('button', { name: 'Save' }));
+    await screen.findByRole('status');
+    expect(
+      within(screen.getByRole('group', { name: 'homebrew-8bit' })).getByLabelText('Description'),
+    ).toHaveValue('NES, SMS, SNES');
+    expect(within(screen.getByRole('group', { name: 'demos' })).getByLabelText('Name')).toHaveValue(
+      'Demos',
+    );
+  });
+
   it('a duplicate slug is explained', async () => {
     const u = userEvent.setup();
     stubApi({

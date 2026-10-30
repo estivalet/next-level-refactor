@@ -27,7 +27,7 @@ Start with [01-product-vision.md](docs/01-product/01-product-vision.md).
 |---|---|
 | `docs/00-reference/` | [current-nextlevelos.md](docs/00-reference/current-nextlevelos.md): what the current app does, what to keep, what to fix |
 | `docs/01-product/` | [vision](docs/01-product/01-product-vision.md) · [requirements](docs/01-product/02-product-requirements.md) · [user stories](docs/01-product/03-user-stories.md) · [roadmap](docs/01-product/roadmap.md) · [glossary](docs/01-product/glossary.md) |
-| `docs/02-design/` | [information architecture & flows](docs/02-design/04-information-architecture.md) · [screen specifications](docs/02-design/screen-specifications.md) |
+| `docs/02-design/` | [information architecture & flows](docs/02-design/04-information-architecture.md) · [screen specifications](docs/02-design/screen-specifications.md) · guides: [accounts](docs/02-design/accounts-guide.md) · [catalog](docs/02-design/catalog-guide.md) · [scraping](docs/02-design/scraping-guide.md) · [themes](docs/02-design/themes-guide.md) |
 | `docs/03-architecture/` | [architecture](docs/03-architecture/05-architecture.md) · [data model & config schema](docs/03-architecture/data-model.md) · [API spec](docs/03-architecture/api-spec.md) · [coding standards](docs/03-architecture/coding-standards.md) · [ADRs](docs/03-architecture/adr/) |
 | `docs/04-quality/` | [test strategy](docs/04-quality/test-strategy.md) · [release checklist](docs/04-quality/release-checklist.md) |
 | `docs/05-operations/` | [environment setup](docs/05-operations/environment-setup.md) · [deployment & operations](docs/05-operations/deployment-and-operations.md) |
