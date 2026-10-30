@@ -46,7 +46,10 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
     /** While set, checksums wait for it (a download held in verify). */
     verifyGate: Promise<void> | null;
     verifying: number;
+    /** `catalog.get` can't reach the API either (install is never tried then). */
+    getUnreachable: boolean;
   } = {
+    getUnreachable: false,
     free: 10 ** 12,
     offline: false,
     grantCalls: 0,
@@ -83,11 +86,19 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
     });
   };
   let ids = 0;
-  const make = () =>
+  const make = (extra: Partial<ConstructorParameters<typeof DownloadService>[0]> = {}) =>
     new DownloadService({
       repo,
       catalog: {
         get: (itemId) => {
+          if (state.getUnreachable) {
+            return Promise.reject(
+              new AppErrorException({
+                code: 'API_UNREACHABLE',
+                message: ERROR_CODES.API_UNREACHABLE,
+              }),
+            );
+          }
           const item = items.get(itemId);
           return item
             ? Promise.resolve(item)
@@ -136,6 +147,7 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
           .update(await readFile(path))
           .digest('hex');
       },
+      ...extra,
     });
 
   /** Publishes an item; `bodies` are its files' bytes (a wrong `sha256` makes C9 fail). */

@@ -1,5 +1,5 @@
 import { existsSync, statSync } from 'node:fs';
-import { readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { body, downloadWorld } from './downloadWorld.ts';
@@ -337,7 +337,8 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     expect(w.timeline).not.toContain('grant i2');
   });
 
-  it('a row that no longer parses is dropped and logged; the rest of the queue runs', async () => {
+  /** Two queued items, both paused offline; i1's stored item then stops parsing (an update). */
+  async function unreadableWorld() {
     const w = await downloadWorld(closers);
     w.add('i1', [body('one')]);
     w.add('i2', [body('two')]);
@@ -346,15 +347,65 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     const bad = await service.install('i1');
     await service.install('i2');
     await service.idle();
-    w.db.$client.prepare('update downloads set item = \'{"old":1}\' where id = ?').run(bad.id);
+    await writeFile(join(w.dir, bad.id, 'f1.part'), body('one').subarray(0, 30));
+    w.db.$client.prepare(`update downloads set item = '{"old":1}' where id = ?`).run(bad.id);
+    return { w, service, bad };
+  }
+
+  it('an unreadable row of the same version is repaired from the API and resumes from its parts', async () => {
+    const { w, service } = await unreadableWorld();
+    w.state.offline = false;
+    service.networkBack();
+    await service.idle();
+    expect(w.installed.map((done) => done.item.id).sort()).toEqual(['i1', 'i2']);
+    expect(w.server.ranges).toContain('bytes=30-');
+    expect(JSON.stringify(w.logged)).toContain('catalog download unreadable');
+  });
+
+  it('an unreadable row is kept, parts and all, while the API cannot be reached', async () => {
+    const { w, service, bad } = await unreadableWorld();
+    w.state.getUnreachable = true;
+    service.networkBack();
+    await service.idle();
+    expect(w.db.$client.prepare('select count(*) as n from downloads').get()).toEqual({ n: 2 });
+    expect(existsSync(join(w.dir, bad.id, 'f1.part'))).toBe(true);
+    expect(service.list().map((d) => d.itemId)).toEqual(['i2']);
+  });
+
+  it('an unreadable row whose item changed version or left the catalog is dropped; the rest runs', async () => {
+    const { w, service, bad } = await unreadableWorld();
+    const item = w.add('i1', [body('one, v2')]);
+    w.setItem({ ...item, version: 2 });
     w.state.offline = false;
     service.networkBack();
     await service.idle();
     expect(w.installed.map((done) => done.item.id)).toEqual(['i2']);
-    expect(service.list()).toEqual([]);
     expect(w.db.$client.prepare('select count(*) as n from downloads').get()).toEqual({ n: 0 });
     expect(existsSync(join(w.dir, bad.id))).toBe(false);
-    expect(JSON.stringify(w.logged)).toContain('catalog download unreadable');
+  });
+
+  it('at start, download folders without a row are removed', async () => {
+    const w = await downloadWorld(closers);
+    await mkdir(join(w.dir, 'd-orphan'), { recursive: true });
+    await writeFile(join(w.dir, 'd-orphan', 'f1.part'), body('lost'));
+    const service = w.make();
+    service.start();
+    await service.idle();
+    expect(existsSync(join(w.dir, 'd-orphan'))).toBe(false);
+  });
+
+  it('a download folder that cannot be deleted on cancel is logged; the cancel still answers', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.offline = true;
+    const service = w.make({
+      removeDir: () => Promise.reject(Object.assign(new Error('busy'), { code: 'EBUSY' })),
+    });
+    const queued = await service.install('i1');
+    await service.idle();
+    await service.cancel(queued.id);
+    expect(service.list()).toEqual([]);
+    expect(JSON.stringify(w.logged)).toContain('download folder could not be removed');
   });
 
   it('cancelItem cancels the active download of an item (uninstall, lapse removal)', async () => {

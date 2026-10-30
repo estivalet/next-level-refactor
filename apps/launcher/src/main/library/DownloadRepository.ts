@@ -84,7 +84,7 @@ export class DownloadRepository {
   }
 
   // Rows whose item no longer parses are skipped everywhere (one bad row never breaks the
-  // queue); `unreadable()` names them so the service can drop them.
+  // queue); `unreadable()` names them so the service can repair or drop them.
 
   get(id: string): DownloadRow | undefined {
     const row = this.db.select().from(downloads).where(eq(downloads.id, id)).get();
@@ -97,10 +97,24 @@ export class DownloadRepository {
   }
 
   /** Ids of rows whose stored item no longer parses. */
-  unreadable(): string[] {
+  unreadable(): Array<{ id: string; itemId: string; version: number }> {
     return this.#ordered()
       .filter((row) => itemOf(row.item) === undefined)
-      .map((row) => row.id);
+      .map((row) => ({ id: row.id, itemId: row.catalogItemId, version: row.version }));
+  }
+
+  /** Every row id, readable or not (the folders in `<data>\downloads` that are still wanted). */
+  ids(): string[] {
+    return this.#ordered().map((row) => row.id);
+  }
+
+  /** Rewrites a row's stored item (the API's current copy of the same version). */
+  replaceItem(id: string, item: CatalogItem, now: string): void {
+    this.db
+      .update(downloads)
+      .set({ item: JSON.stringify(item), updatedAt: now })
+      .where(eq(downloads.id, id))
+      .run();
   }
 
   /** The next download to run: the oldest queued one. */
