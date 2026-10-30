@@ -4,6 +4,7 @@ import {
   changedPaths,
   defaultSettings,
   err,
+  mergeDuplicateEmulators,
   ok,
   relocatePaths,
   sameFolder,
@@ -61,8 +62,9 @@ export function parseSettings(
   const migrated = migrate(raw);
   if (migrated.kind === 'newerVersion') return { kind: 'invalid', reason: 'newerVersion' };
   const parsed = SettingsSchema.safeParse(migrated.value);
+  // Older versions could set up the same program twice.
   return parsed.success
-    ? { kind: 'ok', settings: parsed.data }
+    ? { kind: 'ok', settings: mergeDuplicateEmulators(parsed.data) }
     : { kind: 'invalid', reason: 'invalid' };
 }
 

@@ -3,10 +3,12 @@ import {
   addPresetProfiles,
   defaultSettings,
   emulatorNameFor,
+  mergeDuplicateEmulators,
   remainingPresetProfiles,
   removeEmulator,
   removeProfile,
   SettingsSchema,
+  type EmulatorProfile,
   type Settings,
 } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
@@ -104,6 +106,82 @@ describe('adding emulators (FR-EMU-2, FR-EMU-7)', () => {
       newId,
     );
     expect(more.profiles).toHaveLength(2);
+  });
+
+  it('FR-EMU-2: adding a program already set up adds only its missing profiles to it', () => {
+    const first = addEmulator(enabled('nintendo-64'), {
+      preset: retroarch(),
+      executable: 'C:\\RA\\retroarch.exe',
+      newId,
+    });
+    const again = addEmulator(
+      { ...first, systems: { ...first.systems, 'atari-2600': { enabled: true } } },
+      { preset: retroarch(), executable: 'c:/ra/RetroArch.exe', newId },
+    );
+    expect(again.emulators).toEqual(first.emulators);
+    expect(again.profiles.map((p) => [p.presetProfileId, p.emulatorId])).toEqual([
+      ['retroarch:mupen64plus_next_libretro', first.emulators[0]?.id],
+      ['retroarch:stella_libretro', first.emulators[0]?.id],
+    ]);
+  });
+});
+
+describe('merging duplicate emulators', () => {
+  /** The same program set up twice, each with the N64 preset profile. */
+  function twice(): Settings {
+    const one = addEmulator(enabled('nintendo-64'), {
+      preset: retroarch(),
+      executable: 'C:\\RA\\retroarch.exe',
+      newId,
+    });
+    const otherId = newId();
+    const copy = one.profiles[0];
+    if (!copy) throw new Error('no profile');
+    return {
+      ...one,
+      emulators: [
+        ...one.emulators,
+        { ...one.emulators[0], id: otherId, name: 'RetroArch', executable: 'c:/ra/RETROARCH.exe' },
+      ],
+      profiles: [...one.profiles, { ...copy, id: newId(), emulatorId: otherId }],
+    };
+  }
+
+  it('keeps one emulator per program and the profile a system default names', () => {
+    const settings = twice();
+    const [, kept] = settings.profiles;
+    const withDefault: Settings = {
+      ...settings,
+      systems: { 'nintendo-64': { enabled: true, defaultProfileId: kept?.id } },
+    };
+    const merged = mergeDuplicateEmulators(withDefault);
+    expect(merged.emulators).toEqual([settings.emulators[0]]);
+    expect(merged.profiles).toEqual([{ ...kept, emulatorId: settings.emulators[0]?.id }]);
+    expect(merged.systems['nintendo-64']?.defaultProfileId).toBe(kept?.id);
+    expect(SettingsSchema.safeParse(merged).success).toBe(true);
+  });
+
+  it('keeps an edited copy of a preset profile on the remaining emulator', () => {
+    const settings = twice();
+    const edited = { ...settings.profiles[1], args: ['--fullscreen', '{rom}'] } as EmulatorProfile;
+    const merged = mergeDuplicateEmulators({
+      ...settings,
+      profiles: [settings.profiles[0] as EmulatorProfile, edited],
+    });
+    expect(merged.emulators).toHaveLength(1);
+    expect(merged.profiles.map((p) => [p.id, p.emulatorId])).toEqual([
+      [settings.profiles[0]?.id, settings.emulators[0]?.id],
+      [edited.id, settings.emulators[0]?.id],
+    ]);
+  });
+
+  it('leaves settings without duplicates unchanged', () => {
+    const settings = addEmulator(enabled('nintendo-64'), {
+      preset: retroarch(),
+      executable: 'C:\\RA\\retroarch.exe',
+      newId,
+    });
+    expect(mergeDuplicateEmulators(settings)).toBe(settings);
   });
 });
 
