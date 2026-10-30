@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch } from './launch.ts';
+import { freshDataDir, launch, taskbar } from './launch.ts';
 
 const LOCATION = '01900000-0000-7000-8000-00000000a001';
 
@@ -69,10 +69,7 @@ test('FR-THM-1, FR-THM-4: HyperSpin follows an option saved in Settings; Showcas
       .fill('150');
     await settings.getByRole('button', { name: 'Save' }).click();
     await expect(settings.getByRole('button', { name: 'Save' })).toBeHidden();
-    await page
-      .getByRole('navigation', { name: 'Taskbar' })
-      .getByRole('button', { name: 'Front-end' })
-      .click();
+    await (await taskbar(page)).getByRole('button', { name: 'Front-end' }).click();
     await expect(layer).toBeVisible();
     await expect(focused).toContainText('Homebrew Beta');
     await expect(focused).toHaveCSS('height', '150px');

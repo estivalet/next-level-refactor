@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { appDir, freshDataDir, launch } from './launch.ts';
+import { appDir, freshDataDir, launch, taskbar } from './launch.ts';
 
 /** The invented NextLevelOS install, copied so its storage paths point at the copy. */
 async function legacyCopy(root: string): Promise<string> {
@@ -72,10 +72,7 @@ test('FR-IMP-1/2, US-B3: import a NextLevelOS folder, then import it again', asy
     await editor.getByRole('button', { name: 'Close' }).click();
 
     // The front-end shows the imported menu.
-    await page
-      .getByRole('navigation', { name: 'Taskbar' })
-      .getByRole('button', { name: 'Front-end' })
-      .click();
+    await (await taskbar(page)).getByRole('button', { name: 'Front-end' }).click();
     const layer = page.getByTestId('frontend-layer');
     await expect(layer).toBeVisible();
     await expect(layer).toContainText('Consoles');

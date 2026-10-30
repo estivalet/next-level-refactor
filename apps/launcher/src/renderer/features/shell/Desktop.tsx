@@ -11,7 +11,8 @@ import { useShell } from './ShellContext.tsx';
 import { ShellWindow } from './ShellWindow.tsx';
 
 /**
- * The desktop: icons and windows in the work area, with an optional taskbar below, and the
+ * The desktop: icons and windows in the full-height work area, an optional taskbar floating over
+ * its bottom edge (so windows dragged down aren't cut off), and the
  * front-end layer above it all once opened (the shell is inert while the front-end shows).
  */
 export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
@@ -46,8 +47,10 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
     };
   }, [dispatch]);
 
+  // overflow-clip, not hidden: a hidden container can still be scrolled by focus, and the taskbar
+  // sliding away below the edge would then shift the whole desktop up.
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e1b4b] font-sans text-slate-200 select-none">
+    <div className="fixed inset-0 flex flex-col overflow-clip bg-gradient-to-br from-[#1e293b] via-[#334155] to-[#1e1b4b] font-sans text-slate-200 select-none">
       <div inert={covered} className="contents">
         <BannerStrip />
       </div>
