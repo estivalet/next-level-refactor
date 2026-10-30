@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { useInstall, useInstalled } from './catalogApi.ts';
+import { actionErrorKey } from './catalogText.ts';
 import { useUninstallFlow } from './UninstallDialog.tsx';
 
 const BUTTON =
@@ -69,9 +70,9 @@ export function InstalledTab({ onPlay }: { onPlay: (gameId: number) => void }) {
           </li>
         ))}
       </ul>
-      {flow.error && (
+      {(install.error ?? flow.error) && (
         <p role="alert" className="text-xs text-[#ff8a80]">
-          {t('catalog.actionFailed')}
+          {t(actionErrorKey(install.error ?? flow.error))}
         </p>
       )}
       {flow.dialog}

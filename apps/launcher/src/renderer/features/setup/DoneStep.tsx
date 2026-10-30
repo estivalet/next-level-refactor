@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSystemSummaries } from '../library/libraryApi.ts';
 import { NEXT_BUTTON, type StepProps } from './stepProps.ts';
@@ -8,8 +9,10 @@ import { NEXT_BUTTON, type StepProps } from './stepProps.ts';
  */
 export function DoneStep({
   finish,
-}: Pick<StepProps, 'settings'> & { finish: (landing: 'catalog' | null) => void }) {
+}: Pick<StepProps, 'settings'> & { finish: (landing: 'catalog' | null) => Promise<unknown> }) {
   const { t } = useTranslation();
+  // One save: a double click must not save twice (the second would be a CONFLICT).
+  const [busy, setBusy] = useState(false);
   const summaries = useSystemSummaries();
   const games = (summaries.data ?? []).reduce((sum, row) => sum + row.games, 0);
   return (
@@ -21,9 +24,12 @@ export function DoneStep({
         <button
           type="button"
           className={NEXT_BUTTON}
-          disabled={!summaries.isFetched}
+          disabled={!summaries.isFetched || busy}
           onClick={() => {
-            finish(games > 0 ? null : 'catalog');
+            setBusy(true);
+            finish(games > 0 ? null : 'catalog').catch(() => {
+              setBusy(false);
+            });
           }}
         >
           {games > 0 ? t('setup.done.start') : t('setup.done.browse')}

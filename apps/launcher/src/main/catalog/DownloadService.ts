@@ -9,7 +9,7 @@ import {
 } from '@nextlevel/shared';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { mkdir, rm, stat, statfs } from 'node:fs/promises';
+import { mkdir, readdir, rm, stat, statfs } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import type { EmitEvent } from '../ipc/events.ts';
@@ -42,6 +42,10 @@ export interface DownloadDeps {
   clock: () => Date;
   newId: () => string;
   locks: ItemLocks;
+  /** SHA-256 of a part (tests hold it to act during verify); stops when `signal` aborts. */
+  hash?: (path: string, signal: AbortSignal) => Promise<string>;
+  /** Deletes a download's folder (tests make it fail). */
+  removeDir?: (path: string) => Promise<void>;
 }
 
 /** Why the running download was aborted: pause and cancel by the player, quit by the app. */
@@ -64,9 +68,9 @@ async function partSize(path: string): Promise<number> {
   }
 }
 
-async function sha256Of(path: string): Promise<string> {
+async function sha256Of(path: string, signal: AbortSignal): Promise<string> {
   const hash = createHash('sha256');
-  await pipeline(createReadStream(path), hash);
+  await pipeline(createReadStream(path), hash, { signal });
   return hash.digest('hex');
 }
 
@@ -80,6 +84,9 @@ export class DownloadService {
   readonly #deps: DownloadDeps;
   #running: { id: string; controller: AbortController; done: Promise<void> } | null = null;
   #loop: Promise<void> | null = null;
+  #sweep: Promise<void> = Promise.resolve();
+  /** Set by every kick: the loop looks for work again before it ends. */
+  #kicked = false;
   readonly #lastProgress = new Map<string, number>();
   #disposed = false;
 
@@ -87,14 +94,19 @@ export class DownloadService {
     this.#deps = deps;
   }
 
-  /** At boot: downloads cut off by quitting, or waiting for the network, run again. */
+  /**
+   * At boot: downloads cut off by quitting, or waiting for the network, run again; folders no
+   * row points at (a cancel whose delete failed, a crash) are removed.
+   */
   start(): void {
     this.#deps.repo.requeueInterrupted(this.#now());
+    this.#sweep = this.#sweepOrphans();
     this.networkBack();
   }
 
   /** Resolves when the queue has nothing it can run (tests). */
   async idle(): Promise<void> {
+    await this.#sweep;
     while (this.#loop) await this.#loop;
   }
 
@@ -131,6 +143,9 @@ export class DownloadService {
   }
 
   async resume(id: string): Promise<void> {
+    const running = this.#running;
+    // Paused a moment ago: the row says paused once the running download has stopped.
+    if (running?.id === id && running.controller.signal.aborted) await running.done;
     const row = this.#row(id);
     if (row.state !== 'paused' && row.state !== 'failed') return;
     this.#set(row, { state: 'queued', pausedReason: null, error: null });
@@ -155,6 +170,12 @@ export class DownloadService {
     });
   }
 
+  /** Uninstall or lapse removal: the item's queued, running or paused download goes too. */
+  async cancelItem(itemId: string): Promise<void> {
+    const active = this.#deps.repo.activeFor(itemId);
+    if (active) await this.cancel(active.id);
+  }
+
   /** The network or the session is back: downloads that paused for it continue. */
   networkBack(): void {
     for (const row of this.#deps.repo.list()) {
@@ -172,14 +193,83 @@ export class DownloadService {
   }
 
   #kick(): void {
+    this.#kicked = true;
     if (this.#loop || this.#disposed) return;
     this.#loop = (async () => {
-      for (let row = this.#deps.repo.next(); row && !this.#disposed; row = this.#deps.repo.next()) {
-        await this.#run(row);
+      while (this.#kicked && !this.#isDisposed()) {
+        this.#kicked = false;
+        await this.#dropUnreadable();
+        for (
+          let row = this.#deps.repo.next();
+          row && !this.#isDisposed();
+          row = this.#deps.repo.next()
+        ) {
+          await this.#run(row);
+        }
       }
     })().finally(() => {
       this.#loop = null;
+      // A kick that came while the loop was ending.
+      if (this.#kicked) this.#kick();
     });
+  }
+
+  /** Read through a method: TS would keep the field narrowed across awaits. */
+  #isDisposed(): boolean {
+    return this.#disposed;
+  }
+
+  /**
+   * Rows whose stored item no longer parses (written by an older launcher): the API's copy of the
+   * same version replaces it and the parts are kept (verify still checks them); an item that
+   * changed version or left the catalog is dropped; without the API the row waits untouched.
+   */
+  async #dropUnreadable(): Promise<void> {
+    for (const row of this.#deps.repo.unreadable()) {
+      let item: CatalogItem | null;
+      try {
+        item = await this.#deps.catalog.get(row.itemId);
+      } catch (error) {
+        if (!(error instanceof AppErrorException) || error.error.code !== 'NOT_FOUND') continue;
+        item = null;
+      }
+      const repaired = item?.version === row.version;
+      this.#deps.log.warn(
+        { downloadId: row.id, itemId: row.itemId, repaired },
+        'catalog download unreadable',
+      );
+      if (item && repaired) {
+        this.#deps.repo.replaceItem(row.id, item, this.#now());
+        // It waited for the network while unreadable: the API just answered, so it runs again.
+        const fixed = this.#deps.repo.get(row.id);
+        if (fixed?.state === 'paused' && fixed.pausedReason !== 'user') {
+          this.#deps.repo.update(row.id, { state: 'queued', pausedReason: null }, this.#now());
+        }
+      } else await this.#discard(row.id);
+    }
+  }
+
+  async #sweepOrphans(): Promise<void> {
+    try {
+      const wanted = new Set(this.#deps.repo.ids());
+      const entries = await readdir(this.#deps.dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory() && !wanted.has(entry.name)) await this.#removeFolder(entry.name);
+      }
+    } catch (error) {
+      this.#deps.log.warn({ error }, 'download folders could not be checked');
+    }
+  }
+
+  /** A folder that can't be deleted (held by a virus scanner) is logged; start() sweeps it. */
+  async #removeFolder(id: string): Promise<void> {
+    const remove =
+      this.#deps.removeDir ?? ((path: string) => rm(path, { recursive: true, force: true }));
+    try {
+      await remove(join(this.#deps.dir, id));
+    } catch (error) {
+      this.#deps.log.warn({ downloadId: id, error }, 'download folder could not be removed');
+    }
   }
 
   async #run(row: DownloadRow): Promise<void> {
@@ -263,6 +353,10 @@ export class DownloadService {
             done += count;
             this.#progress({ ...row, state: 'downloading' }, done, false);
           },
+          // A whole-file answer to a ranged request: the part's earlier bytes no longer count.
+          onRestart: (dropped) => {
+            done -= dropped;
+          },
         });
         if (result === 'done') break;
         if (result === 'network') {
@@ -279,10 +373,12 @@ export class DownloadService {
         if (!grant) return;
       }
     }
-    const verified = await this.#verify(row, part);
+    const verified = await this.#verify(row, part, signal);
     if (!verified) return;
     this.#progress({ ...row, state: 'downloading' }, row.bytesTotal, true);
     const item = await this.#fresh(row);
+    // Paused or cancelled while verifying: nothing is installed (the parts stay for a pause).
+    signal.throwIfAborted();
     try {
       await this.#deps.locks.run(row.itemId, () => this.#deps.installer.install(item, verified));
     } catch (error) {
@@ -293,8 +389,8 @@ export class DownloadService {
       this.#fail(row, 'write');
       return;
     }
-    await rm(folder, { recursive: true, force: true });
     this.#deps.repo.delete(row.id);
+    await this.#removeFolder(row.id);
     this.#deps.emit('downloads.finished', {
       downloadId: row.id,
       itemId: row.itemId,
@@ -316,12 +412,13 @@ export class DownloadService {
   }
 
   /** Size and SHA-256 of every part (C9); a mismatching one is deleted. */
-  async #verify(row: DownloadRow, part: (fileId: string) => string) {
+  async #verify(row: DownloadRow, part: (fileId: string) => string, signal: AbortSignal) {
     const verified: VerifiedFile[] = [];
+    const hash = this.#deps.hash ?? sha256Of;
     for (const file of row.item.files) {
       const path = part(file.id);
       const size = await partSize(path);
-      const sha256 = size === file.size ? await sha256Of(path) : '';
+      const sha256 = size === file.size ? await hash(path, signal) : '';
       if (sha256 !== file.sha256) {
         await rm(path, { force: true });
         this.#fail(row, 'checksum', { fileId: file.id });
@@ -397,9 +494,10 @@ export class DownloadService {
     });
   }
 
+  /** The row goes first, so the loop can't pick it up while its folder is being deleted. */
   async #discard(id: string): Promise<void> {
-    await rm(join(this.#deps.dir, id), { recursive: true, force: true });
     this.#deps.repo.delete(id);
+    await this.#removeFolder(id);
   }
 
   #row(id: string): DownloadRow {

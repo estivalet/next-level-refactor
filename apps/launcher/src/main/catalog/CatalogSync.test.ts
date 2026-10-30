@@ -25,7 +25,12 @@ async function setup(answer: (request: InstallStatusRequest) => Promise<Answer[]
   const removed: string[][] = [];
   const requests: InstallStatusRequest[] = [];
   const state = { online: true };
+  const cancelled: string[] = [];
   const sync = new CatalogSync({
+    cancelDownload: (itemId) => {
+      cancelled.push(itemId);
+      return Promise.resolve();
+    },
     installs: new CatalogInstallRepository(w.db),
     client: {
       status: async (request) => {
@@ -43,7 +48,7 @@ async function setup(answer: (request: InstallStatusRequest) => Promise<Answer[]
     const item = w.item({ id, slug, title: `Game ${id}` });
     return (await w.installer.install(item, await w.download(item, {}))).gameId;
   };
-  return { ...w, sync, locks, removed, requests, state, install };
+  return { ...w, sync, locks, removed, requests, state, install, cancelled };
 }
 
 const gone = (id: string, onLapse: 'keep' | 'remove' | null): Answer => ({
@@ -71,6 +76,8 @@ describe('the lapse rule (FR-CAT-7, D43)', () => {
       { id: 'i2', version: 1 },
     ]);
     expect(t.removed).toEqual([['Game i1']]);
+    // A queued Update of a removed item is cancelled too (it would reinstall it).
+    expect(t.cancelled).toEqual(['i1']);
     expect(t.rows('select catalog_item_id as id from catalog_installs')).toEqual([{ id: 'i2' }]);
     expect(existsSync(join(t.managed.path, t.nesFolder, 'one'))).toBe(false);
   });

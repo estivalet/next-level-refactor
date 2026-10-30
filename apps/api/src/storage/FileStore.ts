@@ -11,7 +11,7 @@ export interface FileStore {
    * body arrived. More than `limit` bytes → `VALIDATION_FAILED` (`tooLarge`), nothing kept.
    */
   put(key: string, body: Readable, limit: number): Promise<{ size: number; sha256: string }>;
-  /** The file, or an inclusive byte range of it. */
+  /** The file, or an inclusive byte range of it; a missing file rejects with code `ENOENT`. */
   open(key: string, range?: { start: number; end: number }): Promise<Readable>;
   /** Bytes, or null when there is no such file. */
   size(key: string): Promise<number | null>;

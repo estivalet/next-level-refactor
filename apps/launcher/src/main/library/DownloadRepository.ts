@@ -6,7 +6,7 @@ import {
   type DownloadSummary,
   type PausedReason,
 } from '@nextlevel/shared';
-import { and, asc, eq, inArray } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import type { LibraryDb } from './openLibrary.ts';
 import { downloads } from './schema.ts';
 
@@ -29,11 +29,26 @@ export type DownloadPatch = Partial<
   Pick<DownloadRow, 'state' | 'pausedReason' | 'bytesDone' | 'error'>
 >;
 
-const toRow = (row: Row): DownloadRow => ({
+/** The stored item, or undefined when it no longer parses (written by an older version). */
+function itemOf(json: string): CatalogItem | undefined {
+  try {
+    const parsed = CatalogItemSchema.safeParse(JSON.parse(json));
+    return parsed.success ? parsed.data : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+const toRow = (row: Row): DownloadRow | undefined => {
+  const item = itemOf(row.item);
+  return item ? withItem(row, item) : undefined;
+};
+
+const withItem = (row: Row, item: CatalogItem): DownloadRow => ({
   id: row.id,
   itemId: row.catalogItemId,
   version: row.version,
-  item: CatalogItemSchema.parse(JSON.parse(row.item)),
+  item,
   state: row.state,
   pausedReason: row.pausedReason,
   bytesDone: row.bytesDone,
@@ -68,6 +83,9 @@ export class DownloadRepository {
     return row;
   }
 
+  // Rows whose item no longer parses are skipped everywhere (one bad row never breaks the
+  // queue); `unreadable()` names them so the service can repair or drop them.
+
   get(id: string): DownloadRow | undefined {
     const row = this.db.select().from(downloads).where(eq(downloads.id, id)).get();
     return row ? toRow(row) : undefined;
@@ -75,42 +93,50 @@ export class DownloadRepository {
 
   /** Oldest first: the queue order. */
   list(): DownloadRow[] {
-    return this.db
-      .select()
-      .from(downloads)
-      .orderBy(asc(downloads.createdAt), asc(downloads.id))
-      .all()
-      .map(toRow);
+    return this.#ordered().flatMap((row) => toRow(row) ?? []);
+  }
+
+  /** Ids of rows whose stored item no longer parses. */
+  unreadable(): Array<{ id: string; itemId: string; version: number }> {
+    return this.#ordered()
+      .filter((row) => itemOf(row.item) === undefined)
+      .map((row) => ({ id: row.id, itemId: row.catalogItemId, version: row.version }));
+  }
+
+  /** Every row id, readable or not (the folders in `<data>\downloads` that are still wanted). */
+  ids(): string[] {
+    return this.#ordered().map((row) => row.id);
+  }
+
+  /** Rewrites a row's stored item (the API's current copy of the same version). */
+  replaceItem(id: string, item: CatalogItem, now: string): void {
+    this.db
+      .update(downloads)
+      .set({ item: JSON.stringify(item), updatedAt: now })
+      .where(eq(downloads.id, id))
+      .run();
   }
 
   /** The next download to run: the oldest queued one. */
   next(): DownloadRow | undefined {
-    const row = this.db
-      .select()
-      .from(downloads)
-      .where(eq(downloads.state, 'queued'))
-      .orderBy(asc(downloads.createdAt), asc(downloads.id))
-      .get();
-    return row ? toRow(row) : undefined;
+    return this.list().find((row) => row.state === 'queued');
   }
 
   /** The item's queued, running or paused download. */
   activeFor(itemId: string): DownloadRow | undefined {
-    const row = this.db
-      .select()
-      .from(downloads)
-      .where(and(eq(downloads.catalogItemId, itemId), inArray(downloads.state, ACTIVE)))
-      .get();
-    return row ? toRow(row) : undefined;
+    return this.list().find((row) => row.itemId === itemId && ACTIVE.includes(row.state));
   }
 
   failedFor(itemId: string): DownloadRow | undefined {
-    const row = this.db
+    return this.list().find((row) => row.itemId === itemId && row.state === 'failed');
+  }
+
+  #ordered(): Row[] {
+    return this.db
       .select()
       .from(downloads)
-      .where(and(eq(downloads.catalogItemId, itemId), eq(downloads.state, 'failed')))
-      .get();
-    return row ? toRow(row) : undefined;
+      .orderBy(asc(downloads.createdAt), asc(downloads.id))
+      .all();
   }
 
   update(id: string, patch: DownloadPatch, now: string): void {

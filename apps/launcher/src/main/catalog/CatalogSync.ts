@@ -8,6 +8,8 @@ export interface CatalogSyncDeps {
   installs: Pick<CatalogInstallRepository, 'all' | 'byItem' | 'setState'>;
   client: Pick<CatalogClient, 'status'>;
   installer: Pick<Installer, 'uninstall'>;
+  /** Cancels the item's active download (DownloadService.cancelItem). */
+  cancelDownload: (itemId: string) => Promise<void>;
   locks: ItemLocks;
   /** Signed in and online: a sync while offline or signed out removes nothing (D43). */
   canSync: () => boolean;
@@ -54,19 +56,27 @@ export class CatalogSync {
     }
     const removed: string[] = [];
     for (const item of answer.items) {
+      const known = this.#deps.installs.byItem(item.id);
       // One item failing (a running game holds its file) never stops the others.
-      await this.#deps.locks
-        .run(item.id, async () => {
-          const install = this.#deps.installs.byItem(item.id);
-          if (!install) return;
-          const onLapse = item.onLapse ?? install.onLapse;
-          if (item.state === 'gone' && onLapse === 'remove') {
-            await this.#deps.installer.uninstall(item.id, true);
-            removed.push(install.title);
-            return;
-          }
-          this.#deps.installs.setState(item.id, item.state, onLapse);
-        })
+      await (
+        item.state === 'gone' && (item.onLapse ?? known?.onLapse) === 'remove'
+          ? // Before the lock: a download's install step takes it too.
+            this.#deps.cancelDownload(item.id)
+          : Promise.resolve()
+      )
+        .then(() =>
+          this.#deps.locks.run(item.id, async () => {
+            const install = this.#deps.installs.byItem(item.id);
+            if (!install) return;
+            const onLapse = item.onLapse ?? install.onLapse;
+            if (item.state === 'gone' && onLapse === 'remove') {
+              await this.#deps.installer.uninstall(item.id, true);
+              removed.push(install.title);
+              return;
+            }
+            this.#deps.installs.setState(item.id, item.state, onLapse);
+          }),
+        )
         .catch((error: unknown) => {
           this.#deps.log.warn({ itemId: item.id, error }, 'catalog lapse step failed');
         });

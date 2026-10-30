@@ -17,6 +17,12 @@ export function PublishTab({ item }: { item: AdminCatalogItem }) {
   const unpublish = useUnpublish(item.id);
   const [confirming, setConfirming] = useState(false);
   const error = update.error ?? publish.error ?? unpublish.error;
+  // Each change starts from a clean slate: an old refusal must not outlive a later success.
+  const resetAll = () => {
+    update.reset();
+    publish.reset();
+    unpublish.reset();
+  };
   const blocked = item.publishBlockers.length > 0;
 
   return (
@@ -35,6 +41,7 @@ export function PublishTab({ item }: { item: AdminCatalogItem }) {
               checked={item.onLapse === choice}
               disabled={update.isPending}
               onChange={() => {
+                resetAll();
                 update.mutate({ onLapse: choice });
               }}
             />
@@ -55,6 +62,7 @@ export function PublishTab({ item }: { item: AdminCatalogItem }) {
             disabled={update.isPending}
             aria-describedby="starter-help"
             onChange={(event) => {
+              resetAll();
               update.mutate({ starter: event.target.checked });
             }}
           />
@@ -90,6 +98,7 @@ export function PublishTab({ item }: { item: AdminCatalogItem }) {
               disabled={blocked || publish.isPending}
               aria-describedby={blocked ? 'publish-blockers' : undefined}
               onClick={() => {
+                resetAll();
                 publish.mutate();
               }}
             >
@@ -119,6 +128,7 @@ export function PublishTab({ item }: { item: AdminCatalogItem }) {
           body={t('admin.catalog.publish.unpublishBody')}
           action={t('admin.catalog.publish.unpublish')}
           onConfirm={() => {
+            resetAll();
             unpublish.mutate();
           }}
           onClose={() => {

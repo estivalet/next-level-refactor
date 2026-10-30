@@ -119,6 +119,24 @@ describe('Catalog list (S13, FR-ADM-3)', () => {
   });
 });
 
+describe('New item when scopes fail', () => {
+  it('NewItemPage shows the scopes error with Try again, which loads the form', async () => {
+    const u = userEvent.setup();
+    let fail = true;
+    stubApi({
+      'GET /v1/admin/scopes': () =>
+        fail
+          ? { status: 503, body: { error: { code: 'INTERNAL', message: 'm', requestId: 'r' } } }
+          : { body: SCOPES },
+    });
+    renderPage(<NewItemPage />);
+    expect(await screen.findByRole('alert')).toBeVisible();
+    fail = false;
+    await u.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByLabelText('Slug')).toBeVisible();
+  });
+});
+
 describe('Publish tab (C10, D43, D44, D46)', () => {
   it("C10: Publish is disabled with 'License required' and every other blocker named", async () => {
     editor('publish', item({ publishBlockers: ['license', 'onLapse', 'files'] }));
@@ -177,6 +195,22 @@ describe('Publish tab (C10, D43, D44, D46)', () => {
       expect(screen.getByRole('checkbox', { name: 'Starter set' })).toBeChecked();
     });
     expect(sent(calls, 'PATCH')?.body).toEqual({ starter: true });
+  });
+  it('a successful change clears an old publish error', async () => {
+    const u = userEvent.setup();
+    live('publish', ready(), {
+      [`POST ${ITEM}/publish`]: () => {
+        throw new Error('refused');
+      },
+      [`PATCH ${ITEM}`]: (current, body) => ({ ...current, ...(body as Item) }),
+    });
+    await u.click(await screen.findByRole('button', { name: 'Publish' }));
+    expect(await screen.findByRole('alert')).toBeVisible();
+    await u.click(screen.getByRole('checkbox', { name: 'Starter set' }));
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: 'Starter set' })).toBeChecked();
+    });
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });
 

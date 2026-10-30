@@ -1,6 +1,5 @@
-import { AppErrorException, type StorageLocation } from '@nextlevel/shared';
 import { getSystem } from '@nextlevel/system-catalog';
-import { app, nativeImage } from 'electron';
+import { nativeImage } from 'electron';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { v7 as uuidv7 } from 'uuid';
@@ -22,7 +21,7 @@ import { DownloadService, type DownloadLog } from './DownloadService.ts';
 import { fetchArt } from './fetchArt.ts';
 import { Installer } from './Installer.ts';
 import { ItemLocks } from './itemLocks.ts';
-import { ensureManagedLocation } from './managedLocation.ts';
+import { managedLocationOf } from './managedLocation.ts';
 
 /** How often downloads that paused for the network try again. */
 const RETRY_MS = 60_000;
@@ -34,6 +33,8 @@ const RETRY_MS = 60_000;
  */
 export function startCatalog(o: {
   db: LibraryDb;
+  /** Quit steps run before library.db closes (startLibrary). */
+  beforeClose: (step: () => void) => void;
   games: GameRepository;
   media: MediaRepository;
   settings: SettingsService;
@@ -64,19 +65,17 @@ export function startCatalog(o: {
   const client = new CatalogClient(o.api, o.session);
   const locks = new ItemLocks();
   const installs = new CatalogInstallRepository(o.db);
-  const managedLocation = async (): Promise<StorageLocation> => {
-    const found = ensureManagedLocation(currentSettings(o.settings), o.root, uuidv7);
-    let location = found.location;
-    if (found.added) {
-      const saved = await o.settings.update(
-        (settings) => ensureManagedLocation(settings, o.root, uuidv7).settings,
-      );
-      if (!saved.ok) throw new AppErrorException(saved.error);
-      location = saved.value.settings.storage.locations.find((l) => l.managed) ?? location;
-    }
-    await mkdir(location.path, { recursive: true });
-    return location;
-  };
+  const managedLocation = managedLocationOf({
+    current: () => currentSettings(o.settings),
+    update: (change) => o.settings.update(change),
+    root: o.root,
+    newId: uuidv7,
+    mkdir: (path) => mkdir(path, { recursive: true }),
+  });
+  // The Catalog row shows in Settings → Storage before the first install.
+  managedLocation().catch((error: unknown) => {
+    o.log.warn({ error }, 'the Catalog games folder could not be set up');
+  });
   const installer = new Installer({
     db: o.db,
     games: o.games,
@@ -115,6 +114,7 @@ export function startCatalog(o: {
     installs,
     client,
     installer,
+    cancelDownload: (itemId) => downloads.cancelItem(itemId),
     locks,
     canSync: online,
     emit: o.emit,
@@ -136,7 +136,8 @@ export function startCatalog(o: {
     .catch((error: unknown) => {
       o.log.error({ error }, 'downloads folder could not be made');
     });
-  app.on('will-quit', () => {
+  // Before library.db closes: a download stopping mid-way still writes its row.
+  o.beforeClose(() => {
     clearInterval(retry);
     stopChecked();
     downloads.dispose();

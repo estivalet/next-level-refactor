@@ -1,5 +1,5 @@
 import { existsSync, statSync } from 'node:fs';
-import { readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { body, downloadWorld } from './downloadWorld.ts';
@@ -243,6 +243,183 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     await service.install('i2');
     await service.idle();
     expect(w.timeline).toEqual(['grant i1', 'install i1', 'grant i2', 'install i2']);
+  });
+
+  it('cancel during verify stops before install and removes the partial files', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    let open: () => void = () => undefined;
+    w.state.verifyGate = new Promise((resolve) => {
+      open = resolve;
+    });
+    const service = w.make();
+    const queued = await service.install('i1');
+    await until(() => w.state.verifying > 0);
+    await service.cancel(queued.id);
+    open();
+    await service.idle();
+    expect(w.installed).toEqual([]);
+    expect(service.list()).toEqual([]);
+    expect(existsSync(join(w.dir, queued.id))).toBe(false);
+    expect(w.eventsOf('downloads.finished').at(-1)).toMatchObject({ result: 'cancelled' });
+  });
+
+  it('pause during verify keeps the verified part and resumes without re-downloading', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    let open: () => void = () => undefined;
+    w.state.verifyGate = new Promise((resolve) => {
+      open = resolve;
+    });
+    const service = w.make();
+    const queued = await service.install('i1');
+    await until(() => w.state.verifying > 0);
+    await service.pause(queued.id);
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'paused', pausedReason: 'user' });
+    expect(w.installed).toEqual([]);
+    open();
+    w.state.verifyGate = null;
+    const requests = w.server.ranges.length;
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.server.ranges).toHaveLength(requests);
+    expect(w.installed[0]?.bytes).toEqual([body('one')]);
+  });
+
+  it('a 200 answer to a Range request restarts the count (bytesDone ≤ bytesTotal)', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.free = 10;
+    const service = w.make();
+    const queued = await service.install('i1');
+    await service.idle();
+    w.state.free = 10 ** 12;
+    await writeFile(join(w.dir, queued.id, 'f1.part'), body('one').subarray(0, 30));
+    w.server.ignoreRange(w.token('i1'));
+    w.server.cutAfter(w.token('i1'), 100);
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.server.ranges.at(-1)).toBe('bytes=30-');
+    expect(service.list()[0]).toMatchObject({ state: 'paused', bytesDone: 100 });
+  });
+
+  it('Resume right after Pause resumes (no lost resume)', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.server.hold(w.token('i1'), 50);
+    const service = w.make();
+    const queued = await service.install('i1');
+    const part = join(w.dir, queued.id, 'f1.part');
+    await until(() => existsSync(part) && statSync(part).size >= 50);
+    w.server.release(w.token('i1'));
+    await service.pause(queued.id);
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.installed[0]?.bytes).toEqual([body('one')]);
+    expect(service.list()).toEqual([]);
+  });
+
+  it('cancelling a queued download deletes its row before its folder; the loop never picks it up', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.add('i2', [body('two')]);
+    w.server.hold(w.token('i1'), 20);
+    const service = w.make();
+    const first = await service.install('i1');
+    const second = await service.install('i2');
+    const cancelling = service.cancel(second.id);
+    // Before the folder is touched, the row is already gone: the loop can't pick it up.
+    expect(w.repo.get(second.id)).toBeUndefined();
+    await cancelling;
+    await service.cancel(first.id);
+    await service.idle();
+    expect(w.timeline).not.toContain('grant i2');
+  });
+
+  /** Two queued items, both paused offline; i1's stored item then stops parsing (an update). */
+  async function unreadableWorld() {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.add('i2', [body('two')]);
+    w.state.offline = true;
+    const service = w.make();
+    const bad = await service.install('i1');
+    await service.install('i2');
+    await service.idle();
+    await writeFile(join(w.dir, bad.id, 'f1.part'), body('one').subarray(0, 30));
+    w.db.$client.prepare(`update downloads set item = '{"old":1}' where id = ?`).run(bad.id);
+    return { w, service, bad };
+  }
+
+  it('an unreadable row of the same version is repaired from the API and resumes from its parts', async () => {
+    const { w, service } = await unreadableWorld();
+    w.state.offline = false;
+    service.networkBack();
+    await service.idle();
+    expect(w.installed.map((done) => done.item.id).sort()).toEqual(['i1', 'i2']);
+    expect(w.server.ranges).toContain('bytes=30-');
+    expect(JSON.stringify(w.logged)).toContain('catalog download unreadable');
+  });
+
+  it('an unreadable row is kept, parts and all, while the API cannot be reached', async () => {
+    const { w, service, bad } = await unreadableWorld();
+    w.state.getUnreachable = true;
+    service.networkBack();
+    await service.idle();
+    expect(w.db.$client.prepare('select count(*) as n from downloads').get()).toEqual({ n: 2 });
+    expect(existsSync(join(w.dir, bad.id, 'f1.part'))).toBe(true);
+    expect(service.list().map((d) => d.itemId)).toEqual(['i2']);
+  });
+
+  it('an unreadable row whose item changed version or left the catalog is dropped; the rest runs', async () => {
+    const { w, service, bad } = await unreadableWorld();
+    const item = w.add('i1', [body('one, v2')]);
+    w.setItem({ ...item, version: 2 });
+    w.state.offline = false;
+    service.networkBack();
+    await service.idle();
+    expect(w.installed.map((done) => done.item.id)).toEqual(['i2']);
+    expect(w.db.$client.prepare('select count(*) as n from downloads').get()).toEqual({ n: 0 });
+    expect(existsSync(join(w.dir, bad.id))).toBe(false);
+  });
+
+  it('at start, download folders without a row are removed', async () => {
+    const w = await downloadWorld(closers);
+    await mkdir(join(w.dir, 'd-orphan'), { recursive: true });
+    await writeFile(join(w.dir, 'd-orphan', 'f1.part'), body('lost'));
+    const service = w.make();
+    service.start();
+    await service.idle();
+    expect(existsSync(join(w.dir, 'd-orphan'))).toBe(false);
+  });
+
+  it('a download folder that cannot be deleted on cancel is logged; the cancel still answers', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.offline = true;
+    const service = w.make({
+      removeDir: () => Promise.reject(Object.assign(new Error('busy'), { code: 'EBUSY' })),
+    });
+    const queued = await service.install('i1');
+    await service.idle();
+    await service.cancel(queued.id);
+    expect(service.list()).toEqual([]);
+    expect(JSON.stringify(w.logged)).toContain('download folder could not be removed');
+  });
+
+  it('cancelItem cancels the active download of an item (uninstall, lapse removal)', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.server.hold(w.token('i1'), 20);
+    const service = w.make();
+    const queued = await service.install('i1');
+    await until(() => existsSync(join(w.dir, queued.id, 'f1.part')));
+    await service.cancelItem('i1');
+    await service.cancelItem('i-none');
+    await service.idle();
+    expect(service.list()).toEqual([]);
+    expect(w.installed).toEqual([]);
   });
 
   it('download URLs are never logged', async () => {

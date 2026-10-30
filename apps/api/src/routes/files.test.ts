@@ -1,9 +1,13 @@
+import { readdir, truncate } from 'node:fs/promises';
+import { join } from 'node:path';
 import type { DownloadGrant } from '@nextlevel/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { catalogWorld } from '../../test/catalogPlayer.ts';
 import { createTestApp } from '../../test/testApp.ts';
 import { createContext } from '../context.ts';
 import { logOptions } from '../log.ts';
+import type { FileStore } from '../storage/FileStore.ts';
+import { LocalDiskStore } from '../storage/LocalDiskStore.ts';
 import { signFileToken } from '../storage/tokens.ts';
 import { testEnv } from '../../test/testApp.ts';
 
@@ -14,10 +18,11 @@ afterEach(async () => {
 
 const BODY = 'dummy bytes of Star Hopper.nes';
 
-async function setup() {
+async function setup(files?: (dir: string) => FileStore) {
   const lines: string[] = [];
   const test = await createTestApp({
     log: { ...logOptions('production'), stream: { write: (line: string) => lines.push(line) } },
+    ...(files ? { files } : {}),
   });
   closers.push(test.close);
   const world = await catalogWorld(test.app);
@@ -103,6 +108,42 @@ describe('the files route (FR-CAT-6, security §2, Review Focus 1)', () => {
     t.db.$client.prepare('delete from catalog_files').run();
     const gone = await t.fetchFile(file?.url ?? '');
     expect(gone.statusCode).toBe(410);
+    expect(gone.json()).toMatchObject({ error: { code: 'NOT_FOUND' } });
+  });
+
+  it('a stored file whose size on disk differs from the recorded size is 410', async () => {
+    const t = await setup();
+    const file = await t.grant();
+    const [path] = (
+      await readdir(join(t.filesDir, 'files'), { recursive: true, withFileTypes: true })
+    )
+      .filter((entry) => entry.isFile())
+      .map((entry) => join(entry.parentPath, entry.name));
+    await truncate(path ?? '', 5);
+    const gone = await t.fetchFile(file?.url ?? '');
+    expect(gone.statusCode).toBe(410);
+    const ranged = await t.fetchFile(file?.url ?? '', { range: 'bytes=5-' });
+    expect(ranged.statusCode).toBe(410);
+  });
+
+  it('a file deleted between the size check and opening it is 410, not 500', async () => {
+    let vanish = false;
+    const t = await setup((dir) => {
+      const store = new LocalDiskStore(dir);
+      return {
+        put: (key, body, limit) => store.put(key, body, limit),
+        size: (key) => store.size(key),
+        delete: (key) => store.delete(key),
+        open: async (key, range) => {
+          if (vanish) await store.delete(key);
+          return store.open(key, range);
+        },
+      };
+    });
+    const file = await t.grant();
+    vanish = true;
+    const gone = await t.fetchFile(file?.url ?? '');
+    expect(gone.statusCode, gone.body + t.lines.filter((l) => l.includes('rror')).join()).toBe(410);
     expect(gone.json()).toMatchObject({ error: { code: 'NOT_FOUND' } });
   });
 

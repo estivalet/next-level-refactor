@@ -40,10 +40,8 @@ export function SystemsStep({ settings, persist, next }: StepProps) {
 
   const save = async () => {
     const systems: Settings['systems'] = { ...settings.systems };
-    for (const id of shown) {
-      const on = checked.has(id);
-      if (on || systems[id]) systems[id] = { ...systems[id], enabled: on };
-    }
+    // Unticked ones are saved as off too, so a scan that finds their games leaves them off.
+    for (const id of shown) systems[id] = { ...systems[id], enabled: checked.has(id) };
     await persist({ ...settings, systems });
     next();
   };

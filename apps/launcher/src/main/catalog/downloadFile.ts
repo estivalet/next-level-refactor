@@ -38,6 +38,8 @@ export async function downloadFile(o: {
   signal: AbortSignal;
   /** Bytes written since the last call. */
   onBytes?: (count: number) => void;
+  /** The server sent the whole file to a ranged request: the part's `dropped` bytes are rewritten. */
+  onRestart?: (dropped: number) => void;
 }): Promise<'done' | 'expired' | 'network'> {
   o.signal.throwIfAborted();
   let start = await sizeOf(o.part);
@@ -65,6 +67,7 @@ export async function downloadFile(o: {
   if ((response.status !== 200 && response.status !== 206) || !response.body) return 'network';
   // A whole-file answer to a ranged request rewrites the part from the start.
   const append = response.status === 206 && start > 0;
+  if (!append && start > 0) o.onRestart?.(start);
   let handle;
   try {
     handle = await open(o.part, append ? 'a' : 'w');

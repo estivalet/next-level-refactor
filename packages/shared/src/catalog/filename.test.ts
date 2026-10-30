@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CATALOG_SLUG, safeFilename } from './filename.ts';
+import { CATALOG_SLUG, MAX_FILENAME_LENGTH, safeFilename } from './filename.ts';
 
 describe('safeFilename (Global Constraints, Review Focus 2)', () => {
   it.each([
@@ -31,14 +31,15 @@ describe('safeFilename (Global Constraints, Review Focus 2)', () => {
     ['<a>.nes'],
     ['a|b.nes'],
     [''],
-    ['a'.repeat(197) + '.nes'],
+    ['a'.repeat(97) + '.nes'],
   ])('refuses %j', (name) => {
     expect(safeFilename(name)).toBe(false);
   });
 
-  it('accepts an ordinary name, up to 200 characters', () => {
+  it('accepts an ordinary name, up to MAX_FILENAME_LENGTH (100) characters', () => {
+    expect(MAX_FILENAME_LENGTH).toBe(100);
     expect(safeFilename('Star Hopper (v1.1).nes')).toBe(true);
-    expect(safeFilename('a'.repeat(196) + '.nes')).toBe(true);
+    expect(safeFilename('a'.repeat(96) + '.nes')).toBe(true);
     expect(safeFilename('readme.txt')).toBe(true);
   });
 

@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { and, eq } from 'drizzle-orm';
+import type { Readable } from 'node:stream';
 import { z } from 'zod';
 import type { ApiContext } from '../context.ts';
 import { entitlementOf } from '../auth/session.ts';
@@ -65,6 +66,20 @@ export function parseRange(
   return { start, end };
 }
 
+/** The stored bytes, or undefined when the file vanished since the size check. */
+async function openStored(
+  ctx: ApiContext,
+  key: string,
+  range?: { start: number; end: number },
+): Promise<Readable | undefined> {
+  try {
+    return await ctx.files.open(key, range);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+    throw error;
+  }
+}
+
 const gone = (reply: FastifyReply, requestId: string) =>
   reply.status(410).send({
     error: { code: 'NOT_FOUND', message: MESSAGES.NOT_FOUND ?? '', requestId },
@@ -91,13 +106,18 @@ export function fileRoutes(app: FastifyInstance, ctx: ApiContext): void {
         throw apiError('FORBIDDEN');
       }
       const stored = storedOf(ctx, token, user);
-      if (!stored || (await ctx.files.size(stored.key)) === null) return gone(reply, request.id);
+      // A file missing or cut short on disk would make the launcher resume forever: gone.
+      if (!stored || (await ctx.files.size(stored.key)) !== stored.size) {
+        return gone(reply, request.id);
+      }
+      const header = request.headers.range;
+      const range = header ? parseRange(header, stored.size) : undefined;
+      const body = range === null ? undefined : await openStored(ctx, stored.key, range);
+      if (range !== null && !body) return gone(reply, request.id);
       void reply
         .header('accept-ranges', 'bytes')
         .header('etag', `"${stored.sha256}"`)
         .type('application/octet-stream');
-      const header = request.headers.range;
-      const range = header ? parseRange(header, stored.size) : undefined;
       if (range === null) {
         return reply
           .status(416)
@@ -112,11 +132,9 @@ export function fileRoutes(app: FastifyInstance, ctx: ApiContext): void {
             `bytes ${String(range.start)}-${String(range.end)}/${String(stored.size)}`,
           )
           .header('content-length', String(range.end - range.start + 1))
-          .send(await ctx.files.open(stored.key, range));
+          .send(body);
       }
-      return reply
-        .header('content-length', String(stored.size))
-        .send(await ctx.files.open(stored.key));
+      return reply.header('content-length', String(stored.size)).send(body);
     },
   );
 }

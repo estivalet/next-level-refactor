@@ -207,19 +207,24 @@ As built in M9f (FR-CAT-1, FR-CAT-2, US-E1, D46, D47): a desktop **Catalog** app
 tabs Browse · Installed · Downloads (the tray indicator opens Downloads). **Browse**: search
 (300 ms pause), System and Genre filters; with no filter the rows are Starter set (hidden when the
 plan has none), New (newest published first, up to 12) and one row per system (title order); with a
-filter, a Results row. Cards show box art, title, system, size, the license type badge and the state
-(Available, Queued, Downloading n%, Installed, Update available, No longer in the catalog,
-"Download failed — retry", or "Download corrupted — retry" for a checksum failure). Arrow keys and
+filter, a Results row (a failed search shows the error instead). Cards show box art, title,
+system, size, the license type badge and the state (Available, Queued, Downloading n%, Paused n%,
+Installed, Update available, "Download failed — retry", or "Download corrupted — retry" for a
+checksum failure); an item that left the catalog is not listed in Browse, so "No longer in the
+catalog" shows only in Installed and in an open detail. Offline, Browse says "Catalog needs a
+connection — installed games still play" with **Retry**. Arrow keys and
 a gamepad (the player's Settings → Input bindings) move across cards and rows; select opens one.
 **Item detail**: art, system · year · developer, "License: Freeware · © <holder>", size,
-description, screenshots; Install (or Retry after a failure), Update, Play and Uninstall by state;
+description, screenshots; Install (also after a failed download), Update, Play and Uninstall by
+state; while it is queued, downloading or paused, its state, a progress bar and Pause / Resume;
 Uninstall asks "Uninstall <title>?" only for a favorite or a game in a collection (US-E3).
 **Installed**: this PC's catalog games (works offline) with Play, Update and Uninstall and a "No
 longer in the catalog" / "Update available" line. **Downloads**: each download's progress bar,
 state (Queued, Downloading n%, Paused, Waiting for the network, Waiting to be online, or why it
-failed) and Pause / Resume / Retry / Cancel. Games removed by the lapse rule show "Removed because
+failed) and Pause / Resume / Retry / Cancel. A failed action (Install, Update, Uninstall, a download
+button) says "That didn't work. Try again.", or the connection notice when offline. Games removed by the lapse rule show "Removed because
 they left the catalog: …" (dismissable). Art reaches the app as `nextlevel://catalog-art/…`: main
-fetches the signed URL.
+fetches the signed URL, and asks the API for the item again (fresh URLs) when one has expired.
 
 ## S9 Settings
 

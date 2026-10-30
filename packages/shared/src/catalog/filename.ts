@@ -21,12 +21,20 @@ const RESERVED = /^(con|prn|aux|nul|conin\$|conout\$|(com|lpt)[0-9\u00b9\u00b2\u
 const deviceName = (name: string) => RESERVED.test(name.split('.')[0]?.replace(/ +$/, '') ?? '');
 
 /**
- * A single path segment, 1–200 characters, that Windows accepts as a file name: no separators or
+ * The longest catalog file name: joined under `<folder>\Catalog\<system>\<slug>\` on the
+ * player's disk it must stay under Windows' MAX_PATH (260).
+ */
+export const MAX_FILENAME_LENGTH = 100;
+/** The largest catalog file the API accepts (D41); the console checks it before uploading. */
+export const MAX_UPLOAD_BYTES = 4 * 1024 ** 3;
+
+/**
+ * A single path segment, 1–`MAX_FILENAME_LENGTH` characters, that Windows accepts as a file name: no separators or
  * `: * ? " < > |`, no control characters, not `.`/`..`, no trailing dot or space, not a device
  * name. With `extensions`, its extension must be one of them (case-insensitive).
  */
 export function safeFilename(name: string, extensions?: readonly string[]): boolean {
-  if (name.length < 1 || name.length > 200) return false;
+  if (name.length < 1 || name.length > MAX_FILENAME_LENGTH) return false;
   if (FORBIDDEN.test(name) || CONTROL.test(name)) return false;
   if (name === '.' || name === '..' || name.endsWith('.') || name.endsWith(' ')) return false;
   if (deviceName(name)) return false;

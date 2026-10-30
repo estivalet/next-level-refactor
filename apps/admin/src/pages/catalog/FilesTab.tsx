@@ -1,4 +1,10 @@
-import { FILE_ROLES, safeFilename, type AdminCatalogItem, type FileRole } from '@nextlevel/shared';
+import {
+  FILE_ROLES,
+  MAX_UPLOAD_BYTES,
+  safeFilename,
+  type AdminCatalogItem,
+  type FileRole,
+} from '@nextlevel/shared';
 import { getSystem } from '@nextlevel/system-catalog';
 import { Button, Select, Table } from '@nextlevel/ui';
 import { useState } from 'react';
@@ -79,7 +85,11 @@ export function FilesTab({ item }: { item: AdminCatalogItem }) {
       (file) => file.filename.toLowerCase() === picked.filename.toLowerCase(),
     );
     const choice = same ? { ...picked, role: same.role } : picked;
-    const problem = nameProblem(choice.filename, choice.role);
+    // Refused here, not by the API: a browser may reset the connection on an early refusal.
+    const problem =
+      choice.file.size > MAX_UPLOAD_BYTES
+        ? t('admin.catalog.files.tooLarge', { name: choice.filename })
+        : nameProblem(choice.filename, choice.role);
     if (problem) {
       setBadName(problem);
       return;

@@ -1,11 +1,12 @@
 import {
   defaultSettings,
+  ok,
   SettingsSchema,
   type Settings,
   type StorageLocation,
 } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
-import { ensureManagedLocation, keepManagedHistory } from './managedLocation.ts';
+import { ensureManagedLocation, keepManagedHistory, managedLocationOf } from './managedLocation.ts';
 
 const ID = (n: number) => `0192f000-0000-7000-8000-00000000000${String(n)}`;
 const base = (locations: StorageLocation[]): Settings => {
@@ -100,5 +101,33 @@ describe('the Catalog games folder (D45, D50)', () => {
     const one = { id: ID(2), name: 'A', path: 'E:\\A', priority: 1, managed: true };
     const two = { id: ID(3), name: 'B', path: 'E:\\B', priority: 2, managed: true };
     expect(SettingsSchema.safeParse(base([one, two])).success).toBe(false);
+  });
+});
+
+describe('managedLocationOf (startCatalog, D45)', () => {
+  it('adds the Catalog storage row when missing, saved once, and makes its folder', async () => {
+    let saved = base([roms]);
+    const saves: number[] = [];
+    const made: string[] = [];
+    const managed = managedLocationOf({
+      current: () => saved,
+      update: (change) => {
+        saved = change(saved);
+        saves.push(saved.storage.locations.length);
+        return Promise.resolve(ok({ settings: saved }));
+      },
+      root: 'E:\\NextLevel',
+      newId: () => ID(2),
+      mkdir: (path) => {
+        made.push(path);
+        return Promise.resolve();
+      },
+    });
+    const location = await managed();
+    expect(location).toMatchObject({ id: ID(2), path: 'E:\\NextLevel\\Catalog', managed: true });
+    expect(saved.storage.locations.map((l) => l.id)).toEqual([ID(1), ID(2)]);
+    await managed();
+    expect(saves).toEqual([2]);
+    expect(made).toEqual(['E:\\NextLevel\\Catalog', 'E:\\NextLevel\\Catalog']);
   });
 });

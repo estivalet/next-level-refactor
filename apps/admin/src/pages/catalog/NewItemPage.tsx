@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCreateItem } from '../../api/catalog.ts';
 import { useScopes } from '../../api/plans.ts';
+import { errorKey } from '../../errors.ts';
 import { hrefOf } from '../../router.ts';
 import { catalogErrorKey, reasonOf } from './catalogText.ts';
 
@@ -21,7 +22,22 @@ export function NewItemPage() {
     () => [...systemCatalog()].sort((a, b) => a.name.localeCompare(b.name)),
     [],
   );
-  if (!scopes.data) return null;
+  if (!scopes.data) {
+    return scopes.error ? (
+      <div className="flex max-w-xl flex-col items-start gap-3">
+        <p role="alert" className="text-sm text-[#ff8a80]">
+          {t(errorKey(scopes.error))}
+        </p>
+        <Button
+          onClick={() => {
+            void scopes.refetch();
+          }}
+        >
+          {t('admin.catalog.tryAgain')}
+        </Button>
+      </div>
+    ) : null;
+  }
   const scope = scopeSlug ?? scopes.data[0]?.slug ?? '';
   const slugOk = safeSlug(slug);
   const valid = slugOk && title.trim() !== '' && systemId !== '' && scope !== '';

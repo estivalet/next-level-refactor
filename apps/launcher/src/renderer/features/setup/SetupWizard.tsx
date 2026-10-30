@@ -37,8 +37,8 @@ export function SetupWizard({ onDone }: { onDone: (landing: 'catalog' | null) =>
     },
   };
   const name = STEPS[step] ?? 'done';
-  const finish = (landing: 'catalog' | null) => {
-    void persist({
+  const finish = (landing: 'catalog' | null) =>
+    persist({
       ...loaded.settings,
       general: {
         ...loaded.settings.general,
@@ -48,7 +48,6 @@ export function SetupWizard({ onDone }: { onDone: (landing: 'catalog' | null) =>
     }).then(() => {
       onDone(landing);
     });
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0b0b12] p-6 text-slate-200">
@@ -67,7 +66,8 @@ export function SetupWizard({ onDone }: { onDone: (landing: 'catalog' | null) =>
         >
           {t(`setup.${name}.title`)}
         </h2>
-        {name === 'systems' && <SystemsStep key={loaded.revision} {...props} />}
+        {/* Not keyed by revision: a settings.changed (a scan) must not drop the ticks. */}
+        {name === 'systems' && <SystemsStep {...props} />}
         {name === 'folders' && <FoldersStep {...props} />}
         {name === 'emulators' && <EmulatorsStep {...props} />}
         {name === 'theme' && <ThemeStep {...props} />}

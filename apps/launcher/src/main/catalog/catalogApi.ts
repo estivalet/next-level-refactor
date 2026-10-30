@@ -14,7 +14,10 @@ import type { ItemLocks } from './itemLocks.ts';
 
 export interface CatalogApiDeps {
   client: Pick<CatalogClient, 'list' | 'get'>;
-  downloads: Pick<DownloadService, 'list' | 'install' | 'pause' | 'resume' | 'cancel'>;
+  downloads: Pick<
+    DownloadService,
+    'list' | 'install' | 'pause' | 'resume' | 'cancel' | 'cancelItem'
+  >;
   installer: Pick<Installer, 'uninstall'>;
   installs: Pick<CatalogInstallRepository, 'all' | 'byItem'>;
   locks: ItemLocks;
@@ -86,9 +89,22 @@ export function createCatalogApi(deps: CatalogApiDeps): CatalogApi & {
       };
     },
     async art(itemId, kind) {
-      const url = signed.get(`${itemId}/${kind}`);
+      const key = `${itemId}/${kind}`;
+      const url = signed.get(key);
       if (!url) return null;
-      const fetched = await deps.fetchArt(url);
+      let fetched = await deps.fetchArt(url);
+      if (!fetched) {
+        // Signed art URLs live an hour: ask the API for the item again, then try once more.
+        const fresh = await deps.client.get(itemId).catch(() => null);
+        const again =
+          kind === 'box-front' && fresh?.boxArt
+            ? fresh.boxArt
+            : fresh?.media.find((media) => media.kind === kind)?.url;
+        if (again) {
+          signed.set(key, again);
+          fetched = await deps.fetchArt(again);
+        }
+      }
       const mime = fetched ? MIME[fetched.format] : undefined;
       return fetched && mime ? { bytes: fetched.bytes, mime } : null;
     },
@@ -99,7 +115,10 @@ export function createCatalogApi(deps: CatalogApiDeps): CatalogApi & {
           new AppErrorException({ code: 'NOT_FOUND', message: ERROR_CODES.NOT_FOUND }),
         );
       }
-      return deps.locks.run(itemId, () => deps.installer.uninstall(itemId, confirm));
+      // Its download (an Update) is cancelled first, outside the lock its install step takes.
+      return deps.downloads
+        .cancelItem(itemId)
+        .then(() => deps.locks.run(itemId, () => deps.installer.uninstall(itemId, confirm)));
     },
     installed: () =>
       deps.installs.all().map((install) => ({

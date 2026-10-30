@@ -103,9 +103,20 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
   }
   if (all.error) {
     return (
-      <p role="alert" className="p-6 text-sm text-slate-300">
-        {t(isOffline(all.error) ? 'catalog.offline' : 'catalog.loadFailed')}
-      </p>
+      <div className="flex flex-col items-start gap-3 p-6">
+        <p role="alert" className="text-sm text-slate-300">
+          {t(isOffline(all.error) ? 'catalog.offline' : 'catalog.loadFailed')}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            void all.refetch();
+          }}
+          className="rounded-lg bg-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+        >
+          {t('catalog.downloads.retry')}
+        </button>
+      </div>
     );
   }
 
@@ -176,7 +187,11 @@ export function BrowseTab({ onPlay }: { onPlay: (gameId: number) => void }) {
       </div>
       <div ref={cards} className="flex flex-col gap-4" {...keys}>
         {filtering ? (
-          (results.data?.items.length ?? 0) === 0 && results.isSuccess ? (
+          results.error ? (
+            <p role="alert" className="text-sm text-slate-300">
+              {t(isOffline(results.error) ? 'catalog.offline' : 'catalog.loadFailed')}
+            </p>
+          ) : (results.data?.items.length ?? 0) === 0 && results.isSuccess ? (
             <p className="text-sm text-slate-400">{t('catalog.noResults')}</p>
           ) : (
             row(t('catalog.results'), results.data?.items ?? [])
