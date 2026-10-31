@@ -94,6 +94,14 @@ test('US-C5, FR-SCR-1, FR-SCR-5: Scrape… writes box art beside the ROMs and th
     await expect.poll(() => art.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(1);
     await expect(details.getByText(/^Scraped /)).toBeVisible();
     await expect(details.getByText('Demo', { exact: true })).toBeVisible();
+    // A details panel taller than the window scrolls; the art keeps its 4:3 box (not squashed).
+    await page.setViewportSize({ width: 1280, height: 420 });
+    await expect
+      .poll(async () => {
+        const box = await art.boundingBox();
+        return box ? Math.round((box.height / box.width) * 100) : 0;
+      })
+      .toBeGreaterThanOrEqual(70);
 
     const written = await readFile(
       join(roms.dir, 'Nintendo 64', 'media', 'box-front', 'Homebrew Demo.png'),

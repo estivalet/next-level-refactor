@@ -42,7 +42,7 @@ export function GameDetails(props: GameDetailsProps) {
     ['region', game.region],
   ] as const;
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto p-4">
+    <div className="flex flex-col gap-4 overflow-y-auto p-4 *:shrink-0">
       <DetailsArt game={game} />
       <div>
         <h3 className="text-sm font-bold text-white">{game.title}</h3>
