@@ -88,7 +88,11 @@ export const gameUserState = sqliteTable(
     lastPlayedAt: text('last_played_at'),
     playSeconds: integer('play_seconds').notNull().default(0),
   },
-  (table) => [index('game_user_state_hidden').on(table.hidden)],
+  (table) => [
+    index('game_user_state_hidden').on(table.hidden),
+    // The themes' Favorite filters are looked for after every game change (menuFingerprint).
+    index('game_user_state_favorite').on(table.favorite),
+  ],
 );
 
 /** Filter tags such as `homebrew` or `hack` (FR-LIB-6). */

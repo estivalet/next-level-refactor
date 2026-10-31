@@ -14,8 +14,12 @@ export interface MenuTreeInput {
   collections: ReadonlyArray<{ id: number; name: string }>;
 }
 
+/** A system's favorites, offered like a filter tag although favorite is a flag on the game. */
+export const FAVORITE_FILTER = 'favorite';
+
 /** Filters with a translated name (`frontend.filters.<slug>`); others show their slug. */
 const KNOWN_FILTERS = new Set([
+  FAVORITE_FILTER,
   'official',
   'homebrew',
   'hack',

@@ -85,12 +85,27 @@ describe('menuFingerprint', () => {
 
   it('FR-MENU-2: a smart filter the menu does not show leaves it alone', async () => {
     const { library, menus, smartFilters, fingerprint, favorite } = await setup();
-    const [a] = seedGames(library.db, 'snes', ['Alpha']);
+    const [a] = seedGames(library.db, 'snes', ['Alpha', { title: 'Beta', favorite: true }]);
     smartFilters.create('Favorites', SmartFilterQuerySchema.parse({ favorite: true }));
     menus.create('Main', [ref('system', 'snes')]);
     const before = fingerprint();
     favorite(a ?? 0, true);
     expect(fingerprint()).toBe(before);
+  });
+
+  it("FR-THM-6: a system's first and last favorite change it (its Favorite filter)", async () => {
+    const { library, menus, fingerprint, favorite } = await setup();
+    const [a, b] = seedGames(library.db, 'snes', ['Alpha', 'Beta']);
+    menus.create('Main', [ref('system', 'snes')]);
+    const none = fingerprint();
+    favorite(a ?? 0, true);
+    const one = fingerprint();
+    expect(one).not.toBe(none);
+    favorite(b ?? 0, true);
+    expect(fingerprint()).toBe(one);
+    favorite(a ?? 0, false);
+    favorite(b ?? 0, false);
+    expect(fingerprint()).toBe(none);
   });
 
   it('FR-MENU-2: a referenced collection whose only game goes missing changes it', async () => {

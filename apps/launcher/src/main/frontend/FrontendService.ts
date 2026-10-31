@@ -16,7 +16,7 @@ import { generatedNodes } from '../menus/generatedDocument.ts';
 import type { MenuRepository } from '../menus/MenuRepository.ts';
 import { resolveMenu, type ResolveContext } from '../menus/resolveMenu.ts';
 import { menuFingerprint } from './menuFingerprint.ts';
-import { buildMenuTree } from './menuTree.ts';
+import { buildMenuTree, FAVORITE_FILTER } from './menuTree.ts';
 
 export interface FrontendDeps {
   db: LibraryDb;
@@ -65,9 +65,11 @@ const SMART_SQL = `select ${COLUMNS} from json_each(@ids) j join games g on g.id
 const SQL = {
   system: `select ${COLUMNS} ${FROM} where g.missing = 0 and g.system_id = @systemId
     and g.collection_only = 0 order by m.sort_title, g.id`,
+  // The `favorite` filter is the favorite flag, not a tag (import turns the tag into the flag).
   filter: `select ${COLUMNS} ${FROM} where g.missing = 0 and g.system_id = @systemId
     and g.collection_only = 0
-    and exists (select 1 from game_filters x where x.game_id = g.id and x.filter = @filter)
+    and (exists (select 1 from game_filters x where x.game_id = g.id and x.filter = @filter)
+      or (@filter = '${FAVORITE_FILTER}' and u.favorite = 1))
     order by m.sort_title, g.id`,
   collection: `select ${COLUMNS} ${FROM} join collection_games cg on cg.game_id = g.id
     join collections c on c.id = cg.collection_id
@@ -144,8 +146,12 @@ export class FrontendService {
       .all() as Array<{ id: string; n: number }>;
     const filters = this.client
       .prepare(
-        `select distinct g.system_id as id, f.filter as filter from game_filters f
-         join games g on g.id = f.game_id where g.missing = 0 and g.collection_only = 0`,
+        `select g.system_id as id, f.filter as filter from game_filters f
+         join games g on g.id = f.game_id where g.missing = 0 and g.collection_only = 0
+         union
+         select g.system_id, '${FAVORITE_FILTER}' from game_user_state u
+         join games g on g.id = u.game_id
+         where u.favorite = 1 and g.missing = 0 and g.collection_only = 0`,
       )
       .all() as Array<{ id: string; filter: string }>;
     const filtersBySystem = new Map<string, string[]>();

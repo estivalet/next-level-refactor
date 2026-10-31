@@ -1,0 +1,1 @@
+CREATE INDEX `game_user_state_favorite` ON `game_user_state` (`favorite`);

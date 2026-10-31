@@ -85,6 +85,13 @@
       "when": 1793462086303,
       "tag": "0011_nappy_risque",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1793488054630,
+      "tag": "0012_dry_chamber",
+      "breakpoints": true
     }
   ]
 }
