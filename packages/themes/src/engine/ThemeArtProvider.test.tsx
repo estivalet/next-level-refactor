@@ -3,7 +3,7 @@ import type { ArtIndex } from '@nextlevel/shared';
 import { act, render, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { FakeThemeHost } from '../host/FakeThemeHost.ts';
-import { game } from './testNodes.ts';
+import { filterNode, game } from './testNodes.ts';
 import { ThemeArtProvider } from './ThemeArtProvider.tsx';
 import type { ThemeArtConfig } from './types.ts';
 import { useThemeArt, type ThemeArtApi } from './useThemeArt.ts';
@@ -66,6 +66,17 @@ describe('ThemeArtProvider (FR-THM-2, FR-THM-4)', () => {
       'nextlevel://art/assets/logo/clear/SNES.png',
     ]);
     expect(ctx.art().sound('move-menu')).toEqual(['nextlevel://art/assets/sound/move-menu.ogg']);
+  });
+
+  it("a filter shows its own shared logo before its system's pack logo", async () => {
+    const ctx = setup(
+      new FakeThemeHost({ art: index({ assetsFiles: ['logo/clear/Official.png'] }) }),
+    );
+    await ctx.ready();
+    expect(ctx.art().nodeLogo(filterNode('snes', 'SNES', 'Official'))).toEqual([
+      'nextlevel://art/assets/logo/clear/Official.png',
+      'nextlevel://art/pack/big-box/logo/clear/SNES.png',
+    ]);
   });
 
   it('a pack with fallback off never uses the shared folder', async () => {

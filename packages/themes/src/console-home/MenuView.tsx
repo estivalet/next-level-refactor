@@ -41,7 +41,7 @@ export function MenuView({
               imageCandidates={art
                 .menuBackgroundLayers(item.name)
                 .flatMap((layer) => (layer.kind === 'image' ? layer.candidates : []))}
-              logoCandidates={art.logo(item.name)}
+              logoCandidates={art.nodeLogo(item)}
               label={nodeLabel(item, t)}
               focused={focused}
               className={cn('ch-tile', focused && 'ch-tile--focused')}

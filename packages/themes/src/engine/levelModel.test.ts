@@ -4,6 +4,7 @@ import {
   findSystemId,
   hasOnlyFilterChildren,
   levelKind,
+  logoNames,
   nodeLabel,
   reshapeFilterLevels,
   resolveLevel,
@@ -127,5 +128,16 @@ describe('reshapeFilterLevels (FR-THM-1, theme switch between filter layouts)', 
     expect(reshapeFilterLevels([root, consolesLevel, filterMenu], 0, true)).toBeNull();
     expect(reshapeFilterLevels([root, consolesLevel, flattened('official')], 0, false)).toBeNull();
     expect(reshapeFilterLevels([], 0, false)).toBeNull();
+  });
+});
+
+describe('logoNames (FR-THM-2)', () => {
+  it("tries a filter's own logo before its system's", () => {
+    expect(logoNames(official)).toEqual(['official', 'SNK Neo Geo']);
+  });
+
+  it('uses the name alone for other nodes', () => {
+    expect(logoNames(atari)).toEqual(['Atari 2600']);
+    expect(logoNames(collection)).toEqual(['Trackball Classics']);
   });
 });

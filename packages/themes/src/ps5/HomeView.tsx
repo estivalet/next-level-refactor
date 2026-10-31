@@ -103,7 +103,7 @@ export function HomeView({
             <div className="ps5-shelf-slot">
               <ArtTile
                 imageCandidates={images(item)}
-                logoCandidates={art.logo(item.name)}
+                logoCandidates={art.nodeLogo(item)}
                 label={label(item)}
                 focused={isFocused}
                 className={cn('ps5-icon', isFocused && 'ps5-icon--focused')}
@@ -119,7 +119,7 @@ export function HomeView({
       {focused && (
         <section className="ps5-hero">
           <LevelLogo
-            candidates={art.logo(focused.name)}
+            candidates={art.nodeLogo(focused)}
             fallbackText={label(focused)}
             className="ps5-hero-logo"
           />

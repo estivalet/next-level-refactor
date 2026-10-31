@@ -96,7 +96,7 @@ export function HyperspinWheel({
             onActivate={content.onEnter}
             renderItem={({ item, focused }) => (
               <WheelItem
-                candidates={art.logo(item.name)}
+                candidates={art.nodeLogo(item)}
                 label={nodeLabel(item, t)}
                 focused={focused}
               />
