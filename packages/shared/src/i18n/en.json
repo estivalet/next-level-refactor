@@ -979,6 +979,7 @@
       "collections": "Collections"
     },
     "filters": {
+      "favorite": "Favorites",
       "official": "Official",
       "homebrew": "Homebrew",
       "hack": "Hacks",

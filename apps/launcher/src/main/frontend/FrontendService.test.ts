@@ -125,6 +125,23 @@ describe('FrontendService.games', () => {
     expect(service.games('s:snes:f:homebrew').map((g) => g.title)).toEqual(['Beta']);
   });
 
+  it('FR-THM-6: a system with favorites gets a Favorite filter with only its favorites', async () => {
+    const { library, service, tag } = await setup();
+    const [a] = seedGames(library.db, 'snes', [
+      'Alpha',
+      { title: 'Beta', favorite: true },
+      { title: 'Gone', favorite: true, missing: true },
+    ]);
+    seedGames(library.db, 'n64', [{ title: 'Gamma', favorite: true }]);
+    tag(a ?? 0, 'official');
+    const snes = service.menu().items[0]?.children[1];
+    expect(snes?.children.map((node) => [node.id, node.labelKey])).toEqual([
+      ['s:snes:f:official', 'frontend.filters.official'],
+      ['s:snes:f:favorite', 'frontend.filters.favorite'],
+    ]);
+    expect(service.games('s:snes:f:favorite').map((g) => g.title)).toEqual(['Beta']);
+  });
+
   it('FR-LIB-8: a collection level follows the collection order', async () => {
     const { library, service, collections } = await setup();
     const [a, b] = seedGames(library.db, 'snes', ['Alpha', 'Beta']);

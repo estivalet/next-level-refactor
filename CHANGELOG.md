@@ -20,6 +20,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Fixed
 
+- Every theme offers a **Favorite** filter on a system with favorites, like the other filters
+  (logo `logo/clear/Favorite.png`); it appears with the system's first favorite and goes with
+  its last (FR-THM-6).
 - Menu filters (Official, Homebrew, Hack…) show their own logo, e.g. `logo/clear/Official.png`,
   in every theme instead of repeating the system's; the system logo is the fallback (FR-THM-2).
 - Importing NextLevelOS gives each system exactly the games of its gamelist: files on disk that

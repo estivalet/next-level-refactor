@@ -10,6 +10,7 @@ import {
   type ThemeOptions,
   type ThemeSound,
 } from '@nextlevel/shared';
+import { hasFilter } from '../engine/gameFlags.ts';
 import { FIXTURE_ART, FIXTURE_COLLECTION, FIXTURE_GAMES, FIXTURE_MENU } from './fixtures.ts';
 import type { HostEvent, LaunchOutcome, ThemeHost } from './ThemeHost.ts';
 
@@ -62,7 +63,7 @@ export class FakeThemeHost implements ThemeHost {
     const system = /^s:([^:]+)$/.exec(nodeId);
     if (filter) {
       return Promise.resolve(
-        this.games.filter((g) => g.systemId === filter[1] && g.filters.includes(filter[2] ?? '')),
+        this.games.filter((g) => g.systemId === filter[1] && hasFilter(g, filter[2] ?? '')),
       );
     }
     if (system) return Promise.resolve(this.games.filter((g) => g.systemId === system[1]));

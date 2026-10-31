@@ -1,7 +1,7 @@
 // Ported from NextLevelOS src/themes/components/gameTabs.ts @ 3d530b7: the tabs are All · Favorites
 // · Hidden (screen spec S5), labelled through i18n; filters are menu nodes.
 import type { MenuNode, ThemeGame } from '@nextlevel/shared';
-import { isFavorite, isHidden } from '../engine/gameFlags.ts';
+import { hasFilter, isFavorite, isHidden } from '../engine/gameFlags.ts';
 
 export interface GameTab {
   id: string;
@@ -59,7 +59,7 @@ export function buildFilterTabs(filters: readonly MenuNode[]): {
     return {
       id: `filter:${slug}`,
       ...(node.labelKey ? { labelKey: node.labelKey } : { label: node.display || node.name }),
-      predicate: (g) => !isHidden(g) && g.filters.includes(slug),
+      predicate: (g) => !isHidden(g) && hasFilter(g, slug),
     };
   };
   return {
