@@ -71,6 +71,36 @@ describe('GameRepository.list', () => {
     expect(titles({ tab: 'missing' })).toEqual(['Charlie']);
   });
 
+  it('D60: the completed tab lists completed games that are not hidden', () => {
+    seedGames(library.db, 'nintendo-64', [
+      { title: 'Alpha', completed: true },
+      { title: 'Bravo', completed: true, hidden: true },
+      'Charlie',
+    ]);
+    expect(titles({ tab: 'completed' })).toEqual(['Alpha']);
+    expect(games.list(query()).games.map((g) => [g.title, g.completed])).toEqual([
+      ['Alpha', true],
+      ['Charlie', false],
+    ]);
+  });
+
+  it('D60: recently played lists played games, newest first, whatever the sort', () => {
+    seedGames(library.db, 'nintendo-64', [
+      { title: 'Alpha', lastPlayedAt: '2026-01-01T00:00:00.000Z', playCount: 1 },
+      { title: 'Bravo', lastPlayedAt: '2026-03-01T00:00:00.000Z', playCount: 1 },
+      'Charlie',
+    ]);
+    expect(titles({ tab: 'recent', sort: 'title' })).toEqual(['Bravo', 'Alpha']);
+  });
+
+  it('D60: setFlags marks games completed and back', () => {
+    const [alpha = 0, bravo = 0] = seedGames(library.db, 'nintendo-64', ['Alpha', 'Bravo']);
+    games.setFlags([alpha, bravo], { completed: true });
+    expect(titles({ tab: 'completed' })).toEqual(['Alpha', 'Bravo']);
+    games.setFlags([bravo], { completed: false });
+    expect(titles({ tab: 'completed' })).toEqual(['Alpha']);
+  });
+
   it('FR-LIB-4: missing games are listed with their expected path', () => {
     seedGames(library.db, 'nintendo-64', [
       { title: 'Here' },

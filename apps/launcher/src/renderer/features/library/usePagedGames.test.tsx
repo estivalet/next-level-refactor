@@ -22,6 +22,7 @@ const row = (index: number): GameRow => ({
   players: null,
   favorite: false,
   hidden: false,
+  completed: false,
   userRating: null,
   missing: false,
   expectedPath: null,

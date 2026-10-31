@@ -56,7 +56,12 @@ const SCRAPE_COLUMNS = { ...METADATA_COLUMNS, rating: 'rating' } as const satisf
   Record<ScrapeField | 'region', string>
 >;
 
-const FLAG_COLUMNS = { favorite: 'favorite', hidden: 'hidden', userRating: 'user_rating' } as const;
+const FLAG_COLUMNS = {
+  favorite: 'favorite',
+  hidden: 'hidden',
+  completed: 'completed',
+  userRating: 'user_rating',
+} as const;
 
 interface FileRow {
   id: number;
@@ -298,6 +303,7 @@ export class GameRepository {
     const params = {
       favorite: flags.favorite === undefined ? undefined : Number(flags.favorite),
       hidden: flags.hidden === undefined ? undefined : Number(flags.hidden),
+      completed: flags.completed === undefined ? undefined : Number(flags.completed),
       userRating: flags.userRating,
     };
     this.db.$client.transaction(() => {

@@ -6,9 +6,18 @@ const count = z.number().int().min(0);
 
 /**
  * Game list tabs: All leaves hidden games out; Hidden is the only place they show (US-C4);
- * Needs review lists games a batch scrape could not match on its own (FR-SCR-2, D18).
+ * Needs review lists games a batch scrape could not match on its own (FR-SCR-2, D18); Recently
+ * played lists played games newest first, whatever the sort; Completed is the user's flag (D60).
  */
-export const GAME_TABS = ['all', 'favorites', 'hidden', 'missing', 'needsReview'] as const;
+export const GAME_TABS = [
+  'all',
+  'favorites',
+  'recent',
+  'completed',
+  'hidden',
+  'missing',
+  'needsReview',
+] as const;
 /** Orders of a system's game list; a collection uses its own `sort`. */
 export const GAME_SORTS = ['title', 'year', 'rating', 'added'] as const;
 
@@ -38,6 +47,7 @@ export const GameRowSchema = z.object({
   players: z.string().nullable(),
   favorite: z.boolean(),
   hidden: z.boolean(),
+  completed: z.boolean(),
   userRating: z.number().int().min(1).max(5).nullable(),
   missing: z.boolean(),
   expectedPath: z.string().nullable(),
@@ -117,6 +127,7 @@ export const GameFlagsSchema = z
   .strictObject({
     favorite: z.boolean(),
     hidden: z.boolean(),
+    completed: z.boolean(),
     userRating: z.number().int().min(1).max(5).nullable(),
   })
   .partial()

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ipcContract } from '../ipc/contract.ts';
 import { ipcEvents } from '../ipc/events.ts';
-import { GameFlagsSchema, GameListQuerySchema, MetadataChangesSchema } from './games.ts';
+import { GAME_TABS, GameFlagsSchema, GameListQuerySchema, MetadataChangesSchema } from './games.ts';
 
 describe('game contracts', () => {
   it('FR-LIB-6: metadata changes trim, null out empty text and reject an empty change', () => {
@@ -50,5 +50,10 @@ describe('game contracts', () => {
     expect(changed.safeParse({ systems: ['nintendo-64'], gameIds: [1, 2] }).success).toBe(true);
     expect(changed.safeParse({ systems: [] }).success).toBe(true);
     expect(ipcContract['library.search'].input.safeParse({ text: 'zelda' }).success).toBe(true);
+  });
+
+  it('D60: flags accept completed and the tabs include recent and completed', () => {
+    expect(GameFlagsSchema.parse({ completed: true })).toEqual({ completed: true });
+    expect(GAME_TABS).toEqual(expect.arrayContaining(['recent', 'completed']));
   });
 });

@@ -654,6 +654,8 @@
       "label": "Filtro",
       "all": "Todos",
       "favorites": "Favoritos",
+      "recent": "Jogados recentemente",
+      "completed": "Concluídos",
       "hidden": "Ocultos",
       "missing": "Ausentes",
       "needsReview": "Precisa de revisão"
