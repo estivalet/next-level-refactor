@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { FAKE_DEV, FAKE_USER, startFakeScreenScraper, tinyPng } from './fakeScreenScraper.ts';
-import { freshDataDir, launch } from './launch.ts';
+import { freshDataDir, launch, openScope } from './launch.ts';
 
 test('US-C5, FR-SCR-1, FR-SCR-5: Scrape… writes box art beside the ROMs and the Library shows it', async () => {
   test.setTimeout(90_000);
@@ -76,6 +76,8 @@ test('US-C5, FR-SCR-1, FR-SCR-5: Scrape… writes box art beside the ROMs and th
       .dblclick();
     const library = page.getByRole('dialog', { name: 'Game Library' });
     await library.getByRole('button', { name: 'Scan for games' }).click();
+    // D61: the Library opens on the menu; open the system.
+    await openScope(library, ['Nintendo', 'Nintendo 64']);
     const games = library.getByRole('listbox', { name: 'Games' });
     await games.getByRole('option', { name: /Homebrew Demo/ }).click({ button: 'right' });
     await page.getByRole('menuitem', { name: 'Scrape…' }).click();

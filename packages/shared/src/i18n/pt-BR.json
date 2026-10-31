@@ -629,12 +629,20 @@
     }
   },
   "library": {
-    "tree": {
-      "label": "Sistemas e coleções",
-      "other": "Outros",
-      "collections": "Coleções",
-      "noCollections": "Nenhuma coleção ainda",
-      "smart": "Filtros inteligentes"
+    "home": {
+      "title": "Biblioteca",
+      "home": "Início",
+      "back": "Voltar",
+      "trail": "Onde você está",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} itens",
+      "empty": "Nada aqui ainda.",
+      "notInMenu": "Fora do menu",
+      "collections": "Coleções"
+    },
+    "view": {
+      "grid": "Visualização em grade",
+      "list": "Visualização em lista"
     },
     "list": {
       "label": "Jogos",

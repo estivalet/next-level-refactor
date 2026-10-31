@@ -629,12 +629,20 @@
     }
   },
   "library": {
-    "tree": {
-      "label": "Systems and collections",
-      "other": "Other",
-      "collections": "Collections",
-      "noCollections": "No collections yet",
-      "smart": "Smart filters"
+    "home": {
+      "title": "Library",
+      "home": "Home",
+      "back": "Back",
+      "trail": "Where you are",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "empty": "Nothing here yet.",
+      "notInMenu": "Not in menu",
+      "collections": "Collections"
+    },
+    "view": {
+      "grid": "Grid view",
+      "list": "List view"
     },
     "list": {
       "label": "Games",

@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import { gameRow, libraryResponses, openCollectionsLevel } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -47,8 +47,8 @@ function setup(sort: CollectionSummary['sort'] = 'manual') {
   renderInShell(<LibraryApp />);
   const user = userEvent.setup();
   const open = async () => {
-    const tree = await screen.findByRole('tree', { name: 'Systems and collections' });
-    await user.click(await within(tree).findByRole('treeitem', { name: /Picks/ }));
+    const lists = await openCollectionsLevel(user);
+    await user.click(await within(lists).findByRole('button', { name: /Picks/ }));
     return screen.findByRole('listbox', { name: 'Games' });
   };
   const moved = () => bridge.calls.find((call) => call.channel === 'collections.move')?.input;

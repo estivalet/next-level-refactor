@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import { gameRow, libraryResponses, openCollectionsLevel } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -52,7 +52,7 @@ const BUILT_INS: SmartFilterSummary[] = [
 ];
 
 /** A library with smart filters kept in memory; a filter's games match its genre or favorite. */
-function setup() {
+async function setup() {
   const filters = [...BUILT_INS];
   const base = libraryResponses(GAMES);
   const matches = (id: number) => {
@@ -87,23 +87,25 @@ function setup() {
     },
   });
   renderInShell(<LibraryApp />);
-  return { bridge, user: userEvent.setup() };
+  const user = userEvent.setup();
+  await openCollectionsLevel(user);
+  return { bridge, user };
 }
 
-const tree = () => screen.findByRole('tree', { name: 'Systems and collections' });
+const tree = () => screen.findByRole('list', { name: 'Collections' });
 
 describe('Library smart filters', () => {
   it('FR-LIB-9: the built-in smart filters are listed with their counts', async () => {
-    setup();
-    const favorites = await within(await tree()).findByRole('treeitem', { name: /Favorites/ });
+    await setup();
+    const favorites = await within(await tree()).findByRole('button', { name: /Favorites/ });
     expect(favorites).toHaveTextContent('1');
-    expect(within(await tree()).getByRole('treeitem', { name: /Most played/ })).toHaveTextContent(
+    expect(within(await tree()).getByRole('button', { name: /Most played/ })).toHaveTextContent(
       '0',
     );
   });
 
   it('FR-LIB-9: a new "Shooters" filter (genre shoot) appears and lists matching games', async () => {
-    const { bridge, user } = setup();
+    const { bridge, user } = await setup();
     await user.click(await screen.findByRole('button', { name: 'New smart filter' }));
     const dialog = await screen.findByRole('dialog', { name: 'New smart filter' });
     await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'Shooters');
@@ -114,7 +116,7 @@ describe('Library smart filters', () => {
     });
     const created = bridge.calls.find((c) => c.channel === 'smartFilters.create')?.input;
     expect(created).toMatchObject({ name: 'Shooters', query: { genre: 'shoot' } });
-    await user.click(await within(await tree()).findByRole('treeitem', { name: /Shooters/ }));
+    await user.click(await within(await tree()).findByRole('button', { name: /Shooters/ }));
     const list = await screen.findByRole('listbox', { name: 'Games' });
     await waitFor(() => {
       expect(
@@ -126,7 +128,7 @@ describe('Library smart filters', () => {
   });
 
   it('FR-LIB-9: a year range that runs backwards shows the message and disables Save', async () => {
-    const { user } = setup();
+    const { user } = await setup();
     await user.click(await screen.findByRole('button', { name: 'New smart filter' }));
     const dialog = await screen.findByRole('dialog', { name: 'New smart filter' });
     await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'Nineties');
@@ -137,8 +139,8 @@ describe('Library smart filters', () => {
   });
 
   it('FR-LIB-9: delete asks and says how many menus show the filter', async () => {
-    const { bridge, user } = setup();
-    await user.click(await within(await tree()).findByRole('treeitem', { name: /Most played/ }));
+    const { bridge, user } = await setup();
+    await user.click(await within(await tree()).findByRole('button', { name: /Most played/ }));
     await user.click(await screen.findByRole('button', { name: 'Delete smart filter' }));
     const ask = await screen.findByRole('dialog', { name: 'Delete smart filter' });
     expect(ask).toHaveTextContent('Used in 2 menus');
@@ -147,13 +149,13 @@ describe('Library smart filters', () => {
       expect(bridge.channels()).toContain('smartFilters.delete');
     });
     expect(
-      within(await tree()).queryByRole('treeitem', { name: /Most played/ }),
+      within(await tree()).queryByRole('button', { name: /Most played/ }),
     ).not.toBeInTheDocument();
   });
 
   it('FR-LIB-9: a game change from main refreshes the smart filter counts', async () => {
-    const { bridge } = setup();
-    await within(await tree()).findByRole('treeitem', { name: /Favorites/ });
+    const { bridge } = await setup();
+    await within(await tree()).findByRole('button', { name: /Favorites/ });
     const lists = () => bridge.channels().filter((c) => c === 'smartFilters.list').length;
     const before = lists();
     bridge.emit('library.changed', { systems: ['nintendo-64'], gameIds: [2] });
@@ -163,8 +165,8 @@ describe('Library smart filters', () => {
   });
 
   it('FR-LIB-9: raising Year from past a saved Year to shows why Save is off', async () => {
-    const { user } = setup();
-    await user.click(await within(await tree()).findByRole('treeitem', { name: /Nineties/ }));
+    const { user } = await setup();
+    await user.click(await within(await tree()).findByRole('button', { name: /Nineties/ }));
     await user.click(await screen.findByRole('button', { name: 'Edit…' }));
     const dialog = await screen.findByRole('dialog', { name: 'Edit smart filter' });
     const from = within(dialog).getByRole('textbox', { name: 'Year from' });

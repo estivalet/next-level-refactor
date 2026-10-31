@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch, leaveFrontend, taskbar } from './launch.ts';
+import { freshDataDir, launch, leaveFrontend, openScope, taskbar } from './launch.ts';
 
 async function openLibrary(page: Page) {
   await page
@@ -38,7 +38,8 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
 
     let library = await openLibrary(page);
     await library.getByRole('button', { name: 'Scan for games' }).click();
-    await expect(library.getByRole('treeitem', { name: /Nintendo 64/ })).toBeVisible();
+    // D61: the Library opens on the (generated) menu; a manufacturer holds its systems.
+    await openScope(library, ['Nintendo', 'Nintendo 64']);
     const games = library.getByRole('listbox', { name: 'Games' });
     await expect(games.getByRole('option')).toHaveCount(2);
 
@@ -70,18 +71,25 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
     await edit.getByRole('button', { name: 'Save' }).click();
     await expect(games.getByRole('option', { name: /Racer Deluxe/ })).toBeVisible();
 
-    // Collections (FR-LIB-8).
+    // Collections (FR-LIB-8), made from the home's Collections card (D61).
+    await openScope(library, []);
+    await library
+      .getByRole('listitem')
+      .filter({ hasText: /^Collections/ })
+      .last()
+      .click();
     await library.getByRole('button', { name: 'New collection' }).click();
     const create = library.getByRole('dialog', { name: 'New collection' });
     await create.getByRole('textbox', { name: 'Name' }).fill('Picks');
     await create.getByRole('button', { name: 'Create' }).click();
+    await openScope(library, ['Nintendo', 'Nintendo 64']);
     await games.getByRole('option', { name: /Racer Deluxe/ }).click({ button: 'right' });
     await page.getByRole('menuitem', { name: 'Add to collection…' }).click();
     await library
       .getByRole('dialog', { name: 'Add 1 game to a collection' })
       .getByRole('button', { name: 'Picks' })
       .click();
-    await library.getByRole('treeitem', { name: /Picks/ }).click();
+    await openScope(library, ['Collections', 'Picks']);
     await expect(games.getByRole('option')).toHaveCount(1);
     await app.close();
 
@@ -90,7 +98,7 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
     page = await app.firstWindow();
     await leaveFrontend(page);
     library = await openLibrary(page);
-    await library.getByRole('treeitem', { name: /Picks/ }).click();
+    await openScope(library, ['Collections', 'Picks']);
     const picks = library.getByRole('listbox', { name: 'Games' });
     await expect(picks.getByRole('option')).toHaveCount(1);
     await expect(picks.getByRole('option', { name: /Racer Deluxe/ })).toBeVisible();
@@ -135,18 +143,27 @@ test('FR-LIB-9, D8, FR-MENU-2: a smart filter made in the Library goes into the 
     const page = await app.firstWindow();
     const library = await openLibrary(page);
     await library.getByRole('button', { name: 'Scan for games' }).click();
+    await openScope(library, ['Nintendo', 'Nintendo 64']);
     await expect(library.getByRole('listbox', { name: 'Games' }).getByRole('option')).toHaveCount(
       1,
     );
 
-    // FR-LIB-9: a new smart filter limited to Nintendo 64.
+    // FR-LIB-9: a new smart filter limited to Nintendo 64, made from the Collections card.
+    await openScope(library, []);
+    await library
+      .getByRole('listitem')
+      .filter({ hasText: /^Collections/ })
+      .last()
+      .click();
     await library.getByRole('button', { name: 'New smart filter' }).click();
     const dialog = page.getByRole('dialog', { name: 'New smart filter' });
     await dialog.getByRole('textbox', { name: 'Name' }).fill('Cartridge Picks');
     await dialog.getByRole('checkbox', { name: 'Nintendo 64' }).check();
     await dialog.getByRole('button', { name: 'Save' }).click();
-    const filter = library.getByRole('treeitem', { name: /Cartridge Picks/ });
-    await filter.click();
+    await library
+      .getByRole('list', { name: 'Collections' })
+      .getByRole('button', { name: /Cartridge Picks/ })
+      .click();
     await expect(library.getByRole('listbox', { name: 'Games' }).getByRole('option')).toHaveCount(
       1,
     );

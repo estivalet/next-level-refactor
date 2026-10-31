@@ -1,11 +1,23 @@
-import { err, ok, type CollectionSummary, type GameListQuery } from '@nextlevel/shared';
+import {
+  err,
+  ok,
+  type CollectionSummary,
+  type GameListQuery,
+  type GameScope,
+} from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import {
+  gameRow,
+  libraryResponses,
+  N64_SCOPE,
+  openCollectionsLevel,
+  PICKS_SCOPE,
+} from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -19,7 +31,7 @@ afterEach(() => {
 const GAMES = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo'), gameRow(3, 'Charlie')];
 
 /** A fake library with collections kept in memory, as main would. */
-function setup(initial: CollectionSummary[] = []) {
+function setup(initial: CollectionSummary[] = [], initialScope: GameScope | null = N64_SCOPE) {
   const collections = [...initial];
   const members = new Map<number, number[]>(initial.map((c) => [c.id, [1, 2, 3]]));
   const base = libraryResponses(GAMES);
@@ -57,16 +69,15 @@ function setup(initial: CollectionSummary[] = []) {
       return ok({ total: rows.length, offset: 0, games: rows });
     },
   });
-  renderInShell(<LibraryApp />);
+  renderInShell(<LibraryApp initialScope={initialScope} />);
   return { bridge, collections };
 }
 
-const tree = () => screen.getByRole('tree', { name: 'Systems and collections' });
-
 describe('collections in the Library', () => {
-  it('FR-LIB-8: creating a collection shows it in the tree; a taken name shows the error inline', async () => {
+  it('FR-LIB-8: creating a collection shows it in Collections; a taken name shows the error inline', async () => {
     const user = userEvent.setup();
-    setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
+    setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }], null);
+    const list = await openCollectionsLevel(user);
     await user.click(await screen.findByRole('button', { name: 'New collection' }));
     const dialog = await screen.findByRole('dialog', { name: 'New collection' });
     const name = within(dialog).getByRole('textbox', { name: 'Name' });
@@ -76,7 +87,7 @@ describe('collections in the Library', () => {
     await user.clear(name);
     await user.type(name, 'Shooters');
     await user.click(within(dialog).getByRole('button', { name: 'Create' }));
-    expect(await within(tree()).findByRole('treeitem', { name: /Shooters/ })).toBeVisible();
+    expect(await within(list).findByRole('button', { name: /Shooters/ })).toBeVisible();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -100,8 +111,7 @@ describe('collections in the Library', () => {
 
   it('FR-LIB-8: Move down reorders the manual collection', async () => {
     const user = userEvent.setup();
-    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
-    await user.click(await screen.findByRole('treeitem', { name: /Picks/ }));
+    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }], PICKS_SCOPE);
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     expect(screen.getByRole('button', { name: 'Move up' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Move down' }));
@@ -111,26 +121,21 @@ describe('collections in the Library', () => {
     });
   });
 
-  it('FR-LIB-8: deleting a collection asks first and returns to the first system', async () => {
+  it('FR-LIB-8: deleting a collection asks first and returns to the home', async () => {
     const user = userEvent.setup();
-    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
-    await user.click(await screen.findByRole('treeitem', { name: /Picks/ }));
+    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }], PICKS_SCOPE);
     await user.click(await screen.findByRole('button', { name: 'Delete' }));
     const dialog = await screen.findByRole('dialog', { name: 'Delete Picks?' });
     expect(bridge.channels()).not.toContain('collections.delete');
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
-    await waitFor(() => {
-      expect(within(tree()).queryByRole('treeitem', { name: /Picks/ })).not.toBeInTheDocument();
-    });
-    expect(within(tree()).getByRole('treeitem', { name: /Nintendo 64/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
+    expect(bridge.channels()).toContain('collections.delete');
+    const collections = await screen.findByRole('button', { name: /^Collections/ });
+    expect(collections).toHaveTextContent('0 items');
   });
 
   it('FR-LIB-8: a library change (e.g. a relink) refreshes collection counts', async () => {
     const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
-    await screen.findByRole('treeitem', { name: /Picks/ });
+    await screen.findByRole('option', { name: /Alpha/ });
     const before = bridge.channels().filter((c) => c === 'collections.list').length;
     bridge.emit('library.changed', { systems: ['nintendo-64'], gameIds: [1] });
     await waitFor(() => {

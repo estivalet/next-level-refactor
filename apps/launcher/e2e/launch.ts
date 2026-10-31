@@ -72,3 +72,23 @@ export async function taskbar(page: Page): Promise<Locator> {
   await expect(nav).toHaveAttribute('data-state', 'shown');
   return nav;
 }
+
+/**
+ * Opens cards of the Library home in turn by their exact labels (D61), starting from the home: a
+ * shown list goes Back first. The first match wins (a menu category can share a fixed card's name).
+ */
+export async function openScope(library: Locator, labels: string[]): Promise<void> {
+  if (await library.getByRole('listbox', { name: 'Games' }).isVisible()) {
+    await library.getByRole('button', { name: 'Back', exact: true }).click();
+  }
+  const home = library.getByRole('button', { name: 'Home', exact: true });
+  if (await home.isEnabled()) await home.click();
+  for (const label of labels) {
+    await library
+      .getByRole('listitem')
+      .filter({ has: library.page().getByText(label, { exact: true }) })
+      .first()
+      .getByRole('button')
+      .click();
+  }
+}

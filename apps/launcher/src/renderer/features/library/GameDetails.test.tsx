@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameDetails, gameRow, libraryResponses } from './testing.ts';
+import { gameDetails, gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -38,7 +38,7 @@ function setup() {
       return ok(undefined);
     },
   });
-  renderInShell(<LibraryApp />);
+  renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   return { bridge, flagCalls };
 }
 
@@ -128,7 +128,7 @@ describe('GameDetails', () => {
         return ok({ total: rows.length, offset: query.offset, games: rows });
       },
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('option', { name: /Charlie/ }));
     expect(await within(details()).findByRole('heading', { name: 'Charlie' })).toBeVisible();
 
@@ -149,7 +149,7 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
         ok(gameDetails(games.find((g) => g.id === gameId) ?? gameRow(gameId, 'X'), details)),
       'scraper.search': () => ok({ method: 'title', candidates: [] }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   }
 
   it('US-C5: the context menu offers Scrape… after Edit details and opens the dialog', async () => {

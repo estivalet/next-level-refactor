@@ -1,11 +1,11 @@
-import { err, ok, type GameListQuery } from '@nextlevel/shared';
+import { err, ok, type GameListQuery, type MenuTree } from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import { gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
 
 // jsdom lays nothing out; give elements a client box so the virtualized lists render rows.
 beforeEach(() => {
@@ -29,25 +29,123 @@ const SYSTEMS = [
 ];
 
 describe('LibraryApp', () => {
-  it('FR-LIB-6: the Library lists the first system with games and its count', async () => {
-    installFakeBridge(libraryResponses(GAMES, SYSTEMS));
+  const MENU: MenuTree = {
+    title: 'Next Level',
+    items: [
+      {
+        id: 'm:consoles',
+        name: 'Consoles',
+        display: 'Consoles',
+        type: 'category',
+        children: [
+          {
+            id: 'm:nintendo',
+            name: 'Nintendo',
+            display: 'Nintendo',
+            type: 'category',
+            children: [
+              {
+                id: 's:nintendo-64',
+                name: 'Nintendo 64',
+                display: 'N64',
+                type: 'system',
+                systemId: 'nintendo-64',
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  it('D61: the Library opens on the menu; cards drill down, Back and Home return', async () => {
+    const user = userEvent.setup();
+    let menu = MENU;
+    const bridge = installFakeBridge({
+      ...libraryResponses(GAMES, SYSTEMS),
+      'frontend.menu': () => ok(menu),
+    });
     renderInShell(<LibraryApp />);
-    const tree = await screen.findByRole('tree', { name: 'Systems and collections' });
-    expect(within(tree).getByRole('treeitem', { name: /Nintendo 64/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    expect(within(tree).queryByText('Super Nintendo')).not.toBeInTheDocument();
+    const root = await screen.findByRole('list', { name: 'Next Level' });
+    expect(
+      within(root)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual(['Consoles1 item', 'Collections0 items']);
+    expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
+    await user.click(within(root).getByRole('button', { name: /Consoles/ }));
+    await user.click(await screen.findByRole('button', { name: /^Nintendo/ }));
+    const trail = screen.getByRole('navigation', { name: 'Where you are' });
+    expect(
+      within(trail)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual(['Next Level', 'Consoles', 'Nintendo']);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByRole('list', { name: 'Consoles' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    expect(await screen.findByRole('list', { name: 'Next Level' })).toBeVisible();
+
+    // Review Focus 1: the shown category leaves the menu → the deepest one left.
+    await user.click(screen.getByRole('button', { name: /Consoles/ }));
+    await user.click(await screen.findByRole('button', { name: /^Nintendo/ }));
+    // Empty categories leave the resolved menu too, so the whole Consoles branch goes.
+    menu = { ...MENU, items: [] };
+    bridge.emit('menus.changed', {});
+    expect(await screen.findByRole('list', { name: 'Next Level' })).toBeVisible();
+  });
+
+  it('FR-LIB-6, D61: a system card lists its games and count; Back returns to its level', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({ ...libraryResponses(GAMES, SYSTEMS), 'frontend.menu': () => ok(MENU) });
+    renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('button', { name: /Consoles/ }));
+    await user.click(await screen.findByRole('button', { name: /^Nintendo/ }));
+    await user.click(await screen.findByRole('button', { name: /^N64/ }));
     const list = await screen.findByRole('listbox', { name: 'Games' });
     await waitFor(() => {
       expect(within(list).getAllByRole('option')).toHaveLength(3);
     });
     expect(screen.getByText('4 games · 1 missing')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByRole('list', { name: 'Nintendo' })).toBeVisible();
+  });
+
+  it('D61: without a readable menu, systems sit in Not in menu', async () => {
+    const user = userEvent.setup();
+    installFakeBridge(libraryResponses(GAMES, SYSTEMS));
+    renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('button', { name: /Not in menu/ }));
+    const level = await screen.findByRole('list', { name: 'Not in menu' });
+    expect(
+      within(level)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual(['Nintendo 644 games']);
+  });
+
+  it('D61: the home view toggle switches cards to a list and is remembered', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({ ...libraryResponses(GAMES, SYSTEMS), 'frontend.menu': () => ok(MENU) });
+    const { unmount } = renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('button', { name: 'List view' }));
+    expect(screen.getByRole('button', { name: 'List view' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    unmount();
+    renderInShell(<LibraryApp />);
+    expect(await screen.findByRole('button', { name: 'List view' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    localStorage.clear();
   });
 
   it('FR-LIB-4: a missing game is greyed with its expected path', async () => {
     installFakeBridge(libraryResponses(GAMES, SYSTEMS));
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     const lost = await screen.findByRole('option', { name: /Lost Game/ });
     expect(lost).toHaveAttribute(
       'title',
@@ -59,7 +157,7 @@ describe('LibraryApp', () => {
   it('FR-LIB-7: the tab filter asks for favorites, hidden or missing', async () => {
     const user = userEvent.setup();
     const bridge = installFakeBridge(libraryResponses(GAMES, SYSTEMS));
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await screen.findByRole('option', { name: /Homebrew Demo/ });
     await user.selectOptions(screen.getByRole('combobox', { name: 'Filter' }), 'hidden');
     expect(await screen.findByRole('option', { name: /Secret/ })).toBeVisible();
@@ -72,7 +170,7 @@ describe('LibraryApp', () => {
   it('FR-LIB-6: the list moves with the keyboard and Shift extends the selection', async () => {
     const user = userEvent.setup();
     installFakeBridge(libraryResponses(GAMES, SYSTEMS));
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     const first = await screen.findByRole('option', { name: /Homebrew Demo/ });
     await user.click(first);
     await user.keyboard('{Shift>}{ArrowDown}{/Shift}');
@@ -89,7 +187,7 @@ describe('LibraryApp', () => {
       ...libraryResponses([], []),
       'scan.start': () => ok({ running: true, progress: null, last: null }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('button', { name: 'Scan for games' }));
     expect(bridge.channels()).toContain('scan.start');
   });
@@ -101,7 +199,7 @@ describe('LibraryApp', () => {
       'systems.list': () => err('LIBRARY_UNAVAILABLE', 'errors.libraryUnavailable'),
       'app.openPath': () => ok(undefined),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     expect(await screen.findByText('The game library could not be opened.')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Open data folder' }));
     expect(bridge.calls).toContainEqual({ channel: 'app.openPath', input: { key: 'data' } });
@@ -120,7 +218,7 @@ describe('LibraryApp', () => {
         return ok(undefined);
       },
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('option', { name: /Game 000/ }));
     await user.keyboard('{Shift>}{End}{F10}{/Shift}');
     await user.click(await screen.findByRole('menuitem', { name: 'Hide' }));

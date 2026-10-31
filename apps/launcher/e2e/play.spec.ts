@@ -1,7 +1,7 @@
 import { expect, test, type ElectronApplication } from '@playwright/test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { appDir, freshDataDir, launch } from './launch.ts';
+import { appDir, freshDataDir, launch, openScope } from './launch.ts';
 
 const FAKE_EMULATOR = join(appDir, 'test', 'fixtures', 'fake-emulator.mjs');
 const LOCATION = '01900000-0000-7000-8000-00000000a001';
@@ -52,6 +52,8 @@ test('US-C2, FR-EMU-4/6/10: play from the Library, see it in the log, and follow
       .dblclick();
     const library = page.getByRole('dialog', { name: 'Game Library' });
     await library.getByRole('button', { name: 'Scan for games' }).click();
+    // D61: the Library opens on the menu; open the system.
+    await openScope(library, ['Nintendo', 'Nintendo 64']);
     const games = library.getByRole('listbox', { name: 'Games' });
     await expect(games.getByRole('option')).toHaveCount(2);
 

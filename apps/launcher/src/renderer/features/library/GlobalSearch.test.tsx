@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import { gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -30,7 +30,7 @@ describe('GlobalSearch', () => {
           more: false,
         }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     const box = await screen.findByRole('searchbox', { name: 'Search all games' });
     await user.type(box, 'z');
     await new Promise((resolve) => setTimeout(resolve, 200));
@@ -65,7 +65,7 @@ describe('GlobalSearch', () => {
       'library.search': () =>
         ok({ games: [gameRow(7, 'Zelda One'), gameRow(8, 'Zelda Two')], more: false }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.type(await screen.findByRole('searchbox', { name: 'Search all games' }), 'zel');
     const results = await screen.findByRole('listbox', { name: 'Search results' });
     await within(results).findAllByRole('option');
