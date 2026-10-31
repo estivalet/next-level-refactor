@@ -18,6 +18,23 @@ export function useMenuList() {
   });
 }
 
+/**
+ * The active menu, or the generated one while none is stored (FR-MENU-3). Refreshed when a menu
+ * changes and after a scan, which changes what the generated menu holds.
+ */
+export function useActiveMenu() {
+  const client = useQueryClient();
+  const refresh = () => {
+    void client.invalidateQueries({ queryKey: [...MENUS_KEY, 'active'] });
+  };
+  useIpcEvent('menus.changed', refresh);
+  useIpcEvent('scan.finished', refresh);
+  return useQuery({
+    queryKey: [...MENUS_KEY, 'active'],
+    queryFn: async () => unwrap(await getBridge().invoke('menus.draft')),
+  });
+}
+
 const invalidate = (client: QueryClient) => client.invalidateQueries({ queryKey: MENUS_KEY });
 
 function useMenuMutation<Input, Output>(run: (input: Input) => Promise<Output>) {

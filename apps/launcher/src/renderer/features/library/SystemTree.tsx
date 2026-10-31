@@ -3,9 +3,11 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronDown, ChevronRight, Folder, Gamepad2, Sparkles } from 'lucide-react';
 import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { OTHER_GROUP, type TreeRow } from './buildTree.ts';
+import { NOT_IN_MENU_GROUP, OTHER_GROUP, type TreeRow } from './buildTree.ts';
 
 const ROW_HEIGHT = 32;
+/** Indent per tree level, in px. */
+const INDENT = 12;
 
 const HEADERS = new Set<TreeRow['kind']>(['group', 'collectionsHeader', 'smartFiltersHeader']);
 
@@ -32,7 +34,7 @@ interface SystemTreeProps {
   smartFiltersAction?: ReactNode;
 }
 
-/** The Library's virtualized left tree: manufacturer groups, systems with counts, collections. */
+/** The Library's virtualized left tree: menu groups, systems with counts, collections. */
 export function SystemTree({
   rows,
   scope,
@@ -110,7 +112,7 @@ export function SystemTree({
               key={item.key}
               id={`library-tree-${String(item.index)}`}
               role="treeitem"
-              aria-level={HEADERS.has(row.kind) ? 1 : 2}
+              aria-level={'depth' in row ? row.depth + 1 : 1}
               aria-selected={HEADERS.has(row.kind) ? undefined : selected}
               aria-expanded={row.kind === 'group' ? row.expanded : undefined}
               onClick={() => {
@@ -136,15 +138,25 @@ export function SystemTree({
   );
 }
 
+const GROUP_LABELS: Record<string, string> = {
+  [OTHER_GROUP]: 'library.tree.other',
+  [NOT_IN_MENU_GROUP]: 'library.tree.notInMenu',
+};
+
 function TreeRowContent({ row, action }: { row: TreeRow; action: ReactNode }) {
   const { t } = useTranslation();
   if (row.kind === 'group') {
     const Chevron = row.expanded ? ChevronDown : ChevronRight;
+    const label = GROUP_LABELS[row.label];
     return (
       <>
-        <Chevron aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+        <Chevron
+          aria-hidden="true"
+          className="h-3.5 w-3.5 shrink-0"
+          style={{ marginLeft: row.depth * INDENT }}
+        />
         <span className="truncate text-[10px] font-medium tracking-wider uppercase">
-          {row.label === OTHER_GROUP ? t('library.tree.other') : row.label}
+          {label ? t(label) : row.label}
         </span>
       </>
     );
@@ -163,11 +175,15 @@ function TreeRowContent({ row, action }: { row: TreeRow; action: ReactNode }) {
     row.kind === 'system'
       ? [Gamepad2, row.label, row.games]
       : row.kind === 'smartFilter'
-        ? [Sparkles, row.filter.name, row.filter.games]
-        : [Folder, row.collection.name, row.collection.games];
+        ? [Sparkles, row.label ?? row.filter.name, row.filter.games]
+        : [Folder, row.label ?? row.collection.name, row.collection.games];
   return (
     <>
-      <Icon aria-hidden="true" className="ml-3 h-3.5 w-3.5 shrink-0 text-slate-600" />
+      <Icon
+        aria-hidden="true"
+        className="h-3.5 w-3.5 shrink-0 text-slate-600"
+        style={{ marginLeft: row.depth * INDENT }}
+      />
       <span className="flex-1 truncate">{label}</span>
       <span className="font-mono text-[10px] text-slate-500">{count.toLocaleString()}</span>
     </>

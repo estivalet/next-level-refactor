@@ -58,7 +58,8 @@ test('FR-IMP-1/2, US-B3: import a NextLevelOS folder, then import it again', asy
     await library.getByRole('combobox', { name: 'Filter' }).selectOption('favorites');
     await expect(games.getByRole('option')).toHaveCount(1);
     await library.getByRole('combobox', { name: 'Filter' }).selectOption('all');
-    await library.getByRole('treeitem', { name: /Party Picks/ }).click();
+    // The tree follows the imported menu, which shows "Party Picks" as "Party".
+    await library.getByRole('treeitem', { name: /^Party\b/ }).click();
     await expect(games.getByRole('option')).toHaveCount(4);
     await library.getByRole('button', { name: 'Close' }).click();
     // On CI's smaller screen an open Settings window covers the desktop icons.

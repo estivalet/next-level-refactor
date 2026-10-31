@@ -632,6 +632,7 @@
     "tree": {
       "label": "Systems and collections",
       "other": "Other",
+      "notInMenu": "Not in menu",
       "collections": "Collections",
       "noCollections": "No collections yet",
       "smart": "Smart filters"

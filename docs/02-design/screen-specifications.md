@@ -123,9 +123,12 @@ requirements:
     each with its system name; Esc clears) and **Scan ▾** (Scan all systems / Scan <system>;
     while running it shows "Scanning n/m" and offers Cancel; the last summary or a start error
     sits next to it).
-  - Left: virtualized tree of systems with games, grouped by manufacturer (Other last), then
-    Collections with **+** (New collection), then **Smart filters** with **+** (since M5c), each
-    with its count of present games.
+  - Left: virtualized tree laid out like the active menu (or the generated one while none is
+    stored, FR-MENU-3): its categories as nested collapsible groups, its order, display names and
+    hidden nodes; systems with games the menu leaves out go in a last **Not in menu** group. Then
+    Collections with **+** (New collection), then **Smart filters** with **+** (since M5c), listing
+    those the menu doesn't show (hidden ones included). Each row has its count of present games;
+    the tree follows menu edits and a new active menu live.
   - **Smart filters (M5c, FR-LIB-9, D10):** selecting one lists its games (status bar tabs
     work) under a toolbar with **Edit…** and **Delete** (asks; "Used in N menus" when menus show
     it, they lose that entry). New/Edit dialog: name, systems (none ticked = all; enabled systems

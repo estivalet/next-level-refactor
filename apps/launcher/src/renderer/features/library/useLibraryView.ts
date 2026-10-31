@@ -1,5 +1,6 @@
 import type { GameScope, GameSort, GameTab } from '@nextlevel/shared';
 import { useMemo, useState } from 'react';
+import { useActiveMenu } from '../menus/menusApi.ts';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { buildTree } from './buildTree.ts';
 import { useCollections } from './collectionsApi.ts';
@@ -18,6 +19,7 @@ const NOTHING_VISIBLE = { first: 0, last: -1 };
 export function useLibraryView() {
   const systems = useSystemSummaries();
   const catalog = useSystemCatalog();
+  const menu = useActiveMenu();
   const collections = useCollections();
   const smartFilters = useSmartFilters();
   const [chosenScope, setScope] = useState<GameScope | null>(null);
@@ -30,11 +32,12 @@ export function useLibraryView() {
       buildTree(
         systems.data ?? [],
         catalog.data ?? [],
+        menu.data?.nodes ?? null,
         collections.data ?? [],
         smartFilters.data ?? [],
         collapsed,
       ),
-    [systems.data, catalog.data, collections.data, smartFilters.data, collapsed],
+    [systems.data, catalog.data, menu.data, collections.data, smartFilters.data, collapsed],
   );
   const firstSystem = tree.find((row) => row.kind === 'system');
   const scope: GameScope | null =

@@ -1,4 +1,4 @@
-import { err, ok, type GameListQuery } from '@nextlevel/shared';
+import { err, ok, type GameListQuery, type MenuDocNode } from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -43,6 +43,66 @@ describe('LibraryApp', () => {
       expect(within(list).getAllByRole('option')).toHaveLength(3);
     });
     expect(screen.getByText('4 games · 1 missing')).toBeVisible();
+  });
+
+  it('FR-MENU-3: the tree follows the active menu and updates when it changes', async () => {
+    const node = (id: string, name: string, extra: Partial<MenuDocNode>): MenuDocNode => ({
+      id: `00000000-0000-4000-8000-00000000000${id}`,
+      name,
+      displayName: null,
+      shortName: null,
+      filterTabs: true,
+      visible: true,
+      children: [],
+      type: 'system',
+      refId: null,
+      ...extra,
+    });
+    const menu = (displayName: string | null) => ({
+      id: '00000000-0000-4000-8000-000000000009',
+      title: 'Main',
+      revision: 1,
+      active: true,
+      source: null,
+      nodes: [
+        node('1', 'Consoles', {
+          type: 'category',
+          refId: null,
+          displayName,
+          children: [
+            node('2', 'N64', { type: 'system', refId: 'nintendo-64', displayName: 'N64' }),
+          ],
+        }),
+      ],
+    });
+    let current = menu(null);
+    const systems = [
+      { id: 'nintendo-64', enabled: true, games: 4, missing: 1, review: 0 },
+      { id: 'snes', enabled: true, games: 2, missing: 0, review: 0 },
+    ];
+    const bridge = installFakeBridge({
+      ...libraryResponses(GAMES, systems),
+      'menus.draft': () => ok(current),
+    });
+    renderInShell(<LibraryApp />);
+    const tree = await screen.findByRole('tree', { name: 'Systems and collections' });
+    await waitFor(() => {
+      expect(
+        within(tree)
+          .getAllByRole('treeitem')
+          .map((item) => item.textContent),
+      ).toEqual([
+        'Consoles',
+        'N644',
+        'Not in menu',
+        'Super Nintendo2',
+        'Collections',
+        'Smart filters',
+      ]);
+    });
+    current = menu('Home consoles');
+    bridge.emit('menus.changed', {});
+    expect(await within(tree).findByText('Home consoles')).toBeVisible();
   });
 
   it('FR-LIB-4: a missing game is greyed with its expected path', async () => {

@@ -632,6 +632,7 @@
     "tree": {
       "label": "Sistemas e coleções",
       "other": "Outros",
+      "notInMenu": "Fora do menu",
       "collections": "Coleções",
       "noCollections": "Nenhuma coleção ainda",
       "smart": "Filtros inteligentes"
