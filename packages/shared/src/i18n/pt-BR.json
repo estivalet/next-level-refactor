@@ -225,8 +225,8 @@
         "added_other": "{{count}} novos",
         "moved_one": "{{count}} movido",
         "moved_other": "{{count}} movidos",
-        "restored_one": "{{count}} restaurado",
-        "restored_other": "{{count}} restaurados",
+        "restored_one": "{{count}} reencontrado",
+        "restored_other": "{{count}} reencontrados",
         "missing_one": "{{count}} ausente",
         "missing_other": "{{count}} ausentes",
         "enabled_one": "{{count}} sistema ativado",
@@ -578,7 +578,7 @@
         "collectionEntries": "Entradas de coleções",
         "withFile": "Entradas com arquivo",
         "missing": "Entradas sem arquivo (mantidas como ausentes)",
-        "newFiles": "Arquivos sem entrada (jogos novos)"
+        "newFiles": "Arquivos sem entrada (não adicionados)"
       },
       "area": {
         "storage": "Armazenamento",
@@ -642,12 +642,25 @@
     }
   },
   "library": {
-    "tree": {
-      "label": "Sistemas e coleções",
-      "other": "Outros",
-      "collections": "Coleções",
-      "noCollections": "Nenhuma coleção ainda",
-      "smart": "Filtros inteligentes"
+    "home": {
+      "title": "Biblioteca",
+      "home": "Início",
+      "back": "Voltar",
+      "trail": "Onde você está",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} itens",
+      "empty": "Nada aqui ainda.",
+      "notInMenu": "Fora do menu",
+      "collections": "Coleções"
+    },
+    "view": {
+      "grid": "Visualização em grade",
+      "list": "Visualização em lista"
+    },
+    "sidebar": {
+      "label": "Mostrar e filtrar",
+      "filters": "Filtros",
+      "genres": "Gêneros"
     },
     "list": {
       "label": "Jogos",
@@ -667,6 +680,8 @@
       "label": "Filtro",
       "all": "Todos",
       "favorites": "Favoritos",
+      "recent": "Jogados recentemente",
+      "completed": "Concluídos",
       "hidden": "Ocultos",
       "missing": "Ausentes",
       "needsReview": "Precisa de revisão"
@@ -689,6 +704,7 @@
       "label": "Detalhes do jogo",
       "none": "Selecione um jogo para ver os detalhes.",
       "favorite": "Favorito",
+      "completed": "Concluído",
       "rating": "Sua avaliação",
       "rate_one": "{{count}} estrela",
       "rate_other": "{{count}} estrelas",
@@ -720,6 +736,8 @@
       "edit": "Editar detalhes…",
       "favorite": "Adicionar aos favoritos",
       "unfavorite": "Remover dos favoritos",
+      "complete": "Marcar como concluído",
+      "uncomplete": "Marcar como não concluído",
       "hide": "Ocultar",
       "unhide": "Mostrar",
       "openFolder": "Abrir pasta",
@@ -763,6 +781,9 @@
       "addTitle_one": "Adicionar {{count}} jogo a uma coleção",
       "addTitle_other": "Adicionar {{count}} jogos a uma coleção",
       "none": "Nenhuma coleção ainda. Use Nova coleção na lista à esquerda.",
+      "done": "Concluir",
+      "filter": "Filtrar coleções…",
+      "noMatch": "Nenhuma coleção encontrada.",
       "remove": "Remover da coleção",
       "moveUp": "Mover para cima",
       "moveDown": "Mover para baixo",
@@ -1205,6 +1226,7 @@
       "retroarchNotFound": "Config ou shader do RetroArch por jogo: o RetroArch não foi encontrado na pasta de emuladores",
       "collectionLaunchFields": "Opções de execução definidas dentro de uma coleção não são importadas",
       "unknownTheme": "Tema não existe no NextLevel",
+      "notInMenu": "Nenhum menu abre esta lista (cópia antiga?): não importada",
       "favoriteFilterTab": "Filtro Favorite vira a aba Favoritos",
       "filterTabs": "Entradas de filtro viram as abas de filtro do sistema",
       "nestedFilterTab": "Entradas de filtro aninhadas viram abas de filtro do sistema",

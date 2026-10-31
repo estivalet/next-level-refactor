@@ -7,6 +7,7 @@ import {
   type ImportReport,
   type ImportSystemCounts,
   type LegacyMenuItem,
+  type MenuDocNode,
   type Settings,
   type SystemDefinition,
 } from '@nextlevel/shared';
@@ -47,10 +48,13 @@ export interface ImportPlan {
   settings: Settings;
   /** Emulators found in the emulators folder (D14); the apply re-applies them to fresh settings. */
   detected: DetectedEmulator[];
-  /** Systems the import enables (scanned before games are matched). */
+  /** Systems the import enables (scanned after games are written). */
   systemIds: string[];
   games: GameImport[];
-  /** Collections with the name each will have here (`<name> (NextLevelOS)` on a clash). */
+  /**
+   * Collections a menu uses, with the name each will have here (`<name> (NextLevelOS)` on a
+   * clash). Lists no menu opens (old copies) are reported and left out.
+   */
   collections: Array<CollectionImport & { source: string; finalName: string }>;
   menus: MenuImport[];
   mapped: ImportItem[];
@@ -119,6 +123,19 @@ function nameCollections(
   });
 }
 
+/** Lower-case names of the collections the menus open. */
+function menuCollections(menus: readonly MenuImport[]): Set<string> {
+  const names = new Set<string>();
+  const walk = (nodes: readonly MenuDocNode[]) => {
+    for (const node of nodes) {
+      if (node.type === 'collection' && node.refId) names.add(node.refId.toLowerCase());
+      walk(node.children);
+    }
+  };
+  for (const menu of menus) walk(menu.nodes);
+  return names;
+}
+
 /** Reads the folder and maps everything (no writes): the dry run and the apply both start here. */
 export async function planImport(
   folder: string,
@@ -141,19 +158,29 @@ export async function planImport(
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
+  const used = menuCollections(menus.menus);
+  const inMenus = collections.collections.filter((c) => used.has(c.name.toLowerCase()));
+  const notInMenus = collections.collections.filter((c) => !used.has(c.name.toLowerCase()));
+  const skipped = new Set(notInMenus.map((c) => c.name));
 
   const items = [
     ...problems,
     ...mapped.items,
     ...withProfiles.items,
     ...games.items,
-    ...collections.items,
+    ...collections.items.filter((item) => !skipped.has(item.key)),
+    ...notInMenus.map((c): ImportItem => ({
+      area: 'collection',
+      key: c.name,
+      reason: 'notInMenu',
+      ...(c.entries.length > 0 ? { count: c.entries.length } : {}),
+    })),
     ...menus.items,
   ];
   const unmapped = items.filter((item) => !MAPPED.has(item.reason));
   const willReplace: ImportItem[] = [];
   const existing = deps.existing();
-  const named = nameCollections(collections.collections, existing, unmapped, willReplace);
+  const named = nameCollections(inMenus, existing, unmapped, willReplace);
   const menuSources = new Set(existing.menuSources);
   for (const menu of menus.menus) {
     if (menuSources.has(menu.source)) {
@@ -241,7 +268,8 @@ export async function dryRun(
   const { files } = plan;
   const isSystemList = (name: string) => launcherKey(files.launchers, name) !== undefined;
   const systemLists = files.gamelists.filter((g) => isSystemList(g.name));
-  const collectionLists = files.gamelists.filter((g) => !isSystemList(g.name));
+  const imported = new Set(plan.collections.map((c) => c.name));
+  const collectionLists = files.gamelists.filter((g) => imported.has(g.name));
   return {
     source: folder,
     token: plan.fingerprint,

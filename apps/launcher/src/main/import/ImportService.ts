@@ -44,8 +44,9 @@ function fail(code: ErrorCode, details?: unknown): never {
 
 /**
  * Imports a NextLevelOS data folder (FR-IMP-1/2, US-B3, IA F6): a dry run that writes nothing,
- * then a staged apply — settings (one backup), scan of the imported systems, games, collections,
- * menus — that is idempotent (D12) and keeps entries without files as missing games (D13).
+ * then a staged apply — settings (one backup), games, collections, a scan of the imported systems,
+ * menus — that is idempotent (D12) and keeps entries without files as missing games (D13). The
+ * library follows the gamelists: the scan only finds files for listed games, and adds none.
  */
 export class ImportService {
   private busy = false;
@@ -107,12 +108,13 @@ export class ImportService {
       const plan = await planImport(folder, emulatorsFolder, this.planDeps());
       if (plan.fingerprint !== token) fail('CONFLICT', { reason: 'folderChanged' });
       const settingsBackupId = await this.applySettings(plan);
-      await this.scanImported(plan.systemIds);
       const now = this.deps.clock();
-      const games = this.deps.repo.upsertGames(plan.games, now, (done, total) => {
+      const written = this.deps.repo.upsertGames(plan.games, now, (done, total) => {
         this.progress('games', done, total);
       });
       const collectionIds = this.applyCollections(plan, now);
+      await this.scanImported(plan.systemIds);
+      const games = { ...written, missing: this.deps.repo.missingAmong(plan.games) };
       const menus = this.applyMenus(plan, collectionIds);
       this.deps.emit('library.changed', { systems: plan.systemIds });
       this.deps.emit('menus.changed', {});
@@ -127,13 +129,13 @@ export class ImportService {
   }
 
   /**
-   * Scans the imported systems and waits for it. Games are matched against what that scan found,
-   * so a scan that was cancelled, failed, or wasn't this one (a scan started meanwhile) stops the
-   * import before any game is written: unscanned entries would all become missing rows.
+   * Scans the imported systems for the games just written, adding no others, and waits for it. A
+   * scan that was cancelled, failed, or wasn't this one (a scan started meanwhile) stops the import
+   * before the menus: its games would show as missing until the next scan.
    */
   private async scanImported(systemIds: string[]): Promise<void> {
     this.progress('scan', 0, 1);
-    const started = await this.deps.scan.start(systemIds);
+    const started = await this.deps.scan.start(systemIds, { addNew: false });
     const scanId = started.progress?.scanId;
     await this.deps.scan.whenIdle();
     const last = this.deps.scan.status().last;

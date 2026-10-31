@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, IDLE, libraryResponses } from './testing.ts';
+import { gameRow, IDLE, libraryResponses, N64_SCOPE } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -24,7 +24,7 @@ describe('ScanMenu', () => {
       'scan.start': () => ok({ running: true, progress: null, last: null }),
       'scan.cancel': () => ok(IDLE),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('button', { name: 'Scan' }));
     await user.click(screen.getByRole('menuitem', { name: 'Scan Nintendo 64' }));
     expect(bridge.calls).toContainEqual({
@@ -51,7 +51,7 @@ describe('ScanMenu', () => {
       ...libraryResponses([gameRow(1, 'Homebrew Demo')]),
       'scan.start': () => err('LIBRARY_UNAVAILABLE', 'errors.libraryUnavailable'),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('button', { name: 'Scan' }));
     await user.click(screen.getByRole('menuitem', { name: 'Scan all systems' }));
     expect(await screen.findByText('The game library could not be opened.')).toBeVisible();

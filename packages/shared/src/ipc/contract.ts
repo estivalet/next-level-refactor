@@ -16,6 +16,8 @@ import {
 } from '../library/collections.ts';
 import {
   GameDetailsSchema,
+  GameFacetsQuerySchema,
+  GameFacetsSchema,
   GameFlagsSchema,
   GameIdsSchema,
   GameListPageSchema,
@@ -134,6 +136,8 @@ export const ipcContract = {
   'scan.cancel': { input: z.void(), output: ScanStatusSchema },
   'scan.status': { input: z.void(), output: ScanStatusSchema },
   'library.games.list': { input: GameListQuerySchema, output: GameListPageSchema },
+  /** D62: a scope's filter tags and genres with their game counts in a tab. */
+  'library.games.facets': { input: GameFacetsQuerySchema, output: GameFacetsSchema },
   'library.games.get': { input: z.strictObject({ gameId }), output: GameDetailsSchema },
   'library.games.updateMetadata': {
     input: z.strictObject({ gameId, changes: MetadataChangesSchema }),

@@ -22,7 +22,7 @@ const likeContains = (text: string) => `%${text.replace(/[\\%_]/g, (c) => `\\${c
  * can be embedded in another query. Missing games never match.
  */
 export function smartFilterSql(query: SmartFilterQuery, now: Date) {
-  const where = ['g.missing = 0'];
+  const where = ['g.missing = 0', 'g.collection_only = 0'];
   const params: Record<string, unknown> = {};
   if (query.systems.length > 0) {
     where.push('g.system_id in (select value from json_each(@sf_systems))');

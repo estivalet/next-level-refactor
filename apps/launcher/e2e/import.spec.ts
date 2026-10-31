@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { cp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { appDir, freshDataDir, launch, taskbar } from './launch.ts';
+import { appDir, freshDataDir, launch, openScope, taskbar } from './launch.ts';
 
 /** The invented NextLevelOS install, copied so its storage paths point at the copy. */
 async function legacyCopy(root: string): Promise<string> {
@@ -52,13 +52,20 @@ test('FR-IMP-1/2, US-B3: import a NextLevelOS folder, then import it again', asy
     await settings.getByRole('button', { name: 'Open Library' }).click();
 
     const library = page.getByRole('dialog', { name: 'Game Library' });
-    await library.getByRole('treeitem', { name: /Atari 2600/ }).click();
+    await openScope(library, ['Consoles', 'Atari 2600']);
     const games = library.getByRole('listbox', { name: 'Games' });
     await expect(games.getByRole('option', { name: /Pixel Quest/ })).toBeVisible();
-    await library.getByRole('combobox', { name: 'Filter' }).selectOption('favorites');
+    await library
+      .getByRole('group', { name: 'Filter' })
+      .getByRole('button', { name: 'Favorites' })
+      .click();
     await expect(games.getByRole('option')).toHaveCount(1);
-    await library.getByRole('combobox', { name: 'Filter' }).selectOption('all');
-    await library.getByRole('treeitem', { name: /Party Picks/ }).click();
+    await library
+      .getByRole('group', { name: 'Filter' })
+      .getByRole('button', { name: 'All' })
+      .click();
+    // The imported menu's own Collections category shows "Party Picks" as "Party".
+    await openScope(library, ['Collections', 'Party']);
     await expect(games.getByRole('option')).toHaveCount(4);
     await library.getByRole('button', { name: 'Close' }).click();
     // On CI's smaller screen an open Settings window covers the desktop icons.

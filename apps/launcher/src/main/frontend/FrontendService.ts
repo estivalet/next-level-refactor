@@ -64,8 +64,9 @@ const SMART_SQL = `select ${COLUMNS} from json_each(@ids) j join games g on g.id
 
 const SQL = {
   system: `select ${COLUMNS} ${FROM} where g.missing = 0 and g.system_id = @systemId
-    order by m.sort_title, g.id`,
+    and g.collection_only = 0 order by m.sort_title, g.id`,
   filter: `select ${COLUMNS} ${FROM} where g.missing = 0 and g.system_id = @systemId
+    and g.collection_only = 0
     and exists (select 1 from game_filters x where x.game_id = g.id and x.filter = @filter)
     order by m.sort_title, g.id`,
   collection: `select ${COLUMNS} ${FROM} join collection_games cg on cg.game_id = g.id
@@ -137,13 +138,14 @@ export class FrontendService {
   private libraryCounts() {
     const counts = this.client
       .prepare(
-        'select system_id as id, count(*) as n from games where missing = 0 group by system_id',
+        `select system_id as id, count(*) as n from games
+         where missing = 0 and collection_only = 0 group by system_id`,
       )
       .all() as Array<{ id: string; n: number }>;
     const filters = this.client
       .prepare(
         `select distinct g.system_id as id, f.filter as filter from game_filters f
-         join games g on g.id = f.game_id where g.missing = 0`,
+         join games g on g.id = f.game_id where g.missing = 0 and g.collection_only = 0`,
       )
       .all() as Array<{ id: string; filter: string }>;
     const filtersBySystem = new Map<string, string[]>();

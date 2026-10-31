@@ -1,7 +1,6 @@
 import type { GameScope, GameSort, GameTab } from '@nextlevel/shared';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
-import { buildTree } from './buildTree.ts';
 import { useCollections } from './collectionsApi.ts';
 import { useSystemSummaries } from './libraryApi.ts';
 import { useSmartFilters } from './smartFiltersApi.ts';
@@ -11,36 +10,32 @@ import { usePagedGames, type GameListParams } from './usePagedGames.ts';
 const NOTHING_VISIBLE = { first: 0, last: -1 };
 
 /**
- * The Library's view state (S7): the tree, the chosen system, collection or smart filter, tab, sort, the rows
- * in view and the selection. Selection and focus belong to one list: a new scope, tab or sort
- * starts them empty.
+ * The Library's view state (S7): the chosen system, collection or smart filter (none = the home,
+ * D61), tab, sort, the rows in view and the selection. Selection and focus belong to one list: a
+ * new scope, tab or sort starts them empty.
  */
-export function useLibraryView() {
+export function useLibraryView(initialScope: GameScope | null = null) {
   const systems = useSystemSummaries();
   const catalog = useSystemCatalog();
   const collections = useCollections();
   const smartFilters = useSmartFilters();
-  const [chosenScope, setScope] = useState<GameScope | null>(null);
+  const [scope, setScope] = useState<GameScope | null>(initialScope);
   const [tab, setTab] = useState<GameTab>('all');
+  // One filter and one genre narrow the list (D62); they belong to the scope they were picked in.
+  const scopeKey = JSON.stringify(scope);
+  const [narrowing, setNarrowing] = useState<{ key: string; filter?: string; genre?: string }>({
+    key: scopeKey,
+  });
+  const narrow = narrowing.key === scopeKey ? narrowing : { key: scopeKey };
   const [sort, setSort] = useState<GameSort>('title');
-  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
-
-  const tree = useMemo(
-    () =>
-      buildTree(
-        systems.data ?? [],
-        catalog.data ?? [],
-        collections.data ?? [],
-        smartFilters.data ?? [],
-        collapsed,
-      ),
-    [systems.data, catalog.data, collections.data, smartFilters.data, collapsed],
-  );
-  const firstSystem = tree.find((row) => row.kind === 'system');
-  const scope: GameScope | null =
-    chosenScope ?? (firstSystem ? { kind: 'system', systemId: firstSystem.systemId } : null);
   const params: GameListParams | null = scope
-    ? { scope, tab, ...(scope.kind === 'system' ? { sort } : {}) }
+    ? {
+        scope,
+        tab,
+        ...(scope.kind === 'system' ? { sort } : {}),
+        ...(narrow.filter === undefined ? {} : { filter: narrow.filter }),
+        ...(narrow.genre === undefined ? {} : { genre: narrow.genre }),
+      }
     : null;
   const viewKey = JSON.stringify(params);
 
@@ -67,7 +62,6 @@ export function useLibraryView() {
     catalog,
     collections,
     smartFilters,
-    tree,
     scope,
     tab,
     sort,
@@ -85,20 +79,25 @@ export function useLibraryView() {
       }
       return rows;
     },
+    /** Opening a scope (again) starts without narrowing (D62). */
     setScope: (next: GameScope) => {
       setScope(next);
+      setNarrowing({ key: JSON.stringify(next) });
     },
-    /** Back to the first system, e.g. after the shown collection was deleted. */
+    /** Back to the home, e.g. after the shown collection was deleted. */
     resetScope: () => {
       setScope(null);
+      setNarrowing({ key: 'null' });
     },
     setTab,
     setSort,
-    toggleGroup: (key: string) => {
-      setCollapsed((previous) => {
-        const next = new Set(previous);
-        if (!next.delete(key)) next.add(key);
-        return next;
+    /** The filter and genre narrowing the list (D62). */
+    narrow: { filter: narrow.filter, genre: narrow.genre },
+    setNarrow: (next: { filter?: string | undefined; genre?: string | undefined }) => {
+      setNarrowing({
+        key: scopeKey,
+        ...(next.filter === undefined ? {} : { filter: next.filter }),
+        ...(next.genre === undefined ? {} : { genre: next.genre }),
       });
     },
     setRange: (first: number, last: number) => {

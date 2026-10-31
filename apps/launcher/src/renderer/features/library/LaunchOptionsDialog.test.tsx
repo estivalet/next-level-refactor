@@ -14,7 +14,7 @@ import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameDetails, gameRow, libraryResponses } from './testing.ts';
+import { gameDetails, gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -158,7 +158,7 @@ describe('LaunchOptionsDialog (FR-EMU-4)', () => {
   it('FR-EMU-4: the context menu and the details panel open Launch options', async () => {
     const user = userEvent.setup();
     setup();
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     const row = await screen.findByRole('option', { name: /Homebrew Racer/ });
     await user.pointer({ keys: '[MouseRight]', target: row });
     await user.click(screen.getByRole('menuitem', { name: 'Launch options…' }));

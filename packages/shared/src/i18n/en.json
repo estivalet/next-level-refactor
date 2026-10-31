@@ -225,8 +225,8 @@
         "added_other": "{{count}} new",
         "moved_one": "{{count}} moved",
         "moved_other": "{{count}} moved",
-        "restored_one": "{{count}} restored",
-        "restored_other": "{{count}} restored",
+        "restored_one": "{{count}} found again",
+        "restored_other": "{{count}} found again",
         "missing_one": "{{count}} missing",
         "missing_other": "{{count}} missing",
         "enabled_one": "{{count}} system turned on",
@@ -578,7 +578,7 @@
         "collectionEntries": "Collection entries",
         "withFile": "Entries with a file",
         "missing": "Entries without a file (kept as missing)",
-        "newFiles": "Files without an entry (new games)"
+        "newFiles": "Files without an entry (not added)"
       },
       "area": {
         "storage": "Storage",
@@ -642,12 +642,25 @@
     }
   },
   "library": {
-    "tree": {
-      "label": "Systems and collections",
-      "other": "Other",
-      "collections": "Collections",
-      "noCollections": "No collections yet",
-      "smart": "Smart filters"
+    "home": {
+      "title": "Library",
+      "home": "Home",
+      "back": "Back",
+      "trail": "Where you are",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "empty": "Nothing here yet.",
+      "notInMenu": "Not in menu",
+      "collections": "Collections"
+    },
+    "view": {
+      "grid": "Grid view",
+      "list": "List view"
+    },
+    "sidebar": {
+      "label": "Show and narrow",
+      "filters": "Filters",
+      "genres": "Genres"
     },
     "list": {
       "label": "Games",
@@ -667,6 +680,8 @@
       "label": "Filter",
       "all": "All",
       "favorites": "Favorites",
+      "recent": "Recently played",
+      "completed": "Completed",
       "hidden": "Hidden",
       "missing": "Missing",
       "needsReview": "Needs review"
@@ -689,6 +704,7 @@
       "label": "Game details",
       "none": "Select a game to see its details.",
       "favorite": "Favorite",
+      "completed": "Completed",
       "rating": "Your rating",
       "rate_one": "{{count}} star",
       "rate_other": "{{count}} stars",
@@ -720,6 +736,8 @@
       "edit": "Edit details…",
       "favorite": "Add to favorites",
       "unfavorite": "Remove from favorites",
+      "complete": "Mark completed",
+      "uncomplete": "Mark not completed",
       "hide": "Hide",
       "unhide": "Unhide",
       "openFolder": "Open folder",
@@ -763,6 +781,9 @@
       "addTitle_one": "Add {{count}} game to a collection",
       "addTitle_other": "Add {{count}} games to a collection",
       "none": "No collections yet. Use New collection in the list on the left.",
+      "done": "Done",
+      "filter": "Filter collections…",
+      "noMatch": "No collections match.",
       "remove": "Remove from collection",
       "moveUp": "Move up",
       "moveDown": "Move down",
@@ -1205,6 +1226,7 @@
       "retroarchNotFound": "Per-game RetroArch config or shader: RetroArch wasn't found in the emulators folder",
       "collectionLaunchFields": "Launch options set inside a collection aren't imported",
       "unknownTheme": "Theme not in NextLevel",
+      "notInMenu": "No menu opens this gamelist (old copy?): not imported",
       "favoriteFilterTab": "Favorite filter becomes the Favorites tab",
       "filterTabs": "Filter entries become the system's filter tabs",
       "nestedFilterTab": "Nested filter entries become filter tabs of the system",

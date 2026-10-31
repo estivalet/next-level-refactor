@@ -285,10 +285,15 @@ with the milestones that use them, each as a new migration.
   opened), maps it (§6) and walks the would-be system folders read-only; its `token` hashes every
   read file's name, size and mtime, and the apply refuses a changed folder (`CONFLICT`) or a
   running scan/import (`BUSY`). The apply stages settings (one write and backup, skipped when
-  nothing changes) → a scan of the imported systems → games in 2,000-entry transactions →
-  collections → menus, emitting `import.progress`. Games match by (system, rel path), then by
-  disc set; an entry without a game becomes a missing row (`size 0`, `mtime 0`, D13) that a later
-  scan revives by path. Re-import (D12): unlocked metadata fields NextLevelOS has, filters (unless
+  nothing changes) → games in 2,000-entry transactions → collections → a scan of the imported
+  systems that only updates rows (`addNew: false`) → menus, emitting `import.progress`. The
+  library follows the gamelists: files no system gamelist names are not added (a manual scan
+  still adds them). Games match by (system, rel path), then by disc set; an entry without a game
+  becomes a missing row (`size 0`, `mtime 0`, D13) that the scan revives by path. A collection
+  member no system gamelist names becomes a `collection_only` row: it shows in its collections
+  only (system lists, counts, search, smart filters and themes' system views leave it out); a
+  later import listing it clears the flag. Collection gamelists that no `menu*.json` opens (old
+  copies) are reported (`notInMenu`) and not imported. Re-import (D12): unlocked metadata fields NextLevelOS has, filters (unless
   locked), favorite and hidden take its values; `play_count` = max, `last_played_at` = later;
   the launch override's core/extra args and `arcade_info` are replaced when NextLevelOS has them
   (`profile_id` kept); absent values never clear data here. Imported collections (by `source`)
@@ -314,7 +319,7 @@ erDiagram
 
 | Table | Columns (type) | Notes |
 |---|---|---|
-| `games` | `id` int PK, `system_id` text, `rel_path` text, `source` text (`local`/`catalog`), `catalog_item_id` text?, `location_id` text?, `size` int, `mtime` int, `missing` bool, `missing_since` text?, `disc_group` text?, `added_at` text | UNIQUE(`system_id`,`rel_path`) |
+| `games` | `id` int PK, `system_id` text, `rel_path` text, `source` text (`local`/`catalog`), `catalog_item_id` text?, `location_id` text?, `size` int, `mtime` int, `missing` bool, `missing_since` text?, `disc_group` text?, `added_at` text, `collection_only` bool (0011) | UNIQUE(`system_id`,`rel_path`) |
 | `game_metadata` | `game_id` PK FK, `title`, `sort_title`, `year` int?, `developer`, `publisher`, `genre`, `players`, `description`, `region`, `rating` real?, `locked_fields` json, `updated_at` | `locked_fields` = fields edited by the user; scrapes don't overwrite them |
 | `game_filters` | `game_id` FK, `filter` text | PK(`game_id`,`filter`); values: `official`, `homebrew`, `hack`, `translation`, `prototype`, `unlicensed`, … |
 | `game_user_state` | `game_id` PK FK, `favorite` bool, `hidden` bool, `user_rating` int?, `play_count` int, `last_played_at` text?, `play_seconds` int | |

@@ -1,11 +1,24 @@
-import { err, ok, type CollectionSummary, type GameListQuery } from '@nextlevel/shared';
+import {
+  err,
+  ok,
+  type CollectionSummary,
+  type GameListQuery,
+  type GameScope,
+} from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses } from './testing.ts';
+import {
+  gameDetails,
+  gameRow,
+  libraryResponses,
+  N64_SCOPE,
+  openCollectionsLevel,
+  PICKS_SCOPE,
+} from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -19,9 +32,15 @@ afterEach(() => {
 const GAMES = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo'), gameRow(3, 'Charlie')];
 
 /** A fake library with collections kept in memory, as main would. */
-function setup(initial: CollectionSummary[] = []) {
+function setup(
+  initial: CollectionSummary[] = [],
+  initialScope: GameScope | null = N64_SCOPE,
+  initialMembers: Record<number, number[]> = {},
+) {
   const collections = [...initial];
-  const members = new Map<number, number[]>(initial.map((c) => [c.id, [1, 2, 3]]));
+  const members = new Map<number, number[]>(
+    initial.map((c) => [c.id, initialMembers[c.id] ?? [1, 2, 3]]),
+  );
   const base = libraryResponses(GAMES);
   const bridge = installFakeBridge({
     ...base,
@@ -42,6 +61,23 @@ function setup(initial: CollectionSummary[] = []) {
       summary.games = members.get(id)?.length ?? 0;
       return ok(summary);
     },
+    'collections.removeGames': ({ id, gameIds }) => {
+      members.set(
+        id,
+        (members.get(id) ?? []).filter((gameId) => !gameIds.includes(gameId)),
+      );
+      const summary = collections.find((c) => c.id === id);
+      if (!summary) return err('NOT_FOUND', 'errors.notFound');
+      summary.games = members.get(id)?.length ?? 0;
+      return ok(summary);
+    },
+    'library.games.get': ({ gameId }) => {
+      const row = GAMES.find((game) => game.id === gameId) ?? gameRow(gameId, 'Unknown');
+      const collectionIds = [...members]
+        .filter(([, ids]) => ids.includes(gameId))
+        .map(([id]) => id);
+      return ok(gameDetails(row, { collectionIds }));
+    },
     'collections.delete': ({ id }) => {
       collections.splice(
         collections.findIndex((c) => c.id === id),
@@ -57,16 +93,15 @@ function setup(initial: CollectionSummary[] = []) {
       return ok({ total: rows.length, offset: 0, games: rows });
     },
   });
-  renderInShell(<LibraryApp />);
+  renderInShell(<LibraryApp initialScope={initialScope} />);
   return { bridge, collections };
 }
 
-const tree = () => screen.getByRole('tree', { name: 'Systems and collections' });
-
 describe('collections in the Library', () => {
-  it('FR-LIB-8: creating a collection shows it in the tree; a taken name shows the error inline', async () => {
+  it('FR-LIB-8: creating a collection shows it in Collections; a taken name shows the error inline', async () => {
     const user = userEvent.setup();
-    setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
+    setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }], null);
+    const list = await openCollectionsLevel(user);
     await user.click(await screen.findByRole('button', { name: 'New collection' }));
     const dialog = await screen.findByRole('dialog', { name: 'New collection' });
     const name = within(dialog).getByRole('textbox', { name: 'Name' });
@@ -76,32 +111,63 @@ describe('collections in the Library', () => {
     await user.clear(name);
     await user.type(name, 'Shooters');
     await user.click(within(dialog).getByRole('button', { name: 'Create' }));
-    expect(await within(tree()).findByRole('treeitem', { name: /Shooters/ })).toBeVisible();
+    expect(await within(list).findByRole('button', { name: /Shooters/ })).toBeVisible();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('FR-LIB-8: adding selected games to a collection sends their ids', async () => {
+  it('FR-LIB-8: the collection boxes show membership, filter by name, and add or remove the selected games', async () => {
     const user = userEvent.setup();
-    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 0 }]);
+    const { bridge } = setup(
+      [
+        { id: 1, name: 'Picks', sort: 'manual', games: 1 },
+        { id: 2, name: 'Racers', sort: 'manual', games: 2 },
+        { id: 3, name: 'Shooters', sort: 'manual', games: 0 },
+      ],
+      N64_SCOPE,
+      { 1: [1], 2: [1, 2], 3: [] },
+    );
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
-    await user.keyboard('{Shift>}{ArrowDown}{/Shift}');
+    await user.keyboard('{Shift>}{ArrowRight}{/Shift}');
     await user.pointer({
       keys: '[MouseRight]',
       target: screen.getByRole('option', { name: /Bravo/ }),
     });
     await user.click(screen.getByRole('menuitem', { name: 'Add to collection…' }));
     const dialog = await screen.findByRole('dialog', { name: 'Add 2 games to a collection' });
-    await user.click(within(dialog).getByRole('button', { name: 'Picks' }));
+    const racers = within(dialog).getByRole('checkbox', { name: 'Racers' });
+    await waitFor(() => {
+      expect(racers).toBeChecked();
+    });
+    const picks = within(dialog).getByRole('checkbox', { name: 'Picks' });
+    expect(picks).not.toBeChecked();
+    expect(picks).toHaveProperty('indeterminate', true);
+    expect(within(dialog).getByRole('checkbox', { name: 'Shooters' })).not.toBeChecked();
+
+    await user.type(within(dialog).getByRole('searchbox'), 'sho');
+    expect(within(dialog).getAllByRole('checkbox')).toHaveLength(1);
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Shooters' }));
     expect(bridge.calls).toContainEqual({
       channel: 'collections.addGames',
-      input: { id: 1, gameIds: [1, 2] },
+      input: { id: 3, gameIds: [1, 2] },
     });
+    await waitFor(() => {
+      expect(within(dialog).getByRole('checkbox', { name: 'Shooters' })).toBeChecked();
+    });
+
+    await user.clear(within(dialog).getByRole('searchbox'));
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Racers' }));
+    expect(bridge.calls).toContainEqual({
+      channel: 'collections.removeGames',
+      input: { id: 2, gameIds: [1, 2] },
+    });
+    // The dialog stays open for more changes until Done.
+    await user.click(within(dialog).getByRole('button', { name: 'Done' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('FR-LIB-8: Move down reorders the manual collection', async () => {
     const user = userEvent.setup();
-    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
-    await user.click(await screen.findByRole('treeitem', { name: /Picks/ }));
+    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }], PICKS_SCOPE);
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     expect(screen.getByRole('button', { name: 'Move up' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Move down' }));
@@ -111,26 +177,21 @@ describe('collections in the Library', () => {
     });
   });
 
-  it('FR-LIB-8: deleting a collection asks first and returns to the first system', async () => {
+  it('FR-LIB-8: deleting a collection asks first and returns to the home', async () => {
     const user = userEvent.setup();
-    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
-    await user.click(await screen.findByRole('treeitem', { name: /Picks/ }));
+    const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }], PICKS_SCOPE);
     await user.click(await screen.findByRole('button', { name: 'Delete' }));
     const dialog = await screen.findByRole('dialog', { name: 'Delete Picks?' });
     expect(bridge.channels()).not.toContain('collections.delete');
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
-    await waitFor(() => {
-      expect(within(tree()).queryByRole('treeitem', { name: /Picks/ })).not.toBeInTheDocument();
-    });
-    expect(within(tree()).getByRole('treeitem', { name: /Nintendo 64/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
+    expect(bridge.channels()).toContain('collections.delete');
+    const collections = await screen.findByRole('button', { name: /^Collections/ });
+    expect(collections).toHaveTextContent('0 items');
   });
 
   it('FR-LIB-8: a library change (e.g. a relink) refreshes collection counts', async () => {
     const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 3 }]);
-    await screen.findByRole('treeitem', { name: /Picks/ });
+    await screen.findByRole('option', { name: /Alpha/ });
     const before = bridge.channels().filter((c) => c === 'collections.list').length;
     bridge.emit('library.changed', { systems: ['nintendo-64'], gameIds: [1] });
     await waitFor(() => {

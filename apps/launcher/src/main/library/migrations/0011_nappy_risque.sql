@@ -1,0 +1,1 @@
+ALTER TABLE `games` ADD `collection_only` integer DEFAULT false NOT NULL;

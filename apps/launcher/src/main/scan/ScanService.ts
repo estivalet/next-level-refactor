@@ -31,8 +31,14 @@ export interface ScanDeps {
   newId: () => string;
 }
 
+export interface ScanOptions {
+  /** False: files without a library row are left out (an import adds only listed games). */
+  addNew?: boolean;
+}
+
 interface Running {
   progress: ScanProgress;
+  addNew: boolean;
   walker: Walker;
   cancelled: boolean;
   done: Promise<void>;
@@ -63,12 +69,12 @@ export class ScanService {
    * Starts a scan in the background and returns at once. Planning (checking which system folders
    * exist) is part of the scan, so a slow or offline drive shows "Starting…" and can be cancelled.
    */
-  start(systemIds?: string[]): Promise<ScanStatus> {
+  start(systemIds?: string[], options: ScanOptions = {}): Promise<ScanStatus> {
     // Validation errors reject the promise instead of throwing at the call site.
-    return Promise.resolve().then(() => this.begin(systemIds));
+    return Promise.resolve().then(() => this.begin(systemIds, options));
   }
 
-  private begin(systemIds: string[] | undefined): ScanStatus {
+  private begin(systemIds: string[] | undefined, options: ScanOptions): ScanStatus {
     if (this.running) return this.status();
     const loaded = this.deps.settings.get();
     if (loaded.kind !== 'ok') {
@@ -86,6 +92,7 @@ export class ScanService {
         systemId: null,
         filesSeen: 0,
       },
+      addNew: options.addNew ?? true,
       walker: this.deps.createWalker(),
       cancelled: false,
       done: Promise.resolve(),
@@ -138,6 +145,7 @@ export class ScanService {
           );
         }
         const diff = diffSystem(this.deps.repo.listSystemGames(job.systemId), walked.files);
+        if (!running.addNew) diff.added = [];
         this.deps.repo.applySystemDiff(job.systemId, diff, this.deps.clock());
         const mediaChanged = this.indexMedia(job.systemId, walked.media);
         const result = systemResult(job.systemId, diff);
@@ -174,6 +182,7 @@ export class ScanService {
       outcome,
       systems: results,
       enabledSystemIds,
+      ...(running.addNew ? {} : { addNew: false }),
     };
     this.running = null;
     this.deps.emit('scan.finished', this.last);

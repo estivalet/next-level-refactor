@@ -112,6 +112,26 @@ describe('ScanService', () => {
     expect(logged).toEqual([{ systemId: 'nintendo-64', dirs: [join(roms, 'Nintendo 64')] }]);
   });
 
+  it('a scan without addNew finds files for known games and adds no others', async () => {
+    const { write, scan, library } = await setup();
+    await write('Nintendo 64/Demo One.z64');
+    await write('Nintendo 64/Demo Two.z64');
+    library.db.$client
+      .prepare(
+        `insert into games (system_id, rel_path, size, mtime, missing, added_at)
+         values ('nintendo-64', 'Demo One.z64', 0, 0, 1, '2026-10-21T00:00:00.000Z')`,
+      )
+      .run();
+    await scan.start(['nintendo-64'], { addNew: false });
+    await scan.whenIdle();
+    expect(scan.status().last?.systems).toMatchObject([
+      { systemId: 'nintendo-64', present: 1, added: 0, restored: 1 },
+    ]);
+    expect(library.repo.listSystemGames('nintendo-64')).toEqual([
+      expect.objectContaining({ relPath: 'Demo One.z64', missing: false }),
+    ]);
+  });
+
   it('FR-LIB-3: a scan adds the games of every enabled system and reports progress', async () => {
     const { write, run, events, library } = await setup();
     await write('Nintendo 64/Demo One.z64');

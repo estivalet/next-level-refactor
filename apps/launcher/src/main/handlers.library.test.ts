@@ -225,6 +225,7 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['smartFilters.list', undefined],
   ['menus.list', undefined],
   ['menus.draft', undefined],
+  ['library.games.facets', { scope: { kind: 'system', systemId: 'nintendo-64' }, tab: 'all' }],
   ['frontend.resolveMenu', { draft: { title: 'X', nodes: [] } }],
 ];
 

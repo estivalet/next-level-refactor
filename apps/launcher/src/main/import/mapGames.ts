@@ -31,9 +31,10 @@ export interface GameImport {
     players?: string;
     description?: string;
   };
-  /** Filter tags as slugs, without `favorite` (that is the favorite flag). */
+  /** Filter tags as slugs, without `favorite` and `completed` (those are flags, D60). */
   filters: string[];
   favorite: boolean;
+  completed: boolean;
   hidden: boolean;
   playCount: number;
   /** ISO time, or null. */
@@ -53,6 +54,7 @@ export interface MapGamesOptions {
 }
 
 const FAVORITE = 'favorite';
+const COMPLETED = 'completed';
 const MAX_FILTERS = 30;
 /** Scraper bookkeeping NextLevelOS keeps per game; the scraper (M6) owns these. */
 const SCRAPE_FIELDS = ['updatedAt', 'ai_updated', 'artfolder'] as const;
@@ -112,7 +114,7 @@ function toImport(
   const filters: string[] = [];
   let renamed = false;
   for (const tag of tags) {
-    if (tag === FAVORITE) continue;
+    if (tag === FAVORITE || tag === COMPLETED) continue;
     const slug = filterSlug(tag);
     if (slug !== tag) renamed = true;
     if (slug && !filters.includes(slug)) filters.push(slug);
@@ -148,6 +150,7 @@ function toImport(
     metadata,
     filters: filters.slice(0, MAX_FILTERS),
     favorite: tags.includes(FAVORITE),
+    completed: tags.includes(COMPLETED),
     hidden: game.hidden === true,
     playCount: parsePlayCount(game.played),
     lastPlayedAt: parseLastPlayed(game.lastPlayedOn),
@@ -165,6 +168,7 @@ function merge(first: GameImport, other: GameImport): GameImport {
     metadata: { ...other.metadata, ...first.metadata },
     filters: [...new Set([...first.filters, ...other.filters])].slice(0, MAX_FILTERS),
     favorite: first.favorite || other.favorite,
+    completed: first.completed || other.completed,
     hidden: first.hidden || other.hidden,
     playCount: Math.max(first.playCount, other.playCount),
     lastPlayedAt: later(first.lastPlayedAt, other.lastPlayedAt),

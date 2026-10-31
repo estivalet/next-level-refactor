@@ -1,8 +1,10 @@
-import type { GameListQuery } from '@nextlevel/shared';
+import { SmartFilterQuerySchema, type GameListQuery } from '@nextlevel/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { CollectionRepository } from './CollectionRepository.ts';
 import { GameRepository } from './GameRepository.ts';
 import { MediaRepository } from './MediaRepository.ts';
 import { ScrapeRepository } from './ScrapeRepository.ts';
+import { SmartFilterRepository } from './SmartFilterRepository.ts';
 import { appErrorOf, seedGames, tempLibrary } from './testing.ts';
 
 let library: Awaited<ReturnType<typeof tempLibrary>>;
@@ -71,6 +73,36 @@ describe('GameRepository.list', () => {
     expect(titles({ tab: 'missing' })).toEqual(['Charlie']);
   });
 
+  it('D60: the completed tab lists completed games that are not hidden', () => {
+    seedGames(library.db, 'nintendo-64', [
+      { title: 'Alpha', completed: true },
+      { title: 'Bravo', completed: true, hidden: true },
+      'Charlie',
+    ]);
+    expect(titles({ tab: 'completed' })).toEqual(['Alpha']);
+    expect(games.list(query()).games.map((g) => [g.title, g.completed])).toEqual([
+      ['Alpha', true],
+      ['Charlie', false],
+    ]);
+  });
+
+  it('D60: recently played lists played games, newest first, whatever the sort', () => {
+    seedGames(library.db, 'nintendo-64', [
+      { title: 'Alpha', lastPlayedAt: '2026-01-01T00:00:00.000Z', playCount: 1 },
+      { title: 'Bravo', lastPlayedAt: '2026-03-01T00:00:00.000Z', playCount: 1 },
+      'Charlie',
+    ]);
+    expect(titles({ tab: 'recent', sort: 'title' })).toEqual(['Bravo', 'Alpha']);
+  });
+
+  it('D60: setFlags marks games completed and back', () => {
+    const [alpha = 0, bravo = 0] = seedGames(library.db, 'nintendo-64', ['Alpha', 'Bravo']);
+    games.setFlags([alpha, bravo], { completed: true });
+    expect(titles({ tab: 'completed' })).toEqual(['Alpha', 'Bravo']);
+    games.setFlags([bravo], { completed: false });
+    expect(titles({ tab: 'completed' })).toEqual(['Alpha']);
+  });
+
   it('FR-LIB-4: missing games are listed with their expected path', () => {
     seedGames(library.db, 'nintendo-64', [
       { title: 'Here' },
@@ -113,6 +145,88 @@ describe('GameRepository.list', () => {
     expect(titles({ text: 'zel' })).toEqual(['Zelda Quest']);
     expect(games.list(query({ text: 'zel' })).total).toBe(1);
     expect(titles({ text: 'z' })).toEqual(['Racer', 'Zelda Quest']);
+  });
+});
+
+describe('GameRepository narrowing and facets', () => {
+  const seedFacets = () =>
+    seedGames(library.db, 'nintendo-64', [
+      { title: 'G1', filters: ['hack'], genre: 'Shooter' },
+      { title: 'G2', filters: ['brazil'] },
+      { title: 'G3', filters: ['hack'], genre: 'Action' },
+      { title: 'G4', filters: ['hack'], genre: 'Shooter', hidden: true },
+    ]);
+
+  it('D62: a list narrows to one filter and one genre', () => {
+    seedFacets();
+    expect(titles({ filter: 'hack' })).toEqual(['G1', 'G3']);
+    expect(games.list(query({ filter: 'hack', genre: 'Action' }))).toMatchObject({ total: 1 });
+    expect(titles({ filter: 'hack', genre: 'Action' })).toEqual(['G3']);
+    expect(titles({ genre: 'Shooter', tab: 'hidden' })).toEqual(['G4']);
+  });
+
+  it('D62: facets count the scope and tab, sorted by name', () => {
+    seedFacets();
+    seedGames(library.db, 'snes', [{ title: 'Other', filters: ['zeta'], genre: 'Puzzle' }]);
+    expect(games.facets(N64, 'all')).toEqual({
+      filters: [
+        { value: 'brazil', count: 1 },
+        { value: 'hack', count: 2 },
+      ],
+      genres: [
+        { value: 'Action', count: 1 },
+        { value: 'Shooter', count: 1 },
+      ],
+      // Tab counts cover the whole scope, whatever tab is open.
+      tabs: {
+        all: 3,
+        favorites: 0,
+        recent: 0,
+        completed: 0,
+        hidden: 1,
+        missing: 0,
+        needsReview: 0,
+      },
+    });
+    expect(games.facets(N64, 'hidden')).toMatchObject({
+      filters: [{ value: 'hack', count: 1 }],
+      genres: [{ value: 'Shooter', count: 1 }],
+      tabs: { all: 3, hidden: 1 },
+    });
+  });
+
+  it('D62: facets count a collection and a smart filter scope', () => {
+    const [g1 = 0, , g3 = 0] = seedFacets();
+    const collection = new CollectionRepository(library.db, () => new Date()).create('Picks');
+    new CollectionRepository(library.db, () => new Date()).addGames(collection.id, [g1, g3]);
+    expect(games.facets({ kind: 'collection', collectionId: collection.id }, 'all')).toMatchObject({
+      tabs: { all: 2 },
+      filters: [{ value: 'hack', count: 2 }],
+      genres: [
+        { value: 'Action', count: 1 },
+        { value: 'Shooter', count: 1 },
+      ],
+    });
+    const filter = new SmartFilterRepository(library.db, () => new Date()).create(
+      'Shooters',
+      SmartFilterQuerySchema.parse({ genre: 'shoot' }),
+    );
+    expect(games.facets({ kind: 'smartFilter', smartFilterId: filter.id }, 'all')).toMatchObject({
+      tabs: { all: 1 },
+      filters: [{ value: 'hack', count: 1 }],
+      genres: [{ value: 'Shooter', count: 1 }],
+    });
+  });
+
+  it('D62: rows carry the box-front version or null', () => {
+    const [art = 0] = seedGames(library.db, 'nintendo-64', ['Art', 'Plain']);
+    const media = new MediaRepository(library.db);
+    media.upsert({ gameId: art, kind: 'box-front', path: 'C:/a.png', size: 1, version: 123 });
+    media.upsert({ gameId: art, kind: 'fanart', path: 'C:/f.png', size: 1, version: 7 });
+    expect(games.list(query()).games.map((g) => [g.title, g.boxArt])).toEqual([
+      ['Art', 123],
+      ['Plain', null],
+    ]);
   });
 });
 

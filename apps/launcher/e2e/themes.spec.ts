@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch, taskbar } from './launch.ts';
+import { freshDataDir, launch, openScope, taskbar } from './launch.ts';
 
 const LOCATION = '01900000-0000-7000-8000-00000000a001';
 
@@ -30,6 +30,8 @@ test('FR-THM-1, FR-THM-4: HyperSpin follows an option saved in Settings; Showcas
       .dblclick();
     const library = page.getByRole('dialog', { name: 'Game Library' });
     await library.getByRole('button', { name: 'Scan for games' }).click();
+    // D61: the Library opens on the menu; open the system.
+    await openScope(library, ['Nintendo', 'Nintendo 64']);
     await expect(library.getByRole('listbox', { name: 'Games' }).getByRole('option')).toHaveCount(
       2,
     );

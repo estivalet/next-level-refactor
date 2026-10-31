@@ -83,6 +83,26 @@ describe('mapGames', () => {
     expect(item(items, 'Atari 2600', 'invalidEntry')?.count).toBe(2);
   });
 
+  it('D60: a completed tag becomes the completed flag', () => {
+    const lists = files.gamelists.map((list) =>
+      list.name === 'Atari 2600'
+        ? {
+            ...list,
+            games: [
+              ...list.games,
+              { filename: './Done.a26', title: 'Done', filter: ['completed', 'hack'] },
+            ],
+          }
+        : list,
+    );
+    const { entries } = mapGames({ ...files, gamelists: lists }, match, { retroarchDir: null });
+    expect(game(entries, 'atari-2600', 'Done.a26')).toMatchObject({
+      completed: true,
+      filters: ['hack'],
+    });
+    expect(game(entries, 'atari-2600', 'Moon Hopper.a26')).toMatchObject({ completed: false });
+  });
+
   it('FR-LIB-5: disc entries of one set become one game named after the set', () => {
     const { entries, items } = run();
     const sony = entries.filter((e) => e.systemId === 'sony-playstation');

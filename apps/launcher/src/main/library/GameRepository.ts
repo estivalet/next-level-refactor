@@ -3,9 +3,12 @@ import {
   ERROR_CODES,
   type CollectionSort,
   type GameDetails,
+  type GameFacets,
   type GameFlags,
   type GameListPage,
   type GameListQuery,
+  type GameScope,
+  type GameTab,
   type MetadataChanges,
   type ScrapeField,
   type SearchResult,
@@ -13,7 +16,7 @@ import {
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
-import { ROW_COLUMNS, ROW_JOINS, listShape, toRow, type RawRow } from './gameSql.ts';
+import { ROW_COLUMNS, ROW_JOINS, listShape, tabCountsSql, toRow, type RawRow } from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
 import { smartFilterIdsSql } from './smartFilterSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
@@ -56,7 +59,12 @@ const SCRAPE_COLUMNS = { ...METADATA_COLUMNS, rating: 'rating' } as const satisf
   Record<ScrapeField | 'region', string>
 >;
 
-const FLAG_COLUMNS = { favorite: 'favorite', hidden: 'hidden', userRating: 'user_rating' } as const;
+const FLAG_COLUMNS = {
+  favorite: 'favorite',
+  hidden: 'hidden',
+  completed: 'completed',
+  userRating: 'user_rating',
+} as const;
 
 interface FileRow {
   id: number;
@@ -111,12 +119,15 @@ export class GameRepository {
       query.scope.kind === 'collection' ? this.collectionSort(query.scope.collectionId) : null;
     const smart =
       query.scope.kind === 'smartFilter' ? this.smartIds(query.scope.smartFilterId) : null;
-    const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null);
+    const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null, {
+      filter: query.filter !== undefined,
+      genre: query.genre !== undefined,
+    });
     const params = {
-      ...(query.scope.kind === 'system' ? { systemId: query.scope.systemId } : {}),
-      ...(query.scope.kind === 'collection' ? { collectionId: query.scope.collectionId } : {}),
-      ...smart?.params,
+      ...this.scopeParams(query.scope, smart),
       ...(match === null ? {} : { match }),
+      ...(query.filter === undefined ? {} : { filter: query.filter }),
+      ...(query.genre === undefined ? {} : { genre: query.genre }),
     };
     const total = this.statement(`select count(*) ${shape.from}`).pluck().get(params) as number;
     const rows = this.statement(
@@ -126,6 +137,37 @@ export class GameRepository {
       total,
       offset: query.offset,
       games: rows.map((row) => toRow(row, this.resolvePath)),
+    };
+  }
+
+  /**
+   * A scope's filter tags and genres with their game counts in a tab, by name (D62), and how many
+   * games each tab of the scope has.
+   */
+  facets(scope: GameScope, tab: GameTab): GameFacets {
+    const smart = scope.kind === 'smartFilter' ? this.smartIds(scope.smartFilterId) : null;
+    const { from } = listShape({ scope, tab }, null, false, smart?.sql ?? null);
+    const params = this.scopeParams(scope, smart);
+    const filters = this.statement(
+      `select f.filter as value, count(*) as count from game_filters f
+       where f.game_id in (select g.id ${from}) group by f.filter
+       order by f.filter collate nocase`,
+    ).all(params) as GameFacets['filters'];
+    const genres = this.statement(
+      `select m.genre as value, count(*) as count ${from} and m.genre is not null
+       group by m.genre order by m.genre collate nocase`,
+    ).all(params) as GameFacets['genres'];
+    const tabs = this.statement(tabCountsSql(scope, smart?.sql ?? null)).get(
+      params,
+    ) as GameFacets['tabs'];
+    return { filters, genres, tabs };
+  }
+
+  private scopeParams(scope: GameScope, smart: { params: object } | null) {
+    return {
+      ...(scope.kind === 'system' ? { systemId: scope.systemId } : {}),
+      ...(scope.kind === 'collection' ? { collectionId: scope.collectionId } : {}),
+      ...smart?.params,
     };
   }
 
@@ -194,7 +236,7 @@ export class GameRepository {
 
   /**
    * Global search (FR-LIB-10, US-C3): titles starting with the text first, then FTS rank. Hidden
-   * games are left out (owner decision 2026-10-21).
+   * games are left out (owner decision 2026-10-21), and so are collection-only ones.
    */
   search(text: string, limit = 50): SearchResult {
     const match = ftsQuery(text);
@@ -202,7 +244,7 @@ export class GameRepository {
     const rows = this.statement(
       `select ${ROW_COLUMNS}
        from games_fts f join games g on g.id = f.rowid ${ROW_JOINS}
-       where games_fts match @match and coalesce(u.hidden, 0) = 0
+       where games_fts match @match and coalesce(u.hidden, 0) = 0 and g.collection_only = 0
        order by (m.sort_title like @prefix escape '\\') desc, bm25(games_fts), m.sort_title, g.id
        limit @limit`,
     ).all({ match, prefix: titlePrefixPattern(text), limit: limit + 1 }) as RawRow[];
@@ -298,6 +340,7 @@ export class GameRepository {
     const params = {
       favorite: flags.favorite === undefined ? undefined : Number(flags.favorite),
       hidden: flags.hidden === undefined ? undefined : Number(flags.hidden),
+      completed: flags.completed === undefined ? undefined : Number(flags.completed),
       userRating: flags.userRating,
     };
     this.db.$client.transaction(() => {
