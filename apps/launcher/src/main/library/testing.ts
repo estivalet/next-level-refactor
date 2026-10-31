@@ -43,6 +43,7 @@ export interface SeedGame {
   missing?: boolean;
   favorite?: boolean;
   hidden?: boolean;
+  completed?: boolean;
   userRating?: number;
   players?: string;
   playCount?: number;
@@ -62,8 +63,8 @@ export function seedGames(db: LibraryDb, systemId: string, games: Array<string |
      values (?, ?, ?, ?, ?, ?, '2026-10-21T12:00:00.000Z')`,
   );
   const insertState = client.prepare(
-    `insert into game_user_state (game_id, favorite, hidden, user_rating, play_count, last_played_at)
-     values (?, ?, ?, ?, ?, ?)`,
+    `insert into game_user_state (game_id, favorite, hidden, completed, user_rating, play_count,
+       last_played_at) values (?, ?, ?, ?, ?, ?, ?)`,
   );
   const insertFilter = client.prepare('insert into game_filters (game_id, filter) values (?, ?)');
   return client.transaction(() =>
@@ -86,11 +87,19 @@ export function seedGames(db: LibraryDb, systemId: string, games: Array<string |
         game.genre ?? null,
         game.players ?? null,
       );
-      if (game.favorite || game.hidden || game.userRating || game.playCount || game.lastPlayedAt) {
+      if (
+        game.favorite ||
+        game.hidden ||
+        game.completed ||
+        game.userRating ||
+        game.playCount ||
+        game.lastPlayedAt
+      ) {
         insertState.run(
           id,
           game.favorite ? 1 : 0,
           game.hidden ? 1 : 0,
+          game.completed ? 1 : 0,
           game.userRating ?? null,
           game.playCount ?? 0,
           game.lastPlayedAt ?? null,

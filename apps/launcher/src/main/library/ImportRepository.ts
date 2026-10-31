@@ -192,6 +192,7 @@ export class ImportRepository {
       id,
       favorite: entry.favorite ? 1 : 0,
       hidden: entry.hidden ? 1 : 0,
+      completed: entry.completed ? 1 : 0,
       playCount: entry.playCount,
       lastPlayedAt: entry.lastPlayedAt,
     });
@@ -234,10 +235,11 @@ export class ImportRepository {
       clearFilters: c.prepare('delete from game_filters where game_id = ?'),
       insertFilter: c.prepare('insert or ignore into game_filters (game_id, filter) values (?, ?)'),
       upsertUserState: c.prepare(
-        `insert into game_user_state (game_id, favorite, hidden, play_count, last_played_at)
-         values (@id, @favorite, @hidden, @playCount, @lastPlayedAt)
+        `insert into game_user_state (game_id, favorite, hidden, completed, play_count,
+           last_played_at)
+         values (@id, @favorite, @hidden, @completed, @playCount, @lastPlayedAt)
          on conflict (game_id) do update set favorite = excluded.favorite,
-           hidden = excluded.hidden, play_count = max(play_count, excluded.play_count),
+           hidden = excluded.hidden, completed = max(completed, excluded.completed), play_count = max(play_count, excluded.play_count),
            last_played_at = case
              when last_played_at is null or excluded.last_played_at > last_played_at
              then coalesce(excluded.last_played_at, last_played_at)

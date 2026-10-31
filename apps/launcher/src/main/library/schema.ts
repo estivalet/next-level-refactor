@@ -70,7 +70,7 @@ export const gameMetadata = sqliteTable(
   (table) => [index('game_metadata_sort_title').on(table.sortTitle)],
 );
 
-/** Favorites, hidden, the user's rating and play stats (FR-LIB-7); no row = all defaults. */
+/** Favorites, hidden, completed, the user's rating and play stats (FR-LIB-7, D60); no row = all defaults. */
 export const gameUserState = sqliteTable(
   'game_user_state',
   {
@@ -79,6 +79,8 @@ export const gameUserState = sqliteTable(
       .references(() => games.id, { onDelete: 'cascade' }),
     favorite: integer('favorite', { mode: 'boolean' }).notNull().default(false),
     hidden: integer('hidden', { mode: 'boolean' }).notNull().default(false),
+    /** The user finished the game (D60). */
+    completed: integer('completed', { mode: 'boolean' }).notNull().default(false),
     userRating: integer('user_rating'),
     playCount: integer('play_count').notNull().default(0),
     lastPlayedAt: text('last_played_at'),

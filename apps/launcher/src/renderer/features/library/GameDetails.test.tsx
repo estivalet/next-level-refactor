@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameDetails, gameRow, libraryResponses } from './testing.ts';
+import { gameDetails, gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -32,13 +32,14 @@ function setup() {
           ...game,
           ...(input.flags.favorite === undefined ? {} : { favorite: input.flags.favorite }),
           ...(input.flags.hidden === undefined ? {} : { hidden: input.flags.hidden }),
+          ...(input.flags.completed === undefined ? {} : { completed: input.flags.completed }),
           ...(input.flags.userRating === undefined ? {} : { userRating: input.flags.userRating }),
         };
       }
       return ok(undefined);
     },
   });
-  renderInShell(<LibraryApp />);
+  renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   return { bridge, flagCalls };
 }
 
@@ -128,7 +129,7 @@ describe('GameDetails', () => {
         return ok({ total: rows.length, offset: query.offset, games: rows });
       },
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('option', { name: /Charlie/ }));
     expect(await within(details()).findByRole('heading', { name: 'Charlie' })).toBeVisible();
 
@@ -149,7 +150,7 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
         ok(gameDetails(games.find((g) => g.id === gameId) ?? gameRow(gameId, 'X'), details)),
       'scraper.search': () => ok({ method: 'title', candidates: [] }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   }
 
   it('US-C5: the context menu offers Scrape… after Edit details and opens the dialog', async () => {
@@ -196,5 +197,59 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
     });
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     expect(await within(details()).findByText('Needs review')).toBeVisible();
+  });
+
+  it('D60: the context menu and the details mark games completed', async () => {
+    const user = userEvent.setup();
+    const { flagCalls } = setup();
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    await user.keyboard('{Shift>}{ArrowRight}{/Shift}');
+    await user.pointer({
+      keys: '[MouseRight]',
+      target: screen.getByRole('option', { name: /Bravo/ }),
+    });
+    await user.click(screen.getByRole('menuitem', { name: 'Mark completed' }));
+    expect(flagCalls).toContainEqual({ gameIds: [1, 2], flags: { completed: true } });
+
+    await user.click(screen.getByRole('option', { name: /Charlie/ }));
+    const completed = await within(details()).findByRole('button', { name: 'Completed' });
+    expect(completed).toHaveAttribute('aria-pressed', 'false');
+    await user.click(completed);
+    expect(flagCalls).toContainEqual({ gameIds: [3], flags: { completed: true } });
+  });
+
+  it('D62: details prefer the video, then a screenshot, then the box', async () => {
+    const media: Record<number, Record<string, number>> = {
+      1: { video: 1, 'screenshot-game-play': 2, 'box-front': 3 },
+      2: { 'screenshot-game-play': 2, 'box-front': 3 },
+      3: { 'box-front': 3 },
+    };
+    const games = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo'), gameRow(3, 'Charlie')];
+    installFakeBridge({
+      ...libraryResponses(games),
+      'library.games.get': ({ gameId }) => {
+        const row = games.find((g) => g.id === gameId) ?? gameRow(gameId, 'X');
+        return ok({ ...gameDetails(row), media: media[gameId] ?? {} });
+      },
+    });
+    const user = userEvent.setup();
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    await waitFor(() => {
+      expect(details().querySelector('video')).toHaveAttribute(
+        'src',
+        'nextlevel://media/1/video?v=1',
+      );
+    });
+    await user.click(screen.getByRole('option', { name: /Bravo/ }));
+    expect(await within(details()).findByRole('img', { name: 'Bravo' })).toHaveAttribute(
+      'src',
+      'nextlevel://media/2/screenshot-game-play?v=2',
+    );
+    await user.click(screen.getByRole('option', { name: /Charlie/ }));
+    expect(await within(details()).findByRole('img', { name: 'Charlie' })).toHaveAttribute(
+      'src',
+      'nextlevel://media/3/box-front?v=3',
+    );
   });
 });

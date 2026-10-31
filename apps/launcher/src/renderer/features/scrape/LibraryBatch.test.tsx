@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from '../library/LibraryApp.tsx';
-import { gameRow, libraryResponses } from '../library/testing.ts';
+import { gameRow, libraryResponses, N64_SCOPE } from '../library/testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -26,7 +26,7 @@ function setup() {
       return ok({ ...IDLE_BATCH, jobId: 1, state: 'running', total: 3 });
     },
   });
-  renderInShell(<LibraryApp />);
+  renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   return { started };
 }
 
@@ -80,10 +80,13 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
           review: 1,
         }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     expect(await screen.findByText(/1 needs review/)).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
-    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    expect(screen.getByRole('button', { name: 'Needs review' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await waitFor(() => {
       expect(
         fake.calls.some(
@@ -102,7 +105,7 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       'scraper.batch.status': () =>
         ok({ ...IDLE_BATCH, jobId: 1, state: 'paused', pausedReason: 'quota', total: 2 }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     await user.keyboard('{Shift>}');
     await user.click(screen.getByRole('option', { name: /Bravo/ }));
@@ -161,7 +164,7 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
           systemIds: ['snes'],
         }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await screen.findByRole('option', { name: /Alpha/ });
     await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
     await waitFor(() => {
@@ -185,10 +188,13 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       'scraper.batch.status': () =>
         ok({ ...IDLE_BATCH, jobId: 1, state: 'finished', total: 1, done: 1, review: 1 }),
     });
-    renderInShell(<LibraryApp />);
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await screen.findByRole('option', { name: /Alpha/ });
     await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
-    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    expect(screen.getByRole('button', { name: 'Needs review' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await waitFor(() => {
       expect(
         fake.calls.some((c) => {

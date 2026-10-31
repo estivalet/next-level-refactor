@@ -99,6 +99,20 @@ describe('ImportService.apply', () => {
     expect(again.settingsBackupId).toBeNull();
   });
 
+  it('D60: a game completed here stays completed when importing again', async () => {
+    const h = await setup();
+    await h.run();
+    const pixel = h.gameId('atari-2600', 'Pixel Quest.a26') ?? 0;
+    h.games.setFlags([pixel], { completed: true });
+    await h.run();
+    expect(
+      h.client
+        .prepare('select completed from game_user_state where game_id = ?')
+        .pluck()
+        .get(pixel),
+    ).toBe(1);
+  });
+
   it('D12: a field edited here survives, NextLevelOS flags win, plays take the max', async () => {
     const h = await setup();
     await h.run();

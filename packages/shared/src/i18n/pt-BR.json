@@ -629,12 +629,25 @@
     }
   },
   "library": {
-    "tree": {
-      "label": "Sistemas e coleções",
-      "other": "Outros",
-      "collections": "Coleções",
-      "noCollections": "Nenhuma coleção ainda",
-      "smart": "Filtros inteligentes"
+    "home": {
+      "title": "Biblioteca",
+      "home": "Início",
+      "back": "Voltar",
+      "trail": "Onde você está",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} itens",
+      "empty": "Nada aqui ainda.",
+      "notInMenu": "Fora do menu",
+      "collections": "Coleções"
+    },
+    "view": {
+      "grid": "Visualização em grade",
+      "list": "Visualização em lista"
+    },
+    "sidebar": {
+      "label": "Mostrar e filtrar",
+      "filters": "Filtros",
+      "genres": "Gêneros"
     },
     "list": {
       "label": "Jogos",
@@ -654,6 +667,8 @@
       "label": "Filtro",
       "all": "Todos",
       "favorites": "Favoritos",
+      "recent": "Jogados recentemente",
+      "completed": "Concluídos",
       "hidden": "Ocultos",
       "missing": "Ausentes",
       "needsReview": "Precisa de revisão"
@@ -676,6 +691,7 @@
       "label": "Detalhes do jogo",
       "none": "Selecione um jogo para ver os detalhes.",
       "favorite": "Favorito",
+      "completed": "Concluído",
       "rating": "Sua avaliação",
       "rate_one": "{{count}} estrela",
       "rate_other": "{{count}} estrelas",
@@ -707,6 +723,8 @@
       "edit": "Editar detalhes…",
       "favorite": "Adicionar aos favoritos",
       "unfavorite": "Remover dos favoritos",
+      "complete": "Marcar como concluído",
+      "uncomplete": "Marcar como não concluído",
       "hide": "Ocultar",
       "unhide": "Mostrar",
       "openFolder": "Abrir pasta",
@@ -750,6 +768,9 @@
       "addTitle_one": "Adicionar {{count}} jogo a uma coleção",
       "addTitle_other": "Adicionar {{count}} jogos a uma coleção",
       "none": "Nenhuma coleção ainda. Use Nova coleção na lista à esquerda.",
+      "done": "Concluir",
+      "filter": "Filtrar coleções…",
+      "noMatch": "Nenhuma coleção encontrada.",
       "remove": "Remover da coleção",
       "moveUp": "Mover para cima",
       "moveDown": "Mover para baixo",
