@@ -57,12 +57,14 @@ test('US-C2, FR-EMU-4/6/10: play from the Library, see it in the log, and follow
     const games = library.getByRole('listbox', { name: 'Games' });
     await expect(games.getByRole('option')).toHaveCount(2);
 
-    // Play: the window is minimized while the game runs, then comes back (D4).
+    // Play: the launch screen covers the launcher while the game runs, then goes (FR-EMU-6).
     await games.getByRole('option', { name: /Homebrew Demo/ }).click();
     const details = library.getByRole('complementary', { name: 'Game details' });
     await details.getByRole('button', { name: 'Play' }).click();
-    await expect.poll(() => minimized(app), { timeout: 10_000 }).toBe(true);
-    await expect.poll(() => minimized(app), { timeout: 20_000 }).toBe(false);
+    const launchScreen = page.getByRole('status', { name: 'Starting a game' });
+    await expect(launchScreen).toBeVisible({ timeout: 10_000 });
+    expect(await minimized(app)).toBe(false);
+    await expect(launchScreen).toBeHidden({ timeout: 20_000 });
     await expect(details.getByText('Played 1 time')).toBeVisible();
     await expect(games.getByRole('option', { name: /Homebrew Demo/ })).toHaveAttribute(
       'aria-selected',

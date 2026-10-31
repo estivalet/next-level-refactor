@@ -12,8 +12,21 @@ relevant), **populated**.
 ## S1 Splash
 
 - Purpose: show progress while booting (settings load, library open, entitlement check).
-- Contents: logo, step label ("Opening library…"), progress bar.
+- Contents: logo, step label ("Opening library…"), progress bar. Same look as NextLevelOS for
+  now: "Next**Level**" on near-black (`#05070c`), sky-blue bar. `index.html` paints a static
+  copy at 0 % before any script runs, and the window stays hidden until that first paint, so
+  startup never flashes white. Steps: settings (25 %), language and start route (50 %),
+  account check (75 %).
 - Errors: fatal (library DB unreadable) → "Repair library / Open data folder / Quit".
+
+## S1b Launch screen
+
+- Purpose: while a game runs (FR-EMU-6), cover the launcher, desktop and front-end alike, so
+  the Windows desktop never shows before the emulator's window appears. The launcher window
+  is no longer minimized (replaces D4 of the M3 plan); it gets focus back when the game ends.
+- Contents: box art when there is some, "Now playing", the title, a spinner, "NextLevel comes
+  back when the game closes." Plain for now; to be customized later.
+- Shows from `launch.started` (or `launch.running` at load) until `launch.finished`.
 
 ## S2 Sign-in
 
@@ -209,7 +222,7 @@ Scope view (D62)
     off the list.
   - **Play (M3, FR-EMU-6, US-C2):** the **Play** button in the details panel, Play in the menu,
     Enter or double-click on a row or a search result. The button is disabled for missing games
-    and while a game is starting or running (one at a time); the menu leaves Play out then. While it runs the launcher window is minimized and the Library
+    and while a game is starting or running (one at a time); the menu leaves Play out then. While it runs the launch screen (S1b) covers the launcher and the Library
     shows "Playing <title>…"; afterwards the same row is selected and focused again and the
     details show "Played N times". A failure (before the start, or an exit code other than 0
     within 10 s) opens "<title> didn't start" with the message, the reason, the path, the exit

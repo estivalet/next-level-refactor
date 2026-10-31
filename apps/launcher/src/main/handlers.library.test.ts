@@ -87,7 +87,7 @@ async function setup(withLibrary: boolean) {
         exists: () => false,
         clock: () => new Date(Date.UTC(2026, 9, 21)),
         emit: () => undefined,
-        window: { minimize: () => undefined, restore: () => undefined },
+        window: { restore: () => undefined },
         extractor: { extract: () => Promise.resolve() },
         tempDir: temp.dir,
         baseEnv: {},

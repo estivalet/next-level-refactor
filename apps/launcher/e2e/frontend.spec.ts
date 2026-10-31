@@ -75,10 +75,13 @@ test('FR-THM-1, FR-THM-5, US-C2: boot into Big Box, play, back on the same game,
     await page.keyboard.press('ArrowRight');
     await expect(card).toContainText('Homebrew Beta');
 
-    // US-C2: Play minimizes the window; when the game closes the front-end is back on the game.
+    // US-C2: Play shows the launch screen (the window stays up); when the game closes the
+    // front-end is back on the game.
     await page.keyboard.press('Enter');
-    await expect.poll(() => minimized(app), { timeout: 10_000 }).toBe(true);
-    await expect.poll(() => minimized(app), { timeout: 20_000 }).toBe(false);
+    const launchScreen = page.getByRole('status', { name: 'Starting a game' });
+    await expect(launchScreen).toBeVisible({ timeout: 10_000 });
+    expect(await minimized(app)).toBe(false);
+    await expect(launchScreen).toBeHidden({ timeout: 20_000 });
     await expect(layer.getByRole('status', { name: 'Playing' })).toBeHidden();
     await expect(card).toContainText('Homebrew Beta');
     const recorded = JSON.parse(await readFile(out, 'utf8')) as { argv: string[] };

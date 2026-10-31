@@ -44,10 +44,10 @@ test('FR-SHELL-6: the launcher window opens maximized', async () => {
   try {
     const app = await launch(data.dir);
     await app.firstWindow();
-    const maximized = await app.evaluate(({ BrowserWindow }) =>
-      BrowserWindow.getAllWindows()[0]?.isMaximized(),
-    );
-    expect(maximized).toBe(true);
+    // Maximized and shown at the first paint (the window starts hidden behind the splash).
+    const maximized = () =>
+      app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.isMaximized());
+    await expect.poll(maximized, { timeout: 10_000 }).toBe(true);
     await app.close();
   } finally {
     await data.remove();

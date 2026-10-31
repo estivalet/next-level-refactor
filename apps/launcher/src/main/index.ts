@@ -67,6 +67,10 @@ function createWindow(uiScale: () => number): BrowserWindow {
     width: 1280,
     height: 800,
     title: 'NextLevel',
+    // Hidden until the first paint (the static splash in index.html), on the splash's own
+    // background, so startup never flashes an empty white window.
+    show: false,
+    backgroundColor: '#05070c',
     webPreferences: {
       preload: join(import.meta.dirname, '../preload/index.cjs'),
       contextIsolation: true,
@@ -76,7 +80,10 @@ function createWindow(uiScale: () => number): BrowserWindow {
     },
   });
   // FR-SHELL-6: open maximized; 1280×800 is the size it restores to.
-  window.maximize();
+  window.once('ready-to-show', () => {
+    window.maximize();
+    window.show();
+  });
 
   // Security doc §3: no remote content in app windows; https links go to the system browser.
   window.webContents.setWindowOpenHandler(({ url }) => {
@@ -96,17 +103,16 @@ function createWindow(uiScale: () => number): BrowserWindow {
   const loading = devServerUrl ? window.loadURL(devServerUrl) : window.loadFile(rendererPage);
   loading.catch((error: unknown) => {
     log.error({ error }, 'could not load the renderer');
+    // ready-to-show may never come then: show the window anyway rather than nothing at all.
+    if (!window.isDestroyed()) window.show();
   });
   return window;
 }
 
 let mainWindow: BrowserWindow | null = null;
 
-/** The launcher window while a game runs (owner decision D4): minimized, then restored. */
+/** The launcher window after a game: it stayed up behind the emulator (launch screen); focus returns. */
 const launcherWindow = {
-  minimize: () => {
-    mainWindow?.minimize();
-  },
   restore: () => {
     if (!mainWindow || mainWindow.isDestroyed()) return;
     if (mainWindow.isMinimized()) mainWindow.restore();

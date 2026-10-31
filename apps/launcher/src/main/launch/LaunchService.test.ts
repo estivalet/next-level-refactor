@@ -34,7 +34,7 @@ async function errorOf(run: () => Promise<unknown>): Promise<AppErrorException['
 }
 
 describe('LaunchService.play (FR-EMU-6, US-C2)', () => {
-  it('US-C2: spawns the resolved command, minimized while it runs, restored on exit', async () => {
+  it('US-C2: spawns the resolved command, the launcher stays up behind it (launch screen) and is focused again on exit', async () => {
     const { launchId } = await h.service.play(h.gameId);
     expect(h.spawn.calls).toEqual([
       {
@@ -44,7 +44,7 @@ describe('LaunchService.play (FR-EMU-6, US-C2)', () => {
         env: expect.any(Object) as unknown,
       },
     ]);
-    expect(h.window.calls).toEqual(['minimize']);
+    expect(h.window.calls).toEqual([]);
     expect(h.service.running()).toEqual({ gameId: h.gameId, launchId });
     expect(h.events[0]).toEqual({
       event: 'launch.started',
@@ -61,7 +61,7 @@ describe('LaunchService.play (FR-EMU-6, US-C2)', () => {
       durationMs: 60_000,
       counted: true,
     });
-    expect(h.window.calls).toEqual(['minimize', 'restore']);
+    expect(h.window.calls).toEqual(['restore']);
     expect(h.service.running()).toBeNull();
     expect(playState()).toEqual({ play_count: 1, play_seconds: 60 });
     expect(h.launches.page(0, 1).entries[0]).toMatchObject({ exitCode: 0, test: false });
@@ -107,10 +107,10 @@ describe('LaunchService.play (FR-EMU-6, US-C2)', () => {
     expect(finished()[0]).not.toHaveProperty('error');
   });
 
-  it('US-C2: a process that can’t start fails Play, restores the window and logs it', async () => {
+  it('US-C2: a process that can’t start fails Play and logs it (the window never left)', async () => {
     h.spawn.failNext = true;
     expect((await errorOf(() => h.service.play(h.gameId))).code).toBe('LAUNCH_FAILED');
-    expect(h.window.calls).toEqual(['minimize', 'restore']);
+    expect(h.window.calls).toEqual([]);
     expect(h.service.running()).toBeNull();
     expect(h.launches.page(0, 1).entries[0]).toMatchObject({ errorCode: 'LAUNCH_FAILED' });
     expect(h.launches.unfinished()).toEqual([]);

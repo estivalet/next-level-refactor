@@ -13,7 +13,8 @@ import { SubscribeScreen } from './SubscribeScreen.tsx';
 export function AuthGate({ children }: { children: ReactNode }) {
   const auth = useAuthState();
   const state = auth.data;
-  if (!state || state.kind === 'checking') return <Splash labelKey="auth.checking" />;
+  if (!state || state.kind === 'checking')
+    return <Splash labelKey="auth.checking" progress={0.75} />;
   switch (state.kind) {
     case 'disabled':
       return children;

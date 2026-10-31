@@ -120,7 +120,6 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
       events.push({ event, payload });
     },
     window: {
-      minimize: () => window.calls.push('minimize'),
       restore: () => window.calls.push('restore'),
     },
     extractor,
