@@ -110,10 +110,9 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
     await openScope(library, ['Nintendo', 'Nintendo 64']);
     await games.getByRole('option', { name: /Racer Deluxe/ }).click({ button: 'right' });
     await page.getByRole('menuitem', { name: 'Add to collection…' }).click();
-    await library
-      .getByRole('dialog', { name: 'Add 1 game to a collection' })
-      .getByRole('button', { name: 'Picks' })
-      .click();
+    const addTo = library.getByRole('dialog', { name: 'Add 1 game to a collection' });
+    await addTo.getByRole('checkbox', { name: 'Picks' }).check();
+    await addTo.getByRole('button', { name: 'Done' }).click();
     await openScope(library, ['Collections', 'Picks']);
     await expect(games.getByRole('option')).toHaveCount(1);
     await app.close();
