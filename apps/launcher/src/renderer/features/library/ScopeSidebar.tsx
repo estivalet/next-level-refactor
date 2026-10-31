@@ -70,35 +70,43 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
   );
   const facetGroup = (
     label: string,
-    items: GameFacets['filters'],
+    counted: GameFacets['filters'],
     picked: string | undefined,
     pick: (value: string | undefined) => void,
     show: (value: string) => string,
-  ) =>
-    items.length > 0 && (
-      <div role="group" aria-label={label} className="border-t border-white/5 px-2 py-3">
-        <h3 className="px-3 pb-1 text-[10px] font-medium tracking-wider text-slate-500 uppercase">
-          {label}
-        </h3>
-        {items.map((item) => (
-          <button
-            key={item.value}
-            type="button"
-            aria-pressed={picked === item.value}
-            className={`${ITEM} ${itemState(picked === item.value)}`}
-            onClick={() => {
-              pick(picked === item.value ? undefined : item.value);
-            }}
-          >
-            <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
-            <span className="flex-1 truncate">{show(item.value)}</span>
-            <span className="font-mono text-[10px] text-slate-500">
-              {item.count.toLocaleString()}
-            </span>
-          </button>
-        ))}
-      </div>
+  ) => {
+    // A picked value this tab doesn't have stays listed (count 0), so it can be seen and cleared.
+    const items =
+      picked === undefined || counted.some((item) => item.value === picked)
+        ? counted
+        : [...counted, { value: picked, count: 0 }];
+    return (
+      items.length > 0 && (
+        <div role="group" aria-label={label} className="border-t border-white/5 px-2 py-3">
+          <h3 className="px-3 pb-1 text-[10px] font-medium tracking-wider text-slate-500 uppercase">
+            {label}
+          </h3>
+          {items.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              aria-pressed={picked === item.value}
+              className={`${ITEM} ${itemState(picked === item.value)}`}
+              onClick={() => {
+                pick(picked === item.value ? undefined : item.value);
+              }}
+            >
+              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
+              <span className="flex-1 truncate">{show(item.value)}</span>
+              <span className="font-mono text-[10px] text-slate-500">
+                {item.count.toLocaleString()}
+              </span>
+            </button>
+          ))}
+        </div>
+      )
     );
+  };
 
   return (
     <aside

@@ -79,6 +79,7 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
     );
     await tabs.getByRole('button', { name: 'Completed' }).click();
     await expect(games.getByRole('option')).toHaveCount(1);
+    await expect(games.getByRole('option', { name: /Homebrew Demo/ })).toBeVisible();
     await tabs.getByRole('button', { name: 'All' }).click();
 
     // D62: the grid and the list show the same games.

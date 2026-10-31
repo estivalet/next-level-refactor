@@ -107,58 +107,59 @@ export function GameGrid({
     event.preventDefault();
   };
 
-  if (games.isLoading) {
-    return <p className="p-6 text-sm text-slate-500">{t('library.list.loading')}</p>;
-  }
-  if (total === 0) {
-    return <p className="p-6 text-sm text-slate-500">{t('library.list.empty')}</p>;
-  }
   return (
+    // The scroller is always there, so its width is measured before the first page arrives.
     <div ref={scroller} className="flex-1 overflow-y-auto">
-      <div
-        role="listbox"
-        tabIndex={0}
-        aria-label={t('library.list.label')}
-        aria-multiselectable="true"
-        aria-activedescendant={focused >= 0 ? `library-game-${String(focused)}` : undefined}
-        onKeyDown={onKeyDown}
-        className="relative focus-visible:outline-none"
-        style={{ height: virtualizer.getTotalSize() + GAP }}
-      >
-        {rows.flatMap((row) =>
-          Array.from({ length: columns }, (_, column) => {
-            const index = row.index * columns + column;
-            const game = index < total ? games.rowAt(index) : undefined;
-            if (!game) return null;
-            return (
-              <GameCard
-                key={game.id}
-                game={game}
-                index={index}
-                selected={selection.ids.has(game.id)}
-                focused={index === focused}
-                style={{
-                  left: GAP + column * (cardWidth + GAP),
-                  top: GAP + row.start,
-                  width: cardWidth,
-                  height: rowHeight - GAP,
-                }}
-                onClick={(event: MouseEvent) => {
-                  onSelect(index, modeOf(event));
-                }}
-                onDoubleClick={() => {
-                  onActivate?.(index);
-                }}
-                onContextMenu={(event) => {
-                  event.preventDefault();
-                  if (!selection.ids.has(game.id)) onSelect(index, 'single');
-                  onOpenMenu?.(index, { x: event.clientX, y: event.clientY });
-                }}
-              />
-            );
-          }),
-        )}
-      </div>
+      {games.isLoading ? (
+        <p className="p-6 text-sm text-slate-500">{t('library.list.loading')}</p>
+      ) : total === 0 ? (
+        <p className="p-6 text-sm text-slate-500">{t('library.list.empty')}</p>
+      ) : (
+        <div
+          role="listbox"
+          tabIndex={0}
+          aria-label={t('library.list.label')}
+          aria-multiselectable="true"
+          aria-activedescendant={focused >= 0 ? `library-game-${String(focused)}` : undefined}
+          onKeyDown={onKeyDown}
+          className="relative focus-visible:outline-none"
+          style={{ height: virtualizer.getTotalSize() + GAP }}
+        >
+          {rows.flatMap((row) =>
+            Array.from({ length: columns }, (_, column) => {
+              const index = row.index * columns + column;
+              const game = index < total ? games.rowAt(index) : undefined;
+              if (!game) return null;
+              return (
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  index={index}
+                  selected={selection.ids.has(game.id)}
+                  focused={index === focused}
+                  style={{
+                    left: GAP + column * (cardWidth + GAP),
+                    top: GAP + row.start,
+                    width: cardWidth,
+                    height: rowHeight - GAP,
+                  }}
+                  onClick={(event: MouseEvent) => {
+                    onSelect(index, modeOf(event));
+                  }}
+                  onDoubleClick={() => {
+                    onActivate?.(index);
+                  }}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    if (!selection.ids.has(game.id)) onSelect(index, 'single');
+                    onOpenMenu?.(index, { x: event.clientX, y: event.clientY });
+                  }}
+                />
+              );
+            }),
+          )}
+        </div>
+      )}
     </div>
   );
 }

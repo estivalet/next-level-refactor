@@ -1,8 +1,10 @@
-import type { GameListQuery } from '@nextlevel/shared';
+import { SmartFilterQuerySchema, type GameListQuery } from '@nextlevel/shared';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { CollectionRepository } from './CollectionRepository.ts';
 import { GameRepository } from './GameRepository.ts';
 import { MediaRepository } from './MediaRepository.ts';
 import { ScrapeRepository } from './ScrapeRepository.ts';
+import { SmartFilterRepository } from './SmartFilterRepository.ts';
 import { appErrorOf, seedGames, tempLibrary } from './testing.ts';
 
 let library: Awaited<ReturnType<typeof tempLibrary>>;
@@ -177,6 +179,27 @@ describe('GameRepository narrowing and facets', () => {
       ],
     });
     expect(games.facets(N64, 'hidden')).toEqual({
+      filters: [{ value: 'hack', count: 1 }],
+      genres: [{ value: 'Shooter', count: 1 }],
+    });
+  });
+
+  it('D62: facets count a collection and a smart filter scope', () => {
+    const [g1 = 0, , g3 = 0] = seedFacets();
+    const collection = new CollectionRepository(library.db, () => new Date()).create('Picks');
+    new CollectionRepository(library.db, () => new Date()).addGames(collection.id, [g1, g3]);
+    expect(games.facets({ kind: 'collection', collectionId: collection.id }, 'all')).toEqual({
+      filters: [{ value: 'hack', count: 2 }],
+      genres: [
+        { value: 'Action', count: 1 },
+        { value: 'Shooter', count: 1 },
+      ],
+    });
+    const filter = new SmartFilterRepository(library.db, () => new Date()).create(
+      'Shooters',
+      SmartFilterQuerySchema.parse({ genre: 'shoot' }),
+    );
+    expect(games.facets({ kind: 'smartFilter', smartFilterId: filter.id }, 'all')).toEqual({
       filters: [{ value: 'hack', count: 1 }],
       genres: [{ value: 'Shooter', count: 1 }],
     });

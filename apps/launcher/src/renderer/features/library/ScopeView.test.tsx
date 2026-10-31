@@ -177,4 +177,50 @@ describe('the scope view (D62)', () => {
     );
     expect(screen.getByRole('button', { name: 'Grid view' })).toBeDisabled();
   });
+
+  it('Final: a scope opened from the home lays the grid out in columns', async () => {
+    installFakeBridge(libraryResponses(GAMES, SYSTEMS));
+    const user = userEvent.setup();
+    renderInShell(<LibraryApp />);
+    await user.click(await screen.findByRole('button', { name: /Not in menu/ }));
+    await user.click(await screen.findByRole('button', { name: /^Nintendo 64/ }));
+    const bravo = await within(await games()).findByRole('option', { name: /Bravo/ });
+    const alpha = within(await games()).getByRole('option', { name: /Alpha/ });
+    // 800px wide: four columns, so Bravo sits right of Alpha on the same row.
+    expect(bravo.style.top).toBe(alpha.style.top);
+    expect(parseFloat(bravo.style.left)).toBeGreaterThan(parseFloat(alpha.style.left));
+  });
+
+  it('Final: a picked filter the tab lacks stays shown, pressed and clearable', async () => {
+    const bridge = installFakeBridge({
+      ...libraryResponses(GAMES, SYSTEMS),
+      'library.games.facets': ({ tab }) =>
+        ok({
+          filters: tab === 'all' ? [{ value: 'hack', count: 2 }] : [],
+          genres: [],
+        }),
+    });
+    const user = userEvent.setup();
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    const filters = await screen.findByRole('group', { name: 'Filters' });
+    await user.click(await within(filters).findByRole('button', { name: /Hack/ }));
+    await user.click(screen.getByRole('button', { name: 'Favorites' }));
+    await waitFor(() => {
+      expect(
+        bridge.calls.some(
+          (c) =>
+            c.channel === 'library.games.facets' &&
+            (c.input as { tab: string }).tab === 'favorites',
+        ),
+      ).toBe(true);
+    });
+    const hack = await within(await screen.findByRole('group', { name: 'Filters' })).findByRole(
+      'button',
+      { name: /Hack/ },
+    );
+    expect(hack).toHaveAttribute('aria-pressed', 'true');
+    expect(hack).toHaveTextContent('0');
+    await user.click(hack);
+    expect(screen.queryByRole('group', { name: 'Filters' })).not.toBeInTheDocument();
+  });
 });
