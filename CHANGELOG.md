@@ -20,6 +20,8 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Fixed
 
+- Menu filters (Official, Homebrew, Hack…) show their own logo, e.g. `logo/clear/Official.png`,
+  in every theme instead of repeating the system's; the system logo is the fallback (FR-THM-2).
 - Importing NextLevelOS gives each system exactly the games of its gamelist: files on disk that
   no gamelist names are no longer added (a manual scan still adds them), games that only a
   collection names stay in that collection instead of joining the system, and gamelists no menu

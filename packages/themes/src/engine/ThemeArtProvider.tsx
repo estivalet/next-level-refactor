@@ -1,6 +1,7 @@
-import type { ArtIndex, ThemeGame } from '@nextlevel/shared';
+import type { ArtIndex, MenuNode, ThemeGame } from '@nextlevel/shared';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ThemeHost } from '../host/ThemeHost.ts';
+import { logoNames } from './levelModel.ts';
 import {
   buildGameBackgroundLayers,
   buildMenuBackgroundLayers,
@@ -94,6 +95,9 @@ export function ThemeArtProvider({
       warnings: index?.warnings ?? [],
       urls,
       logo: (name) => urls(logoPaths(name, config)),
+      // Each name resolved on its own, so a shared filter logo beats the pack's system logo.
+      nodeLogo: (node: MenuNode) =>
+        logoNames(node).flatMap((name) => urls(logoPaths(name, config))),
       menuBackgroundLayers: (name) => buildMenuBackgroundLayers(name, config, urls),
       gameBackgroundLayers: (game, systemName) =>
         buildGameBackgroundLayers(game, config, gameMedia, urls(wallpaperPaths(systemName))),

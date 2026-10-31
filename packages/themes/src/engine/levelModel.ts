@@ -29,6 +29,16 @@ export function nodeLabel(node: MenuNode, t: (key: string) => string): string {
   return node.labelKey ? t(node.labelKey) : node.display;
 }
 
+/**
+ * Names to look a node's logo up by, in order. A filter carries its system's name (its games
+ * level shows the system's art), so its own logo, e.g. `Official.png`, is tried first.
+ */
+export function logoNames(node: MenuNode): string[] {
+  return node.type === 'filter' && node.display !== node.name
+    ? [node.display, node.name]
+    : [node.name];
+}
+
 export function resolveLevel(
   node: MenuNode,
   ancestors: readonly MenuNode[],

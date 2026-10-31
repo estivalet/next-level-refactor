@@ -17,7 +17,7 @@ export function menuStageItem(
   return {
     key,
     title,
-    logo: art.logo(node.name),
+    logo: art.nodeLogo(node),
     frameVideo: art.urls(videoPaths(node.name, art.config)),
     frameImage: art.urls(backgroundImagePaths(node.name, art.config)),
     box: null,

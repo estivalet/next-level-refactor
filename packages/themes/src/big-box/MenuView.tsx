@@ -50,7 +50,7 @@ export function MenuView({
         {focused && (
           <>
             <LevelLogo
-              candidates={art.logo(focused.name)}
+              candidates={art.nodeLogo(focused)}
               fallbackText={nodeLabel(focused, t)}
               className="bigbox-display block max-h-32 text-5xl leading-none font-black"
             />
@@ -101,7 +101,7 @@ export function MenuView({
                   )}
                 >
                   <LevelLogo
-                    candidates={art.logo(item.name)}
+                    candidates={art.nodeLogo(item)}
                     fallbackText={nodeLabel(item, t)}
                     className="bigbox-display max-h-full text-center text-xl font-bold"
                   />

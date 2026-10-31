@@ -73,7 +73,9 @@ describe('Showcase home (FR-THM-1)', () => {
 
   it('a tile without art shows its clear logo, then its name once the logo fails too', () => {
     const { container } = render(
-      <HomeView {...props({ logoCandidates: (n) => (n === 'Xbox' ? ['logo://xbox'] : []) })} />,
+      <HomeView
+        {...props({ logoCandidates: (n) => (n.name === 'Xbox' ? ['logo://xbox'] : []) })}
+      />,
     );
     const logos = [
       ...container.querySelectorAll<HTMLImageElement>('.sc-tile-fallback img.sc-tile-logo'),

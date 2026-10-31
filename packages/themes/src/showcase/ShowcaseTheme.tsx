@@ -170,7 +170,7 @@ export function ShowcaseTheme({ onExit, inputEnabled = true, active = true }: Th
               onFocusChange={nav.setFocus}
               onActivate={filters.enterItem}
               imageCandidates={(name) => art.urls(backgroundImagePaths(name, art.config))}
-              logoCandidates={art.logo}
+              logoCandidates={art.nodeLogo}
               hardwareCandidates={art.hardware}
               description={info.description}
               countText={countLabel(count, t)}

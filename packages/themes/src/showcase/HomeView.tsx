@@ -26,7 +26,7 @@ export interface HomeViewProps {
   onFocusChange: (index: number) => void;
   onActivate: (index: number) => void;
   imageCandidates: (name: string) => string[];
-  logoCandidates: (name: string) => string[];
+  logoCandidates: (node: MenuNode) => string[];
   hardwareCandidates: (name: string) => string[];
   description: string | null;
   countText: string;
@@ -132,7 +132,7 @@ export function HomeView({
                   fallback={
                     <div className="sc-tile-fallback">
                       <CascadingImage
-                        srcs={logoCandidates(item.name)}
+                        srcs={logoCandidates(item)}
                         alt={label(item)}
                         className="sc-tile-logo"
                         fallback={label(item)}
@@ -175,7 +175,7 @@ export function HomeView({
               className="sc-hardware"
             />
             <LevelLogo
-              candidates={logoCandidates(focused.name)}
+              candidates={logoCandidates(focused)}
               fallbackText=""
               className="sc-side-logo"
             />

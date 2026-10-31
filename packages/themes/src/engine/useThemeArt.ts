@@ -1,4 +1,4 @@
-import type { ArtIndexWarning, ThemeGame } from '@nextlevel/shared';
+import type { ArtIndexWarning, MenuNode, ThemeGame } from '@nextlevel/shared';
 import { createContext, useContext } from 'react';
 import type { BackgroundLayer, ThemeArtConfig } from './types.ts';
 
@@ -13,6 +13,8 @@ export interface ThemeArtApi {
   /** URLs for relative art paths, pack first. */
   urls: (rels: string[]) => string[];
   logo: (name: string) => string[];
+  /** A menu node's logo: a filter's own, then its system's (see `logoNames`). */
+  nodeLogo: (node: MenuNode) => string[];
   menuBackgroundLayers: (name: string) => BackgroundLayer[];
   /** The focused game's background; `systemName` picks the system wallpaper fallback. */
   gameBackgroundLayers: (game: ThemeGame, systemName: string) => BackgroundLayer[];
@@ -49,6 +51,7 @@ export const NO_ART: ThemeArtApi = {
   warnings: [],
   urls: none,
   logo: none,
+  nodeLogo: none,
   menuBackgroundLayers: none,
   gameBackgroundLayers: none,
   gameMedia: () => null,
