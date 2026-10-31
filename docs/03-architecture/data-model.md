@@ -47,7 +47,7 @@ the next save backs up the old file first. v1 → v2 (M6) renames `screenshot-ti
 `screenshot-game-title` and drops `screenshot-select` in `themes.entries[*].art.gameArt` (D16).
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
-(`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1;
+(`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1; `general.uiScale` (FR-SET-8, default `'100'`);
 `storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, `scraper` (`regionPriority`, `languagePriority`, `artKinds`, `fields`) and `storage.media` since M6a (schema v2), and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
@@ -62,6 +62,7 @@ type Settings = {
     language: 'en' | 'pt-BR';
     bootTarget: { kind: 'lastTheme' } | { kind: 'theme'; themeId: string } | { kind: 'desktop' };
     startWithWindows: boolean;
+    uiScale: '80' | '90' | '100' | '110' | '125' | '150' | '175'; // percent; window zoom factor
     setupCompletedAt: string | null;          // ISO; null → first-run wizard
   };
   storage: {

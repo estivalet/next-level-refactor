@@ -110,6 +110,7 @@ async function setup(withLibrary: boolean) {
     paths: { data: fixture.dir, logs: join(fixture.dir, 'logs') },
     openPath: vi.fn(() => Promise.resolve('')),
     setOpenAtLogin: vi.fn(),
+    setUiScale: vi.fn(),
     log: { warn: vi.fn() },
     catalog: () => CATALOG,
     pickFolder: vi.fn(() => Promise.resolve(null)),

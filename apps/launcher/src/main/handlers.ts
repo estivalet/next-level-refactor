@@ -8,6 +8,7 @@ import {
   type ScraperAccount,
   type ScraperSystem,
   type SettingsSnapshot,
+  uiScaleFactor,
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
 import type { EmitEvent } from './ipc/events.ts';
@@ -52,6 +53,8 @@ export interface MainDeps {
   /** Opens a folder in the OS; resolves an error message, or '' on success (Electron's shell). */
   openPath: (path: string) => Promise<string>;
   setOpenAtLogin: (enabled: boolean) => void;
+  /** Sets the launcher window's zoom factor (FR-SET-8). */
+  setUiScale: (factor: number) => void;
   log: { warn(context: object, msg: string): void };
   catalog: () => readonly SystemDefinition[];
   /** Native folder dialog; null when cancelled. */
@@ -110,9 +113,10 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     logs: deps.paths.logs,
   });
 
-  // Settings that affect the OS are applied after every successful write.
+  // Settings that affect the OS or the window are applied after every successful write.
   const applied = (snapshot: SettingsSnapshot): SettingsSnapshot => {
     deps.setOpenAtLogin(snapshot.settings.general.startWithWindows);
+    deps.setUiScale(uiScaleFactor(snapshot.settings.general.uiScale));
     return snapshot;
   };
 

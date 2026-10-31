@@ -36,11 +36,22 @@ export const BootTargetSchema = z.discriminatedUnion('kind', [
 
 export type BootTarget = z.output<typeof BootTargetSchema>;
 
+/** UI scale steps in percent (FR-SET-8); strings so the form shows them as a choice. */
+export const UI_SCALES = ['80', '90', '100', '110', '125', '150', '175'] as const;
+export type UiScale = (typeof UI_SCALES)[number];
+
+/** The window zoom factor for a UI scale: '125' → 1.25. */
+export function uiScaleFactor(scale: UiScale): number {
+  return Number(scale) / 100;
+}
+
 export const GeneralSchema = z.object({
   language: z.enum(LANGUAGES).default('en').meta(field('general.language')),
   /** Edited by its own control in Settings → General (a choice plus a theme). */
   bootTarget: BootTargetSchema.default({ kind: 'lastTheme' }),
   startWithWindows: z.boolean().default(false).meta(field('general.startWithWindows')),
+  /** Scales the whole launcher window, text and layout together (FR-SET-8). */
+  uiScale: z.enum(UI_SCALES).default('100').meta(field('general.uiScale')),
   /** ISO time the first-run wizard finished; null sends the user to the wizard (M9). */
   setupCompletedAt: z.iso.datetime().nullable().default(null),
   /** Settings → General → Run setup again (D48): the wizard shows at the next start even for an

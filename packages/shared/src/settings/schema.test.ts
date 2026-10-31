@@ -6,6 +6,7 @@ import {
   fieldMeta,
   normalizePath,
   orderedLocations,
+  uiScaleFactor,
 } from './schema.ts';
 
 describe('SettingsSchema', () => {
@@ -15,6 +16,7 @@ describe('SettingsSchema', () => {
       language: 'en',
       bootTarget: { kind: 'lastTheme' },
       startWithWindows: false,
+      uiScale: '100',
       setupCompletedAt: null,
       setupRequested: false,
       lastRoot: null,
@@ -25,6 +27,17 @@ describe('SettingsSchema', () => {
     const result = SettingsSchema.safeParse({ schemaVersion: 2, general: { language: 'xx' } });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.path).toEqual(['general', 'language']);
+  });
+
+  it('FR-SET-8: the UI scale is one of the listed steps and maps to a zoom factor', () => {
+    const parse = (uiScale: unknown) =>
+      SettingsSchema.safeParse({ schemaVersion: 2, general: { uiScale } }).success;
+    expect(parse('125')).toBe(true);
+    expect(parse('130')).toBe(false);
+    expect(parse(125)).toBe(false);
+    expect(uiScaleFactor('100')).toBe(1);
+    expect(uiScaleFactor('125')).toBe(1.25);
+    expect(uiScaleFactor('80')).toBe(0.8);
   });
 
   it('unknown keys are stripped', () => {

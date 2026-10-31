@@ -112,6 +112,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-SET-5 | Optional cloud sync of settings, menus, collections and user game state across a subscriber's devices (not ROMs or media). | S |
 | FR-SET-6 | Kiosk mode: hide the desktop and Settings; a PIN unlocks them. | S |
 | FR-SET-7 | Settings show where data lives on disk (data folder, library DB, logs) with "open folder" buttons. | M |
+| FR-SET-8 | Settings → General → UI scale (80–175 %, default 100 %) zooms the whole launcher window, text and layout together, so nothing overlaps; it is applied on save and at every start. (Owner request 2026-10-31.) | M |
 
 ## 9a. Desktop shell (`FR-SHELL`)
 

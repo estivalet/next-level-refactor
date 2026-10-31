@@ -5,6 +5,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+
+- Settings → General → UI scale (80–175 %) zooms the whole launcher window, text and layout
+  together, and is remembered across starts (FR-SET-8).
+
 ## [0.9.0] - 2026-10-30
 
 M9 — Catalog & downloads. Admins publish rights-cleared games with a verified license in the

@@ -27,6 +27,7 @@ async function setup() {
     paths: { data: fixture.dir, logs: join(fixture.dir, 'logs') },
     openPath: vi.fn(() => Promise.resolve('')),
     setOpenAtLogin: vi.fn(),
+    setUiScale: vi.fn(),
     log: { warn },
     catalog: () => [N64],
     pickFolder: vi.fn((title?: string) => Promise.resolve(title === 'cancel' ? null : 'E:/roms')),
@@ -167,5 +168,15 @@ describe('createHandlers', () => {
     const { router, deps } = await setup();
     await router.handle('settings.reset', undefined);
     expect(deps.setOpenAtLogin).toHaveBeenCalledWith(false);
+  });
+
+  it('FR-SET-8: saving the UI scale applies it as the window zoom factor', async () => {
+    const { router, deps } = await setup();
+    const settings = defaultSettings();
+    settings.general.uiScale = '125';
+    await router.handle('settings.save', { settings, baseRevision: 0 });
+    expect(deps.setUiScale).toHaveBeenCalledWith(1.25);
+    await router.handle('settings.reset', undefined);
+    expect(deps.setUiScale).toHaveBeenLastCalledWith(1);
   });
 });
