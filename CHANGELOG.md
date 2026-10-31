@@ -5,6 +5,21 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Changed
+
+- The Game Library opens on the active menu as cards, one level at a time (Home, Back, breadcrumb,
+  grid or list), with **Not in menu** and **Collections** cards; the long system tree is gone
+  (D61).
+- A system, collection or smart filter opens into three columns: tabs, filters and genres with
+  counts on the left; a box-art grid or the list in the middle (remembered per system); details
+  with the video, screenshot or box on the right (D62).
+
+### Added
+
+- **Completed**: mark games completed from the context menu or the details, and a Completed tab;
+  importing NextLevelOS turns a game's `completed` tag into the flag (D60). Library migration 0010.
+- **Recently played** tab (played games, newest first).
+
 ## [0.9.0] - 2026-10-30
 
 M9 — Catalog & downloads. Admins publish rights-cleared games with a verified license in the

@@ -103,16 +103,27 @@ requirements:
 ## S7 Library
 
 ```
+Home (D61)
 ┌ Library ───────────────────────────────────────────────────────┐
-│ [Search all games…]                       [Scan ▾] [Scrape ▾]  │
-├──────────────┬────────────────────────────────┬────────────────┤
-│ Systems      │ Title            Year  Genre ★ │ [box art]      │
-│ ▸ Nintendo   │ Super Mario 64   1996  Plat. ★ │ Title          │
-│   N64  1,203 │ …  (virtualized)               │ Year · Dev     │
-│   SNES 3,410 │                                │ Description    │
-│ ▸ Sega       │                                │ [Play] [Edit]  │
+│ [Search all games…]                       [Scrape ▾] [Scan ▾]  │
+│ [Home] [Back]  Next Level › Consoles              [▦] [≡]      │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐            │
+│ │ Nintendo │ │ Sega     │ │ Sony     │ │ Not in   │ …          │
+│ │ 12 items │ │ 9 items  │ │ 6 items  │ │ menu     │            │
+│ └──────────┘ └──────────┘ └──────────┘ └──────────┘            │
+└─────────────────────────────────────────────────────────────────┘
+Scope view (D62)
+┌──────────────┬────────────────────────────────┬────────────────┐
+│ All          │ [Back] Atari 2600      [▦] [≡] │ [video/shot]   │
+│ Favorites    │ ┌────┐ ┌────┐ ┌────┐ ┌────┐    │ Title          │
+│ Recently pl. │ │box │ │box │ │box │ │box │    │ [Play]         │
+│ Completed    │ └────┘ └────┘ └────┘ └────┘    │ Year · Players │
+│ Hidden …     │  (virtualized grid or list)    │ Description    │
+│ FILTERS      │                                │ [★][🏆][Edit]  │
+│ Brazil   100 │                                │                │
+│ GENRES …     │                                │                │
 ├──────────────┴────────────────────────────────┴────────────────┤
-│ 1,203 games · 12 missing · filter: All ▾          N64 · RetroArch│
+│ 890 games · 12 missing · Sort: Title ▾               Atari 2600│
 └─────────────────────────────────────────────────────────────────┘
 ```
 - Context menu on a game: Play, Play with…, Edit details, Scrape…, Add to collection, Favorite, Hide, Open folder, Show missing reason.
@@ -123,11 +134,23 @@ requirements:
     each with its system name; Esc clears) and **Scan ▾** (Scan all systems / Scan <system>;
     while running it shows "Scanning n/m" and offers Cancel; the last summary or a start error
     sits next to it).
-  - Left: virtualized tree of systems with games, grouped by manufacturer (Other last), then
-    Collections with **+** (New collection), then **Smart filters** with **+** (since M5c), each
-    with its count of present games.
-  - **Smart filters (M5c, FR-LIB-9, D10):** selecting one lists its games (status bar tabs
-    work) under a toolbar with **Edit…** and **Delete** (asks; "Used in N menus" when menus show
+  - **Home (D61, replaces the M2c system tree):** the Library opens on the active menu (or the
+    generated one) as cards, one level at a time: categories open deeper, systems, collections
+    and smart filters open their games. Home, Back (also Backspace or Alt+←) and a breadcrumb
+    of the levels; a grid/list toggle, remembered on this machine. The root ends with two fixed
+    cards: **Not in menu** (systems with games the menu doesn't show — left out, hidden or
+    disabled — only when there are any) and **Collections** (every collection and smart filter,
+    with **+** New collection and **+** New smart filter). A level that leaves the menu (an
+    edit, another active menu, a scan) falls back to the deepest one left; the home follows menu
+    changes live.
+  - **Scope view (D62):** Back returns to the level it was opened from. Left column: tabs All,
+    Favorites, Recently played (played games, newest first, whatever the sort), Completed
+    (D60), then Hidden, Missing, Needs review; then the scope's **Filters** and **Genres** with
+    their counts in the tab. One filter and one genre narrow the list (picking it again clears
+    it); the narrowing stays across tabs and clears when a scope is opened or left. The header
+    has the scope's name and a grid/list toggle remembered per scope; a manual-order collection
+    always shows the list (rows drag only there).
+  - **Smart filters (M5c, FR-LIB-9, D10):** opening one lists its games (the tabs work) under a toolbar with **Edit…** and **Delete** (asks; "Used in N menus" when menus show
     it, they lose that entry). New/Edit dialog: name, systems (none ticked = all; enabled systems
     listed), favorites only, filter tags (any of, comma separated), genre contains, year from/to,
     minimum players, played (any/played/never), played in the last N days, sort (title, year, last
@@ -135,19 +158,22 @@ requirements:
     edited; Save stays off while anything is invalid; a taken name shows inline. The three
     built-ins (Favorites, Recently played, Most played) are ordinary, editable filters. Smart
     filters reach a menu only through the Menu Editor (D8).
-  - Middle: virtualized multi-select list (click, Ctrl/⌘-click, Shift-click, arrows, Home/End,
-    PageUp/PageDown; ContextMenu key or Shift+F10 opens the menu). A collection adds a toolbar:
+  - Middle: a virtualized box-art grid (D62: cards with the box art or a same-size placeholder;
+    arrows move across and between rows, Shift extends; PageUp/PageDown move three rows) or the
+    virtualized multi-select list (click, Ctrl/⌘-click, Shift-click, arrows, Home/End,
+    PageUp/PageDown); in both the ContextMenu key or Shift+F10 opens the menu and Enter plays. A collection adds a toolbar:
     sort (manual / title / year), Move up / Move down (manual), Add games… (since M5c), Rename,
     Delete (asks first). In manual order rows also drag into a new place (see S11).
-  - Right: details (box art from the media index since M6b, title, system, scrape status,
-    facts, filters, description), Favorite, 1–5 stars (choosing the same star clears), Edit
+  - Right: details (the preview from the media index: video, else a gameplay screenshot, else
+    the box art (D62); title, system, scrape status, facts, filters, description), Favorite,
+    Completed (D60), 1–5 stars (choosing the same star clears), Edit
     details, Open folder; a missing game shows since when, the expected path and **Relink…**.
     The scrape status line reads "Scraped <date>", "Needs review", "Not found on
     ScreenScraper" or "Last scrape failed"; a game never scraped shows none.
-  - Status bar: "N games · N missing", Filter (All, Favorites, Hidden, Missing), Sort (title,
-    year, rating, recently added) for systems, and what is shown.
+  - Status bar: "N games · N missing", Sort (title, year, rating, recently added) for systems,
+    and what is shown (the tabs moved to the left column, D62).
   - Context menu as built: Play (M3), Edit details…, Scrape… (M6b, one game), Add to / Remove
-    from favorites, Hide / Unhide, Add to collection…, Remove from collection (in a
+    from favorites, Mark completed / Mark not completed (D60), Hide / Unhide, Add to collection…, Remove from collection (in a
     collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink).
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections.

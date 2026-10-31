@@ -37,7 +37,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-LIB-4 | Missing files are flagged, not deleted, so metadata survives a disconnected drive. | M |
 | FR-LIB-5 | Multi-disc games (`.m3u`, `.cue` + `.bin`, `Disc 1/2`) appear as one game. | M |
 | FR-LIB-6 | Games carry metadata (title, year, developer, publisher, genre, players, description, region, filters) editable in-app. | M |
-| FR-LIB-7 | Users can favorite, hide and rate games; the launcher records play count and last played. | M |
+| FR-LIB-7 | Users can favorite, hide, rate and mark games completed (D60); the launcher records play count and last played. | M |
 | FR-LIB-8 | Collections: create, rename, delete, add/remove games from any system, order manually or by field. | M |
 | FR-LIB-9 | Smart filters: saved queries (e.g. "Favorites", "Recently played", "Genre = Shooter") usable as menu nodes. | S |
 | FR-LIB-10 | Global search across all systems by title, with results under 150 ms for 200k games. | M |

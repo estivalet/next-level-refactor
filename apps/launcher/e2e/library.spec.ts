@@ -69,6 +69,24 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
       .getByRole('button', { name: 'All' })
       .click();
 
+    // D60: Completed from the details, and its tab.
+    const tabs = library.getByRole('group', { name: 'Filter' });
+    await games.getByRole('option', { name: /Homebrew Demo/ }).click();
+    await details.getByRole('button', { name: 'Completed' }).click();
+    await expect(details.getByRole('button', { name: 'Completed' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await tabs.getByRole('button', { name: 'Completed' }).click();
+    await expect(games.getByRole('option')).toHaveCount(1);
+    await tabs.getByRole('button', { name: 'All' }).click();
+
+    // D62: the grid and the list show the same games.
+    await library.getByRole('button', { name: 'List view' }).click();
+    await expect(games.getByRole('option')).toHaveCount(2);
+    await library.getByRole('button', { name: 'Grid view' }).click();
+    await expect(games.getByRole('option')).toHaveCount(2);
+
     // Edit details (FR-LIB-6).
     await games.getByRole('option', { name: /Homebrew Racer/ }).click();
     await details.getByRole('button', { name: 'Edit details' }).click();
