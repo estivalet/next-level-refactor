@@ -15,6 +15,9 @@ import { INPUT, Modal, SECONDARY_BUTTON } from './Modal.tsx';
 export function AddToCollection({ gameIds, onClose }: { gameIds: number[]; onClose: () => void }) {
   const { t } = useTranslation();
   const [text, setText] = useState('');
+  // A clicked box shows its new state at once; the saved membership takes over when the change
+  // (and the refresh it triggers) settles.
+  const [ticked, setTicked] = useState<Record<number, boolean>>({});
   const collections = useCollections();
   const add = useAddToCollection();
   const remove = useRemoveFromCollection();
@@ -62,7 +65,7 @@ export function AddToCollection({ gameIds, onClose }: { gameIds: number[]; onClo
           <ul className="mt-3 max-h-72 space-y-0.5 overflow-y-auto text-xs">
             {shown.map((collection) => {
               const count = inCollection(collection.id);
-              const checked = loaded && count === gameIds.length;
+              const checked = ticked[collection.id] ?? (loaded && count === gameIds.length);
               return (
                 <li key={collection.id}>
                   <label className="flex items-center gap-2 rounded px-1 py-1 text-slate-300 hover:bg-white/5 hover:text-white">
@@ -70,13 +73,26 @@ export function AddToCollection({ gameIds, onClose }: { gameIds: number[]; onClo
                       type="checkbox"
                       checked={checked}
                       ref={(box) => {
-                        if (box) box.indeterminate = count > 0 && !checked;
+                        if (box)
+                          box.indeterminate = count > 0 && !checked && !(collection.id in ticked);
                       }}
                       disabled={pending}
                       onChange={() => {
                         const input = { id: collection.id, gameIds };
-                        if (checked) remove.mutate(input);
-                        else add.mutate(input);
+                        const settled = {
+                          onSettled: () => {
+                            setTicked((current) =>
+                              Object.fromEntries(
+                                Object.entries(current).filter(
+                                  ([id]) => Number(id) !== collection.id,
+                                ),
+                              ),
+                            );
+                          },
+                        };
+                        setTicked((current) => ({ ...current, [collection.id]: !checked }));
+                        if (checked) remove.mutate(input, settled);
+                        else add.mutate(input, settled);
                       }}
                     />
                     <span className="flex-1 truncate">{collection.name}</span>
