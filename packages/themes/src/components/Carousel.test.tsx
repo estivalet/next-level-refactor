@@ -131,3 +131,50 @@ describe('shortestDelta', () => {
     expect(shortestDelta(7, 7, 20)).toBe(0);
   });
 });
+
+describe('Carousel referenceHeight (FR-SET-8)', () => {
+  function slotWidths(clientHeight: number, referenceHeight?: number) {
+    const spy = vi
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(clientHeight);
+    const view = render(
+      <Carousel
+        items={items}
+        focusIndex={5}
+        onFocusChange={vi.fn()}
+        onActivate={vi.fn()}
+        itemWidth={100}
+        gap={10}
+        visibleRadius={1}
+        {...(referenceHeight ? { referenceHeight } : {})}
+        renderItem={renderItem}
+      />,
+    );
+    const slot = (index: number) => {
+      const parent = screen.getByTestId(`slot-${String(index)}`).parentElement;
+      if (!parent) throw new Error('slot has no wrapper');
+      return parent;
+    };
+    const result = {
+      width: slot(5).style.width,
+      step: [slot(5), slot(6)].map((s) => s.style.transform),
+    };
+    view.unmount();
+    spy.mockRestore();
+    return result;
+  }
+
+  it('scales slot width and gap with the row height, so the spacing follows the covers', () => {
+    expect(slotWidths(200, 400)).toEqual({
+      width: '50px',
+      step: ['translateX(275px)', 'translateX(330px)'],
+    });
+  });
+
+  it('keeps fixed pixels without a reference height', () => {
+    expect(slotWidths(200)).toEqual({
+      width: '100px',
+      step: ['translateX(550px)', 'translateX(660px)'],
+    });
+  });
+});
