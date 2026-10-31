@@ -92,6 +92,11 @@ describe('buildFilterTabs (FR-THM-1)', () => {
     expect(ids('filter:official', tabs)).toEqual([1]);
   });
 
+  it('the Favorite filter tab holds the non-hidden favorites (a flag, not a tag)', () => {
+    const { tabs } = buildFilterTabs([filterNode('favorite', 'Favorites')]);
+    expect(ids('filter:favorite', tabs)).toEqual([1]);
+  });
+
   it('a filter listed twice gives one tab', () => {
     const { tabs } = buildFilterTabs([
       filterNode('official', 'Official'),

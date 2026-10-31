@@ -13,4 +13,9 @@ describe('countGames (FR-THM-1)', () => {
     expect(countGames(games)).toBe(2);
     expect(countGames(games, 'homebrew')).toBe(1);
   });
+
+  it('counts the favorite filter from the favorite flag', () => {
+    const games = [game(1, { favorite: true }), game(2), game(3, { favorite: true, hidden: true })];
+    expect(countGames(games, 'favorite')).toBe(1);
+  });
 });

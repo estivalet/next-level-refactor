@@ -10,6 +10,10 @@ export interface GameFlagsPatch {
 export const isFavorite = (game: ThemeGame): boolean => game.favorite;
 export const isHidden = (game: ThemeGame): boolean => game.hidden;
 
+/** Whether `game` belongs to a system's `filter` entry; the `favorite` filter is the flag. */
+export const hasFilter = (game: ThemeGame, filter: string): boolean =>
+  (filter === 'favorite' && game.favorite) || game.filters.includes(filter);
+
 /** A copy of `game` with only the given flags changed. */
 export function applyFlags(game: ThemeGame, patch: GameFlagsPatch): ThemeGame {
   return {
