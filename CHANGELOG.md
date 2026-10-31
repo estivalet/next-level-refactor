@@ -29,6 +29,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - **Completed**: mark games completed from the context menu or the details, and a Completed tab;
   importing NextLevelOS turns a game's `completed` tag into the flag (D60). Library migration 0010.
 - **Recently played** tab (played games, newest first).
+- Settings → General → UI scale (80–175 %) zooms the whole launcher window, text and layout
+  together, and is remembered across starts (FR-SET-8).
+- Showcase keeps NextLevelOS's spacing between covers at any window height or UI scale: the
+  row's slot width and gap follow its height instead of fixed pixels.
 
 ## [0.9.0] - 2026-10-30
 

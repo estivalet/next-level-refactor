@@ -32,7 +32,7 @@ Shell (desktop)   (reached with M / Start "Desktop", hidden in kiosk mode)
 
 | Section | Contents |
 |---|---|
-| General | Language, boot target (last theme / theme / desktop), startup with Windows |
+| General | Language, boot target (last theme / theme / desktop), startup with Windows, UI scale |
 | Storage | Storage locations + priority, launcher-managed download location, media location mode |
 | Systems | Enable/disable systems; per system: ROM folder name, extensions, default emulator profile, scraper ID, theme override |
 | Emulators | Emulators (executables), profiles (templates, cores, hooks), presets, Test launch |

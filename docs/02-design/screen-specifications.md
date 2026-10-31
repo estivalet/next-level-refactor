@@ -312,6 +312,10 @@ Left navigation of sections (see IA §1), right form pane.
   ("Unknown" while it runs, or when the launcher never saw the end) and outcome (exit code or Failed). A row
   expands to the command line, the working folder and the emulator output. It refreshes when a
   launch ends.
+- **General → UI scale** (FR-SET-8): a choice of 80, 90, 100, 110, 125, 150 or 175 % (default
+  100 %). Saving zooms the whole window (Electron zoom factor), so text, spacing and layout grow
+  together; it is reapplied at every start. The View menu's Ctrl + = / Ctrl + - / Ctrl + 0 still
+  zoom for the session only.
 - **General → Theme sounds** (M4d, FR-THM-4, D7): one on/off switch and a volume slider (0–100 %,
   default on at 50 %) for the navigation sounds of every theme; the slider is disabled while sounds
   are off. An open theme follows a save at once.
