@@ -28,6 +28,8 @@ export const ScanSummarySchema = z.object({
   systems: z.array(ScanSystemResultSchema),
   /** Systems the scan turned on because games were found and the user never set them. */
   enabledSystemIds: z.array(z.string()),
+  /** False when the scan only looked for files of games already listed (an import's scan). */
+  addNew: z.boolean().optional(),
 });
 
 export const ScanStatusSchema = z.object({

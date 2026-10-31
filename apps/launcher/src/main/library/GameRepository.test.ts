@@ -177,10 +177,21 @@ describe('GameRepository narrowing and facets', () => {
         { value: 'Action', count: 1 },
         { value: 'Shooter', count: 1 },
       ],
+      // Tab counts cover the whole scope, whatever tab is open.
+      tabs: {
+        all: 3,
+        favorites: 0,
+        recent: 0,
+        completed: 0,
+        hidden: 1,
+        missing: 0,
+        needsReview: 0,
+      },
     });
-    expect(games.facets(N64, 'hidden')).toEqual({
+    expect(games.facets(N64, 'hidden')).toMatchObject({
       filters: [{ value: 'hack', count: 1 }],
       genres: [{ value: 'Shooter', count: 1 }],
+      tabs: { all: 3, hidden: 1 },
     });
   });
 
@@ -188,7 +199,8 @@ describe('GameRepository narrowing and facets', () => {
     const [g1 = 0, , g3 = 0] = seedFacets();
     const collection = new CollectionRepository(library.db, () => new Date()).create('Picks');
     new CollectionRepository(library.db, () => new Date()).addGames(collection.id, [g1, g3]);
-    expect(games.facets({ kind: 'collection', collectionId: collection.id }, 'all')).toEqual({
+    expect(games.facets({ kind: 'collection', collectionId: collection.id }, 'all')).toMatchObject({
+      tabs: { all: 2 },
       filters: [{ value: 'hack', count: 2 }],
       genres: [
         { value: 'Action', count: 1 },
@@ -199,7 +211,8 @@ describe('GameRepository narrowing and facets', () => {
       'Shooters',
       SmartFilterQuerySchema.parse({ genre: 'shoot' }),
     );
-    expect(games.facets({ kind: 'smartFilter', smartFilterId: filter.id }, 'all')).toEqual({
+    expect(games.facets({ kind: 'smartFilter', smartFilterId: filter.id }, 'all')).toMatchObject({
+      tabs: { all: 1 },
       filters: [{ value: 'hack', count: 1 }],
       genres: [{ value: 'Shooter', count: 1 }],
     });

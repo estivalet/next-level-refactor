@@ -1,4 +1,12 @@
-import type { CollectionSort, GameListQuery, GameRow, GameSort, GameTab } from '@nextlevel/shared';
+import {
+  GAME_TABS,
+  type CollectionSort,
+  type GameListQuery,
+  type GameRow,
+  type GameScope,
+  type GameSort,
+  type GameTab,
+} from '@nextlevel/shared';
 
 /** The columns of a game list row, before mapping. */
 export interface RawRow {
@@ -49,6 +57,31 @@ const ORDERS: Record<GameSort | CollectionSort, string> = {
 
 const RECENT_ORDER = 'u.last_played_at desc, g.id desc';
 
+/** The join and condition that pick a scope's games (a smart filter joins its `select id, rn`). */
+function scopeParts(scope: GameScope, smartIds: string | null) {
+  return scope.kind === 'system'
+    ? { join: '', where: 'g.system_id = @systemId and g.collection_only = 0' }
+    : scope.kind === 'collection'
+      ? {
+          join: 'join collection_games cg on cg.game_id = g.id and cg.collection_id = @collectionId',
+          where: '1 = 1',
+        }
+      : {
+          join: `join (${smartIds ?? 'select 0 as id, 0 as rn'}) sf on sf.id = g.id`,
+          where: '1 = 1',
+        };
+}
+
+/** One row with each tab's game count in a scope, columns named after the tabs. */
+export function tabCountsSql(scope: GameScope, smartIds: string | null = null): string {
+  const parts = scopeParts(scope, smartIds);
+  const columns = GAME_TABS.map(
+    (tab) => `coalesce(sum(case when ${TABS[tab]} then 1 else 0 end), 0) as "${tab}"`,
+  );
+  return `select ${columns.join(', ')} from games g ${ROW_JOINS} ${parts.join}
+    where ${parts.where}`;
+}
+
 /**
  * The FROM/WHERE/ORDER parts of a list query, built only from fixed fragments (never from input),
  * so each distinct shape can be prepared once. Parameters: @systemId or @collectionId, @match,
@@ -62,18 +95,7 @@ export function listShape(
   smartIds: string | null = null,
   narrow: { filter: boolean; genre: boolean } = { filter: false, genre: false },
 ) {
-  const scope =
-    query.scope.kind === 'system'
-      ? { join: '', where: 'g.system_id = @systemId' }
-      : query.scope.kind === 'collection'
-        ? {
-            join: 'join collection_games cg on cg.game_id = g.id and cg.collection_id = @collectionId',
-            where: '1 = 1',
-          }
-        : {
-            join: `join (${smartIds ?? 'select 0 as id, 0 as rn'}) sf on sf.id = g.id`,
-            where: '1 = 1',
-          };
+  const scope = scopeParts(query.scope, smartIds);
   const where = [scope.where, TABS[query.tab]];
   if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
   if (narrow.filter) {

@@ -48,8 +48,8 @@ interface ScopeSidebarProps {
 }
 
 /**
- * The scope view's left column (D62): the tabs, then the scope's filter tags and genres with
- * their counts. A filter or genre narrows the list; picking it again clears it.
+ * The scope view's left column (D62): the tabs with their game counts, then the scope's filter
+ * tags and genres with their counts. A filter or genre narrows the list; picking it again clears it.
  */
 export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSidebarProps) {
   const { t } = useTranslation();
@@ -65,7 +65,13 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
       }}
     >
       <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />
-      {t(`library.tabs.${value}`)}
+      <span className="flex-1 truncate">{t(`library.tabs.${value}`)}</span>
+      {/* The heading counts the open tab for screen readers; the name stays the tab's. */}
+      {facets && (
+        <span aria-hidden="true" className="font-mono text-[10px] text-slate-500">
+          {facets.tabs[value].toLocaleString()}
+        </span>
+      )}
     </button>
   );
   const facetGroup = (

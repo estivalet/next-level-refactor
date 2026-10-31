@@ -61,6 +61,7 @@ export class ImportRepository {
       this.client.transaction(() => {
         for (const entry of entries.slice(start, start + BATCH)) {
           const id = this.resolve(entry, entry.metadata.title, entry.metadata.year, at, counts);
+          this.statements.listed.run(id);
           this.applyEntry(id, entry, at);
         }
       })();
@@ -69,10 +70,23 @@ export class ImportRepository {
     return counts;
   }
 
+  /** How many of `entries` (system gamelist entries) are missing games now. */
+  missingAmong(entries: readonly GameImport[]): number {
+    this.discSets.clear();
+    let missing = 0;
+    for (const entry of entries) {
+      const row = (this.statements.byPath.get(entry.systemId, entry.relPath) ??
+        this.byDiscSet(entry)) as { missing: number } | undefined;
+      if (row?.missing) missing += 1;
+    }
+    return missing;
+  }
+
   /**
    * Creates or refills an imported collection (D12: contents and order replaced, sort manual; a
-   * name changed here is kept). Members without a game become missing rows (D13); they are not
-   * counted as games (the summary counts system gamelist entries).
+   * name changed here is kept). Members without a game become missing, collection-only rows
+   * (D13): their system's lists leave them out, and they are not counted as games (the summary
+   * counts system gamelist entries).
    */
   upsertCollection(
     source: string,
@@ -93,7 +107,7 @@ export class ImportRepository {
       s.clearMembers.run(id);
       const seen = new Set<number>();
       for (const member of members) {
-        const gameId = this.resolve(member, member.title, member.year, at, uncounted);
+        const gameId = this.resolve(member, member.title, member.year, at, uncounted, true);
         if (seen.has(gameId)) continue;
         seen.add(gameId);
         s.insertMember.run({ collectionId: id, gameId, position: seen.size - 1 });
@@ -109,6 +123,7 @@ export class ImportRepository {
     year: number | undefined,
     at: string,
     counts: GameWriteCounts,
+    collectionOnly = false,
   ): number {
     const s = this.statements;
     const row = s.byPath.get(key.systemId, key.relPath) as
@@ -125,6 +140,7 @@ export class ImportRepository {
         systemId: key.systemId,
         relPath: key.relPath,
         discGroup: key.discGroup,
+        collectionOnly: collectionOnly ? 1 : 0,
         at,
       }).lastInsertRowid,
     );
@@ -216,8 +232,12 @@ export class ImportRepository {
       ),
       missingOf: c.prepare('select id, missing from games where id = ?'),
       insertMissing: c.prepare(
-        `insert into games (system_id, rel_path, size, mtime, missing, missing_since, disc_group, added_at)
-         values (@systemId, @relPath, 0, 0, 1, @at, @discGroup, @at)`,
+        `insert into games (system_id, rel_path, size, mtime, missing, missing_since, disc_group,
+           collection_only, added_at)
+         values (@systemId, @relPath, 0, 0, 1, @at, @discGroup, @collectionOnly, @at)`,
+      ),
+      listed: c.prepare(
+        'update games set collection_only = 0 where id = ? and collection_only = 1',
       ),
       insertMetadata: c.prepare(
         `insert into game_metadata (game_id, title, sort_title, year, updated_at)

@@ -14,7 +14,10 @@ export function menuFingerprint(deps: FrontendDeps): string {
   const own = deps.settings().systems;
   // One indexed EXISTS per enabled system: stops at its first present game.
   const hasGames = client
-    .prepare('select exists (select 1 from games where system_id = ? and missing = 0)')
+    .prepare(
+      `select exists (select 1 from games
+       where system_id = ? and missing = 0 and collection_only = 0)`,
+    )
     .pluck();
   const systems = deps
     .catalog()

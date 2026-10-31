@@ -39,6 +39,8 @@ export const games = sqliteTable(
     missingSince: text('missing_since'),
     discGroup: text('disc_group'),
     addedAt: text('added_at').notNull(),
+    /** Only a collection names it: left out of its system's lists and counts (import). */
+    collectionOnly: integer('collection_only', { mode: 'boolean' }).notNull().default(false),
   },
   (table) => [
     // Its (system_id, rel_path) prefix also serves lookups by system.

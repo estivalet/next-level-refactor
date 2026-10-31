@@ -42,10 +42,10 @@ describe('ImportService.apply', () => {
     const h = await setup();
     const summary = await h.run();
     // System gamelist entries only: Hidden Gem (a collection-only member) is a missing row too.
-    expect(summary.games).toEqual({ matched: 8, inserted: 4, missing: 4 });
+    expect(summary.games).toEqual({ matched: 0, inserted: 12, missing: 4 });
     expect(summary).toMatchObject({ collections: 2, menus: 2 });
     expect(libraryCounts(h)).toEqual({
-      games: 14,
+      games: 13,
       missing: 5,
       collections: 2,
       members: 6,
@@ -175,7 +175,58 @@ describe('ImportService.apply', () => {
     expect(loaded.kind === 'ok' && loaded.snapshot.revision).toBe(0);
   });
 
-  it('IA F6: a scan cancelled during the import stops it before games are matched', async () => {
+  it('the library follows the gamelists: files no list names are not added', async () => {
+    const h = await setup();
+    await h.run();
+    expect(h.gameId('atari-2600', 'Extra Find.a26')).toBeUndefined();
+    expect(h.gameId('atari-2600', 'Pixel Quest.a26')).toBeDefined();
+  });
+
+  it('a game only a collection names stays in the collection, out of its system', async () => {
+    const h = await setup();
+    await h.run();
+    const gem = h.gameId('atari-2600', 'Hidden Gem.a26');
+    const pixel = h.gameId('atari-2600', 'Pixel Quest.a26');
+    expect(h.count(`select collection_only from games where id = ${String(gem)}`)).toBe(1);
+    expect(h.count(`select collection_only from games where id = ${String(pixel)}`)).toBe(0);
+    const system = h.games.list({
+      scope: { kind: 'system', systemId: 'atari-2600' },
+      tab: 'all',
+      offset: 0,
+      limit: 100,
+    });
+    expect(system.games.map((r) => r.id)).not.toContain(gem);
+    expect(system.games.map((r) => r.id)).toContain(pixel);
+    const party = h.collections.list().find((c) => c.name === 'Party Picks');
+    const members = h.games.list({
+      scope: { kind: 'collection', collectionId: party?.id ?? 0 },
+      tab: 'all',
+      offset: 0,
+      limit: 100,
+    });
+    expect(members.games.map((r) => r.id)).toContain(gem);
+  });
+
+  it('a gamelist no menu opens is reported and not imported', async () => {
+    const h = await setup();
+    await writeFile(
+      join(h.copy.data, 'gamelists', 'Atari 2600 copy.json'),
+      JSON.stringify({ games: [{ filename: './Old Thing.a26', system: 'Atari 2600' }] }),
+    );
+    const report = await h.service.dryRun(h.copy.data, null);
+    expect(report.unmapped).toContainEqual({
+      area: 'collection',
+      key: 'Atari 2600 copy',
+      reason: 'notInMenu',
+      count: 1,
+    });
+    expect(report.counts.collections).toBe(2);
+    await h.service.apply(h.copy.data, null, report.token);
+    expect(h.collections.list().map((c) => c.name)).not.toContain('Atari 2600 copy');
+    expect(h.gameId('atari-2600', 'Old Thing.a26')).toBeUndefined();
+  });
+
+  it('IA F6: a scan cancelled during the import stops it before the menus', async () => {
     const h = await setup();
     const report = await h.service.dryRun(h.copy.data, null);
     const start = h.scan.start.bind(h.scan);
@@ -187,10 +238,14 @@ describe('ImportService.apply', () => {
     await expect(h.service.apply(h.copy.data, null, report.token)).rejects.toMatchObject({
       error: { code: 'INTERNAL', details: { reason: 'scanIncomplete', outcome: 'cancelled' } },
     });
-    // No games stage: nothing was turned into a missing row, no collection or menu was written.
-    expect(h.count('select count(*) from games where missing = 1')).toBe(0);
-    expect(h.count('select count(*) from collections')).toBe(0);
+    // Games and collections are written (missing until a scan finds them); menus are not.
+    expect(h.count('select count(*) from games where missing = 0')).toBe(0);
+    expect(h.count('select count(*) from collections')).toBe(2);
     expect(h.count('select count(*) from menus')).toBe(0);
+    vi.restoreAllMocks();
+    await h.scan.start(['atari-2600']);
+    await h.scan.whenIdle();
+    expect(h.count(`select missing from games where rel_path = 'Pixel Quest.a26'`)).toBe(0);
   });
 
   it('IA F6: a scan already running refuses the import with BUSY', async () => {

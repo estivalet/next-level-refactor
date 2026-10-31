@@ -25,6 +25,15 @@ const GAMES = [
   gameRow(4, 'Delta'),
   gameRow(5, 'Echo'),
 ];
+const TAB_COUNTS = {
+  all: 5,
+  favorites: 2,
+  recent: 0,
+  completed: 1,
+  hidden: 0,
+  missing: 0,
+  needsReview: 0,
+};
 const SYSTEMS = [
   { id: 'nintendo-64', enabled: true, games: 5, missing: 0, review: 0 },
   { id: 'snes', enabled: true, games: 2, missing: 0, review: 0 },
@@ -40,6 +49,7 @@ function setup() {
           { value: 'hack', count: 2 },
         ],
         genres: [{ value: 'Shooter', count: 3 }],
+        tabs: TAB_COUNTS,
       }),
     'launch.game': () => ok({ launchId: 10 }),
   });
@@ -52,6 +62,16 @@ function setup() {
 const games = () => screen.findByRole('listbox', { name: 'Games' });
 
 describe('the scope view (D62)', () => {
+  it('the heading counts the games shown, the tabs show their counts', async () => {
+    setup();
+    expect(await screen.findByRole('heading', { name: /5 games/ })).toBeInTheDocument();
+    const tabs = await screen.findByRole('group', { name: 'Filter' });
+    const favorites = within(tabs).getByRole('button', { name: 'Favorites' });
+    await waitFor(() => {
+      expect(favorites).toHaveTextContent('Favorites2');
+    });
+  });
+
   it('D62: cards show box art or a placeholder of the same size', async () => {
     setup();
     const alpha = await within(await games()).findByRole('option', { name: /Alpha/ });
@@ -198,6 +218,7 @@ describe('the scope view (D62)', () => {
         ok({
           filters: tab === 'all' ? [{ value: 'hack', count: 2 }] : [],
           genres: [],
+          tabs: TAB_COUNTS,
         }),
     });
     const user = userEvent.setup();

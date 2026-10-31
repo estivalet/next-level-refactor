@@ -16,7 +16,7 @@ import {
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
-import { ROW_COLUMNS, ROW_JOINS, listShape, toRow, type RawRow } from './gameSql.ts';
+import { ROW_COLUMNS, ROW_JOINS, listShape, tabCountsSql, toRow, type RawRow } from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
 import { smartFilterIdsSql } from './smartFilterSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
@@ -140,7 +140,10 @@ export class GameRepository {
     };
   }
 
-  /** A scope's filter tags and genres with their game counts in a tab, by name (D62). */
+  /**
+   * A scope's filter tags and genres with their game counts in a tab, by name (D62), and how many
+   * games each tab of the scope has.
+   */
   facets(scope: GameScope, tab: GameTab): GameFacets {
     const smart = scope.kind === 'smartFilter' ? this.smartIds(scope.smartFilterId) : null;
     const { from } = listShape({ scope, tab }, null, false, smart?.sql ?? null);
@@ -154,7 +157,10 @@ export class GameRepository {
       `select m.genre as value, count(*) as count ${from} and m.genre is not null
        group by m.genre order by m.genre collate nocase`,
     ).all(params) as GameFacets['genres'];
-    return { filters, genres };
+    const tabs = this.statement(tabCountsSql(scope, smart?.sql ?? null)).get(
+      params,
+    ) as GameFacets['tabs'];
+    return { filters, genres, tabs };
   }
 
   private scopeParams(scope: GameScope, smart: { params: object } | null) {
@@ -230,7 +236,7 @@ export class GameRepository {
 
   /**
    * Global search (FR-LIB-10, US-C3): titles starting with the text first, then FTS rank. Hidden
-   * games are left out (owner decision 2026-10-21).
+   * games are left out (owner decision 2026-10-21), and so are collection-only ones.
    */
   search(text: string, limit = 50): SearchResult {
     const match = ftsQuery(text);
@@ -238,7 +244,7 @@ export class GameRepository {
     const rows = this.statement(
       `select ${ROW_COLUMNS}
        from games_fts f join games g on g.id = f.rowid ${ROW_JOINS}
-       where games_fts match @match and coalesce(u.hidden, 0) = 0
+       where games_fts match @match and coalesce(u.hidden, 0) = 0 and g.collection_only = 0
        order by (m.sort_title like @prefix escape '\\') desc, bm25(games_fts), m.sort_title, g.id
        limit @limit`,
     ).all({ match, prefix: titlePrefixPattern(text), limit: limit + 1 }) as RawRow[];

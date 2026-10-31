@@ -37,6 +37,7 @@ export const IMPORT_UNMAPPED_REASONS = [
   'retroarchNotFound',
   'collectionLaunchFields',
   'unknownTheme',
+  'notInMenu',
 ] as const;
 
 /** Reasons for what was imported (the report's "mapped" list). */

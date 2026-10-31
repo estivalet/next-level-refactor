@@ -201,8 +201,15 @@ export function LibraryApp({
                     <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
                     {t('library.home.back')}
                   </button>
-                  <h2 className="flex-1 truncate text-sm font-semibold text-white">
-                    {facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : '')}
+                  <h2 className="flex min-w-0 flex-1 items-baseline gap-2 text-sm font-semibold text-white">
+                    <span className="truncate">
+                      {facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : '')}
+                    </span>
+                    {view.games.total !== null && (
+                      <span className="shrink-0 text-xs font-normal text-slate-500">
+                        {t('library.status.games', { count: view.games.total })}
+                      </span>
+                    )}
                   </h2>
                   <ViewToggle view={shownView} onView={setScopeView} gridDisabled={manualOrder} />
                 </div>
