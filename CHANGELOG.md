@@ -13,6 +13,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - A system, collection or smart filter opens into three columns: tabs, filters and genres with
   counts on the left; a box-art grid or the list in the middle (remembered per system); details
   with the video, screenshot or box on the right (D62).
+- The open scope shows how many games it lists next to its name, and each tab (All, Favorites,
+  Recently played…) shows its count. A scan's summary says "found again" instead of "restored",
+  and an import's scan no longer reports every imported game as restored.
 
 ### Fixed
 

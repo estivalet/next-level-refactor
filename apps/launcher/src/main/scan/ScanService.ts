@@ -182,6 +182,7 @@ export class ScanService {
       outcome,
       systems: results,
       enabledSystemIds,
+      ...(running.addNew ? {} : { addNew: false }),
     };
     this.running = null;
     this.deps.emit('scan.finished', this.last);

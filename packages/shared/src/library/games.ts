@@ -71,6 +71,8 @@ const FacetSchema = z.object({ value: z.string(), count });
 export const GameFacetsSchema = z.object({
   filters: z.array(FacetSchema),
   genres: z.array(FacetSchema),
+  /** Games in each tab of the scope, not narrowed by a filter, genre or text. */
+  tabs: z.record(z.enum(GAME_TABS), count),
 });
 
 export const GameListPageSchema = z.object({

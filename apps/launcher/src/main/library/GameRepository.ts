@@ -16,7 +16,7 @@ import {
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
-import { ROW_COLUMNS, ROW_JOINS, listShape, toRow, type RawRow } from './gameSql.ts';
+import { ROW_COLUMNS, ROW_JOINS, listShape, tabCountsSql, toRow, type RawRow } from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
 import { smartFilterIdsSql } from './smartFilterSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
@@ -140,7 +140,10 @@ export class GameRepository {
     };
   }
 
-  /** A scope's filter tags and genres with their game counts in a tab, by name (D62). */
+  /**
+   * A scope's filter tags and genres with their game counts in a tab, by name (D62), and how many
+   * games each tab of the scope has.
+   */
   facets(scope: GameScope, tab: GameTab): GameFacets {
     const smart = scope.kind === 'smartFilter' ? this.smartIds(scope.smartFilterId) : null;
     const { from } = listShape({ scope, tab }, null, false, smart?.sql ?? null);
@@ -154,7 +157,10 @@ export class GameRepository {
       `select m.genre as value, count(*) as count ${from} and m.genre is not null
        group by m.genre order by m.genre collate nocase`,
     ).all(params) as GameFacets['genres'];
-    return { filters, genres };
+    const tabs = this.statement(tabCountsSql(scope, smart?.sql ?? null)).get(
+      params,
+    ) as GameFacets['tabs'];
+    return { filters, genres, tabs };
   }
 
   private scopeParams(scope: GameScope, smart: { params: object } | null) {
