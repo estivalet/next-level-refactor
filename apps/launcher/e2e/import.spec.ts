@@ -55,9 +55,15 @@ test('FR-IMP-1/2, US-B3: import a NextLevelOS folder, then import it again', asy
     await openScope(library, ['Consoles', 'Atari 2600']);
     const games = library.getByRole('listbox', { name: 'Games' });
     await expect(games.getByRole('option', { name: /Pixel Quest/ })).toBeVisible();
-    await library.getByRole('combobox', { name: 'Filter' }).selectOption('favorites');
+    await library
+      .getByRole('group', { name: 'Filter' })
+      .getByRole('button', { name: 'Favorites' })
+      .click();
     await expect(games.getByRole('option')).toHaveCount(1);
-    await library.getByRole('combobox', { name: 'Filter' }).selectOption('all');
+    await library
+      .getByRole('group', { name: 'Filter' })
+      .getByRole('button', { name: 'All' })
+      .click();
     // The imported menu's own Collections category shows "Party Picks" as "Party".
     await openScope(library, ['Collections', 'Party']);
     await expect(games.getByRole('option')).toHaveCount(4);

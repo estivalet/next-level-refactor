@@ -154,12 +154,12 @@ describe('LibraryApp', () => {
     expect(lost.className).toContain('opacity-40');
   });
 
-  it('FR-LIB-7: the tab filter asks for favorites, hidden or missing', async () => {
+  it('FR-LIB-7, D62: the sidebar tabs ask for favorites, hidden or missing', async () => {
     const user = userEvent.setup();
     const bridge = installFakeBridge(libraryResponses(GAMES, SYSTEMS));
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await screen.findByRole('option', { name: /Homebrew Demo/ });
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Filter' }), 'hidden');
+    await user.click(screen.getByRole('button', { name: 'Hidden' }));
     expect(await screen.findByRole('option', { name: /Secret/ })).toBeVisible();
     const tabs = bridge.calls
       .filter((call) => call.channel === 'library.games.list')
@@ -171,6 +171,8 @@ describe('LibraryApp', () => {
     const user = userEvent.setup();
     installFakeBridge(libraryResponses(GAMES, SYSTEMS));
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    // The list's keys (the grid's are in ScopeView.test.tsx).
+    await user.click(await screen.findByRole('button', { name: 'List view' }));
     const first = await screen.findByRole('option', { name: /Homebrew Demo/ });
     await user.click(first);
     await user.keyboard('{Shift>}{ArrowDown}{/Shift}');

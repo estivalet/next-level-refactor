@@ -95,7 +95,7 @@ describe('collections in the Library', () => {
     const user = userEvent.setup();
     const { bridge } = setup([{ id: 1, name: 'Picks', sort: 'manual', games: 0 }]);
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
-    await user.keyboard('{Shift>}{ArrowDown}{/Shift}');
+    await user.keyboard('{Shift>}{ArrowRight}{/Shift}');
     await user.pointer({
       keys: '[MouseRight]',
       target: screen.getByRole('option', { name: /Bravo/ }),

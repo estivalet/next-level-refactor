@@ -644,6 +644,11 @@
       "grid": "Grid view",
       "list": "List view"
     },
+    "sidebar": {
+      "label": "Show and narrow",
+      "filters": "Filters",
+      "genres": "Genres"
+    },
     "list": {
       "label": "Games",
       "loading": "Loading games…",

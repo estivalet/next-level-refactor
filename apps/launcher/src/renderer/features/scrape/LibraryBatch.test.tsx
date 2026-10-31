@@ -83,7 +83,10 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     expect(await screen.findByText(/1 needs review/)).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
-    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    expect(screen.getByRole('button', { name: 'Needs review' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await waitFor(() => {
       expect(
         fake.calls.some(
@@ -188,7 +191,10 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await screen.findByRole('option', { name: /Alpha/ });
     await user.click(screen.getByRole('button', { name: 'Show Needs review' }));
-    expect(screen.getByRole('combobox', { name: 'Filter' })).toHaveValue('needsReview');
+    expect(screen.getByRole('button', { name: 'Needs review' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await waitFor(() => {
       expect(
         fake.calls.some((c) => {

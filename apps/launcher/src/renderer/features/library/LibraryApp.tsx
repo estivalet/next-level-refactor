@@ -19,6 +19,10 @@ import { COLLECTIONS_LEVEL, levelAt } from './home/levels.ts';
 import { useActiveMenuTree } from './home/useActiveMenuTree.ts';
 import { NewSmartFilterButton } from './SmartFilterToolbar.tsx';
 import { useViewMode } from './useViewMode.ts';
+import { useGameFacets } from './facetsApi.ts';
+import { GameGrid } from './GameGrid.tsx';
+import { ScopeSidebar } from './ScopeSidebar.tsx';
+import { ViewToggle } from './ViewToggle.tsx';
 import { ScopeToolbar } from './ScopeToolbar.tsx';
 import { leavesTab, scopeFacts } from './scopeFacts.ts';
 import { useCollectionDrag } from './useCollectionDrag.ts';
@@ -47,6 +51,8 @@ export function LibraryApp({
   const menu = useActiveMenuTree();
   const [path, setPath] = useState<string[]>([]);
   const [homeView, setHomeView] = useViewMode('home');
+  const [scopeView, setScopeView] = useViewMode(JSON.stringify(view.scope));
+  const facets = useGameFacets(view.scope, view.tab);
   const list = useRef<HTMLDivElement>(null);
   const [searchText, setSearchText] = useState('');
   const [searchPick, setSearchPick] = useState<number | null>(null);
@@ -87,6 +93,11 @@ export function LibraryApp({
     smartFilters: view.smartFilters.data ?? [],
     labels: { notInMenu: t('library.home.notInMenu'), collections: t('library.home.collections') },
   });
+  // Rows drag into a manual-order collection's order only in the list.
+  const manualOrder =
+    scope?.kind === 'collection' &&
+    view.collections.data?.find((c) => c.id === scope.collectionId)?.sort === 'manual';
+  const shownView = manualOrder ? 'list' : scopeView;
   const scopeSystem =
     scope?.kind === 'system' ? { id: scope.systemId, name: systemName(scope.systemId) } : null;
   const searching = search.active;
@@ -159,6 +170,15 @@ export function LibraryApp({
         />
       ) : (
         <div className="flex min-h-0 flex-1">
+          {scope && !searching && (
+            <ScopeSidebar
+              tab={view.tab}
+              onTab={view.setTab}
+              facets={facets.data}
+              narrow={view.narrow}
+              onNarrow={view.setNarrow}
+            />
+          )}
           <main ref={list} className="flex min-w-0 flex-1 flex-col">
             {searching || !scope ? (
               <SearchResults
@@ -181,26 +201,44 @@ export function LibraryApp({
                     <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
                     {t('library.home.back')}
                   </button>
-                  <h2 className="truncate text-sm font-semibold text-white">
+                  <h2 className="flex-1 truncate text-sm font-semibold text-white">
                     {facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : '')}
                   </h2>
+                  <ViewToggle view={shownView} onView={setScopeView} gridDisabled={manualOrder} />
                 </div>
                 <ScopeToolbar view={view} overlays={overlays} />
-                <GameList
-                  reorder={reorder}
-                  games={view.games}
-                  selection={view.selection}
-                  focused={view.focused}
-                  onSelect={view.selectRow}
-                  onRange={onRange}
-                  onOpenMenu={(_index, point) => {
-                    overlays.openMenu(point);
-                  }}
-                  onActivate={(index) => {
-                    const game = view.games.rowAt(index);
-                    if (game && !game.missing) play.play(game.id);
-                  }}
-                />
+                {shownView === 'grid' ? (
+                  <GameGrid
+                    games={view.games}
+                    selection={view.selection}
+                    focused={view.focused}
+                    onSelect={view.selectRow}
+                    onRange={onRange}
+                    onOpenMenu={(_index, point) => {
+                      overlays.openMenu(point);
+                    }}
+                    onActivate={(index) => {
+                      const game = view.games.rowAt(index);
+                      if (game && !game.missing) play.play(game.id);
+                    }}
+                  />
+                ) : (
+                  <GameList
+                    reorder={reorder}
+                    games={view.games}
+                    selection={view.selection}
+                    focused={view.focused}
+                    onSelect={view.selectRow}
+                    onRange={onRange}
+                    onOpenMenu={(_index, point) => {
+                      overlays.openMenu(point);
+                    }}
+                    onActivate={(index) => {
+                      const game = view.games.rowAt(index);
+                      if (game && !game.missing) play.play(game.id);
+                    }}
+                  />
+                )}
               </>
             )}
           </main>
@@ -226,8 +264,6 @@ export function LibraryApp({
           games={facts.games}
           missing={facts.missing}
           {...('review' in facts ? { review: facts.review } : {})}
-          tab={view.tab}
-          onTab={view.setTab}
           {...(scope.kind === 'system' ? { sort: view.sort, onSort: view.setSort } : {})}
           scopeName={facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : '')}
         />

@@ -644,6 +644,11 @@
       "grid": "Visualização em grade",
       "list": "Visualização em lista"
     },
+    "sidebar": {
+      "label": "Mostrar e filtrar",
+      "filters": "Filtros",
+      "genres": "Gêneros"
+    },
     "list": {
       "label": "Jogos",
       "loading": "Carregando jogos…",

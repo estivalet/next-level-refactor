@@ -59,9 +59,15 @@ test('FR-LIB-6..8, FR-LIB-10: browse, search, favorite, edit and collect', async
       'aria-pressed',
       'true',
     );
-    await library.getByRole('combobox', { name: 'Filter' }).selectOption('favorites');
+    await library
+      .getByRole('group', { name: 'Filter' })
+      .getByRole('button', { name: 'Favorites' })
+      .click();
     await expect(games.getByRole('option')).toHaveCount(1);
-    await library.getByRole('combobox', { name: 'Filter' }).selectOption('all');
+    await library
+      .getByRole('group', { name: 'Filter' })
+      .getByRole('button', { name: 'All' })
+      .click();
 
     // Edit details (FR-LIB-6).
     await games.getByRole('option', { name: /Homebrew Racer/ }).click();

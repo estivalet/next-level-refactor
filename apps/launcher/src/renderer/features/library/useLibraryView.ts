@@ -21,9 +21,21 @@ export function useLibraryView(initialScope: GameScope | null = null) {
   const smartFilters = useSmartFilters();
   const [scope, setScope] = useState<GameScope | null>(initialScope);
   const [tab, setTab] = useState<GameTab>('all');
+  // One filter and one genre narrow the list (D62); they belong to the scope they were picked in.
+  const scopeKey = JSON.stringify(scope);
+  const [narrowing, setNarrowing] = useState<{ key: string; filter?: string; genre?: string }>({
+    key: scopeKey,
+  });
+  const narrow = narrowing.key === scopeKey ? narrowing : { key: scopeKey };
   const [sort, setSort] = useState<GameSort>('title');
   const params: GameListParams | null = scope
-    ? { scope, tab, ...(scope.kind === 'system' ? { sort } : {}) }
+    ? {
+        scope,
+        tab,
+        ...(scope.kind === 'system' ? { sort } : {}),
+        ...(narrow.filter === undefined ? {} : { filter: narrow.filter }),
+        ...(narrow.genre === undefined ? {} : { genre: narrow.genre }),
+      }
     : null;
   const viewKey = JSON.stringify(params);
 
@@ -67,15 +79,27 @@ export function useLibraryView(initialScope: GameScope | null = null) {
       }
       return rows;
     },
+    /** Opening a scope (again) starts without narrowing (D62). */
     setScope: (next: GameScope) => {
       setScope(next);
+      setNarrowing({ key: JSON.stringify(next) });
     },
     /** Back to the home, e.g. after the shown collection was deleted. */
     resetScope: () => {
       setScope(null);
+      setNarrowing({ key: 'null' });
     },
     setTab,
     setSort,
+    /** The filter and genre narrowing the list (D62). */
+    narrow: { filter: narrow.filter, genre: narrow.genre },
+    setNarrow: (next: { filter?: string | undefined; genre?: string | undefined }) => {
+      setNarrowing({
+        key: scopeKey,
+        ...(next.filter === undefined ? {} : { filter: next.filter }),
+        ...(next.genre === undefined ? {} : { genre: next.genre }),
+      });
+    },
     setRange: (first: number, last: number) => {
       setRange((previous) =>
         previous.key === viewKey && previous.first === first && previous.last === last

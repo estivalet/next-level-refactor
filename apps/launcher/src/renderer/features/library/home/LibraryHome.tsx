@@ -4,14 +4,13 @@ import {
   Folder,
   Gamepad2,
   Home,
-  LayoutGrid,
-  List,
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ViewMode } from '../useViewMode.ts';
+import { ViewToggle } from '../ViewToggle.tsx';
 import type { HomeCard, HomeCardKind, HomeLevel } from './levels.ts';
 
 /** Card tints, by position, like the NextLevelOS library's. */
@@ -125,25 +124,7 @@ export function LibraryHome({
           ))}
         </nav>
         {actions}
-        <div className="flex rounded-lg bg-white/5 p-0.5">
-          {(['grid', 'list'] as const).map((mode) => {
-            const Icon = mode === 'grid' ? LayoutGrid : List;
-            return (
-              <button
-                key={mode}
-                type="button"
-                aria-label={t(`library.view.${mode}`)}
-                aria-pressed={view === mode}
-                className={`rounded-md p-1.5 ${view === mode ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}
-                onClick={() => {
-                  onView(mode);
-                }}
-              >
-                <Icon aria-hidden="true" className="h-3.5 w-3.5" />
-              </button>
-            );
-          })}
-        </div>
+        <ViewToggle view={view} onView={onView} />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
         {level.cards.length === 0 ? (
