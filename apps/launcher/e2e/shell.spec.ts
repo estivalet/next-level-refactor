@@ -38,3 +38,18 @@ test('FR-SHELL-1/2/5: open Settings from the desktop, see the version, drag the 
   await closed;
   await data.remove();
 });
+
+test('FR-SHELL-6: the launcher window opens maximized', async () => {
+  const data = await freshDataDir();
+  try {
+    const app = await launch(data.dir);
+    await app.firstWindow();
+    const maximized = await app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()[0]?.isMaximized(),
+    );
+    expect(maximized).toBe(true);
+    await app.close();
+  } finally {
+    await data.remove();
+  }
+});
