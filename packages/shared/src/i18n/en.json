@@ -565,7 +565,7 @@
         "collectionEntries": "Collection entries",
         "withFile": "Entries with a file",
         "missing": "Entries without a file (kept as missing)",
-        "newFiles": "Files without an entry (new games)"
+        "newFiles": "Files without an entry (not added)"
       },
       "area": {
         "storage": "Storage",
@@ -1213,6 +1213,7 @@
       "retroarchNotFound": "Per-game RetroArch config or shader: RetroArch wasn't found in the emulators folder",
       "collectionLaunchFields": "Launch options set inside a collection aren't imported",
       "unknownTheme": "Theme not in NextLevel",
+      "notInMenu": "No menu opens this gamelist (old copy?): not imported",
       "favoriteFilterTab": "Favorite filter becomes the Favorites tab",
       "filterTabs": "Filter entries become the system's filter tabs",
       "nestedFilterTab": "Nested filter entries become filter tabs of the system",

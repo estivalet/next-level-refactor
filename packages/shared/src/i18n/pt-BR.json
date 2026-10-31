@@ -565,7 +565,7 @@
         "collectionEntries": "Entradas de coleções",
         "withFile": "Entradas com arquivo",
         "missing": "Entradas sem arquivo (mantidas como ausentes)",
-        "newFiles": "Arquivos sem entrada (jogos novos)"
+        "newFiles": "Arquivos sem entrada (não adicionados)"
       },
       "area": {
         "storage": "Armazenamento",
@@ -1213,6 +1213,7 @@
       "retroarchNotFound": "Config ou shader do RetroArch por jogo: o RetroArch não foi encontrado na pasta de emuladores",
       "collectionLaunchFields": "Opções de execução definidas dentro de uma coleção não são importadas",
       "unknownTheme": "Tema não existe no NextLevel",
+      "notInMenu": "Nenhum menu abre esta lista (cópia antiga?): não importada",
       "favoriteFilterTab": "Filtro Favorite vira a aba Favoritos",
       "filterTabs": "Entradas de filtro viram as abas de filtro do sistema",
       "nestedFilterTab": "Entradas de filtro aninhadas viram abas de filtro do sistema",

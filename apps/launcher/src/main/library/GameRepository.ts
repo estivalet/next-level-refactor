@@ -230,7 +230,7 @@ export class GameRepository {
 
   /**
    * Global search (FR-LIB-10, US-C3): titles starting with the text first, then FTS rank. Hidden
-   * games are left out (owner decision 2026-10-21).
+   * games are left out (owner decision 2026-10-21), and so are collection-only ones.
    */
   search(text: string, limit = 50): SearchResult {
     const match = ftsQuery(text);
@@ -238,7 +238,7 @@ export class GameRepository {
     const rows = this.statement(
       `select ${ROW_COLUMNS}
        from games_fts f join games g on g.id = f.rowid ${ROW_JOINS}
-       where games_fts match @match and coalesce(u.hidden, 0) = 0
+       where games_fts match @match and coalesce(u.hidden, 0) = 0 and g.collection_only = 0
        order by (m.sort_title like @prefix escape '\\') desc, bm25(games_fts), m.sort_title, g.id
        limit @limit`,
     ).all({ match, prefix: titlePrefixPattern(text), limit: limit + 1 }) as RawRow[];

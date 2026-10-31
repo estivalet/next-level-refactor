@@ -64,7 +64,7 @@ export function listShape(
 ) {
   const scope =
     query.scope.kind === 'system'
-      ? { join: '', where: 'g.system_id = @systemId' }
+      ? { join: '', where: 'g.system_id = @systemId and g.collection_only = 0' }
       : query.scope.kind === 'collection'
         ? {
             join: 'join collection_games cg on cg.game_id = g.id and cg.collection_id = @collectionId',

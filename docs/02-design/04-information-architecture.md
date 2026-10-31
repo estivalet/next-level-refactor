@@ -152,8 +152,9 @@ restart → checksum → move into managed storage → insert game + metadata + 
 Settings → Data → **Import NextLevelOS** → choose the `public\data` folder (the emulators folder is
 pre-filled with `<parent of the first storage location>\emulators` when it exists, D14) → **Dry run**
 (read-only, with the would-be system folders walked) → report (counts, entries with/without files,
-new files, mapped / not imported / will replace, with reasons) → **Import…** (asks) → stages with
-progress: settings (one backup) → scan of the imported systems → games → collections → menus →
+files without an entry (not added), mapped / not imported / will replace, with reasons) →
+**Import…** (asks) → stages with progress: settings (one backup) → games → collections → scan of
+the imported systems (finds files for listed games only) → menus →
 summary with **Open Library** / **Open Menu Editor**. A folder changed since the dry run asks for a
 new one; re-running is safe (D12).
 
