@@ -23,3 +23,12 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(255 255 255 / 0.3) padding-box;
 }
+
+/* Dropdown lists are drawn by Windows: without a dark scheme they open light silver. */
+select {
+  color-scheme: dark;
+}
+option {
+  background-color: #1b1d22;
+  color: #fff;
+}
