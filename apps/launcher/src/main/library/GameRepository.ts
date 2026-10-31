@@ -3,9 +3,12 @@ import {
   ERROR_CODES,
   type CollectionSort,
   type GameDetails,
+  type GameFacets,
   type GameFlags,
   type GameListPage,
   type GameListQuery,
+  type GameScope,
+  type GameTab,
   type MetadataChanges,
   type ScrapeField,
   type SearchResult,
@@ -116,12 +119,15 @@ export class GameRepository {
       query.scope.kind === 'collection' ? this.collectionSort(query.scope.collectionId) : null;
     const smart =
       query.scope.kind === 'smartFilter' ? this.smartIds(query.scope.smartFilterId) : null;
-    const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null);
+    const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null, {
+      filter: query.filter !== undefined,
+      genre: query.genre !== undefined,
+    });
     const params = {
-      ...(query.scope.kind === 'system' ? { systemId: query.scope.systemId } : {}),
-      ...(query.scope.kind === 'collection' ? { collectionId: query.scope.collectionId } : {}),
-      ...smart?.params,
+      ...this.scopeParams(query.scope, smart),
       ...(match === null ? {} : { match }),
+      ...(query.filter === undefined ? {} : { filter: query.filter }),
+      ...(query.genre === undefined ? {} : { genre: query.genre }),
     };
     const total = this.statement(`select count(*) ${shape.from}`).pluck().get(params) as number;
     const rows = this.statement(
@@ -131,6 +137,31 @@ export class GameRepository {
       total,
       offset: query.offset,
       games: rows.map((row) => toRow(row, this.resolvePath)),
+    };
+  }
+
+  /** A scope's filter tags and genres with their game counts in a tab, by name (D62). */
+  facets(scope: GameScope, tab: GameTab): GameFacets {
+    const smart = scope.kind === 'smartFilter' ? this.smartIds(scope.smartFilterId) : null;
+    const { from } = listShape({ scope, tab }, null, false, smart?.sql ?? null);
+    const params = this.scopeParams(scope, smart);
+    const filters = this.statement(
+      `select f.filter as value, count(*) as count from game_filters f
+       where f.game_id in (select g.id ${from}) group by f.filter
+       order by f.filter collate nocase`,
+    ).all(params) as GameFacets['filters'];
+    const genres = this.statement(
+      `select m.genre as value, count(*) as count ${from} and m.genre is not null
+       group by m.genre order by m.genre collate nocase`,
+    ).all(params) as GameFacets['genres'];
+    return { filters, genres };
+  }
+
+  private scopeParams(scope: GameScope, smart: { params: object } | null) {
+    return {
+      ...(scope.kind === 'system' ? { systemId: scope.systemId } : {}),
+      ...(scope.kind === 'collection' ? { collectionId: scope.collectionId } : {}),
+      ...smart?.params,
     };
   }
 

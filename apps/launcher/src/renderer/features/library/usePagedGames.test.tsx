@@ -26,6 +26,7 @@ const row = (index: number): GameRow => ({
   userRating: null,
   missing: false,
   expectedPath: null,
+  boxArt: null,
 });
 
 function wrapper({ children }: { children: ReactNode }) {

@@ -21,6 +21,8 @@ export const GAME_TABS = [
 /** Orders of a system's game list; a collection uses its own `sort`. */
 export const GAME_SORTS = ['title', 'year', 'rating', 'added'] as const;
 
+export const FILTER_SLUG = /^[a-z0-9-]{1,40}$/;
+
 export const GameScopeSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('system'), systemId: z.string().min(1) }),
   z.strictObject({ kind: z.literal('collection'), collectionId: id }),
@@ -33,6 +35,9 @@ export const GameListQuerySchema = z.strictObject({
   sort: z.enum(GAME_SORTS).optional(),
   /** In-list filter, matched like global search but within the scope. */
   text: z.string().max(200).optional(),
+  /** Narrows to games with this filter tag and/or genre (D62). */
+  filter: z.string().regex(FILTER_SLUG).optional(),
+  genre: z.string().max(200).optional(),
   offset: count,
   limit: z.number().int().min(1).max(1000),
 });
@@ -51,6 +56,21 @@ export const GameRowSchema = z.object({
   userRating: z.number().int().min(1).max(5).nullable(),
   missing: z.boolean(),
   expectedPath: z.string().nullable(),
+  /** The box-front media version, for `mediaUrl`; null without box art (D62). */
+  boxArt: z.number().int().min(0).nullable(),
+});
+
+/** What a scope's games can be narrowed by, with counts (D62). */
+export const GameFacetsQuerySchema = z.strictObject({
+  scope: GameScopeSchema,
+  tab: z.enum(GAME_TABS).default('all'),
+});
+
+const FacetSchema = z.object({ value: z.string(), count });
+
+export const GameFacetsSchema = z.object({
+  filters: z.array(FacetSchema),
+  genres: z.array(FacetSchema),
 });
 
 export const GameListPageSchema = z.object({
@@ -106,8 +126,6 @@ const optionalText = (max: number) =>
     .nullable()
     .transform((value) => (value ? value : null));
 
-export const FILTER_SLUG = /^[a-z0-9-]{1,40}$/;
-
 export const MetadataChangesSchema = z
   .strictObject({
     title: z.string().trim().min(1).max(300),
@@ -146,6 +164,7 @@ export type GameSort = (typeof GAME_SORTS)[number];
 export type GameScope = z.output<typeof GameScopeSchema>;
 export type GameListQuery = z.output<typeof GameListQuerySchema>;
 export type GameRow = z.output<typeof GameRowSchema>;
+export type GameFacets = z.output<typeof GameFacetsSchema>;
 export type GameListPage = z.output<typeof GameListPageSchema>;
 export type GameDetails = z.output<typeof GameDetailsSchema>;
 export type MetadataChanges = z.output<typeof MetadataChangesSchema>;

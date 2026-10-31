@@ -11,6 +11,11 @@ beforeAll(async () => {
   seedManyGames(library.db, 'big-system', 10_000);
   // 190k more across 19 systems: 200k games in all.
   for (let i = 0; i < 19; i += 1) seedManyGames(library.db, `system-${String(i)}`, 10_000);
+  // A third of the big system is tagged `hack`, a fifth is Action: narrowing has work to do.
+  library.db.$client.exec(`insert into game_filters (game_id, filter)
+    select id, 'hack' from games where system_id = 'big-system' and id % 3 = 0;
+    update game_metadata set genre = 'Action' where game_id in
+      (select id from games where system_id = 'big-system' and id % 5 = 0);`);
 }, 180_000);
 afterAll(async () => {
   await library.cleanup();
@@ -39,6 +44,15 @@ describe('library performance', () => {
       });
     expect(page().total).toBe(10_000);
     expect(slowest(page)).toBeLessThanOrEqual(perfBudget(300));
+  });
+
+  it('NFR-PERF-2: a narrowed page and the facets of a 10k-game system stay in budget', () => {
+    const scope = { kind: 'system', systemId: 'big-system' } as const;
+    const page = () =>
+      games.list({ scope, tab: 'all', filter: 'hack', genre: 'Action', offset: 0, limit: 200 });
+    expect(page().total).toBeGreaterThan(0);
+    expect(slowest(page)).toBeLessThanOrEqual(perfBudget(300));
+    expect(slowest(() => games.facets(scope, 'all'))).toBeLessThanOrEqual(perfBudget(300));
   });
 
   it('NFR-PERF-3: search over 200k games answers in ≤ 150 ms', () => {

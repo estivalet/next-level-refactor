@@ -48,6 +48,7 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
 
   return {
     'library.games.list': (query) => library().games.list(query),
+    'library.games.facets': ({ scope, tab }) => library().games.facets(scope, tab),
     'library.games.get': ({ gameId }) => library().games.get(gameId),
     'library.games.updateMetadata': ({ gameId, changes }) => {
       const details = library().games.updateMetadata(gameId, changes, deps.clock());

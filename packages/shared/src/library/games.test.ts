@@ -56,4 +56,13 @@ describe('game contracts', () => {
     expect(GameFlagsSchema.parse({ completed: true })).toEqual({ completed: true });
     expect(GAME_TABS).toEqual(expect.arrayContaining(['recent', 'completed']));
   });
+
+  it('D62: a list query narrows by a filter slug and a genre', () => {
+    const base = { scope: { kind: 'system', systemId: 'snes' }, offset: 0, limit: 10 };
+    expect(GameListQuerySchema.parse({ ...base, filter: 'hack', genre: 'Action' })).toMatchObject({
+      filter: 'hack',
+      genre: 'Action',
+    });
+    expect(GameListQuerySchema.safeParse({ ...base, filter: 'Not A Slug' }).success).toBe(false);
+  });
 });

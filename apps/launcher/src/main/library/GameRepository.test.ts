@@ -146,6 +146,54 @@ describe('GameRepository.list', () => {
   });
 });
 
+describe('GameRepository narrowing and facets', () => {
+  const seedFacets = () =>
+    seedGames(library.db, 'nintendo-64', [
+      { title: 'G1', filters: ['hack'], genre: 'Shooter' },
+      { title: 'G2', filters: ['brazil'] },
+      { title: 'G3', filters: ['hack'], genre: 'Action' },
+      { title: 'G4', filters: ['hack'], genre: 'Shooter', hidden: true },
+    ]);
+
+  it('D62: a list narrows to one filter and one genre', () => {
+    seedFacets();
+    expect(titles({ filter: 'hack' })).toEqual(['G1', 'G3']);
+    expect(games.list(query({ filter: 'hack', genre: 'Action' }))).toMatchObject({ total: 1 });
+    expect(titles({ filter: 'hack', genre: 'Action' })).toEqual(['G3']);
+    expect(titles({ genre: 'Shooter', tab: 'hidden' })).toEqual(['G4']);
+  });
+
+  it('D62: facets count the scope and tab, sorted by name', () => {
+    seedFacets();
+    seedGames(library.db, 'snes', [{ title: 'Other', filters: ['zeta'], genre: 'Puzzle' }]);
+    expect(games.facets(N64, 'all')).toEqual({
+      filters: [
+        { value: 'brazil', count: 1 },
+        { value: 'hack', count: 2 },
+      ],
+      genres: [
+        { value: 'Action', count: 1 },
+        { value: 'Shooter', count: 1 },
+      ],
+    });
+    expect(games.facets(N64, 'hidden')).toEqual({
+      filters: [{ value: 'hack', count: 1 }],
+      genres: [{ value: 'Shooter', count: 1 }],
+    });
+  });
+
+  it('D62: rows carry the box-front version or null', () => {
+    const [art = 0] = seedGames(library.db, 'nintendo-64', ['Art', 'Plain']);
+    const media = new MediaRepository(library.db);
+    media.upsert({ gameId: art, kind: 'box-front', path: 'C:/a.png', size: 1, version: 123 });
+    media.upsert({ gameId: art, kind: 'fanart', path: 'C:/f.png', size: 1, version: 7 });
+    expect(games.list(query()).games.map((g) => [g.title, g.boxArt])).toEqual([
+      ['Art', 123],
+      ['Plain', null],
+    ]);
+  });
+});
+
 describe('GameRepository.get', () => {
   it('FR-LIB-6: details carry metadata, user state and file facts', () => {
     const [id] = seedGames(library.db, 'nintendo-64', [

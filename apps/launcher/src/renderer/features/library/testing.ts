@@ -39,6 +39,7 @@ export function gameRow(id: number, title: string, overrides: Partial<GameRow> =
     userRating: null,
     missing: false,
     expectedPath: null,
+    boxArt: null,
     ...overrides,
   };
 }
