@@ -26,5 +26,6 @@ export function scopeFacts(view: LibraryView) {
 /** Whether a flag change takes games out of the list shown on this tab. */
 export function leavesTab(tab: GameTab, flags: GameFlags): boolean {
   if (flags.hidden !== undefined) return (tab === 'hidden') !== flags.hidden;
+  if (tab === 'completed') return flags.completed === false;
   return tab === 'favorites' && flags.favorite === false;
 }

@@ -32,6 +32,7 @@ function entries(): GameImport[] {
       filters: ['official'],
       favorite: i % 10 === 0,
       hidden: false,
+      completed: false,
       playCount: i % 5,
       lastPlayedAt: null,
       override: i % 20 === 0 ? { core: 'some_libretro', extraArgs: [] } : null,

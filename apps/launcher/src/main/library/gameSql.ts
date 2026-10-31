@@ -13,13 +13,17 @@ export interface RawRow {
   players: string | null;
   favorite: number;
   hidden: number;
+  completed: number;
   userRating: number | null;
+  boxArt: number | null;
 }
 
 export const ROW_COLUMNS = `g.id as id, g.system_id as systemId, g.rel_path as relPath,
   g.location_id as locationId, g.missing as missing, m.title as title, m.year as year,
   m.genre as genre, m.players as players, coalesce(u.favorite, 0) as favorite,
-  coalesce(u.hidden, 0) as hidden, u.user_rating as userRating`;
+  coalesce(u.hidden, 0) as hidden, coalesce(u.completed, 0) as completed,
+  u.user_rating as userRating, (select gm.version from game_media gm
+    where gm.game_id = g.id and gm.kind = 'box-front') as boxArt`;
 
 export const ROW_JOINS = `join game_metadata m on m.game_id = g.id
   left join game_user_state u on u.game_id = g.id`;
@@ -27,6 +31,8 @@ export const ROW_JOINS = `join game_metadata m on m.game_id = g.id
 const TABS: Record<GameTab, string> = {
   all: 'coalesce(u.hidden, 0) = 0',
   favorites: 'coalesce(u.favorite, 0) = 1 and coalesce(u.hidden, 0) = 0',
+  recent: 'u.last_played_at is not null and coalesce(u.hidden, 0) = 0',
+  completed: 'coalesce(u.completed, 0) = 1 and coalesce(u.hidden, 0) = 0',
   hidden: 'coalesce(u.hidden, 0) = 1',
   missing: 'g.missing = 1 and coalesce(u.hidden, 0) = 0',
   needsReview: `coalesce(u.hidden, 0) = 0 and exists (select 1 from scrape_status s
@@ -41,9 +47,12 @@ const ORDERS: Record<GameSort | CollectionSort, string> = {
   manual: 'cg.position, g.id',
 };
 
+const RECENT_ORDER = 'u.last_played_at desc, g.id desc';
+
 /**
  * The FROM/WHERE/ORDER parts of a list query, built only from fixed fragments (never from input),
- * so each distinct shape can be prepared once. Parameters: @systemId or @collectionId, @match.
+ * so each distinct shape can be prepared once. Parameters: @systemId or @collectionId, @match,
+ * @filter and @genre (D62).
  */
 export function listShape(
   query: Pick<GameListQuery, 'scope' | 'tab' | 'sort'>,
@@ -51,6 +60,7 @@ export function listShape(
   hasText: boolean,
   /** A smart filter scope: its `select id, rn` query (smartFilterIdsSql). */
   smartIds: string | null = null,
+  narrow: { filter: boolean; genre: boolean } = { filter: false, genre: false },
 ) {
   const scope =
     query.scope.kind === 'system'
@@ -66,12 +76,23 @@ export function listShape(
           };
   const where = [scope.where, TABS[query.tab]];
   if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
+  if (narrow.filter) {
+    where.push(
+      'exists (select 1 from game_filters f where f.game_id = g.id and f.filter = @filter)',
+    );
+  }
+  if (narrow.genre) where.push('m.genre = @genre');
   const sort =
     query.scope.kind === 'collection' ? (collectionSort ?? 'manual') : (query.sort ?? 'title');
   return {
     from: `from games g ${ROW_JOINS} ${scope.join} where ${where.join(' and ')}`,
-    // A smart filter keeps its own order.
-    order: query.scope.kind === 'smartFilter' ? 'sf.rn' : ORDERS[sort],
+    // Recently played is newest first whatever the sort; a smart filter keeps its own order.
+    order:
+      query.tab === 'recent'
+        ? RECENT_ORDER
+        : query.scope.kind === 'smartFilter'
+          ? 'sf.rn'
+          : ORDERS[sort],
   };
 }
 
@@ -86,8 +107,10 @@ export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRo
     players: raw.players,
     favorite: raw.favorite === 1,
     hidden: raw.hidden === 1,
+    completed: raw.completed === 1,
     userRating: raw.userRating,
     missing,
     expectedPath: missing ? resolvePath(raw) : null,
+    boxArt: raw.boxArt,
   };
 }

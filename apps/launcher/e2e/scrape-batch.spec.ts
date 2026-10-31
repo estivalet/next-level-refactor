@@ -8,7 +8,7 @@ import {
   tinyPng,
   type FakeRoute,
 } from './fakeScreenScraper.ts';
-import { freshDataDir, launch } from './launch.ts';
+import { freshDataDir, launch, openScope } from './launch.ts';
 
 // Invented games only. A generous per-minute limit keeps the client's request spacing short.
 const SSUSER = { id: FAKE_USER.id, maxthreads: '1', maxrequestspermin: '6000' };
@@ -90,6 +90,8 @@ async function prepare(page: Page) {
     .dblclick();
   const library = page.getByRole('dialog', { name: 'Game Library' });
   await library.getByRole('button', { name: 'Scan for games' }).click();
+  // D61: the Library opens on the menu; open the system.
+  await openScope(library, ['Nintendo', 'Nintendo 64']);
   await expect(library.getByRole('listbox', { name: 'Games' }).getByRole('option')).toHaveCount(4);
   return library;
 }

@@ -1,5 +1,5 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderOpen, Link2, Pencil, Play, SlidersHorizontal, Star } from 'lucide-react';
+import { FolderOpen, Link2, Pencil, Play, SlidersHorizontal, Star, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DetailsArt, ScrapeStatusLine } from './DetailsArt.tsx';
 import { useGameDetails, useRevealGame, useSetFlags } from './libraryApi.ts';
@@ -22,7 +22,7 @@ interface GameDetailsProps {
   playBusy: boolean;
 }
 
-/** The right panel (S7): one game's metadata, favorite, rating and actions. */
+/** The right panel (S7): one game's media, metadata, favorite, completed, rating and actions. */
 export function GameDetails(props: GameDetailsProps) {
   const { gameId, systemName, onEdit, onRelink, onFlags } = props;
   const { t, i18n } = useTranslation();
@@ -42,7 +42,7 @@ export function GameDetails(props: GameDetailsProps) {
     ['region', game.region],
   ] as const;
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto p-4">
+    <div className="flex flex-col gap-4 overflow-y-auto p-4 *:shrink-0">
       <DetailsArt game={game} />
       <div>
         <h3 className="text-sm font-bold text-white">{game.title}</h3>
@@ -103,6 +103,22 @@ export function GameDetails(props: GameDetailsProps) {
             className={`h-3.5 w-3.5 ${game.favorite ? 'fill-amber-400 text-amber-400' : ''}`}
           />
           {t('library.details.favorite')}
+        </button>
+        <button
+          type="button"
+          aria-pressed={game.completed}
+          className={ACTION}
+          onClick={() => {
+            const flags = { completed: !game.completed };
+            setFlags.mutate({ gameIds: [game.id], flags });
+            onFlags(flags);
+          }}
+        >
+          <Trophy
+            aria-hidden="true"
+            className={`h-3.5 w-3.5 ${game.completed ? 'text-amber-400' : ''}`}
+          />
+          {t('library.details.completed')}
         </button>
         <RatingStars
           value={game.userRating}

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { freshDataDir, launch, taskbar } from './launch.ts';
+import { freshDataDir, launch, openScope, taskbar } from './launch.ts';
 
 const LOCATION = '01900000-0000-7000-8000-00000000a001';
 
@@ -30,14 +30,16 @@ test('FR-MENU-1, FR-MENU-3, US-D5: edit the generated menu, save, and the front-
     await library.getByRole('button', { name: 'Scan for games' }).click();
     const games = library.getByRole('listbox', { name: 'Games' }).getByRole('option');
     // The Library lists one system at a time: one game in each.
-    const librarySystems = async () => {
-      for (const name of [/Nintendo 64/, /Sega Genesis/]) {
-        await library.getByRole('treeitem', { name }).click();
+    const librarySystems = async (paths: string[][]) => {
+      for (const path of paths) {
+        await openScope(library, path);
         await expect(games).toHaveCount(1);
       }
     };
-    await expect(library.getByRole('treeitem', { name: /Sega Genesis/ })).toBeVisible();
-    await librarySystems();
+    await librarySystems([
+      ['Nintendo', 'Nintendo 64'],
+      ['Sega', 'Sega Genesis'],
+    ]);
     await library.getByRole('button', { name: 'Close' }).click();
 
     // FR-MENU-3: no menu is stored yet, so the editor opens the generated one.
@@ -73,9 +75,12 @@ test('FR-MENU-1, FR-MENU-3, US-D5: edit the generated menu, save, and the front-
     await page.keyboard.press('KeyM');
     await expect(layer).toBeHidden();
 
-    // The Library is untouched by menu edits.
+    // D61: the Library home follows the saved menu too.
     await icons.getByRole('button', { name: 'Game Library' }).dblclick();
-    await librarySystems();
+    await librarySystems([
+      ['Consoles', 'Nintendo 64'],
+      ['Consoles', 'Sega Genesis'],
+    ]);
     await app.close();
   } finally {
     await data.remove();

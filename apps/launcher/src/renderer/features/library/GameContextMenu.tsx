@@ -8,6 +8,7 @@ import {
   Play,
   SlidersHorizontal,
   Star,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
@@ -60,6 +61,7 @@ export function GameContextMenu(props: GameContextMenuProps) {
   const allKnown = games.length === ids.length;
   const allFavorite = allKnown && games.every((game) => game.favorite);
   const allHidden = allKnown && games.every((game) => game.hidden);
+  const allCompleted = allKnown && games.every((game) => game.completed);
 
   const flag = (flags: GameFlags) => {
     setFlags.mutate({ gameIds: ids, flags });
@@ -95,6 +97,14 @@ export function GameContextMenu(props: GameContextMenuProps) {
       icon: Star,
       run: () => {
         flag({ favorite: !allFavorite });
+      },
+    },
+    {
+      key: 'completed',
+      label: t(allCompleted ? 'library.menu.uncomplete' : 'library.menu.complete'),
+      icon: Trophy,
+      run: () => {
+        flag({ completed: !allCompleted });
       },
     },
     {

@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { useFrontend } from '../frontend/useFrontend.ts';
 import { useShell } from '../shell/ShellContext.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameDetails, gameRow, libraryResponses } from './testing.ts';
+import { gameDetails, gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -56,7 +56,7 @@ function setup(responses: FakeResponses = {}) {
   });
   renderInShell(
     <>
-      <LibraryApp />
+      <LibraryApp initialScope={N64_SCOPE} />
       <WindowsProbe />
     </>,
   );
@@ -249,7 +249,7 @@ describe('Play from the Library (FR-EMU-6, US-C2)', () => {
     });
     renderInShell(
       <>
-        <LibraryApp />
+        <LibraryApp initialScope={N64_SCOPE} />
         <ShowFrontend />
       </>,
     );

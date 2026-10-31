@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
 import { unwrap } from '../settings/settingsApi.ts';
+import { FACETS_KEY } from './facetsApi.ts';
 import { GAMES_KEY } from './usePagedGames.ts';
 
 export const GAME_KEY = 'library.game';
@@ -14,12 +15,13 @@ export const SMART_FILTERS_KEY = ['smartFilters.list'] as const;
 const SEARCH_DELAY_MS = 120;
 
 /**
- * Everything a game change can make stale: lists, details, search, system counts and collection
- * counts (a relink deletes the other game and its memberships).
+ * Everything a game change can make stale: lists, details, search, filter and genre counts, system
+ * counts and collection counts (a relink deletes the other game and its memberships).
  */
 export function invalidateGames(client: QueryClient) {
   return Promise.all([
     client.invalidateQueries({ queryKey: [GAMES_KEY] }),
+    client.invalidateQueries({ queryKey: [FACETS_KEY] }),
     client.invalidateQueries({ queryKey: [GAME_KEY] }),
     client.invalidateQueries({ queryKey: [SEARCH_KEY] }),
     client.invalidateQueries({ queryKey: SYSTEMS_KEY }),

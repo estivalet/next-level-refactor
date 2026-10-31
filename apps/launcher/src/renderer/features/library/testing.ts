@@ -7,6 +7,8 @@ import {
   type SystemDefinition,
   type SystemSummary,
 } from '@nextlevel/shared';
+import { screen } from '@testing-library/react';
+import type { UserEvent } from '@testing-library/user-event';
 import type { FakeResponses } from '../../test-utils.tsx';
 
 export const N64: SystemDefinition = {
@@ -35,9 +37,11 @@ export function gameRow(id: number, title: string, overrides: Partial<GameRow> =
     players: null,
     favorite: false,
     hidden: false,
+    completed: false,
     userRating: null,
     missing: false,
     expectedPath: null,
+    boxArt: null,
     ...overrides,
   };
 }
@@ -104,4 +108,14 @@ export function libraryResponses(
       return ok(gameDetails(row));
     },
   };
+}
+
+/** Opens the Library on this system instead of the home (most tests start in a system's list). */
+export const N64_SCOPE = { kind: 'system', systemId: 'nintendo-64' } as const;
+export const PICKS_SCOPE = { kind: 'collection', collectionId: 1 } as const;
+
+/** From the Library home, opens the Collections level and returns its card list (D61). */
+export async function openCollectionsLevel(user: UserEvent): Promise<HTMLElement> {
+  await user.click(await screen.findByRole('button', { name: /^Collections/ }));
+  return screen.findByRole('list', { name: 'Collections' });
 }
