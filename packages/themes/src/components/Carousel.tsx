@@ -1,7 +1,13 @@
 // Ported from NextLevelOS src/themes/components/Carousel.tsx @ 3d530b7. Mouse (FR-THM-3): a click
 // focuses an item, a double-click activates it, the wheel moves focus one step.
 import { motion } from 'motion/react';
-import { useMemo, useRef, useState, type WheelEvent as ReactWheelEvent } from 'react';
+import {
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type WheelEvent as ReactWheelEvent,
+} from 'react';
 import { carouselSlide } from '../engine/transitions.ts';
 import type { CarouselRenderItem } from '../engine/types.ts';
 import { cn } from './cn.ts';
@@ -21,6 +27,12 @@ interface CarouselProps<T> {
   itemWidth: number;
   /** Gap between slots in px. Default 16. */
   gap?: number;
+  /**
+   * Carousel height in px that `itemWidth` and `gap` are tuned for. When set, both scale with the
+   * measured height, so slots keep fitting covers sized from the screen height at any window size
+   * or UI scale.
+   */
+  referenceHeight?: number;
   className?: string;
   /** `motion` transition for the track. Default `carouselSlide`. */
   transition?: object;
@@ -52,13 +64,35 @@ export function Carousel<T>({
   renderItem,
   loop = true,
   visibleRadius = 6,
-  itemWidth,
-  gap = 16,
+  itemWidth: baseItemWidth,
+  gap: baseGap = 16,
+  referenceHeight,
   className,
   transition = carouselSlide,
 }: CarouselProps<T>) {
   const n = items.length;
   const wheelAt = useRef(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!referenceHeight || !el) return;
+    const update = () => {
+      setHeight(el.clientHeight);
+    };
+    update();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
+  }, [referenceHeight]);
+
+  const scale = referenceHeight && height > 0 ? height / referenceHeight : 1;
+  const itemWidth = Math.round(baseItemWidth * scale);
+  const gap = Math.round(baseGap * scale);
 
   // The track lives in an unwrapped coordinate space, so looping past an end moves one step
   // instead of jumping back to 0. Each focus change becomes the shortest ring delta.
@@ -88,7 +122,7 @@ export function Carousel<T>({
     return out;
   }, [virtual, visibleRadius, loop, n]);
 
-  if (n === 0) return <div className={className} />;
+  if (n === 0) return <div ref={rootRef} className={className} />;
 
   const step = itemWidth + gap;
 
@@ -104,7 +138,7 @@ export function Carousel<T>({
   };
 
   return (
-    <div className={cn('relative overflow-hidden', className)} onWheel={onWheel}>
+    <div ref={rootRef} className={cn('relative overflow-hidden', className)} onWheel={onWheel}>
       <motion.div
         className="absolute top-0 h-full"
         style={{ left: '50%', marginLeft: -itemWidth / 2 }}

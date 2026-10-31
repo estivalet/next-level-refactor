@@ -109,6 +109,9 @@ export function GamesView({
             onActivate={onActivate}
             itemWidth={250}
             gap={18}
+            // The strip is 44vh: 250/18 px were tuned on a 1080p screen (≈ 432 px tall), and
+            // scale from there so the covers keep NextLevelOS's spacing at any size or UI scale.
+            referenceHeight={432}
             visibleRadius={6}
             className="h-full"
             renderItem={({ item, focused }) => (

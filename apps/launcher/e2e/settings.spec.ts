@@ -54,6 +54,31 @@ test('FR-SET-1/3, US-D3: a setting persists across restart, and a backup restore
   }
 });
 
+test('FR-SET-8: the UI scale zooms the window on save and again after a restart', async () => {
+  const data = await freshDataDir();
+  const zoom = (app: ElectronApplication) =>
+    app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()[0]?.webContents.getZoomFactor(),
+    );
+  try {
+    let app = await launch(data.dir);
+    let page = await app.firstWindow();
+    const settings = await openSettings(page, 'Settings');
+    await settings.getByRole('combobox', { name: 'UI scale' }).selectOption('125');
+    await settings.getByRole('button', { name: 'Save' }).click();
+    await expect.poll(() => zoom(app)).toBe(1.25);
+    await close(app);
+
+    app = await launch(data.dir);
+    page = await app.firstWindow();
+    await page.waitForLoadState('load');
+    await expect.poll(() => zoom(app)).toBe(1.25);
+    await close(app);
+  } finally {
+    await data.remove();
+  }
+});
+
 test('NFR-A11Y-1: the settings switch knob sits inside its track in both states', async () => {
   const data = await freshDataDir();
   try {

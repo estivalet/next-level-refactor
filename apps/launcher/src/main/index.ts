@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, shell } fro
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { uiScaleFactor } from '@nextlevel/shared';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { v7 as uuidv7 } from 'uuid';
 import { createAuth } from './auth/startAuth.ts';
@@ -53,7 +54,15 @@ function setOpenAtLogin(openAtLogin: boolean): void {
   else log.info({ openAtLogin }, 'start with Windows skipped in development');
 }
 
-function createWindow(): BrowserWindow {
+/** Zooms every launcher window (FR-SET-8): text and layout scale together. */
+function setUiScale(factor: number): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.setZoomFactor(factor);
+  }
+}
+
+/** `uiScale` is read at every page load: Chromium resets the zoom when the page reloads. */
+function createWindow(uiScale: () => number): BrowserWindow {
   const window = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -78,6 +87,10 @@ function createWindow(): BrowserWindow {
     if (isAllowedNavigation(url, devServerUrl, rendererPageUrl)) return;
     event.preventDefault();
     openExternally(url);
+  });
+
+  window.webContents.on('did-finish-load', () => {
+    window.webContents.setZoomFactor(uiScale());
   });
 
   const loading = devServerUrl ? window.loadURL(devServerUrl) : window.loadFile(rendererPage);
@@ -265,6 +278,7 @@ async function start(): Promise<void> {
     paths: { data: dataDir, logs: logsDir },
     openPath: (path) => shell.openPath(path),
     setOpenAtLogin,
+    setUiScale,
     log,
     catalog: systemCatalog,
     library,
@@ -316,13 +330,14 @@ async function start(): Promise<void> {
     // e2e (development builds only): the other tests start at the desktop.
     { skip: !app.isPackaged && process.env['NEXTLEVEL_E2E_SETUP'] === 'skip', log },
   );
-  mainWindow = createWindow();
+  const uiScale = () => uiScaleFactor(currentSettings(settings).general.uiScale);
+  mainWindow = createWindow(uiScale);
   // The gate shows "checking" until boot routing (F2) settles; it never blocks the window.
   signIn.start().catch((error: unknown) => {
     log.error({ error }, 'sign-in could not start');
   });
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow(uiScale);
   });
 }
 

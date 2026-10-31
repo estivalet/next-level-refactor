@@ -18,6 +18,13 @@ describe('fieldsOf', () => {
         labelKey: 'settings.fields.general.startWithWindows.label',
         helpKey: 'settings.fields.general.startWithWindows.help',
       },
+      {
+        path: 'general.uiScale',
+        kind: 'enum',
+        options: ['80', '90', '100', '110', '125', '150', '175'],
+        labelKey: 'settings.fields.general.uiScale.label',
+        helpKey: 'settings.fields.general.uiScale.help',
+      },
     ]);
   });
 });
