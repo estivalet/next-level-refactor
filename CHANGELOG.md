@@ -7,6 +7,7 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Changed
 
+- The launcher window opens maximized (FR-SHELL-6).
 - The Game Library opens on the active menu as cards, one level at a time (Home, Back, breadcrumb,
   grid or list), with **Not in menu** and **Collections** cards; the long system tree is gone
   (D61).

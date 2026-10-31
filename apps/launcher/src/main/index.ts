@@ -75,6 +75,8 @@ function createWindow(uiScale: () => number): BrowserWindow {
       webSecurity: true,
     },
   });
+  // FR-SHELL-6: open maximized; 1280×800 is the size it restores to.
+  window.maximize();
 
   // Security doc §3: no remote content in app windows; https links go to the system browser.
   window.webContents.setWindowOpenHandler(({ url }) => {

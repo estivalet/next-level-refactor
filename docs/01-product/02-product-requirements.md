@@ -125,6 +125,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 | FR-SHELL-3 | Opening an app that is already open brings its window to the front (restoring it if minimized) instead of opening a second one, unless the app allows several. | M |
 | FR-SHELL-4 | The taskbar shows Start, one entry per open window, and a tray with the clock. Activating an entry focuses or restores its window, or minimizes it if it is already focused. Tray indicators (downloads, online status) arrive with their milestones. | M |
 | FR-SHELL-5 | The Start menu lists the apps, filters them as you type, and offers Quit. Esc or a click outside closes it. Front-end, Account and Sign out entries arrive with M4 and M7. | M |
+| FR-SHELL-6 | The launcher window opens maximized, like NextLevelOS. (Owner request 2026-10-31.) | M |
 
 ## 10. First run & import (`FR-ONB`, `FR-IMP`)
 
