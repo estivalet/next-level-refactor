@@ -125,19 +125,50 @@ export function classify(
 }
 
 /** Flags RetroArch reads once: a later one replaces an earlier one (retroarch.c, strlcpy). */
-const LAST_WINS = new Set(['-c', '--appendconfig']);
+const RETROARCH_LAST_WINS = new Set(['-c', '--appendconfig']);
 
-/** The arguments a program acts on: for RetroArch, only the last of each `LAST_WINS` flag. */
-function effective(exe: string, args: readonly string[]): string[] {
-  if (!/(^|[\\/])retroarch\.exe$/i.test(exe)) return [...args];
+/** MAME folder options and their default, relative to the folder MAME starts in. */
+const MAME_FOLDERS: Readonly<Record<string, string>> = {
+  '-artpath': 'artwork',
+  '-cfg_directory': 'cfg',
+  '-snapshot_directory': 'snap',
+  '-nvram_directory': 'nvram',
+  '-diff_directory': 'diff',
+  '-hashpath': 'hash',
+  '-languagepath': 'language',
+  '-inipath': '',
+};
+
+/** Only the last of each of `flags` (with its value). */
+function lastOf(args: readonly string[], flags: ReadonlySet<string>): string[] {
   const last = new Map<string, number>();
   args.forEach((arg, i) => {
-    if (LAST_WINS.has(arg)) last.set(arg, i);
+    if (flags.has(arg)) last.set(arg, i);
   });
   return args.filter((arg, i) => {
-    if (LAST_WINS.has(arg)) return last.get(arg) === i;
+    if (flags.has(arg)) return last.get(arg) === i;
     const flag = args[i - 1] ?? '';
-    return !(LAST_WINS.has(flag) && last.get(flag) !== i - 1);
+    return !(flags.has(flag) && last.get(flag) !== i - 1);
+  });
+}
+
+/**
+ * The arguments a program acts on. RetroArch keeps the last `-c` and `--appendconfig`; MAME keeps
+ * the last of each folder option, and one naming its default folder in `cwd` changes nothing.
+ */
+function effective(exe: string, args: readonly string[], cwd: string | null): string[] {
+  if (/(^|[\\/])retroarch\.exe$/i.test(exe)) return lastOf(args, RETROARCH_LAST_WINS);
+  if (!/(^|[\\/])(hb)?mame(64)?\.exe$/i.test(exe)) return [...args];
+  const kept = lastOf(args, new Set(Object.keys(MAME_FOLDERS)));
+  const isDefault = (flag: string, value: string) => {
+    const folder = MAME_FOLDERS[flag];
+    return (
+      folder !== undefined && cwd !== null && normalize(value) === normalize(`${cwd}\\${folder}`)
+    );
+  };
+  return kept.filter((arg, i) => {
+    if (isDefault(arg, kept[i + 1] ?? '')) return false;
+    return !isDefault(kept[i - 1] ?? '', arg);
   });
 }
 
@@ -148,10 +179,10 @@ function compareBuilt(old: Built, next: Built, placeholders: Placeholders): Outc
   if (oldFailed) return 'oldError';
   if (newFailed) return 'newError';
   if (normalize(old.exe ?? '') !== normalize(next.exe ?? '')) return 'emulator';
-  const oldArgs = effective(old.exe ?? '', meaningful(old.args)).map((arg) =>
+  const oldArgs = effective(old.exe ?? '', meaningful(old.args), old.cwd).map((arg) =>
     templated(arg, placeholders),
   );
-  const newArgs = effective(next.exe ?? '', meaningful(next.args)).map((arg) =>
+  const newArgs = effective(next.exe ?? '', meaningful(next.args), next.cwd).map((arg) =>
     templated(arg, placeholders),
   );
   if (!sameList(oldArgs, newArgs)) {

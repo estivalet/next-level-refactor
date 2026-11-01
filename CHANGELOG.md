@@ -39,8 +39,14 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   (`-c`) instead of being appended. A game with its own `<RetroArch>\config\<system>\<game>.cfg`
   gets it appended. Config files follow the name the NextLevelOS launcher passed (Handy Vision
   uses `Nintendo NES`). Run Settings → Import NextLevelOS again to apply it.
+- MAME starts with `-uimodekey DEL`, so Delete toggles MAME's UI as in NextLevelOS: the MAME
+  presets pass it, and importing NextLevelOS adds it to the imported systems' MAME profiles that
+  don't choose a UI key.
 
 ### Added
+
+- An **HBMAME** emulator preset (`hbmame.exe`), so HBMAME games can launch; Settings → Emulators
+  and Import NextLevelOS find it in the emulators folder.
 
 - **Completed**: mark games completed from the context menu or the details, and a Completed tab;
   importing NextLevelOS turns a game's `completed` tag into the flag (D60). Library migration 0010.

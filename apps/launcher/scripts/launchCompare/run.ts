@@ -2,10 +2,12 @@
 // writes docs/04-quality/launch-comparison.md. Dev-only; reads NextLevelOS and the rebuild's data
 // folder, writes only the report (and a temp file in the data folder's temp\).
 //
-//   npm run compare-launch -w apps/launcher -- [--nextlevelos <dir>] [--data <dir>] [--out <file>] [--python <exe>] [--reimport]
+//   npm run compare-launch -w apps/launcher -- [--nextlevelos <dir>] [--data <dir>] [--out <file>] [--python <exe>] [--reimport [--emulators <dir>]]
 //
-// --reimport compares as if Settings -> Import NextLevelOS ran again now (in memory; nothing is written).
+// --reimport compares as if Settings -> Import NextLevelOS ran again now (in memory; nothing is
+// written), with --emulators as the import's emulators folder.
 import { planImport } from '../../src/main/import/dryRun.ts';
+import { detectEmulators } from '../../src/main/launch/detect.ts';
 import { migrate } from '../../src/main/settings/migrate.ts';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { SettingsSchema, type LaunchOverride } from '@nextlevel/shared';
@@ -40,6 +42,7 @@ const { values } = parseArgs({
     out: { type: 'string', default: join(repo, 'docs/04-quality/launch-comparison.md') },
     python: { type: 'string', default: 'python' },
     reimport: { type: 'boolean', default: false },
+    emulators: { type: 'string' },
   },
 });
 const publicDir = join(values.nextlevelos, 'public');
@@ -64,12 +67,12 @@ const exists = (kind: 'file' | 'dir') => (path: string) =>
 // What an import would write now: its settings, and per game its override (kept profile, new
 // core and extra arguments), as ImportService and ImportRepository apply them.
 const plan = values.reimport
-  ? await planImport(join(publicDir, 'data'), null, {
+  ? await planImport(join(publicDir, 'data'), values.emulators ?? null, {
       catalog: systemCatalog(),
       presets: emulatorPresets(),
       settings: () => current,
       newId: randomUUID,
-      detect: () => Promise.resolve([]),
+      detect: (folder) => detectEmulators(folder, emulatorPresets()),
       createWalker: () => {
         throw new Error('the comparison never scans');
       },

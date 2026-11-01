@@ -23,6 +23,7 @@ import { mapMenus, type MenuImport } from './mapMenus.ts';
 import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
 import { addSystemConfigs, type SystemConfig } from './systemConfigs.ts';
+import { addMameUiKey } from './mameUiKey.ts';
 import { launcherKey, readLegacy, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 
 /** What the library already holds from earlier imports, and names made here (D12). */
@@ -214,9 +215,18 @@ export async function planImport(
   const raDir = retroarchDir(detected, current);
   const configs = await systemConfigs(files, match, raDir, deps.fileExists);
   const withConfigs = addSystemConfigs(withProfiles.next, configs, deps.newId);
+  const systemIds = [
+    ...new Set(
+      [...systemsInUse(files)].flatMap((name) => {
+        const id = match(name);
+        return id && withConfigs.next.systems[id]?.enabled ? [id] : [];
+      }),
+    ),
+  ].sort();
+  const withUiKey = addMameUiKey(withConfigs.next, systemIds);
   const games = mapGames(files, match, {
     retroarchDir: raDir,
-    gameConfigs: await gameConfigs(files, match, raDir, withConfigs.next, deps.listFiles),
+    gameConfigs: await gameConfigs(files, match, raDir, withUiKey.next, deps.listFiles),
   });
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
@@ -231,6 +241,7 @@ export async function planImport(
     ...mapped.items,
     ...withProfiles.items,
     ...withConfigs.items,
+    ...withUiKey.items,
     ...games.items,
     ...collections.items.filter((item) => !skipped.has(item.key)),
     ...notInMenus.map((c): ImportItem => ({
@@ -251,17 +262,13 @@ export async function planImport(
       willReplace.push({ area: 'menu', key: menu.file, reason: 'replacesImport' });
     }
   }
-  const systemIds = [...systemsInUse(files)].flatMap((name) => {
-    const id = match(name);
-    return id && withConfigs.next.systems[id]?.enabled ? [id] : [];
-  });
   return {
     fingerprint,
     files,
-    settings: withConfigs.next,
+    settings: withUiKey.next,
     detected,
     systemConfigs: configs,
-    systemIds: [...new Set(systemIds)].sort(),
+    systemIds,
     games: games.entries,
     collections: named,
     menus: menus.menus,

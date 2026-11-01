@@ -164,6 +164,18 @@ export const STANDALONE: readonly StandaloneSpec[] = [
       'Sammy Atomiswave',
     ],
   },
+  {
+    // The runner's HBMAMEEmulatorLauncher, without the paths that are HBMAME's defaults in its
+    // own folder (the launch's working folder).
+    id: 'hbmame',
+    name: 'HBMAME',
+    executableNames: ['hbmame.exe', 'hbmame64.exe'],
+    homepage: 'https://hbmame.1emulation.com/',
+    args: ['-uimodekey', 'DEL', '-skip_gameinfo', '-rompath', '{systemDir}', '{rom}'],
+    archives: 'pass',
+    runnerKeys: ['hbmame'],
+    extraSystems: [],
+  },
 ];
 
 export interface MameVariant {

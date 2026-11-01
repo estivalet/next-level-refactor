@@ -139,6 +139,32 @@ describe('comparison', () => {
     expect(classify(built(other, old.args), built(other, next.args))).toBe('args');
   });
 
+  it('drops MAME folder options that name its default folder in the working folder', () => {
+    const mame = 'E:\\MAME\\mame.exe';
+    const cwd = { cwd: 'E:\\MAME' };
+    const defaults = [
+      '-artpath',
+      'e:/MAME/artwork',
+      '-cfg_directory',
+      'E:\\MAME\\cfg',
+      '-inipath',
+      'E:/MAME/',
+    ];
+    const old = built(mame, ['atom', '-cass', 'rom', ...defaults, '-skip_gameinfo'], cwd);
+    const next = built(mame, ['atom', '-cass', 'rom', '-skip_gameinfo'], cwd);
+    expect(classify(old, next)).toBe('match');
+    // The last -artpath is the one MAME uses; another folder still differs.
+    const art = built(
+      mame,
+      ['atom', '-artpath', 'E:\\sys\\art', '-artpath', 'E:\\MAME\\artwork'],
+      cwd,
+    );
+    expect(classify(art, built(mame, ['atom'], cwd))).toBe('match');
+    expect(
+      classify(built(mame, ['atom', '-artpath', 'E:\\sys\\art'], cwd), built(mame, ['atom'], cwd)),
+    ).toBe('args');
+  });
+
   it('calls it missingConfig when the only difference is an old --appendconfig of a missing file', () => {
     const exe = 'C:\\emu\\retroarch.exe';
     const old = built(exe, ['-L', 'x.dll', '--appendconfig', 'C:\\cfg\\game.cfg', 'rom']);

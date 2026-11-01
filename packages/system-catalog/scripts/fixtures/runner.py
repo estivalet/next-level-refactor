@@ -6,6 +6,7 @@ SYSTEM_EMULATORS = {
     "Tandy TRS-80": ["mame"],
     "Acorn Atom": ["mame"],
     "Sega Model 2": ["model2"],
+    "HBMAME": ["hbmame"],
 }
 
 MAME_CUSTOM_ARGS = {

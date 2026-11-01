@@ -20,6 +20,7 @@ import { addDetectedProfiles } from './detectedProfiles.ts';
 import { dryRun, planImport, type ImportDeps, type ImportPlan } from './dryRun.ts';
 import { bindCollections } from './mapMenus.ts';
 import { mapSettings } from './mapSettings.ts';
+import { addMameUiKey } from './mameUiKey.ts';
 import { addSystemConfigs } from './systemConfigs.ts';
 
 export interface ImportServiceDeps {
@@ -158,16 +159,19 @@ export class ImportService {
     this.progress('settings', 0, 1);
     const { catalog, presets, newId } = this.deps;
     const next = (current: Settings) =>
-      addSystemConfigs(
-        addDetectedProfiles(
-          mapSettings(plan.files, catalog, current, newId).next,
-          plan.detected,
-          catalog,
-          presets,
+      addMameUiKey(
+        addSystemConfigs(
+          addDetectedProfiles(
+            mapSettings(plan.files, catalog, current, newId).next,
+            plan.detected,
+            catalog,
+            presets,
+            newId,
+          ).next,
+          plan.systemConfigs,
           newId,
         ).next,
-        plan.systemConfigs,
-        newId,
+        plan.systemIds,
       ).next;
     const current = this.currentSettings();
     if (isDeepStrictEqual(next(current), current)) {

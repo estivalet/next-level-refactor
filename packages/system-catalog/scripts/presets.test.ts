@@ -15,6 +15,7 @@ const NAMES = [
   'Acorn Atom',
   'Sega Model 2',
   'Sony Playstation',
+  'HBMAME',
 ];
 
 function input(overrides: Partial<PresetInput> = {}): PresetInput {
@@ -84,6 +85,8 @@ describe('emulator presets (FR-EMU-7)', () => {
       '{rom}',
       '-rompath',
       '{systemDir}',
+      '-uimodekey',
+      'DEL',
       '-skip_gameinfo',
       '{extraArgs}',
     ]);
@@ -125,6 +128,19 @@ describe('emulator presets (FR-EMU-7)', () => {
     ]);
   });
 
+  it('FR-EMU-7: HBMAME starts like NextLevelOS: Delete toggles the UI, ROM folder, then the game', () => {
+    expect(built().presetProfiles['hbmame']).toEqual(['hbmame:default']);
+    expect(profile('hbmame:default').args).toEqual([
+      '{extraArgs}',
+      '-uimodekey',
+      'DEL',
+      '-skip_gameinfo',
+      '-rompath',
+      '{systemDir}',
+      '{rom}',
+    ]);
+  });
+
   it('FR-EMU-7: emulators without a preset are reported', () => {
     expect(built().skipped).toContain('Sega Model 2: model2');
   });
@@ -152,6 +168,8 @@ describe('mameProfileArgs', () => {
       'LOAD\\n',
       '-rompath',
       '{systemDir}',
+      '-uimodekey',
+      'DEL',
       '-skip_gameinfo',
       '{extraArgs}',
     ]);
@@ -164,7 +182,16 @@ describe('mameProfileArgs', () => {
         '-autoboot_command',
         '%COMMANDS%',
       ]),
-    ).toEqual(['x', '{rom}', '-rompath', '{systemDir}', '-skip_gameinfo', '{extraArgs}']);
+    ).toEqual([
+      'x',
+      '{rom}',
+      '-rompath',
+      '{systemDir}',
+      '-uimodekey',
+      'DEL',
+      '-skip_gameinfo',
+      '{extraArgs}',
+    ]);
   });
 
   it('maps %SYSTEM_PATH% and %CORE%, escapes braces, and keeps an existing -rp', () => {
@@ -175,6 +202,8 @@ describe('mameProfileArgs', () => {
       '-x',
       'a{{b}}',
       '{core}',
+      '-uimodekey',
+      'DEL',
       '-skip_gameinfo',
       '{extraArgs}',
     ]);

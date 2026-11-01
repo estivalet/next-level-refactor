@@ -14,6 +14,7 @@ describe('runner parsing (FR-EMU-7 seed)', () => {
       'Tandy TRS-80': ['mame'],
       'Acorn Atom': ['mame'],
       'Sega Model 2': ['model2'],
+      HBMAME: ['hbmame'],
     });
   });
 

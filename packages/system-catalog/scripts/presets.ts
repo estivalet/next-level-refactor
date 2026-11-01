@@ -37,6 +37,12 @@ const RETROARCH_ARGS = ['-L', '{emulatorDir}\\cores\\{core}.dll', '{extraArgs}',
 /** Template text with literal braces escaped. */
 const literal = (text: string) => text.replace(/[{}]/g, (brace) => brace + brace);
 
+/**
+ * What the runner passes every MAME launch that isn't a default of MAME's own folder: Delete
+ * toggles the UI (instead of MAME's default key), and no game info screen.
+ */
+export const MAME_COMMON = ['-uimodekey', 'DEL', '-skip_gameinfo'] as const;
+
 /** Runner MAME arguments → template args; `%COMMANDS%` autoboot pairs are dropped (D2). */
 export function mameProfileArgs(entry: readonly string[], medium?: string): string[] {
   const args: string[] = [];
@@ -62,7 +68,7 @@ export function mameProfileArgs(entry: readonly string[], medium?: string): stri
   return [
     ...args,
     ...(hasRompath ? [] : ['-rompath', '{systemDir}']),
-    '-skip_gameinfo',
+    ...MAME_COMMON,
     '{extraArgs}',
   ];
 }
@@ -187,7 +193,7 @@ export function buildPresets(input: PresetInput): PresetResult {
 function mameProfile(name: string, id: string, variant: Variant): PresetProfile {
   const args =
     variant.args === 'arcade'
-      ? ['{romName}', '-rompath', '{romDir}', '-skip_gameinfo', '{extraArgs}']
+      ? ['{romName}', '-rompath', '{romDir}', ...MAME_COMMON, '{extraArgs}']
       : mameProfileArgs(variant.args, variant.medium);
   return {
     id: variant.suffix ? `mame:${id}:${variant.suffix}` : `mame:${id}`,

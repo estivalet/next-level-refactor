@@ -56,6 +56,7 @@ export const IMPORT_MAPPED_REASONS = [
   'emulatorAdded',
   'launchOverride',
   'retroarchSystemConfig',
+  'mameUiModeKey',
   'arcadeInfo',
   'artFolder',
   'replacesImport',

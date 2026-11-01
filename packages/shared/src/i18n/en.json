@@ -1249,6 +1249,7 @@
       "emulatorAdded": "Emulator found and added with its profiles",
       "launchOverride": "Per-game core and launch options",
       "retroarchSystemConfig": "RetroArch config of the system (-c <system>.cfg), in a profile of its own",
+      "mameUiModeKey": "MAME profiles: Delete toggles the MAME UI (-uimodekey DEL), as in NextLevelOS",
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
       "replacesImport": "Replaces what an earlier import brought in",
       "artFolder": "Art or theme packs folder"
