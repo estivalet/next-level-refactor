@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { detectEmulators } from '../launch/detect.ts';
 import { inProcessWalker } from '../scan/walker.ts';
-import { dryRun, type ExistingImports, type ImportDeps } from './dryRun.ts';
+import { dryRun, planImport, type ExistingImports, type ImportDeps } from './dryRun.ts';
 import { LEGACY_FIXTURE, legacyCopy, type LegacyCopy } from './testing.ts';
 
 const copies: LegacyCopy[] = [];
@@ -31,6 +31,17 @@ async function setup(existing: ExistingImports = { collections: [], menuSources:
         (s) => s.isDirectory(),
         () => false,
       );
+    },
+    fileExists: async (path) => {
+      const { stat } = await import('node:fs/promises');
+      return stat(path).then(
+        (s) => s.isFile(),
+        () => false,
+      );
+    },
+    listFiles: async (dir) => {
+      const { readdir } = await import('node:fs/promises');
+      return readdir(dir).catch(() => []);
     },
     existing: () => existing,
   };
@@ -126,5 +137,40 @@ describe('dryRun', () => {
     expect(report.mapped.some((i) => i.reason === 'launchOverride' && i.key === 'Arcade')).toBe(
       true,
     );
+  });
+
+  it('FR-IMP-2: a system with <RA>\\config\\<system>.cfg runs RetroArch with -c, like NextLevelOS', async () => {
+    const { copy, deps } = await setup();
+    const emulators = join(copy.root, 'emulators');
+    const retroarch = join(emulators, 'RetroArch');
+    await mkdir(join(retroarch, 'config'), { recursive: true });
+    await writeFile(join(retroarch, 'retroarch.exe'), 'invented');
+    const cfg = `${retroarch}\\config\\Atari 2600.cfg`;
+    await writeFile(cfg, 'video_shader_enable = "true"\n');
+    const plan = await planImport(copy.data, emulators, deps);
+    const id = plan.settings.systems['atari-2600']?.defaultProfileId;
+    const profile = plan.settings.profiles.find((p) => p.id === id);
+    expect(profile?.systems).toEqual(['atari-2600']);
+    expect(profile?.args.slice(2, 4)).toEqual(['-c', cfg]);
+    expect(plan.systemConfigs).toEqual([{ systemId: 'atari-2600', name: 'Atari 2600', path: cfg }]);
+    expect(plan.mapped.filter((i) => i.reason === 'retroarchSystemConfig')).toEqual([
+      { area: 'system', key: 'Atari 2600', reason: 'retroarchSystemConfig', detail: cfg },
+    ]);
+  });
+
+  it('FR-IMP-2: a RetroArch game with its own <RA>\\config\\<system>\\<game>.cfg appends it', async () => {
+    const { copy, deps } = await setup();
+    const emulators = join(copy.root, 'emulators');
+    const retroarch = join(emulators, 'RetroArch');
+    await mkdir(join(retroarch, 'config', 'Atari 2600'), { recursive: true });
+    await writeFile(join(retroarch, 'retroarch.exe'), 'invented');
+    await writeFile(join(retroarch, 'config', 'Atari 2600', 'Pixel Quest.cfg'), 'x = "1"\n');
+    const plan = await planImport(copy.data, emulators, deps);
+    const games = plan.games.filter((g) => g.systemId === 'atari-2600');
+    expect(games.find((g) => g.relPath === 'Pixel Quest.a26')?.override?.extraArgs).toEqual([
+      '--appendconfig',
+      `${retroarch}\\config\\Atari 2600\\Pixel Quest.cfg`,
+    ]);
+    expect(games.find((g) => g.relPath === 'Moon Hopper.a26')?.override).toBeNull();
   });
 });

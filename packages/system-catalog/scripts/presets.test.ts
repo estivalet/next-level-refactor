@@ -15,6 +15,9 @@ const NAMES = [
   'Acorn Atom',
   'Sega Model 2',
   'Sony Playstation',
+  'HBMAME',
+  'Microsoft MSX',
+  'Microsoft MSX Turbo R',
 ];
 
 function input(overrides: Partial<PresetInput> = {}): PresetInput {
@@ -84,6 +87,8 @@ describe('emulator presets (FR-EMU-7)', () => {
       '{rom}',
       '-rompath',
       '{systemDir}',
+      '-uimodekey',
+      'DEL',
       '-skip_gameinfo',
       '{extraArgs}',
     ]);
@@ -104,6 +109,12 @@ describe('emulator presets (FR-EMU-7)', () => {
     ]);
   });
 
+  it('FR-EMU-4: a MAME profile keeps the delay of the autoboot pair it drops', () => {
+    expect(profile('mame:acorn-atom').autobootDelay).toBe('2');
+    expect(profile('mame:acorn-atom:flop1').autobootDelay).toBe('2');
+    expect(profile('mame:apple-ii').autobootDelay).toBeUndefined();
+  });
+
   it('D2: method entries use the hand-written defaults', () => {
     expect(profile('mame:tandy-trs-80').args.slice(0, 3)).toEqual(['trs80m3', '-cass', '{rom}']);
     expect(profile('mame:tandy-trs-80:flop1').args.slice(0, 5)).toEqual([
@@ -122,6 +133,34 @@ describe('emulator presets (FR-EMU-7)', () => {
     expect(built().presetProfiles['sony-playstation']).toEqual([
       'retroarch:swanstation_libretro',
       'duckstation:default',
+    ]);
+  });
+
+  it('FR-EMU-7: HBMAME starts like NextLevelOS: Delete toggles the UI, ROM folder, then the game', () => {
+    expect(built().presetProfiles['hbmame']).toEqual(['hbmame:default']);
+    expect(profile('hbmame:default').args).toEqual([
+      '{extraArgs}',
+      '-uimodekey',
+      'DEL',
+      '-skip_gameinfo',
+      '-rompath',
+      '{systemDir}',
+      '{rom}',
+    ]);
+  });
+
+  it('FR-EMU-7: openMSX starts like NextLevelOS, with a variant per runner key and its home in its folder', () => {
+    expect(built().presetProfiles['microsoft-msx']?.[0]).toBe('openmsx:default');
+    expect(profile('openmsx:default')).toMatchObject({
+      args: ['{extraArgs}', '-setting', '{emulatorDir}\\share\\settings.xml', '{rom}'],
+      env: { OPENMSX_HOME: '{emulatorDir}' },
+    });
+    expect(built().presetProfiles['microsoft-msx-turbo-r']).toEqual(['openmsx:turbor']);
+    expect(profile('openmsx:turbor').args).toEqual([
+      '{extraArgs}',
+      '-setting',
+      '{emulatorDir}\\share\\turbor.xml',
+      '{rom}',
     ]);
   });
 
@@ -152,6 +191,8 @@ describe('mameProfileArgs', () => {
       'LOAD\\n',
       '-rompath',
       '{systemDir}',
+      '-uimodekey',
+      'DEL',
       '-skip_gameinfo',
       '{extraArgs}',
     ]);
@@ -164,7 +205,16 @@ describe('mameProfileArgs', () => {
         '-autoboot_command',
         '%COMMANDS%',
       ]),
-    ).toEqual(['x', '{rom}', '-rompath', '{systemDir}', '-skip_gameinfo', '{extraArgs}']);
+    ).toEqual([
+      'x',
+      '{rom}',
+      '-rompath',
+      '{systemDir}',
+      '-uimodekey',
+      'DEL',
+      '-skip_gameinfo',
+      '{extraArgs}',
+    ]);
   });
 
   it('maps %SYSTEM_PATH% and %CORE%, escapes braces, and keeps an existing -rp', () => {
@@ -175,6 +225,8 @@ describe('mameProfileArgs', () => {
       '-x',
       'a{{b}}',
       '{core}',
+      '-uimodekey',
+      'DEL',
       '-skip_gameinfo',
       '{extraArgs}',
     ]);

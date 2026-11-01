@@ -4,7 +4,7 @@
     "types": ["node"],
     "outDir": "${configDir}/dist/node"
   },
-  "include": ["src/main", "src/preload", "*.ts"],
+  "include": ["src/main", "src/preload", "scripts", "*.ts"],
   "references": [
     {
       "path": "../../packages/shared"

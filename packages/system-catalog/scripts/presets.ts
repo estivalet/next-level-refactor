@@ -37,6 +37,12 @@ const RETROARCH_ARGS = ['-L', '{emulatorDir}\\cores\\{core}.dll', '{extraArgs}',
 /** Template text with literal braces escaped. */
 const literal = (text: string) => text.replace(/[{}]/g, (brace) => brace + brace);
 
+/**
+ * What the runner passes every MAME launch that isn't a default of MAME's own folder: Delete
+ * toggles the UI (instead of MAME's default key), and no game info screen.
+ */
+export const MAME_COMMON = ['-uimodekey', 'DEL', '-skip_gameinfo'] as const;
+
 /** Runner MAME arguments → template args; `%COMMANDS%` autoboot pairs are dropped (D2). */
 export function mameProfileArgs(entry: readonly string[], medium?: string): string[] {
   const args: string[] = [];
@@ -62,7 +68,7 @@ export function mameProfileArgs(entry: readonly string[], medium?: string): stri
   return [
     ...args,
     ...(hasRompath ? [] : ['-rompath', '{systemDir}']),
-    '-skip_gameinfo',
+    ...MAME_COMMON,
     '{extraArgs}',
   ];
 }
@@ -114,7 +120,12 @@ export function buildPresets(input: PresetInput): PresetResult {
   const skipped: string[] = [];
   const raSystems = new Map<string, string[]>();
   const mameProfiles: PresetProfile[] = [];
-  const standaloneSystems = new Map<string, string[]>(STANDALONE.map((s) => [s.id, []]));
+  // standalone profile id (`<preset>:default` or `<preset>:<variant suffix>`) → system ids
+  const standaloneSystems = new Map<string, string[]>();
+  const addStandalone = (profileId: string, id: string) => {
+    standaloneSystems.set(profileId, [...(standaloneSystems.get(profileId) ?? []), id]);
+    add(id, profileId);
+  };
   const add = (id: string, profileId: string) => {
     const list = (presetProfiles[id] ??= []);
     if (!list.includes(profileId)) list.push(profileId);
@@ -138,22 +149,20 @@ export function buildPresets(input: PresetInput): PresetResult {
           add(id, profile.id);
         }
       } else {
-        const spec = STANDALONE.find((s) => s.runnerKeys.includes(key));
+        const spec = STANDALONE.find((s) => s.runnerKeys.includes(key) || s.variants?.[key]);
         if (!spec) {
           skipped.push(`${name}: ${key}`);
           continue;
         }
-        standaloneSystems.get(spec.id)?.push(id);
-        add(id, `${spec.id}:default`);
+        const variant = spec.variants?.[key];
+        addStandalone(`${spec.id}:${variant ? variant.suffix : 'default'}`, id);
       }
     }
   }
   for (const spec of STANDALONE) {
     for (const name of spec.extraSystems) {
       const id = input.systemIds.get(name);
-      if (!id) continue;
-      standaloneSystems.get(spec.id)?.push(id);
-      add(id, `${spec.id}:default`);
+      if (id) addStandalone(`${spec.id}:default`, id);
     }
   }
 
@@ -169,17 +178,27 @@ export function buildPresets(input: PresetInput): PresetResult {
   if (raProfiles.length > 0) presets.push({ ...RETROARCH, profiles: byId(raProfiles) });
   if (mameProfiles.length > 0) presets.push({ ...MAME, profiles: byId(mameProfiles) });
   for (const spec of STANDALONE) {
-    const systems = unique(standaloneSystems.get(spec.id) ?? []);
-    if (systems.length === 0) continue;
-    const { id, name, executableNames, homepage, args, archives } = spec;
-    presets.push({
-      id,
-      name,
-      executableNames,
-      homepage,
-      // FR-EMU-4: a game's extra arguments go first, before flags like `-e {rom}` or `-- {rom}`.
-      profiles: [{ id: `${id}:default`, name, systems, args: ['{extraArgs}', ...args], archives }],
+    const { id, name, executableNames, homepage, archives, env } = spec;
+    const shapes = [
+      { suffix: 'default', name, args: spec.args },
+      ...Object.values(spec.variants ?? {}),
+    ];
+    const profiles = shapes.flatMap((shape): PresetProfile[] => {
+      const systems = unique(standaloneSystems.get(`${id}:${shape.suffix}`) ?? []);
+      if (systems.length === 0) return [];
+      return [
+        {
+          id: `${id}:${shape.suffix}`,
+          name: shape.name,
+          systems,
+          // FR-EMU-4: a game's extra arguments go first, before flags like `-e {rom}` or `-- {rom}`.
+          args: ['{extraArgs}', ...shape.args],
+          archives,
+          ...(env ? { env } : {}),
+        },
+      ];
     });
+    if (profiles.length > 0) presets.push({ id, name, executableNames, homepage, profiles });
   }
   return { catalog: { source: input.source, presets }, presetProfiles, skipped };
 }
@@ -187,15 +206,25 @@ export function buildPresets(input: PresetInput): PresetResult {
 function mameProfile(name: string, id: string, variant: Variant): PresetProfile {
   const args =
     variant.args === 'arcade'
-      ? ['{romName}', '-rompath', '{romDir}', '-skip_gameinfo', '{extraArgs}']
+      ? ['{romName}', '-rompath', '{romDir}', ...MAME_COMMON, '{extraArgs}']
       : mameProfileArgs(variant.args, variant.medium);
+  const delay = variant.args === 'arcade' ? undefined : mameAutobootDelay(variant.args);
   return {
     id: variant.suffix ? `mame:${id}:${variant.suffix}` : `mame:${id}`,
     name: variant.suffix ? `MAME – ${name} (${variant.suffix})` : `MAME – ${name}`,
     systems: [id],
     args,
     archives: 'pass',
+    ...(delay ? { autobootDelay: delay } : {}),
   };
+}
+
+/** The delay of the runner's `-autoboot_delay N -autoboot_command %COMMANDS%` pair, if any. */
+export function mameAutobootDelay(entry: readonly string[]): string | undefined {
+  const at = entry.findIndex(
+    (arg, i) => arg === '-autoboot_delay' && entry[i + 3] === '%COMMANDS%',
+  );
+  return at >= 0 ? entry[at + 1] : undefined;
 }
 
 const unique = (ids: readonly string[]) => [...new Set(ids)].sort();

@@ -1,7 +1,7 @@
 import { chmod, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { readLegacy } from './readLegacy.ts';
+import { readLegacy, runnerSystem } from './readLegacy.ts';
 import { legacyCopy, type LegacyCopy } from './testing.ts';
 
 async function filesBelow(dir: string): Promise<string[]> {
@@ -95,5 +95,20 @@ describe('readLegacy', () => {
     await expect(readLegacy(root)).rejects.toMatchObject({
       error: { code: 'NOT_FOUND', details: { reason: 'notNextLevelOS' } },
     });
+  });
+});
+
+describe('runnerSystem', () => {
+  it('FR-IMP-2: is the -s name of the runner command, else the launcher key', () => {
+    const launchers = {
+      'Handy Vision': {
+        command: '%NEXTLEVEL_RUNNER% -s "Nintendo NES" -r "%romname%"',
+        rompath: [],
+      },
+      Plain: { command: 'x.exe "%romfilename%"', rompath: [] },
+    };
+    expect(runnerSystem(launchers, 'Handy Vision')).toBe('Nintendo NES');
+    expect(runnerSystem(launchers, 'Plain')).toBe('Plain');
+    expect(runnerSystem(launchers, 'Unknown')).toBe('Unknown');
   });
 });

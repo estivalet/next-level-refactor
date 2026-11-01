@@ -1,4 +1,5 @@
 import {
+  defaultProfileFor,
   IMPORT_MAPPED_REASONS,
   type DetectedEmulator,
   type EmulatorPreset,
@@ -21,7 +22,11 @@ import { mapGames, type GameImport } from './mapGames.ts';
 import { mapMenus, type MenuImport } from './mapMenus.ts';
 import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
-import { launcherKey, readLegacy, type LegacyFiles } from './readLegacy.ts';
+import { addSystemConfigs, type SystemConfig } from './systemConfigs.ts';
+import { addAutoboot } from './autoboot.ts';
+import { addMameUiKey } from './mameUiKey.ts';
+import { addPresetProfiles, type WantedProfile } from './presetProfiles.ts';
+import { launcherKey, readLegacy, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 
 /** What the library already holds from earlier imports, and names made here (D12). */
 export interface ExistingImports {
@@ -38,6 +43,9 @@ export interface ImportDeps {
   detect: (folder: string) => Promise<DetectedEmulator[]>;
   createWalker: () => Walker;
   folderExists: (dir: string) => Promise<boolean>;
+  fileExists: (path: string) => Promise<boolean>;
+  /** The names in a folder; none when it can't be read. */
+  listFiles: (dir: string) => Promise<string[]>;
   existing: () => ExistingImports;
 }
 
@@ -48,6 +56,10 @@ export interface ImportPlan {
   settings: Settings;
   /** Emulators found in the emulators folder (D14); the apply re-applies them to fresh settings. */
   detected: DetectedEmulator[];
+  /** RetroArch system configs found on disk; the apply re-applies them too. */
+  systemConfigs: SystemConfig[];
+  /** Preset profiles games run with (their own emulator or MAME medium); re-applied too. */
+  wantedProfiles: WantedProfile[];
   /** Systems the import enables (scanned after games are written). */
   systemIds: string[];
   games: GameImport[];
@@ -75,6 +87,56 @@ function retroarchDir(detected: readonly DetectedEmulator[], settings: Settings)
     detected.find((e) => e.presetId === 'retroarch')?.executable ??
     settings.emulators.find((e) => e.presetId === 'retroarch')?.executable;
   return executable ? dirname(executable) : null;
+}
+
+/**
+ * Each imported system's `<RA>\config\<name>.cfg` that exists (nextlevel-launcher.py's `-c`); the
+ * name is the one the runner command passes with `-s`.
+ */
+async function systemConfigs(
+  files: LegacyFiles,
+  match: (name: string) => string | null,
+  dir: string | null,
+  fileExists: (path: string) => Promise<boolean>,
+): Promise<SystemConfig[]> {
+  if (!dir) return [];
+  const names = [...systemsInUse(files)].sort((a, b) => a.localeCompare(b));
+  const found = await Promise.all(
+    names.map(async (name): Promise<SystemConfig[]> => {
+      const systemId = match(name);
+      const path = `${dir}\\config\\${runnerSystem(files.launchers, name)}.cfg`;
+      return systemId && (await fileExists(path)) ? [{ systemId, name, path }] : [];
+    }),
+  );
+  return found.flat();
+}
+
+/**
+ * The `.cfg` files in `<RA>\config\<system name>\` (lowercase), for each imported system whose
+ * default profile here runs RetroArch: the per-game configs nextlevel-launcher.py appended.
+ */
+async function gameConfigs(
+  files: LegacyFiles,
+  match: (name: string) => string | null,
+  dir: string | null,
+  settings: Settings,
+  listFiles: (dir: string) => Promise<string[]>,
+): Promise<Map<string, Set<string>>> {
+  if (!dir) return new Map();
+  const retroarch = [...systemsInUse(files)].filter((name) => {
+    const systemId = match(name);
+    const profile = systemId ? defaultProfileFor(settings, systemId) : undefined;
+    const emulator = settings.emulators.find((e) => e.id === profile?.emulatorId);
+    return emulator?.presetId === 'retroarch';
+  });
+  const listed = await Promise.all(
+    retroarch.map(async (name) => {
+      const names = await listFiles(`${dir}\\config\\${runnerSystem(files.launchers, name)}`);
+      const cfgs = names.filter((file) => file.toLowerCase().endsWith('.cfg'));
+      return [name, new Set(cfgs.map((file) => file.toLowerCase()))] as const;
+    }),
+  );
+  return new Map(listed.filter(([, cfgs]) => cfgs.size > 0));
 }
 
 /** `X (NextLevelOS)`, then `X (NextLevelOS 2)`, … — the first name nobody holds, ≤ 100 chars. */
@@ -154,7 +216,40 @@ export async function planImport(
     deps.presets,
     deps.newId,
   );
-  const games = mapGames(files, match, { retroarchDir: retroarchDir(detected, current) });
+  const raDir = retroarchDir(detected, current);
+  const configs = await systemConfigs(files, match, raDir, deps.fileExists);
+  const withConfigs = addSystemConfigs(withProfiles.next, configs, deps.newId);
+  const systemIds = [
+    ...new Set(
+      [...systemsInUse(files)].flatMap((name) => {
+        const id = match(name);
+        return id && withConfigs.next.systems[id]?.enabled ? [id] : [];
+      }),
+    ),
+  ].sort();
+  const withUiKey = addMameUiKey(withConfigs.next, systemIds);
+  const games = mapGames(files, match, {
+    retroarchDir: raDir,
+    gameConfigs: await gameConfigs(files, match, raDir, withUiKey.next, deps.listFiles),
+    presetProfiles: (id) => deps.catalog.find((s) => s.id === id)?.presetProfiles ?? [],
+  });
+  const wantedProfiles = games.entries.flatMap((g): WantedProfile[] =>
+    g.presetProfileId ? [{ systemId: g.systemId, presetProfileId: g.presetProfileId }] : [],
+  );
+  const withPresets = addPresetProfiles(
+    withUiKey.next,
+    wantedProfiles,
+    deps.presets,
+    deps.newId,
+    detected,
+  );
+  // The profiles are known now: games with their own autoboot command get it for theirs.
+  const booted = addAutoboot(
+    games.entries,
+    withPresets.next,
+    deps.presets,
+    (id) => deps.catalog.find((s) => s.id === id)?.name ?? id,
+  );
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
@@ -167,7 +262,11 @@ export async function planImport(
     ...problems,
     ...mapped.items,
     ...withProfiles.items,
+    ...withConfigs.items,
+    ...withUiKey.items,
+    ...withPresets.items,
     ...games.items,
+    ...booted.items,
     ...collections.items.filter((item) => !skipped.has(item.key)),
     ...notInMenus.map((c): ImportItem => ({
       area: 'collection',
@@ -187,17 +286,15 @@ export async function planImport(
       willReplace.push({ area: 'menu', key: menu.file, reason: 'replacesImport' });
     }
   }
-  const systemIds = [...systemsInUse(files)].flatMap((name) => {
-    const id = match(name);
-    return id && withProfiles.next.systems[id]?.enabled ? [id] : [];
-  });
   return {
     fingerprint,
     files,
-    settings: withProfiles.next,
+    settings: withPresets.next,
     detected,
-    systemIds: [...new Set(systemIds)].sort(),
-    games: games.entries,
+    systemConfigs: configs,
+    wantedProfiles,
+    systemIds,
+    games: booted.games,
     collections: named,
     menus: menus.menus,
     mapped: items.filter((item) => MAPPED.has(item.reason)),

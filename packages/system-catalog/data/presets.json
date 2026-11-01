@@ -1153,6 +1153,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1170,6 +1172,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1189,6 +1193,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1208,10 +1214,13 @@
             "dinput",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:acorn-atom:flop1",
@@ -1227,10 +1236,13 @@
             "dinput",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:acorn-bbc-micro",
@@ -1246,10 +1258,13 @@
             "{systemDir}/media/mame/artwork",
             "-flop1",
             "{rom}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "3"
         },
         {
           "id": "mame:acorn-electron",
@@ -1267,6 +1282,8 @@
             "*TAPE\\nCHAIN\"\"\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1286,10 +1303,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:amstrad-gx4000",
@@ -1303,6 +1323,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1320,6 +1342,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1337,6 +1361,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1354,6 +1380,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1371,6 +1399,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1390,6 +1420,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1407,6 +1439,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1426,6 +1460,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1445,6 +1481,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1462,6 +1500,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1479,6 +1519,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1494,6 +1536,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1511,6 +1555,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1528,6 +1574,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1545,6 +1593,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1560,6 +1610,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1577,6 +1629,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1594,6 +1648,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1609,6 +1665,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1626,6 +1684,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1643,6 +1703,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1660,6 +1722,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1677,6 +1741,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1696,6 +1762,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1713,10 +1781,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:canon-x-07",
@@ -1730,10 +1801,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:casio-loopy",
@@ -1747,6 +1821,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1764,6 +1840,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1781,6 +1859,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1798,10 +1878,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:china-education-computer",
@@ -1815,6 +1898,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1832,6 +1917,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1851,6 +1938,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1868,6 +1957,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1885,6 +1976,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1902,6 +1995,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1923,6 +2018,8 @@
             "RUN\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1938,6 +2035,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1959,6 +2058,8 @@
             "CLOADM\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1976,6 +2077,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -1991,6 +2094,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2006,6 +2111,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2025,6 +2132,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2042,6 +2151,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2059,6 +2170,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2080,6 +2193,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2097,6 +2212,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2114,6 +2231,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2131,6 +2250,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2148,6 +2269,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2165,6 +2288,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2184,10 +2309,13 @@
             "{systemDir}\\basicpac.zip",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:fairchild-channel-f",
@@ -2201,6 +2329,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2218,6 +2348,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2235,6 +2367,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2252,10 +2386,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:fujitsu-fm-towns",
@@ -2273,6 +2410,8 @@
             "{systemDir}\\empty_disk.bin",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2290,6 +2429,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2307,6 +2448,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2324,6 +2467,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2345,6 +2490,8 @@
             "OLD\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2362,6 +2509,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2377,6 +2526,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2394,6 +2545,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2411,6 +2564,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2426,6 +2581,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2443,6 +2600,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2460,6 +2619,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2477,6 +2638,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2492,6 +2655,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2509,6 +2674,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2526,6 +2693,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2543,6 +2712,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2558,6 +2729,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2575,6 +2748,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2592,6 +2767,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2611,6 +2788,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2628,6 +2807,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2643,6 +2824,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2658,6 +2841,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2675,6 +2860,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2696,6 +2883,8 @@
             "E1000\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2717,6 +2906,8 @@
             "CLOAD\"\"\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2732,6 +2923,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2749,10 +2942,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:mattel-aquarius",
@@ -2766,10 +2962,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:mattel-aquarius:cass",
@@ -2783,10 +2982,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:mattel-hyperscan",
@@ -2800,6 +3002,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2817,10 +3021,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:mgt-sam-coupe",
@@ -2834,6 +3041,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2851,6 +3060,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2866,6 +3077,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2883,6 +3096,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2900,6 +3115,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2917,6 +3134,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2934,10 +3153,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:nec-pc-6001-mkii",
@@ -2951,6 +3173,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -2968,10 +3192,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:nec-pc-8001",
@@ -2985,10 +3212,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:nintendo-family-basic",
@@ -3006,6 +3236,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3023,6 +3255,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3042,6 +3276,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3059,6 +3295,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3076,6 +3314,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3091,6 +3331,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3108,6 +3350,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3125,6 +3369,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3142,6 +3388,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3163,6 +3411,8 @@
             "CLOAD\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3178,6 +3428,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3193,6 +3445,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3210,6 +3464,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3227,6 +3483,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3244,6 +3502,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3259,6 +3519,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3276,6 +3538,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3293,6 +3557,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3308,6 +3574,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3329,6 +3597,8 @@
             "LOAD\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3350,6 +3620,8 @@
             "LOAD\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3369,6 +3641,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3386,6 +3660,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3403,6 +3679,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3420,6 +3698,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3439,6 +3719,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3456,6 +3738,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3473,6 +3757,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3488,6 +3774,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3503,6 +3791,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3520,6 +3810,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3537,6 +3829,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3554,6 +3848,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3575,6 +3871,8 @@
             "LOAD\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3592,6 +3890,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3609,6 +3909,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3626,6 +3928,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3643,6 +3947,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3660,6 +3966,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3677,6 +3985,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3694,6 +4004,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3711,6 +4023,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3728,6 +4042,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3745,6 +4061,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3762,6 +4080,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3779,6 +4099,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3796,6 +4118,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3813,6 +4137,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3830,10 +4156,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "5"
         },
         {
           "id": "mame:tandy-trs-80-color-computer:cass",
@@ -3847,10 +4176,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "5"
         },
         {
           "id": "mame:tandy-trs-80-color-computer:flop1",
@@ -3864,10 +4196,13 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "5"
         },
         {
           "id": "mame:tandy-trs-80-mc-10",
@@ -3885,6 +4220,8 @@
             "CLOAD\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3904,6 +4241,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3921,6 +4260,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3938,6 +4279,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3955,6 +4298,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3972,6 +4317,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -3989,6 +4336,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4008,6 +4357,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4027,6 +4378,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4044,6 +4397,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4065,6 +4420,8 @@
             "RUN\"\"\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4082,6 +4439,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4101,6 +4460,8 @@
             "{systemDir}\\basic.m7",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4118,6 +4479,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4133,6 +4496,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4148,6 +4513,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4165,6 +4532,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4182,6 +4551,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4199,6 +4570,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4216,6 +4589,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4233,6 +4608,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4248,6 +4625,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4263,6 +4642,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4280,6 +4661,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4297,6 +4680,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4314,6 +4699,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4331,6 +4718,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4348,6 +4737,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4363,6 +4754,8 @@
             "{core}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4384,6 +4777,8 @@
             "LOAD\"\"\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4407,6 +4802,8 @@
             "LOAD\"\"\\n",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4424,6 +4821,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4441,6 +4840,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4458,6 +4859,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4477,6 +4880,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4496,6 +4901,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4515,6 +4922,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4532,6 +4941,8 @@
             "{systemDir}",
             "-cart1",
             "{rom}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4549,6 +4960,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4566,6 +4979,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4583,6 +4998,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4600,6 +5017,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4617,6 +5036,8 @@
             "{rom}",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4636,6 +5057,8 @@
             "-nowindow",
             "-rompath",
             "{systemDir}",
+            "-uimodekey",
+            "DEL",
             "-skip_gameinfo",
             "{extraArgs}"
           ],
@@ -4928,6 +5351,126 @@
             "sega-naomi",
             "sega-naomi-2",
             "sega-naomi-gd-rom"
+          ],
+          "args": [
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "hbmame",
+      "name": "HBMAME",
+      "executableNames": [
+        "hbmame.exe",
+        "hbmame64.exe"
+      ],
+      "homepage": "https://hbmame.1emulation.com/",
+      "profiles": [
+        {
+          "id": "hbmame:default",
+          "name": "HBMAME",
+          "systems": [
+            "hbmame"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-uimodekey",
+            "DEL",
+            "-skip_gameinfo",
+            "-rompath",
+            "{systemDir}",
+            "{rom}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "openmsx",
+      "name": "openMSX",
+      "executableNames": [
+        "openmsx.exe"
+      ],
+      "homepage": "https://openmsx.org/",
+      "profiles": [
+        {
+          "id": "openmsx:default",
+          "name": "openMSX",
+          "systems": [
+            "microsoft-msx",
+            "microsoft-msx2",
+            "microsoft-msx2-plus"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-setting",
+            "{emulatorDir}\\share\\settings.xml",
+            "{rom}"
+          ],
+          "archives": "pass",
+          "env": {
+            "OPENMSX_HOME": "{emulatorDir}"
+          }
+        },
+        {
+          "id": "openmsx:turbor",
+          "name": "openMSX (Turbo R)",
+          "systems": [
+            "microsoft-msx-turbo-r"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-setting",
+            "{emulatorDir}\\share\\turbor.xml",
+            "{rom}"
+          ],
+          "archives": "pass",
+          "env": {
+            "OPENMSX_HOME": "{emulatorDir}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "colem",
+      "name": "ColEm",
+      "executableNames": [
+        "ColEm.exe"
+      ],
+      "homepage": "https://fms.komkon.org/ColEm/",
+      "profiles": [
+        {
+          "id": "colem:default",
+          "name": "ColEm",
+          "systems": [
+            "coleco-colecovision"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-sgm",
+            "{rom}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "yape",
+      "name": "YAPE",
+      "executableNames": [
+        "YapeSDL.exe",
+        "Yape.exe"
+      ],
+      "homepage": "http://yape.homeserver.hu/",
+      "profiles": [
+        {
+          "id": "yape:default",
+          "name": "YAPE",
+          "systems": [
+            "commodore-plus4"
           ],
           "args": [
             "{extraArgs}",

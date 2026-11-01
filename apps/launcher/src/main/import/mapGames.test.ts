@@ -1,7 +1,13 @@
-import type { ImportItem } from '@nextlevel/shared';
+import type { ImportItem, LegacyGame } from '@nextlevel/shared';
 import { systemCatalog } from '@nextlevel/system-catalog';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { mapGames, normalizeRelPath, parseLastPlayed, type GameImport } from './mapGames.ts';
+import {
+  mapGames,
+  normalizeRelPath,
+  parseLastPlayed,
+  perGamePreset,
+  type GameImport,
+} from './mapGames.ts';
 import { createSystemMatcher } from './matchSystem.ts';
 import { readLegacy, type LegacyFiles } from './readLegacy.ts';
 import { legacyCopy, type LegacyCopy } from './testing.ts';
@@ -114,14 +120,97 @@ describe('mapGames', () => {
     expect(item(items, 'Sony Playstation', 'discSet')?.count).toBe(1);
   });
 
+  it('FR-EMU-4: a game file in <RA>\\config\\<system>\\ is appended, as NextLevelOS did', () => {
+    const { entries } = mapGames(files, match, {
+      retroarchDir: 'E:\\RA',
+      gameConfigs: new Map([['Atari 2600', new Set(['pixel quest.cfg'])]]),
+    });
+    expect(game(entries, 'atari-2600', 'Pixel Quest.a26')?.override).toEqual({
+      core: null,
+      extraArgs: ['--appendconfig', 'E:\\RA\\config\\Atari 2600\\Pixel Quest.cfg'],
+    });
+    expect(game(entries, 'atari-2600', 'Moon Hopper.a26')?.override).toBeNull();
+  });
+
+  describe('per-game emulator and MAME medium (FR-EMU-4)', () => {
+    const presetProfiles = (id: string) =>
+      systemCatalog().find((s) => s.id === id)?.presetProfiles ?? [];
+    const withGame = (command: string, fields: Record<string, string>) => {
+      const launchers = {
+        ...files.launchers,
+        'Amstrad GX4000': { ...files.launchers['Amstrad GX4000'], command },
+      };
+      const gamelists = files.gamelists.map((list) =>
+        list.name.toLowerCase() === 'amstrad gx4000'
+          ? { ...list, games: [{ filename: './Cart Racer.cpr', ...fields }] }
+          : list,
+      );
+      const { entries, items } = mapGames(
+        { ...files, launchers, gamelists } as LegacyFiles,
+        match,
+        {
+          retroarchDir: null,
+          presetProfiles,
+        },
+      );
+      return { entry: game(entries, 'amstrad-gx4000', 'Cart Racer.cpr'), items };
+    };
+    const RUNNER = '%NEXTLEVEL_RUNNER% -s "Amstrad GX4000" -r "%romname%"';
+
+    it('a game emulator the command passes picks that emulator’s preset profile', () => {
+      const { entry, items } = withGame(`${RUNNER} --emulator="%emulator%"`, { emulator: 'mame' });
+      expect(entry?.presetProfileId).toBe('mame:amstrad-gx4000');
+      expect(item(items, 'Amstrad GX4000', 'perGameProfile')?.count).toBe(1);
+      expect(item(items, 'Amstrad GX4000', 'perGameEmulator')).toBeUndefined();
+    });
+
+    it('a MAME medium the command passes picks that medium’s profile; the default medium none', () => {
+      const atom = presetProfiles('acorn-atom');
+      const command = '%NEXTLEVEL_RUNNER% -s "Acorn Atom" -m "%mame_media%" -r "%romname%"';
+      const run = (game: Record<string, string>, cmd = command) =>
+        perGamePreset(game as LegacyGame, 'acorn-atom', cmd, atom);
+      expect(run({ filename: 'a.zip', mame_media: 'flop1' })).toBe('mame:acorn-atom:flop1');
+      expect(run({ filename: 'a.zip', mame_media: 'cass' })).toBeNull();
+      expect(run({ filename: 'a.zip', mame_media: 'flop1' }, 'x -r "%romname%"')).toBeNull();
+    });
+
+    it('ignores an emulator the command never passed, and the system default', () => {
+      expect(withGame(RUNNER, { emulator: 'mame' }).entry?.presetProfileId).toBeNull();
+      const same = withGame(`${RUNNER} --emulator="%emulator%"`, { emulator: 'retroarch' });
+      expect(same.entry?.presetProfileId).toBeNull();
+      const unknown = withGame(`${RUNNER} --emulator="%emulator%"`, { emulator: 'xyz' });
+      expect(unknown.entry?.presetProfileId).toBeNull();
+      expect(item(unknown.items, 'Amstrad GX4000', 'perGameEmulator')?.count).toBe(1);
+    });
+  });
+
+  it('FR-EMU-4: config folders follow the runner command -s name, as NextLevelOS did', () => {
+    const launchers = {
+      ...files.launchers,
+      'Atari 2600': { ...files.launchers['Atari 2600'], command: '%NEXTLEVEL_RUNNER% -s "VCS"' },
+    };
+    const { entries } = mapGames({ ...files, launchers } as LegacyFiles, match, {
+      retroarchDir: 'E:\\RA',
+      gameConfigs: new Map([['Atari 2600', new Set(['pixel quest.cfg'])]]),
+    });
+    expect(game(entries, 'atari-2600', 'Pixel Quest.a26')?.override?.extraArgs).toEqual([
+      '--appendconfig',
+      'E:\\RA\\config\\VCS\\Pixel Quest.cfg',
+    ]);
+  });
+
   it('FR-EMU-4: per-game core, RetroArch config and shader become a launch override', () => {
     const { entries, items } = run();
+    // As nextlevel-launcher.py: the game's config replaces the system's (-c, the last one wins),
+    // its own file is appended.
     expect(game(entries, 'arcade', 'blastoid.zip')).toMatchObject({
       override: {
         core: 'fbneo_libretro',
         extraArgs: [
+          '-c',
+          'E:\\RA\\config\\arcade-realistic.cfg',
           '--appendconfig',
-          'E:\\RA\\config\\arcade-realistic.cfg|E:\\RA\\config\\Arcade\\realistic\\blastoid.cfg',
+          'E:\\RA\\config\\Arcade\\realistic\\blastoid.cfg',
           '--set-shader',
           'E:\\RA\\shaders\\shaders_slang\\crt\\crt-easy.slangp',
         ],

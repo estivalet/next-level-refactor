@@ -33,8 +33,30 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   no gamelist names are no longer added (a manual scan still adds them), games that only a
   collection names stay in that collection instead of joining the system, and gamelists no menu
   opens (old copies such as `Atari 2600 copy`) are reported and skipped. Library migration 0011.
+- Importing NextLevelOS keeps each system's RetroArch settings: a system with
+  `<RetroArch>\config\<system>.cfg` gets its own copy of its RetroArch profile that passes
+  `-c <that file>`, as NextLevelOS did, and a game's own `config` now replaces the system's
+  (`-c`) instead of being appended. A game with its own `<RetroArch>\config\<system>\<game>.cfg`
+  gets it appended. Config files follow the name the NextLevelOS launcher passed (Handy Vision
+  uses `Nintendo NES`). Run Settings → Import NextLevelOS again to apply it.
+- MAME starts with `-uimodekey DEL`, so Delete toggles MAME's UI as in NextLevelOS: the MAME
+  presets pass it, and importing NextLevelOS adds it to the imported systems' MAME profiles that
+  don't choose a UI key.
+- Importing NextLevelOS keeps a game's own emulator (its `emulator`, when the system's command
+  passed it) and MAME medium (`mame_media`) as its launch option, setting up that emulator's
+  profile when it's missing; a game whose emulator isn't set up or in the emulators folder is
+  reported.
+- Importing NextLevelOS keeps a game's own MAME autoboot command (`launch_args`): MAME types it
+  after the system's delay, as NextLevelOS did, now with its quotes (NextLevelOS's command line
+  dropped them, so `MLOAD""INVADERS""` reached MAME as `MLOADINVADERS`).
 
 ### Added
+
+- An **HBMAME** emulator preset (`hbmame.exe`), so HBMAME games can launch; Settings → Emulators
+  and Import NextLevelOS find it in the emulators folder.
+- **openMSX** (MSX, MSX2, MSX2+, Turbo R, Gradiente), **ColEm** (ColecoVision) and **YAPE**
+  (Commodore Plus/4) emulator presets, with NextLevelOS's arguments; openMSX keeps its settings
+  in its own folder (`OPENMSX_HOME`).
 
 - **Completed**: mark games completed from the context menu or the details, and a Completed tab;
   importing NextLevelOS turns a game's `completed` tag into the flag (D60). Library migration 0010.

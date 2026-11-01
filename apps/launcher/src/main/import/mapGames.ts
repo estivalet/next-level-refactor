@@ -11,7 +11,8 @@ import {
   parseYear,
   text,
 } from './legacyGame.ts';
-import { launcherKey, type LegacyFiles } from './readLegacy.ts';
+import { autobootText } from './autoboot.ts';
+import { launcherKey, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 import { Tally } from './tally.ts';
 
 export { normalizeRelPath, parseLastPlayed };
@@ -40,6 +41,15 @@ export interface GameImport {
   /** ISO time, or null. */
   lastPlayedAt: string | null;
   override: { core: string | null; extraArgs: string[] } | null;
+  /**
+   * The preset profile NextLevelOS ran this game with instead of the system's default (its
+   * `emulator` or MAME medium), else null; the apply turns it into the override's profile.
+   */
+  presetProfileId: string | null;
+  /** The game's own MAME autoboot command (launch_args, decoded), when the command passed it. */
+  autoboot: string | null;
+  /** Set by the apply: the saved profile for `presetProfileId` (null when it isn't set up). */
+  profileId?: string | null;
   arcade: {
     rom: string | null;
     parent: string | null;
@@ -51,6 +61,36 @@ export interface GameImport {
 export interface MapGamesOptions {
   /** RetroArch's folder, for per-game config and shader paths; null when it wasn't found. */
   retroarchDir: string | null;
+  /**
+   * The `.cfg` files (lowercase names) in `<RA>\config\<system>\`, by NextLevelOS system name,
+   * for systems that run RetroArch here.
+   */
+  gameConfigs?: ReadonlyMap<string, ReadonlySet<string>>;
+  /** A system's preset profile ids, default first (catalog `presetProfiles`). */
+  presetProfiles?: (systemId: string) => readonly string[];
+}
+
+/**
+ * The preset profile NextLevelOS ran a game with instead of the system's default: its MAME medium
+ * (`mame_media`, when the command passes `%mame_media%`) or its `emulator` (when the command
+ * passes `%emulator%`; a runner key such as `mame`, `colem` or `openmsx_msx2`), else null.
+ */
+export function perGamePreset(
+  game: LegacyGame,
+  systemId: string,
+  command: string,
+  profiles: readonly string[],
+): string | null {
+  const medium = command.includes('%mame_media%') ? text(game.mame_media) : undefined;
+  const media = medium ? `mame:${systemId}:${medium.toLowerCase()}` : undefined;
+  if (media && profiles.includes(media)) return media;
+  const emulator = command.includes('%emulator%') ? text(game.emulator)?.toLowerCase() : undefined;
+  if (!emulator) return null;
+  const chosen = profiles.find((id) => {
+    const preset = id.split(':')[0] ?? '';
+    return emulator === preset || emulator.startsWith(`${preset}_`);
+  });
+  return chosen && chosen !== profiles[0] ? chosen : null;
 }
 
 const FAVORITE = 'favorite';
@@ -62,10 +102,13 @@ const SCRAPE_FIELDS = ['updatedAt', 'ai_updated', 'artfolder'] as const;
 function launchOverride(
   game: LegacyGame,
   systemName: string,
+  /** The runner command's `-s` name: RetroArch's config folders are named after it. */
+  configName: string,
   relPath: string,
-  retroarchDir: string | null,
+  options: MapGamesOptions,
   tally: Tally,
 ): GameImport['override'] {
+  const { retroarchDir } = options;
   const core = text(game.core) ?? null;
   const config = text(game.config);
   const gameConfig = text(game.alt_game_config);
@@ -74,15 +117,20 @@ function launchOverride(
   if ((config ?? gameConfig ?? shader) && !retroarchDir) {
     tally.add('game', systemName, 'retroarchNotFound');
   } else if (retroarchDir) {
-    // As nextlevel-launcher.py builds them: <RA>\config\<config>.cfg and
-    // <RA>\config\<system>\<alt config>\<rom stem>.cfg, shaders under <RA>\shaders.
-    const configs = [
-      ...(config ? [`${retroarchDir}\\config\\${config}.cfg`] : []),
-      ...(gameConfig
-        ? [`${retroarchDir}\\config\\${systemName}\\${gameConfig}\\${fileStem(relPath)}.cfg`]
-        : []),
-    ];
-    if (configs.length > 0) extraArgs.push('--appendconfig', configs.join('|'));
+    // As nextlevel-launcher.py builds them: -c <RA>\config\<config>.cfg (instead of the system's
+    // -c: RetroArch keeps the last one), --appendconfig <RA>\config\<system>\<alt config>\<rom
+    // stem>.cfg, shaders under <RA>\shaders. Without an alt config the runner appended
+    // <RA>\config\<system>\<rom stem>.cfg; that only matters when the file is there.
+    const stem = fileStem(relPath);
+    if (config) extraArgs.push('-c', `${retroarchDir}\\config\\${config}.cfg`);
+    if (gameConfig) {
+      extraArgs.push(
+        '--appendconfig',
+        `${retroarchDir}\\config\\${configName}\\${gameConfig}\\${stem}.cfg`,
+      );
+    } else if (options.gameConfigs?.get(systemName)?.has(`${stem}.cfg`.toLowerCase())) {
+      extraArgs.push('--appendconfig', `${retroarchDir}\\config\\${configName}\\${stem}.cfg`);
+    }
     if (shader) {
       extraArgs.push('--set-shader', `${retroarchDir}\\shaders\\${shader.replace(/\//g, '\\')}`);
     }
@@ -106,6 +154,8 @@ function toImport(
   game: LegacyGame,
   systemId: string,
   systemName: string,
+  configName: string,
+  command: string,
   relPath: string,
   options: MapGamesOptions,
   tally: Tally,
@@ -120,7 +170,19 @@ function toImport(
     if (slug && !filters.includes(slug)) filters.push(slug);
   }
   if (renamed) tally.add('game', systemName, 'filterRenamed');
-  if (text(game.emulator) || text(game.launch_args) || text(game['alt_core'])) {
+  const presetProfileId = perGamePreset(
+    game,
+    systemId,
+    command,
+    options.presetProfiles?.(systemId) ?? [],
+  );
+  if (presetProfileId) tally.add('game', systemName, 'perGameProfile');
+  const emulatorLeft = !presetProfileId && text(game.emulator);
+  // Autoboot is reported by the plan (addAutoboot), which knows the profile the game runs with.
+  const launchArgs = text(game.launch_args);
+  const autoboot =
+    launchArgs && command.includes('%launch_args%') ? autobootText(launchArgs) : null;
+  if (emulatorLeft || (launchArgs && !autoboot) || text(game['alt_core'])) {
     tally.add('game', systemName, 'perGameEmulator');
   }
   if (text(game['squashfs_exe'])) tally.add('game', systemName, 'hookSetting');
@@ -154,7 +216,9 @@ function toImport(
     hidden: game.hidden === true,
     playCount: parsePlayCount(game.played),
     lastPlayedAt: parseLastPlayed(game.lastPlayedOn),
-    override: launchOverride(game, systemName, relPath, options.retroarchDir, tally),
+    override: launchOverride(game, systemName, configName, relPath, options, tally),
+    presetProfileId,
+    autoboot,
     arcade,
   };
 }
@@ -173,6 +237,8 @@ function merge(first: GameImport, other: GameImport): GameImport {
     playCount: Math.max(first.playCount, other.playCount),
     lastPlayedAt: later(first.lastPlayedAt, other.lastPlayedAt),
     override: first.override ?? other.override,
+    presetProfileId: first.presetProfileId ?? other.presetProfileId,
+    autoboot: first.autoboot ?? other.autoboot,
     arcade: first.arcade ?? other.arcade,
   };
 }
@@ -234,7 +300,16 @@ export function mapGames(
         tally.add('game', name, 'folderEntry');
         continue;
       }
-      const game = toImport(parsed.data, systemId, name, relPath, options, tally);
+      const game = toImport(
+        parsed.data,
+        systemId,
+        name,
+        runnerSystem(files.launchers, name),
+        files.launchers[name]?.command ?? '',
+        relPath,
+        options,
+        tally,
+      );
       const key = relPath.toLowerCase();
       const seen = byPath.get(key);
       if (seen) tally.add('game', name, 'duplicateEntry');

@@ -26,7 +26,7 @@ export function profileFromPreset(
     ...(preset.cwd ? { cwd: preset.cwd } : {}),
     ...(preset.core ? { core: preset.core } : {}),
     archives: preset.archives,
-    env: {},
+    env: { ...preset.env },
     presetProfileId: preset.id,
   };
 }

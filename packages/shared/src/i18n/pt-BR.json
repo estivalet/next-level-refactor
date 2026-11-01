@@ -1232,6 +1232,7 @@
       "invalidEntry": "Entrada sem nome de arquivo",
       "absoluteRompath": "Pasta de ROMs fora dos locais de armazenamento",
       "retroarchNotFound": "Config ou shader do RetroArch por jogo: o RetroArch não foi encontrado na pasta de emuladores",
+      "presetEmulatorMissing": "Jogos rodavam com este emulador no NextLevelOS; configure-o em Configurações → Emuladores e importe de novo",
       "collectionLaunchFields": "Opções de execução definidas dentro de uma coleção não são importadas",
       "unknownTheme": "Tema não existe no NextLevel",
       "notInMenu": "Nenhum menu abre esta lista (cópia antiga?): não importada",
@@ -1248,6 +1249,10 @@
       "screenscraperId": "Id de sistema do ScreenScraper",
       "emulatorAdded": "Emulador encontrado e adicionado com seus perfis",
       "launchOverride": "Core e opções de execução por jogo",
+      "retroarchSystemConfig": "Config do RetroArch do sistema (-c <sistema>.cfg), em um perfil próprio",
+      "mameUiModeKey": "Perfis do MAME: Delete alterna a interface do MAME (-uimodekey DEL), como no NextLevelOS",
+      "perGameProfile": "Emulador ou mídia do MAME por jogo, como opção de execução",
+      "mameAutoboot": "Comando de autoboot do MAME por jogo, digitado após o atraso do sistema",
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
       "replacesImport": "Substitui o que uma importação anterior trouxe",
       "artFolder": "Pasta de arte ou de pacotes de tema"

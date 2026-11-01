@@ -54,6 +54,13 @@ export const PresetProfileSchema = z.object({
   cwd: z.string().optional(),
   core: z.string().optional(),
   archives: z.enum(['pass', 'extract']),
+  /** Environment templates the profile starts with (e.g. openMSX's home). */
+  env: z.record(z.string(), z.string()).optional(),
+  /**
+   * MAME: seconds before typing a game's own autoboot command (NextLevelOS launch_args), from
+   * the runner's autoboot pair the profile drops.
+   */
+  autobootDelay: z.string().regex(/^\d+$/).optional(),
 });
 
 export const EmulatorPresetSchema = z.object({

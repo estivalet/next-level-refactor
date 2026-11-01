@@ -1,7 +1,7 @@
 import type { ImportSummary, IpcEvent, IpcEventPayload } from '@nextlevel/shared';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import type Database from 'better-sqlite3';
-import { stat } from 'node:fs/promises';
+import { readdir, stat } from 'node:fs/promises';
 import { detectEmulators } from '../launch/detect.ts';
 import { CollectionRepository } from '../library/CollectionRepository.ts';
 import { GameRepository } from '../library/GameRepository.ts';
@@ -20,6 +20,11 @@ import { legacyCopy, type LegacyCopy } from './testing.ts';
 const folderExists = (dir: string) =>
   stat(dir).then(
     (info) => info.isDirectory(),
+    () => false,
+  );
+const fileExists = (path: string) =>
+  stat(path).then(
+    (info) => info.isFile(),
     () => false,
   );
 
@@ -82,6 +87,8 @@ export async function importHarness(): Promise<ImportHarness> {
     detect: (folder) => detectEmulators(folder, emulatorPresets()),
     createWalker: inProcessWalker,
     folderExists,
+    fileExists,
+    listFiles: (dir) => readdir(dir).catch(() => []),
     latestBackupId: async () => (await listBackupIds(settings.paths.backups))[0] ?? null,
   });
   const client: Database.Database = library.db.$client;
