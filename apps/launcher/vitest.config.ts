@@ -9,7 +9,7 @@ export default defineConfig({
         test: {
           name: 'launcher-main',
           environment: 'node',
-          include: ['src/main/**/*.test.ts'],
+          include: ['src/main/**/*.test.ts', 'scripts/**/*.test.ts'],
           exclude: ['src/main/**/*.perf.test.ts'],
         },
       },

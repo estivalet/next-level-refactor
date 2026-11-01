@@ -45,6 +45,7 @@
     "build": "electron-vite build",
     "db:generate": "drizzle-kit generate",
     "start": "electron-vite preview",
-    "test:e2e": "electron-vite build && playwright test"
+    "test:e2e": "electron-vite build && playwright test",
+    "compare-launch": "node scripts/launchCompare/run.ts"
   }
 }
