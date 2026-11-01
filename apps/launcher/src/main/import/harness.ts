@@ -22,6 +22,11 @@ const folderExists = (dir: string) =>
     (info) => info.isDirectory(),
     () => false,
   );
+const fileExists = (path: string) =>
+  stat(path).then(
+    (info) => info.isFile(),
+    () => false,
+  );
 
 export interface ImportHarness {
   copy: LegacyCopy;
@@ -82,6 +87,7 @@ export async function importHarness(): Promise<ImportHarness> {
     detect: (folder) => detectEmulators(folder, emulatorPresets()),
     createWalker: inProcessWalker,
     folderExists,
+    fileExists,
     latestBackupId: async () => (await listBackupIds(settings.paths.backups))[0] ?? null,
   });
   const client: Database.Database = library.db.$client;

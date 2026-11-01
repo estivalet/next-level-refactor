@@ -1248,6 +1248,7 @@
       "screenscraperId": "Id de sistema do ScreenScraper",
       "emulatorAdded": "Emulador encontrado e adicionado com seus perfis",
       "launchOverride": "Core e opções de execução por jogo",
+      "retroarchSystemConfig": "Config do RetroArch do sistema (-c <sistema>.cfg), em um perfil próprio",
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
       "replacesImport": "Substitui o que uma importação anterior trouxe",
       "artFolder": "Pasta de arte ou de pacotes de tema"

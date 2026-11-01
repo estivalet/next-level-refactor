@@ -20,6 +20,7 @@ import { addDetectedProfiles } from './detectedProfiles.ts';
 import { dryRun, planImport, type ImportDeps, type ImportPlan } from './dryRun.ts';
 import { bindCollections } from './mapMenus.ts';
 import { mapSettings } from './mapSettings.ts';
+import { addSystemConfigs } from './systemConfigs.ts';
 
 export interface ImportServiceDeps {
   catalog: readonly SystemDefinition[];
@@ -34,6 +35,7 @@ export interface ImportServiceDeps {
   detect: ImportDeps['detect'];
   createWalker: () => Walker;
   folderExists: (dir: string) => Promise<boolean>;
+  fileExists: (path: string) => Promise<boolean>;
   /** The newest settings backup id, to tell which backup the import made. */
   latestBackupId: () => Promise<string | null>;
 }
@@ -69,6 +71,7 @@ export class ImportService {
       detect: deps.detect,
       createWalker: deps.createWalker,
       folderExists: deps.folderExists,
+      fileExists: deps.fileExists,
       existing: () => deps.repo.existing(),
     };
   }
@@ -153,11 +156,15 @@ export class ImportService {
     this.progress('settings', 0, 1);
     const { catalog, presets, newId } = this.deps;
     const next = (current: Settings) =>
-      addDetectedProfiles(
-        mapSettings(plan.files, catalog, current, newId).next,
-        plan.detected,
-        catalog,
-        presets,
+      addSystemConfigs(
+        addDetectedProfiles(
+          mapSettings(plan.files, catalog, current, newId).next,
+          plan.detected,
+          catalog,
+          presets,
+          newId,
+        ).next,
+        plan.systemConfigs,
         newId,
       ).next;
     const current = this.currentSettings();

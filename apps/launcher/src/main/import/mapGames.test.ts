@@ -116,12 +116,16 @@ describe('mapGames', () => {
 
   it('FR-EMU-4: per-game core, RetroArch config and shader become a launch override', () => {
     const { entries, items } = run();
+    // As nextlevel-launcher.py: the game's config replaces the system's (-c, the last one wins),
+    // its own file is appended.
     expect(game(entries, 'arcade', 'blastoid.zip')).toMatchObject({
       override: {
         core: 'fbneo_libretro',
         extraArgs: [
+          '-c',
+          'E:\\RA\\config\\arcade-realistic.cfg',
           '--appendconfig',
-          'E:\\RA\\config\\arcade-realistic.cfg|E:\\RA\\config\\Arcade\\realistic\\blastoid.cfg',
+          'E:\\RA\\config\\Arcade\\realistic\\blastoid.cfg',
           '--set-shader',
           'E:\\RA\\shaders\\shaders_slang\\crt\\crt-easy.slangp',
         ],

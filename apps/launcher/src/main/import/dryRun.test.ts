@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { detectEmulators } from '../launch/detect.ts';
 import { inProcessWalker } from '../scan/walker.ts';
-import { dryRun, type ExistingImports, type ImportDeps } from './dryRun.ts';
+import { dryRun, planImport, type ExistingImports, type ImportDeps } from './dryRun.ts';
 import { LEGACY_FIXTURE, legacyCopy, type LegacyCopy } from './testing.ts';
 
 const copies: LegacyCopy[] = [];
@@ -29,6 +29,13 @@ async function setup(existing: ExistingImports = { collections: [], menuSources:
       const { stat } = await import('node:fs/promises');
       return stat(dir).then(
         (s) => s.isDirectory(),
+        () => false,
+      );
+    },
+    fileExists: async (path) => {
+      const { stat } = await import('node:fs/promises');
+      return stat(path).then(
+        (s) => s.isFile(),
         () => false,
       );
     },
@@ -126,5 +133,24 @@ describe('dryRun', () => {
     expect(report.mapped.some((i) => i.reason === 'launchOverride' && i.key === 'Arcade')).toBe(
       true,
     );
+  });
+
+  it('FR-IMP-2: a system with <RA>\\config\\<system>.cfg runs RetroArch with -c, like NextLevelOS', async () => {
+    const { copy, deps } = await setup();
+    const emulators = join(copy.root, 'emulators');
+    const retroarch = join(emulators, 'RetroArch');
+    await mkdir(join(retroarch, 'config'), { recursive: true });
+    await writeFile(join(retroarch, 'retroarch.exe'), 'invented');
+    const cfg = `${retroarch}\\config\\Atari 2600.cfg`;
+    await writeFile(cfg, 'video_shader_enable = "true"\n');
+    const plan = await planImport(copy.data, emulators, deps);
+    const id = plan.settings.systems['atari-2600']?.defaultProfileId;
+    const profile = plan.settings.profiles.find((p) => p.id === id);
+    expect(profile?.systems).toEqual(['atari-2600']);
+    expect(profile?.args.slice(2, 4)).toEqual(['-c', cfg]);
+    expect(plan.systemConfigs).toEqual([{ systemId: 'atari-2600', name: 'Atari 2600', path: cfg }]);
+    expect(plan.mapped.filter((i) => i.reason === 'retroarchSystemConfig')).toEqual([
+      { area: 'system', key: 'Atari 2600', reason: 'retroarchSystemConfig', detail: cfg },
+    ]);
   });
 });

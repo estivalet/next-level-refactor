@@ -21,6 +21,7 @@ import { mapGames, type GameImport } from './mapGames.ts';
 import { mapMenus, type MenuImport } from './mapMenus.ts';
 import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
+import { addSystemConfigs, type SystemConfig } from './systemConfigs.ts';
 import { launcherKey, readLegacy, type LegacyFiles } from './readLegacy.ts';
 
 /** What the library already holds from earlier imports, and names made here (D12). */
@@ -38,6 +39,7 @@ export interface ImportDeps {
   detect: (folder: string) => Promise<DetectedEmulator[]>;
   createWalker: () => Walker;
   folderExists: (dir: string) => Promise<boolean>;
+  fileExists: (path: string) => Promise<boolean>;
   existing: () => ExistingImports;
 }
 
@@ -48,6 +50,8 @@ export interface ImportPlan {
   settings: Settings;
   /** Emulators found in the emulators folder (D14); the apply re-applies them to fresh settings. */
   detected: DetectedEmulator[];
+  /** RetroArch system configs found on disk; the apply re-applies them too. */
+  systemConfigs: SystemConfig[];
   /** Systems the import enables (scanned after games are written). */
   systemIds: string[];
   games: GameImport[];
@@ -75,6 +79,25 @@ function retroarchDir(detected: readonly DetectedEmulator[], settings: Settings)
     detected.find((e) => e.presetId === 'retroarch')?.executable ??
     settings.emulators.find((e) => e.presetId === 'retroarch')?.executable;
   return executable ? dirname(executable) : null;
+}
+
+/** Each imported system's `<RA>\config\<system name>.cfg` that exists (nextlevel-launcher.py's `-c`). */
+async function systemConfigs(
+  files: LegacyFiles,
+  match: (name: string) => string | null,
+  dir: string | null,
+  fileExists: (path: string) => Promise<boolean>,
+): Promise<SystemConfig[]> {
+  if (!dir) return [];
+  const names = [...systemsInUse(files)].sort((a, b) => a.localeCompare(b));
+  const found = await Promise.all(
+    names.map(async (name): Promise<SystemConfig[]> => {
+      const systemId = match(name);
+      const path = `${dir}\\config\\${name}.cfg`;
+      return systemId && (await fileExists(path)) ? [{ systemId, name, path }] : [];
+    }),
+  );
+  return found.flat();
 }
 
 /** `X (NextLevelOS)`, then `X (NextLevelOS 2)`, … — the first name nobody holds, ≤ 100 chars. */
@@ -154,7 +177,10 @@ export async function planImport(
     deps.presets,
     deps.newId,
   );
-  const games = mapGames(files, match, { retroarchDir: retroarchDir(detected, current) });
+  const raDir = retroarchDir(detected, current);
+  const configs = await systemConfigs(files, match, raDir, deps.fileExists);
+  const withConfigs = addSystemConfigs(withProfiles.next, configs, deps.newId);
+  const games = mapGames(files, match, { retroarchDir: raDir });
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
@@ -167,6 +193,7 @@ export async function planImport(
     ...problems,
     ...mapped.items,
     ...withProfiles.items,
+    ...withConfigs.items,
     ...games.items,
     ...collections.items.filter((item) => !skipped.has(item.key)),
     ...notInMenus.map((c): ImportItem => ({
@@ -189,13 +216,14 @@ export async function planImport(
   }
   const systemIds = [...systemsInUse(files)].flatMap((name) => {
     const id = match(name);
-    return id && withProfiles.next.systems[id]?.enabled ? [id] : [];
+    return id && withConfigs.next.systems[id]?.enabled ? [id] : [];
   });
   return {
     fingerprint,
     files,
-    settings: withProfiles.next,
+    settings: withConfigs.next,
     detected,
+    systemConfigs: configs,
     systemIds: [...new Set(systemIds)].sort(),
     games: games.entries,
     collections: named,

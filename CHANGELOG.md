@@ -33,6 +33,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   no gamelist names are no longer added (a manual scan still adds them), games that only a
   collection names stay in that collection instead of joining the system, and gamelists no menu
   opens (old copies such as `Atari 2600 copy`) are reported and skipped. Library migration 0011.
+- Importing NextLevelOS keeps each system's RetroArch settings: a system with
+  `<RetroArch>\config\<system>.cfg` gets its own copy of its RetroArch profile that passes
+  `-c <that file>`, as NextLevelOS did, and a game's own `config` now replaces the system's
+  (`-c`) instead of being appended. Run Settings → Import NextLevelOS again to apply it.
 
 ### Added
 

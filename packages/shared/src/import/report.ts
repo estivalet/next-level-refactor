@@ -55,6 +55,7 @@ export const IMPORT_MAPPED_REASONS = [
   'screenscraperId',
   'emulatorAdded',
   'launchOverride',
+  'retroarchSystemConfig',
   'arcadeInfo',
   'artFolder',
   'replacesImport',

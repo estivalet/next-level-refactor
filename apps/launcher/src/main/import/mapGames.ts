@@ -74,15 +74,16 @@ function launchOverride(
   if ((config ?? gameConfig ?? shader) && !retroarchDir) {
     tally.add('game', systemName, 'retroarchNotFound');
   } else if (retroarchDir) {
-    // As nextlevel-launcher.py builds them: <RA>\config\<config>.cfg and
-    // <RA>\config\<system>\<alt config>\<rom stem>.cfg, shaders under <RA>\shaders.
-    const configs = [
-      ...(config ? [`${retroarchDir}\\config\\${config}.cfg`] : []),
-      ...(gameConfig
-        ? [`${retroarchDir}\\config\\${systemName}\\${gameConfig}\\${fileStem(relPath)}.cfg`]
-        : []),
-    ];
-    if (configs.length > 0) extraArgs.push('--appendconfig', configs.join('|'));
+    // As nextlevel-launcher.py builds them: -c <RA>\config\<config>.cfg (instead of the system's
+    // -c: RetroArch keeps the last one), --appendconfig <RA>\config\<system>\<alt config>\<rom
+    // stem>.cfg, shaders under <RA>\shaders.
+    if (config) extraArgs.push('-c', `${retroarchDir}\\config\\${config}.cfg`);
+    if (gameConfig) {
+      extraArgs.push(
+        '--appendconfig',
+        `${retroarchDir}\\config\\${systemName}\\${gameConfig}\\${fileStem(relPath)}.cfg`,
+      );
+    }
     if (shader) {
       extraArgs.push('--set-shader', `${retroarchDir}\\shaders\\${shader.replace(/\//g, '\\')}`);
     }

@@ -102,6 +102,11 @@ export function startLibrary(
       (info) => info.isDirectory(),
       () => false,
     );
+  const fileExists = (path: string) =>
+    stat(path).then(
+      (info) => info.isFile(),
+      () => false,
+    );
   const scan = new ScanService({
     repo,
     media,
@@ -180,6 +185,7 @@ export function startLibrary(
     detect: (folder) => detectEmulators(folder, emulatorPresets()),
     createWalker: () => createWorkerWalker(scanWorkerPath),
     folderExists,
+    fileExists,
     latestBackupId: async () => (await listBackupIds(settings.paths.backups))[0] ?? null,
   });
   const scrape = new ScrapeService({
