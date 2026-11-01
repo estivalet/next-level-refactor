@@ -54,6 +54,8 @@ export const PresetProfileSchema = z.object({
   cwd: z.string().optional(),
   core: z.string().optional(),
   archives: z.enum(['pass', 'extract']),
+  /** Environment templates the profile starts with (e.g. openMSX's home). */
+  env: z.record(z.string(), z.string()).optional(),
 });
 
 export const EmulatorPresetSchema = z.object({

@@ -7,6 +7,7 @@
 // --reimport compares as if Settings -> Import NextLevelOS ran again now (in memory; nothing is
 // written), with --emulators as the import's emulators folder.
 import { planImport } from '../../src/main/import/dryRun.ts';
+import { profileIdFor } from '../../src/main/import/presetProfiles.ts';
 import { detectEmulators } from '../../src/main/launch/detect.ts';
 import { migrate } from '../../src/main/settings/migrate.ts';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
@@ -18,7 +19,8 @@ import { readdir, stat } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { dirname, join, resolve, win32 } from 'node:path';
 import { parseArgs } from 'node:util';
-import { classify, normalize, type Placeholders } from './compare.ts';
+import { acceptedBy } from './accepted.ts';
+import { classify, normalize, SAME_EFFECT, type Placeholders } from './compare.ts';
 import { newCommand, type LibraryGame, type NewBuilt } from './newCommand.ts';
 import {
   brokenParts,
@@ -84,7 +86,14 @@ const plan = values.reimport
   : null;
 const settings = plan?.settings ?? current;
 const planned = new Map(
-  (plan?.games ?? []).map((g) => [`${g.systemId}\u0000${g.relPath.toLowerCase()}`, g.override]),
+  (plan?.games ?? []).map((g) => [
+    `${g.systemId}\u0000${g.relPath.toLowerCase()}`,
+    {
+      override: g.override,
+      // As ImportService.apply: the saved profile for the game's own emulator or medium.
+      profileId: g.presetProfileId ? profileIdFor(settings, g.systemId, g.presetProfileId) : null,
+    },
+  ]),
 );
 
 const config = readJson(join(publicDir, 'data/config.json')) as {
@@ -116,14 +125,17 @@ function libraryGame(systemId: string | null, relPath: string): LibraryGame | nu
       }
     | undefined;
   const imported = planned.get(`${systemId}\u0000${relPath.toLowerCase()}`);
-  if (!row && !imported) return null;
-  const override: LaunchOverride = imported
-    ? { profileId: row?.profileId ?? null, core: imported.core, extraArgs: imported.extraArgs }
-    : {
-        profileId: row?.profileId ?? null,
-        core: row?.core ?? null,
-        extraArgs: row?.extraArgs ? (JSON.parse(row.extraArgs) as string[]) : [],
-      };
+  if (!row && !imported?.override && !imported?.profileId) return null;
+  const kept: LaunchOverride = {
+    profileId: row?.profileId ?? null,
+    core: row?.core ?? null,
+    extraArgs: row?.extraArgs ? (JSON.parse(row.extraArgs) as string[]) : [],
+  };
+  const override: LaunchOverride = {
+    profileId: imported?.profileId ?? kept.profileId,
+    core: imported?.override ? imported.override.core : kept.core,
+    extraArgs: imported?.override ? imported.override.extraArgs : kept.extraArgs,
+  };
   return { locationId: row?.locationId ?? null, override };
 }
 
@@ -162,7 +174,7 @@ function oldRom(system: string, relPath: string): string | null {
 }
 
 interface Pending {
-  row: Omit<Row, 'old' | 'outcome'>;
+  row: Omit<Row, 'old' | 'outcome' | 'accepted'>;
   old: OldBuilt | null;
   job: string[] | null;
 }
@@ -261,7 +273,11 @@ try {
 
 const rows: Row[] = pending.map(({ row, old }) => {
   const built = old ?? { exe: null, args: [], cwd: null, env: {}, error: 'no result', mounts: [] };
-  return { ...row, old: built, outcome: classify(built, row.next, row.placeholders, existsSync) };
+  const outcome = classify(built, row.next, row.placeholders, existsSync);
+  const rule = SAME_EFFECT.has(outcome)
+    ? null
+    : acceptedBy(built, row.next, row.placeholders, existsSync);
+  return { ...row, old: built, outcome: rule ? 'accepted' : outcome, accepted: rule?.id ?? null };
 });
 mkdirSync(dirname(values.out), { recursive: true });
 writeFileSync(

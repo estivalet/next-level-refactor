@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { acceptedBy } from './accepted.ts';
 import {
   argDiff,
   classify,
@@ -177,5 +178,32 @@ describe('comparison', () => {
   it('lists the arguments only one side passes, as often as they appear', () => {
     const diff = argDiff(['-c', 'e:/emu/ra/x.cfg', '-v', '-v'], ['-v', '-L'], placeholders);
     expect(diff).toEqual({ onlyOld: ['-c', '{emulatorDir}\\x.cfg', '-v'], onlyNew: ['-l'] });
+  });
+});
+
+describe('accepted differences', () => {
+  it('accepts Dolphin -b -e only when that is the whole difference', () => {
+    const dolphin = 'C:/emu/Dolphin.exe';
+    const old = built(dolphin, ['--exec=C:/g.rvz']);
+    expect(acceptedBy(old, built(dolphin, ['-b', '-e', 'C:/g.rvz']))?.id).toBe('dolphin-batch');
+    expect(acceptedBy(old, built(dolphin, ['-b', '-e', 'C:/other.rvz']))).toBeNull();
+  });
+
+  it('accepts dropping the literal %COMMANDS% autoboot, keeping real autoboot differences', () => {
+    const mame = 'C:/mame/mame.exe';
+    const literal = ['bbcb', '-autoboot_delay', '3', '-autoboot_command', '%COMMANDS%'];
+    expect(acceptedBy(built(mame, literal), built(mame, ['bbcb']))?.id).toBe(
+      'mame-literal-commands',
+    );
+    const real = ['bbcb', '-autoboot_delay', '3', '-autoboot_command', 'RUN'];
+    expect(acceptedBy(built(mame, real), built(mame, ['bbcb']))).toBeNull();
+  });
+
+  it('accepts NextLevelOS’s None core and another copy of the same emulator', () => {
+    const ra = built('C:/ra/retroarch.exe', ['-L', 'C:/ra/cores/None.dll', 'rom']);
+    expect(acceptedBy(ra, built('C:/mame/mame.exe', ['x']))?.id).toBe('retroarch-core-none');
+    const copy = acceptedBy(built('C:/a/xemu.exe', ['-dvd']), built('C:/b/xemu.exe', ['-dvd']));
+    expect(copy?.id).toBe('same-emulator-other-copy');
+    expect(acceptedBy(built('C:/a/yuzu.exe', []), built('C:/b/Ryujinx.exe', []))).toBeNull();
   });
 });

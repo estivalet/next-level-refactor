@@ -20,13 +20,24 @@ Generated 2026-11-01 by `npm run compare-launch -w apps/launcher`. Don’t edit 
 | cwdOrEnv | Same program and arguments; working folder or environment differs | 0 | 0 |
 | order | Same program and arguments, in another order | 0 | 0 |
 | missingConfig | Same, except NextLevelOS also appends a config file that isn’t there (RetroArch skips it) | 0 | 0 |
-| args | Same program, different arguments | 980 | 75589 |
-| emulator | A different program | 19 | 2950 |
-| newError | Only the rebuild can’t build a command | 169 | 16129 |
+| accepted | A known difference that is fine (see Accepted differences) | 13 | 4163 |
+| args | Same program, different arguments | 977 | 73310 |
+| emulator | A different program | 12 | 2162 |
+| newError | Only the rebuild can’t build a command | 166 | 15033 |
 | oldError | Only NextLevelOS can’t build a command | 2 | 34 |
 | bothError | Neither can build a command | 27 | 1023 |
 
 4 systems in `launchers.json` have no gamelist: `Benesse Pocket Challenge W`, `Konami Handheld`, `Sega ST-V`, `Sega Triforce_old`.
+
+## Accepted differences
+
+Differences that are fine on purpose (`scripts/launchCompare/accepted.ts`). Each is checked: the old command, changed only that way, builds the same command.
+
+| Rule | Why | Systems | Variants | Games |
+| :--- | :--- | :--- | ---: | ---: |
+| `dolphin-batch` | Dolphin: the rebuild passes `-b -e <game>` instead of `--exec=<game>`; `-b` closes Dolphin when the game stops, which a front-end wants. | Nintendo GameCube, Nintendo Wii, Nintendo WiiWare | 3 | 2279 |
+| `retroarch-core-none` | NextLevelOS started RetroArch with the core `None.dll` (no core set for the system), so these games could not start there; the rebuild runs them with its own profile. | Coleco Adam, Creatronic Mega Duck, DICE, Funtech Super Acan, Gamate, Nintendo Game Boy Advance 2 Players, Philips CD-i, Thomson MO5 and 1 more | 9 | 1643 |
+| `same-emulator-other-copy` | The same emulator from another folder: the copy chosen in Settings → Emulators (NextLevelOS had its path in the runner). | Microsoft XBOX | 1 | 241 |
 
 ## Start these by hand
 
@@ -36,11 +47,11 @@ The comparison checks the commands; it can’t show an emulator starts. Start on
 | :--- | ---: | :--- | :--- | :--- |
 | `E:\NextLevel\emulators\retroarch\retroarch.exe` | 120 | `! Brazil/2-in-1 - Freeway and Tennis (Brazil) (PAL-M) [p1].zip` | Atari 2600 | yes |
 | `e:\NextLevel\emulators\mame\mame.exe` | 180 | `Galaxy Wars & Hangman (19xx)(-)[translated].zip` | Aamber Pegasus | no (args) |
-| `e:\NextLevel\emulators\dolphin-master-5.0-13178-x64\Dolphin.exe` | 3 | `SRS - Street Racing Syndicate (USA).rvz` | Nintendo GameCube | no (args) |
+| `e:\NextLevel\emulators\dolphin-master-5.0-13178-x64\Dolphin.exe` | 3 | `SRS - Street Racing Syndicate (USA).rvz` | Nintendo GameCube | no (accepted) |
 | `e:\NextLevel\emulators\pcsx2-v2.6.1-windows-x64-Qt\pcsx2-qt.exe` | 1 | `Fight Night 2004 (USA).gz` | Sony Playstation 2 | yes |
 | `e:\NextLevel\emulators\cemu\Cemu.exe` | 1 | `007 Legends (USA).wua` | Nintendo Wii U | no (args) |
 | `e:\NextLevel\emulators\azahar\azahar.exe` | 1 | `! Translated/Dragon Quest Monsters - Terry no Wonderland 3D (Japan) (Translated En).zip` | Nintendo 3DS | yes |
-| `e:\NextLevel\emulators\xemu-chihiro-PLAYTEST-1\xemu.exe` | 1 | `Voodoo Vince (Europe) (En,Fr,De,Es).iso` | Microsoft XBOX | no (emulator) |
+| `e:\NextLevel\emulators\xemu-chihiro-PLAYTEST-1\xemu.exe` | 1 | `Voodoo Vince (Europe) (En,Fr,De,Es).iso` | Microsoft XBOX | no (accepted) |
 | `e:\NextLevel\emulators\ryubing\Ryujinx.exe` | 1 | `1917 - The Alien Invasion DX.nsp` | Nintendo Switch | no (emulator) |
 | `e:\NextLevel\emulators\scummvm-2026.2.0-win32-x86_64\scummvm.exe` | 1 | `Maniac Mansion Deluxe.bat` | Adventure Game Studio | no (emulator) |
 
@@ -74,15 +85,12 @@ For the **args** outcome: arguments only one launcher passes, lowercased, with t
 | NextLevelOS | `{emulatorDir}` | 169 | 562 | 10409 | 0 of 562 |
 | NextLevelOS | `-uimodekey` | 169 | 562 | 10409 |  |
 | NextLevelOS | `del` | 169 | 562 | 10409 |  |
-| rebuild | `{rom}` | 8 | 273 | 3806 |  |
-| NextLevelOS | `--exec={rom}` | 3 | 3 | 2279 |  |
-| rebuild | `-b` | 3 | 3 | 2279 |  |
-| rebuild | `-e` | 3 | 3 | 2279 |  |
 | NextLevelOS | `-autoboot_delay` | 14 | 30 | 2205 |  |
 | NextLevelOS | `-autoboot_command` | 14 | 30 | 2205 |  |
 | NextLevelOS | `{emulatorDir}\config\nintendo nes.cfg` | 1 | 1 | 2163 | 0 of 1 |
 | NextLevelOS | `{emulatorDir}\config\nintendo nes\{romName}.cfg` | 1 | 1 | 2163 | 0 of 1 |
 | NextLevelOS | `%commands%` | 10 | 12 | 1956 |  |
+| rebuild | `{rom}` | 5 | 270 | 1527 |  |
 | NextLevelOS | `-rompath` | 2 | 3 | 1077 |  |
 | NextLevelOS | `{systemDir}` | 2 | 3 | 1077 | 1 of 3 |
 | NextLevelOS | `3` | 1 | 2 | 1076 |  |
@@ -92,6 +100,9 @@ For the **args** outcome: arguments only one launcher passes, lowercased, with t
 | NextLevelOS | `{emulatorDir}\shaders\shaders_slang\hqx\hq4x.slangp` | 1 | 1 | 635 | 0 of 1 |
 | NextLevelOS | `-g={rom}` | 1 | 1 | 608 |  |
 | rebuild | `-g` | 1 | 1 | 608 |  |
+| rebuild | `-cart` | 3 | 6 | 516 |  |
+| NextLevelOS | `5` | 1 | 5 | 436 |  |
+| NextLevelOS | `2` | 8 | 16 | 362 |  |
 
 ## Systems
 
@@ -162,7 +173,7 @@ Systems with a difference first.
 | China Education Computer | `china-education-computer` | 22 | 1 | 1 args | mame.exe | MAME – China Education Computer |
 | Chip8 | `chip8` | 110 | 1 | 1 args | retroarch.exe | RetroArch – jaxe |
 | Coastal PC | `coastal-pc` | 3 | 1 | 1 bothError | — | NO_PROFILE |
-| Coleco Adam | `coleco-adam` | 67 | 1 | 1 emulator | retroarch.exe | MAME – Coleco Adam |
+| Coleco Adam | `coleco-adam` | 67 | 1 | 1 accepted | retroarch.exe | MAME – Coleco Adam |
 | Coleco ColecoVision | `coleco-colecovision` | 240 | 2 | 1 args, 1 emulator | retroarch.exe, ColEm.exe | RetroArch – bluemsx |
 | Coleco Telstar | `coleco-telstar` | 1 | 1 | 1 newError | tennis.bat | NO_PROFILE |
 | Commander X16 | `commander-x16` | 17 | 1 | 1 newError | Chase Vault.bat | NO_PROFILE |
@@ -179,10 +190,10 @@ Systems with a difference first.
 | Commodore VIC-20 | `commodore-vic-20` | 1356 | 1 | 1 args | retroarch.exe | RetroArch – vice_xvic |
 | Compucolor II | `compucolor-ii` | 221 | 1 | 1 args | mame.exe | MAME – Compucolor II |
 | CoolBoy | `coolboy` | 6 | 6 | 6 newError | mame.exe | NO_PROFILE |
-| Creatronic Mega Duck | `creatronic-mega-duck` | 23 | 1 | 1 emulator | retroarch.exe | MAME – Creatronic Mega Duck |
+| Creatronic Mega Duck | `creatronic-mega-duck` | 23 | 1 | 1 accepted | retroarch.exe | MAME – Creatronic Mega Duck |
 | Daphne | `daphne` | 19 | 1 | 1 newError | hypseus.exe | NO_PROFILE |
 | DEC PDP-1 | `dec-pdp-1` | 3 | 1 | 1 args | mame.exe | MAME – DEC PDP-1 |
-| DICE | `dice` | 23 | 1 | 1 newError | retroarch.exe | NO_PROFILE |
+| DICE | `dice` | 23 | 1 | 1 accepted | retroarch.exe | NO_PROFILE |
 | Dick Smith Super-80 | `dick-smith-super-80` | 136 | 1 | 1 args | mame.exe | MAME – Dick Smith Super-80 |
 | Dick Smith VZ-200 | `dick-smith-vz-200` | 170 | 1 | 1 args | mame.exe | MAME – Dick Smith VZ-200 |
 | Digital ez LG | `digital-ez-lg` | 1 | 1 | 1 args | mame.exe | MAME – Digital ez LG |
@@ -217,13 +228,13 @@ Systems with a difference first.
 | Fujitsu FM Towns Marty | `fujitsu-fm-towns-marty` | 1 | 1 | 1 args | mame.exe | MAME – Fujitsu FM Towns Marty |
 | Fujitsu FM-7 | `fujitsu-fm-7` | 110 | 2 | 2 args | mame.exe | MAME – Fujitsu FM-7 |
 | Fujitsu FM77 AV | `fujitsu-fm77-av` | 10 | 1 | 1 args | mame.exe | MAME – Fujitsu FM77 AV |
-| Funtech Super Acan | `funtech-super-acan` | 12 | 1 | 1 newError | retroarch.exe | NO_PROFILE |
+| Funtech Super Acan | `funtech-super-acan` | 12 | 1 | 1 accepted | retroarch.exe | NO_PROFILE |
 | Future Pinball | `future-pinball` | 379 | 2 | 2 newError | Future Pinball.exe | NO_PROFILE |
 | Gaelco 3D | `gaelco-3d` | 4 | 1 | 1 newError | demul.exe | NO_PROFILE |
 | Gaelco PC | `gaelco-pc` | 4 | 1 | 1 newError | TeknoParrotUi.exe | NO_PROFILE |
 | Gakken Compact Vision TV Boy | `gakken-compact-vision-tv-boy` | 6 | 1 | 1 args | mame.exe | MAME – Gakken Compact Vision TV Boy |
 | Galaksija Plus | `galaksija-plus` | 48 | 1 | 1 args | mame.exe | MAME – Galaksija Plus |
-| Gamate | `gamate` | 57 | 1 | 1 emulator | retroarch.exe | MAME – Gamate |
+| Gamate | `gamate` | 57 | 1 | 1 accepted | retroarch.exe | MAME – Gamate |
 | Game & Watch | `game-watch` | 56 | 1 | 1 args | retroarch.exe | RetroArch – gw |
 | GameHouse Games | `gamehouse-games` | 115 | 1 | 1 newError |  | NO_PROFILE |
 | GameMaker Games | `gamemaker-games` | 14 | 1 | 1 newError | Archeo-Raid.lnk | NO_PROFILE |
@@ -282,7 +293,7 @@ Systems with a difference first.
 | Microsoft MSX2+ | `microsoft-msx2-plus` | 88 | 1 | 1 newError | openmsx.exe | NO_PROFILE |
 | Microsoft Windows 3.x | `microsoft-windows-3-x` | 928 | 3 | 3 newError | dosbox.exe | NO_PROFILE |
 | Microsoft XBLA | `microsoft-xbla` | 721 | 1 | 1 newError | xenia_canary.exe | NO_PROFILE |
-| Microsoft XBOX | `microsoft-xbox` | 241 | 1 | 1 emulator | xemu.exe | xemu |
+| Microsoft XBOX | `microsoft-xbox` | 241 | 1 | 1 accepted | xemu.exe | xemu |
 | Microsoft XBOX 360 | `microsoft-xbox-360` | 308 | 4 | 4 newError | xenia_canary.exe | NO_PROFILE |
 | Midway PC | `midway-pc` | 3 | 1 | 1 newError | TeknoParrotUi.exe | NO_PROFILE |
 | Millennium | `millennium` | 4 | 1 | 1 bothError | — | MAME – Millennium |
@@ -321,10 +332,10 @@ Systems with a difference first.
 | Nintendo Game Boy | `nintendo-game-boy` | 869 | 1 | 1 args | retroarch.exe | RetroArch – gambatte |
 | Nintendo Game Boy 2 Players | `nintendo-game-boy-2-players` | 197 | 1 | 1 args | retroarch.exe | RetroArch – tgbdual |
 | Nintendo Game Boy Advance | `nintendo-game-boy-advance` | 626 | 1 | 1 args | retroarch.exe | RetroArch – vba_next |
-| Nintendo Game Boy Advance 2 Players | `nintendo-game-boy-advance-2-players` | 1061 | 1 | 1 newError | retroarch.exe | NO_PROFILE |
+| Nintendo Game Boy Advance 2 Players | `nintendo-game-boy-advance-2-players` | 1061 | 1 | 1 accepted | retroarch.exe | NO_PROFILE |
 | Nintendo Game Boy Color | `nintendo-game-boy-color` | 544 | 1 | 1 args | retroarch.exe | RetroArch – gambatte |
 | Nintendo Game Boy Color 2 Players | `nintendo-game-boy-color-2-players` | 577 | 1 | 1 args | retroarch.exe | RetroArch – tgbdual |
-| Nintendo GameCube | `nintendo-gamecube` | 705 | 1 | 1 args | Dolphin.exe | Dolphin |
+| Nintendo GameCube | `nintendo-gamecube` | 705 | 1 | 1 accepted | Dolphin.exe | Dolphin |
 | Nintendo NES | `nintendo-nes` | 2641 | 2 | 2 args | retroarch.exe | RetroArch – nestopia |
 | Nintendo NES 3D | `nintendo-nes-3d` | 133 | 1 | 1 newError | 1943 - The Battle of Midway.cmd | NO_PROFILE |
 | Nintendo NES HD | `nintendo-nes-hd` | 32 | 1 | 1 newError | 25th Anniversary Super Mario Bros. (Europe) (Promo, Virtual Console).bat | NO_PROFILE |
@@ -336,9 +347,9 @@ Systems with a difference first.
 | Nintendo Super Famicom | `nintendo-super-famicom` | 2407 | 1 | 1 args | retroarch.exe | RetroArch – snes9x |
 | Nintendo Switch | `nintendo-switch` | 206 | 1 | 1 emulator | yuzu.exe | Ryujinx |
 | Nintendo Virtual Boy | `nintendo-virtual-boy` | 26 | 1 | 1 args | retroarch.exe | RetroArch – mednafen_vb |
-| Nintendo Wii | `nintendo-wii` | 861 | 1 | 1 args | Dolphin.exe | Dolphin |
+| Nintendo Wii | `nintendo-wii` | 861 | 1 | 1 accepted | Dolphin.exe | Dolphin |
 | Nintendo Wii U | `nintendo-wii-u` | 608 | 1 | 1 args | Cemu.exe | Cemu |
-| Nintendo WiiWare | `nintendo-wiiware` | 713 | 1 | 1 args | Dolphin.exe | Dolphin |
+| Nintendo WiiWare | `nintendo-wiiware` | 713 | 1 | 1 accepted | Dolphin.exe | Dolphin |
 | Nokia N-GAGE | `nokia-n-gage` | 51 | 1 | 1 newError | Ashen.cmd | NO_PROFILE |
 | North Star Horizon | `north-star-horizon` | 9 | 1 | 1 args | mame.exe | MAME – North Star Horizon |
 | OpenBOR | `openbor` | 369 | 1 | 1 newError | OpenBOR.exe | NO_PROFILE |
@@ -352,7 +363,7 @@ Systems with a difference first.
 | PDP VG Pocket | `pdp-vg-pocket` | 6 | 6 | 6 args | mame.exe | MAME – PDP VG Pocket |
 | PEL Varazdin ORAO | `pel-varazdin-orao` | 4 | 1 | 1 args | mame.exe | MAME – PEL Varazdin ORAO |
 | Phantom Systems | `phantom-systems` | 1 | 1 | 1 newError | TeknoParrotUi.exe | NO_PROFILE |
-| Philips CD-i | `philips-cd-i` | 131 | 1 | 1 emulator | retroarch.exe | MAME – Philips CD-i |
+| Philips CD-i | `philips-cd-i` | 131 | 1 | 1 accepted | retroarch.exe | MAME – Philips CD-i |
 | Philips P2000T | `philips-p2000t` | 17 | 1 | 1 args | retroarch.exe | RetroArch – mame |
 | Philips VG5000 | `philips-vg5000` | 50 | 1 | 1 args | mame.exe | MAME – Philips VG5000 |
 | Philips Videopac Plus G7400 | `philips-videopac-plus-g7400` | 31 | 1 | 1 bothError | — | NO_PROFILE |
@@ -480,7 +491,7 @@ Systems with a difference first.
 | Tesla Ondra | `tesla-ondra` | 10 | 1 | 1 args | mame.exe | MAME – Tesla Ondra |
 | Tesla PMD-85 | `tesla-pmd-85` | 59 | 1 | 1 args | mame.exe | MAME – Tesla PMD-85 |
 | Texas Instruments TI 99-4A | `texas-instruments-ti-99-4a` | 108 | 1 | 1 args | mame.exe | MAME – Texas Instruments TI 99-4A |
-| Thomson MO5 | `thomson-mo5` | 252 | 1 | 1 emulator | retroarch.exe | MAME – Thomson MO5 |
+| Thomson MO5 | `thomson-mo5` | 252 | 1 | 1 accepted | retroarch.exe | MAME – Thomson MO5 |
 | Thomson MO6 | `thomson-mo6` | 7 | 1 | 1 args | mame.exe | MAME – Thomson MO6 |
 | Thomson TO7 | `thomson-to7` | 182 | 1 | 1 args | mame.exe | MAME – Thomson TO7 |
 | Thomson TO8 | `thomson-to8` | 195 | 1 | 1 args | retroarch.exe | RetroArch – theodore |
@@ -512,7 +523,7 @@ Systems with a difference first.
 | Visual Pinball | `visual-pinball` | 943 | 1 | 1 newError | VPinballX64.exe | NO_PROFILE |
 | VM Labs Nuon | `vm-labs-nuon` | 6 | 1 | 1 newError | Ballistic.bat | NO_PROFILE |
 | Voltmace Database | `voltmace-database` | 19 | 1 | 1 args | mame.exe | MAME – Voltmace Database |
-| VTech Creativision | `vtech-creativision` | 17 | 1 | 1 emulator | retroarch.exe | MAME – VTech Creativision |
+| VTech Creativision | `vtech-creativision` | 17 | 1 | 1 accepted | retroarch.exe | MAME – VTech Creativision |
 | VTech Laser 128 | `vtech-laser-128` | 25 | 1 | 1 args | mame.exe | MAME – VTech Laser 128 |
 | VTech Laser 200 | `vtech-laser-200` | 133 | 1 | 1 args | mame.exe | MAME – VTech Laser 200 |
 | VTech Laser 310 | `vtech-laser-310` | 117 | 1 | 1 args | mame.exe | MAME – VTech Laser 310 |
@@ -595,23 +606,7 @@ new: E:\NextLevel\emulators\retroarch\retroarch.exe -L E:\NextLevel\emulators\re
 only old: -c {emulatorDir}\config\{system}\{romName}.cfg
 ```
 
-### 5. args — 3 systems, 3 variants, 2279 games
-
-Systems: Nintendo GameCube, Nintendo Wii, Nintendo WiiWare.
-
-Example: Nintendo Wii · `007 - Quantum of Solace (USA) (En,Fr).rvz` (861 games)
-
-```text
-old: e:/NextLevel/emulators/dolphin-master-5.0-13178-x64/Dolphin.exe "--exec=e:\roms\Nintendo Wii\007 - Quantum of Solace (USA) (En,Fr).rvz"
-     cwd: e:\NextLevel\emulators\dolphin-master-5.0-13178-x64
-new: e:\NextLevel\emulators\dolphin-master-5.0-13178-x64\Dolphin.exe -b -e "e:\roms\Nintendo Wii\007 - Quantum of Solace (USA) (En,Fr).rvz"
-     profile: Dolphin
-     cwd: e:\NextLevel\emulators\dolphin-master-5.0-13178-x64
-only old: --exec={rom}
-only new: -b -e {rom}
-```
-
-### 6. args — 1 system, 1 variant, 2163 games
+### 5. args — 1 system, 1 variant, 2163 games
 
 Systems: Handy Vision.
 
@@ -626,7 +621,7 @@ new: E:\NextLevel\emulators\retroarch\retroarch.exe -L E:\NextLevel\emulators\re
 only old: -c "{emulatorDir}\config\nintendo nes.cfg" --appendconfig "{emulatorDir}\config\nintendo nes\{romName}.cfg"
 ```
 
-### 7. emulator — 1 system, 1 variant, 1770 games
+### 6. emulator — 1 system, 1 variant, 1770 games
 
 Systems: Microsoft MSX.
 
@@ -643,19 +638,7 @@ only old: -setting e:\nextlevel\emulators\openmsx\share\settings.xml
 only new: -l {emulatorDir}\cores\bluemsx_libretro.dll
 ```
 
-### 8. newError — 3 systems, 3 variants, 1096 games
-
-Systems: DICE, Funtech Super Acan, Nintendo Game Boy Advance 2 Players.
-
-Example: Nintendo Game Boy Advance 2 Players · `007 - NightFire (USA, Europe) (En,Fr,De).zip` (1061 games)
-
-```text
-old: e:/NextLevel/emulators/retroarch/retroarch.exe -L e:/NextLevel/emulators/retroarch/cores\None.dll -c "e:/NextLevel/emulators/retroarch/config\Nintendo Game Boy Advance 2 Players.cfg" --appendconfig "e:/NextLevel/emulators/retroarch/config\Nintendo Game Boy Advance 2 Players\007 - NightFire (USA, Europe) (En,Fr,De).cfg" "e:\roms\Nintendo Game Boy Advance 2 Players\007 - NightFire (USA, Europe) (En,Fr,De).zip"
-     cwd: e:\NextLevel\emulators\retroarch
-new: ERROR NO_PROFILE
-```
-
-### 9. args — 1 system, 1 variant, 1075 games
+### 7. args — 1 system, 1 variant, 1075 games
 
 Systems: Acorn BBC Micro.
 
@@ -670,7 +653,7 @@ new: e:\NextLevel\emulators\mame\mame.exe bbcb -rp "E:\NextLevel\systems\Acorn B
 only old: -autoboot_delay 3 -autoboot_command %commands% -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del -rompath {systemDir}
 ```
 
-### 10. newError — 2 systems, 5 variants, 1029 games
+### 8. newError — 2 systems, 5 variants, 1029 games
 
 Systems: Microsoft XBLA, Microsoft XBOX 360.
 
@@ -682,7 +665,7 @@ old: "e:/NextLevel/emulators/xenia/Emulators/Xenia Canary/xenia_canary.exe" --fu
 new: ERROR NO_PROFILE
 ```
 
-### 11. newError — 1 system, 1 variant, 943 games
+### 9. newError — 1 system, 1 variant, 943 games
 
 Systems: Visual Pinball.
 
@@ -694,7 +677,7 @@ old: e:/NextLevel/emulators/vpinball/VPinballX64.exe -ExtMinimized -Ini e:/NextL
 new: ERROR NO_PROFILE
 ```
 
-### 12. newError — 1 system, 3 variants, 928 games
+### 10. newError — 1 system, 3 variants, 928 games
 
 Systems: Microsoft Windows 3.x.
 
@@ -706,7 +689,7 @@ old: e:/NextLevel/emulators/dosbox/dosbox.exe "e:\NextLevel\systems\Microsoft Wi
 new: ERROR NO_PROFILE
 ```
 
-### 13. args — 1 system, 1 variant, 635 games
+### 11. args — 1 system, 1 variant, 635 games
 
 Systems: ScummVM.
 
@@ -723,23 +706,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 14. emulator — 11 systems, 11 variants, 612 games
-
-Systems: Acorn BBC Micro, Brainchild PLS-1000, Coleco Adam, Creatronic Mega Duck, Fairchild Channel F, Gamate, Philips CD-i, Sega SC-3000, Thomson MO5, VTech Creativision, VTech Socrates.
-
-Example: Thomson MO5 · `1000 Bornes (mo5).k7` (252 games)
-
-```text
-old: e:/NextLevel/emulators/retroarch/retroarch.exe -L e:/NextLevel/emulators/retroarch/cores\None.dll -c "e:/NextLevel/emulators/retroarch/config\Thomson MO5.cfg" --appendconfig "e:/NextLevel/emulators/retroarch/config\Thomson MO5\1000 Bornes (mo5).cfg" "e:\NextLevel\systems\Thomson MO5\1000 Bornes (mo5).k7"
-     cwd: e:\NextLevel\emulators\retroarch
-new: e:\NextLevel\emulators\mame\mame.exe mo5 -cass "E:\NextLevel\systems\Thomson MO5\1000 Bornes (mo5).k7" -autoboot_delay 5 -autoboot_command RUN""\n -rompath "E:\NextLevel\systems\Thomson MO5" -skip_gameinfo
-     profile: MAME – Thomson MO5
-     cwd: e:\NextLevel\emulators\mame
-only old: -l e:\nextlevel\emulators\retroarch\cores\none.dll (missing) -c e:\nextlevel\emulators\retroarch\config\{system}.cfg --appendconfig e:\nextlevel\emulators\retroarch\config\{system}\{romName}.cfg (missing)
-only new: mo5 -cass -autoboot_delay 5 -autoboot_command run""\n -rompath {systemDir} -skip_gameinfo
-```
-
-### 15. args — 1 system, 1 variant, 608 games
+### 12. args — 1 system, 1 variant, 608 games
 
 Systems: Nintendo Wii U.
 
@@ -756,7 +723,7 @@ only old: -g={rom}
 only new: -g {rom}
 ```
 
-### 16. bothError — 7 systems, 8 variants, 592 games
+### 13. bothError — 7 systems, 8 variants, 592 games
 
 Systems: Commodore 128, Commodore Max Machine, Elektronska Industrija Pecom 64, Enterprise 128, Flash Games, Singe, Solarus RPG Game Engine.
 
@@ -767,7 +734,7 @@ old: ERROR main.cjs leaves undefined\ in the command
 new: ERROR NO_PROFILE
 ```
 
-### 17. args — 1 system, 1 variant, 432 games
+### 14. args — 1 system, 1 variant, 432 games
 
 Systems: Tandy TRS-80 Color Computer.
 
@@ -783,7 +750,7 @@ only old: -%media% -autoboot_delay 5 -autoboot_command %commands% -artpath {emul
 only new: -cart
 ```
 
-### 18. newError — 3 systems, 3 variants, 431 games
+### 15. newError — 3 systems, 3 variants, 431 games
 
 Systems: Microsoft MSX Turbo R, Microsoft MSX2, Microsoft MSX2+.
 
@@ -796,7 +763,7 @@ new: ERROR NO_PROFILE
      note: not in the library
 ```
 
-### 19. newError — 36 systems, 36 variants, 429 games
+### 16. newError — 36 systems, 36 variants, 429 games
 
 Systems: Arcade PC, Examu eX-BOARD, Gaelco PC, Gamewax PC, Global VR, IT Nighthawk, Midway PC, Namco BNA, Namco ESX, Namco N2, Namco System 147, Namco System 148, Namco System 246, Namco System 256, Namco System 369, Phantom Systems, Raw Thrills, Sega ALLs, Sega Europa-R, Sega Lindbergh, Sega PC, Sega RingEdge, Sega RingEdge 2, Sega RingWide, Sega Triforce and 11 more.
 
@@ -809,7 +776,7 @@ old: e:/NextLevel/emulators/TeknoParrot/TeknoParrotUi.exe --profile=3DCosplayMah
 new: ERROR NO_PROFILE
 ```
 
-### 20. newError — 1 system, 2 variants, 379 games
+### 17. newError — 1 system, 2 variants, 379 games
 
 Systems: Future Pinball.
 
@@ -821,7 +788,7 @@ old: "e:/NextLevel/emulators/fpinball/Future Pinball.exe" /open "e:\NextLevel\sy
 new: ERROR NO_PROFILE
 ```
 
-### 21. newError — 1 system, 1 variant, 376 games
+### 18. newError — 1 system, 1 variant, 376 games
 
 Systems: Sony Playstation 3.
 
@@ -833,7 +800,7 @@ old: TODO
 new: ERROR NO_PROFILE
 ```
 
-### 22. newError — 1 system, 1 variant, 369 games
+### 19. newError — 1 system, 1 variant, 369 games
 
 Systems: OpenBOR.
 
@@ -845,7 +812,7 @@ old: e:/NextLevel/emulators/openbor/OpenBOR.exe "e:\NextLevel\systems\OpenBOR\A 
 new: ERROR NO_PROFILE
 ```
 
-### 23. newError — 4 systems, 4 variants, 303 games
+### 20. newError — 4 systems, 4 variants, 303 games
 
 Systems: Hitachi Basic Master Level 3, Luxor ABC 80, Nichibutsu My Vision, Specialist.
 
@@ -857,7 +824,7 @@ old: e:\NextLevel\systems\Specialist\retroarch.bat special cass e:\NextLevel\sys
 new: ERROR NO_PROFILE
 ```
 
-### 24. newError — 2 systems, 2 variants, 270 games
+### 21. newError — 2 systems, 2 variants, 270 games
 
 Systems: Big Fish Games, GameHouse Games.
 
@@ -870,21 +837,7 @@ old: "<squashfs mount>\" ""
 new: ERROR NO_PROFILE
 ```
 
-### 25. emulator — 1 system, 1 variant, 241 games
-
-Systems: Microsoft XBOX.
-
-Example: Microsoft XBOX · `Voodoo Vince (Europe) (En,Fr,De,Es).iso` (241 games)
-
-```text
-old: e:/NextLevel/emulators/xemu/xemu.exe -full-screen -dvd_path "e:\roms\Microsoft XBOX\Voodoo Vince (Europe) (En,Fr,De,Es).iso"
-     cwd: e:\NextLevel\emulators\xemu
-new: e:\NextLevel\emulators\xemu-chihiro-PLAYTEST-1\xemu.exe -full-screen -dvd_path "e:\roms\Microsoft XBOX\Voodoo Vince (Europe) (En,Fr,De,Es).iso"
-     profile: xemu
-     cwd: e:\NextLevel\emulators\xemu-chihiro-PLAYTEST-1
-```
-
-### 26. args — 1 system, 1 variant, 219 games
+### 22. args — 1 system, 1 variant, 219 games
 
 Systems: NEC PC-6001.
 
@@ -900,7 +853,7 @@ only old: -%media% -autoboot_delay 4 -autoboot_command %commands% -artpath {emul
 only new: -cart1
 ```
 
-### 27. emulator — 1 system, 1 variant, 206 games
+### 23. emulator — 1 system, 1 variant, 206 games
 
 Systems: Nintendo Switch.
 
@@ -915,7 +868,7 @@ new: e:\NextLevel\emulators\ryubing\Ryujinx.exe -f "e:\roms\Nintendo Switch\1917
 only old: -g
 ```
 
-### 28. newError — 2 systems, 2 variants, 189 games
+### 24. newError — 2 systems, 2 variants, 189 games
 
 Systems: Pinball FX2, Pinball FX3.
 
@@ -927,7 +880,7 @@ old: "e:\NextLevel\systems\Pinball FX3\Alien_Isolation.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 29. args — 2 systems, 2 variants, 165 games
+### 25. args — 2 systems, 2 variants, 165 games
 
 Systems: Exidy Sorcerer, Fujitsu FM-7.
 
@@ -942,7 +895,7 @@ new: e:\NextLevel\emulators\mame\mame.exe fm7 -flop1 "E:\NextLevel\systems\Fujit
 only old: -autoboot_delay 2 -autoboot_command -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 30. bothError — 1 system, 1 variant, 164 games
+### 26. bothError — 1 system, 1 variant, 164 games
 
 Systems: Sony PS Vita.
 
@@ -953,7 +906,7 @@ old: ERROR FileNotFoundError: CMD file not found: e:\NextLevel\systems\Sony PS V
 new: ERROR NO_PROFILE
 ```
 
-### 31. newError — 1 system, 1 variant, 134 games
+### 27. newError — 1 system, 1 variant, 134 games
 
 Systems: Pinball FX.
 
@@ -965,7 +918,7 @@ old: "e:/PC-Games/Pinball FX/pinballfx.exe" -Table 181
 new: ERROR NO_PROFILE
 ```
 
-### 32. newError — 1 system, 1 variant, 133 games
+### 28. newError — 1 system, 1 variant, 133 games
 
 Systems: Nintendo NES 3D.
 
@@ -977,7 +930,7 @@ old: "e:\NextLevel\systems\Nintendo NES 3D\1943 - The Battle of Midway.cmd" none
 new: ERROR NO_PROFILE
 ```
 
-### 33. args — 1 system, 1 variant, 124 games
+### 29. args — 1 system, 1 variant, 124 games
 
 Systems: Tandy TRS-80.
 
@@ -993,7 +946,7 @@ only old: - -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -sna
 only new: -cass
 ```
 
-### 34. newError — 1 system, 1 variant, 122 games
+### 30. newError — 1 system, 1 variant, 122 games
 
 Systems: Zaccaria Pinball.
 
@@ -1005,7 +958,7 @@ old: "e:\NextLevel\systems\Zaccaria Pinball\Aerobatics.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 35. args — 1 system, 121 variants, 121 games
+### 31. args — 1 system, 121 variants, 121 games
 
 Systems: LCD Games.
 
@@ -1020,7 +973,7 @@ new: e:\NextLevel\emulators\mame\mame.exe nupogodi.zip -rompath "E:\NextLevel\sy
 only old: -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del -artpath {emulatorDir}\artwork_alt -cfg_directory {emulatorDir}\cfg_alt
 ```
 
-### 36. args — 1 system, 1 variant, 112 games
+### 32. args — 1 system, 1 variant, 112 games
 
 Systems: Acorn Atom.
 
@@ -1036,7 +989,7 @@ only old: -%media% -autoboot_delay 2 -autoboot_command %commands% -artpath {emul
 only new: -cass
 ```
 
-### 37. newError — 1 system, 1 variant, 105 games
+### 33. newError — 1 system, 1 variant, 105 games
 
 Systems: PinballArcade.
 
@@ -1048,7 +1001,7 @@ old: e:\NextLevel\systems\PinballArcade\ACDC.bat none
 new: ERROR NO_PROFILE
 ```
 
-### 38. bothError — 1 system, 2 variants, 92 games
+### 34. bothError — 1 system, 2 variants, 92 games
 
 Systems: Arcade Gun Games.
 
@@ -1059,7 +1012,7 @@ old: ERROR main.cjs leaves %RETROARCH_PATH%, %name%, undefined\ in the command
 new: ERROR NO_PROFILE
 ```
 
-### 39. emulator — 1 system, 1 variant, 88 games
+### 35. emulator — 1 system, 1 variant, 88 games
 
 Systems: Coleco ColecoVision.
 
@@ -1075,7 +1028,7 @@ only old: -sgm
 only new: -l {emulatorDir}\cores\bluemsx_libretro.dll
 ```
 
-### 40. args — 5 systems, 5 variants, 77 games
+### 36. args — 5 systems, 5 variants, 77 games
 
 Systems: Amstrad CPC Plus, Camputers Lynx, Canon X-07, CCE MC-1000, Matra and Hachette Alice.
 
@@ -1090,7 +1043,7 @@ new: e:\NextLevel\emulators\mame\mame.exe lynx48k -cass1 "E:\NextLevel\systems\C
 only old: -autoboot_delay 2 -autoboot_command %commands% -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 41. args — 2 systems, 72 variants, 72 games
+### 37. args — 2 systems, 72 variants, 72 games
 
 Systems: Nintendo NES MSU-1, Nintendo SNES MSU-1.
 
@@ -1108,7 +1061,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 42. args — 2 systems, 2 variants, 70 games
+### 38. args — 2 systems, 2 variants, 70 games
 
 Systems: Memotech MTX, NEC PC-8001.
 
@@ -1123,7 +1076,7 @@ new: e:\NextLevel\emulators\mame\mame.exe mtx512 -dump "E:\NextLevel\systems\Mem
 only old: -autoboot_delay 4 -autoboot_command -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 43. newError — 1 system, 1 variant, 68 games
+### 39. newError — 1 system, 1 variant, 68 games
 
 Systems: MUGEN.
 
@@ -1135,7 +1088,7 @@ old: "e:/NextLevel/systems/MUGEN/Super Crazy Jam Season 2.lnk"
 new: ERROR NO_PROFILE
 ```
 
-### 44. newError — 5 systems, 67 variants, 67 games
+### 40. newError — 5 systems, 67 variants, 67 games
 
 Systems: CoolBoy, Epoch SSD Company, JungleTac, Musical, Other Handhelds.
 
@@ -1147,7 +1100,7 @@ old: e:/NextLevel/emulators/mame/mame.exe mc_110cb -artpath e:/NextLevel/emulato
 new: ERROR NO_PROFILE
 ```
 
-### 45. newError — 2 systems, 2 variants, 67 games
+### 41. newError — 2 systems, 2 variants, 67 games
 
 Systems: Sega Model 2, Sega Model 3.
 
@@ -1159,7 +1112,23 @@ old: e:/NextLevel/emulators/m2emulator/emulator.bat bel
 new: ERROR NO_PROFILE
 ```
 
-### 46. args — 1 system, 6 variants, 60 games
+### 42. emulator — 5 systems, 5 variants, 65 games
+
+Systems: Acorn BBC Micro, Brainchild PLS-1000, Fairchild Channel F, Sega SC-3000, VTech Socrates.
+
+Example: Fairchild Channel F · `! Homebrews/Hockey & Tennis (USA).zip` (49 games)
+
+```text
+old: e:/NextLevel/emulators/retroarch/retroarch.exe -L e:/NextLevel/emulators/retroarch/cores\freechaf_libretro.dll -c "e:/NextLevel/emulators/retroarch/config\Fairchild Channel F.cfg" --appendconfig "e:/NextLevel/emulators/retroarch/config\Fairchild Channel F\Hockey & Tennis (USA).cfg" "e:\NextLevel\systems\Fairchild Channel F\! Homebrews\Hockey & Tennis (USA).zip"
+     cwd: e:\NextLevel\emulators\retroarch
+new: e:\NextLevel\emulators\mame\mame.exe channelf -cart "E:\NextLevel\systems\Fairchild Channel F\! Homebrews\Hockey & Tennis (USA).zip" -rompath "E:\NextLevel\systems\Fairchild Channel F" -skip_gameinfo
+     profile: MAME – Fairchild Channel F
+     cwd: e:\NextLevel\emulators\mame
+only old: -l e:\nextlevel\emulators\retroarch\cores\freechaf_libretro.dll -c e:\nextlevel\emulators\retroarch\config\{system}.cfg --appendconfig e:\nextlevel\emulators\retroarch\config\{system}\{romName}.cfg (missing)
+only new: channelf -cart -rompath {systemDir} -skip_gameinfo
+```
+
+### 43. args — 1 system, 6 variants, 60 games
 
 Systems: Arcade.
 
@@ -1175,7 +1144,7 @@ only old: -c {emulatorDir}\config\arcade-hyperspacemadnessarcade.cfg {emulatorDi
 only new: {emulatorDir}\config\arcade-hyperspacemadnessarcade.cfg|{emulatorDir}\config\{system}\hyperspacemadnessarcade\{romName}.cfg
 ```
 
-### 47. bothError — 3 systems, 3 variants, 51 games
+### 44. bothError — 3 systems, 3 variants, 51 games
 
 Systems: Doujin Soft Beatemups, Doujin Soft Shmups, Touhou Project.
 
@@ -1186,7 +1155,7 @@ old: ERROR main.cjs leaves %name% in the command
 new: ERROR NO_PROFILE
 ```
 
-### 48. newError — 1 system, 1 variant, 51 games
+### 45. newError — 1 system, 1 variant, 51 games
 
 Systems: Nokia N-GAGE.
 
@@ -1198,7 +1167,7 @@ old: "e:\NextLevel\systems\Nokia N-GAGE\Ashen.cmd" none
 new: ERROR NO_PROFILE
 ```
 
-### 49. newError — 1 system, 1 variant, 48 games
+### 46. newError — 1 system, 1 variant, 48 games
 
 Systems: Namco System 2x6.
 
@@ -1210,7 +1179,7 @@ old: e:/NextLevel/emulators/pcsx2x6/pcsx2-qt.exe -fullscreen -- "e:\roms\Namco S
 new: ERROR NO_PROFILE
 ```
 
-### 50. newError — 1 system, 1 variant, 46 games
+### 47. newError — 1 system, 1 variant, 46 games
 
 Systems: PopCap Games.
 
@@ -1222,7 +1191,7 @@ old: "e:/NextLevel/systems/PopCap Games/Alchemy Deluxe.lnk"
 new: ERROR NO_PROFILE
 ```
 
-### 51. newError — 4 systems, 4 variants, 42 games
+### 48. newError — 4 systems, 4 variants, 42 games
 
 Systems: Cave 3rd, Gaelco 3D, Sega Hikaru, Sega Naomi 2 GD-ROM.
 
@@ -1234,7 +1203,7 @@ old: e:/NextLevel/emulators/demul07_111117/demul.exe -run=cave3rd -rom=ddpdfk.zi
 new: ERROR NO_PROFILE
 ```
 
-### 52. args — 1 system, 1 variant, 42 games
+### 49. args — 1 system, 1 variant, 42 games
 
 Systems: Sega SC-3000.
 
@@ -1250,7 +1219,7 @@ only old: -none -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg 
 only new: -cart
 ```
 
-### 53. args — 1 system, 1 variant, 39 games
+### 50. args — 1 system, 1 variant, 39 games
 
 Systems: Mattel Aquarius.
 
@@ -1266,7 +1235,7 @@ only old: -%media% -autoboot_delay 4 -autoboot_command %commands% -artpath {emul
 only new: -cart
 ```
 
-### 54. newError — 1 system, 1 variant, 35 games
+### 51. newError — 1 system, 1 variant, 35 games
 
 Systems: AAE.
 
@@ -1278,7 +1247,7 @@ old: e:/NextLevel/emulators/AAE/run.bat asteroid.zip
 new: ERROR NO_PROFILE
 ```
 
-### 55. newError — 4 systems, 4 variants, 35 games
+### 52. newError — 4 systems, 4 variants, 35 games
 
 Systems: Daphne, Mattel Captain Power, Sega Video Driver, WoW Action Max.
 
@@ -1291,7 +1260,7 @@ old: e:/NextLevel/emulators/hypseus_singe/hypseus.exe ace vldp -framefile "<squa
 new: ERROR NO_PROFILE
 ```
 
-### 56. oldError — 1 system, 1 variant, 33 games
+### 53. oldError — 1 system, 1 variant, 33 games
 
 Systems: Timex Sinclair 2068.
 
@@ -1304,7 +1273,7 @@ new: e:\NextLevel\emulators\mame\mame.exe ts2068 -cart "E:\NextLevel\systems\Tim
      cwd: e:\NextLevel\emulators\mame
 ```
 
-### 57. newError — 1 system, 1 variant, 32 games
+### 54. newError — 1 system, 1 variant, 32 games
 
 Systems: Nintendo NES HD.
 
@@ -1316,7 +1285,7 @@ old: "e:\NextLevel\systems\Nintendo NES HD\25th Anniversary Super Mario Bros. (E
 new: ERROR NO_PROFILE
 ```
 
-### 58. bothError — 1 system, 1 variant, 31 games
+### 55. bothError — 1 system, 1 variant, 31 games
 
 Systems: Philips Videopac Plus G7400.
 
@@ -1327,7 +1296,7 @@ old: ERROR Error: Unknown system 'Philips Videopac Plus G7400'
 new: ERROR NO_PROFILE
 ```
 
-### 59. emulator — 2 systems, 2 variants, 30 games
+### 56. emulator — 2 systems, 2 variants, 30 games
 
 Systems: Amstrad GX4000, Arcade.
 
@@ -1343,7 +1312,7 @@ only old: gx4000 -cart -artpath e:\nextlevel\emulators\mame\artwork -cfg_directo
 only new: -l {emulatorDir}\cores\cap32_libretro.dll
 ```
 
-### 60. bothError — 1 system, 1 variant, 29 games
+### 57. bothError — 1 system, 1 variant, 29 games
 
 Systems: Konami PC.
 
@@ -1354,7 +1323,7 @@ old: ERROR nextlevel-launcher: error: unrecognized arguments: Dance Revolution (
 new: ERROR NO_PROFILE
 ```
 
-### 61. args — 1 system, 5 variants, 26 games
+### 58. args — 1 system, 5 variants, 26 games
 
 Systems: Arcade.
 
@@ -1370,7 +1339,7 @@ only old: -c {emulatorDir}\config\arcade-realistic.cfg {emulatorDir}\config\{sys
 only new: {emulatorDir}\config\arcade-realistic.cfg|{emulatorDir}\config\{system}\realistic\{romName}.cfg
 ```
 
-### 62. args — 1 system, 1 variant, 24 games
+### 59. args — 1 system, 1 variant, 24 games
 
 Systems: Sony Playstation.
 
@@ -1387,7 +1356,7 @@ only old: {emulatorDir}\cores\duckstation_libretro.dll -c {emulatorDir}\config\{
 only new: {emulatorDir}\cores\mednafen_psx_hw_libretro.dll
 ```
 
-### 63. args — 1 system, 1 variant, 23 games
+### 60. args — 1 system, 1 variant, 23 games
 
 Systems: Sega Saturn.
 
@@ -1403,7 +1372,7 @@ only old: {emulatorDir}\cores\kronos_libretro.dll -c {emulatorDir}\config\{syste
 only new: {emulatorDir}\cores\mednafen_saturn_libretro.dll
 ```
 
-### 64. bothError — 1 system, 1 variant, 21 games
+### 61. bothError — 1 system, 1 variant, 21 games
 
 Systems: Takara Taiko De Popira.
 
@@ -1414,7 +1383,7 @@ old: ERROR Error: Unknown system 'Takara Taiko De Popira'
 new: ERROR NO_PROFILE
 ```
 
-### 65. newError — 1 system, 1 variant, 18 games
+### 62. newError — 1 system, 1 variant, 18 games
 
 Systems: Remakes.
 
@@ -1426,7 +1395,7 @@ old: "e:\NextLevel\systems\PC-Games\Abadia Del Crimen.lnk"
 new: ERROR NO_PROFILE
 ```
 
-### 66. newError — 1 system, 1 variant, 17 games
+### 63. newError — 1 system, 1 variant, 17 games
 
 Systems: Commander X16.
 
@@ -1438,7 +1407,7 @@ old: "e:\NextLevel\systems\Commander X16\Chase Vault.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 67. args — 1 system, 1 variant, 17 games
+### 64. args — 1 system, 1 variant, 17 games
 
 Systems: Philips P2000T.
 
@@ -1454,7 +1423,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 68. newError — 1 system, 1 variant, 14 games
+### 65. newError — 1 system, 1 variant, 14 games
 
 Systems: GameMaker Games.
 
@@ -1466,7 +1435,7 @@ old: "e:/NextLevel/systems/GameMaker Games/! Jams\! NoneJam 10/Archeo-Raid.lnk"
 new: ERROR NO_PROFILE
 ```
 
-### 69. newError — 1 system, 1 variant, 14 games
+### 66. newError — 1 system, 1 variant, 14 games
 
 Systems: Sega Chihiro.
 
@@ -1478,7 +1447,7 @@ old: "e:\NextLevel\systems\Sega Chihiro\Crazy Taxi High Roller.squashfs"
 new: ERROR NO_PROFILE
 ```
 
-### 70. newError — 1 system, 1 variant, 13 games
+### 67. newError — 1 system, 1 variant, 13 games
 
 Systems: Atari Jaguar CD.
 
@@ -1490,7 +1459,7 @@ old: "e:\NextLevel\systems\Atari Jaguar CD\baldies.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 71. newError — 1 system, 1 variant, 12 games
+### 68. newError — 1 system, 1 variant, 12 games
 
 Systems: Atari Jaguar CD.
 
@@ -1502,7 +1471,7 @@ old: "e:\NextLevel\systems\Atari Jaguar CD\Ants (USA) (Unl).bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 72. bothError — 1 system, 1 variant, 10 games
+### 69. bothError — 1 system, 1 variant, 10 games
 
 Systems: ICE PC.
 
@@ -1513,7 +1482,7 @@ old: ERROR nextlevel-launcher: error: unrecognized arguments: Birds Arcade.squas
 new: ERROR NO_PROFILE
 ```
 
-### 73. newError — 2 systems, 2 variants, 10 games
+### 70. newError — 2 systems, 2 variants, 10 games
 
 Systems: Tiger R-Zone, VideoJet Pocket Dream Console.
 
@@ -1526,7 +1495,7 @@ new: ERROR CORE_MISSING
      profile: MAME – VideoJet Pocket Dream Console
 ```
 
-### 74. bothError — 1 system, 1 variant, 9 games
+### 71. bothError — 1 system, 1 variant, 9 games
 
 Systems: Adrenaline PC.
 
@@ -1537,7 +1506,7 @@ old: ERROR Error: Unknown system 'Adrenaline PC'
 new: ERROR NO_PROFILE
 ```
 
-### 75. newError — 2 systems, 2 variants, 8 games
+### 72. newError — 2 systems, 2 variants, 8 games
 
 Systems: American Laser Games, Laserdisc.
 
@@ -1549,7 +1518,7 @@ old: "e:\NextLevel\systems\American Laser Games\emulator.cmd" "e:\NextLevel\syst
 new: ERROR NO_PROFILE
 ```
 
-### 76. newError — 1 system, 1 variant, 8 games
+### 73. newError — 1 system, 1 variant, 8 games
 
 Systems: Locomalito Games.
 
@@ -1561,7 +1530,7 @@ old: "e:/NextLevel/systems/Locomalito Games/8bit Killer.lnk"
 new: ERROR NO_PROFILE
 ```
 
-### 77. newError — 1 system, 1 variant, 8 games
+### 74. newError — 1 system, 1 variant, 8 games
 
 Systems: Pinball M.
 
@@ -1573,7 +1542,7 @@ old: "e:/PC-Games/Pinball M/pinballm.exe" -Table 191
 new: ERROR NO_PROFILE
 ```
 
-### 78. args — 1 system, 1 variant, 8 games
+### 75. args — 1 system, 1 variant, 8 games
 
 Systems: Sega Dreamcast.
 
@@ -1589,7 +1558,7 @@ only old: {emulatorDir}\cores\flycast_libretro.dll -c {emulatorDir}\config\{syst
 only new: {emulatorDir}\cores\redream_libretro.dll
 ```
 
-### 79. bothError — 1 system, 1 variant, 7 games
+### 76. bothError — 1 system, 1 variant, 7 games
 
 Systems: Sega Nu.
 
@@ -1600,7 +1569,7 @@ old: ERROR nextlevel-launcher: error: unrecognized arguments: Rev Sunshine.squas
 new: ERROR NO_PROFILE
 ```
 
-### 80. args — 1 system, 1 variant, 6 games
+### 77. args — 1 system, 1 variant, 6 games
 
 Systems: Sega CD.
 
@@ -1616,7 +1585,7 @@ only old: {emulatorDir}\cores\genesis_plus_gx_libretro.dll -c {emulatorDir}\conf
 only new: {emulatorDir}\cores\picodrive_libretro.dll
 ```
 
-### 81. newError — 1 system, 1 variant, 6 games
+### 78. newError — 1 system, 1 variant, 6 games
 
 Systems: VM Labs Nuon.
 
@@ -1628,7 +1597,7 @@ old: "e:\NextLevel\systems\VM Labs Nuon\Ballistic.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 82. bothError — 1 system, 1 variant, 4 games
+### 79. bothError — 1 system, 1 variant, 4 games
 
 Systems: Millennium.
 
@@ -1640,7 +1609,7 @@ new: ERROR CORE_MISSING
      profile: MAME – Millennium
 ```
 
-### 83. bothError — 1 system, 1 variant, 3 games
+### 80. bothError — 1 system, 1 variant, 3 games
 
 Systems: Cave PC.
 
@@ -1651,7 +1620,7 @@ old: ERROR Error: Unknown system 'Cave PC'
 new: ERROR NO_PROFILE
 ```
 
-### 84. bothError — 1 system, 1 variant, 3 games
+### 81. bothError — 1 system, 1 variant, 3 games
 
 Systems: Coastal PC.
 
@@ -1662,7 +1631,7 @@ old: ERROR Error: Unknown system 'Coastal PC'
 new: ERROR NO_PROFILE
 ```
 
-### 85. args — 1 system, 3 variants, 3 games
+### 82. args — 1 system, 3 variants, 3 games
 
 Systems: Nintendo SNES MSU-1.
 
@@ -1680,7 +1649,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 86. args — 1 system, 1 variant, 3 games
+### 83. args — 1 system, 1 variant, 3 games
 
 Systems: Sega Saturn.
 
@@ -1696,7 +1665,7 @@ only old: {emulatorDir}\cores\kronos_libretro.dll -c {emulatorDir}\config\{syste
 only new: {emulatorDir}\cores\yabasanshiro_libretro.dll
 ```
 
-### 87. bothError — 1 system, 1 variant, 3 games
+### 84. bothError — 1 system, 1 variant, 3 games
 
 Systems: Taito Type X3.
 
@@ -1707,7 +1676,7 @@ old: ERROR nextlevel-launcher: error: unrecognized arguments: 4 Dead -Survivors-
 new: ERROR NO_PROFILE
 ```
 
-### 88. args — 2 systems, 2 variants, 2 games
+### 85. args — 2 systems, 2 variants, 2 games
 
 Systems: Canon X-07, Matra and Hachette Alice.
 
@@ -1722,7 +1691,7 @@ new: e:\NextLevel\emulators\mame\mame.exe x07 -cass "E:\NextLevel\systems\Canon 
 only old: -autoboot_delay 2 -autoboot_command cload\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 89. emulator — 1 system, 1 variant, 2 games
+### 86. emulator — 1 system, 1 variant, 2 games
 
 Systems: Commodore Plus4.
 
@@ -1737,7 +1706,7 @@ new: E:\NextLevel\emulators\retroarch\retroarch.exe -L E:\NextLevel\emulators\re
 only new: -l {emulatorDir}\cores\vice_xplus4_libretro.dll
 ```
 
-### 90. bothError — 1 system, 1 variant, 2 games
+### 87. bothError — 1 system, 1 variant, 2 games
 
 Systems: Konami Viper.
 
@@ -1748,7 +1717,7 @@ old: ERROR nextlevel-launcher: error: unrecognized arguments: Park III (UBC).squ
 new: ERROR NO_PROFILE
 ```
 
-### 91. args — 1 system, 1 variant, 1 game
+### 88. args — 1 system, 1 variant, 1 game
 
 Systems: Acorn Atom.
 
@@ -1764,7 +1733,7 @@ only old: -flop1 -autoboot_delay 2 -autoboot_command *dos\n*run\ehrun\n -artpath
 only new: -cass
 ```
 
-### 92. args — 1 system, 1 variant, 1 game
+### 89. args — 1 system, 1 variant, 1 game
 
 Systems: Acorn BBC Micro.
 
@@ -1779,7 +1748,7 @@ new: e:\NextLevel\emulators\mame\mame.exe bbcb -rp "E:\NextLevel\systems\Acorn B
 only old: -autoboot_delay 3 -autoboot_command *b.\nch.\load\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del -rompath {systemDir}
 ```
 
-### 93. emulator — 1 system, 1 variant, 1 game
+### 90. emulator — 1 system, 1 variant, 1 game
 
 Systems: Adventure Game Studio.
 
@@ -1795,7 +1764,7 @@ only old: none
 only new: --fullscreen --auto-detect --path={systemDir}
 ```
 
-### 94. args — 1 system, 1 variant, 1 game
+### 91. args — 1 system, 1 variant, 1 game
 
 Systems: Amstrad CPC Plus.
 
@@ -1810,7 +1779,7 @@ new: e:\NextLevel\emulators\mame\mame.exe cpc6128p -cart "E:\NextLevel\systems\A
 only old: -autoboot_delay 2 -autoboot_command run\&quot;frogger\&quot;\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 95. args — 1 system, 1 variant, 1 game
+### 92. args — 1 system, 1 variant, 1 game
 
 Systems: Camputers Lynx.
 
@@ -1825,7 +1794,7 @@ new: e:\NextLevel\emulators\mame\mame.exe lynx48k -cass1 "E:\NextLevel\systems\C
 only old: -autoboot_delay 2 -autoboot_command mloadinvaders\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 96. bothError — 1 system, 1 variant, 1 game
+### 93. bothError — 1 system, 1 variant, 1 game
 
 Systems: Capcom System 256.
 
@@ -1836,7 +1805,7 @@ old: ERROR Error: Unknown system 'Capcom System 256'
 new: ERROR NO_PROFILE
 ```
 
-### 97. args — 1 system, 1 variant, 1 game
+### 94. args — 1 system, 1 variant, 1 game
 
 Systems: CCE MC-1000.
 
@@ -1851,7 +1820,7 @@ new: e:\NextLevel\emulators\mame\mame.exe mc1000 -cass "E:\NextLevel\systems\CCE
 only old: -autoboot_delay 2 -autoboot_command tload\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 98. newError — 1 system, 1 variant, 1 game
+### 95. newError — 1 system, 1 variant, 1 game
 
 Systems: Coleco Telstar.
 
@@ -1863,7 +1832,7 @@ old: "e:\NextLevel\systems\Coleco Telstar\tennis.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 99. args — 1 system, 1 variant, 1 game
+### 96. args — 1 system, 1 variant, 1 game
 
 Systems: Commodore Amiga CD32.
 
@@ -1879,7 +1848,7 @@ only old: {emulatorDir}\cores\puae_libretro.dll -c {emulatorDir}\config\{system}
 only new: {emulatorDir}\cores\cd32_libretro.dll
 ```
 
-### 100. args — 1 system, 1 variant, 1 game
+### 97. args — 1 system, 1 variant, 1 game
 
 Systems: Exidy Sorcerer.
 
@@ -1894,7 +1863,7 @@ new: e:\NextLevel\emulators\mame\mame.exe sorcerer -cass1 "E:\NextLevel\systems\
 only old: -autoboot_delay 2 -autoboot_command log\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 101. args — 1 system, 1 variant, 1 game
+### 98. args — 1 system, 1 variant, 1 game
 
 Systems: Fujitsu FM-7.
 
@@ -1909,7 +1878,7 @@ new: e:\NextLevel\emulators\mame\mame.exe fm7 -flop1 "E:\NextLevel\systems\Fujit
 only old: -autoboot_delay 2 -autoboot_command load\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 102. args — 1 system, 1 variant, 1 game
+### 99. args — 1 system, 1 variant, 1 game
 
 Systems: Memotech MTX.
 
@@ -1924,7 +1893,7 @@ new: e:\NextLevel\emulators\mame\mame.exe mtx512 -dump "E:\NextLevel\systems\Mem
 only old: -autoboot_delay 4 -autoboot_command load\&quot;\&quot;\n -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 103. newError — 1 system, 1 variant, 1 game
+### 100. newError — 1 system, 1 variant, 1 game
 
 Systems: Microsoft MSX Remakes.
 
@@ -1936,7 +1905,7 @@ old: "e:\NextLevel\systems\Microsoft MSX Remakes\Goonies, The.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 104. args — 1 system, 1 variant, 1 game
+### 101. args — 1 system, 1 variant, 1 game
 
 Systems: NEC PC-6001.
 
@@ -1952,7 +1921,7 @@ only old: -%media% -autoboot_delay 4 -autoboot_command 4 -artpath {emulatorDir}\
 only new: -cart1
 ```
 
-### 105. args — 1 system, 1 variant, 1 game
+### 102. args — 1 system, 1 variant, 1 game
 
 Systems: NEC PC-6001.
 
@@ -1967,7 +1936,7 @@ new: e:\NextLevel\emulators\mame\mame.exe pc6001 -cart1 "E:\NextLevel\systems\NE
 only old: -autoboot_delay 4 -autoboot_command %commands% -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 106. args — 1 system, 1 variant, 1 game
+### 103. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo NES.
 
@@ -1983,7 +1952,7 @@ only old: {emulatorDir}\cores\fceumm_libretro.dll -c {emulatorDir}\config\{syste
 only new: {emulatorDir}\cores\nestopia_libretro.dll
 ```
 
-### 107. args — 1 system, 1 variant, 1 game
+### 104. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo NES MSU-1.
 
@@ -2001,7 +1970,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 108. args — 1 system, 1 variant, 1 game
+### 105. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo NES MSU-1.
 
@@ -2019,7 +1988,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 109. args — 1 system, 1 variant, 1 game
+### 106. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo NES MSU-1.
 
@@ -2037,7 +2006,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 110. args — 1 system, 1 variant, 1 game
+### 107. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo NES MSU-1.
 
@@ -2055,7 +2024,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 111. args — 1 system, 1 variant, 1 game
+### 108. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2073,7 +2042,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 112. args — 1 system, 1 variant, 1 game
+### 109. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2091,7 +2060,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 113. args — 1 system, 1 variant, 1 game
+### 110. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2109,7 +2078,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 114. args — 1 system, 1 variant, 1 game
+### 111. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2127,7 +2096,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 115. args — 1 system, 1 variant, 1 game
+### 112. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2145,7 +2114,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 116. args — 1 system, 1 variant, 1 game
+### 113. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2163,7 +2132,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 117. args — 1 system, 1 variant, 1 game
+### 114. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2181,7 +2150,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 118. args — 1 system, 1 variant, 1 game
+### 115. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2199,7 +2168,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 119. args — 1 system, 1 variant, 1 game
+### 116. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2217,7 +2186,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 120. args — 1 system, 1 variant, 1 game
+### 117. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2235,7 +2204,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 121. args — 1 system, 1 variant, 1 game
+### 118. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2253,7 +2222,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 122. args — 1 system, 1 variant, 1 game
+### 119. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2271,7 +2240,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 123. args — 1 system, 1 variant, 1 game
+### 120. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2289,7 +2258,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 124. args — 1 system, 1 variant, 1 game
+### 121. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2307,7 +2276,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 125. args — 1 system, 1 variant, 1 game
+### 122. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2325,7 +2294,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 126. args — 1 system, 1 variant, 1 game
+### 123. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2343,7 +2312,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 127. args — 1 system, 1 variant, 1 game
+### 124. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2361,7 +2330,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 128. args — 1 system, 1 variant, 1 game
+### 125. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2379,7 +2348,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 129. args — 1 system, 1 variant, 1 game
+### 126. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2397,7 +2366,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 130. args — 1 system, 1 variant, 1 game
+### 127. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2415,7 +2384,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 131. args — 1 system, 1 variant, 1 game
+### 128. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2433,7 +2402,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 132. args — 1 system, 1 variant, 1 game
+### 129. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2451,7 +2420,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 133. args — 1 system, 1 variant, 1 game
+### 130. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2469,7 +2438,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 134. args — 1 system, 1 variant, 1 game
+### 131. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2487,7 +2456,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 135. args — 1 system, 1 variant, 1 game
+### 132. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2505,7 +2474,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 136. args — 1 system, 1 variant, 1 game
+### 133. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2523,7 +2492,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 137. args — 1 system, 1 variant, 1 game
+### 134. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2541,7 +2510,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 138. args — 1 system, 1 variant, 1 game
+### 135. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2559,7 +2528,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 139. args — 1 system, 1 variant, 1 game
+### 136. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2577,7 +2546,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 140. args — 1 system, 1 variant, 1 game
+### 137. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2595,7 +2564,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 141. args — 1 system, 1 variant, 1 game
+### 138. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2613,7 +2582,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 142. args — 1 system, 1 variant, 1 game
+### 139. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2631,7 +2600,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 143. args — 1 system, 1 variant, 1 game
+### 140. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2649,7 +2618,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 144. args — 1 system, 1 variant, 1 game
+### 141. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2667,7 +2636,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 145. args — 1 system, 1 variant, 1 game
+### 142. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2685,7 +2654,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 146. args — 1 system, 1 variant, 1 game
+### 143. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2703,7 +2672,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 147. args — 1 system, 1 variant, 1 game
+### 144. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2721,7 +2690,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 148. args — 1 system, 1 variant, 1 game
+### 145. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2739,7 +2708,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 149. args — 1 system, 1 variant, 1 game
+### 146. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2757,7 +2726,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 150. args — 1 system, 1 variant, 1 game
+### 147. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2775,7 +2744,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 151. args — 1 system, 1 variant, 1 game
+### 148. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2793,7 +2762,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 152. args — 1 system, 1 variant, 1 game
+### 149. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2811,7 +2780,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 153. args — 1 system, 1 variant, 1 game
+### 150. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2829,7 +2798,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 154. args — 1 system, 1 variant, 1 game
+### 151. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2847,7 +2816,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 155. args — 1 system, 1 variant, 1 game
+### 152. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2865,7 +2834,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 156. args — 1 system, 1 variant, 1 game
+### 153. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2883,7 +2852,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 157. args — 1 system, 1 variant, 1 game
+### 154. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2901,7 +2870,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 158. args — 1 system, 1 variant, 1 game
+### 155. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2919,7 +2888,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 159. args — 1 system, 1 variant, 1 game
+### 156. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2937,7 +2906,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 160. args — 1 system, 1 variant, 1 game
+### 157. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2955,7 +2924,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 161. args — 1 system, 1 variant, 1 game
+### 158. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2973,7 +2942,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 162. args — 1 system, 1 variant, 1 game
+### 159. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -2991,7 +2960,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 163. args — 1 system, 1 variant, 1 game
+### 160. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3009,7 +2978,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 164. args — 1 system, 1 variant, 1 game
+### 161. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3027,7 +2996,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 165. args — 1 system, 1 variant, 1 game
+### 162. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3045,7 +3014,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 166. args — 1 system, 1 variant, 1 game
+### 163. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3063,7 +3032,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 167. args — 1 system, 1 variant, 1 game
+### 164. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3081,7 +3050,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 168. args — 1 system, 1 variant, 1 game
+### 165. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3099,7 +3068,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 169. args — 1 system, 1 variant, 1 game
+### 166. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3117,7 +3086,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 170. args — 1 system, 1 variant, 1 game
+### 167. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3135,7 +3104,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 171. args — 1 system, 1 variant, 1 game
+### 168. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3153,7 +3122,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 172. args — 1 system, 1 variant, 1 game
+### 169. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3171,7 +3140,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 173. args — 1 system, 1 variant, 1 game
+### 170. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3189,7 +3158,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 174. args — 1 system, 1 variant, 1 game
+### 171. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3207,7 +3176,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 175. args — 1 system, 1 variant, 1 game
+### 172. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3225,7 +3194,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 176. args — 1 system, 1 variant, 1 game
+### 173. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3243,7 +3212,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 177. args — 1 system, 1 variant, 1 game
+### 174. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3261,7 +3230,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 178. args — 1 system, 1 variant, 1 game
+### 175. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3279,7 +3248,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 179. args — 1 system, 1 variant, 1 game
+### 176. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3297,7 +3266,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 180. args — 1 system, 1 variant, 1 game
+### 177. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3315,7 +3284,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 181. args — 1 system, 1 variant, 1 game
+### 178. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3333,7 +3302,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 182. args — 1 system, 1 variant, 1 game
+### 179. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3351,7 +3320,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 183. args — 1 system, 1 variant, 1 game
+### 180. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3369,7 +3338,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 184. args — 1 system, 1 variant, 1 game
+### 181. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3387,7 +3356,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 185. args — 1 system, 1 variant, 1 game
+### 182. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3405,7 +3374,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 186. args — 1 system, 1 variant, 1 game
+### 183. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3423,7 +3392,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 187. args — 1 system, 1 variant, 1 game
+### 184. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3441,7 +3410,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 188. args — 1 system, 1 variant, 1 game
+### 185. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3459,7 +3428,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 189. args — 1 system, 1 variant, 1 game
+### 186. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3477,7 +3446,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 190. args — 1 system, 1 variant, 1 game
+### 187. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3495,7 +3464,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 191. args — 1 system, 1 variant, 1 game
+### 188. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3513,7 +3482,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 192. args — 1 system, 1 variant, 1 game
+### 189. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3531,7 +3500,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 193. args — 1 system, 1 variant, 1 game
+### 190. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3549,7 +3518,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 194. args — 1 system, 1 variant, 1 game
+### 191. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3567,7 +3536,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 195. args — 1 system, 1 variant, 1 game
+### 192. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3585,7 +3554,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 196. args — 1 system, 1 variant, 1 game
+### 193. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3603,7 +3572,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 197. args — 1 system, 1 variant, 1 game
+### 194. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3621,7 +3590,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 198. args — 1 system, 1 variant, 1 game
+### 195. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3639,7 +3608,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 199. args — 1 system, 1 variant, 1 game
+### 196. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3657,7 +3626,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 200. args — 1 system, 1 variant, 1 game
+### 197. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3675,7 +3644,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 201. args — 1 system, 1 variant, 1 game
+### 198. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3693,7 +3662,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 202. args — 1 system, 1 variant, 1 game
+### 199. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3711,7 +3680,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 203. args — 1 system, 1 variant, 1 game
+### 200. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3729,7 +3698,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 204. args — 1 system, 1 variant, 1 game
+### 201. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3747,7 +3716,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 205. args — 1 system, 1 variant, 1 game
+### 202. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3765,7 +3734,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 206. args — 1 system, 1 variant, 1 game
+### 203. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3783,7 +3752,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 207. args — 1 system, 1 variant, 1 game
+### 204. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3801,7 +3770,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 208. args — 1 system, 1 variant, 1 game
+### 205. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3819,7 +3788,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 209. args — 1 system, 1 variant, 1 game
+### 206. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3837,7 +3806,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 210. args — 1 system, 1 variant, 1 game
+### 207. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3855,7 +3824,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 211. args — 1 system, 1 variant, 1 game
+### 208. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3873,7 +3842,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 212. args — 1 system, 1 variant, 1 game
+### 209. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3891,7 +3860,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 213. args — 1 system, 1 variant, 1 game
+### 210. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3909,7 +3878,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 214. args — 1 system, 1 variant, 1 game
+### 211. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3927,7 +3896,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 215. args — 1 system, 1 variant, 1 game
+### 212. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3945,7 +3914,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 216. args — 1 system, 1 variant, 1 game
+### 213. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3963,7 +3932,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 217. args — 1 system, 1 variant, 1 game
+### 214. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3981,7 +3950,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 218. args — 1 system, 1 variant, 1 game
+### 215. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -3999,7 +3968,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 219. args — 1 system, 1 variant, 1 game
+### 216. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4017,7 +3986,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 220. args — 1 system, 1 variant, 1 game
+### 217. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4035,7 +4004,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 221. args — 1 system, 1 variant, 1 game
+### 218. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4053,7 +4022,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 222. args — 1 system, 1 variant, 1 game
+### 219. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4071,7 +4040,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 223. args — 1 system, 1 variant, 1 game
+### 220. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4089,7 +4058,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 224. args — 1 system, 1 variant, 1 game
+### 221. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4107,7 +4076,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 225. args — 1 system, 1 variant, 1 game
+### 222. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4125,7 +4094,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 226. args — 1 system, 1 variant, 1 game
+### 223. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4143,7 +4112,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 227. args — 1 system, 1 variant, 1 game
+### 224. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4161,7 +4130,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 228. args — 1 system, 1 variant, 1 game
+### 225. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4179,7 +4148,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 229. args — 1 system, 1 variant, 1 game
+### 226. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4197,7 +4166,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 230. args — 1 system, 1 variant, 1 game
+### 227. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4215,7 +4184,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 231. args — 1 system, 1 variant, 1 game
+### 228. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4233,7 +4202,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 232. args — 1 system, 1 variant, 1 game
+### 229. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4251,7 +4220,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 233. args — 1 system, 1 variant, 1 game
+### 230. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4269,7 +4238,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 234. args — 1 system, 1 variant, 1 game
+### 231. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4287,7 +4256,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 235. args — 1 system, 1 variant, 1 game
+### 232. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4305,7 +4274,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 236. args — 1 system, 1 variant, 1 game
+### 233. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4323,7 +4292,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 237. args — 1 system, 1 variant, 1 game
+### 234. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4341,7 +4310,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 238. args — 1 system, 1 variant, 1 game
+### 235. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4359,7 +4328,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 239. args — 1 system, 1 variant, 1 game
+### 236. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4377,7 +4346,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 240. args — 1 system, 1 variant, 1 game
+### 237. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4395,7 +4364,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 241. args — 1 system, 1 variant, 1 game
+### 238. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4413,7 +4382,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 242. args — 1 system, 1 variant, 1 game
+### 239. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4431,7 +4400,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 243. args — 1 system, 1 variant, 1 game
+### 240. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4449,7 +4418,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 244. args — 1 system, 1 variant, 1 game
+### 241. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4467,7 +4436,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 245. args — 1 system, 1 variant, 1 game
+### 242. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4485,7 +4454,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 246. args — 1 system, 1 variant, 1 game
+### 243. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4503,7 +4472,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 247. args — 1 system, 1 variant, 1 game
+### 244. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4521,7 +4490,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 248. args — 1 system, 1 variant, 1 game
+### 245. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4539,7 +4508,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 249. args — 1 system, 1 variant, 1 game
+### 246. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4557,7 +4526,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 250. args — 1 system, 1 variant, 1 game
+### 247. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4575,7 +4544,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 251. args — 1 system, 1 variant, 1 game
+### 248. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4593,7 +4562,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 252. args — 1 system, 1 variant, 1 game
+### 249. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4611,7 +4580,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 253. args — 1 system, 1 variant, 1 game
+### 250. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4629,7 +4598,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 254. args — 1 system, 1 variant, 1 game
+### 251. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4647,7 +4616,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 255. args — 1 system, 1 variant, 1 game
+### 252. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4665,7 +4634,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 256. args — 1 system, 1 variant, 1 game
+### 253. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4683,7 +4652,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 257. args — 1 system, 1 variant, 1 game
+### 254. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4701,7 +4670,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 258. args — 1 system, 1 variant, 1 game
+### 255. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4719,7 +4688,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 259. args — 1 system, 1 variant, 1 game
+### 256. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4737,7 +4706,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 260. args — 1 system, 1 variant, 1 game
+### 257. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4755,7 +4724,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 261. args — 1 system, 1 variant, 1 game
+### 258. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4773,7 +4742,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 262. args — 1 system, 1 variant, 1 game
+### 259. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4791,7 +4760,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 263. args — 1 system, 1 variant, 1 game
+### 260. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4809,7 +4778,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 264. args — 1 system, 1 variant, 1 game
+### 261. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4827,7 +4796,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 265. args — 1 system, 1 variant, 1 game
+### 262. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4845,7 +4814,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 266. args — 1 system, 1 variant, 1 game
+### 263. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4863,7 +4832,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 267. args — 1 system, 1 variant, 1 game
+### 264. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4881,7 +4850,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 268. args — 1 system, 1 variant, 1 game
+### 265. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4899,7 +4868,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 269. args — 1 system, 1 variant, 1 game
+### 266. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4917,7 +4886,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 270. args — 1 system, 1 variant, 1 game
+### 267. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4935,7 +4904,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 271. args — 1 system, 1 variant, 1 game
+### 268. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4953,7 +4922,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 272. args — 1 system, 1 variant, 1 game
+### 269. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4971,7 +4940,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 273. args — 1 system, 1 variant, 1 game
+### 270. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -4989,7 +4958,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 274. args — 1 system, 1 variant, 1 game
+### 271. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5007,7 +4976,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 275. args — 1 system, 1 variant, 1 game
+### 272. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5025,7 +4994,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 276. args — 1 system, 1 variant, 1 game
+### 273. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5043,7 +5012,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 277. args — 1 system, 1 variant, 1 game
+### 274. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5061,7 +5030,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 278. args — 1 system, 1 variant, 1 game
+### 275. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5079,7 +5048,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 279. args — 1 system, 1 variant, 1 game
+### 276. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5097,7 +5066,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 280. args — 1 system, 1 variant, 1 game
+### 277. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5115,7 +5084,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 281. args — 1 system, 1 variant, 1 game
+### 278. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5133,7 +5102,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 282. args — 1 system, 1 variant, 1 game
+### 279. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5151,7 +5120,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 283. args — 1 system, 1 variant, 1 game
+### 280. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5169,7 +5138,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 284. args — 1 system, 1 variant, 1 game
+### 281. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5187,7 +5156,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 285. args — 1 system, 1 variant, 1 game
+### 282. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5205,7 +5174,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 286. args — 1 system, 1 variant, 1 game
+### 283. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5223,7 +5192,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 287. args — 1 system, 1 variant, 1 game
+### 284. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5241,7 +5210,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 288. args — 1 system, 1 variant, 1 game
+### 285. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5259,7 +5228,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 289. args — 1 system, 1 variant, 1 game
+### 286. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5277,7 +5246,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 290. args — 1 system, 1 variant, 1 game
+### 287. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5295,7 +5264,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 291. args — 1 system, 1 variant, 1 game
+### 288. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5313,7 +5282,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 292. args — 1 system, 1 variant, 1 game
+### 289. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5331,7 +5300,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 293. args — 1 system, 1 variant, 1 game
+### 290. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5349,7 +5318,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 294. args — 1 system, 1 variant, 1 game
+### 291. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5367,7 +5336,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 295. args — 1 system, 1 variant, 1 game
+### 292. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5385,7 +5354,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 296. args — 1 system, 1 variant, 1 game
+### 293. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5403,7 +5372,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 297. args — 1 system, 1 variant, 1 game
+### 294. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5421,7 +5390,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 298. args — 1 system, 1 variant, 1 game
+### 295. args — 1 system, 1 variant, 1 game
 
 Systems: Nintendo SNES MSU-1.
 
@@ -5439,7 +5408,7 @@ only old: -c {emulatorDir}\config\{system}.cfg --appendconfig {emulatorDir}\conf
 only new: {rom}
 ```
 
-### 299. newError — 1 system, 1 variant, 1 game
+### 296. newError — 1 system, 1 variant, 1 game
 
 Systems: Pinball Wicked.
 
@@ -5451,7 +5420,7 @@ old: "e:/NextLevel/systems/Pinball Wicked/PinballWicked.lnk"
 new: ERROR NO_PROFILE
 ```
 
-### 300. newError — 1 system, 1 variant, 1 game
+### 297. newError — 1 system, 1 variant, 1 game
 
 Systems: Pioneer LaserActive.
 
@@ -5463,7 +5432,7 @@ old: "e:\NextLevel\systems\Pioneer LaserActive\Hyperion.bat" none
 new: ERROR NO_PROFILE
 ```
 
-### 301. newError — 1 system, 1 variant, 1 game
+### 298. newError — 1 system, 1 variant, 1 game
 
 Systems: Pokkito.
 
@@ -5475,7 +5444,7 @@ old: e:\NextLevel\systems\Pokkito\Jetpack.bat none
 new: ERROR NO_PROFILE
 ```
 
-### 302. args — 1 system, 1 variant, 1 game
+### 299. args — 1 system, 1 variant, 1 game
 
 Systems: Sony Playstation.
 
@@ -5491,7 +5460,7 @@ only old: {emulatorDir}\cores\duckstation_libretro.dll -c {emulatorDir}\config\{
 only new: {emulatorDir}\cores\pcsx_rearmed_libretro.dll
 ```
 
-### 303. bothError — 1 system, 1 variant, 1 game
+### 300. bothError — 1 system, 1 variant, 1 game
 
 Systems: Taito Type X Zero.
 
@@ -5502,7 +5471,7 @@ old: ERROR Error: Unknown system 'Taito Type X Zero'
 new: ERROR NO_PROFILE
 ```
 
-### 304. args — 1 system, 1 variant, 1 game
+### 301. args — 1 system, 1 variant, 1 game
 
 Systems: Tandy TRS-80.
 
@@ -5518,7 +5487,7 @@ only old: -flop1 {systemDir}\multidos.dsk -flop2 -artpath {emulatorDir}\artwork 
 only new: -cass
 ```
 
-### 305. args — 1 system, 1 variant, 1 game
+### 302. args — 1 system, 1 variant, 1 game
 
 Systems: Tandy TRS-80.
 
@@ -5534,7 +5503,7 @@ only old: -quik -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg 
 only new: -cass
 ```
 
-### 306. args — 1 system, 1 variant, 1 game
+### 303. args — 1 system, 1 variant, 1 game
 
 Systems: Tandy TRS-80 Color Computer.
 
@@ -5549,7 +5518,7 @@ new: e:\NextLevel\emulators\mame\mame.exe coco3 -cart "E:\NextLevel\systems\Tand
 only old: -autoboot_delay 5 -autoboot_command %commands% -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\cfg -snapshot_directory {emulatorDir}\snap -nvram_directory {emulatorDir}\nvram -diff_directory {emulatorDir}\diff -hashpath {emulatorDir}\hash -languagepath {emulatorDir}\language -inipath {emulatorDir} -uimodekey del
 ```
 
-### 307. args — 1 system, 1 variant, 1 game
+### 304. args — 1 system, 1 variant, 1 game
 
 Systems: Tandy TRS-80 Color Computer.
 
@@ -5565,7 +5534,7 @@ only old: -flop1 -autoboot_delay 5 -autoboot_command runq*bert+\n -artpath {emul
 only new: -cart
 ```
 
-### 308. args — 1 system, 1 variant, 1 game
+### 305. args — 1 system, 1 variant, 1 game
 
 Systems: Tandy TRS-80 Color Computer.
 
@@ -5581,7 +5550,7 @@ only old: -cass -autoboot_delay 5 -autoboot_command cloadm:exec\n -artpath {emul
 only new: -cart
 ```
 
-### 309. args — 1 system, 1 variant, 1 game
+### 306. args — 1 system, 1 variant, 1 game
 
 Systems: Tandy TRS-80 Color Computer.
 
@@ -5597,7 +5566,7 @@ only old: -flop1 -autoboot_delay 5 -autoboot_command loadm\&quot;thexder\&quot;:
 only new: -cart
 ```
 
-### 310. oldError — 1 system, 1 variant, 1 game
+### 307. oldError — 1 system, 1 variant, 1 game
 
 Systems: TimeTop GameKing 3.
 
@@ -5611,7 +5580,7 @@ new: e:\NextLevel\emulators\mame\mame.exe gamekin3 -cart "e:\roms\TimeTop GameKi
      note: ROM file not found
 ```
 
-### 311. args — 1 system, 1 variant, 1 game
+### 308. args — 1 system, 1 variant, 1 game
 
 Systems: Tronica.
 
@@ -5627,7 +5596,7 @@ only old: trspider -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\c
 only new: trspacmis
 ```
 
-### 312. args — 1 system, 1 variant, 1 game
+### 309. args — 1 system, 1 variant, 1 game
 
 Systems: Tronica.
 
@@ -5643,7 +5612,7 @@ only old: trthuball -artpath {emulatorDir}\artwork -cfg_directory {emulatorDir}\
 only new: trsrescue
 ```
 
-### 313. args — 1 system, 1 variant, 1 game
+### 310. args — 1 system, 1 variant, 1 game
 
 Systems: Videoton TV Computer.
 
@@ -5659,7 +5628,7 @@ only old: -exp1 hbf -flop1 -artpath {emulatorDir}\artwork -cfg_directory {emulat
 only new: -cass
 ```
 
-### 314. args — 1 system, 1 variant, 1 game
+### 311. args — 1 system, 1 variant, 1 game
 
 Systems: Z80 TV Game System.
 

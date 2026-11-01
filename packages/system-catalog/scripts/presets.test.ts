@@ -16,6 +16,8 @@ const NAMES = [
   'Sega Model 2',
   'Sony Playstation',
   'HBMAME',
+  'Microsoft MSX',
+  'Microsoft MSX Turbo R',
 ];
 
 function input(overrides: Partial<PresetInput> = {}): PresetInput {
@@ -137,6 +139,21 @@ describe('emulator presets (FR-EMU-7)', () => {
       '-skip_gameinfo',
       '-rompath',
       '{systemDir}',
+      '{rom}',
+    ]);
+  });
+
+  it('FR-EMU-7: openMSX starts like NextLevelOS, with a variant per runner key and its home in its folder', () => {
+    expect(built().presetProfiles['microsoft-msx']?.[0]).toBe('openmsx:default');
+    expect(profile('openmsx:default')).toMatchObject({
+      args: ['{extraArgs}', '-setting', '{emulatorDir}\\share\\settings.xml', '{rom}'],
+      env: { OPENMSX_HOME: '{emulatorDir}' },
+    });
+    expect(built().presetProfiles['microsoft-msx-turbo-r']).toEqual(['openmsx:turbor']);
+    expect(profile('openmsx:turbor').args).toEqual([
+      '{extraArgs}',
+      '-setting',
+      '{emulatorDir}\\share\\turbor.xml',
       '{rom}',
     ]);
   });

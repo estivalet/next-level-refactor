@@ -1232,6 +1232,7 @@
       "invalidEntry": "Entry without a file name",
       "absoluteRompath": "ROM folder outside the storage locations",
       "retroarchNotFound": "Per-game RetroArch config or shader: RetroArch wasn't found in the emulators folder",
+      "presetEmulatorMissing": "Games run with this emulator in NextLevelOS; set it up in Settings → Emulators, then import again",
       "collectionLaunchFields": "Launch options set inside a collection aren't imported",
       "unknownTheme": "Theme not in NextLevel",
       "notInMenu": "No menu opens this gamelist (old copy?): not imported",
@@ -1250,6 +1251,7 @@
       "launchOverride": "Per-game core and launch options",
       "retroarchSystemConfig": "RetroArch config of the system (-c <system>.cfg), in a profile of its own",
       "mameUiModeKey": "MAME profiles: Delete toggles the MAME UI (-uimodekey DEL), as in NextLevelOS",
+      "perGameProfile": "Per-game emulator or MAME medium, as a launch option",
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
       "replacesImport": "Replaces what an earlier import brought in",
       "artFolder": "Art or theme packs folder"

@@ -8,8 +8,12 @@ export interface StandaloneSpec {
   homepage: string;
   args: string[];
   archives: 'pass' | 'extract';
+  /** Environment templates every profile of the preset starts with. */
+  env?: Record<string, string>;
   /** Runner emulator keys (SYSTEM_EMULATORS values) this preset replaces. */
   runnerKeys: string[];
+  /** Runner keys that start the emulator differently: their systems get `<id>:<suffix>`. */
+  variants?: Record<string, { suffix: string; name: string; args: string[] }>;
   /** NextLevelOS system names to add after the runner's choices. */
   extraSystems: string[];
 }
@@ -174,6 +178,53 @@ export const STANDALONE: readonly StandaloneSpec[] = [
     args: ['-uimodekey', 'DEL', '-skip_gameinfo', '-rompath', '{systemDir}', '{rom}'],
     archives: 'pass',
     runnerKeys: ['hbmame'],
+    extraSystems: [],
+  },
+  {
+    // The runner's Openmsx*EmulatorLauncher classes. OPENMSX_HOME keeps openMSX's settings and
+    // saves in its own folder (the runner set it for MSX1 only).
+    id: 'openmsx',
+    name: 'openMSX',
+    executableNames: ['openmsx.exe'],
+    homepage: 'https://openmsx.org/',
+    args: ['-setting', '{emulatorDir}\\share\\settings.xml', '{rom}'],
+    archives: 'pass',
+    env: { OPENMSX_HOME: '{emulatorDir}' },
+    runnerKeys: ['openmsx_msx1', 'openmsx_msx2', 'openmsx_msx2p'],
+    variants: {
+      openmsx_msx_turbor: {
+        suffix: 'turbor',
+        name: 'openMSX (Turbo R)',
+        args: ['-setting', '{emulatorDir}\\share\\turbor.xml', '{rom}'],
+      },
+      openmsx_msx_gradiente: {
+        suffix: 'gradiente',
+        name: 'openMSX (Gradiente Expert)',
+        args: ['-machine', 'Gradiente_Expert_GPC-1', '-ext', 'DDX_3.0', '{rom}'],
+      },
+    },
+    extraSystems: [],
+  },
+  {
+    // The runner's ColemEmulatorLauncher (-sgm: the Super Game Module).
+    id: 'colem',
+    name: 'ColEm',
+    executableNames: ['ColEm.exe'],
+    homepage: 'https://fms.komkon.org/ColEm/',
+    args: ['-sgm', '{rom}'],
+    archives: 'pass',
+    runnerKeys: ['colem'],
+    extraSystems: [],
+  },
+  {
+    // The runner's YapeEmulatorLauncher.
+    id: 'yape',
+    name: 'YAPE',
+    executableNames: ['YapeSDL.exe', 'Yape.exe'],
+    homepage: 'http://yape.homeserver.hu/',
+    args: ['{rom}'],
+    archives: 'pass',
+    runnerKeys: ['yape'],
     extraSystems: [],
   },
 ];

@@ -24,6 +24,7 @@ import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
 import { addSystemConfigs, type SystemConfig } from './systemConfigs.ts';
 import { addMameUiKey } from './mameUiKey.ts';
+import { addPresetProfiles, type WantedProfile } from './presetProfiles.ts';
 import { launcherKey, readLegacy, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 
 /** What the library already holds from earlier imports, and names made here (D12). */
@@ -56,6 +57,8 @@ export interface ImportPlan {
   detected: DetectedEmulator[];
   /** RetroArch system configs found on disk; the apply re-applies them too. */
   systemConfigs: SystemConfig[];
+  /** Preset profiles games run with (their own emulator or MAME medium); re-applied too. */
+  wantedProfiles: WantedProfile[];
   /** Systems the import enables (scanned after games are written). */
   systemIds: string[];
   games: GameImport[];
@@ -227,7 +230,18 @@ export async function planImport(
   const games = mapGames(files, match, {
     retroarchDir: raDir,
     gameConfigs: await gameConfigs(files, match, raDir, withUiKey.next, deps.listFiles),
+    presetProfiles: (id) => deps.catalog.find((s) => s.id === id)?.presetProfiles ?? [],
   });
+  const wantedProfiles = games.entries.flatMap((g): WantedProfile[] =>
+    g.presetProfileId ? [{ systemId: g.systemId, presetProfileId: g.presetProfileId }] : [],
+  );
+  const withPresets = addPresetProfiles(
+    withUiKey.next,
+    wantedProfiles,
+    deps.presets,
+    deps.newId,
+    detected,
+  );
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
@@ -242,6 +256,7 @@ export async function planImport(
     ...withProfiles.items,
     ...withConfigs.items,
     ...withUiKey.items,
+    ...withPresets.items,
     ...games.items,
     ...collections.items.filter((item) => !skipped.has(item.key)),
     ...notInMenus.map((c): ImportItem => ({
@@ -265,9 +280,10 @@ export async function planImport(
   return {
     fingerprint,
     files,
-    settings: withUiKey.next,
+    settings: withPresets.next,
     detected,
     systemConfigs: configs,
+    wantedProfiles,
     systemIds,
     games: games.entries,
     collections: named,

@@ -42,11 +42,18 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - MAME starts with `-uimodekey DEL`, so Delete toggles MAME's UI as in NextLevelOS: the MAME
   presets pass it, and importing NextLevelOS adds it to the imported systems' MAME profiles that
   don't choose a UI key.
+- Importing NextLevelOS keeps a game's own emulator (its `emulator`, when the system's command
+  passed it) and MAME medium (`mame_media`) as its launch option, setting up that emulator's
+  profile when it's missing; a game whose emulator isn't set up or in the emulators folder is
+  reported.
 
 ### Added
 
 - An **HBMAME** emulator preset (`hbmame.exe`), so HBMAME games can launch; Settings → Emulators
   and Import NextLevelOS find it in the emulators folder.
+- **openMSX** (MSX, MSX2, MSX2+, Turbo R, Gradiente), **ColEm** (ColecoVision) and **YAPE**
+  (Commodore Plus/4) emulator presets, with NextLevelOS's arguments; openMSX keeps its settings
+  in its own folder (`OPENMSX_HOME`).
 
 - **Completed**: mark games completed from the context menu or the details, and a Completed tab;
   importing NextLevelOS turns a game's `completed` tag into the flag (D60). Library migration 0010.

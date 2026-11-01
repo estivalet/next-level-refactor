@@ -1,7 +1,9 @@
+import { ACCEPTED } from './accepted.ts';
 import {
   argDiff,
   normalize,
   OUTCOMES,
+  SAME_EFFECT,
   templated,
   type Built,
   type Outcome,
@@ -25,6 +27,8 @@ export interface Row {
   next: NewBuilt;
   placeholders: Placeholders;
   outcome: Outcome;
+  /** The accepted.ts rule id when `outcome` is accepted. */
+  accepted: string | null;
 }
 
 export interface ReportInput {
@@ -48,6 +52,7 @@ const OUTCOME_TEXT: Record<Outcome, string> = {
   order: 'Same program and arguments, in another order',
   missingConfig:
     'Same, except NextLevelOS also appends a config file that isn’t there (RetroArch skips it)',
+  accepted: 'A known difference that is fine (see Accepted differences)',
   args: 'Same program, different arguments',
   emulator: 'A different program',
   newError: 'Only the rebuild can’t build a command',
@@ -107,8 +112,6 @@ function systemTable(rows: readonly Row[]): string[] {
   return lines;
 }
 
-const SAME = new Set<Outcome>(['match', 'cwdOrEnv', 'order', 'missingConfig']);
-
 /** One game per program the rebuild starts (one whose command matches NextLevelOS's when there is one). */
 function handTests(rows: readonly Row[]): string[] {
   const runnable = rows.filter((row) => row.next.exe !== null);
@@ -119,11 +122,11 @@ function handTests(rows: readonly Row[]): string[] {
   ];
   const groups = [...byExe.values()].sort((a, b) => sum(b) - sum(a));
   for (const group of groups) {
-    const pick = group.find((row) => SAME.has(row.outcome)) ?? group[0];
+    const pick = group.find((row) => SAME_EFFECT.has(row.outcome)) ?? group[0];
     if (!pick?.next.exe) continue;
     const systems = new Set(group.map((row) => row.system)).size;
     lines.push(
-      `| ${code(pick.next.exe)} | ${String(systems)} | ${code(pick.sample)} | ${cell(pick.system)} | ${SAME.has(pick.outcome) ? 'yes' : `no (${pick.outcome})`} |`,
+      `| ${code(pick.next.exe)} | ${String(systems)} | ${code(pick.sample)} | ${cell(pick.system)} | ${SAME_EFFECT.has(pick.outcome) ? 'yes' : `no (${pick.outcome})`} |`,
     );
   }
   return lines;
@@ -190,6 +193,22 @@ function commonDifferences(rows: readonly Row[], exists: (path: string) => boole
   ];
 }
 
+/** Each accepted rule with what it covers. */
+function acceptedTable(rows: readonly Row[]): string[] {
+  const lines = [
+    '| Rule | Why | Systems | Variants | Games |',
+    '| :--- | :--- | :--- | ---: | ---: |',
+  ];
+  for (const rule of ACCEPTED) {
+    const covered = rows.filter((row) => row.accepted === rule.id);
+    if (covered.length === 0) continue;
+    lines.push(
+      `| ${code(rule.id)} | ${cell(rule.reason)} | ${cell(systemList(covered, 8))} | ${String(covered.length)} | ${String(sum(covered))} |`,
+    );
+  }
+  return lines;
+}
+
 function variantFields(row: Row): string {
   const set = Object.entries(row.fields).map(([key, value]) => `${key}=${value}`);
   return set.length > 0 ? ` — ${set.map(code).join(', ')}` : '';
@@ -220,6 +239,7 @@ function signature(row: Row): string {
     cwdOrEnv: () => [normalize(row.old.cwd ?? ''), normalize(row.next.cwd ?? ''), row.old.env],
     order: () => [],
     missingConfig: () => [],
+    accepted: () => [row.accepted],
     args: () => Object.values(diffOf(row)),
     emulator: () => [program(row.old), program(row.next)],
     newError: () => [row.next.error, program(row.old)],
@@ -242,7 +262,8 @@ function systemList(rows: readonly Row[], limit: number): string {
 function details(rows: readonly Row[], exists: (path: string) => boolean): string[] {
   const lines: string[] = [];
   const different = rows.filter(
-    (row) => row.outcome !== 'match' && row.outcome !== 'missingConfig',
+    (row) =>
+      row.outcome !== 'match' && row.outcome !== 'missingConfig' && row.outcome !== 'accepted',
   );
   const groups = [...groupBy(different, signature).values()].sort((a, b) => sum(b) - sum(a));
   groups.forEach((group, index) => {
@@ -303,6 +324,12 @@ export function renderReport(input: ReportInput): string {
     ...summary,
     '',
     `${String(input.noGamelist.length)} systems in \`launchers.json\` have no gamelist: ${input.noGamelist.map(code).join(', ') || '—'}.`,
+    '',
+    '## Accepted differences',
+    '',
+    'Differences that are fine on purpose (`scripts/launchCompare/accepted.ts`). Each is checked: the old command, changed only that way, builds the same command.',
+    '',
+    ...acceptedTable(rows),
     '',
     '## Start these by hand',
     '',

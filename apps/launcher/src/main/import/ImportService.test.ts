@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { importHarness, type ImportHarness } from './harness.ts';
@@ -256,5 +256,52 @@ describe('ImportService.apply', () => {
       error: { code: 'BUSY' },
     });
     expect(h.count('select count(*) from games')).toBe(0);
+  });
+});
+
+describe('ImportService per-game emulators (FR-EMU-4)', () => {
+  it('a game run with another emulator in NextLevelOS gets that profile as its launch option', async () => {
+    const h = await setup();
+    const launchersPath = join(h.copy.data, 'launchers.json');
+    const launchers = JSON.parse(await readFile(launchersPath, 'utf8')) as Record<
+      string,
+      { command: string }
+    >;
+    const gx = launchers['Amstrad GX4000'];
+    if (gx) gx.command += ' --emulator="%emulator%"';
+    await writeFile(launchersPath, JSON.stringify(launchers));
+    await writeFile(
+      join(h.copy.data, 'gamelists', 'Amstrad Gx4000.json'),
+      JSON.stringify({ games: [{ filename: './Cart Racer.cpr', emulator: 'mame' }] }),
+    );
+    const emulators = join(h.copy.root, 'emulators');
+    for (const [folder, exe] of [
+      ['MAME', 'mame.exe'],
+      ['RetroArch', 'retroarch.exe'],
+    ] as const) {
+      await mkdir(join(emulators, folder), { recursive: true });
+      await writeFile(join(emulators, folder, exe), 'invented');
+    }
+    await h.run(emulators);
+    const profileOf = () =>
+      h.client
+        .prepare(
+          `select o.profile_id from game_launch_override o join games g on g.id = o.game_id
+           where g.rel_path = 'Cart Racer.cpr'`,
+        )
+        .pluck()
+        .get() as string | undefined;
+    const load = h.settings.get();
+    const settings = load.kind === 'ok' ? load.snapshot.settings : undefined;
+    const mame = settings?.profiles.find((p) => p.presetProfileId === 'mame:amstrad-gx4000');
+    expect(mame?.systems).toEqual(['amstrad-gx4000']);
+    expect(profileOf()).toBe(mame?.id);
+    // The system keeps its default (RetroArch); importing again changes nothing.
+    expect(settings?.systems['amstrad-gx4000']?.defaultProfileId).not.toBe(mame?.id);
+    const profiles = settings?.profiles.length;
+    await h.run(emulators);
+    const again = h.settings.get();
+    expect(again.kind === 'ok' ? again.snapshot.settings.profiles.length : 0).toBe(profiles);
+    expect(profileOf()).toBe(mame?.id);
   });
 });

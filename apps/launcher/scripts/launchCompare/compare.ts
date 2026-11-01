@@ -12,17 +12,27 @@ export type Outcome =
   | 'cwdOrEnv' // same exe and arguments; working folder or environment differs
   | 'order' // same exe and arguments in another order
   | 'missingConfig' // same, but NextLevelOS also appends a config file that isn't there
+  | 'accepted' // a known difference that is fine (accepted.ts)
   | 'args' // same exe, different arguments
   | 'emulator' // a different program
   | 'newError' // only the rebuild can't launch it
   | 'oldError' // only NextLevelOS can't launch it
   | 'bothError';
 
+/** Outcomes where the rebuild does what NextLevelOS did. */
+export const SAME_EFFECT: ReadonlySet<Outcome> = new Set([
+  'match',
+  'cwdOrEnv',
+  'order',
+  'missingConfig',
+]);
+
 export const OUTCOMES: readonly Outcome[] = [
   'match',
   'cwdOrEnv',
   'order',
   'missingConfig',
+  'accepted',
   'args',
   'emulator',
   'newError',

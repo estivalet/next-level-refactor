@@ -13,6 +13,11 @@ exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv
     "-g",
     "E:\\roms\\Sys\\Game (USA).zip",
   ],
+  "colem:default": [
+    "--extra",
+    "-sgm",
+    "E:\\roms\\Sys\\Game (USA).zip",
+  ],
   "dolphin:default": [
     "--extra",
     "-b",
@@ -2333,6 +2338,18 @@ exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv
     "-skip_gameinfo",
     "--extra",
   ],
+  "openmsx:default": [
+    "--extra",
+    "-setting",
+    "E:\\emu\\share\\settings.xml",
+    "E:\\roms\\Sys\\Game (USA).zip",
+  ],
+  "openmsx:turbor": [
+    "--extra",
+    "-setting",
+    "E:\\emu\\share\\turbor.xml",
+    "E:\\roms\\Sys\\Game (USA).zip",
+  ],
   "pcsx2:default": [
     "--extra",
     "-fullscreen",
@@ -2791,6 +2808,10 @@ exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv
     "--extra",
     "E:\\roms\\Sys\\Game (USA).zip",
     "--fullscreen",
+  ],
+  "yape:default": [
+    "--extra",
+    "E:\\roms\\Sys\\Game (USA).zip",
   ],
 }
 `;

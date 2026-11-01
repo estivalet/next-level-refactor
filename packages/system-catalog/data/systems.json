@@ -2356,7 +2356,8 @@
       "defaultFolderName": "Coleco ColecoVision",
       "scraper": {},
       "presetProfiles": [
-        "retroarch:bluemsx_libretro"
+        "retroarch:bluemsx_libretro",
+        "colem:default"
       ],
       "aliases": [
         "Coleco ColecoVision"
@@ -2751,7 +2752,8 @@
       "defaultFolderName": "Commodore Plus4",
       "scraper": {},
       "presetProfiles": [
-        "retroarch:vice_xplus4_libretro"
+        "retroarch:vice_xplus4_libretro",
+        "yape:default"
       ],
       "aliases": [
         "Commodore Plus4"
@@ -6369,6 +6371,7 @@
       "defaultFolderName": "Microsoft MSX",
       "scraper": {},
       "presetProfiles": [
+        "openmsx:default",
         "retroarch:bluemsx_libretro"
       ],
       "aliases": [
@@ -6450,7 +6453,9 @@
       "scraper": {
         "screenscraperId": 118
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "openmsx:turbor"
+      ],
       "aliases": [
         "Microsoft MSX Turbo R"
       ]
@@ -6486,7 +6491,9 @@
       "scraper": {
         "screenscraperId": 116
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "openmsx:default"
+      ],
       "aliases": [
         "Microsoft MSX2"
       ]
@@ -6522,7 +6529,9 @@
       "scraper": {
         "screenscraperId": 117
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "openmsx:default"
+      ],
       "aliases": [
         "Microsoft MSX2+"
       ]

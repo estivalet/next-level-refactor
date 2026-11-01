@@ -219,6 +219,8 @@ export class ImportRepository {
         extraArgs: JSON.stringify(entry.override.extraArgs),
       });
     }
+    // The game's own emulator in NextLevelOS (FR-EMU-4); other overrides stay as they are.
+    if (entry.profileId) s.upsertOverrideProfile.run({ id, profileId: entry.profileId });
     if (entry.arcade) s.upsertArcade.run({ id, ...entry.arcade });
   }
 
@@ -269,6 +271,11 @@ export class ImportRepository {
         `insert into game_launch_override (game_id, profile_id, core, extra_args)
          values (@id, null, @core, @extraArgs)
          on conflict (game_id) do update set core = excluded.core, extra_args = excluded.extra_args`,
+      ),
+      upsertOverrideProfile: c.prepare(
+        `insert into game_launch_override (game_id, profile_id, core, extra_args)
+         values (@id, @profileId, null, '[]')
+         on conflict (game_id) do update set profile_id = excluded.profile_id`,
       ),
       upsertArcade: c.prepare(
         `insert or replace into arcade_info (game_id, rom, parent, driver, manufacturer)

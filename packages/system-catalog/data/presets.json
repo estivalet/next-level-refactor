@@ -5368,6 +5368,98 @@
           "archives": "pass"
         }
       ]
+    },
+    {
+      "id": "openmsx",
+      "name": "openMSX",
+      "executableNames": [
+        "openmsx.exe"
+      ],
+      "homepage": "https://openmsx.org/",
+      "profiles": [
+        {
+          "id": "openmsx:default",
+          "name": "openMSX",
+          "systems": [
+            "microsoft-msx",
+            "microsoft-msx2",
+            "microsoft-msx2-plus"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-setting",
+            "{emulatorDir}\\share\\settings.xml",
+            "{rom}"
+          ],
+          "archives": "pass",
+          "env": {
+            "OPENMSX_HOME": "{emulatorDir}"
+          }
+        },
+        {
+          "id": "openmsx:turbor",
+          "name": "openMSX (Turbo R)",
+          "systems": [
+            "microsoft-msx-turbo-r"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-setting",
+            "{emulatorDir}\\share\\turbor.xml",
+            "{rom}"
+          ],
+          "archives": "pass",
+          "env": {
+            "OPENMSX_HOME": "{emulatorDir}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "colem",
+      "name": "ColEm",
+      "executableNames": [
+        "ColEm.exe"
+      ],
+      "homepage": "https://fms.komkon.org/ColEm/",
+      "profiles": [
+        {
+          "id": "colem:default",
+          "name": "ColEm",
+          "systems": [
+            "coleco-colecovision"
+          ],
+          "args": [
+            "{extraArgs}",
+            "-sgm",
+            "{rom}"
+          ],
+          "archives": "pass"
+        }
+      ]
+    },
+    {
+      "id": "yape",
+      "name": "YAPE",
+      "executableNames": [
+        "YapeSDL.exe",
+        "Yape.exe"
+      ],
+      "homepage": "http://yape.homeserver.hu/",
+      "profiles": [
+        {
+          "id": "yape:default",
+          "name": "YAPE",
+          "systems": [
+            "commodore-plus4"
+          ],
+          "args": [
+            "{extraArgs}",
+            "{rom}"
+          ],
+          "archives": "pass"
+        }
+      ]
     }
   ]
 }

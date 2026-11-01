@@ -38,6 +38,7 @@ export const IMPORT_UNMAPPED_REASONS = [
   'collectionLaunchFields',
   'unknownTheme',
   'notInMenu',
+  'presetEmulatorMissing',
 ] as const;
 
 /** Reasons for what was imported (the report's "mapped" list). */
@@ -57,6 +58,7 @@ export const IMPORT_MAPPED_REASONS = [
   'launchOverride',
   'retroarchSystemConfig',
   'mameUiModeKey',
+  'perGameProfile',
   'arcadeInfo',
   'artFolder',
   'replacesImport',

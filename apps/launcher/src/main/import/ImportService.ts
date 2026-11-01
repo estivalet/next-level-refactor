@@ -21,6 +21,7 @@ import { dryRun, planImport, type ImportDeps, type ImportPlan } from './dryRun.t
 import { bindCollections } from './mapMenus.ts';
 import { mapSettings } from './mapSettings.ts';
 import { addMameUiKey } from './mameUiKey.ts';
+import { addPresetProfiles, profileIdFor } from './presetProfiles.ts';
 import { addSystemConfigs } from './systemConfigs.ts';
 
 export interface ImportServiceDeps {
@@ -115,7 +116,14 @@ export class ImportService {
       if (plan.fingerprint !== token) fail('CONFLICT', { reason: 'folderChanged' });
       const settingsBackupId = await this.applySettings(plan);
       const now = this.deps.clock();
-      const written = this.deps.repo.upsertGames(plan.games, now, (done, total) => {
+      // A game's own emulator or medium: the profile the saved settings now have for it.
+      const saved = this.currentSettings();
+      const entries = plan.games.map((game) =>
+        game.presetProfileId
+          ? { ...game, profileId: profileIdFor(saved, game.systemId, game.presetProfileId) }
+          : game,
+      );
+      const written = this.deps.repo.upsertGames(entries, now, (done, total) => {
         this.progress('games', done, total);
       });
       const collectionIds = this.applyCollections(plan, now);
@@ -158,21 +166,14 @@ export class ImportService {
   private async applySettings(plan: ImportPlan): Promise<string | null> {
     this.progress('settings', 0, 1);
     const { catalog, presets, newId } = this.deps;
-    const next = (current: Settings) =>
-      addMameUiKey(
-        addSystemConfigs(
-          addDetectedProfiles(
-            mapSettings(plan.files, catalog, current, newId).next,
-            plan.detected,
-            catalog,
-            presets,
-            newId,
-          ).next,
-          plan.systemConfigs,
-          newId,
-        ).next,
-        plan.systemIds,
-      ).next;
+    // The plan's steps, in its order, on the latest settings.
+    const next = (current: Settings) => {
+      let settings = mapSettings(plan.files, catalog, current, newId).next;
+      settings = addDetectedProfiles(settings, plan.detected, catalog, presets, newId).next;
+      settings = addSystemConfigs(settings, plan.systemConfigs, newId).next;
+      settings = addMameUiKey(settings, plan.systemIds).next;
+      return addPresetProfiles(settings, plan.wantedProfiles, presets, newId, plan.detected).next;
+    };
     const current = this.currentSettings();
     if (isDeepStrictEqual(next(current), current)) {
       this.progress('settings', 1, 1);
