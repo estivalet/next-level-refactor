@@ -4,6 +4,7 @@ import {
   type EmulatorPreset,
   type SystemDefinition,
   type AppPathKey,
+  type ExportFormat,
   type Result,
   type ScraperAccount,
   type ScraperSystem,
@@ -19,6 +20,7 @@ import type { FrontendService } from './frontend/FrontendService.ts';
 import { createFrontendHandlers } from './frontendHandlers.ts';
 import { createLaunchHandlers } from './launchHandlers.ts';
 import type { CollectionRepository } from './library/CollectionRepository.ts';
+import type { GameExportReader } from './library/GameExportReader.ts';
 import type { GameRepository } from './library/GameRepository.ts';
 import type { LaunchRepository } from './library/LaunchRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
@@ -61,6 +63,8 @@ export interface MainDeps {
   pickFolder: (title?: string) => Promise<string | null>;
   /** Native file dialog for an emulator executable; null when cancelled. */
   pickFile: (title?: string) => Promise<string | null>;
+  /** Native Save dialog for a game list export (FR-LIB-11); null when cancelled. */
+  pickExportPath: (defaultName: string, format: ExportFormat) => Promise<string | null>;
   presets: () => readonly EmulatorPreset[];
   /** null when `library.db` could not be opened; library channels then fail. */
   library: {
@@ -69,6 +73,7 @@ export interface MainDeps {
     frontend: FrontendService;
     scan: ScanService;
     games: GameRepository;
+    exports: GameExportReader;
     collections: CollectionRepository;
     launches: LaunchRepository;
     launch: LaunchService;

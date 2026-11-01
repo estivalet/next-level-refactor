@@ -1,5 +1,6 @@
 import { AppErrorException, ERROR_CODES } from '@nextlevel/shared';
 import { dirname } from 'node:path';
+import { exportGames } from './export/exportGames.ts';
 import type { MainDeps } from './handlers.ts';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { LaunchChannel } from './launchHandlers.ts';
@@ -72,6 +73,11 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
       else deps.log.warn({ gameId, path }, 'nothing to reveal for a missing game');
     },
     'library.search': ({ text, limit }) => library().games.search(text, limit),
+    'library.export': (request) =>
+      exportGames(
+        { reader: library().exports, pickPath: deps.pickExportPath, clock: deps.clock },
+        request,
+      ),
     'collections.list': () => library().collections.list(),
     // The generated menu lists every collection (FR-MENU-3).
     'collections.create': ({ name }) => menuChanged(library().collections.create(name)),

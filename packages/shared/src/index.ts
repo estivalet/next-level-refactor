@@ -6,6 +6,7 @@ export * from './ipc/catalogContract.ts';
 export * from './library/schema.ts';
 export * from './library/games.ts';
 export * from './library/collections.ts';
+export * from './library/export.ts';
 export * from './library/smartFilters.ts';
 export * from './menus/schema.ts';
 export * from './settings/schema.ts';

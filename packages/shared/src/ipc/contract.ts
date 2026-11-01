@@ -14,6 +14,7 @@ import {
   CollectionNameSchema,
   CollectionSummarySchema,
 } from '../library/collections.ts';
+import { GameExportRequestSchema, GameExportResultSchema } from '../library/export.ts';
 import {
   GameDetailsSchema,
   GameFacetsQuerySchema,
@@ -159,6 +160,8 @@ export const ipcContract = {
     }),
     output: SearchResultSchema,
   },
+  /** FR-LIB-11: writes a scope's games to a file the user picks (CSV, JSON or gamelist.xml). */
+  'library.export': { input: GameExportRequestSchema, output: GameExportResultSchema },
   'library.games.launchOverride': {
     input: z.strictObject({ gameId }),
     output: LaunchOverrideSchema,

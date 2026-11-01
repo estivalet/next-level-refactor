@@ -1,7 +1,6 @@
 import {
   AppErrorException,
   ERROR_CODES,
-  type CollectionSort,
   type GameDetails,
   type GameFacets,
   type GameFlags,
@@ -12,13 +11,12 @@ import {
   type MetadataChanges,
   type ScrapeField,
   type SearchResult,
-  SmartFilterQuerySchema,
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
 import { ROW_COLUMNS, ROW_JOINS, listShape, tabCountsSql, toRow, type RawRow } from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
-import { smartFilterIdsSql } from './smartFilterSql.ts';
+import { resolveScope } from './scopeQuery.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
 /** Where a game's file is (or, when missing, was expected: FR-LIB-4), from library and settings. */
@@ -115,16 +113,13 @@ export class GameRepository {
 
   list(query: GameListQuery): GameListPage {
     const match = query.text === undefined ? null : ftsQuery(query.text);
-    const collectionSort =
-      query.scope.kind === 'collection' ? this.collectionSort(query.scope.collectionId) : null;
-    const smart =
-      query.scope.kind === 'smartFilter' ? this.smartIds(query.scope.smartFilterId) : null;
+    const { collectionSort, smart, params: scopeParams } = this.scope(query.scope);
     const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null, {
       filter: query.filter !== undefined,
       genre: query.genre !== undefined,
     });
     const params = {
-      ...this.scopeParams(query.scope, smart),
+      ...scopeParams,
       ...(match === null ? {} : { match }),
       ...(query.filter === undefined ? {} : { filter: query.filter }),
       ...(query.genre === undefined ? {} : { genre: query.genre }),
@@ -145,9 +140,8 @@ export class GameRepository {
    * games each tab of the scope has.
    */
   facets(scope: GameScope, tab: GameTab): GameFacets {
-    const smart = scope.kind === 'smartFilter' ? this.smartIds(scope.smartFilterId) : null;
+    const { smart, params } = this.scope(scope);
     const { from } = listShape({ scope, tab }, null, false, smart?.sql ?? null);
-    const params = this.scopeParams(scope, smart);
     const filters = this.statement(
       `select f.filter as value, count(*) as count from game_filters f
        where f.game_id in (select g.id ${from}) group by f.filter
@@ -163,26 +157,8 @@ export class GameRepository {
     return { filters, genres, tabs };
   }
 
-  private scopeParams(scope: GameScope, smart: { params: object } | null) {
-    return {
-      ...(scope.kind === 'system' ? { systemId: scope.systemId } : {}),
-      ...(scope.kind === 'collection' ? { collectionId: scope.collectionId } : {}),
-      ...smart?.params,
-    };
-  }
-
-  private smartIds(id: number) {
-    const raw = this.statement('select query from smart_filters where id = ?').pluck().get(id) as
-      string | undefined;
-    if (raw === undefined) throw notFound({ smartFilterId: id });
-    return smartFilterIdsSql(SmartFilterQuerySchema.parse(JSON.parse(raw)), this.clock());
-  }
-
-  private collectionSort(id: number): CollectionSort {
-    const sort = this.statement('select sort from collections where id = ?').pluck().get(id) as
-      CollectionSort | undefined;
-    if (sort === undefined) throw notFound({ collectionId: id });
-    return sort;
+  private scope(scope: GameScope) {
+    return resolveScope((sql) => this.statement(sql), scope, this.clock());
   }
 
   get(gameId: number): GameDetails {

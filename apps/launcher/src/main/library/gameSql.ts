@@ -88,7 +88,8 @@ export function tabCountsSql(scope: GameScope, smartIds: string | null = null): 
  * @filter and @genre (D62).
  */
 export function listShape(
-  query: Pick<GameListQuery, 'scope' | 'tab' | 'sort'>,
+  /** `tab: null` keeps every game of the scope, hidden ones too (an export, FR-LIB-11). */
+  query: Pick<GameListQuery, 'scope' | 'sort'> & { tab: GameTab | null },
   collectionSort: CollectionSort | null,
   hasText: boolean,
   /** A smart filter scope: its `select id, rn` query (smartFilterIdsSql). */
@@ -96,7 +97,7 @@ export function listShape(
   narrow: { filter: boolean; genre: boolean } = { filter: false, genre: false },
 ) {
   const scope = scopeParts(query.scope, smartIds);
-  const where = [scope.where, TABS[query.tab]];
+  const where = [scope.where, query.tab === null ? '1 = 1' : TABS[query.tab]];
   if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
   if (narrow.filter) {
     where.push(
