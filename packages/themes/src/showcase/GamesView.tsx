@@ -107,10 +107,13 @@ export function GamesView({
             focusIndex={Math.max(0, Math.min(displayFocus, n - 1))}
             onFocusChange={onFocusChange}
             onActivate={onActivate}
-            itemWidth={250}
-            gap={18}
-            // The strip is 44vh: 250/18 px were tuned on a 1080p screen (≈ 432 px tall), and
-            // scale from there so the covers keep NextLevelOS's spacing at any size or UI scale.
+            // A tighter step than NextLevelOS's 250/18 so the strip runs past both edges with
+            // partial covers peeking in, like Big Box. Cover size is set by the strip height,
+            // not the slot, so this changes only the spacing.
+            itemWidth={226}
+            gap={14}
+            // The strip is 44vh: 226/14 px were tuned on a 1080p screen (≈ 432 px tall), and
+            // scale from there so the spacing holds at any size or UI scale.
             referenceHeight={432}
             visibleRadius={6}
             className="h-full"
