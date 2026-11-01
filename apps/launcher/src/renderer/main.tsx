@@ -3,6 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BootGate } from './features/boot/BootGate.tsx';
 import { BootShell } from './features/boot/BootShell.tsx';
+import { GameLaunchScreen } from './features/launch/GameLaunchScreen.tsx';
 import { Desktop } from './features/shell/Desktop.tsx';
 import { blockFileDrops } from './fileDrop.ts';
 import { Taskbar } from './features/shell/Taskbar.tsx';
@@ -24,6 +25,7 @@ createRoot(root).render(
       <BootGate>
         <BootShell initialBounds={initialBounds}>
           <Desktop taskbar={<Taskbar />} />
+          <GameLaunchScreen />
         </BootShell>
       </BootGate>
     </QueryClientProvider>

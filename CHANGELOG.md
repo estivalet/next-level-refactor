@@ -7,6 +7,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Changed
 
+- The startup splash has the NextLevelOS look (logo, progress bar, step label) and shows from
+  the first paint: the window stays hidden until then, so there is no white flash (S1).
+- Playing a game shows a launch screen (box art, title, spinner) over the launcher instead of
+  minimizing it, so the Windows desktop no longer shows before the emulator opens (FR-EMU-6).
 - The launcher window opens maximized (FR-SHELL-6).
 - The Game Library opens on the active menu as cards, one level at a time (Home, Back, breadcrumb,
   grid or list), with **Not in menu** and **Collections** cards; the long system tree is gone

@@ -625,8 +625,15 @@
       "fields": "Campos no scraping em lote"
     }
   },
+  "launchScreen": {
+    "label": "Iniciando um jogo",
+    "nowPlaying": "Jogando agora",
+    "hint": "O NextLevel volta quando o jogo fechar."
+  },
   "boot": {
     "loadingSettings": "Carregando configurações…",
+    "progress": "Iniciando o NextLevel",
+    "openingLibrary": "Abrindo a biblioteca…",
     "recovery": {
       "title": "Não foi possível carregar as configurações",
       "reason": {

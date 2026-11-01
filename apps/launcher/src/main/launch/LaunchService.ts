@@ -36,8 +36,11 @@ export interface LaunchServiceDeps {
   exists: (path: string) => boolean;
   clock: () => Date;
   emit: EmitEvent;
-  /** The launcher window: out of the way while a game runs (owner decision D4). */
-  window: { minimize(): void; restore(): void };
+  /**
+   * The launcher window, focused again when the game ends. It stays up behind the emulator while
+   * the game runs, showing the launch screen, so the Windows desktop never shows in between.
+   */
+  window: { restore(): void };
   extractor: Extractor;
   tempDir: string;
   baseEnv: NodeJS.ProcessEnv;
@@ -158,7 +161,6 @@ export class LaunchService {
     let prepared: PreparedRom | undefined;
     let profile: EmulatorProfile | undefined;
     let logId: number | undefined;
-    let minimized = false;
     try {
       const settings = this.deps.settings();
       const game = this.deps.launches.gameInfo(gameId);
@@ -175,8 +177,6 @@ export class LaunchService {
       this.checkCwd(command, profile);
       const started = this.deps.clock();
       logId = this.logStart(command, profile, game, started, false);
-      this.deps.window.minimize();
-      minimized = true;
       const process = await this.deps.spawn(command);
       const launchId = logId;
       this.current = { gameId, launchId };
@@ -185,7 +185,6 @@ export class LaunchService {
       return { launchId };
     } catch (error) {
       if (logId !== undefined) this.logEnd(logId, null, errorCode(error), null);
-      if (minimized) this.deps.window.restore();
       await prepared?.cleanup();
       this.busy = false;
       throw withFix(error, profile);

@@ -44,7 +44,7 @@ export function BootGate({ children }: { children: ReactNode }) {
     document.documentElement.lang = language;
   }, [i18n, language]);
 
-  if (settings.isPending) return <Splash />;
+  if (settings.isPending) return <Splash progress={0.25} />;
   // The settings service itself could not be reached; the file may be fine. A failed background
   // refresh keeps the last good data, so the shell (and its windows) stay open.
   if (!settings.data) return <RecoveryScreen reason="unavailable" latestBackupId={null} />;
@@ -54,7 +54,7 @@ export function BootGate({ children }: { children: ReactNode }) {
     );
   }
   // At boot, show the shell only once the language matches, so it never flashes in English.
-  if (!booted || !route.data) return <Splash />;
+  if (!booted || !route.data) return <Splash labelKey="boot.openingLibrary" progress={0.5} />;
   // The gate layer (IA §1): after settings, so its screens are in the user's language.
   return (
     <AuthGate>

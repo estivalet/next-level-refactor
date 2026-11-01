@@ -625,8 +625,15 @@
       "fields": "Fields for batch scraping"
     }
   },
+  "launchScreen": {
+    "label": "Starting a game",
+    "nowPlaying": "Now playing",
+    "hint": "NextLevel comes back when the game closes."
+  },
   "boot": {
     "loadingSettings": "Loading settings…",
+    "progress": "Starting NextLevel",
+    "openingLibrary": "Opening the library…",
     "recovery": {
       "title": "Settings could not be loaded",
       "reason": {

@@ -45,7 +45,7 @@ export interface LibraryHost {
   dataDir: string;
   emit: EmitEvent;
   menuWatch: { watch(fingerprint: () => string): void };
-  launcherWindow: { minimize(): void; restore(): void };
+  launcherWindow: { restore(): void };
   /** `<data>\temp` (D50), emptied at boot. */
   tempDir: string;
   /** The environment emulators start with (TMP/TEMP as the player had them). */
