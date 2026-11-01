@@ -32,6 +32,7 @@ async function setup() {
     catalog: () => [N64],
     pickFolder: vi.fn((title?: string) => Promise.resolve(title === 'cancel' ? null : 'E:/roms')),
     pickFile: vi.fn(() => Promise.resolve(null)),
+    pickExportPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library: null,
     clock: () => new Date(Date.UTC(2026, 9, 21)),

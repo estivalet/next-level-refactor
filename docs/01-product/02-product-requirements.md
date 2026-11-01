@@ -41,7 +41,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-LIB-8 | Collections: create, rename, delete, add/remove games from any system, order manually or by field. | M |
 | FR-LIB-9 | Smart filters: saved queries (e.g. "Favorites", "Recently played", "Genre = Shooter") usable as menu nodes. | S |
 | FR-LIB-10 | Global search across all systems by title, with results under 150 ms for 200k games. | M |
-| FR-LIB-11 | Import and export of game lists in EmulationStation `gamelist.xml` format. | C |
+| FR-LIB-11 | Import and export of game lists in EmulationStation `gamelist.xml` format. Export is built (owner decision 2026-11-01): a system, collection or smart filter to CSV, JSON or `gamelist.xml`, every game or the list as shown, with the fields the user picks; import is still open. | C |
 
 ## 4. Systems, emulators & launching (`FR-EMU`)
 

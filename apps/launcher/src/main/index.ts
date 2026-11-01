@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, shell } fro
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { uiScaleFactor } from '@nextlevel/shared';
+import { uiScaleFactor, type ExportFormat } from '@nextlevel/shared';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { v7 as uuidv7 } from 'uuid';
 import { createAuth } from './auth/startAuth.ts';
@@ -137,6 +137,22 @@ const emit = menuWatch.emit;
 async function pickJsonSavePath(defaultName: string): Promise<string | null> {
   const window = BrowserWindow.getFocusedWindow();
   const options = { defaultPath: defaultName, filters: JSON_FILES };
+  const result = await (window
+    ? dialog.showSaveDialog(window, options)
+    : dialog.showSaveDialog(options));
+  return result.canceled || !result.filePath ? null : result.filePath;
+}
+
+const EXPORT_FILES: Record<ExportFormat, Array<{ name: string; extensions: string[] }>> = {
+  csv: [{ name: 'CSV', extensions: ['csv'] }],
+  json: JSON_FILES,
+  gamelistXml: [{ name: 'gamelist.xml', extensions: ['xml'] }],
+};
+
+/** A Save dialog for a game list export (FR-LIB-11); null when cancelled. */
+async function pickExportPath(defaultName: string, format: ExportFormat): Promise<string | null> {
+  const window = BrowserWindow.getFocusedWindow();
+  const options = { defaultPath: defaultName, filters: EXPORT_FILES[format] };
   const result = await (window
     ? dialog.showSaveDialog(window, options)
     : dialog.showSaveDialog(options));
@@ -316,6 +332,7 @@ async function start(): Promise<void> {
         : dialog.showOpenDialog(options));
       return result.canceled ? null : (result.filePaths[0] ?? null);
     },
+    pickExportPath,
     pickFolder: async (title) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];

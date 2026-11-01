@@ -978,6 +978,50 @@
       },
       "busy": "Já há uma busca em lote em andamento ou pausada. Cancele-a primeiro.",
       "noSystem": "Nenhum sistema do ScreenScraper definido para {{systems}}. Escolha um em Configurações → Sistemas (ou busque um jogo com Buscar dados…, que pergunta)."
+    },
+    "export": {
+      "open": "Exportar…",
+      "title": "Exportar {{name}}",
+      "format": "Formato",
+      "formats": {
+        "csv": "Planilha (CSV)",
+        "json": "JSON",
+        "gamelistXml": "EmulationStation (gamelist.xml)"
+      },
+      "games": "Jogos",
+      "every": "Todos os jogos, inclusive ocultos ({{count}})",
+      "shown": "Só os jogos exibidos ({{count}})",
+      "fields": "Campos",
+      "all": "Todos",
+      "none": "Nenhum",
+      "field": {
+        "title": "Título",
+        "system": "Sistema",
+        "year": "Ano",
+        "genre": "Gênero",
+        "players": "Jogadores",
+        "developer": "Desenvolvedora",
+        "publisher": "Distribuidora",
+        "region": "Região",
+        "description": "Descrição",
+        "rating": "Nota",
+        "userRating": "Minha nota",
+        "favorite": "Favorito",
+        "completed": "Concluído",
+        "hidden": "Oculto",
+        "missing": "Ausente",
+        "path": "Caminho do arquivo",
+        "playCount": "Vezes jogado",
+        "lastPlayed": "Última vez jogado",
+        "added": "Data de inclusão",
+        "filters": "Filtros"
+      },
+      "xmlHint": "O gamelist.xml sempre tem o título e o caminho do arquivo (relativo à pasta do sistema); campos sem tag no EmulationStation ficam de fora.",
+      "save": "Exportar…",
+      "cancel": "Cancelar",
+      "done": "Concluir",
+      "saved_one": "{{count}} jogo exportado.",
+      "saved_other": "{{count}} jogos exportados."
     }
   },
   "frontend": {

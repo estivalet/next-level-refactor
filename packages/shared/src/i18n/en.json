@@ -978,6 +978,50 @@
       },
       "busy": "A batch scrape is already running or paused. Cancel it first.",
       "noSystem": "No ScreenScraper system is set for {{systems}}. Choose one in Settings → Systems (or scrape one game with Scrape…, which asks)."
+    },
+    "export": {
+      "open": "Export…",
+      "title": "Export {{name}}",
+      "format": "Format",
+      "formats": {
+        "csv": "Spreadsheet (CSV)",
+        "json": "JSON",
+        "gamelistXml": "EmulationStation (gamelist.xml)"
+      },
+      "games": "Games",
+      "every": "Every game, hidden ones too ({{count}})",
+      "shown": "Only the games shown ({{count}})",
+      "fields": "Fields",
+      "all": "All",
+      "none": "None",
+      "field": {
+        "title": "Title",
+        "system": "System",
+        "year": "Year",
+        "genre": "Genre",
+        "players": "Players",
+        "developer": "Developer",
+        "publisher": "Publisher",
+        "region": "Region",
+        "description": "Description",
+        "rating": "Rating",
+        "userRating": "My rating",
+        "favorite": "Favorite",
+        "completed": "Completed",
+        "hidden": "Hidden",
+        "missing": "Missing",
+        "path": "File path",
+        "playCount": "Times played",
+        "lastPlayed": "Last played",
+        "added": "Date added",
+        "filters": "Filters"
+      },
+      "xmlHint": "gamelist.xml always has the title and the file path (relative to the system folder); fields EmulationStation has no tag for are left out.",
+      "save": "Export…",
+      "cancel": "Cancel",
+      "done": "Done",
+      "saved_one": "Exported {{count}} game.",
+      "saved_other": "Exported {{count}} games."
     }
   },
   "frontend": {

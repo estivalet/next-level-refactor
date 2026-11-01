@@ -20,7 +20,8 @@ import { spawnProcess } from './launch/spawnProcess.ts';
 import { logger as log } from './log.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
 import { expectedGamePath } from './library/expectedPath.ts';
-import { GameRepository } from './library/GameRepository.ts';
+import { GameExportReader } from './library/GameExportReader.ts';
+import { GameRepository, type ResolvePath } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
 import { LibraryRepository } from './library/LibraryRepository.ts';
 import { MediaRepository } from './library/MediaRepository.ts';
@@ -115,14 +116,20 @@ export function startLibrary(
     newId: uuidv7,
   });
   // Paths follow the current settings, so a changed folder name or location applies at once.
-  const games = new GameRepository(db, (row) => {
+  const gamePath: ResolvePath = (row) => {
     const loaded = settings.get();
     return expectedGamePath({
       settings: loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings(),
       system: systemCatalog().find((system) => system.id === row.systemId),
       ...row,
     });
-  });
+  };
+  const games = new GameRepository(db, gamePath);
+  const exports = new GameExportReader(
+    db,
+    gamePath,
+    (id) => systemCatalog().find((system) => system.id === id)?.name ?? id,
+  );
   const collections = new CollectionRepository(db, () => new Date());
   const launches = new LaunchRepository(db);
   const launch = new LaunchService({
@@ -247,6 +254,7 @@ export function startLibrary(
     frontend,
     scan,
     games,
+    exports,
     collections,
     launches,
     launch,

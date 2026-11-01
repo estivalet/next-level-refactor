@@ -1,8 +1,9 @@
 import type { GameFlags, GameScope, MenuTree } from '@nextlevel/shared';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileDown } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
+import { ExportDialog } from './ExportDialog.tsx';
 import { GameDetails } from './GameDetails.tsx';
 import { GameList } from './GameList.tsx';
 import { GlobalSearch } from './GlobalSearch.tsx';
@@ -56,6 +57,7 @@ export function LibraryApp({
   const list = useRef<HTMLDivElement>(null);
   const [searchText, setSearchText] = useState('');
   const [searchPick, setSearchPick] = useState<number | null>(null);
+  const [exporting, setExporting] = useState(false);
   const search = useGlobalSearch(searchText);
   const focusList = () => {
     list.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus();
@@ -84,6 +86,9 @@ export function LibraryApp({
 
   const scope = view.scope;
   const facts = scopeFacts(view);
+  const scopeName = scope
+    ? (facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : ''))
+    : '';
   // Without a readable menu the home still offers Not in menu and Collections.
   const tree = menu.data ?? { ...NO_MENU, title: t('library.home.title') };
   const level = levelAt(tree, path, {
@@ -202,15 +207,23 @@ export function LibraryApp({
                     {t('library.home.back')}
                   </button>
                   <h2 className="flex min-w-0 flex-1 items-baseline gap-2 text-sm font-semibold text-white">
-                    <span className="truncate">
-                      {facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : '')}
-                    </span>
+                    <span className="truncate">{scopeName}</span>
                     {view.games.total !== null && (
                       <span className="shrink-0 text-xs font-normal text-slate-500">
                         {t('library.status.games', { count: view.games.total })}
                       </span>
                     )}
                   </h2>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-white/5 hover:text-white"
+                    onClick={() => {
+                      setExporting(true);
+                    }}
+                  >
+                    <FileDown aria-hidden="true" className="h-3.5 w-3.5" />
+                    {t('library.export.open')}
+                  </button>
                   <ViewToggle view={shownView} onView={setScopeView} gridDisabled={manualOrder} />
                 </div>
                 <ScopeToolbar view={view} overlays={overlays} />
@@ -272,7 +285,7 @@ export function LibraryApp({
           missing={facts.missing}
           {...('review' in facts ? { review: facts.review } : {})}
           {...(scope.kind === 'system' ? { sort: view.sort, onSort: view.setSort } : {})}
-          scopeName={facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : '')}
+          scopeName={scopeName}
         />
       )}
       <LibraryOverlays
@@ -282,6 +295,25 @@ export function LibraryApp({
         {...(play.busy ? {} : { onPlay: play.play })}
         onMenuClosed={focusList}
       />
+      {scope && exporting && (
+        <ExportDialog
+          scope={scope}
+          title={scopeName}
+          view={{
+            tab: view.tab,
+            ...(scope.kind === 'system' ? { sort: view.sort } : {}),
+            ...(view.narrow.filter === undefined ? {} : { filter: view.narrow.filter }),
+            ...(view.narrow.genre === undefined ? {} : { genre: view.narrow.genre }),
+          }}
+          counts={{
+            every: facets.data ? facets.data.tabs.all + facets.data.tabs.hidden : null,
+            shown: view.games.total,
+          }}
+          onClose={() => {
+            setExporting(false);
+          }}
+        />
+      )}
       <PlayLayer play={play} />
     </div>
   );

@@ -36,6 +36,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Export…** in a system, collection or smart filter: save its games as a spreadsheet (CSV),
+  JSON or an EmulationStation `gamelist.xml`; every game or only the ones shown (tab, filter,
+  genre), with the fields you tick (description off by default). The choices are remembered
+  (FR-LIB-11).
 - **Completed**: mark games completed from the context menu or the details, and a Completed tab;
   importing NextLevelOS turns a game's `completed` tag into the flag (D60). Library migration 0010.
 - **Recently played** tab (played games, newest first).

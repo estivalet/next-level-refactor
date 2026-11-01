@@ -13,6 +13,7 @@ import type { ImportService } from './import/ImportService.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { LaunchService } from './launch/LaunchService.ts';
+import { GameExportReader } from './library/GameExportReader.ts';
 import { GameRepository } from './library/GameRepository.ts';
 import { LaunchRepository } from './library/LaunchRepository.ts';
 import { MediaRepository } from './library/MediaRepository.ts';
@@ -77,6 +78,11 @@ async function setup(withLibrary: boolean) {
       }),
       scan,
       games: new GameRepository(temp.db, (row) => join('X:', 'roms', row.systemId, row.relPath)),
+      exports: new GameExportReader(
+        temp.db,
+        (row) => join('X:', 'roms', row.systemId, row.relPath),
+        (id) => id,
+      ),
       collections,
       launches,
       launch: new LaunchService({
@@ -115,6 +121,7 @@ async function setup(withLibrary: boolean) {
     catalog: () => CATALOG,
     pickFolder: vi.fn(() => Promise.resolve(null)),
     pickFile: vi.fn(() => Promise.resolve(null)),
+    pickExportPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
@@ -147,6 +154,33 @@ async function setup(withLibrary: boolean) {
 }
 
 describe('library handlers', () => {
+  it('FR-LIB-11: library.export validates the request and reads the games before the Save dialog', async () => {
+    const { router, seed } = await setup(true);
+    seed('nintendo-64', ['Racer']);
+    const request = {
+      scope: { kind: 'system', systemId: 'nintendo-64' },
+      view: null,
+      format: 'csv',
+      fields: ['title'],
+      title: 'Nintendo 64',
+    };
+    // The test's Save dialog is cancelled.
+    expect(await router.handle('library.export', request)).toEqual({
+      ok: true,
+      value: { status: 'cancelled' },
+    });
+    expect(await router.handle('library.export', { ...request, format: 'xls' })).toMatchObject({
+      ok: false,
+      error: { code: 'VALIDATION_FAILED' },
+    });
+    expect(
+      await router.handle('library.export', {
+        ...request,
+        scope: { kind: 'collection', collectionId: 99 },
+      }),
+    ).toMatchObject({ ok: false, error: { code: 'NOT_FOUND' } });
+  });
+
   it('FR-LIB-3: scan channels fail with LIBRARY_UNAVAILABLE when the library could not open', async () => {
     const { router } = await setup(false);
     for (const channel of ['scan.status', 'scan.cancel', 'systems.list'] as const) {

@@ -29,7 +29,7 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 | Save-state cloud sync | Needs per-emulator save path knowledge in profiles |
 | Pre-launch hooks | squashfs/WSL mounting from the current runner (FR-EMU-9) |
 | macOS / Linux builds | Emulator presets per OS; path handling already OS-neutral |
-| Importers for RetroBat / LaunchBox / ES `gamelist.xml` | FR-LIB-11 |
+| Importers for RetroBat / LaunchBox / ES `gamelist.xml` | FR-LIB-11 (export to CSV / JSON / `gamelist.xml` shipped 2026-11-01) |
 | Emulator auto-install | Download and configure emulators from official sources |
 | Theme SDK | Third-party themes as packages |
 

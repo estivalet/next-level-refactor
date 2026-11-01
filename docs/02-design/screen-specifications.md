@@ -161,8 +161,16 @@ Scope view (D62)
     (D60), then Hidden, Missing, Needs review; then the scope's **Filters** and **Genres** with
     their counts in the tab. One filter and one genre narrow the list (picking it again clears
     it); the narrowing stays across tabs and clears when a scope is opened or left. The header
-    has the scope's name and a grid/list toggle remembered per scope; a manual-order collection
-    always shows the list (rows drag only there).
+    has the scope's name, **Export…** and a grid/list toggle remembered per scope; a
+    manual-order collection always shows the list (rows drag only there).
+  - **Export… (FR-LIB-11):** a dialog with the format (Spreadsheet (CSV), JSON, EmulationStation
+    `gamelist.xml`), which games (every game of the scope, hidden ones too, with the count; or
+    only the games shown, with the tab, filter and genre named), and a checkbox per field with
+    All / None. Title is always on; Description starts off. For `gamelist.xml` the file path is
+    always on (relative to the system folder) and fields ES has no tag for (my rating, missing,
+    system, date added, filters) are greyed out. Format and fields are remembered on this
+    machine. **Export…** opens the Save dialog (suggested `<scope name>.csv` / `.json`, or
+    `gamelist.xml`); the dialog then says "Exported N games." and offers Done.
   - **Smart filters (M5c, FR-LIB-9, D10):** opening one lists its games (the tabs work) under a toolbar with **Edit…** and **Delete** (asks; "Used in N menus" when menus show
     it, they lose that entry). New/Edit dialog: name, systems (none ticked = all; enabled systems
     listed), favorites only, filter tags (any of, comma separated), genre contains, year from/to,
