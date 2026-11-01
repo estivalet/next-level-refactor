@@ -1,4 +1,5 @@
 import {
+  defaultProfileFor,
   IMPORT_MAPPED_REASONS,
   type DetectedEmulator,
   type EmulatorPreset,
@@ -22,7 +23,7 @@ import { mapMenus, type MenuImport } from './mapMenus.ts';
 import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
 import { addSystemConfigs, type SystemConfig } from './systemConfigs.ts';
-import { launcherKey, readLegacy, type LegacyFiles } from './readLegacy.ts';
+import { launcherKey, readLegacy, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 
 /** What the library already holds from earlier imports, and names made here (D12). */
 export interface ExistingImports {
@@ -40,6 +41,8 @@ export interface ImportDeps {
   createWalker: () => Walker;
   folderExists: (dir: string) => Promise<boolean>;
   fileExists: (path: string) => Promise<boolean>;
+  /** The names in a folder; none when it can't be read. */
+  listFiles: (dir: string) => Promise<string[]>;
   existing: () => ExistingImports;
 }
 
@@ -81,7 +84,10 @@ function retroarchDir(detected: readonly DetectedEmulator[], settings: Settings)
   return executable ? dirname(executable) : null;
 }
 
-/** Each imported system's `<RA>\config\<system name>.cfg` that exists (nextlevel-launcher.py's `-c`). */
+/**
+ * Each imported system's `<RA>\config\<name>.cfg` that exists (nextlevel-launcher.py's `-c`); the
+ * name is the one the runner command passes with `-s`.
+ */
 async function systemConfigs(
   files: LegacyFiles,
   match: (name: string) => string | null,
@@ -93,11 +99,39 @@ async function systemConfigs(
   const found = await Promise.all(
     names.map(async (name): Promise<SystemConfig[]> => {
       const systemId = match(name);
-      const path = `${dir}\\config\\${name}.cfg`;
+      const path = `${dir}\\config\\${runnerSystem(files.launchers, name)}.cfg`;
       return systemId && (await fileExists(path)) ? [{ systemId, name, path }] : [];
     }),
   );
   return found.flat();
+}
+
+/**
+ * The `.cfg` files in `<RA>\config\<system name>\` (lowercase), for each imported system whose
+ * default profile here runs RetroArch: the per-game configs nextlevel-launcher.py appended.
+ */
+async function gameConfigs(
+  files: LegacyFiles,
+  match: (name: string) => string | null,
+  dir: string | null,
+  settings: Settings,
+  listFiles: (dir: string) => Promise<string[]>,
+): Promise<Map<string, Set<string>>> {
+  if (!dir) return new Map();
+  const retroarch = [...systemsInUse(files)].filter((name) => {
+    const systemId = match(name);
+    const profile = systemId ? defaultProfileFor(settings, systemId) : undefined;
+    const emulator = settings.emulators.find((e) => e.id === profile?.emulatorId);
+    return emulator?.presetId === 'retroarch';
+  });
+  const listed = await Promise.all(
+    retroarch.map(async (name) => {
+      const names = await listFiles(`${dir}\\config\\${runnerSystem(files.launchers, name)}`);
+      const cfgs = names.filter((file) => file.toLowerCase().endsWith('.cfg'));
+      return [name, new Set(cfgs.map((file) => file.toLowerCase()))] as const;
+    }),
+  );
+  return new Map(listed.filter(([, cfgs]) => cfgs.size > 0));
 }
 
 /** `X (NextLevelOS)`, then `X (NextLevelOS 2)`, … — the first name nobody holds, ≤ 100 chars. */
@@ -180,7 +214,10 @@ export async function planImport(
   const raDir = retroarchDir(detected, current);
   const configs = await systemConfigs(files, match, raDir, deps.fileExists);
   const withConfigs = addSystemConfigs(withProfiles.next, configs, deps.newId);
-  const games = mapGames(files, match, { retroarchDir: raDir });
+  const games = mapGames(files, match, {
+    retroarchDir: raDir,
+    gameConfigs: await gameConfigs(files, match, raDir, withConfigs.next, deps.listFiles),
+  });
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);

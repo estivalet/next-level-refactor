@@ -114,6 +114,33 @@ describe('mapGames', () => {
     expect(item(items, 'Sony Playstation', 'discSet')?.count).toBe(1);
   });
 
+  it('FR-EMU-4: a game file in <RA>\\config\\<system>\\ is appended, as NextLevelOS did', () => {
+    const { entries } = mapGames(files, match, {
+      retroarchDir: 'E:\\RA',
+      gameConfigs: new Map([['Atari 2600', new Set(['pixel quest.cfg'])]]),
+    });
+    expect(game(entries, 'atari-2600', 'Pixel Quest.a26')?.override).toEqual({
+      core: null,
+      extraArgs: ['--appendconfig', 'E:\\RA\\config\\Atari 2600\\Pixel Quest.cfg'],
+    });
+    expect(game(entries, 'atari-2600', 'Moon Hopper.a26')?.override).toBeNull();
+  });
+
+  it('FR-EMU-4: config folders follow the runner command -s name, as NextLevelOS did', () => {
+    const launchers = {
+      ...files.launchers,
+      'Atari 2600': { ...files.launchers['Atari 2600'], command: '%NEXTLEVEL_RUNNER% -s "VCS"' },
+    };
+    const { entries } = mapGames({ ...files, launchers } as LegacyFiles, match, {
+      retroarchDir: 'E:\\RA',
+      gameConfigs: new Map([['Atari 2600', new Set(['pixel quest.cfg'])]]),
+    });
+    expect(game(entries, 'atari-2600', 'Pixel Quest.a26')?.override?.extraArgs).toEqual([
+      '--appendconfig',
+      'E:\\RA\\config\\VCS\\Pixel Quest.cfg',
+    ]);
+  });
+
   it('FR-EMU-4: per-game core, RetroArch config and shader become a launch override', () => {
     const { entries, items } = run();
     // As nextlevel-launcher.py: the game's config replaces the system's (-c, the last one wins),

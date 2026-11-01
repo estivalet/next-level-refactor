@@ -36,6 +36,7 @@ export interface ImportServiceDeps {
   createWalker: () => Walker;
   folderExists: (dir: string) => Promise<boolean>;
   fileExists: (path: string) => Promise<boolean>;
+  listFiles: (dir: string) => Promise<string[]>;
   /** The newest settings backup id, to tell which backup the import made. */
   latestBackupId: () => Promise<string | null>;
 }
@@ -72,6 +73,7 @@ export class ImportService {
       createWalker: deps.createWalker,
       folderExists: deps.folderExists,
       fileExists: deps.fileExists,
+      listFiles: deps.listFiles,
       existing: () => deps.repo.existing(),
     };
   }

@@ -39,6 +39,10 @@ async function setup(existing: ExistingImports = { collections: [], menuSources:
         () => false,
       );
     },
+    listFiles: async (dir) => {
+      const { readdir } = await import('node:fs/promises');
+      return readdir(dir).catch(() => []);
+    },
     existing: () => existing,
   };
   return { copy, deps, settings };
@@ -152,5 +156,21 @@ describe('dryRun', () => {
     expect(plan.mapped.filter((i) => i.reason === 'retroarchSystemConfig')).toEqual([
       { area: 'system', key: 'Atari 2600', reason: 'retroarchSystemConfig', detail: cfg },
     ]);
+  });
+
+  it('FR-IMP-2: a RetroArch game with its own <RA>\\config\\<system>\\<game>.cfg appends it', async () => {
+    const { copy, deps } = await setup();
+    const emulators = join(copy.root, 'emulators');
+    const retroarch = join(emulators, 'RetroArch');
+    await mkdir(join(retroarch, 'config', 'Atari 2600'), { recursive: true });
+    await writeFile(join(retroarch, 'retroarch.exe'), 'invented');
+    await writeFile(join(retroarch, 'config', 'Atari 2600', 'Pixel Quest.cfg'), 'x = "1"\n');
+    const plan = await planImport(copy.data, emulators, deps);
+    const games = plan.games.filter((g) => g.systemId === 'atari-2600');
+    expect(games.find((g) => g.relPath === 'Pixel Quest.a26')?.override?.extraArgs).toEqual([
+      '--appendconfig',
+      `${retroarch}\\config\\Atari 2600\\Pixel Quest.cfg`,
+    ]);
+    expect(games.find((g) => g.relPath === 'Moon Hopper.a26')?.override).toBeNull();
   });
 });

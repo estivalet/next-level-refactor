@@ -36,7 +36,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - Importing NextLevelOS keeps each system's RetroArch settings: a system with
   `<RetroArch>\config\<system>.cfg` gets its own copy of its RetroArch profile that passes
   `-c <that file>`, as NextLevelOS did, and a game's own `config` now replaces the system's
-  (`-c`) instead of being appended. Run Settings → Import NextLevelOS again to apply it.
+  (`-c`) instead of being appended. A game with its own `<RetroArch>\config\<system>\<game>.cfg`
+  gets it appended. Config files follow the name the NextLevelOS launcher passed (Handy Vision
+  uses `Nintendo NES`). Run Settings → Import NextLevelOS again to apply it.
 
 ### Added
 

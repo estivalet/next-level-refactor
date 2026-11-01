@@ -2,13 +2,18 @@
 // writes docs/04-quality/launch-comparison.md. Dev-only; reads NextLevelOS and the rebuild's data
 // folder, writes only the report (and a temp file in the data folder's temp\).
 //
-//   npm run compare-launch -w apps/launcher -- [--nextlevelos <dir>] [--data <dir>] [--out <file>] [--python <exe>]
+//   npm run compare-launch -w apps/launcher -- [--nextlevelos <dir>] [--data <dir>] [--out <file>] [--python <exe>] [--reimport]
+//
+// --reimport compares as if Settings -> Import NextLevelOS ran again now (in memory; nothing is written).
+import { planImport } from '../../src/main/import/dryRun.ts';
 import { migrate } from '../../src/main/settings/migrate.ts';
-import { systemCatalog } from '@nextlevel/system-catalog';
+import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { SettingsSchema, type LaunchOverride } from '@nextlevel/shared';
 import Database from 'better-sqlite3';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { dirname, join, resolve, win32 } from 'node:path';
 import { parseArgs } from 'node:util';
 import { classify, normalize, type Placeholders } from './compare.ts';
@@ -34,6 +39,7 @@ const { values } = parseArgs({
     data: { type: 'string', default: join(repo, '.nextlevel-dev') },
     out: { type: 'string', default: join(repo, 'docs/04-quality/launch-comparison.md') },
     python: { type: 'string', default: 'python' },
+    reimport: { type: 'boolean', default: false },
   },
 });
 const publicDir = join(values.nextlevelos, 'public');
@@ -48,7 +54,35 @@ function readJson(path: string): unknown {
 // As SettingsService.parseSettings (which plain Node can't load: parameter properties).
 const migrated = migrate(readJson(join(dataDir, 'settings.json')));
 if (migrated.kind !== 'ok') throw new Error('settings.json is from a newer launcher');
-const settings = SettingsSchema.parse(migrated.value);
+const current = SettingsSchema.parse(migrated.value);
+
+const exists = (kind: 'file' | 'dir') => (path: string) =>
+  stat(path).then(
+    (info) => (kind === 'file' ? info.isFile() : info.isDirectory()),
+    () => false,
+  );
+// What an import would write now: its settings, and per game its override (kept profile, new
+// core and extra arguments), as ImportService and ImportRepository apply them.
+const plan = values.reimport
+  ? await planImport(join(publicDir, 'data'), null, {
+      catalog: systemCatalog(),
+      presets: emulatorPresets(),
+      settings: () => current,
+      newId: randomUUID,
+      detect: () => Promise.resolve([]),
+      createWalker: () => {
+        throw new Error('the comparison never scans');
+      },
+      folderExists: exists('dir'),
+      fileExists: exists('file'),
+      listFiles: (dir) => readdir(dir).catch(() => []),
+      existing: () => ({ collections: [], menuSources: [] }),
+    })
+  : null;
+const settings = plan?.settings ?? current;
+const planned = new Map(
+  (plan?.games ?? []).map((g) => [`${g.systemId}\u0000${g.relPath.toLowerCase()}`, g.override]),
+);
 
 const config = readJson(join(publicDir, 'data/config.json')) as {
   storage: Array<{ path: string; priority: number }>;
@@ -78,13 +112,16 @@ function libraryGame(systemId: string | null, relPath: string): LibraryGame | nu
         extraArgs: string | null;
       }
     | undefined;
-  if (!row) return null;
-  const override: LaunchOverride = {
-    profileId: row.profileId,
-    core: row.core,
-    extraArgs: row.extraArgs ? (JSON.parse(row.extraArgs) as string[]) : [],
-  };
-  return { locationId: row.locationId, override };
+  const imported = planned.get(`${systemId}\u0000${relPath.toLowerCase()}`);
+  if (!row && !imported) return null;
+  const override: LaunchOverride = imported
+    ? { profileId: row?.profileId ?? null, core: imported.core, extraArgs: imported.extraArgs }
+    : {
+        profileId: row?.profileId ?? null,
+        core: row?.core ?? null,
+        extraArgs: row?.extraArgs ? (JSON.parse(row.extraArgs) as string[]) : [],
+      };
+  return { locationId: row?.locationId ?? null, override };
 }
 
 /** The game's ROM and folder on every drive either launcher looks at, its emulator folder and names. */
@@ -221,7 +258,7 @@ try {
 
 const rows: Row[] = pending.map(({ row, old }) => {
   const built = old ?? { exe: null, args: [], cwd: null, env: {}, error: 'no result', mounts: [] };
-  return { ...row, old: built, outcome: classify(built, row.next, row.placeholders) };
+  return { ...row, old: built, outcome: classify(built, row.next, row.placeholders, existsSync) };
 });
 mkdirSync(dirname(values.out), { recursive: true });
 writeFileSync(
@@ -232,6 +269,7 @@ writeFileSync(
     dataDir,
     rows,
     noGamelist,
+    reimport: values.reimport,
     exists: existsSync,
   }),
 );

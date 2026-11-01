@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   argDiff,
   classify,
+  NO_PLACEHOLDERS,
   normalize,
   templated,
   type Built,
@@ -127,6 +128,24 @@ describe('comparison', () => {
     expect(classify(built(null, [], { error: 'x' }), built(exe, []))).toBe('oldError');
     expect(classify(built(exe, []), built(null, [], { error: 'NO_PROFILE' }))).toBe('newError');
     expect(classify(built(null, []), built(null, []))).toBe('bothError');
+  });
+
+  it('compares RetroArch by the -c and --appendconfig it keeps: the last of each', () => {
+    const ra = 'C:\\emu\\retroarch.exe';
+    const old = built(ra, ['-L', 'x.dll', '-c', 'game.cfg', 'rom']);
+    const next = built(ra, ['-L', 'x.dll', '-c', 'system.cfg', '-c', 'game.cfg', 'rom']);
+    expect(classify(old, next)).toBe('match');
+    const other = 'C:\\emu\\other.exe';
+    expect(classify(built(other, old.args), built(other, next.args))).toBe('args');
+  });
+
+  it('calls it missingConfig when the only difference is an old --appendconfig of a missing file', () => {
+    const exe = 'C:\\emu\\retroarch.exe';
+    const old = built(exe, ['-L', 'x.dll', '--appendconfig', 'C:\\cfg\\game.cfg', 'rom']);
+    const next = built(exe, ['-L', 'x.dll', 'rom']);
+    expect(classify(old, next, NO_PLACEHOLDERS, () => false)).toBe('missingConfig');
+    expect(classify(old, next, NO_PLACEHOLDERS, () => true)).toBe('args');
+    expect(classify(old, next)).toBe('args');
   });
 
   it('lists the arguments only one side passes, as often as they appear', () => {

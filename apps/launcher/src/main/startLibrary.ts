@@ -1,6 +1,6 @@
 import { app, nativeImage } from 'electron';
 import { existsSync } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defaultSettings } from '@nextlevel/shared';
 import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
@@ -186,6 +186,7 @@ export function startLibrary(
     createWalker: () => createWorkerWalker(scanWorkerPath),
     folderExists,
     fileExists,
+    listFiles: (dir) => readdir(dir).catch(() => []),
     latestBackupId: async () => (await listBackupIds(settings.paths.backups))[0] ?? null,
   });
   const scrape = new ScrapeService({

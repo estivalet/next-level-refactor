@@ -34,6 +34,8 @@ export interface ReportInput {
   rows: readonly Row[];
   /** launchers.json systems without a gamelist (nothing to compare). */
   noGamelist: readonly string[];
+  /** Compared as if NextLevelOS were imported again now. */
+  reimport: boolean;
   exists: (path: string) => boolean;
 }
 
@@ -44,6 +46,8 @@ const OUTCOME_TEXT: Record<Outcome, string> = {
   match: 'Same program, arguments, working folder and environment',
   cwdOrEnv: 'Same program and arguments; working folder or environment differs',
   order: 'Same program and arguments, in another order',
+  missingConfig:
+    'Same, except NextLevelOS also appends a config file that isn’t there (RetroArch skips it)',
   args: 'Same program, different arguments',
   emulator: 'A different program',
   newError: 'Only the rebuild can’t build a command',
@@ -103,7 +107,7 @@ function systemTable(rows: readonly Row[]): string[] {
   return lines;
 }
 
-const SAME = new Set<Outcome>(['match', 'cwdOrEnv', 'order']);
+const SAME = new Set<Outcome>(['match', 'cwdOrEnv', 'order', 'missingConfig']);
 
 /** One game per program the rebuild starts (one whose command matches NextLevelOS's when there is one). */
 function handTests(rows: readonly Row[]): string[] {
@@ -215,6 +219,7 @@ function signature(row: Row): string {
     match: () => [],
     cwdOrEnv: () => [normalize(row.old.cwd ?? ''), normalize(row.next.cwd ?? ''), row.old.env],
     order: () => [],
+    missingConfig: () => [],
     args: () => Object.values(diffOf(row)),
     emulator: () => [program(row.old), program(row.next)],
     newError: () => [row.next.error, program(row.old)],
@@ -236,7 +241,9 @@ function systemList(rows: readonly Row[], limit: number): string {
 /** Every difference once, with the systems it affects and one example (the variant with most games). */
 function details(rows: readonly Row[], exists: (path: string) => boolean): string[] {
   const lines: string[] = [];
-  const different = rows.filter((row) => row.outcome !== 'match');
+  const different = rows.filter(
+    (row) => row.outcome !== 'match' && row.outcome !== 'missingConfig',
+  );
   const groups = [...groupBy(different, signature).values()].sort((a, b) => sum(b) - sum(a));
   groups.forEach((group, index) => {
     const row = [...group].sort((a, b) => b.games - a.games)[0];
@@ -280,7 +287,7 @@ export function renderReport(input: ReportInput): string {
     `Generated ${input.date} by \`npm run compare-launch -w apps/launcher\`. Don’t edit it by hand: rerun the script after changing emulators, profiles or the importer.`,
     '',
     `- **NextLevelOS** (read only): \`${input.nextLevelOS}\` — \`launchers.json\`, the system gamelists and \`nextlevel-launcher.py\`.`,
-    `- **Rebuild** (read only): \`${input.dataDir}\` — \`settings.json\` and \`library.db\`.`,
+    `- **Rebuild** (read only): \`${input.dataDir}\` — \`settings.json\` and \`library.db\`${input.reimport ? ', as if **Import NextLevelOS** ran again now (--reimport)' : ''}.`,
     '',
     '## How it compares',
     '',

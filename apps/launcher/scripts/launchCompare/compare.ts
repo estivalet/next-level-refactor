@@ -11,6 +11,7 @@ export type Outcome =
   | 'match' // same exe, arguments, working folder and environment
   | 'cwdOrEnv' // same exe and arguments; working folder or environment differs
   | 'order' // same exe and arguments in another order
+  | 'missingConfig' // same, but NextLevelOS also appends a config file that isn't there
   | 'args' // same exe, different arguments
   | 'emulator' // a different program
   | 'newError' // only the rebuild can't launch it
@@ -21,6 +22,7 @@ export const OUTCOMES: readonly Outcome[] = [
   'match',
   'cwdOrEnv',
   'order',
+  'missingConfig',
   'args',
   'emulator',
   'newError',
@@ -98,16 +100,60 @@ export function argDiff(
   return { onlyOld, onlyNew: remaining };
 }
 
-/** Compares after `placeholders`, so the same game on another drive still matches. */
-export function classify(old: Built, next: Built, placeholders = NO_PLACEHOLDERS): Outcome {
+/** Old arguments without each `--appendconfig <file>` whose file isn't there (RetroArch skips it). */
+function withoutMissingAppends(args: readonly string[], exists: (path: string) => boolean) {
+  return args.filter((arg, i) => {
+    if (arg === '--appendconfig') return exists(args[i + 1] ?? '');
+    return !(args[i - 1] === '--appendconfig' && !exists(arg));
+  });
+}
+
+/**
+ * Compares after `placeholders`, so the same game on another drive still matches. With `exists`,
+ * a difference that is only old `--appendconfig`s of missing files is `missingConfig`.
+ */
+export function classify(
+  old: Built,
+  next: Built,
+  placeholders = NO_PLACEHOLDERS,
+  exists?: (path: string) => boolean,
+): Outcome {
+  const outcome = compareBuilt(old, next, placeholders);
+  if (outcome !== 'args' || !exists) return outcome;
+  const trimmed = { ...old, args: withoutMissingAppends(old.args, exists) };
+  return compareBuilt(trimmed, next, placeholders) === 'match' ? 'missingConfig' : outcome;
+}
+
+/** Flags RetroArch reads once: a later one replaces an earlier one (retroarch.c, strlcpy). */
+const LAST_WINS = new Set(['-c', '--appendconfig']);
+
+/** The arguments a program acts on: for RetroArch, only the last of each `LAST_WINS` flag. */
+function effective(exe: string, args: readonly string[]): string[] {
+  if (!/(^|[\\/])retroarch\.exe$/i.test(exe)) return [...args];
+  const last = new Map<string, number>();
+  args.forEach((arg, i) => {
+    if (LAST_WINS.has(arg)) last.set(arg, i);
+  });
+  return args.filter((arg, i) => {
+    if (LAST_WINS.has(arg)) return last.get(arg) === i;
+    const flag = args[i - 1] ?? '';
+    return !(LAST_WINS.has(flag) && last.get(flag) !== i - 1);
+  });
+}
+
+function compareBuilt(old: Built, next: Built, placeholders: Placeholders): Outcome {
   const oldFailed = old.error !== null || old.exe === null;
   const newFailed = next.error !== null || next.exe === null;
   if (oldFailed && newFailed) return 'bothError';
   if (oldFailed) return 'oldError';
   if (newFailed) return 'newError';
   if (normalize(old.exe ?? '') !== normalize(next.exe ?? '')) return 'emulator';
-  const oldArgs = meaningful(old.args).map((arg) => templated(arg, placeholders));
-  const newArgs = meaningful(next.args).map((arg) => templated(arg, placeholders));
+  const oldArgs = effective(old.exe ?? '', meaningful(old.args)).map((arg) =>
+    templated(arg, placeholders),
+  );
+  const newArgs = effective(next.exe ?? '', meaningful(next.args)).map((arg) =>
+    templated(arg, placeholders),
+  );
   if (!sameList(oldArgs, newArgs)) {
     const diff = argDiff(oldArgs, newArgs, NO_PLACEHOLDERS);
     return diff.onlyOld.length === 0 && diff.onlyNew.length === 0 ? 'order' : 'args';

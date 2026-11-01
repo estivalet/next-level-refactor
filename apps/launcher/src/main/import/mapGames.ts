@@ -11,7 +11,7 @@ import {
   parseYear,
   text,
 } from './legacyGame.ts';
-import { launcherKey, type LegacyFiles } from './readLegacy.ts';
+import { launcherKey, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 import { Tally } from './tally.ts';
 
 export { normalizeRelPath, parseLastPlayed };
@@ -51,6 +51,11 @@ export interface GameImport {
 export interface MapGamesOptions {
   /** RetroArch's folder, for per-game config and shader paths; null when it wasn't found. */
   retroarchDir: string | null;
+  /**
+   * The `.cfg` files (lowercase names) in `<RA>\config\<system>\`, by NextLevelOS system name,
+   * for systems that run RetroArch here.
+   */
+  gameConfigs?: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
 const FAVORITE = 'favorite';
@@ -62,10 +67,13 @@ const SCRAPE_FIELDS = ['updatedAt', 'ai_updated', 'artfolder'] as const;
 function launchOverride(
   game: LegacyGame,
   systemName: string,
+  /** The runner command's `-s` name: RetroArch's config folders are named after it. */
+  configName: string,
   relPath: string,
-  retroarchDir: string | null,
+  options: MapGamesOptions,
   tally: Tally,
 ): GameImport['override'] {
+  const { retroarchDir } = options;
   const core = text(game.core) ?? null;
   const config = text(game.config);
   const gameConfig = text(game.alt_game_config);
@@ -76,13 +84,17 @@ function launchOverride(
   } else if (retroarchDir) {
     // As nextlevel-launcher.py builds them: -c <RA>\config\<config>.cfg (instead of the system's
     // -c: RetroArch keeps the last one), --appendconfig <RA>\config\<system>\<alt config>\<rom
-    // stem>.cfg, shaders under <RA>\shaders.
+    // stem>.cfg, shaders under <RA>\shaders. Without an alt config the runner appended
+    // <RA>\config\<system>\<rom stem>.cfg; that only matters when the file is there.
+    const stem = fileStem(relPath);
     if (config) extraArgs.push('-c', `${retroarchDir}\\config\\${config}.cfg`);
     if (gameConfig) {
       extraArgs.push(
         '--appendconfig',
-        `${retroarchDir}\\config\\${systemName}\\${gameConfig}\\${fileStem(relPath)}.cfg`,
+        `${retroarchDir}\\config\\${configName}\\${gameConfig}\\${stem}.cfg`,
       );
+    } else if (options.gameConfigs?.get(systemName)?.has(`${stem}.cfg`.toLowerCase())) {
+      extraArgs.push('--appendconfig', `${retroarchDir}\\config\\${configName}\\${stem}.cfg`);
     }
     if (shader) {
       extraArgs.push('--set-shader', `${retroarchDir}\\shaders\\${shader.replace(/\//g, '\\')}`);
@@ -107,6 +119,7 @@ function toImport(
   game: LegacyGame,
   systemId: string,
   systemName: string,
+  configName: string,
   relPath: string,
   options: MapGamesOptions,
   tally: Tally,
@@ -155,7 +168,7 @@ function toImport(
     hidden: game.hidden === true,
     playCount: parsePlayCount(game.played),
     lastPlayedAt: parseLastPlayed(game.lastPlayedOn),
-    override: launchOverride(game, systemName, relPath, options.retroarchDir, tally),
+    override: launchOverride(game, systemName, configName, relPath, options, tally),
     arcade,
   };
 }
@@ -235,7 +248,15 @@ export function mapGames(
         tally.add('game', name, 'folderEntry');
         continue;
       }
-      const game = toImport(parsed.data, systemId, name, relPath, options, tally);
+      const game = toImport(
+        parsed.data,
+        systemId,
+        name,
+        runnerSystem(files.launchers, name),
+        relPath,
+        options,
+        tally,
+      );
       const key = relPath.toLowerCase();
       const seen = byPath.get(key);
       if (seen) tally.add('game', name, 'duplicateEntry');

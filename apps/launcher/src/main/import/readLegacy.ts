@@ -53,6 +53,15 @@ export function launcherKey(launchers: LegacyLaunchers, name: string): string | 
   return index.get(name.toLowerCase());
 }
 
+/**
+ * The system name a launcher's runner command passes (`-s "Nintendo NES"` for Handy Vision), else
+ * the key: nextlevel-launcher.py names RetroArch's config files after it.
+ */
+export function runnerSystem(launchers: LegacyLaunchers, key: string): string {
+  const command = launchers[key]?.command ?? '';
+  return /(?:^|\s)-s\s+"([^"]+)"/.exec(command)?.[1] ?? key;
+}
+
 /** Gamelists read at once; the owner's folder has ~1,000 of them. */
 const CONCURRENCY = 16;
 

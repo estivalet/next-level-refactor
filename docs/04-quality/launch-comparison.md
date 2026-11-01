@@ -1,9 +1,9 @@
 # Launch comparison: NextLevelOS → rebuild
 
-Generated 2026-10-31 by `npm run compare-launch -w apps/launcher`. Don’t edit it by hand: rerun the script after changing emulators, profiles or the importer.
+Generated 2026-11-01 by `npm run compare-launch -w apps/launcher`. Don’t edit it by hand: rerun the script after changing emulators, profiles or the importer.
 
 - **NextLevelOS** (read only): `C:\lestivalet\NextLevelOS` — `launchers.json`, the system gamelists and `nextlevel-launcher.py`.
-- **Rebuild** (read only): `C:\lestivalet\next-level-claude\.nextlevel-dev` — `settings.json` and `library.db`.
+- **Rebuild** (read only): `C:/lestivalet/next-level-claude/.nextlevel-dev` — `settings.json` and `library.db`.
 
 ## How it compares
 
@@ -19,6 +19,7 @@ Generated 2026-10-31 by `npm run compare-launch -w apps/launcher`. Don’t edit 
 | match | Same program, arguments, working folder and environment | 7 | 2711 |
 | cwdOrEnv | Same program and arguments; working folder or environment differs | 0 | 0 |
 | order | Same program and arguments, in another order | 0 | 0 |
+| missingConfig | Same, except NextLevelOS also appends a config file that isn’t there (RetroArch skips it) | 0 | 0 |
 | args | Same program, different arguments | 980 | 75589 |
 | emulator | A different program | 19 | 2950 |
 | newError | Only the rebuild can’t build a command | 169 | 16129 |
