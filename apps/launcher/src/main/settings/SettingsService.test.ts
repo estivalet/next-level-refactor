@@ -71,6 +71,24 @@ describe('SettingsService', () => {
     });
   });
 
+  it('FR-EMU-2: the same program set up twice loads as one emulator', async () => {
+    const program = (id: string, executable: string) => ({ id, name: 'RetroArch', executable });
+    const first = '01900000-0000-7000-8000-000000000001';
+    const second = '01900000-0000-7000-8000-000000000002';
+    const { service } = await setup(
+      JSON.stringify({
+        ...defaultSettings(),
+        emulators: [
+          program(first, 'E:\\ra\\retroarch.exe'),
+          program(second, 'e:/ra/RetroArch.exe'),
+        ],
+      }),
+    );
+    const loaded = await service.load();
+    if (loaded.kind !== 'ok') throw new Error('not ok');
+    expect(loaded.snapshot.settings.emulators.map((e) => e.id)).toEqual([first]);
+  });
+
   it('FR-SET-2: save rejects invalid settings and writes nothing', async () => {
     const { service, dir } = await setup();
     await service.load();
