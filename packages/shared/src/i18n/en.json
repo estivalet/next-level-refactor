@@ -1252,6 +1252,7 @@
       "retroarchSystemConfig": "RetroArch config of the system (-c <system>.cfg), in a profile of its own",
       "mameUiModeKey": "MAME profiles: Delete toggles the MAME UI (-uimodekey DEL), as in NextLevelOS",
       "perGameProfile": "Per-game emulator or MAME medium, as a launch option",
+      "mameAutoboot": "Per-game MAME autoboot command, typed after the system's delay",
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
       "replacesImport": "Replaces what an earlier import brought in",
       "artFolder": "Art or theme packs folder"

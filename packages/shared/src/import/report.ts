@@ -59,6 +59,7 @@ export const IMPORT_MAPPED_REASONS = [
   'retroarchSystemConfig',
   'mameUiModeKey',
   'perGameProfile',
+  'mameAutoboot',
   'arcadeInfo',
   'artFolder',
   'replacesImport',

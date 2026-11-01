@@ -1219,7 +1219,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:acorn-atom:flop1",
@@ -1240,7 +1241,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:acorn-bbc-micro",
@@ -1261,7 +1263,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "3"
         },
         {
           "id": "mame:acorn-electron",
@@ -1305,7 +1308,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:amstrad-gx4000",
@@ -1782,7 +1786,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:canon-x-07",
@@ -1801,7 +1806,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:casio-loopy",
@@ -1877,7 +1883,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:china-education-computer",
@@ -2307,7 +2314,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:fairchild-channel-f",
@@ -2383,7 +2391,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:fujitsu-fm-towns",
@@ -2938,7 +2947,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "2"
         },
         {
           "id": "mame:mattel-aquarius",
@@ -2957,7 +2967,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:mattel-aquarius:cass",
@@ -2976,7 +2987,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:mattel-hyperscan",
@@ -3014,7 +3026,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:mgt-sam-coupe",
@@ -3145,7 +3158,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:nec-pc-6001-mkii",
@@ -3183,7 +3197,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:nec-pc-8001",
@@ -3202,7 +3217,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "4"
         },
         {
           "id": "mame:nintendo-family-basic",
@@ -4145,7 +4161,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "5"
         },
         {
           "id": "mame:tandy-trs-80-color-computer:cass",
@@ -4164,7 +4181,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "5"
         },
         {
           "id": "mame:tandy-trs-80-color-computer:flop1",
@@ -4183,7 +4201,8 @@
             "-skip_gameinfo",
             "{extraArgs}"
           ],
-          "archives": "pass"
+          "archives": "pass",
+          "autobootDelay": "5"
         },
         {
           "id": "mame:tandy-trs-80-mc-10",

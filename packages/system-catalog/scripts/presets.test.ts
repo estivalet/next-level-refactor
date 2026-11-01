@@ -109,6 +109,12 @@ describe('emulator presets (FR-EMU-7)', () => {
     ]);
   });
 
+  it('FR-EMU-4: a MAME profile keeps the delay of the autoboot pair it drops', () => {
+    expect(profile('mame:acorn-atom').autobootDelay).toBe('2');
+    expect(profile('mame:acorn-atom:flop1').autobootDelay).toBe('2');
+    expect(profile('mame:apple-ii').autobootDelay).toBeUndefined();
+  });
+
   it('D2: method entries use the hand-written defaults', () => {
     expect(profile('mame:tandy-trs-80').args.slice(0, 3)).toEqual(['trs80m3', '-cass', '{rom}']);
     expect(profile('mame:tandy-trs-80:flop1').args.slice(0, 5)).toEqual([

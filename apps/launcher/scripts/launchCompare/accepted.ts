@@ -22,6 +22,15 @@ export interface AcceptedRule {
 
 const program = (built: Built) => built.exe?.split(/[\\/]/).pop()?.toLowerCase() ?? '';
 
+/** The text after `-autoboot_command`, if any. */
+function autobootOf(built: Built): string | null {
+  const at = built.args.indexOf('-autoboot_command');
+  return at >= 0 ? (built.args[at + 1] ?? null) : null;
+}
+
+/** Autoboot text without its quoting: quotes, `&quot;` and backslashes dropped. */
+const unquoted = (text: string) => text.replaceAll('&quot;', '').replace(/["\\]/g, '');
+
 export const ACCEPTED: readonly AcceptedRule[] = [
   {
     id: 'dolphin-batch',
@@ -49,6 +58,18 @@ export const ACCEPTED: readonly AcceptedRule[] = [
         return !(arg === '%COMMANDS%' && args[i - 1] === '-autoboot_command');
       }),
     }),
+  },
+  {
+    id: 'mame-autoboot-quotes',
+    reason:
+      'MAME autoboot: NextLevelOS’s command line stripped or mangled the quotes in a game’s own autoboot text (`MLOAD""X""` reached MAME as `MLOADX`); the rebuild types it with its quotes.',
+    applies: (old, next) => autobootOf(old) !== null && autobootOf(next) !== null,
+    rewriteOld: (old, next) => {
+      const was = autobootOf(old) ?? '';
+      const now = autobootOf(next) ?? '';
+      if (unquoted(was) !== unquoted(now)) return old;
+      return { ...old, args: old.args.map((arg) => (arg === was ? now : arg)) };
+    },
   },
   {
     id: 'retroarch-core-none',

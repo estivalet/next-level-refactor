@@ -11,6 +11,7 @@ import {
   parseYear,
   text,
 } from './legacyGame.ts';
+import { autobootText } from './autoboot.ts';
 import { launcherKey, runnerSystem, type LegacyFiles } from './readLegacy.ts';
 import { Tally } from './tally.ts';
 
@@ -45,6 +46,8 @@ export interface GameImport {
    * `emulator` or MAME medium), else null; the apply turns it into the override's profile.
    */
   presetProfileId: string | null;
+  /** The game's own MAME autoboot command (launch_args, decoded), when the command passed it. */
+  autoboot: string | null;
   /** Set by the apply: the saved profile for `presetProfileId` (null when it isn't set up). */
   profileId?: string | null;
   arcade: {
@@ -175,7 +178,11 @@ function toImport(
   );
   if (presetProfileId) tally.add('game', systemName, 'perGameProfile');
   const emulatorLeft = !presetProfileId && text(game.emulator);
-  if (emulatorLeft || text(game.launch_args) || text(game['alt_core'])) {
+  // Autoboot is reported by the plan (addAutoboot), which knows the profile the game runs with.
+  const launchArgs = text(game.launch_args);
+  const autoboot =
+    launchArgs && command.includes('%launch_args%') ? autobootText(launchArgs) : null;
+  if (emulatorLeft || (launchArgs && !autoboot) || text(game['alt_core'])) {
     tally.add('game', systemName, 'perGameEmulator');
   }
   if (text(game['squashfs_exe'])) tally.add('game', systemName, 'hookSetting');
@@ -211,6 +218,7 @@ function toImport(
     lastPlayedAt: parseLastPlayed(game.lastPlayedOn),
     override: launchOverride(game, systemName, configName, relPath, options, tally),
     presetProfileId,
+    autoboot,
     arcade,
   };
 }
@@ -230,6 +238,7 @@ function merge(first: GameImport, other: GameImport): GameImport {
     lastPlayedAt: later(first.lastPlayedAt, other.lastPlayedAt),
     override: first.override ?? other.override,
     presetProfileId: first.presetProfileId ?? other.presetProfileId,
+    autoboot: first.autoboot ?? other.autoboot,
     arcade: first.arcade ?? other.arcade,
   };
 }

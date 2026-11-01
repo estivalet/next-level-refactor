@@ -23,6 +23,7 @@ import { mapMenus, type MenuImport } from './mapMenus.ts';
 import { mapSettings, systemsInUse } from './mapSettings.ts';
 import { createSystemMatcher } from './matchSystem.ts';
 import { addSystemConfigs, type SystemConfig } from './systemConfigs.ts';
+import { addAutoboot } from './autoboot.ts';
 import { addMameUiKey } from './mameUiKey.ts';
 import { addPresetProfiles, type WantedProfile } from './presetProfiles.ts';
 import { launcherKey, readLegacy, runnerSystem, type LegacyFiles } from './readLegacy.ts';
@@ -242,6 +243,13 @@ export async function planImport(
     deps.newId,
     detected,
   );
+  // The profiles are known now: games with their own autoboot command get it for theirs.
+  const booted = addAutoboot(
+    games.entries,
+    withPresets.next,
+    deps.presets,
+    (id) => deps.catalog.find((s) => s.id === id)?.name ?? id,
+  );
   const collections = mapCollections(files, match);
   const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
@@ -258,6 +266,7 @@ export async function planImport(
     ...withUiKey.items,
     ...withPresets.items,
     ...games.items,
+    ...booted.items,
     ...collections.items.filter((item) => !skipped.has(item.key)),
     ...notInMenus.map((c): ImportItem => ({
       area: 'collection',
@@ -285,7 +294,7 @@ export async function planImport(
     systemConfigs: configs,
     wantedProfiles,
     systemIds,
-    games: games.entries,
+    games: booted.games,
     collections: named,
     menus: menus.menus,
     mapped: items.filter((item) => MAPPED.has(item.reason)),

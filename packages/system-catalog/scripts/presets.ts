@@ -208,13 +208,23 @@ function mameProfile(name: string, id: string, variant: Variant): PresetProfile 
     variant.args === 'arcade'
       ? ['{romName}', '-rompath', '{romDir}', ...MAME_COMMON, '{extraArgs}']
       : mameProfileArgs(variant.args, variant.medium);
+  const delay = variant.args === 'arcade' ? undefined : mameAutobootDelay(variant.args);
   return {
     id: variant.suffix ? `mame:${id}:${variant.suffix}` : `mame:${id}`,
     name: variant.suffix ? `MAME – ${name} (${variant.suffix})` : `MAME – ${name}`,
     systems: [id],
     args,
     archives: 'pass',
+    ...(delay ? { autobootDelay: delay } : {}),
   };
+}
+
+/** The delay of the runner's `-autoboot_delay N -autoboot_command %COMMANDS%` pair, if any. */
+export function mameAutobootDelay(entry: readonly string[]): string | undefined {
+  const at = entry.findIndex(
+    (arg, i) => arg === '-autoboot_delay' && entry[i + 3] === '%COMMANDS%',
+  );
+  return at >= 0 ? entry[at + 1] : undefined;
 }
 
 const unique = (ids: readonly string[]) => [...new Set(ids)].sort();

@@ -46,6 +46,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   passed it) and MAME medium (`mame_media`) as its launch option, setting up that emulator's
   profile when it's missing; a game whose emulator isn't set up or in the emulators folder is
   reported.
+- Importing NextLevelOS keeps a game's own MAME autoboot command (`launch_args`): MAME types it
+  after the system's delay, as NextLevelOS did, now with its quotes (NextLevelOS's command line
+  dropped them, so `MLOAD""INVADERS""` reached MAME as `MLOADINVADERS`).
 
 ### Added
 

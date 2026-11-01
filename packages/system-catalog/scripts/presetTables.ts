@@ -235,6 +235,10 @@ export interface MameVariant {
   args: string[];
 }
 
+// The runner methods' autoboot pairs: profiles drop them and keep the delay (FR-EMU-4).
+const AUTOBOOT_2 = ['-autoboot_delay', '2', '-autoboot_command', '%COMMANDS%'];
+const AUTOBOOT_4 = ['-autoboot_delay', '4', '-autoboot_command', '%COMMANDS%'];
+
 /** MAME_CUSTOM_ARGS entries that name a runner method: the method's default arguments. */
 export const MAME_METHODS: Readonly<Record<string, readonly MameVariant[]>> = {
   'Acorn Electron': [
@@ -251,12 +255,21 @@ export const MAME_METHODS: Readonly<Record<string, readonly MameVariant[]>> = {
     },
   ],
   'Exidy Sorcerer': [
-    { args: ['sorcerer', '-cass1', '%ROM_PATH%', '-cart', '%SYSTEM_PATH%\\basicpac.zip'] },
+    {
+      args: [
+        'sorcerer',
+        '-cass1',
+        '%ROM_PATH%',
+        '-cart',
+        '%SYSTEM_PATH%\\basicpac.zip',
+        ...AUTOBOOT_2,
+      ],
+    },
   ],
-  'Fujitsu FM-7': [{ args: ['fm7', '-flop1', '%ROM_PATH%'] }],
+  'Fujitsu FM-7': [{ args: ['fm7', '-flop1', '%ROM_PATH%', ...AUTOBOOT_2] }],
   'IBM PC Jr': [{ args: ['ibmpcjr', '-flop', '%ROM_PATH%'] }],
-  'Memotech MTX': [{ args: ['mtx512', '-dump', '%ROM_PATH%'] }],
-  'NEC PC-8001': [{ args: ['pc8001mk2', '-flop1', '%ROM_PATH%'] }],
+  'Memotech MTX': [{ args: ['mtx512', '-dump', '%ROM_PATH%', ...AUTOBOOT_4] }],
+  'NEC PC-8001': [{ args: ['pc8001mk2', '-flop1', '%ROM_PATH%', ...AUTOBOOT_4] }],
   'Sega SC-3000': [
     { args: ['sc3000', '-cart', '%ROM_PATH%'] },
     {

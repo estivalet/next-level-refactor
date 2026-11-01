@@ -199,6 +199,17 @@ describe('accepted differences', () => {
     expect(acceptedBy(built(mame, real), built(mame, ['bbcb']))).toBeNull();
   });
 
+  it('accepts autoboot text whose quotes NextLevelOS mangled, not other text', () => {
+    const mame = 'C:/mame/mame.exe';
+    const boot = (text: string) => ['lynx48k', '-autoboot_delay', '2', '-autoboot_command', text];
+    const quoted = built(mame, boot('MLOAD"INVADERS"'));
+    expect(acceptedBy(built(mame, boot('MLOADINVADERS')), quoted)?.id).toBe('mame-autoboot-quotes');
+    expect(acceptedBy(built(mame, boot('LOAD&quot;&quot;')), built(mame, boot('LOAD""')))?.id).toBe(
+      'mame-autoboot-quotes',
+    );
+    expect(acceptedBy(built(mame, boot('MLOADOTHER')), quoted)).toBeNull();
+  });
+
   it('accepts NextLevelOS’s None core and another copy of the same emulator', () => {
     const ra = built('C:/ra/retroarch.exe', ['-L', 'C:/ra/cores/None.dll', 'rom']);
     expect(acceptedBy(ra, built('C:/mame/mame.exe', ['x']))?.id).toBe('retroarch-core-none');

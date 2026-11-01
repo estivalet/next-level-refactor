@@ -37,6 +37,7 @@ function entries(): GameImport[] {
       lastPlayedAt: null,
       override: i % 20 === 0 ? { core: 'some_libretro', extraArgs: [] } : null,
       presetProfileId: null,
+      autoboot: null,
       arcade: null,
     })),
   );
