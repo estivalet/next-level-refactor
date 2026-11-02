@@ -257,6 +257,23 @@ describe('walkSystem', () => {
     expect(result.files.map((file) => file.relPath)).toEqual(['calichase.txt']);
   });
 
+  it('FR-LIB-1: gameFolderFile makes each sub-folder holding that file one game, and only those', async () => {
+    await write('Tennis/wa.exe');
+    await write('Tennis/Configs/x.cfg');
+    await write('Handball Tennis/WA.EXE');
+    await write('Docs/manual.pdf');
+    await write('_SIMULATOR/Coleco Telstar/wa.exe');
+    await write('tennis.bat');
+    await write('Coleco Telstar Classic.zip');
+    const result = await walkSystem({
+      systemId: 'coleco-telstar',
+      dirs: [{ locationId: 'a', dir: root }],
+      extensions: ['zip', 'bat'],
+      scan: { topLevelOnly: true, ignore: ['_*'], gameFolderFile: 'wa.exe' },
+    });
+    expect(result.files.map((file) => file.relPath).sort()).toEqual(['Handball Tennis', 'Tennis']);
+  });
+
   it('FR-LIB-1: ignore patterns match whole names, ignoring case', async () => {
     await write('readme.TXT');
     await write('cpower1.txt');

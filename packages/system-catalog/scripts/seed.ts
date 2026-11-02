@@ -15,6 +15,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { buildCatalog, checkReleasedIds, parseEsSystems, type SeedInput } from './mapping.ts';
+import { EXTRA_SYSTEMS } from './presetTables.ts';
 import { buildPresets, mostCommonCore } from './presets.ts';
 import { parseMameArgs, parseSystemEmulators } from './runner.ts';
 
@@ -122,6 +123,7 @@ const { catalog, report } = buildCatalog({
   screenscraper: readJson(required('screenscraper')) as Record<string, number>,
   esSystems: parseEsSystems(readFileSync(required('es-systems'), 'utf8')),
   aliases: ES_ALIASES,
+  extraSystems: EXTRA_SYSTEMS,
   source: required('source'),
 });
 

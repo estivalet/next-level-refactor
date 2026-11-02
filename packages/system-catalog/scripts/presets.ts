@@ -177,6 +177,12 @@ export function buildPresets(input: PresetInput): PresetResult {
       const id = input.systemIds.get(name);
       if (id) addStandalone(`${spec.id}:default`, id);
     }
+    for (const variant of Object.values(spec.variants ?? {})) {
+      for (const name of variant.extraSystems ?? []) {
+        const id = input.systemIds.get(name);
+        if (id) addStandalone(`${spec.id}:${variant.suffix}`, id);
+      }
+    }
   }
 
   const presets: EmulatorPreset[] = [];
@@ -200,8 +206,12 @@ export function buildPresets(input: PresetInput): PresetResult {
         squashfs: spec.squashfs,
         entries: spec.entries,
         argsFile: spec.argsFile,
+        cwd,
       },
-      ...Object.values(spec.variants ?? {}),
+      ...Object.values(spec.variants ?? {}).map((variant) => ({
+        ...variant,
+        cwd: variant.cwd ?? cwd,
+      })),
     ];
     const profiles = shapes.flatMap((shape): PresetProfile[] => {
       const systems = unique(standaloneSystems.get(`${id}:${shape.suffix}`) ?? []);
@@ -216,7 +226,7 @@ export function buildPresets(input: PresetInput): PresetResult {
           args: spec.extraArgsLast
             ? [...shape.args, '{extraArgs}']
             : ['{extraArgs}', ...shape.args],
-          ...(cwd ? { cwd } : {}),
+          ...(shape.cwd ? { cwd: shape.cwd } : {}),
           archives,
           ...(env ? { env } : {}),
           ...(shape.squashfs ? { squashfs: shape.squashfs } : {}),

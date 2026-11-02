@@ -224,9 +224,10 @@ describe('emulator presets (FR-EMU-7)', () => {
 
     it('FR-EMU-7: script systems (VM Labs Nuon, Pioneer LaserActive, Coleco Telstar) get script:default', () => {
       const { presetProfiles, catalog } = laserdisc();
-      for (const id of ['vm-labs-nuon', 'pioneer-laseractive', 'coleco-telstar']) {
+      for (const id of ['vm-labs-nuon', 'pioneer-laseractive']) {
         expect(presetProfiles[id]).toEqual(['script:default']);
       }
+      expect(presetProfiles['coleco-telstar']).toEqual(['script:default', 'script:winarcadia']);
       expect(find('script:default')).toMatchObject({
         args: ['/d', '/s', '/c', '""{rom}""', '{extraArgs}'],
         cwd: '{romDir}',
@@ -247,8 +248,31 @@ describe('emulator presets (FR-EMU-7)', () => {
         }),
       );
       expect(presetProfiles['vm-labs-nuon']).toEqual(['script:default']);
-      expect(presetProfiles['coleco-telstar']).toBeUndefined();
+      expect(presetProfiles['coleco-telstar']).toEqual(['script:winarcadia']);
       expect(skipped).toContain('Coleco Telstar: script (no .bat/.cmd/.lnk games)');
+    });
+
+    it('FR-EMU-7: Coleco Telstar models run the WinArcadia in each game folder', () => {
+      const models = ['Coleco Telstar', 'Coleco Telstar Alpha', 'Coleco Telstar Sportsman'];
+      const { presetProfiles, catalog } = buildPresets(
+        input({
+          systemEmulators: { 'Coleco Telstar': ['script'] },
+          systemIds: new Map(models.map((name) => [name, slugify(name)])),
+          systemExtensions: new Map(models.map((name) => [slugify(name), ['zip']])),
+        }),
+      );
+      for (const name of models) {
+        expect(presetProfiles[slugify(name)]).toEqual(['script:winarcadia']);
+      }
+      const script = catalog.presets.find((preset) => preset.id === 'script');
+      expect(script?.profiles.map((p) => p.id)).toEqual(['script:winarcadia']);
+      expect(script?.profiles[0]).toMatchObject({
+        name: 'WinArcadia (game folder)',
+        args: ['/d', '/s', '/c', 'wa.exe', '{extraArgs}'],
+        cwd: '{rom}',
+        archives: 'pass',
+      });
+      expect(templateIssues(script?.profiles[0]?.cwd ?? '', 'value')).toEqual([]);
     });
 
     it('FR-EMU-9: new preset templates and rules are valid profile templates', () => {

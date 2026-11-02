@@ -130,6 +130,39 @@ describe('buildCatalog', () => {
     expect(SystemCatalogSchema.parse(catalog)).toEqual(catalog);
   });
 
+  it('FR-EMU-1: extra systems (no NextLevelOS launcher) join the catalog, sorted in', () => {
+    const { catalog } = buildCatalog(
+      input({ extraSystems: ['Coleco Telstar Alpha', 'Nintendo 64'] }),
+    );
+    expect(catalog.systems.map((s) => s.name)).toEqual([
+      'Apogee BK-01',
+      'Arcade (MAME)',
+      'Coleco Telstar Alpha',
+      'Nintendo 64',
+      'Nintendo NES',
+      'Obscure Thing',
+      'Pokémon Mini',
+    ]);
+  });
+
+  it('FR-LIB-1: Coleco Telstar models scan game folders holding wa.exe', () => {
+    const launchers = { 'Coleco Telstar': {} };
+    const { catalog } = buildCatalog(
+      input({ launchers, aliases: {}, extraSystems: ['Coleco Telstar Sportsman'] }),
+    );
+    for (const system of catalog.systems) {
+      expect(system).toMatchObject({
+        manufacturer: 'Coleco',
+        scan: { topLevelOnly: true, ignore: ['_*'], gameFolderFile: 'wa.exe' },
+      });
+    }
+    expect(catalog.systems.map((s) => s.id)).toEqual([
+      'coleco-telstar',
+      'coleco-telstar-sportsman',
+    ]);
+    expect(SystemCatalogSchema.parse(catalog)).toEqual(catalog);
+  });
+
   it('the report lists systems that fell back to the global list', () => {
     expect(buildCatalog(input()).report.fallbackExtensions).toEqual([
       'Arcade (MAME)',

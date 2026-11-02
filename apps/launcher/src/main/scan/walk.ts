@@ -10,6 +10,8 @@ import type { WalkJob, WalkResult } from './types.ts';
 interface Candidate {
   relPath: string;
   fullPath: string;
+  /** A folder holding the system's `gameFolderFile`: a game whatever its extension. */
+  gameFolder?: boolean;
 }
 
 const extensionOf = (name: string) => extname(name).toLowerCase().replace(/^\./, '');
@@ -20,6 +22,8 @@ interface WalkRules {
   topLevelOnly: boolean;
   /** Names that are never games: `*` matches any characters, case-insensitive. */
   ignore: RegExp[];
+  /** Lower-case file name: the games are exactly the folders holding it. */
+  gameFolderFile: string | null;
 }
 
 function namePattern(glob: string): RegExp {
@@ -32,6 +36,7 @@ function walkRules(job: WalkJob): WalkRules {
     accepted: new Set(job.extensions),
     topLevelOnly: job.scan?.topLevelOnly ?? false,
     ignore: (job.scan?.ignore ?? []).map(namePattern),
+    gameFolderFile: job.scan?.gameFolderFile?.toLowerCase() ?? null,
   };
 }
 const pathKey = (path: string) => resolve(path).toLowerCase();
@@ -85,6 +90,14 @@ async function listFolder(dir: string, rules: WalkRules): Promise<Candidate[] | 
       const fullPath = join(folder, entry.name);
       const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
       if (rules.ignore.some((pattern) => pattern.test(entry.name))) continue;
+      if (entry.isDirectory() && rules.gameFolderFile) {
+        const inside = await entries(fullPath);
+        const file = rules.gameFolderFile;
+        if (inside?.some((e) => e.isFile() && e.name.toLowerCase() === file)) {
+          found.push({ relPath, fullPath, gameFolder: true });
+          continue;
+        }
+      }
       if (!entry.isDirectory() || rules.accepted.has(extensionOf(entry.name))) {
         // A folder with a game extension (`maddog-hd.hypseus`) is one game, not walked into.
         found.push({ relPath, fullPath });
@@ -139,7 +152,9 @@ async function scanLocation(
 ): Promise<FoundGame[] | null> {
   const listed = await listFolder(dir, rules);
   if (!listed) return null;
-  const roms = listed.filter((file) => rules.accepted.has(extensionOf(file.relPath)));
+  const roms = rules.gameFolderFile
+    ? listed.filter((file) => file.gameFolder)
+    : listed.filter((file) => rules.accepted.has(extensionOf(file.relPath)));
   const referenced = new Set<string>();
   for (const file of roms) {
     if (!PLAYLIST_EXTENSIONS.has(extensionOf(file.relPath))) continue;

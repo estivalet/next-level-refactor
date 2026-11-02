@@ -230,7 +230,7 @@ type SystemDefinition = {
   multiDisc?: boolean;
   scraper: { screenscraperId?: number };
   presetProfiles: string[];        // preset profile ids, best first
-  scan?: { topLevelOnly?: boolean; ignore?: string[] };  // walk rules: no sub-folders; file names (`*` globs, any case) that are never games
+  scan?: { topLevelOnly?: boolean; ignore?: string[]; gameFolderFile?: string };  // walk rules: no sub-folders; file names (`*` globs, any case) that are never games; games = sub-folders holding that file (`wa.exe`)
   aliases?: string[];              // old names, used by the importer
 };
 
@@ -244,7 +244,7 @@ type EmulatorPreset = {
 ```
 
 Seeded by `packages/system-catalog/scripts/seed.ts` from the current `launchers.json` keys (all 438
-systems; id = slug of the NextLevelOS name), `screenscraper.json` IDs and ES-DE's `es_systems.xml`
+systems, plus the seed's `EXTRA_SYSTEMS`: 9 Coleco Telstar models, 447 in all; id = slug of the NextLevelOS name), `screenscraper.json` IDs and ES-DE's `es_systems.xml`
 (MIT) for extensions, falling back to the NextLevelOS per-system `romext`, then the global
 `scanExtensions`. `kind` is `other` where unknown. Since M3 the seed also writes `data/presets.json` (RetroArch per core, MAME per system with the runner's `-uimodekey DEL -skip_gameinfo`, standalone emulators including HBMAME) and each system's `presetProfiles`, from `nextlevel-launcher.py`'s `SYSTEM_EMULATORS` and `MAME_CUSTOM_ARGS` (see `packages/system-catalog/README.md`). Versioned with the launcher; user overrides live in
 settings.

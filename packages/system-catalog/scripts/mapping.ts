@@ -16,6 +16,8 @@ export interface SeedInput {
   globalExtensions: string[];
   screenscraper: Record<string, number>;
   esSystems: EsSystem[];
+  /** Systems to add that NextLevelOS has no launcher for (EXTRA_SYSTEMS). */
+  extraSystems?: readonly string[];
   /** NextLevelOS name → ES-DE system `name`, for systems whose names differ. */
   aliases: Record<string, string>;
   source: string;
@@ -168,7 +170,9 @@ export function buildCatalog(input: SeedInput): { catalog: SystemCatalog; report
   const report: SeedReport = { unmatchedEs: [], fallbackExtensions: [] };
   const ids = new Set<string>();
 
-  const names = Object.keys(input.launchers).sort((a, b) => a.localeCompare(b, 'en'));
+  const names = [...new Set([...Object.keys(input.launchers), ...(input.extraSystems ?? [])])].sort(
+    (a, b) => a.localeCompare(b, 'en'),
+  );
   const systems = names.map((name): SystemDefinition => {
     const id = slugify(name);
     if (ids.has(id)) throw new Error(`duplicate system id ${id} (from "${name}")`);

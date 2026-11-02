@@ -7,7 +7,13 @@ export interface WalkJob {
   dirs: Array<{ locationId: string; dir: string }>;
   extensions: string[];
   /** Per-system walk rules from the catalog (sub-folders skipped, names never games). */
-  scan?: { topLevelOnly?: boolean | undefined; ignore?: string[] | undefined } | undefined;
+  scan?:
+    | {
+        topLevelOnly?: boolean | undefined;
+        ignore?: string[] | undefined;
+        gameFolderFile?: string | undefined;
+      }
+    | undefined;
   /** Central mode (FR-SCR-4): `<central>/<systemId>`, holding `<kind>/` folders; indexed first. */
   centralMediaDir?: string;
 }

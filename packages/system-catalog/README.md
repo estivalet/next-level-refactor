@@ -11,8 +11,9 @@ Test with `npx vitest run packages/system-catalog`.
 ## Data
 
 `data/systems.json` is generated and committed — never hand-edit it. It covers all 438 systems of
-NextLevelOS (`NEXTLEVELOS_SYSTEM_COUNT`). Ids are slugs of the NextLevelOS name (`+` → `plus`) and
-are permanent once released (ADR-011).
+NextLevelOS plus `EXTRA_SYSTEMS` in `scripts/presetTables.ts` (the 9 Coleco Telstar models the
+NextLevelOS Pong menu lists without a launcher): 447 (`CATALOG_SYSTEM_COUNT`). Ids are slugs of the
+NextLevelOS name (`+` → `plus`) and are permanent once released (ADR-011).
 
 Extensions: ES-DE's `es_systems.xml` where the name matches (directly or through `ES_ALIASES` in
 `scripts/seed.ts`), else the NextLevelOS per-system `romext`, else its global `scanExtensions`.

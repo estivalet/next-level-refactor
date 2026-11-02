@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import releasedIds from '../data/released-ids.json' with { type: 'json' };
-import { effectiveSystem, getSystem, NEXTLEVELOS_SYSTEM_COUNT, systemCatalog } from './index.ts';
+import { effectiveSystem, getSystem, CATALOG_SYSTEM_COUNT, systemCatalog } from './index.ts';
 
 describe('system catalog', () => {
   it('FR-EMU-1: the shipped catalog is valid and has unique ids', () => {
@@ -9,7 +9,7 @@ describe('system catalog', () => {
   });
 
   it('FR-EMU-1: it covers every NextLevelOS system', () => {
-    expect(systemCatalog()).toHaveLength(NEXTLEVELOS_SYSTEM_COUNT);
+    expect(systemCatalog()).toHaveLength(CATALOG_SYSTEM_COUNT);
   });
 
   it('FR-EMU-1: nintendo-64 has its ES-DE extensions and ScreenScraper id', () => {
@@ -58,7 +58,7 @@ describe('id permanence (ADR-011)', () => {
   });
 
   it('the released id list covers the whole catalog', () => {
-    expect(releasedIds).toHaveLength(NEXTLEVELOS_SYSTEM_COUNT);
+    expect(releasedIds).toHaveLength(CATALOG_SYSTEM_COUNT);
   });
 });
 

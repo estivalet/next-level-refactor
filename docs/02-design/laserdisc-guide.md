@@ -72,3 +72,20 @@ light-gun game; they are added at the end, after Hypseus' own arguments.
 | The squashfs mount tool (mountsquashfs.exe) was not found | Put it in `<NextLevel>\tools\` or choose it in Settings → Emulators. |
 | The game image could not be mounted | Install WinFsp; the tool's own message is shown under it. |
 | The game's files were not found. Looked for: … | The image or folder lacks the files the rules name; check the game's files or edit the rules. |
+
+## Pong (Coleco Telstar)
+
+The same Script emulator runs the Pong group: Coleco Telstar and its models Alpha, Classic,
+Colormatic, Colortron, Deluxe, Marksman, Ranger, Regent and Sportsman.
+
+- **Games are folders.** Each game (`Tennis`, `Hockey`, `Jai-Alai`…) is a folder in the system
+  folder holding its own set-up copy of WinArcadia (`wa.exe`). A scan lists exactly those
+  folders; loose files (`*.COS`, `*.zip`, the old `.bat` files) and `_` folders are skipped.
+- **Profile:** *WinArcadia (game folder)* runs `cmd.exe /d /s /c wa.exe` with the game folder as
+  the working folder; quitting WinArcadia returns to the launcher.
+- **Set-up:** *Find emulators in a folder…* adds the Script emulator with this profile. If Script
+  is already set up, use its card's *Add from preset* and tick *WinArcadia (game folder)*. Then
+  scan the Pong systems.
+- The `handball.bat`, `hockey.bat` and `tennis.bat` files from NextLevelOS are not used: they
+  change to a `c:\emudreams\…` folder that no longer exists. Entex Gameroom Tele-Pong has no game
+  folders yet.

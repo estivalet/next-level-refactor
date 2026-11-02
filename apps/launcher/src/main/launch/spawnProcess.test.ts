@@ -1,5 +1,5 @@
 import { AppErrorException } from '@nextlevel/shared';
-import { readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { tempDir } from '../library/testing.ts';
@@ -68,6 +68,24 @@ describe('spawnProcess (ADR-004)', () => {
       });
       expect(await running.exited).toEqual({ exitCode: 0 });
       expect((await readFile(marker, 'utf8')).trim()).toBe('ok');
+    },
+  );
+
+  it.skipIf(process.platform !== 'win32')(
+    'FR-EMU-7: WinArcadia (game folder) runs the wa.exe inside the game folder and waits for it',
+    async () => {
+      // A stand-in wa.exe (Windows' hostname.exe: exits 0); cmd exits 1 if it can't find it.
+      const system32 = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32');
+      const game = join(temp.dir, 'Handball Tennis');
+      await mkdir(game);
+      await copyFile(join(system32, 'hostname.exe'), join(game, 'wa.exe'));
+      const running = await spawnProcess({
+        executable: join(system32, 'cmd.exe'),
+        args: ['/d', '/s', '/c', 'wa.exe'],
+        cwd: game,
+        env: { SystemRoot: process.env['SystemRoot'] ?? 'C:\\Windows' },
+      });
+      expect(await running.exited).toEqual({ exitCode: 0 });
     },
   );
 });
