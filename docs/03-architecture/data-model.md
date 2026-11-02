@@ -48,7 +48,7 @@ the next save backs up the old file first. v1 → v2 (M6) renames `screenshot-ti
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1; `general.uiScale` (FR-SET-8, default `'100'`);
-`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, `scraper` (`regionPriority`, `languagePriority`, `artKinds`, `fields`) and `storage.media` since M6a (schema v2), and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (scripts are refused at launch until hooks exist); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
+`storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, `scraper` (`regionPriority`, `languagePriority`, `artKinds`, `fields`) and `storage.media` since M6a (schema v2), and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (a `.bat`/`.cmd` emulator is refused at launch; script games run through the Script preset, `cmd.exe /d /s /c ""<rom>""` with verbatim arguments); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
 priority follows list order. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
@@ -120,10 +120,21 @@ type EmulatorProfile = {
   cwd?: string;                   // template; default {emulatorDir}
   core?: string;                  // RetroArch core name
   archives: 'pass' | 'extract';             // default 'pass'
+  squashfs: 'pass' | 'mount';               // default 'pass'; 'mount': a .wsquashfs is mounted as a drive first (FR-EMU-9)
+  entries: EntryRule[];                     // default []; game file rules, max 16 (FR-EMU-9)
+  argsFile?: string;                        // template; its words go before the game's extra args when it exists
   env: Record<string, string>;              // default {}; values are templates
   presetProfileId?: string;                 // the preset profile it was copied from
-  hooks?: LaunchHook[];           // post-1.0 (FR-EMU-9)
 };
+
+// Tried in order: the first rule whose `file` exists (a `*` in the file name matches any
+// characters, first match alphabetically) renders its `args` at `{entryArgs}`, with
+// `{entry}` = that file. No match with rules present → LAUNCH_FAILED `entryMissing`.
+type EntryRule = { file: string /* template */; args: string[] /* 1–8 templates */ };
+
+// Settings.tools (FR-EMU-9):
+//   squashfsMount: string | null   // absolute mountsquashfs.exe; null = <NextLevel>\tools\, then
+//                                  // <emulators folder>\..\tools\ (relative to the emulator)
 
 type InputSettings = {
   keyboard: Record<InputAction, string[]>;   // KeyboardEvent.code values
@@ -154,7 +165,20 @@ The only tokens allowed in `args`, `cwd` and `env` values. Unknown tokens fail v
 | `{emulatorDir}` | Directory of the emulator executable | `E:\NextLevel\emulators\retroarch` |
 | `{core}` | Profile core or game override | `mupen64plus_next_libretro` |
 | `{extraArgs}` | Game override extra args — expands to **zero or more argv elements** | — |
+| `{gameDir}` | Folder holding the game's files: the mounted drive (`Q:`, no separator), a game folder ROM itself (`maddog-hd.hypseus`), else `{romDir}` | `Q:` |
+| `{entryArgs}` | Alone in an arg: the args of the first matching entry rule (FR-EMU-9) | `-script Q:\Agent328OB.singe` |
+| `{entry}` | Only inside an entry rule's args: the file the rule matched | `Q:\Agent328OB.singe` |
 | `{{` / `}}` | Literal braces | — |
+
+`{entry}` outside a rule's args is `entryOnlyInRules`; `{entryArgs}` not alone, or outside `args`,
+is `entryArgsAlone`. A working folder that renders to a bare drive (`Q:`) becomes `Q:\`.
+
+**squashfs mounting (FR-EMU-9).** `mountsquashfs.exe -drive <X:> -overlay <dir> <image>` (WinFsp)
+runs while the game runs; killing it unmounts. The drive is the first free letter of
+`Z Y X W V U T S Q P O N M`. Writes go to the overlay `<data>\squashfs-overlay\<systemId>\<image>\`
+(kept, so saves and high scores survive). Running mounts are recorded in `<data>\mounts.json`
+(`[{pid, drive, image}]`); at start a recorded PID that is still `mountsquashfs.exe` is killed and
+the record cleared. Every launch path unmounts (spawn failure, early exit, normal exit, Test launch).
 
 ### 2.2 Settings rules
 
@@ -206,6 +230,7 @@ type SystemDefinition = {
   multiDisc?: boolean;
   scraper: { screenscraperId?: number };
   presetProfiles: string[];        // preset profile ids, best first
+  scan?: { topLevelOnly?: boolean; ignore?: string[] };  // walk rules: no sub-folders; file names (`*` globs, any case) that are never games
   aliases?: string[];              // old names, used by the importer
 };
 
@@ -414,7 +439,7 @@ when `cancelAtPeriodEnd` (US-F2).
 | `config.json` `storage[]` | `settings.storage.locations` |
 | `config.json` `scanExtensions` | dropped (the catalog's lists were seeded from it) |
 | `config.json` `assets`, `themesPath` | `settings.storage.assetsPath`, `themesPath` |
-| `config.json` `wsl.*`, `squashfs.exe`, `overlay.*`, `extraction.*` | `hookSetting` (unmapped until hooks exist, post-1.0) |
+| `config.json` `wsl.*`, `squashfs.exe`, `overlay.*`, `extraction.*` | `hookSetting` (not imported: WSL is dropped; the mount tool is found in `<NextLevel>\tools\` or set in Settings → Emulators, FR-EMU-9) |
 | `config.json` `test.mode`, `test.data`, other keys | `dropped` |
 | `config.json` `menu` | which imported menu is `active` |
 | `launchers.json` key | matched by name, alias, then case/punctuation-insensitive → system id (`unknownSystem`); a system with a gamelist or a menu node is enabled |

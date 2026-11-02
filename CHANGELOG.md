@@ -52,6 +52,20 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Laserdisc and VHS** games (FR-EMU-9, `docs/02-design/laserdisc-guide.md`): Daphne, Singe,
+  WoW Action Max, Mattel Captain Power, Sega Video Driver, Pioneer LaserActive and VM Labs Nuon.
+  - `.wsquashfs` images are **mounted** as a drive while the game runs (WinFsp and
+    `mountsquashfs.exe` in `<NextLevel>\tools\`; no WSL, nothing extracted); game writes go to
+    `data\squashfs-overlay\`, and every exit, failure or crash releases the drive.
+  - A **Hypseus Singe** preset (Singe-style and Daphne profiles) finds each game's `.singe`,
+    `.zip` or shared Lua zip and Daphne's `.commands` by name, with no per-game setup.
+  - A **Script (.bat/.cmd)** preset runs script games through Windows' `cmd.exe`.
+  - Profiles get *squashfs images*, *Game files* rules and an *Arguments file* in Settings →
+    Emulators, plus the mount tool's path; new tokens `{gameDir}`, `{entryArgs}`, `{entry}`.
+  - Scans accept game folders (`maddog-hd.hypseus`) and skip support files of these systems.
+  - To use it: put `mountsquashfs.exe` in `<NextLevel>\tools\`, install WinFsp, run Settings →
+    Emulators → *Find emulators in a folder…* (or Import NextLevelOS again), then scan the
+    systems.
 - An **HBMAME** emulator preset (`hbmame.exe`), so HBMAME games can launch; Settings → Emulators
   and Import NextLevelOS find it in the emulators folder.
 - **openMSX** (MSX, MSX2, MSX2+, Turbo R, Gradiente), **ColEm** (ColecoVision) and **YAPE**

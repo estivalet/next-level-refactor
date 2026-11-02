@@ -27,7 +27,7 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 |---|---|
 | **Web player** (`apps/web-player`) | EmulatorJS; catalog games only (the browser can't see local ROMs reliably); reuses `packages/themes` through a web host |
 | Save-state cloud sync | Needs per-emulator save path knowledge in profiles |
-| Pre-launch hooks | squashfs/WSL mounting from the current runner (FR-EMU-9) |
+| Pre-launch hooks | squashfs mounting was done early (2026-11-01, Laserdisc and VHS: Hypseus, Script presets); WSL is dropped; other hooks (TeknoParrot, custom scripts) remain (FR-EMU-9) |
 | macOS / Linux builds | Emulator presets per OS; path handling already OS-neutral |
 | Importers for RetroBat / LaunchBox / ES `gamelist.xml` | FR-LIB-11 |
 | Emulator auto-install | Download and configure emulators from official sources |

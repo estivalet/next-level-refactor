@@ -15,6 +15,12 @@ per-system argument functions. Changing an emulator means editing Python and reb
 - One `LaunchService` resolves the profile, renders the argv array, pre-flights and spawns
   **without a shell**.
 - Special flows (squashfs/WSL mounting) become optional **hooks** after 1.0.
+  *Amended 2026-11-01:* squashfs mounting moved before 1.0 for the Laserdisc and VHS systems, as
+  profile data rather than a hook: `squashfs: 'mount'` mounts a `.wsquashfs` with the WinFsp tool
+  (`mountsquashfs.exe`, not bundled) for the length of the game; `entries` and `argsFile` find the
+  game's files by name. WSL mounting is dropped. `.bat`/`.cmd` games run through the Script
+  preset (`cmd.exe` with verbatim arguments) — the only program that gets a command line instead
+  of Node's argv quoting. See `docs/superpowers/specs/2026-11-01-laserdisc-hypseus-design.md`.
 
 ## Consequences
 - Adding an emulator needs no code; Test launch gives immediate feedback.
