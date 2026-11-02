@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { win32 } from 'node:path';
 import type { LaunchCommand } from './buildCommand.ts';
 import { launchError } from './errors.ts';
 
@@ -14,6 +15,8 @@ export interface RunningProcess {
 
 export type SpawnFn = (command: LaunchCommand) => Promise<RunningProcess>;
 
+const isCmd = (executable: string) => win32.basename(executable).toLowerCase() === 'cmd.exe';
+
 /**
  * Starts a program with an argv array and no shell (ADR-004, NFR-SEC-1). Resolves once the
  * process exists; rejects with LAUNCH_FAILED when it can't start (missing, not executable).
@@ -24,6 +27,9 @@ export const spawnProcess: SpawnFn = (command) =>
       cwd: command.cwd,
       env: command.env,
       shell: false,
+      // cmd.exe parses its own command line, so the Script preset (FR-EMU-9) quotes `{rom}`
+      // itself; every other program gets Node's CommandLineToArgvW quoting.
+      windowsVerbatimArguments: isCmd(command.executable),
       windowsHide: false,
       stdio: ['ignore', 'ignore', 'pipe'],
     });

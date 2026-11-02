@@ -12,6 +12,9 @@ const KNOWN_REASONS = new Set([
   'script',
   'emptyArchive',
   'cwdMissing',
+  'mountToolMissing',
+  'mountFailed',
+  'entryMissing',
   'ENOENT',
   'EACCES',
   'EPERM',
@@ -32,7 +35,7 @@ export function launchDetails(error: AppError | null): Details {
 export function LaunchErrorDetails({ error }: { error: AppError | null }) {
   const { t } = useTranslation();
   const message = error ? ERROR_CODES[error.code] : 'errors.internal';
-  const { reason, path } = launchDetails(error);
+  const { reason, path, looked, stderrTail } = launchDetails(error);
   return (
     <div className="flex flex-col gap-0.5 text-xs text-red-300">
       <p>{t(message)}</p>
@@ -42,6 +45,18 @@ export function LaunchErrorDetails({ error }: { error: AppError | null }) {
             ? t(`errors.launchReason.${reason}`)
             : t('errors.launchReason.other', { reason })}
         </p>
+      )}
+      {looked && looked.length > 0 && (
+        <ul className="ml-3 list-disc">
+          {looked.map((file) => (
+            <li key={file}>
+              <code className="break-all text-red-200">{file}</code>
+            </li>
+          ))}
+        </ul>
+      )}
+      {reason === 'mountFailed' && stderrTail && (
+        <pre className="whitespace-pre-wrap break-all text-red-200">{stderrTail}</pre>
       )}
       {path && (
         <p className="flex gap-1">

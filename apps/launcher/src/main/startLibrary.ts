@@ -1,6 +1,6 @@
 import { app, nativeImage } from 'electron';
-import { existsSync } from 'node:fs';
-import { readdir, stat } from 'node:fs/promises';
+import { existsSync, statSync } from 'node:fs';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defaultSettings } from '@nextlevel/shared';
 import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
@@ -17,6 +17,15 @@ import type { MainDeps } from './handlers.ts';
 import { sevenZipExtractor } from './launch/archives.ts';
 import { LaunchService } from './launch/LaunchService.ts';
 import { spawnProcess } from './launch/spawnProcess.ts';
+import {
+  driveExists,
+  fileMountRecord,
+  findMountTool,
+  spawnMountTool,
+  squashoverlayMounter,
+  sweepStaleMounts,
+  windowsProcessName,
+} from './launch/squashfs.ts';
 import { logger as log } from './log.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
 import { expectedGamePath } from './library/expectedPath.ts';
@@ -43,6 +52,8 @@ import type { SettingsService } from './settings/SettingsService.ts';
 /** What the library needs from the app shell (index.ts). */
 export interface LibraryHost {
   dataDir: string;
+  /** The NextLevel folder (D50); its `tools` folder may hold the squashfs mount tool. */
+  root: string;
   emit: EmitEvent;
   menuWatch: { watch(fingerprint: () => string): void };
   launcherWindow: { restore(): void };
@@ -130,6 +141,8 @@ export function startLibrary(
   });
   const collections = new CollectionRepository(db, () => new Date());
   const launches = new LaunchRepository(db);
+  // FR-EMU-9: a crashed run may have left a mount behind; the record lives in the data folder.
+  const mountRecord = fileMountRecord(join(dataDir, 'mounts.json'));
   const launch = new LaunchService({
     settings: () => currentSettings(settings),
     system: getSystem,
@@ -144,6 +157,39 @@ export function startLibrary(
     tempDir,
     baseEnv,
     log,
+    mountTool: (emulator) =>
+      findMountTool({
+        configured: currentSettings(settings).tools.squashfsMount,
+        root: host.root,
+        emulatorExecutable: emulator.executable,
+        exists: existsSync,
+      }),
+    mounterFor: (tool) =>
+      squashoverlayMounter({
+        tool,
+        spawnTool: spawnMountTool,
+        driveExists,
+        record: mountRecord,
+        log,
+      }),
+    overlayRoot: join(dataDir, 'squashfs-overlay'),
+    isDirectory: (path) => {
+      try {
+        return statSync(path).isDirectory();
+      } catch {
+        return false;
+      }
+    },
+    list: (dir) => readdir(dir),
+    readText: (path) => readFile(path, 'utf8'),
+  });
+  sweepStaleMounts({
+    record: mountRecord,
+    processName: windowsProcessName,
+    kill: (pid) => process.kill(pid),
+    log,
+  }).catch((error: unknown) => {
+    log.warn({ error }, 'could not release old squashfs mounts');
   });
   launch.cleanupStaleExtractions().catch((error: unknown) => {
     log.warn({ error }, 'could not remove old extraction folders');

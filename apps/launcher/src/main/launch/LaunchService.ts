@@ -13,12 +13,25 @@ import {
 } from '@nextlevel/shared';
 import { randomUUID } from 'node:crypto';
 import { readdir, rm } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import type { EmitEvent } from '../ipc/events.ts';
 import type { LaunchGame, LaunchRepository } from '../library/LaunchRepository.ts';
 import { prepareRom, type Extractor, type PreparedRom } from './archives.ts';
-import { buildCommand, type LaunchCommand } from './buildCommand.ts';
+import {
+  buildCommand,
+  tokenContext,
+  type CommandInput,
+  type LaunchCommand,
+} from './buildCommand.ts';
 import { launchError } from './errors.ts';
+import {
+  NO_GAME_VALUES,
+  prepareGame,
+  previewGameValues,
+  type GameFileDeps,
+  type GameValues,
+  type PreparedGame,
+} from './prepareGame.ts';
 import { resolveProfile } from './resolve.ts';
 import { locateRom, sampleRom } from './romLocation.ts';
 import type { RunningProcess, SpawnFn } from './spawnProcess.ts';
@@ -27,7 +40,7 @@ import type { RunningProcess, SpawnFn } from './spawnProcess.ts';
 export const FAILURE_WINDOW_MS = 10_000;
 const EXTRACT_ROOT = 'nextlevel-launch';
 
-export interface LaunchServiceDeps {
+interface LaunchCoreDeps {
   /** The current settings (a load failure means defaults). */
   settings: () => Settings;
   system: (id: string) => SystemDefinition | undefined;
@@ -46,6 +59,9 @@ export interface LaunchServiceDeps {
   baseEnv: NodeJS.ProcessEnv;
   log: { warn(context: object, msg: string): void; error(context: object, msg: string): void };
 }
+
+/** Everything a launch needs; squashfs mounting and game files are FR-EMU-9 (prepareGame.ts). */
+export type LaunchServiceDeps = LaunchCoreDeps & Omit<GameFileDeps, 'exists'>;
 
 /** A profile from Settings, saved or not, with the game to try it on (FR-EMU-5). */
 export interface LaunchDraft {
@@ -101,20 +117,25 @@ export class LaunchService {
 
   /** The command a draft would run, without any checks (FR-EMU-5 live preview). */
   preview(draft: LaunchDraft): LaunchPreview {
-    return preview(this.command(draft.emulator, draft.profile, this.target(draft, false)));
+    const target = this.target(draft, false);
+    return preview(
+      this.command(draft.emulator, draft.profile, target, this.previewGame(draft, target)),
+    );
   }
 
   /** Runs a draft profile against a game and waits for it to exit (FR-EMU-5); no play counted. */
   async test(draft: LaunchDraft & { gameId: number }): Promise<TestLaunchResult> {
     this.claim();
-    let prepared: PreparedRom | undefined;
+    let prepared: PreparedGame | undefined;
     try {
       const target = this.target(draft, true);
-      prepared = await this.prepare(draft.profile, target);
-      const command = this.command(draft.emulator, draft.profile, {
-        ...target,
-        romPath: prepared.path,
-      });
+      prepared = await this.prepare(draft.emulator, draft.profile, target);
+      const command = this.command(
+        draft.emulator,
+        draft.profile,
+        { ...target, romPath: prepared.path },
+        prepared,
+      );
       const shown = preview(command);
       const failed = (error: unknown, durationMs = 0): TestLaunchResult => ({
         ...shown,
@@ -158,7 +179,7 @@ export class LaunchService {
   /** Plays a game from the library (FR-EMU-6, US-C2); resolves once the emulator started. */
   async play(gameId: number): Promise<{ launchId: number }> {
     this.claim();
-    let prepared: PreparedRom | undefined;
+    let prepared: PreparedGame | undefined;
     let profile: EmulatorProfile | undefined;
     let logId: number | undefined;
     try {
@@ -169,11 +190,13 @@ export class LaunchService {
       profile = resolved.profile;
       this.checkExecutable(resolved.emulator, profile);
       const target = this.target({ ...resolved, gameId }, true);
-      prepared = await this.prepare(profile, target);
-      const command = this.command(resolved.emulator, profile, {
-        ...target,
-        romPath: prepared.path,
-      });
+      prepared = await this.prepare(resolved.emulator, profile, target);
+      const command = this.command(
+        resolved.emulator,
+        profile,
+        { ...target, romPath: prepared.path },
+        prepared,
+      );
       this.checkCwd(command, profile);
       const started = this.deps.clock();
       logId = this.logStart(command, profile, game, started, false);
@@ -309,11 +332,19 @@ export class LaunchService {
     };
   }
 
-  private prepare(profile: EmulatorProfile, target: Target): Promise<PreparedRom> {
+  /**
+   * Extracts an archive (FR-EMU-8), mounts a `.wsquashfs` image (FR-EMU-9) and finds the game's
+   * files. `cleanup()` unmounts, then removes the extraction; a failure here cleans up at once.
+   */
+  private async prepare(
+    emulator: Emulator,
+    profile: EmulatorProfile,
+    target: Target,
+  ): Promise<PreparedGame> {
     const settings = this.deps.settings();
     const folder = randomUUID();
     this.ownExtractions.add(folder);
-    return prepareRom({
+    const rom = await prepareRom({
       romPath: target.romPath,
       mode: profile.archives,
       systemExtensions:
@@ -323,21 +354,52 @@ export class LaunchService {
       dest: join(this.deps.tempDir, EXTRACT_ROOT, folder),
       extractor: this.deps.extractor,
     });
+    return prepareGame({
+      rom,
+      emulator,
+      profile,
+      systemId: target.systemId,
+      ctx: tokenContext(
+        this.commandInput(emulator, profile, { ...target, romPath: rom.path }, NO_GAME_VALUES),
+      ),
+      deps: this.deps,
+    });
   }
 
-  private command(emulator: Emulator, profile: EmulatorProfile, target: Target): LaunchCommand {
-    return buildCommand({
+  private previewGame(draft: LaunchDraft, target: Target): GameValues {
+    return previewGameValues(
+      draft.profile,
+      tokenContext(this.commandInput(draft.emulator, draft.profile, target, NO_GAME_VALUES)),
+    );
+  }
+
+  private commandInput(
+    emulator: Emulator,
+    profile: EmulatorProfile,
+    target: Target,
+    game: GameValues,
+  ): CommandInput {
+    return {
       emulator,
       profile,
       romPath: target.romPath,
       systemDir: target.systemDir,
       systemId: target.systemId,
       core: target.override.core || profile.core || '',
-      extraArgs: target.override.extraArgs,
-      gameDir: dirname(target.romPath),
-      entryArgs: [],
+      extraArgs: [...game.fileArgs, ...target.override.extraArgs],
+      gameDir: game.gameDir,
+      entryArgs: game.entryArgs,
       baseEnv: this.deps.baseEnv,
-    });
+    };
+  }
+
+  private command(
+    emulator: Emulator,
+    profile: EmulatorProfile,
+    target: Target,
+    game: GameValues,
+  ): LaunchCommand {
+    return buildCommand(this.commandInput(emulator, profile, target, game));
   }
 
   private logStart(

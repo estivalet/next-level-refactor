@@ -1,5 +1,5 @@
 import { AppErrorException } from '@nextlevel/shared';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { tempDir } from '../library/testing.ts';
@@ -51,4 +51,23 @@ describe('spawnProcess (ADR-004)', () => {
         error instanceof AppErrorException && error.error.code === 'LAUNCH_FAILED',
     );
   });
+
+  it.skipIf(process.platform !== 'win32')(
+    'FR-EMU-9: cmd.exe gets its arguments verbatim, so a quoted script name with & and ( ) runs',
+    async () => {
+      const marker = join(temp.dir, 'ran.txt');
+      const script = join(temp.dir, 'Tom & Jerry (USA) 3050 A.D.cmd');
+      await writeFile(script, `@echo off\r\necho ok> "${marker}"\r\n`);
+      const cmd = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'cmd.exe');
+      const running = await spawnProcess({
+        executable: cmd,
+        // `/s` strips one pair of quotes, the inner pair keeps the path whole (Script preset).
+        args: ['/d', '/s', '/c', `""${script}""`],
+        cwd: temp.dir,
+        env: { SystemRoot: process.env['SystemRoot'] ?? 'C:\\Windows' },
+      });
+      expect(await running.exited).toEqual({ exitCode: 0 });
+      expect((await readFile(marker, 'utf8')).trim()).toBe('ok');
+    },
+  );
 });

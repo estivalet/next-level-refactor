@@ -205,6 +205,7 @@ async function start(): Promise<void> {
   let libraryParts: Parameters<NonNullable<LibraryHost['onOpened']>>[0] | null = null;
   const library = startLibrary(settings, scraper.client, scraper.quota, {
     dataDir,
+    root: portable.root,
     emit,
     menuWatch,
     launcherWindow,

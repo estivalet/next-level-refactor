@@ -11,6 +11,7 @@ import { join, win32 } from 'node:path';
 import { LaunchRepository } from '../library/LaunchRepository.ts';
 import { seedGames, tempDir, tempLibrary } from '../library/testing.ts';
 import type { Extractor } from './archives.ts';
+import type { Mounter } from './squashfs.ts';
 import type { LaunchCommand } from './buildCommand.ts';
 import { launchError } from './errors.ts';
 import { LaunchService } from './LaunchService.ts';
@@ -108,6 +109,34 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     },
   };
   const spawn = fakeSpawn();
+  /** A fake squashfs mounter: mounting adds `contents` under `root` to the visible files. */
+  const mounts = {
+    tool: 'E:\\NextLevel\\tools\\mountsquashfs.exe' as string | null,
+    root: 'Q:',
+    contents: [] as string[],
+    calls: [] as Array<{ tool: string; image: string; overlay: string }>,
+    unmounted: 0,
+    fail: false,
+  };
+  const mounterFor = (tool: string): Mounter => ({
+    mount(image, overlay) {
+      if (mounts.fail) {
+        return Promise.reject(launchError('LAUNCH_FAILED', { reason: 'mountFailed', path: image }));
+      }
+      mounts.calls.push({ tool, image, overlay });
+      for (const name of mounts.contents) files.add(`${mounts.root}\\${name}`);
+      return Promise.resolve({
+        root: mounts.root,
+        unmount: () => {
+          mounts.unmounted += 1;
+          return Promise.resolve();
+        },
+      });
+    },
+  });
+  const dirs = new Set<string>();
+  const texts = new Map<string, string>();
+  const overlayRoot = join(temp.dir, 'squashfs-overlay');
   const launches = new LaunchRepository(library.db);
   const profile = () => settings.profiles[0] as Settings['profiles'][number];
   const emulator = () => settings.emulators[0] as Settings['emulators'][number];
@@ -128,6 +157,17 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     tempDir: temp.dir,
     baseEnv: { PATH: 'C:\\Windows' },
     log: { warn: () => undefined, error: () => undefined },
+    mountTool: () => mounts.tool,
+    mounterFor,
+    overlayRoot,
+    isDirectory: (path) => dirs.has(path),
+    list: (dir) =>
+      Promise.resolve(
+        [...files]
+          .filter((file) => win32.dirname(file) === dir)
+          .map((file) => win32.basename(file)),
+      ),
+    readText: (path) => Promise.resolve(texts.get(path) ?? ''),
   });
   return {
     library,
@@ -141,6 +181,10 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     events,
     extractor,
     spawn,
+    mounts,
+    dirs,
+    texts,
+    overlayRoot,
     tempDir: temp.dir,
     draft: () => structuredClone({ emulator: emulator(), profile: profile() }),
     setEmulatorExe(path: string) {
@@ -153,6 +197,27 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     },
     setArchives(mode: ArchiveMode) {
       profile().archives = mode;
+    },
+    /** The Hypseus Singe preset (plan Task 6) on this harness's game. */
+    useHypseusSinge() {
+      emulator().executable = 'E:\\emu\\hypseus\\hypseus.exe';
+      files.add(emulator().executable);
+      files.add('E:\\emu\\hypseus');
+      Object.assign(profile(), {
+        args: [
+          'singe',
+          'vldp',
+          '-framefile',
+          '{gameDir}\\{romName}.txt',
+          '{entryArgs}',
+          '-fullscreen',
+        ],
+        squashfs: 'mount',
+        entries: [
+          { file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] },
+          { file: '{gameDir}\\{romName}.zip', args: ['-zlua', '{entry}'] },
+        ],
+      });
     },
     cleanup: async () => {
       await library.cleanup();
