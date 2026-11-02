@@ -1,6 +1,25 @@
 // Hand-written preset data the runner can't provide as plain tables. Arguments are in the runner's
 // placeholder form (%ROM_PATH%, %SYSTEM_PATH%) and go through mameProfileArgs like parsed ones.
 
+/**
+ * Pong systems NextLevelOS's menu lists without a launcher (only "Coleco Telstar" has one); each
+ * folder holds WinArcadia game folders. The seed adds them as systems (EXTRA_SYSTEMS).
+ */
+export const COLECO_TELSTAR_MODELS = [
+  'Coleco Telstar Alpha',
+  'Coleco Telstar Classic',
+  'Coleco Telstar Colormatic',
+  'Coleco Telstar Colortron',
+  'Coleco Telstar Deluxe',
+  'Coleco Telstar Marksman',
+  'Coleco Telstar Ranger',
+  'Coleco Telstar Regent',
+  'Coleco Telstar Sportsman',
+] as const;
+
+/** Systems the catalog has although NextLevelOS's launchers.json doesn't. */
+export const EXTRA_SYSTEMS: readonly string[] = [...COLECO_TELSTAR_MODELS];
+
 export interface StandaloneSpec extends GameFileSpec {
   id: string;
   name: string;
@@ -12,8 +31,20 @@ export interface StandaloneSpec extends GameFileSpec {
   env?: Record<string, string>;
   /** Runner emulator keys (SYSTEM_EMULATORS values) this preset replaces. */
   runnerKeys: string[];
-  /** Runner keys that start the emulator differently: their systems get `<id>:<suffix>`. */
-  variants?: Record<string, { suffix: string; name: string; args: string[] } & GameFileSpec>;
+  /**
+   * Runner keys that start the emulator differently: their systems get `<id>:<suffix>`. A variant
+   * may set its own working folder and NextLevelOS system names that get it whatever the runner says.
+   */
+  variants?: Record<
+    string,
+    {
+      suffix: string;
+      name: string;
+      args: string[];
+      cwd?: string;
+      extraSystems?: string[];
+    } & GameFileSpec
+  >;
   /** Working folder template (default `{emulatorDir}`). */
   cwd?: string;
   /** The program is a Windows tool in System32 (cmd.exe), found without a folder to search. */
@@ -306,6 +337,17 @@ export const STANDALONE: readonly StandaloneSpec[] = [
     // A non-script ROM through `cmd /c` would just open in its associated program.
     forExtensions: ['bat', 'cmd', 'lnk'],
     runnerKeys: ['script'],
+    variants: {
+      // Pong: each Coleco Telstar game is a folder with its own set-up WinArcadia (wa.exe); the
+      // runner's .bat files cd into a folder that no longer exists. `cmd /c` waits for it to close.
+      winarcadia: {
+        suffix: 'winarcadia',
+        name: 'WinArcadia (game folder)',
+        args: ['/d', '/s', '/c', 'wa.exe'],
+        cwd: '{rom}',
+        extraSystems: ['Coleco Telstar', ...COLECO_TELSTAR_MODELS],
+      },
+    },
     extraSystems: [],
   },
 ];
@@ -316,7 +358,13 @@ export const STANDALONE: readonly StandaloneSpec[] = [
  * scripts. `scan` keeps support files (docs, `_README.txt`, per-game asset folders) out.
  */
 export const SYSTEM_TWEAKS: Readonly<
-  Record<string, { extensions?: string[]; scan?: { topLevelOnly?: boolean; ignore?: string[] } }>
+  Record<
+    string,
+    {
+      extensions?: string[];
+      scan?: { topLevelOnly?: boolean; ignore?: string[]; gameFolderFile?: string };
+    }
+  >
 > = {
   Daphne: { extensions: ['wsquashfs'] },
   Singe: { extensions: ['wsquashfs', 'hypseus'] },
@@ -325,6 +373,12 @@ export const SYSTEM_TWEAKS: Readonly<
   'WoW Action Max': { extensions: ['txt'], scan: { topLevelOnly: true, ignore: ['_*'] } },
   'Pioneer LaserActive': { extensions: ['bat'], scan: { topLevelOnly: true } },
   'VM Labs Nuon': { extensions: ['bat'], scan: { topLevelOnly: true } },
+  ...Object.fromEntries(
+    ['Coleco Telstar', ...COLECO_TELSTAR_MODELS].map((name) => [
+      name,
+      { scan: { topLevelOnly: true, ignore: ['_*'], gameFolderFile: 'wa.exe' } },
+    ]),
+  ),
 };
 
 export interface MameVariant {

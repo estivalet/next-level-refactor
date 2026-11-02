@@ -9,8 +9,11 @@ import {
 import presetData from '../data/presets.json' with { type: 'json' };
 import data from '../data/systems.json' with { type: 'json' };
 
-/** Every system NextLevelOS knew about when the catalog was seeded (see README). */
-export const NEXTLEVELOS_SYSTEM_COUNT = 438;
+/**
+ * Systems in the catalog: the 438 NextLevelOS launchers when it was seeded, plus the seed's
+ * EXTRA_SYSTEMS (9 Coleco Telstar models), see README.
+ */
+export const CATALOG_SYSTEM_COUNT = 447;
 
 let cache: readonly SystemDefinition[] | undefined;
 

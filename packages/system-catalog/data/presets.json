@@ -5585,6 +5585,31 @@
           ],
           "cwd": "{romDir}",
           "archives": "pass"
+        },
+        {
+          "id": "script:winarcadia",
+          "name": "WinArcadia (game folder)",
+          "systems": [
+            "coleco-telstar",
+            "coleco-telstar-alpha",
+            "coleco-telstar-classic",
+            "coleco-telstar-colormatic",
+            "coleco-telstar-colortron",
+            "coleco-telstar-deluxe",
+            "coleco-telstar-marksman",
+            "coleco-telstar-ranger",
+            "coleco-telstar-regent",
+            "coleco-telstar-sportsman"
+          ],
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "wa.exe",
+            "{extraArgs}"
+          ],
+          "cwd": "{rom}",
+          "archives": "pass"
         }
       ]
     }

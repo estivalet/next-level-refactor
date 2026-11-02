@@ -2403,10 +2403,496 @@
       ],
       "defaultFolderName": "Coleco Telstar",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
       "aliases": [
         "Coleco Telstar"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-alpha",
+      "name": "Coleco Telstar Alpha",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Alpha",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Alpha"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-classic",
+      "name": "Coleco Telstar Classic",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Classic",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Classic"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-colormatic",
+      "name": "Coleco Telstar Colormatic",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Colormatic",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Colormatic"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-colortron",
+      "name": "Coleco Telstar Colortron",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Colortron",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Colortron"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-deluxe",
+      "name": "Coleco Telstar Deluxe",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Deluxe",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Deluxe"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-marksman",
+      "name": "Coleco Telstar Marksman",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Marksman",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Marksman"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-ranger",
+      "name": "Coleco Telstar Ranger",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Ranger",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Ranger"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-regent",
+      "name": "Coleco Telstar Regent",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Regent",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Regent"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
+    },
+    {
+      "id": "coleco-telstar-sportsman",
+      "name": "Coleco Telstar Sportsman",
+      "manufacturer": "Coleco",
+      "kind": "other",
+      "extensions": [
+        "zip",
+        "7z",
+        "m3u",
+        "cue",
+        "bin",
+        "rom",
+        "img",
+        "chd",
+        "iso",
+        "gba",
+        "nes",
+        "sfc",
+        "smc",
+        "md",
+        "gen",
+        "n64",
+        "z64",
+        "v64",
+        "gb",
+        "gbc",
+        "pce",
+        "nds",
+        "3ds",
+        "cia",
+        "wbfs",
+        "gcm",
+        "nrg",
+        "mdf",
+        "cso",
+        "xbox360"
+      ],
+      "defaultFolderName": "Coleco Telstar Sportsman",
+      "scraper": {},
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Sportsman"
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ],
+        "gameFolderFile": "wa.exe"
+      }
     },
     {
       "id": "commander-x16",

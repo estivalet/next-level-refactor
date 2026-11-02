@@ -39,7 +39,7 @@ test('FR-LIB-3, FR-LIB-4: scan finds games, then marks them missing when the fol
 
     // The scan turned both systems on in Settings → Systems.
     await settings.getByRole('button', { name: 'Systems' }).click();
-    await expect(settings.getByText('2 of 438 enabled')).toBeVisible();
+    await expect(settings.getByText('2 of 447 enabled')).toBeVisible();
     await app.close();
   } finally {
     await data.remove();

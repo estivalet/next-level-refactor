@@ -37,10 +37,10 @@ function setup(systems: Settings['systems'] = {}, extra: Partial<Settings> = {})
 const list = () => within(screen.getByRole('list', { name: 'Systems' }));
 
 describe('SystemsSection', () => {
-  it('NFR-A11Y-1: the 438-system list is virtualized and search narrows it', async () => {
+  it('NFR-A11Y-1: the 447-system list is virtualized and search narrows it', async () => {
     const user = userEvent.setup();
     setup();
-    expect(await screen.findByText('0 of 438 enabled')).toBeVisible();
+    expect(await screen.findByText('0 of 447 enabled')).toBeVisible();
     expect(list().getAllByRole('listitem').length).toBeLessThan(60);
 
     await user.type(screen.getByRole('searchbox', { name: 'Search systems' }), 'nintendo 64');
@@ -56,7 +56,7 @@ describe('SystemsSection', () => {
     const { saved } = setup();
     await user.type(await screen.findByRole('searchbox', { name: 'Search systems' }), 'saturn');
     await user.click(screen.getByRole('switch', { name: 'Enable Sega Saturn' }));
-    expect(screen.getByText('1 of 438 enabled')).toBeVisible();
+    expect(screen.getByText('1 of 447 enabled')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(saved()).toEqual({ 'sega-saturn': { enabled: true } });
   });

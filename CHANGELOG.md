@@ -66,6 +66,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   - To use it: put `mountsquashfs.exe` in `<NextLevel>\tools\`, install WinFsp, run Settings →
     Emulators → *Find emulators in a folder…* (or Import NextLevelOS again), then scan the
     systems.
+- **Pong (Coleco Telstar)**: the Coleco Telstar system and its 9 models (Alpha, Classic,
+  Colormatic, Colortron, Deluxe, Marksman, Ranger, Regent, Sportsman; new in the system catalog,
+  447 systems) find each game as a folder holding its own WinArcadia (`wa.exe`), and the Script
+  preset's new **WinArcadia (game folder)** profile runs it from that folder. Catalog scan rule
+  `gameFolderFile`. To use it: *Find emulators in a folder…* (or *Add from preset* on an existing
+  Script emulator), then scan.
 - An **HBMAME** emulator preset (`hbmame.exe`), so HBMAME games can launch; Settings → Emulators
   and Import NextLevelOS find it in the emulators folder.
 - **openMSX** (MSX, MSX2, MSX2+, Turbo R, Gradiente), **ColEm** (ColecoVision) and **YAPE**

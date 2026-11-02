@@ -30,10 +30,16 @@ export const SystemDefinitionSchema = z.object({
   scraper: z.object({ screenscraperId: z.number().int().positive().optional() }),
   /**
    * How a scan walks the system folder: `topLevelOnly` skips sub-folders; `ignore` lists file
-   * name patterns (`*` = any characters, case-insensitive) that are never games.
+   * name patterns (`*` = any characters, case-insensitive) that are never games;
+   * `gameFolderFile` makes the games exactly the sub-folders holding that file (`wa.exe`: each
+   * Coleco Telstar game is a folder with its own WinArcadia), never loose files.
    */
   scan: z
-    .object({ topLevelOnly: z.boolean().optional(), ignore: z.array(z.string()).optional() })
+    .object({
+      topLevelOnly: z.boolean().optional(),
+      ignore: z.array(z.string()).optional(),
+      gameFolderFile: z.string().min(1).optional(),
+    })
     .optional(),
   /** Emulator preset profile ids, best first (filled in M3). */
   presetProfiles: z.array(z.string()),

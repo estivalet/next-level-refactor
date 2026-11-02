@@ -35,7 +35,7 @@ describe('settings drafts', () => {
       revision: 1,
     });
 
-    expect(await screen.findByText('2 of 438 enabled')).toBeVisible();
+    expect(await screen.findByText('2 of 447 enabled')).toBeVisible();
     expect(screen.getByRole('switch', { name: 'Enable Sega Saturn' })).toHaveAttribute(
       'aria-checked',
       'true',
