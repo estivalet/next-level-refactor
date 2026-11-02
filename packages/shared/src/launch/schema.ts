@@ -34,6 +34,8 @@ export const LaunchErrorDetailsSchema = z.object({
   exitCode: z.number().int().optional(),
   /** A short machine reason, e.g. the spawn error code (ENOENT) or `cwdMissing`. */
   reason: z.string().optional(),
+  /** `entryMissing`: the game files the profile's rules looked for (FR-EMU-9). */
+  looked: z.array(z.string()).optional(),
 });
 
 export type LaunchErrorDetails = z.output<typeof LaunchErrorDetailsSchema>;

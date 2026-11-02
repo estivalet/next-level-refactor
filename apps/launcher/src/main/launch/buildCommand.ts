@@ -18,6 +18,10 @@ export interface CommandInput {
   /** Game override core, else the profile's, else ''. */
   core: string;
   extraArgs: readonly string[];
+  /** The folder holding the game's files (a mounted drive like `Q:`, a game folder, romDir). */
+  gameDir: string;
+  /** Args of the profile's first matching entry rule (FR-EMU-9). */
+  entryArgs: readonly string[];
   baseEnv: NodeJS.ProcessEnv;
 }
 
@@ -31,6 +35,9 @@ export interface LaunchCommand {
 
 /** Variables that would make an Electron- or Node-based emulator misbehave. */
 const DROPPED_ENV = new Set(['ELECTRON_RUN_AS_NODE', 'NODE_OPTIONS']);
+
+/** `Q:` alone means "the current folder of Q:"; a working folder needs the drive root `Q:\`. */
+const withRoot = (cwd: string) => (/^[A-Za-z]:$/.test(cwd) ? `${cwd}\\` : cwd);
 
 export function tokenContext(input: CommandInput): TokenContext {
   const romFile = win32.basename(input.romPath);
@@ -46,9 +53,9 @@ export function tokenContext(input: CommandInput): TokenContext {
     emulatorDir: win32.dirname(input.emulator.executable),
     core: input.core,
     extraArgs: input.extraArgs,
-    gameDir: win32.dirname(input.romPath),
+    gameDir: input.gameDir,
     entry: '',
-    entryArgs: [],
+    entryArgs: input.entryArgs,
   };
 }
 
@@ -69,7 +76,7 @@ export function buildCommand(input: CommandInput): LaunchCommand {
   return {
     executable: input.emulator.executable,
     args: renderArgs(profile.args, ctx),
-    cwd: renderValue(cwdTemplate, ctx),
+    cwd: withRoot(renderValue(cwdTemplate, ctx)),
     env,
   };
 }

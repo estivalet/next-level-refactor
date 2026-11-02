@@ -29,6 +29,8 @@ const input = (overrides: Partial<CommandInput> = {}): CommandInput => ({
   systemId: 'nintendo-64',
   core: 'mupen64plus_next_libretro',
   extraArgs: [],
+  gameDir: 'E:\\roms\\Nintendo 64',
+  entryArgs: [],
   baseEnv: {
     PATH: 'C:\\Windows',
     ELECTRON_RUN_AS_NODE: '1',
@@ -83,5 +85,23 @@ describe('buildCommand (FR-EMU-3, ADR-004)', () => {
     expect(
       buildCommand(input({ core: '', profile: { ...profile, args: ['{rom}'] } })).args,
     ).toEqual([ROM]);
+  });
+
+  it('FR-EMU-3: buildCommand renders {gameDir} and {entryArgs}; a bare drive cwd becomes X:\\', () => {
+    const hypseus = {
+      ...profile,
+      args: ['vldp', '-framefile', '{gameDir}\\{romName}.txt', '{entryArgs}'],
+      cwd: '{gameDir}',
+    };
+    const cmd = buildCommand(
+      input({
+        profile: hypseus,
+        romPath: 'E:\\roms\\Singe\\a.wsquashfs',
+        gameDir: 'Q:',
+        entryArgs: ['-script', 'Q:\\a.singe'],
+      }),
+    );
+    expect(cmd.args).toEqual(['vldp', '-framefile', 'Q:\\a.txt', '-script', 'Q:\\a.singe']);
+    expect(cmd.cwd).toBe('Q:\\');
   });
 });

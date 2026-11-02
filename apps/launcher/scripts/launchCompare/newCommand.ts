@@ -97,6 +97,8 @@ export function newCommand(input: {
       systemId,
       core: override.core || profile.core || '',
       extraArgs: override.extraArgs,
+      gameDir: win32.dirname(location.path),
+      entryArgs: [],
       baseEnv: {},
     });
     return {

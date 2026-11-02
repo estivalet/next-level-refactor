@@ -13,7 +13,7 @@ import {
 } from '@nextlevel/shared';
 import { randomUUID } from 'node:crypto';
 import { readdir, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { EmitEvent } from '../ipc/events.ts';
 import type { LaunchGame, LaunchRepository } from '../library/LaunchRepository.ts';
 import { prepareRom, type Extractor, type PreparedRom } from './archives.ts';
@@ -334,6 +334,8 @@ export class LaunchService {
       systemId: target.systemId,
       core: target.override.core || profile.core || '',
       extraArgs: target.override.extraArgs,
+      gameDir: dirname(target.romPath),
+      entryArgs: [],
       baseEnv: this.deps.baseEnv,
     });
   }
