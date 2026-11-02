@@ -278,8 +278,8 @@ export const STANDALONE: readonly StandaloneSpec[] = [
   {
     // https://github.com/DirtBagXon/hypseus-singe (the runner's HypseusSingeEmulatorLauncher and
     // HypseusEmulatorLauncher, FR-EMU-9). Images are mounted; the game's files are found by name:
-    // `<game>.singe` (script), `<game>.zip` (Lua zip), or the system's one shared Lua zip with
-    // `-usealt <game>` (hypseus_singe_data 00-zip-roms).
+    // a `.hypseus` folder's script (with -singedir), an image's Lua zip, `<game>.singe`, or a
+    // shared Lua zip with `-usealt <game>` (hypseus_singe_data 00-zip-roms).
     id: 'hypseus',
     name: 'Hypseus Singe',
     executableNames: ['hypseus.exe'],
@@ -296,8 +296,15 @@ export const STANDALONE: readonly StandaloneSpec[] = [
     archives: 'pass',
     squashfs: 'mount',
     entries: [
-      { file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] },
+      // A `<game>.hypseus` folder (only a folder ROM has files under `{rom}`): its script loads
+      // `singe/<game>/…`, which Hypseus finds only with -singedir <system folder> (the runner).
+      {
+        file: '{rom}\\{romName}.singe',
+        args: ['-singedir', '{romDir}', '-script', '{entry}'],
+      },
+      // A mounted image: the runner passed the game's Lua zip, also when it has a .singe.
       { file: '{gameDir}\\{romName}.zip', args: ['-zlua', '{entry}'] },
+      { file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] },
       { file: '{gameDir}\\*.zip', args: ['-zlua', '{entry}', '-usealt', '{romName}'] },
     ],
     extraArgsLast: true,
