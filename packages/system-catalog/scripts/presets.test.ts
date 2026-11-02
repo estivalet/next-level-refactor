@@ -213,9 +213,16 @@ describe('emulator presets (FR-EMU-7)', () => {
         ],
       });
       expect(find('hypseus:default')?.entries?.map((rule) => rule.file)).toEqual([
-        '{gameDir}\\{romName}.singe',
+        '{rom}\\{romName}.singe',
         '{gameDir}\\{romName}.zip',
+        '{gameDir}\\{romName}.singe',
         '{gameDir}\\*.zip',
+      ]);
+      expect(find('hypseus:default')?.entries?.[0]?.args).toEqual([
+        '-singedir',
+        '{romDir}',
+        '-script',
+        '{entry}',
       ]);
       // WoW Action Max games also have a <game>.singe that must not be used (the runner's `lua=`).
       expect(find('hypseus:lua')).toMatchObject({

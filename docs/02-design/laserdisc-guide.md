@@ -45,8 +45,10 @@ collection, and whose games all belong to another system, is imported the same w
    folder are never changed.
 2. **Find the game's files** by name, in the mounted drive, the `.hypseus` folder, or the game's
    folder (`{gameDir}`). The Hypseus Singe profile tries, in order:
+   - a `<game>.hypseus` folder's `<game>.singe` → `-singedir <system folder> -script <file>` (its
+     script loads `singe/<game>/…`, which Hypseus finds only through `-singedir`)
+   - `<game>.zip` → `-zlua <file>` (an image's Lua zip, also when it has a `.singe`)
    - `<game>.singe` → `-script <file>`
-   - `<game>.zip` → `-zlua <file>`
    - any `*.zip` (the system's shared Lua zip) → `-zlua <file> -usealt <game>`
 
    The Hypseus Singe (shared Lua zip) profile has only the last rule, so WoW Action Max, which

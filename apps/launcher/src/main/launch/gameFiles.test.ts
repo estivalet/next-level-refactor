@@ -1,6 +1,7 @@
 import type { AppErrorException, EntryRule, TokenContext } from '@nextlevel/shared';
 import { existsSync } from 'node:fs';
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { emulatorPresets } from '@nextlevel/system-catalog';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { tempDir } from '../library/testing.ts';
@@ -117,6 +118,52 @@ describe('game files (FR-EMU-9)', () => {
     expect((await resolve(singeRules, 'Tom & Jerry (USA)')).entryArgs).toEqual([
       '-script',
       join(temp.dir, 'Tom & Jerry (USA).singe'),
+    ]);
+  });
+});
+
+describe('Hypseus Singe preset rules on real layouts (FR-EMU-9)', () => {
+  const presetRules = (): EntryRule[] => {
+    const profile = emulatorPresets()
+      .flatMap((preset) => preset.profiles)
+      .find((p) => p.id === 'hypseus:default');
+    return [...(profile?.entries ?? [])];
+  };
+  const run = (rom: string, gameDir: string, romName: string) =>
+    resolveGameFiles({
+      profile: { entries: presetRules() },
+      ctx: { ...ctx(romName), rom, romDir: temp.dir, gameDir },
+      exists: existsSync,
+      list: (dir) => readdir(dir),
+      readText: (path) => readFile(path, 'utf8'),
+    });
+
+  it('a <game>.hypseus folder runs its .singe with -singedir <system folder>, as the runner did', async () => {
+    // The script loads `singe/maddog-hd/*.singe`; Hypseus finds them only through -singedir.
+    const folder = join(temp.dir, 'maddog-hd.hypseus');
+    await mkdir(folder);
+    for (const name of ['maddog-hd.singe', 'maddog-hd.zip', 'maddog-hd.txt']) {
+      await writeFile(join(folder, name), 'x');
+    }
+    expect((await run(folder, folder, 'maddog-hd')).entryArgs).toEqual([
+      '-singedir',
+      temp.dir,
+      '-script',
+      join(folder, 'maddog-hd.singe'),
+    ]);
+  });
+
+  it('a mounted image with both files runs its zip with -zlua, as the runner did', async () => {
+    const mount = join(temp.dir, 'mount');
+    await mkdir(mount);
+    for (const name of ['Hambuster.singe', 'Hambuster.zip', 'Hambuster.txt']) {
+      await writeFile(join(mount, name), 'x');
+    }
+    const image = join(temp.dir, 'Hambuster.wsquashfs');
+    await writeFile(image, 'x');
+    expect((await run(image, mount, 'Hambuster')).entryArgs).toEqual([
+      '-zlua',
+      join(mount, 'Hambuster.zip'),
     ]);
   });
 });

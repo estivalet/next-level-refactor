@@ -24,6 +24,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Fixed
 
+- Singe and American Laser Games start: a `<game>.hypseus` folder runs with
+  `-singedir <Singe folder> -script <game>.singe`, and a game image runs its Lua zip
+  (`-zlua <game>.zip`), as NextLevelOS did. Before, the folder's script could not find its own
+  files (FR-EMU-9).
 - WoW Action Max games start: Mattel Captain Power, Sega Video Driver and WoW Action Max get
   their own **Hypseus Singe (shared Lua zip)** profile, which always runs
   `-zlua <system zip> -usealt <game>`. Before, WoW Action Max was given its `<game>.singe` file,

@@ -5508,8 +5508,10 @@
           "squashfs": "mount",
           "entries": [
             {
-              "file": "{gameDir}\\{romName}.singe",
+              "file": "{rom}\\{romName}.singe",
               "args": [
+                "-singedir",
+                "{romDir}",
                 "-script",
                 "{entry}"
               ]
@@ -5518,6 +5520,13 @@
               "file": "{gameDir}\\{romName}.zip",
               "args": [
                 "-zlua",
+                "{entry}"
+              ]
+            },
+            {
+              "file": "{gameDir}\\{romName}.singe",
+              "args": [
+                "-script",
                 "{entry}"
               ]
             },
