@@ -13,6 +13,27 @@ interface Candidate {
 }
 
 const extensionOf = (name: string) => extname(name).toLowerCase().replace(/^\./, '');
+
+/** How one system's folder is walked (WalkJob.scan, FR-LIB-1). */
+interface WalkRules {
+  accepted: ReadonlySet<string>;
+  topLevelOnly: boolean;
+  /** Names that are never games: `*` matches any characters, case-insensitive. */
+  ignore: RegExp[];
+}
+
+function namePattern(glob: string): RegExp {
+  const escaped = glob.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+  return new RegExp(`^${escaped}$`, 'i');
+}
+
+function walkRules(job: WalkJob): WalkRules {
+  return {
+    accepted: new Set(job.extensions),
+    topLevelOnly: job.scan?.topLevelOnly ?? false,
+    ignore: (job.scan?.ignore ?? []).map(namePattern),
+  };
+}
 const pathKey = (path: string) => resolve(path).toLowerCase();
 
 async function entries(dir: string) {
@@ -49,7 +70,7 @@ const GROUP_FOLDER = /^[!+#]/;
  * Links and junctions are not followed (Dirent reports them as links, not folders), so a loop
  * can't happen.
  */
-async function listFolder(dir: string): Promise<Candidate[] | null> {
+async function listFolder(dir: string, rules: WalkRules): Promise<Candidate[] | null> {
   const top = await topEntries(dir);
   if (!top) return null;
   const found: Candidate[] = [];
@@ -63,8 +84,12 @@ async function listFolder(dir: string): Promise<Candidate[] | null> {
     for (const entry of list ?? []) {
       const fullPath = join(folder, entry.name);
       const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
-      if (!entry.isDirectory()) {
+      if (rules.ignore.some((pattern) => pattern.test(entry.name))) continue;
+      if (!entry.isDirectory() || rules.accepted.has(extensionOf(entry.name))) {
+        // A folder with a game extension (`maddog-hd.hypseus`) is one game, not walked into.
         found.push({ relPath, fullPath });
+      } else if (rules.topLevelOnly) {
+        continue;
       } else if (depth === 0) {
         if (entry.name.toLowerCase() === 'media') continue;
         const limit = GROUP_FOLDER.test(entry.name) ? GROUP_FOLDER_DEPTH : 1;
@@ -110,11 +135,11 @@ async function listKinds(mediaDir: string, central: boolean): Promise<MediaFile[
 async function scanLocation(
   dir: string,
   locationId: string,
-  accepted: ReadonlySet<string>,
+  rules: WalkRules,
 ): Promise<FoundGame[] | null> {
-  const listed = await listFolder(dir);
+  const listed = await listFolder(dir, rules);
   if (!listed) return null;
-  const roms = listed.filter((file) => accepted.has(extensionOf(file.relPath)));
+  const roms = listed.filter((file) => rules.accepted.has(extensionOf(file.relPath)));
   const referenced = new Set<string>();
   for (const file of roms) {
     if (!PLAYLIST_EXTENSIONS.has(extensionOf(file.relPath))) continue;
@@ -125,7 +150,7 @@ async function scanLocation(
     if (referenced.has(pathKey(file.fullPath))) continue;
     try {
       const info = await stat(file.fullPath);
-      if (!info.isFile()) continue;
+      if (!info.isFile() && !info.isDirectory()) continue;
       games.push({
         relPath: file.relPath,
         locationId,
@@ -145,7 +170,7 @@ async function scanLocation(
  * holds a rel_path wins, and multi-disc sets collapse into one game (FR-LIB-5).
  */
 export async function walkSystem(job: WalkJob): Promise<WalkResult> {
-  const accepted = new Set(job.extensions);
+  const rules = walkRules(job);
   const byKey = new Map<string, FoundGame>();
   // Central media first (FR-SCR-4); matchMedia also ranks it above per-ROM files.
   const media: MediaFile[] = job.centralMediaDir ? await listKinds(job.centralMediaDir, true) : [];
@@ -154,7 +179,7 @@ export async function walkSystem(job: WalkJob): Promise<WalkResult> {
   for (const { locationId, dir } of job.dirs) {
     let games: FoundGame[] | null;
     try {
-      games = await scanLocation(dir, locationId, accepted);
+      games = await scanLocation(dir, locationId, rules);
     } catch (error) {
       if (!(error instanceof UnreadableFolder)) throw error;
       unreadable.push(dir);

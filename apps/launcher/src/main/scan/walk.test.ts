@@ -230,4 +230,43 @@ describe('walkSystem', () => {
     expect(result.unreadable).toEqual([]);
     expect(result.files).toHaveLength(1);
   });
+
+  it('FR-LIB-1: a folder named like a game (maddog-hd.hypseus) is one game, its files are not', async () => {
+    await write('maddog-hd.hypseus/maddog-hd.txt');
+    await write('maddog-hd.hypseus/maddog-hd.singe');
+    await write('Agent328OB.wsquashfs');
+    await write('docs/manual.txt');
+    expect(await names(['wsquashfs', 'hypseus', 'singe'])).toEqual([
+      'Agent328OB.wsquashfs',
+      'maddog-hd.hypseus',
+    ]);
+  });
+
+  it('FR-LIB-1: topLevelOnly skips docs\\ and per-game folders; ignore skips _README.txt', async () => {
+    await write('calichase.txt');
+    await write('_README.txt');
+    await write('docs/manual.txt');
+    await write('misc/x.txt');
+    await write('bluethunder/frames.txt');
+    const result = await walkSystem({
+      systemId: 'sega-video-driver',
+      dirs: [{ locationId: 'a', dir: root }],
+      extensions: ['txt'],
+      scan: { topLevelOnly: true, ignore: ['_*'] },
+    });
+    expect(result.files.map((file) => file.relPath)).toEqual(['calichase.txt']);
+  });
+
+  it('FR-LIB-1: ignore patterns match whole names, ignoring case', async () => {
+    await write('readme.TXT');
+    await write('cpower1.txt');
+    await write('Sub/README.txt');
+    const result = await walkSystem({
+      systemId: 'x',
+      dirs: [{ locationId: 'a', dir: root }],
+      extensions: ['txt'],
+      scan: { ignore: ['README.*'] },
+    });
+    expect(result.files.map((file) => file.relPath).sort()).toEqual(['cpower1.txt']);
+  });
 });

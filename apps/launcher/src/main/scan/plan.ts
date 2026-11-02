@@ -18,6 +18,7 @@ function jobFor(settings: Settings, system: SystemDefinition): WalkJob {
       dir: join(location.path, folder),
     })),
     extensions: own?.extensions ?? system.extensions,
+    ...(system.scan ? { scan: system.scan } : {}),
     ...(settings.storage.media.mode === 'central'
       ? { centralMediaDir: join(settings.storage.media.path, system.id) }
       : {}),

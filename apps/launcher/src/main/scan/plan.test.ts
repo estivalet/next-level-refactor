@@ -87,4 +87,11 @@ describe('planScan media location (FR-SCR-4)', () => {
     const [perRom] = await planScan(settings({}), catalog, ['enabled-one'], folderExists);
     expect(perRom?.centralMediaDir).toBeUndefined();
   });
+
+  it('FR-LIB-1: a system’s catalog scan rules go into its walk job', async () => {
+    const rules = { topLevelOnly: true, ignore: ['_*'] };
+    const withRules = [system('sega-video-driver', { defaultFolderName: 'SVD', scan: rules })];
+    const jobs = await planScan(settings({}), withRules, ['sega-video-driver'], folderExists);
+    expect(jobs[0]?.scan).toEqual(rules);
+  });
 });
