@@ -32,10 +32,10 @@ found. The "Laserdisc and VHS" menu group shows once its systems have games.
 | Pioneer LaserActive | `Hyperion.bat` | Script (.bat/.cmd) |
 | VM Labs Nuon | `<game>.bat` | Script (.bat/.cmd) |
 
-American Laser Games titles are Singe games (their files are in the Singe folder). In NextLevelOS
-they were a collection; if the import made "American Laser Games" a system of its own, its
-entries point at a folder without the games: add the Singe titles to an *American Laser Games*
-collection instead (Game Library → select → *Add to collection…*).
+American Laser Games titles are Singe games (their files are in the Singe folder). Import
+NextLevelOS brings "American Laser Games" over as a collection of those Singe titles, as the
+NextLevelOS menu showed it; no files are moved. (Any NextLevelOS list the menus open only as a
+collection, and whose games all belong to another system, is imported the same way.)
 
 ## How a game starts
 

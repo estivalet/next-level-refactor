@@ -11,6 +11,7 @@ import {
   type LegacyConfig,
   type LegacyLaunchers,
   type LegacyMenu,
+  type LegacyMenuItem,
   type LegacyScreenscraper,
   type LegacyThemes,
 } from '@nextlevel/shared';
@@ -51,6 +52,49 @@ export function launcherKey(launchers: LegacyLaunchers, name: string): string | 
     keyIndex.set(launchers, index);
   }
   return index.get(name.toLowerCase());
+}
+
+/** Lower-case names the menus open with the given node type, at any depth. */
+function menuNames(menus: LegacyFiles['menus'], type: string): Set<string> {
+  const names = new Set<string>();
+  const walk = (items: readonly LegacyMenuItem[]) => {
+    for (const item of items) {
+      if (item.type === type) names.add(item.name.trim().toLowerCase());
+      walk(item.items ?? []);
+    }
+  };
+  for (const { menu } of menus) walk(menu.items);
+  return names;
+}
+
+/**
+ * Launcher keys whose gamelist is really a collection: the menus open it only as a collection and
+ * every game names another system that has a launcher. NextLevelOS kept "American Laser Games" in
+ * launchers.json after its games moved to Singe; the import treats those lists as collections.
+ * A list a menu opens as a system (Zemmix → Microsoft MSX games) stays a system.
+ */
+export function collectionLaunchers(
+  launchers: LegacyLaunchers,
+  gamelists: LegacyFiles['gamelists'],
+  menus: LegacyFiles['menus'],
+): string[] {
+  const asCollection = menuNames(menus, 'collection');
+  const asSystem = menuNames(menus, 'system');
+  const keys: string[] = [];
+  for (const list of gamelists) {
+    const own = launcherKey(launchers, list.name);
+    const name = list.name.toLowerCase();
+    if (own === undefined || list.games.length === 0) continue;
+    if (!asCollection.has(name) || asSystem.has(name)) continue;
+    const elsewhere = list.games.every((game) => {
+      const system = (game as { system?: unknown } | null)?.system;
+      if (typeof system !== 'string') return false;
+      const key = launcherKey(launchers, system.trim());
+      return key !== undefined && key !== own;
+    });
+    if (elsewhere) keys.push(own);
+  }
+  return keys;
 }
 
 /**
@@ -156,10 +200,14 @@ export async function readLegacy(folder: string): Promise<LegacyRead> {
     else problems.push({ area: 'game', key, reason: 'notAGamelist' });
   }
 
+  const allLaunchers = launchers.value ?? {};
+  const asCollections = new Set(collectionLaunchers(allLaunchers, gamelists, menus));
   return {
     files: {
       config: config.value,
-      launchers: launchers.value ?? {},
+      launchers: Object.fromEntries(
+        Object.entries(allLaunchers).filter(([key]) => !asCollections.has(key)),
+      ),
       menus,
       gamelists,
       themes: themes.value,
