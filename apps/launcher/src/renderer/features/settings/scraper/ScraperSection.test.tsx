@@ -102,6 +102,53 @@ describe('ScraperSection (FR-SCR-3, US-D6)', () => {
     ).toBeInTheDocument();
   });
 
+  it('Test saves the typed developer pair (trimmed) before testing it', async () => {
+    const user = userEvent.setup();
+    let stored = status({ devId: false, devPassword: false });
+    const bridge = installFakeBridge({
+      'scraper.credentials.status': () => ok(stored),
+      'scraper.credentials.set': () => {
+        stored = status();
+        return ok(stored);
+      },
+      'scraper.test': () =>
+        stored.devId
+          ? ok({ user: null, requestsToday: 1, maxRequestsPerDay: 20000 })
+          : err('NO_CREDENTIALS', 'errors.noCredentials'),
+    });
+    renderInShell(<ScraperSection />);
+    await user.click(await screen.findByText('Developer credentials'));
+    await user.type(screen.getByLabelText('Developer id'), ' dev1 ');
+    await user.type(screen.getByLabelText('Developer password'), 'pw2');
+    await user.click(screen.getByRole('button', { name: 'Test' }));
+
+    expect(await screen.findByText(/1 of 20000 requests today/)).toBeInTheDocument();
+    expect(bridge.calls).toContainEqual({
+      channel: 'scraper.credentials.set',
+      input: { devId: 'dev1', devPassword: 'pw2' },
+    });
+    expect(bridge.channels().indexOf('scraper.credentials.set')).toBeLessThan(
+      bridge.channels().indexOf('scraper.test'),
+    );
+  });
+
+  it('Remove empties anything still typed in the fields', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      'scraper.credentials.status': () => ok(status()),
+      'scraper.credentials.set': () =>
+        ok(status({ devId: false, devPassword: false, user: false, password: false })),
+    });
+    renderInShell(<ScraperSection />);
+    await user.type(await screen.findByLabelText('User name'), 'player1');
+    await user.click(screen.getByRole('button', { name: 'Remove credentials' }));
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Remove' }),
+    );
+    expect(await screen.findByText('Credentials removed.')).toBeInTheDocument();
+    expect(screen.getByLabelText('User name')).toHaveValue('');
+  });
+
   it('Remove asks first, then clears every credential', async () => {
     const user = userEvent.setup();
     const bridge = installFakeBridge({

@@ -278,6 +278,27 @@ describe('ScreenScraperClient (FR-SCR-1)', () => {
     expect(quota.state()).toMatchObject({ requestsToday: 12, maxPerDay: 20000 });
   });
 
+  it('user() with only the developer pair checks it via ssinfraInfos (ssuserInfos would 403)', async () => {
+    const { client, server } = setup(
+      {
+        'ssinfraInfos.php': () => ({ body: apiBody({ serveurs: {} }) }),
+        'ssuserInfos.php': () => ({ status: 403 }),
+      },
+      { ...TEST_CREDENTIALS, user: null, password: null },
+    );
+    expect(await client.user()).toEqual({});
+    expect(server.callsTo('ssinfraInfos.php')).toHaveLength(1);
+    expect(server.callsTo('ssuserInfos.php')).toHaveLength(0);
+  });
+
+  it('user() with a wrong developer pair still fails as SCRAPER_CREDENTIALS', async () => {
+    const { client } = setup(
+      { 'ssinfraInfos.php': () => ({ status: 403 }) },
+      { ...TEST_CREDENTIALS, user: null, password: null },
+    );
+    expect(await codeOf(client.user())).toBe('SCRAPER_CREDENTIALS');
+  });
+
   it('download returns the bytes and content type; a failure is SCRAPER_NETWORK', async () => {
     const { client } = setup({
       'mediaJeu.php': (params) =>

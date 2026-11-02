@@ -10,7 +10,7 @@ type Field = 'user' | 'password' | 'devId' | 'devPassword';
 const EMPTY: Record<Field, string> = { user: '', password: '', devId: '', devPassword: '' };
 
 const INPUT =
-  'w-64 rounded-md border border-white/10 bg-black/30 px-2 py-1 text-xs text-white placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
+  'w-64 rounded-md border border-white/25 bg-white/[0.07] px-2.5 py-1.5 text-xs text-white placeholder:text-slate-400 hover:border-white/40 focus-visible:border-white/60 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
 const BUTTON =
   'rounded-md bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20 disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
 
@@ -25,12 +25,25 @@ export function CredentialsFields({ status }: { status: CredentialStatus }) {
   const [notice, setNotice] = useState<string | null>(null);
   const save = useSetCredentials();
   const test = useTestCredentials();
-  const typed = Object.entries(values).filter(([, value]) => value !== '');
+  // Pasted values often carry a stray space or newline; ScreenScraper would reject them.
+  const typed = Object.entries(values)
+    .map(([field, value]) => [field, value.trim()] as const)
+    .filter(([, value]) => value !== '');
   const devMissing = !status.devId || !status.devPassword;
+  const saveTyped = (then?: () => void) => {
+    setNotice(null);
+    save.mutate(Object.fromEntries(typed), {
+      onSuccess: () => {
+        setValues(EMPTY);
+        setNotice('settings.scraper.savedNotice');
+        then?.();
+      },
+    });
+  };
 
   const input = (field: Field, secret: boolean) => (
-    <label className="flex items-center justify-between gap-4 text-xs text-slate-200">
-      {t(`settings.scraper.${field}`)}
+    <label className="flex items-center gap-3 text-xs text-slate-200">
+      <span className="w-36 shrink-0">{t(`settings.scraper.${field}`)}</span>
       <input
         type={secret ? 'password' : 'text'}
         autoComplete="off"
@@ -80,13 +93,7 @@ export function CredentialsFields({ status }: { status: CredentialStatus }) {
           type="button"
           disabled={!status.available || typed.length === 0 || save.isPending}
           onClick={() => {
-            setNotice(null);
-            save.mutate(Object.fromEntries(typed), {
-              onSuccess: () => {
-                setValues(EMPTY);
-                setNotice('settings.scraper.savedNotice');
-              },
-            });
+            saveTyped();
           }}
           className={BUTTON}
         >
@@ -94,9 +101,17 @@ export function CredentialsFields({ status }: { status: CredentialStatus }) {
         </button>
         <button
           type="button"
-          disabled={test.isPending}
+          disabled={test.isPending || save.isPending}
           onClick={() => {
-            test.mutate();
+            // Test what is on screen: typed values are saved first, else Test would check the
+            // previously stored ones (or none) while the fields look filled in.
+            if (typed.length > 0 && status.available) {
+              saveTyped(() => {
+                test.mutate();
+              });
+            } else {
+              test.mutate();
+            }
           }}
           className={BUTTON}
         >
@@ -110,6 +125,7 @@ export function CredentialsFields({ status }: { status: CredentialStatus }) {
               { devId: null, devPassword: null, user: null, password: null },
               {
                 onSuccess: () => {
+                  setValues(EMPTY);
                   setNotice('settings.scraper.removed');
                 },
               },

@@ -24,6 +24,8 @@ describe('scraper runtime (FR-SCR-3)', () => {
       secrets: memorySecrets({
         'screenscraper.devId': 'd',
         'screenscraper.devPassword': 'p',
+        'screenscraper.user': 'player1',
+        'screenscraper.password': 'pw',
       }),
       cacheFile: ':memory:',
       log: { warn: () => undefined },

@@ -155,6 +155,13 @@ export class ScreenScraperClient {
 
   /** The account (or anonymous user) and its quota; never cached. */
   async user(): Promise<SsUser> {
+    // ssuserInfos.php answers 403 without a user account even when the developer pair is valid;
+    // ssinfraInfos.php checks just the developer pair, so an anonymous Test can still pass.
+    const credentials = await this.deps.credentials();
+    if (credentials && !credentials.user) {
+      await this.request('ssinfraInfos.php', {});
+      return {};
+    }
     const response = await this.request('ssuserInfos.php', {});
     return isRecord(response?.['ssuser']) ? response['ssuser'] : {};
   }
