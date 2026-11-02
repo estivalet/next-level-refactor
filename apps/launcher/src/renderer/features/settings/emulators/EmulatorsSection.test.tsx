@@ -144,4 +144,19 @@ describe('EmulatorsSection', () => {
       'retroarch:genesis_plus_gx_libretro',
     ]);
   });
+
+  it('FR-EMU-9: the mount tool path can be chosen and cleared; empty says where it is looked for', async () => {
+    const user = userEvent.setup();
+    const { saved } = setup({}, 'D:\\Tools\\mountsquashfs.exe');
+    const tool = await screen.findByRole('group', { name: 'squashfs mount tool' });
+    expect(within(tool).getByText(/NextLevel tools folder/)).toBeVisible();
+    await user.click(within(tool).getByRole('button', { name: 'Choose…' }));
+    expect(await within(tool).findByText('D:\\Tools\\mountsquashfs.exe')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => {
+      expect(saved()?.tools.squashfsMount).toBe('D:\\Tools\\mountsquashfs.exe');
+    });
+    await user.click(within(tool).getByRole('button', { name: 'Clear' }));
+    expect(within(tool).getByText(/NextLevel tools folder/)).toBeVisible();
+  });
 });

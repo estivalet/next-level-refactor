@@ -11,7 +11,16 @@ function openToken(text: string): { start: number; prefix: string } | null {
 }
 
 /** The message of a template's first problem (FR-EMU-3), or null. */
-export function useTemplateError(value: string, where: 'arg' | 'value'): string | null {
+export type TemplatePlace = 'arg' | 'value' | 'entry';
+
+/** Whether a token may be offered where the template is (FR-EMU-3, FR-EMU-9). */
+function offered(token: string, where: TemplatePlace): boolean {
+  if (token === 'extraArgs' || token === 'entryArgs') return where === 'arg';
+  if (token === 'entry') return where === 'entry';
+  return true;
+}
+
+export function useTemplateError(value: string, where: TemplatePlace): string | null {
   const { t } = useTranslation();
   const issue = templateIssues(value, where)[0];
   if (!issue) return null;
@@ -33,7 +42,7 @@ export function TokenInput({
 }: {
   value: string;
   label: string;
-  where: 'arg' | 'value';
+  where: TemplatePlace;
   placeholder?: string;
   onChange: (value: string) => void;
 }) {
@@ -46,8 +55,7 @@ export function TokenInput({
   const tokens = open
     ? TEMPLATE_TOKENS.filter(
         (token) =>
-          token.toLowerCase().startsWith(open.prefix.toLowerCase()) &&
-          (where === 'arg' || token !== 'extraArgs'),
+          token.toLowerCase().startsWith(open.prefix.toLowerCase()) && offered(token, where),
       )
     : [];
   const insert = (token: string) => {

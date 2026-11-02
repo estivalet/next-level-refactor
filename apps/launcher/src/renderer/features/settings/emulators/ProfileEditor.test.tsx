@@ -167,6 +167,64 @@ describe('ProfileEditor (FR-EMU-3, FR-EMU-5, US-D1)', () => {
     expect(editor.getByText('E:\\roms\\Racer.z64')).toBeVisible();
   });
 
+  it('FR-EMU-2: a profile can switch squashfs to Mount and saves it', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup();
+    const editor = await openEditor(user);
+    await user.selectOptions(
+      editor.getByRole('combobox', { name: 'squashfs images (.wsquashfs)' }),
+      'mount',
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const call = bridge.calls.find((c) => c.channel === 'settings.save');
+    expect(call?.input).toMatchObject({ settings: { profiles: [{ squashfs: 'mount' }] } });
+  });
+
+  it('FR-EMU-2: entry rules can be added, reordered and removed; {entry} in a file field shows an error', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup();
+    const editor = await openEditor(user);
+    await user.click(editor.getByRole('button', { name: 'Add game file rule' }));
+    await user.click(editor.getByRole('button', { name: 'Add game file rule' }));
+    const file1 = editor.getByRole('textbox', { name: 'File of rule 1' });
+    await user.type(file1, '{{entry}');
+    expect(editor.getByText(/only in a rule’s arguments/)).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await user.clear(file1);
+    await user.type(file1, '{{gameDir}\\a.singe');
+    await user.type(
+      editor.getByRole('textbox', { name: 'Arguments of rule 1' }),
+      '-script {{entry}',
+    );
+    const file2 = editor.getByRole('textbox', { name: 'File of rule 2' });
+    await user.type(file2, '{{gameDir}\\a.zip');
+    await user.type(editor.getByRole('textbox', { name: 'Arguments of rule 2' }), '-zlua {{entry}');
+    await user.click(editor.getByRole('button', { name: 'Move rule 2 up' }));
+    await user.click(editor.getByRole('button', { name: 'Remove rule 2' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const call = bridge.calls.find((c) => c.channel === 'settings.save');
+    expect(call?.input).toMatchObject({
+      settings: {
+        profiles: [{ entries: [{ file: '{gameDir}\\a.zip', args: ['-zlua', '{entry}'] }] }],
+      },
+    });
+  });
+
+  it('FR-EMU-2: an arguments file can be set and cleared', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup();
+    const editor = await openEditor(user);
+    await user.type(
+      editor.getByRole('textbox', { name: 'Arguments file' }),
+      '{{gameDir}\\{{romName}.commands',
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const call = bridge.calls.find((c) => c.channel === 'settings.save');
+    expect(call?.input).toMatchObject({
+      settings: { profiles: [{ argsFile: '{gameDir}\\{romName}.commands' }] },
+    });
+  });
+
   it('FR-EMU-2: a new profile needs a system before it can be saved', async () => {
     const user = userEvent.setup();
     setup();

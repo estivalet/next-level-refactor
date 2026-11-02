@@ -1,5 +1,6 @@
 import {
   ARCHIVE_MODES,
+  SQUASHFS_MODES,
   type Emulator,
   type EmulatorProfile,
   type GameRow,
@@ -10,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { INPUT } from '../../library/Modal.tsx';
 import { ArgsEditor } from './ArgsEditor.tsx';
 import { CommandPreview } from './CommandPreview.tsx';
+import { EntryRulesEditor } from './EntryRulesEditor.tsx';
 import { EnvEditor } from './EnvEditor.tsx';
 import { GamePicker } from './GamePicker.tsx';
 import { SystemPicker } from './SystemPicker.tsx';
@@ -20,7 +22,8 @@ const LABEL = 'mb-1 block text-[11px] text-slate-400';
 
 /**
  * The emulator profile editor (S9): name, systems, argument templates with token autocomplete,
- * working folder, core, archives and environment, with a live preview and Test launch.
+ * working folder, core, archives, squashfs mounting, game file rules, an arguments file and
+ * environment, with a live preview and Test launch.
  */
 export function ProfileEditor({
   profile,
@@ -49,7 +52,7 @@ export function ProfileEditor({
   const set = <K extends keyof EmulatorProfile>(key: K, value: EmulatorProfile[K]) => {
     onChange((current) => ({ ...current, [key]: value }));
   };
-  const optional = (key: 'cwd' | 'core', value: string) => {
+  const optional = (key: 'cwd' | 'core' | 'argsFile', value: string) => {
     // An empty field removes the key, so the default ({emulatorDir}, no core) applies.
     onChange((current) =>
       value === ''
@@ -154,6 +157,46 @@ export function ProfileEditor({
           ))}
         </select>
       </label>
+      <label className="text-xs">
+        <span className={LABEL}>{t('settings.emulators.editor.squashfs')}</span>
+        <select
+          value={profile.squashfs}
+          onChange={(event) => {
+            set('squashfs', event.target.value as EmulatorProfile['squashfs']);
+          }}
+          className={INPUT}
+        >
+          {SQUASHFS_MODES.map((mode) => (
+            <option key={mode} value={mode}>
+              {t(
+                mode === 'pass'
+                  ? 'settings.emulators.editor.squashfsPass'
+                  : 'settings.emulators.editor.squashfsMount',
+              )}
+            </option>
+          ))}
+        </select>
+      </label>
+      <EntryRulesEditor
+        entries={profile.entries}
+        onChange={(entries) => {
+          set('entries', entries);
+        }}
+      />
+      <div className="text-xs">
+        <span className={LABEL}>{t('settings.emulators.editor.argsFile')}</span>
+        <TokenInput
+          value={profile.argsFile ?? ''}
+          where="value"
+          label={t('settings.emulators.editor.argsFile')}
+          onChange={(value) => {
+            optional('argsFile', value);
+          }}
+        />
+        <p className="mt-1 text-[11px] text-slate-500">
+          {t('settings.emulators.editor.argsFileHelp')}
+        </p>
+      </div>
       <EnvEditor
         env={profile.env}
         errors={envErrors}

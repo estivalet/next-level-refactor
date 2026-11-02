@@ -71,6 +71,45 @@ export function EmulatorsSection({ focus }: { focus?: FocusRequest }) {
                 {t('settings.emulators.find')}
               </button>
             </div>
+            <fieldset
+              aria-label={t('settings.emulators.mountTool')}
+              className="flex flex-col gap-1 rounded-lg border border-white/10 p-3 text-xs"
+            >
+              <legend className="px-1 text-[11px] text-slate-400">
+                {t('settings.emulators.mountTool')}
+              </legend>
+              <p className="text-[11px] text-slate-500">{t('settings.emulators.mountToolHelp')}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                {draft.tools.squashfsMount ? (
+                  <code className="break-all text-slate-200">{draft.tools.squashfsMount}</code>
+                ) : (
+                  <span className="text-slate-400">{t('settings.emulators.mountToolAuto')}</span>
+                )}
+                <button
+                  type="button"
+                  className={SECONDARY_BUTTON}
+                  onClick={() => {
+                    void pickExecutable(t('settings.emulators.mountToolPick')).then((path) => {
+                      if (!path) return;
+                      update((s) => ({ ...s, tools: { ...s.tools, squashfsMount: path } }));
+                    });
+                  }}
+                >
+                  {t('settings.emulators.mountToolChoose')}
+                </button>
+                {draft.tools.squashfsMount && (
+                  <button
+                    type="button"
+                    className={SECONDARY_BUTTON}
+                    onClick={() => {
+                      update((s) => ({ ...s, tools: { ...s.tools, squashfsMount: null } }));
+                    }}
+                  >
+                    {t('settings.emulators.mountToolClear')}
+                  </button>
+                )}
+              </div>
+            </fieldset>
             {editing && editingEmulator && (
               <ProfileEditor
                 key={editing.id}
