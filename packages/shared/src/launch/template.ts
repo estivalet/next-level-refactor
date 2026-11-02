@@ -13,18 +13,29 @@ export const TEMPLATE_TOKENS = [
   'emulatorDir',
   'core',
   'extraArgs',
+  /** The folder holding the game's files: the mounted image's drive, a game folder, or romDir. */
+  'gameDir',
+  /** The file an entry rule matched; only inside that rule's args. */
+  'entry',
+  /** Alone in an arg: the args of the first entry rule whose file exists. */
+  'entryArgs',
 ] as const;
 
 export type TemplateToken = (typeof TEMPLATE_TOKENS)[number];
 
 export type TemplateIssue = {
-  message: 'unknownToken' | 'unclosedBrace' | 'extraArgsAlone';
+  message:
+    'unknownToken' | 'unclosedBrace' | 'extraArgsAlone' | 'entryOnlyInRules' | 'entryArgsAlone';
   token?: string;
   index: number;
 };
 
-export type TokenContext = Record<Exclude<TemplateToken, 'extraArgs'>, string> & {
+/** Tokens that expand to several argv elements and must stand alone. */
+type ListToken = 'extraArgs' | 'entryArgs';
+
+export type TokenContext = Record<Exclude<TemplateToken, ListToken>, string> & {
   extraArgs: readonly string[];
+  entryArgs: readonly string[];
 };
 
 type Part = { kind: 'text'; text: string } | { kind: 'token'; name: string; index: number };
@@ -66,10 +77,14 @@ function scan(template: string): { parts: Part[]; issues: TemplateIssue[] } {
 }
 
 /**
- * Problems in one template. `arg` is one argv element, where `{extraArgs}` may stand alone;
- * `value` is a cwd or env value, where it may not appear at all.
+ * Problems in one template. `arg` is one argv element, where `{extraArgs}` and `{entryArgs}` may
+ * stand alone; `value` is a cwd, env or file value, where they may not appear at all; `entry` is
+ * an entry rule's arg, the only place `{entry}` may appear.
  */
-export function templateIssues(template: string, where: 'arg' | 'value'): TemplateIssue[] {
+export function templateIssues(
+  template: string,
+  where: 'arg' | 'value' | 'entry',
+): TemplateIssue[] {
   const { parts, issues } = scan(template);
   for (const part of parts) {
     if (part.kind !== 'token') continue;
@@ -77,6 +92,10 @@ export function templateIssues(template: string, where: 'arg' | 'value'): Templa
       issues.push({ message: 'unknownToken', token: part.name, index: part.index });
     } else if (part.name === 'extraArgs' && (where === 'value' || parts.length > 1)) {
       issues.push({ message: 'extraArgsAlone', token: part.name, index: part.index });
+    } else if (part.name === 'entryArgs' && (where !== 'arg' || parts.length > 1)) {
+      issues.push({ message: 'entryArgsAlone', token: part.name, index: part.index });
+    } else if (part.name === 'entry' && where !== 'entry') {
+      issues.push({ message: 'entryOnlyInRules', token: part.name, index: part.index });
     }
   }
   return issues.sort((a, b) => a.index - b.index);
@@ -87,24 +106,26 @@ export function usesToken(template: string, token: TemplateToken): boolean {
   return scan(template).parts.some((part) => part.kind === 'token' && part.name === token);
 }
 
-/** Renders a template that has no issues; `{extraArgs}` is not allowed here. */
+/** Renders a template that has no issues; `{extraArgs}`/`{entryArgs}` are not allowed here. */
 export function renderValue(template: string, ctx: TokenContext): string {
   return scan(template)
     .parts.map((part) => {
       if (part.kind === 'text') return part.text;
-      if (part.name === 'extraArgs' || !KNOWN.has(part.name)) {
+      if (part.name === 'extraArgs' || part.name === 'entryArgs' || !KNOWN.has(part.name)) {
         throw new Error(`token {${part.name}} can't be rendered here`);
       }
-      return ctx[part.name as Exclude<TemplateToken, 'extraArgs'>];
+      return ctx[part.name as Exclude<TemplateToken, ListToken>];
     })
     .join('');
 }
 
-/** Renders a profile's args into argv; an element that is exactly `{extraArgs}` expands in place. */
+/** Renders args into argv; an element that is exactly `{extraArgs}`/`{entryArgs}` expands in place. */
 export function renderArgs(args: readonly string[], ctx: TokenContext): string[] {
-  return args.flatMap((arg) =>
-    arg === '{extraArgs}' ? [...ctx.extraArgs] : [renderValue(arg, ctx)],
-  );
+  return args.flatMap((arg) => {
+    if (arg === '{extraArgs}') return [...ctx.extraArgs];
+    if (arg === '{entryArgs}') return [...ctx.entryArgs];
+    return [renderValue(arg, ctx)];
+  });
 }
 
 /** Quotes one element the way CommandLineToArgvW reads it back. */

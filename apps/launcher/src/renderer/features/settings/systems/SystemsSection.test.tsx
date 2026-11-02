@@ -176,6 +176,8 @@ describe('SystemsSection review fixes', () => {
       systems,
       args: ['{rom}'],
       archives: 'pass' as const,
+      squashfs: 'pass' as const,
+      entries: [],
       env: {},
     });
     const { saved } = setup(

@@ -15,6 +15,8 @@ const profile: EmulatorProfile = {
   args: ['-L', '{emulatorDir}\\cores\\{core}.dll', '{extraArgs}', '{rom}'],
   core: 'mupen64plus_next_libretro',
   archives: 'pass',
+  squashfs: 'pass',
+  entries: [],
   env: {},
 };
 const ROM = 'E:\\roms\\Nintendo 64\\Pokémon & Friends (USA) [!] 100%.z64';

@@ -19,6 +19,9 @@ const ctx: TokenContext = {
   emulatorDir: 'E:\\emu',
   core: 'some_libretro',
   extraArgs: ['--extra'],
+  gameDir: 'E:\\roms\\Sys',
+  entry: '',
+  entryArgs: [],
 };
 
 describe('emulator presets (FR-EMU-7)', () => {

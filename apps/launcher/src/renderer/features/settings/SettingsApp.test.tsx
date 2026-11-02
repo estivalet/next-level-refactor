@@ -119,6 +119,8 @@ describe('SettingsApp', () => {
           systems: ['nintendo-64'],
           args: ['{rom}'],
           archives: 'pass' as const,
+          squashfs: 'pass' as const,
+          entries: [],
           env: {},
         },
       ],

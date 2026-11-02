@@ -22,8 +22,8 @@ export function sameFolder(a: string, b: string): boolean {
 }
 
 /**
- * Rewrites storage locations, the art and theme folders, the central media folder and emulator
- * executables under `from` to the same place under `to`; `changed` counts the paths rewritten.
+ * Rewrites storage locations, the art and theme folders, the central media folder, emulator
+ * executables and the squashfs mount tool under `from` to the same place under `to`; `changed` counts the paths rewritten.
  */
 export function relocatePaths(
   settings: Settings,
@@ -55,6 +55,7 @@ export function relocatePaths(
       ...emulator,
       executable: move(emulator.executable),
     })),
+    tools: { ...settings.tools, squashfsMount: moveOptional(settings.tools.squashfsMount) },
   };
   return { settings: next, changed };
 }

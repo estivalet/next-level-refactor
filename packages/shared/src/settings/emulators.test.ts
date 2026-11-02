@@ -91,4 +91,37 @@ describe('emulator settings (FR-EMU-2, FR-EMU-4)', () => {
     };
     expect(issues(input)).toEqual([]);
   });
+
+  it('FR-EMU-9: a profile defaults to squashfs pass, no entries, no argsFile', () => {
+    const profile = SettingsSchema.parse(withProfile({})).profiles[0];
+    expect(profile?.squashfs).toBe('pass');
+    expect(profile?.entries).toEqual([]);
+    expect(profile?.argsFile).toBeUndefined();
+  });
+
+  it('FR-EMU-9: mount, entry rules and an args file parse', () => {
+    const profile = SettingsSchema.parse(
+      withProfile({
+        squashfs: 'mount',
+        entries: [{ file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] }],
+        argsFile: '{gameDir}\\{romName}.commands',
+      }),
+    ).profiles[0];
+    expect(profile?.squashfs).toBe('mount');
+    expect(profile?.entries).toHaveLength(1);
+  });
+
+  it('FR-EMU-9: an entry rule with an unknown token fails on save', () => {
+    const bad = withProfile({ entries: [{ file: '{gameDir}\\{nope}', args: ['{entry}'] }] });
+    expect(issues(bad)[0]?.path).toEqual(['profiles', 0, 'entries', 0, 'file']);
+    const noArgs = withProfile({ entries: [{ file: '{gameDir}\\x', args: [] }] });
+    expect(issues(noArgs)[0]?.path).toEqual(['profiles', 0, 'entries', 0, 'args']);
+  });
+
+  it('FR-EMU-9: the mount tool defaults to null and must be an absolute .exe', () => {
+    expect(SettingsSchema.parse(withProfile({})).tools.squashfsMount).toBeNull();
+    expect(
+      issues({ ...withProfile({}), tools: { squashfsMount: 'mountsquashfs.exe' } })[0]?.path,
+    ).toEqual(['tools', 'squashfsMount']);
+  });
 });

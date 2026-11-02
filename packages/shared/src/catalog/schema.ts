@@ -28,6 +28,13 @@ export const SystemDefinitionSchema = z.object({
   defaultFolderName: z.string().min(1),
   multiDisc: z.boolean().optional(),
   scraper: z.object({ screenscraperId: z.number().int().positive().optional() }),
+  /**
+   * How a scan walks the system folder: `topLevelOnly` skips sub-folders; `ignore` lists file
+   * name patterns (`*` = any characters, case-insensitive) that are never games.
+   */
+  scan: z
+    .object({ topLevelOnly: z.boolean().optional(), ignore: z.array(z.string()).optional() })
+    .optional(),
   /** Emulator preset profile ids, best first (filled in M3). */
   presetProfiles: z.array(z.string()),
   /** Earlier names, used by the NextLevelOS importer. */
@@ -61,6 +68,12 @@ export const PresetProfileSchema = z.object({
    * the runner's autoboot pair the profile drops.
    */
   autobootDelay: z.string().regex(/^\d+$/).optional(),
+  /** FR-EMU-9: mount `.wsquashfs` images first (checked as a profile when added). */
+  squashfs: z.enum(['pass', 'mount']).optional(),
+  /** FR-EMU-9: game file rules, see `EntryRuleSchema`. */
+  entries: z.array(z.object({ file: z.string(), args: z.array(z.string()).min(1) })).optional(),
+  /** FR-EMU-9: a file of extra words added before the game's extra args. */
+  argsFile: z.string().optional(),
 });
 
 export const EmulatorPresetSchema = z.object({
@@ -68,6 +81,8 @@ export const EmulatorPresetSchema = z.object({
   name: z.string().min(1),
   /** File names that identify the emulator, used to suggest the preset (case-insensitive). */
   executableNames: z.array(z.string().min(1)).min(1),
+  /** The executable is a Windows program in `%SystemRoot%\System32` (e.g. cmd.exe). */
+  windowsTool: z.boolean().optional(),
   homepage: z.url(),
   profiles: z.array(PresetProfileSchema).min(1),
 });

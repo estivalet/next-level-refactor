@@ -46,6 +46,9 @@ export function tokenContext(input: CommandInput): TokenContext {
     emulatorDir: win32.dirname(input.emulator.executable),
     core: input.core,
     extraArgs: input.extraArgs,
+    gameDir: win32.dirname(input.romPath),
+    entry: '',
+    entryArgs: [],
   };
 }
 

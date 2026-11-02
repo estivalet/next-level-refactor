@@ -107,6 +107,8 @@ describe('EmulatorsSection', () => {
           systems: ['nintendo-gamecube'],
           args: ['{rom}'],
           archives: 'pass',
+          squashfs: 'pass',
+          entries: [],
           env: {},
         },
       ],

@@ -129,6 +129,8 @@ export function EmulatorsSection({ focus }: { focus?: FocusRequest }) {
                           systems: [],
                           args: ['{rom}'],
                           archives: 'pass',
+                          squashfs: 'pass',
+                          entries: [],
                           env: {},
                         },
                       ],

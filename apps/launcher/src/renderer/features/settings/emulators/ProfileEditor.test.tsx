@@ -51,6 +51,8 @@ function setup(
         systems: ['nintendo-64'],
         args: ['-L', '{rom}'],
         archives: 'pass',
+        squashfs: 'pass',
+        entries: [],
         env: {},
       },
     ],

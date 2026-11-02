@@ -86,6 +86,8 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
         args: ['-L', '{emulatorDir}\\cores\\{core}.dll', '{rom}'],
         core: 'n64_libretro',
         archives: 'pass',
+        squashfs: 'pass',
+        entries: [],
         env: {},
       },
     ],

@@ -41,6 +41,8 @@ function plainProfile(
         systems: [systemId],
         args: ['{rom}'],
         archives: 'pass',
+        squashfs: 'pass',
+        entries: [],
         env: {},
       },
     ],

@@ -15,6 +15,8 @@ const profile = (id: string, systems: string[]): EmulatorProfile => ({
   systems,
   args: ['{rom}'],
   archives: 'pass',
+  squashfs: 'pass',
+  entries: [],
   env: {},
 });
 

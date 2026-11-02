@@ -89,4 +89,15 @@ describe('relocatePaths (D50, Review Focus 5: a moved NextLevel folder)', () => 
     ]);
     expect(changed).toBe(2);
   });
+
+  it('FR-EMU-9: the squashfs mount tool follows the NextLevel folder', () => {
+    const base = settingsWith({});
+    const { settings, changed } = relocatePaths(
+      { ...base, tools: { squashfsMount: 'E:\\NextLevel\\tools\\mountsquashfs.exe' } },
+      'E:\\NextLevel',
+      'F:\\NextLevel',
+    );
+    expect(settings.tools.squashfsMount).toBe('F:\\NextLevel\\tools\\mountsquashfs.exe');
+    expect(changed).toBe(1);
+  });
 });

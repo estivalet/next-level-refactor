@@ -219,4 +219,36 @@ describe('removing (FR-EMU-4)', () => {
     expect(after.emulators).toHaveLength(1);
     expect(after.systems['nintendo-gamecube']).toEqual({ enabled: true });
   });
+
+  it('FR-EMU-7: a preset profile brings its squashfs mode, entry rules and args file', () => {
+    const settings = addEmulator(enabled('singe'), {
+      preset: {
+        id: 'hypseus',
+        name: 'Hypseus Singe',
+        executableNames: ['hypseus.exe'],
+        homepage: 'https://github.com/DirtBagXon/hypseus-singe',
+        profiles: [
+          {
+            id: 'hypseus:default',
+            name: 'Hypseus Singe',
+            systems: ['singe'],
+            args: ['{entryArgs}'],
+            archives: 'pass',
+            squashfs: 'mount',
+            entries: [{ file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] }],
+            argsFile: '{gameDir}\\{romName}.commands',
+          },
+        ],
+      },
+      executable: 'E:\\emu\\hypseus.exe',
+      newId,
+    });
+    const profile = settings.profiles[0];
+    expect(profile?.squashfs).toBe('mount');
+    expect(profile?.entries).toEqual([
+      { file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] },
+    ]);
+    expect(profile?.argsFile).toBe('{gameDir}\\{romName}.commands');
+    expect(SettingsSchema.safeParse(settings).success).toBe(true);
+  });
 });

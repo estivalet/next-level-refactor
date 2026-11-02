@@ -20,6 +20,9 @@ const ctx: TokenContext = {
   emulatorDir: 'E:\\emu\\ra',
   core: 'x',
   extraArgs: [],
+  gameDir: 'E:\\r',
+  entry: '',
+  entryArgs: [],
 };
 
 describe('launch template (FR-EMU-3)', () => {
@@ -35,6 +38,9 @@ describe('launch template (FR-EMU-3)', () => {
       'emulatorDir',
       'core',
       'extraArgs',
+      'gameDir',
+      'entry',
+      'entryArgs',
     ]);
   });
 
@@ -110,5 +116,34 @@ describe('launch template (FR-EMU-3)', () => {
     expect(usesToken('{emulatorDir}/cores/{core}.dll', 'core')).toBe(true);
     expect(usesToken('{{core}}', 'core')).toBe(false);
     expect(usesToken('{rom}', 'core')).toBe(false);
+  });
+
+  it('FR-EMU-3: {entry} is valid only inside entry rule args', () => {
+    expect(templateIssues('-script {entry}', 'entry')).toEqual([]);
+    expect(templateIssues('{entry}', 'arg')[0]?.message).toBe('entryOnlyInRules');
+    expect(templateIssues('{entry}', 'value')[0]?.message).toBe('entryOnlyInRules');
+  });
+
+  it('FR-EMU-3: {entryArgs} stands alone in args', () => {
+    expect(templateIssues('{entryArgs}', 'arg')).toEqual([]);
+    expect(templateIssues('x{entryArgs}', 'arg')[0]?.message).toBe('entryArgsAlone');
+    expect(templateIssues('{entryArgs}', 'value')[0]?.message).toBe('entryArgsAlone');
+    expect(templateIssues('{entryArgs}', 'entry')[0]?.message).toBe('entryArgsAlone');
+  });
+
+  it('FR-EMU-3: {gameDir} is valid everywhere', () => {
+    expect(templateIssues('{gameDir}\\{romName}.txt', 'arg')).toEqual([]);
+    expect(templateIssues('{gameDir}', 'value')).toEqual([]);
+    expect(templateIssues('{gameDir}\\{romName}.singe', 'entry')).toEqual([]);
+  });
+
+  it('FR-EMU-3: renderArgs expands {entryArgs} in place', () => {
+    const c = { ...ctx, gameDir: 'Q:', entry: '', entryArgs: ['-script', 'Q:\\a.singe'] };
+    expect(renderArgs(['singe', '{entryArgs}', '-fullscreen'], c)).toEqual([
+      'singe',
+      '-script',
+      'Q:\\a.singe',
+      '-fullscreen',
+    ]);
   });
 });

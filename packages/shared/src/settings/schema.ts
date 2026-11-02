@@ -110,6 +110,14 @@ const OptionalFolderSchema = z
   .nullable()
   .default(null);
 
+/** An optional absolute `.exe` path (a helper tool); null = found automatically. */
+const OptionalExecutableSchema = z
+  .string()
+  .trim()
+  .refine((path) => ABSOLUTE_PATH.test(path) && /\.exe$/i.test(path), { message: 'notExecutable' })
+  .nullable()
+  .default(null);
+
 /** Where scraped media is written and indexed (FR-SCR-4): next to the ROMs or one central folder. */
 export const MediaLocationSchema = z.discriminatedUnion('mode', [
   z.object({ mode: z.literal('perRomFolder') }),
@@ -170,6 +178,13 @@ export const SettingsSchema = z
     systems: z.record(z.string(), SystemSettingsSchema).default({}),
     emulators: z.array(EmulatorSchema).default([]),
     profiles: z.array(EmulatorProfileSchema).default([]),
+    /** Helper programs launches use (FR-EMU-9). */
+    tools: z
+      .object({
+        /** `mountsquashfs.exe`; null = `<root>\tools\` or next to the emulators folder. */
+        squashfsMount: OptionalExecutableSchema,
+      })
+      .prefault({}),
     // Theme ids are kept even when unknown (a newer launcher's theme); they fall back to Big Box
     // where they are used.
     themes: z
