@@ -1,6 +1,6 @@
 import { app, nativeImage } from 'electron';
 import { existsSync, statSync } from 'node:fs';
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defaultSettings } from '@nextlevel/shared';
 import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
@@ -143,6 +143,9 @@ export function startLibrary(
   const launches = new LaunchRepository(db);
   // FR-EMU-9: a crashed run may have left a mount behind; the record lives in the data folder.
   const mountRecord = fileMountRecord(join(dataDir, 'mounts.json'));
+  // e2e only (development builds): "mounting" shows this folder as the drive; releasing it
+  // leaves `unmounted.txt` there.
+  const fakeMount = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_FAKE_MOUNT'];
   const launch = new LaunchService({
     settings: () => currentSettings(settings),
     system: getSystem,
@@ -158,20 +161,30 @@ export function startLibrary(
     baseEnv,
     log,
     mountTool: (emulator) =>
-      findMountTool({
-        configured: currentSettings(settings).tools.squashfsMount,
-        root: host.root,
-        emulatorExecutable: emulator.executable,
-        exists: existsSync,
-      }),
+      fakeMount
+        ? 'fake-mount'
+        : findMountTool({
+            configured: currentSettings(settings).tools.squashfsMount,
+            root: host.root,
+            emulatorExecutable: emulator.executable,
+            exists: existsSync,
+          }),
     mounterFor: (tool) =>
-      squashoverlayMounter({
-        tool,
-        spawnTool: spawnMountTool,
-        driveExists,
-        record: mountRecord,
-        log,
-      }),
+      fakeMount
+        ? {
+            mount: () =>
+              Promise.resolve({
+                root: fakeMount,
+                unmount: () => writeFile(join(fakeMount, 'unmounted.txt'), 'released'),
+              }),
+          }
+        : squashoverlayMounter({
+            tool,
+            spawnTool: spawnMountTool,
+            driveExists,
+            record: mountRecord,
+            log,
+          }),
     overlayRoot: join(dataDir, 'squashfs-overlay'),
     isDirectory: (path) => {
       try {
