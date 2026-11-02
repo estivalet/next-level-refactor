@@ -1,5 +1,6 @@
 import type { SystemCatalog, SystemDefinition } from '@nextlevel/shared';
 import { XMLParser } from 'fast-xml-parser';
+import { SYSTEM_TWEAKS } from './presetTables.ts';
 
 // Builds the system catalog from NextLevelOS data plus ES-DE's es_systems.xml (MIT). Pure, so the
 // seed's decisions are tested on fixtures; seed.ts only reads files and writes the result.
@@ -178,7 +179,8 @@ export function buildCatalog(input: SeedInput): { catalog: SystemCatalog; report
       (aliasTarget ? byEsName.get(aliasTarget) : undefined) ?? byFullname.get(matchKey(name));
     if (!es) report.unmatchedEs.push(name);
     const romext = normalizeExtensions(input.launchers[name]?.romext ?? []);
-    let extensions = es ? withoutLauncherFiles(es.extensions) : romext;
+    const tweak = SYSTEM_TWEAKS[name];
+    let extensions = tweak?.extensions ?? (es ? withoutLauncherFiles(es.extensions) : romext);
     if (extensions.length === 0) {
       extensions = normalizeExtensions(input.globalExtensions);
       report.fallbackExtensions.push(name);
@@ -196,6 +198,7 @@ export function buildCatalog(input: SeedInput): { catalog: SystemCatalog; report
       scraper: screenscraperId ? { screenscraperId } : {},
       presetProfiles: [],
       aliases: [name],
+      ...(tweak?.scan ? { scan: tweak.scan } : {}),
     };
   });
 

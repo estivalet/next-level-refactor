@@ -167,6 +167,85 @@ describe('emulator presets (FR-EMU-7)', () => {
   it('FR-EMU-7: emulators without a preset are reported', () => {
     expect(built().skipped).toContain('Sega Model 2: model2');
   });
+
+  describe('Laserdisc and VHS (FR-EMU-9)', () => {
+    const LASERDISC = {
+      Singe: ['hypseus_singe'],
+      'Mattel Captain Power': ['hypseus_singe'],
+      'Sega Video Driver': ['hypseus_singe'],
+      'WoW Action Max': ['hypseus_singe'],
+      Daphne: ['hypseus'],
+      'VM Labs Nuon': ['script'],
+      'Pioneer LaserActive': ['script'],
+      'Coleco Telstar': ['script'],
+    };
+    const laserdisc = () =>
+      buildPresets(
+        input({
+          systemEmulators: LASERDISC,
+          systemIds: new Map(Object.keys(LASERDISC).map((name) => [name, slugify(name)])),
+        }),
+      );
+    const find = (id: string) =>
+      laserdisc()
+        .catalog.presets.flatMap((preset) => preset.profiles)
+        .find((p) => p.id === id);
+
+    it('FR-EMU-7: Singe, Captain Power, Video Driver and Action Max get hypseus:default; Daphne gets hypseus:daphne', () => {
+      const { presetProfiles } = laserdisc();
+      for (const id of ['singe', 'mattel-captain-power', 'sega-video-driver', 'wow-action-max']) {
+        expect(presetProfiles[id]).toEqual(['hypseus:default']);
+      }
+      expect(presetProfiles['daphne']).toEqual(['hypseus:daphne']);
+      expect(find('hypseus:default')).toMatchObject({
+        squashfs: 'mount',
+        args: [
+          'singe',
+          'vldp',
+          '-framefile',
+          '{gameDir}\\{romName}.txt',
+          '{entryArgs}',
+          '-fullscreen',
+          '-opengl',
+          '{extraArgs}',
+        ],
+      });
+      expect(find('hypseus:default')?.entries?.map((rule) => rule.file)).toEqual([
+        '{gameDir}\\{romName}.singe',
+        '{gameDir}\\{romName}.zip',
+        '{gameDir}\\*.zip',
+      ]);
+      expect(find('hypseus:daphne')).toMatchObject({
+        squashfs: 'mount',
+        argsFile: '{gameDir}\\{romName}.commands',
+      });
+      expect(find('hypseus:daphne')?.args.slice(0, 2)).toEqual(['{romName}', 'vldp']);
+    });
+
+    it('FR-EMU-7: script systems (VM Labs Nuon, Pioneer LaserActive, Coleco Telstar) get script:default', () => {
+      const { presetProfiles, catalog } = laserdisc();
+      for (const id of ['vm-labs-nuon', 'pioneer-laseractive', 'coleco-telstar']) {
+        expect(presetProfiles[id]).toEqual(['script:default']);
+      }
+      expect(find('script:default')).toMatchObject({
+        args: ['/d', '/s', '/c', '""{rom}""', '{extraArgs}'],
+        cwd: '{romDir}',
+      });
+      expect(catalog.presets.find((preset) => preset.id === 'script')?.windowsTool).toBe(true);
+    });
+
+    it('FR-EMU-9: new preset templates and rules are valid profile templates', () => {
+      const { catalog } = laserdisc();
+      expect(PresetCatalogSchema.parse(catalog)).toEqual(catalog);
+      for (const p of catalog.presets.flatMap((preset) => preset.profiles)) {
+        for (const rule of p.entries ?? []) {
+          expect(templateIssues(rule.file, 'value')).toEqual([]);
+          for (const arg of rule.args) expect(templateIssues(arg, 'entry')).toEqual([]);
+        }
+        if (p.argsFile) expect(templateIssues(p.argsFile, 'value')).toEqual([]);
+      }
+    });
+  });
 });
 
 describe('mameProfileArgs', () => {

@@ -1,7 +1,7 @@
 // Hand-written preset data the runner can't provide as plain tables. Arguments are in the runner's
 // placeholder form (%ROM_PATH%, %SYSTEM_PATH%) and go through mameProfileArgs like parsed ones.
 
-export interface StandaloneSpec {
+export interface StandaloneSpec extends GameFileSpec {
   id: string;
   name: string;
   executableNames: string[];
@@ -13,9 +13,22 @@ export interface StandaloneSpec {
   /** Runner emulator keys (SYSTEM_EMULATORS values) this preset replaces. */
   runnerKeys: string[];
   /** Runner keys that start the emulator differently: their systems get `<id>:<suffix>`. */
-  variants?: Record<string, { suffix: string; name: string; args: string[] }>;
+  variants?: Record<string, { suffix: string; name: string; args: string[] } & GameFileSpec>;
+  /** Working folder template (default `{emulatorDir}`). */
+  cwd?: string;
+  /** The program is a Windows tool in System32 (cmd.exe), found without a folder to search. */
+  windowsTool?: boolean;
+  /** A game's extra args go at the end (Hypseus wants `<game> vldp` first), not the front. */
+  extraArgsLast?: boolean;
   /** NextLevelOS system names to add after the runner's choices. */
   extraSystems: string[];
+}
+
+/** FR-EMU-9 profile parts: squashfs mounting, game file rules and an args file. */
+export interface GameFileSpec {
+  squashfs?: 'pass' | 'mount';
+  entries?: Array<{ file: string; args: string[] }>;
+  argsFile?: string;
 }
 
 export const RETROARCH = {
@@ -227,7 +240,88 @@ export const STANDALONE: readonly StandaloneSpec[] = [
     runnerKeys: ['yape'],
     extraSystems: [],
   },
+  {
+    // https://github.com/DirtBagXon/hypseus-singe (the runner's HypseusSingeEmulatorLauncher and
+    // HypseusEmulatorLauncher, FR-EMU-9). Images are mounted; the game's files are found by name:
+    // `<game>.singe` (script), `<game>.zip` (Lua zip), or the system's one shared Lua zip with
+    // `-usealt <game>` (hypseus_singe_data 00-zip-roms).
+    id: 'hypseus',
+    name: 'Hypseus Singe',
+    executableNames: ['hypseus.exe'],
+    homepage: 'https://github.com/DirtBagXon/hypseus-singe',
+    args: [
+      'singe',
+      'vldp',
+      '-framefile',
+      '{gameDir}\\{romName}.txt',
+      '{entryArgs}',
+      '-fullscreen',
+      '-opengl',
+    ],
+    archives: 'pass',
+    squashfs: 'mount',
+    entries: [
+      { file: '{gameDir}\\{romName}.singe', args: ['-script', '{entry}'] },
+      { file: '{gameDir}\\{romName}.zip', args: ['-zlua', '{entry}'] },
+      { file: '{gameDir}\\*.zip', args: ['-zlua', '{entry}', '-usealt', '{romName}'] },
+    ],
+    extraArgsLast: true,
+    runnerKeys: ['hypseus_singe'],
+    variants: {
+      hypseus: {
+        suffix: 'daphne',
+        name: 'Hypseus (Daphne)',
+        args: [
+          '{romName}',
+          'vldp',
+          '-framefile',
+          '{gameDir}\\{romName}.txt',
+          '-fullscreen',
+          '-opengl',
+          '-fastboot',
+          '-force_aspect_ratio',
+        ],
+        squashfs: 'mount',
+        entries: [],
+        argsFile: '{gameDir}\\{romName}.commands',
+      },
+    },
+    extraSystems: [],
+  },
+  {
+    // https://learn.microsoft.com/windows-server/administration/windows-commands/cmd — the game
+    // is a .bat/.cmd (the runner's `script` systems). `/s` strips one pair of quotes, so the
+    // inner pair keeps a name with spaces, & or ( ) whole; spawned with verbatim arguments.
+    id: 'script',
+    name: 'Script (.bat/.cmd)',
+    executableNames: ['cmd.exe'],
+    windowsTool: true,
+    homepage: 'https://learn.microsoft.com/windows-server/administration/windows-commands/cmd',
+    args: ['/d', '/s', '/c', '""{rom}""'],
+    cwd: '{romDir}',
+    archives: 'pass',
+    extraArgsLast: true,
+    runnerKeys: ['script'],
+    extraSystems: [],
+  },
 ];
+
+/**
+ * Per-system catalog changes (NextLevelOS name → change) for systems whose games aren't the
+ * extension lists' usual files (FR-EMU-9 Laserdisc and VHS): images, game folders, framefiles,
+ * scripts. `scan` keeps support files (docs, `_README.txt`, per-game asset folders) out.
+ */
+export const SYSTEM_TWEAKS: Readonly<
+  Record<string, { extensions?: string[]; scan?: { topLevelOnly?: boolean; ignore?: string[] } }>
+> = {
+  Daphne: { extensions: ['wsquashfs'] },
+  Singe: { extensions: ['wsquashfs', 'hypseus'] },
+  'Mattel Captain Power': { extensions: ['txt'], scan: { topLevelOnly: true, ignore: ['_*'] } },
+  'Sega Video Driver': { extensions: ['txt'], scan: { topLevelOnly: true, ignore: ['_*'] } },
+  'WoW Action Max': { extensions: ['txt'], scan: { topLevelOnly: true, ignore: ['_*'] } },
+  'Pioneer LaserActive': { extensions: ['bat'], scan: { topLevelOnly: true } },
+  'VM Labs Nuon': { extensions: ['bat'], scan: { topLevelOnly: true } },
+};
 
 export interface MameVariant {
   /** Absent for the system's default profile. */

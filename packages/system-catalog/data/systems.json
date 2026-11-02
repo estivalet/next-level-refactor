@@ -357,6 +357,7 @@
       "defaultFolderName": "Adventure Game Studio",
       "scraper": {},
       "presetProfiles": [
+        "script:default",
         "scummvm:default"
       ],
       "aliases": [
@@ -1067,7 +1068,9 @@
       "scraper": {
         "screenscraperId": 171
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Atari Jaguar CD"
       ]
@@ -2402,7 +2405,9 @@
       ],
       "defaultFolderName": "Coleco Telstar",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Coleco Telstar"
       ]
@@ -2445,7 +2450,9 @@
       ],
       "defaultFolderName": "Commander X16",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Commander X16"
       ]
@@ -2925,19 +2932,15 @@
       "name": "Daphne",
       "kind": "other",
       "extensions": [
-        "daphne",
-        "dirksimple",
-        "mmi",
-        "ogv",
-        "singe",
-        "7z",
-        "zip"
+        "wsquashfs"
       ],
       "defaultFolderName": "Daphne",
       "scraper": {
         "screenscraperId": 49
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "hypseus:daphne"
+      ],
       "aliases": [
         "Daphne"
       ]
@@ -6103,43 +6106,22 @@
       "manufacturer": "Mattel",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
-        "xbox360"
+        "txt"
       ],
       "defaultFolderName": "Mattel Captain Power",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "hypseus:default"
+      ],
       "aliases": [
         "Mattel Captain Power"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ]
+      }
     },
     {
       "id": "mattel-hyperscan",
@@ -6417,7 +6399,9 @@
       ],
       "defaultFolderName": "Microsoft MSX Remakes",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Microsoft MSX Remakes"
       ]
@@ -6878,7 +6862,9 @@
       ],
       "defaultFolderName": "MUGEN",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "MUGEN"
       ]
@@ -8177,7 +8163,9 @@
       ],
       "defaultFolderName": "Nintendo NES 3D",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Nintendo NES 3D"
       ]
@@ -8198,7 +8186,9 @@
       ],
       "defaultFolderName": "Nintendo NES HD",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Nintendo NES HD"
       ]
@@ -8526,7 +8516,9 @@
       "scraper": {
         "screenscraperId": 30
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Nokia N-GAGE"
       ]
@@ -9206,7 +9198,9 @@
       "scraper": {
         "screenscraperId": 143
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Pinball FX2"
       ]
@@ -9251,7 +9245,9 @@
       "scraper": {
         "screenscraperId": 201
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Pinball FX3"
       ]
@@ -9380,7 +9376,9 @@
       ],
       "defaultFolderName": "PinballArcade",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "PinballArcade"
       ]
@@ -9390,43 +9388,19 @@
       "name": "Pioneer LaserActive",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
-        "xbox360"
+        "bat"
       ],
       "defaultFolderName": "Pioneer LaserActive",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Pioneer LaserActive"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true
+      }
     },
     {
       "id": "pokkito",
@@ -9466,7 +9440,9 @@
       ],
       "defaultFolderName": "Pokkito",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Pokkito"
       ]
@@ -11605,43 +11581,22 @@
       "manufacturer": "Sega",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
-        "xbox360"
+        "txt"
       ],
       "defaultFolderName": "Sega Video Driver",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "hypseus:default"
+      ],
       "aliases": [
         "Sega Video Driver"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ]
+      }
     },
     {
       "id": "sega-vmu",
@@ -12178,40 +12133,14 @@
       "name": "Singe",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
-        "xbox360"
+        "wsquashfs",
+        "hypseus"
       ],
       "defaultFolderName": "Singe",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "hypseus:default"
+      ],
       "aliases": [
         "Singe"
       ]
@@ -14986,43 +14915,19 @@
       "name": "VM Labs Nuon",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
-        "xbox360"
+        "bat"
       ],
       "defaultFolderName": "VM Labs Nuon",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "VM Labs Nuon"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true
+      }
     },
     {
       "id": "voltmace-database",
@@ -15524,45 +15429,24 @@
       "name": "WoW Action Max",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
-        "xbox360"
+        "txt"
       ],
       "defaultFolderName": "WoW Action Max",
       "scraper": {
         "screenscraperId": 81
       },
-      "presetProfiles": [],
+      "presetProfiles": [
+        "hypseus:default"
+      ],
       "aliases": [
         "WoW Action Max"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ]
+      }
     },
     {
       "id": "yamaha-copera",
@@ -15692,7 +15576,9 @@
       ],
       "defaultFolderName": "Zaccaria Pinball",
       "scraper": {},
-      "presetProfiles": [],
+      "presetProfiles": [
+        "script:default"
+      ],
       "aliases": [
         "Zaccaria Pinball"
       ]

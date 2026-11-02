@@ -178,9 +178,16 @@ export function buildPresets(input: PresetInput): PresetResult {
   if (raProfiles.length > 0) presets.push({ ...RETROARCH, profiles: byId(raProfiles) });
   if (mameProfiles.length > 0) presets.push({ ...MAME, profiles: byId(mameProfiles) });
   for (const spec of STANDALONE) {
-    const { id, name, executableNames, homepage, archives, env } = spec;
+    const { id, name, executableNames, homepage, archives, env, cwd, windowsTool } = spec;
     const shapes = [
-      { suffix: 'default', name, args: spec.args },
+      {
+        suffix: 'default',
+        name,
+        args: spec.args,
+        squashfs: spec.squashfs,
+        entries: spec.entries,
+        argsFile: spec.argsFile,
+      },
       ...Object.values(spec.variants ?? {}),
     ];
     const profiles = shapes.flatMap((shape): PresetProfile[] => {
@@ -191,14 +198,30 @@ export function buildPresets(input: PresetInput): PresetResult {
           id: `${id}:${shape.suffix}`,
           name: shape.name,
           systems,
-          // FR-EMU-4: a game's extra arguments go first, before flags like `-e {rom}` or `-- {rom}`.
-          args: ['{extraArgs}', ...shape.args],
+          // FR-EMU-4: a game's extra arguments go first, before flags like `-e {rom}` or `-- {rom}`,
+          // unless the emulator wants its own words first (Hypseus: `<game> vldp`).
+          args: spec.extraArgsLast
+            ? [...shape.args, '{extraArgs}']
+            : ['{extraArgs}', ...shape.args],
+          ...(cwd ? { cwd } : {}),
           archives,
           ...(env ? { env } : {}),
+          ...(shape.squashfs ? { squashfs: shape.squashfs } : {}),
+          ...(shape.entries?.length ? { entries: shape.entries } : {}),
+          ...(shape.argsFile ? { argsFile: shape.argsFile } : {}),
         },
       ];
     });
-    if (profiles.length > 0) presets.push({ id, name, executableNames, homepage, profiles });
+    if (profiles.length > 0) {
+      presets.push({
+        id,
+        name,
+        executableNames,
+        ...(windowsTool ? { windowsTool } : {}),
+        homepage,
+        profiles,
+      });
+    }
   }
   return { catalog: { source: input.source, presets }, presetProfiles, skipped };
 }

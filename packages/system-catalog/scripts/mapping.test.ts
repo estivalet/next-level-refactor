@@ -116,6 +116,20 @@ describe('buildCatalog', () => {
     ]);
   });
 
+  it('FR-EMU-1: system tweaks set Singe extensions to wsquashfs + hypseus and txt systems to top level without _ files', () => {
+    const launchers = { Singe: {}, 'Sega Video Driver': {}, Daphne: {} };
+    const { catalog } = buildCatalog(input({ launchers, aliases: {} }));
+    const byName = new Map(catalog.systems.map((s) => [s.name, s]));
+    expect(byName.get('Singe')?.extensions).toEqual(['wsquashfs', 'hypseus']);
+    expect(byName.get('Singe')?.scan).toBeUndefined();
+    expect(byName.get('Daphne')?.extensions).toEqual(['wsquashfs']);
+    expect(byName.get('Sega Video Driver')).toMatchObject({
+      extensions: ['txt'],
+      scan: { topLevelOnly: true, ignore: ['_*'] },
+    });
+    expect(SystemCatalogSchema.parse(catalog)).toEqual(catalog);
+  });
+
   it('the report lists systems that fell back to the global list', () => {
     expect(buildCatalog(input()).report.fallbackExtensions).toEqual([
       'Arcade (MAME)',

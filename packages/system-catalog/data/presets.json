@@ -5479,6 +5479,126 @@
           "archives": "pass"
         }
       ]
+    },
+    {
+      "id": "hypseus",
+      "name": "Hypseus Singe",
+      "executableNames": [
+        "hypseus.exe"
+      ],
+      "homepage": "https://github.com/DirtBagXon/hypseus-singe",
+      "profiles": [
+        {
+          "id": "hypseus:default",
+          "name": "Hypseus Singe",
+          "systems": [
+            "mattel-captain-power",
+            "sega-video-driver",
+            "singe",
+            "wow-action-max"
+          ],
+          "args": [
+            "singe",
+            "vldp",
+            "-framefile",
+            "{gameDir}\\{romName}.txt",
+            "{entryArgs}",
+            "-fullscreen",
+            "-opengl",
+            "{extraArgs}"
+          ],
+          "archives": "pass",
+          "squashfs": "mount",
+          "entries": [
+            {
+              "file": "{gameDir}\\{romName}.singe",
+              "args": [
+                "-script",
+                "{entry}"
+              ]
+            },
+            {
+              "file": "{gameDir}\\{romName}.zip",
+              "args": [
+                "-zlua",
+                "{entry}"
+              ]
+            },
+            {
+              "file": "{gameDir}\\*.zip",
+              "args": [
+                "-zlua",
+                "{entry}",
+                "-usealt",
+                "{romName}"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "hypseus:daphne",
+          "name": "Hypseus (Daphne)",
+          "systems": [
+            "daphne"
+          ],
+          "args": [
+            "{romName}",
+            "vldp",
+            "-framefile",
+            "{gameDir}\\{romName}.txt",
+            "-fullscreen",
+            "-opengl",
+            "-fastboot",
+            "-force_aspect_ratio",
+            "{extraArgs}"
+          ],
+          "archives": "pass",
+          "squashfs": "mount",
+          "argsFile": "{gameDir}\\{romName}.commands"
+        }
+      ]
+    },
+    {
+      "id": "script",
+      "name": "Script (.bat/.cmd)",
+      "executableNames": [
+        "cmd.exe"
+      ],
+      "windowsTool": true,
+      "homepage": "https://learn.microsoft.com/windows-server/administration/windows-commands/cmd",
+      "profiles": [
+        {
+          "id": "script:default",
+          "name": "Script (.bat/.cmd)",
+          "systems": [
+            "adventure-game-studio",
+            "atari-jaguar-cd",
+            "coleco-telstar",
+            "commander-x16",
+            "microsoft-msx-remakes",
+            "mugen",
+            "nintendo-nes-3d",
+            "nintendo-nes-hd",
+            "nokia-n-gage",
+            "pinball-fx2",
+            "pinball-fx3",
+            "pinballarcade",
+            "pioneer-laseractive",
+            "pokkito",
+            "vm-labs-nuon",
+            "zaccaria-pinball"
+          ],
+          "args": [
+            "/d",
+            "/s",
+            "/c",
+            "\"\"{rom}\"\"",
+            "{extraArgs}"
+          ],
+          "cwd": "{romDir}",
+          "archives": "pass"
+        }
+      ]
     }
   ]
 }

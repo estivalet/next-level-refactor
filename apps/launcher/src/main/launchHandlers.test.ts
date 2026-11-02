@@ -156,6 +156,11 @@ describe('emulators.detect (D6)', () => {
       value: [
         { presetId: 'dolphin', executable: join(temp.dir, 'consoles', 'gc', 'Dolphin.exe') },
         { presetId: 'retroarch', executable: join(temp.dir, 'retroarch', 'RetroArch.exe') },
+        // FR-EMU-9: the Script preset's cmd.exe comes from Windows itself.
+        {
+          presetId: 'script',
+          executable: join(process.env['SystemRoot'] ?? 'C:\\Windows', 'System32', 'cmd.exe'),
+        },
       ],
     });
   });

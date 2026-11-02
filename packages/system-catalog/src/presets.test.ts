@@ -1,9 +1,10 @@
-import { renderArgs, templateIssues, type TokenContext } from '@nextlevel/shared';
+import { renderArgs, renderValue, templateIssues, type TokenContext } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import {
   emulatorPresets,
   getPreset,
   getPresetProfile,
+  getSystem,
   presetForExecutable,
   systemCatalog,
 } from './index.ts';
@@ -68,5 +69,22 @@ describe('emulator presets (FR-EMU-7)', () => {
     expect(presetForExecutable('notepad.exe')).toBeUndefined();
     expect(getPreset('dolphin')?.name).toBe('Dolphin');
     expect(getPresetProfile('dolphin:default')?.preset.id).toBe('dolphin');
+  });
+
+  it('FR-EMU-9: the Script preset runs "FreeFall 3050 A.D.bat" as one quoted cmd argument', () => {
+    const script = getPresetProfile('script:default')?.profile;
+    if (!script) throw new Error('no script preset');
+    const dir = 'E:\\NextLevel\\systems\\VM Labs Nuon';
+    const rom = `${dir}\\FreeFall 3050 A.D.bat`;
+    const game = { ...ctx, rom, romDir: dir, extraArgs: [] };
+    expect(renderArgs(script.args, game)).toEqual(['/d', '/s', '/c', `""${rom}""`]);
+    expect(renderValue(script.cwd ?? '', game)).toBe(dir);
+  });
+
+  it('FR-EMU-9: the Laserdisc systems suggest the Hypseus and Script presets', () => {
+    expect(getSystem('singe')?.presetProfiles).toEqual(['hypseus:default']);
+    expect(getSystem('daphne')?.presetProfiles).toEqual(['hypseus:daphne']);
+    expect(getSystem('vm-labs-nuon')?.presetProfiles).toEqual(['script:default']);
+    expect(presetForExecutable('HYPSEUS.EXE')?.id).toBe('hypseus');
   });
 });

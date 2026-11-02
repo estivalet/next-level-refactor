@@ -1,4 +1,5 @@
 import type { DetectedEmulator, EmulatorPreset } from '@nextlevel/shared';
+import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -7,17 +8,29 @@ const MAX_DEPTH = 2;
 
 /**
  * Preset executables in a folder and its subfolders up to two levels deep (owner decision D6),
- * matched by file name ignoring case. Unreadable folders are skipped.
+ * matched by file name ignoring case. Unreadable folders are skipped. When the folder exists,
+ * Windows tools (`windowsTool` presets: cmd.exe for Script games) come from System32.
  */
 export async function detectEmulators(
   folder: string,
   presets: readonly EmulatorPreset[],
+  windowsDir = process.env['SystemRoot'] ?? 'C:\\Windows',
 ): Promise<DetectedEmulator[]> {
   const byName = new Map<string, string>();
+  const found: DetectedEmulator[] = [];
+  const tools = presets.filter((preset) => preset.windowsTool);
   for (const preset of presets) {
+    if (preset.windowsTool) continue;
     for (const name of preset.executableNames) byName.set(name.toLowerCase(), preset.id);
   }
-  const found: DetectedEmulator[] = [];
+  if (existsSync(folder)) {
+    for (const preset of tools) {
+      for (const name of preset.executableNames) {
+        const path = join(windowsDir, 'System32', name);
+        if (existsSync(path)) found.push({ presetId: preset.id, executable: path });
+      }
+    }
+  }
   const visit = async (dir: string, depth: number): Promise<void> => {
     const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
