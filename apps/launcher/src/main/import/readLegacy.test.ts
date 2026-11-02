@@ -1,7 +1,7 @@
 import { chmod, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { readLegacy, runnerSystem } from './readLegacy.ts';
+import { collectionLaunchers, readLegacy, runnerSystem } from './readLegacy.ts';
 import { legacyCopy, type LegacyCopy } from './testing.ts';
 
 async function filesBelow(dir: string): Promise<string[]> {
@@ -110,5 +110,84 @@ describe('runnerSystem', () => {
     expect(runnerSystem(launchers, 'Handy Vision')).toBe('Nintendo NES');
     expect(runnerSystem(launchers, 'Plain')).toBe('Plain');
     expect(runnerSystem(launchers, 'Unknown')).toBe('Unknown');
+  });
+});
+
+describe('collectionLaunchers', () => {
+  const launcher = { command: 'x.exe "%romname%"', rompath: [] };
+  const launchers = {
+    Singe: launcher,
+    'American Laser Games': launcher,
+    Daphne: launcher,
+    Zemmix: launcher,
+    'Microsoft MSX': launcher,
+  };
+  const menus = [
+    {
+      file: 'menu.json',
+      menu: {
+        title: 'Menu',
+        items: [
+          {
+            name: 'Laserdisc and VHS',
+            items: [
+              { name: 'American Laser Games', type: 'collection' },
+              { name: 'Daphne', type: 'collection' },
+              { name: 'Singe', type: 'system' },
+            ],
+          },
+          { name: 'Zemmix', type: 'system' },
+        ],
+      },
+    },
+    {
+      file: 'menu-full.json',
+      menu: { title: 'Full', items: [{ name: 'zemmix', type: 'collection' }] },
+    },
+  ];
+
+  it('FR-IMP-1: a list the menus open as a collection, whose games are all elsewhere, is a collection', () => {
+    const gamelists = [
+      {
+        name: 'American Laser Games',
+        games: [
+          { filename: './crimepatrol-hd.wsquashfs', system: 'Singe' },
+          { filename: './maddog-hd.hypseus', system: 'singe' },
+        ],
+      },
+      { name: 'Singe', games: [{ filename: './crimepatrol-hd.wsquashfs' }] },
+      // Some games of its own (no system) keep it a system.
+      {
+        name: 'Daphne',
+        games: [{ filename: './astron.wsquashfs', system: 'Singe' }, { filename: './ace.zip' }],
+      },
+      // A menu opens it as a system: it stays one, wherever its games live.
+      { name: 'Zemmix', games: [{ filename: './a.rom', system: 'Microsoft MSX' }] },
+    ];
+    expect(collectionLaunchers(launchers, gamelists, menus)).toEqual(['American Laser Games']);
+  });
+
+  it('FR-IMP-1: an empty list, an unknown system, its own name or no collection node keeps a system', () => {
+    const elsewhere = [{ filename: './b.zip', system: 'Singe' }];
+    expect(
+      collectionLaunchers(
+        launchers,
+        [
+          { name: 'American Laser Games', games: [] },
+          { name: 'Daphne', games: [{ filename: './a.zip', system: 'Nowhere' }] },
+        ],
+        menus,
+      ),
+    ).toEqual([]);
+    expect(
+      collectionLaunchers(
+        launchers,
+        [{ name: 'Daphne', games: [{ filename: './a.zip', system: 'daphne' }] }],
+        menus,
+      ),
+    ).toEqual([]);
+    expect(
+      collectionLaunchers(launchers, [{ name: 'American Laser Games', games: elsewhere }], []),
+    ).toEqual([]);
   });
 });
