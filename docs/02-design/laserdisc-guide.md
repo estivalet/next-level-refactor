@@ -8,7 +8,7 @@ VM Labs Nuon. Requirement FR-EMU-9; design `docs/superpowers/specs/2026-11-01-la
 
 1. **Hypseus Singe** in the emulators folder (`<NextLevel>\emulators\hypseus_singe\hypseus.exe`).
    Settings → Emulators → *Find emulators in a folder…* (or Import NextLevelOS) adds it with its
-   two profiles.
+   three profiles.
 2. **WinFsp** installed (the installer is in `E:\NextLevel\tools\winfsp-*.msi`). It lets
    Windows show a game image as a drive.
 3. **mountsquashfs.exe** (from RetroBat) in `<NextLevel>\tools\`. The launcher also looks in the
@@ -26,9 +26,9 @@ found. The "Laserdisc and VHS" menu group shows once its systems have games.
 |---|---|---|
 | Daphne | `<game>.wsquashfs` images (holding `<game>.txt`, `<game>.commands`, video) | Hypseus (Daphne) |
 | Singe | `<game>.wsquashfs` images, or `<game>.hypseus` folders | Hypseus Singe |
-| WoW Action Max | `<game>.txt` + `<game>.singe` next to `actionmax.zip` | Hypseus Singe |
-| Mattel Captain Power | `<game>.txt` next to `captainpower.zip` | Hypseus Singe |
-| Sega Video Driver | `<game>.txt` next to `videodriver.zip` | Hypseus Singe |
+| WoW Action Max | `<game>.txt` next to `actionmax.zip` (its `<game>.singe` files are not used) | Hypseus Singe (shared Lua zip) |
+| Mattel Captain Power | `<game>.txt` next to `captainpower.zip` | Hypseus Singe (shared Lua zip) |
+| Sega Video Driver | `<game>.txt` next to `videodriver.zip` | Hypseus Singe (shared Lua zip) |
 | Pioneer LaserActive | `Hyperion.bat` | Script (.bat/.cmd) |
 | VM Labs Nuon | `<game>.bat` | Script (.bat/.cmd) |
 
@@ -48,6 +48,9 @@ collection, and whose games all belong to another system, is imported the same w
    - `<game>.singe` → `-script <file>`
    - `<game>.zip` → `-zlua <file>`
    - any `*.zip` (the system's shared Lua zip) → `-zlua <file> -usealt <game>`
+
+   The Hypseus Singe (shared Lua zip) profile has only the last rule, so WoW Action Max, which
+   also has `<game>.singe` files, still gets `-zlua actionmax.zip -usealt <game>`.
 
    Daphne reads `<game>.commands`, when present, as extra arguments.
 3. **Run** Hypseus (`singe vldp -framefile <game>.txt … -fullscreen -opengl`, or for Daphne

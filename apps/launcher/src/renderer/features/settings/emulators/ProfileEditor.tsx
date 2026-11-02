@@ -6,7 +6,7 @@ import {
   type GameRow,
 } from '@nextlevel/shared';
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { INPUT } from '../../library/Modal.tsx';
 import { ArgsEditor } from './ArgsEditor.tsx';
@@ -44,6 +44,12 @@ export function ProfileEditor({
 }) {
   const { t } = useTranslation();
   const [game, setGame] = useState<GameRow | null>(null);
+  // The editor opens above the emulator list; bring it into view when a profile is opened
+  // (it remounts per profile, keyed by id).
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
   const envErrors = Object.fromEntries(
     Object.entries(errors)
       .filter(([path]) => path.startsWith('env.'))
@@ -65,6 +71,7 @@ export function ProfileEditor({
 
   return (
     <section
+      ref={sectionRef}
       aria-label={t('settings.emulators.editor.title')}
       className="flex flex-col gap-4 rounded-lg border border-white/20 bg-white/5 p-4"
     >

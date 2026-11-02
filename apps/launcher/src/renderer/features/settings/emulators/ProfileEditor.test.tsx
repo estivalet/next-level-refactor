@@ -77,6 +77,17 @@ async function openEditor(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('ProfileEditor (FR-EMU-3, FR-EMU-5, US-D1)', () => {
+  it('US-D1: the editor scrolls into view when a profile’s edit button opens it', async () => {
+    const user = userEvent.setup();
+    const scrolled: Element[] = [];
+    vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(function (this: Element) {
+      scrolled.push(this);
+    });
+    setup();
+    await openEditor(user);
+    expect(scrolled).toContain(screen.getByRole('region', { name: 'Edit profile' }));
+  });
+
   it('US-D1: an unknown token is named under the field and Save is disabled', async () => {
     const user = userEvent.setup();
     setup();
