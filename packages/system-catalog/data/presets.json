@@ -5281,7 +5281,11 @@
             "{rom}",
             "--fullscreen"
           ],
-          "archives": "extract"
+          "archives": "extract",
+          "pointerExtensions": [
+            "m3u",
+            "xbox360"
+          ]
         }
       ]
     },

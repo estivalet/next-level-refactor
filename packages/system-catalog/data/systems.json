@@ -7023,35 +7023,6 @@
       "manufacturer": "Microsoft",
       "kind": "other",
       "extensions": [
-        "zip",
-        "7z",
-        "m3u",
-        "cue",
-        "bin",
-        "rom",
-        "img",
-        "chd",
-        "iso",
-        "gba",
-        "nes",
-        "sfc",
-        "smc",
-        "md",
-        "gen",
-        "n64",
-        "z64",
-        "v64",
-        "gb",
-        "gbc",
-        "pce",
-        "nds",
-        "3ds",
-        "cia",
-        "wbfs",
-        "gcm",
-        "nrg",
-        "mdf",
-        "cso",
         "xbox360"
       ],
       "defaultFolderName": "Microsoft XBLA",
@@ -7063,7 +7034,10 @@
       ],
       "aliases": [
         "Microsoft XBLA"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true
+      }
     },
     {
       "id": "microsoft-xbox",
@@ -7092,6 +7066,7 @@
       "manufacturer": "Microsoft",
       "kind": "other",
       "extensions": [
+        "m3u",
         "iso",
         "xex",
         "zar"
@@ -7105,7 +7080,10 @@
       ],
       "aliases": [
         "Microsoft XBOX 360"
-      ]
+      ],
+      "scan": {
+        "topLevelOnly": true
+      }
     },
     {
       "id": "midway-pc",

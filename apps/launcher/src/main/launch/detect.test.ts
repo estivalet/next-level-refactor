@@ -23,7 +23,7 @@ const preset = (id: string, executableNames: string[], windowsTool?: boolean): E
 });
 
 describe('emulator detection (FR-EMU-7)', () => {
-  it('FR-EMU-7: finds preset executables up to two folders deep', async () => {
+  it('FR-EMU-7: finds preset executables in a subfolder', async () => {
     await mkdir(join(temp.dir, 'emulators', 'hypseus_singe'), { recursive: true });
     await writeFile(join(temp.dir, 'emulators', 'hypseus_singe', 'hypseus.exe'), '');
     const found = await detectEmulators(temp.dir, [preset('hypseus', ['hypseus.exe'])], 'Z:\\none');
@@ -32,6 +32,36 @@ describe('emulator detection (FR-EMU-7)', () => {
         presetId: 'hypseus',
         executable: join(temp.dir, 'emulators', 'hypseus_singe', 'hypseus.exe'),
       },
+    ]);
+  });
+
+  it('FR-EMU-7: finds executables three folders deep (Xenia Canary layout), not four', async () => {
+    const xenia = join(temp.dir, 'xenia', 'Emulators', 'Xenia Canary');
+    const tooDeep = join(temp.dir, 'a', 'b', 'c', 'd');
+    await mkdir(xenia, { recursive: true });
+    await mkdir(tooDeep, { recursive: true });
+    await writeFile(join(xenia, 'xenia_canary.exe'), '');
+    await writeFile(join(tooDeep, 'xenia_canary.exe'), '');
+    const found = await detectEmulators(
+      temp.dir,
+      [preset('xenia-canary', ['xenia_canary.exe'])],
+      'Z:\\none',
+    );
+    expect(found).toEqual([
+      { presetId: 'xenia-canary', executable: join(xenia, 'xenia_canary.exe') },
+    ]);
+  });
+
+  it('FR-EMU-7: of several copies, the one in a folder named like the program comes first', async () => {
+    for (const folder of ['xemu-c65', 'xemu-chihiro-PLAYTEST-1', 'xemu']) {
+      await mkdir(join(temp.dir, folder), { recursive: true });
+      await writeFile(join(temp.dir, folder, 'xemu.exe'), '');
+    }
+    const found = await detectEmulators(temp.dir, [preset('xemu', ['xemu.exe'])], 'Z:\\none');
+    expect(found.map((emulator) => emulator.executable)).toEqual([
+      join(temp.dir, 'xemu', 'xemu.exe'),
+      join(temp.dir, 'xemu-c65', 'xemu.exe'),
+      join(temp.dir, 'xemu-chihiro-PLAYTEST-1', 'xemu.exe'),
     ]);
   });
 

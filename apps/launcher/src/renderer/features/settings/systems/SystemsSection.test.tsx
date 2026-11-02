@@ -178,6 +178,7 @@ describe('SystemsSection review fixes', () => {
       archives: 'pass' as const,
       squashfs: 'pass' as const,
       entries: [],
+      pointerExtensions: [],
       env: {},
     });
     const { saved } = setup(

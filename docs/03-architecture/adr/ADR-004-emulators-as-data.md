@@ -21,6 +21,9 @@ per-system argument functions. Changing an emulator means editing Python and reb
   game's files by name. WSL mounting is dropped. `.bat`/`.cmd` games run through the Script
   preset (`cmd.exe` with verbatim arguments) — the only program that gets a command line instead
   of Node's argv quoting. See `docs/superpowers/specs/2026-11-01-laserdisc-hypseus-design.md`.
+  *Amended 2026-11-02:* `pointerExtensions` (profile data, not a hook) follows Xbox 360 `.m3u` and
+  XBLA `.xbox360` pointer files: their first line names the game file inside the system folder,
+  which is launched as `{rom}` (NextLevelOS's runner did the same in `_resolve_m3u`).
 
 ## Consequences
 - Adding an emulator needs no code; Test launch gives immediate feedback.

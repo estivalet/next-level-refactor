@@ -89,6 +89,7 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
         archives: 'pass',
         squashfs: 'pass',
         entries: [],
+        pointerExtensions: [],
         env: {},
       },
     ],
@@ -199,6 +200,9 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     },
     setArchives(mode: ArchiveMode) {
       profile().archives = mode;
+    },
+    setPointerExtensions(extensions: string[]) {
+      profile().pointerExtensions = extensions;
     },
     /** The Hypseus Singe preset (plan Task 6) on this harness's game. */
     useHypseusSinge() {

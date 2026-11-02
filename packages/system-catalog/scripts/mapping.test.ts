@@ -130,6 +130,21 @@ describe('buildCatalog', () => {
     expect(SystemCatalogSchema.parse(catalog)).toEqual(catalog);
   });
 
+  it('FR-EMU-9: Xbox 360 and XBLA scan their top-level pointer files (.m3u / .xbox360)', () => {
+    const launchers = { 'Microsoft XBOX 360': {}, 'Microsoft XBLA': {} };
+    const { catalog } = buildCatalog(input({ launchers, aliases: {} }));
+    const byName = new Map(catalog.systems.map((s) => [s.name, s]));
+    expect(byName.get('Microsoft XBOX 360')).toMatchObject({
+      extensions: ['m3u', 'iso', 'xex', 'zar'],
+      scan: { topLevelOnly: true },
+    });
+    expect(byName.get('Microsoft XBLA')).toMatchObject({
+      extensions: ['xbox360'],
+      scan: { topLevelOnly: true },
+    });
+    expect(SystemCatalogSchema.parse(catalog)).toEqual(catalog);
+  });
+
   it('FR-EMU-1: extra systems (no NextLevelOS launcher) join the catalog, sorted in', () => {
     const { catalog } = buildCatalog(
       input({ extraSystems: ['Coleco Telstar Alpha', 'Nintendo 64'] }),

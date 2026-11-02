@@ -123,6 +123,7 @@ type EmulatorProfile = {
   squashfs: 'pass' | 'mount';               // default 'pass'; 'mount': a .wsquashfs is mounted as a drive first (FR-EMU-9)
   entries: EntryRule[];                     // default []; game file rules, max 16 (FR-EMU-9)
   argsFile?: string;                        // template; its words go before the game's extra args when it exists
+  pointerExtensions: string[];              // default [], max 8; a ROM with one of these extensions names the game file in its first line, relative to the system folder (Xbox 360 m3u, XBLA xbox360); that file is {rom} (FR-EMU-9)
   env: Record<string, string>;              // default {}; values are templates
   presetProfileId?: string;                 // the preset profile it was copied from
 };

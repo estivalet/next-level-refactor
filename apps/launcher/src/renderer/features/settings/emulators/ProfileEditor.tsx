@@ -20,10 +20,20 @@ import { TokenInput } from './TokenInput.tsx';
 
 const LABEL = 'mb-1 block text-[11px] text-slate-400';
 
+/** Typed extensions (`.M3U, xbox360`) as the profile stores them: lowercase, no dots, unique. */
+export function parseExtensions(text: string): string[] {
+  const words = text
+    .toLowerCase()
+    .split(/[\s,;]+/)
+    .map((word) => word.replace(/[^a-z0-9]/g, ''))
+    .filter(Boolean);
+  return [...new Set(words)].slice(0, 8);
+}
+
 /**
  * The emulator profile editor (S9): name, systems, argument templates with token autocomplete,
- * working folder, core, archives, squashfs mounting, game file rules, an arguments file and
- * environment, with a live preview and Test launch.
+ * working folder, core, archives, squashfs mounting, game file rules, an arguments file, pointer
+ * file extensions and environment, with a live preview and Test launch.
  */
 export function ProfileEditor({
   profile,
@@ -44,6 +54,8 @@ export function ProfileEditor({
 }) {
   const { t } = useTranslation();
   const [game, setGame] = useState<GameRow | null>(null);
+  // The field keeps what is typed (a trailing comma, a dot); the profile gets the parsed list.
+  const [pointerText, setPointerText] = useState(profile.pointerExtensions.join(', '));
   // The editor opens above the emulator list; bring it into view when a profile is opened
   // (it remounts per profile, keyed by id).
   const sectionRef = useRef<HTMLElement>(null);
@@ -204,6 +216,23 @@ export function ProfileEditor({
           {t('settings.emulators.editor.argsFileHelp')}
         </p>
       </div>
+      <label className="text-xs">
+        <span className={LABEL}>{t('settings.emulators.editor.pointerExtensions')}</span>
+        <input
+          type="text"
+          value={pointerText}
+          aria-label={t('settings.emulators.editor.pointerExtensions')}
+          placeholder="m3u, xbox360"
+          onChange={(event) => {
+            setPointerText(event.target.value);
+            set('pointerExtensions', parseExtensions(event.target.value));
+          }}
+          className={`${INPUT} font-mono`}
+        />
+        <span className="mt-1 block text-[11px] text-slate-500">
+          {t('settings.emulators.editor.pointerExtensionsHelp')}
+        </span>
+      </label>
       <EnvEditor
         env={profile.env}
         errors={envErrors}

@@ -109,6 +109,7 @@ describe('EmulatorsSection', () => {
           archives: 'pass',
           squashfs: 'pass',
           entries: [],
+          pointerExtensions: [],
           env: {},
         },
       ],

@@ -146,10 +146,10 @@ describe('emulators.detect (D6)', () => {
     await writeFile(join(temp.dir, ...parts), '');
   }
 
-  it('D6: finds preset executables up to two folders deep, ignoring case', async () => {
+  it('D6: finds preset executables up to three folders deep, ignoring case', async () => {
     await touch('retroarch', 'RetroArch.exe');
     await touch('consoles', 'gc', 'Dolphin.exe');
-    await touch('a', 'b', 'c', 'pcsx2-qt.exe');
+    await touch('a', 'b', 'c', 'd', 'pcsx2-qt.exe');
     await touch('notes.exe');
     expect(await router().handle('emulators.detect', { folder: temp.dir })).toEqual({
       ok: true,

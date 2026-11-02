@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SYSTEM_ID } from '../catalog/schema.ts';
+import { EXTENSION, SYSTEM_ID } from '../catalog/schema.ts';
 import { templateIssues } from '../launch/template.ts';
 
 // Emulators and launch profiles (data model §2, FR-EMU-2, ADR-004). Templates are checked when
@@ -68,6 +68,12 @@ export const EmulatorProfileSchema = z.object({
   entries: z.array(EntryRuleSchema).max(16).default([]),
   /** FR-EMU-9: a file whose words are added before the game's extra args, when it exists. */
   argsFile: template('value').optional(),
+  /**
+   * FR-EMU-9: ROM files with these extensions point to the game (Xbox 360 `.m3u`, XBLA
+   * `.xbox360`): their first line is the game's path inside the system folder, and that file is
+   * launched as `{rom}`.
+   */
+  pointerExtensions: z.array(z.string().regex(EXTENSION)).max(8).default([]),
   env: z.record(z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/), template('value')).default({}),
   /** The preset profile it was created from, if any. */
   presetProfileId: z.string().min(1).optional(),

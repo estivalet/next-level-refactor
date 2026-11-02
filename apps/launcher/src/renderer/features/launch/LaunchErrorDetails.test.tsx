@@ -43,4 +43,15 @@ describe('launch error details (US-C2, FR-EMU-9)', () => {
     expect(screen.getByText('Q:\\a.singe')).toBeInTheDocument();
     expect(screen.getByText('Q:\\a.zip')).toBeInTheDocument();
   });
+
+  it('FR-EMU-9: a pointer file naming a missing game says so and shows the path', () => {
+    installFakeBridge({});
+    renderInShell(
+      <LaunchErrorDetails
+        error={failed({ reason: 'pointerMissing', path: 'E:\\x\\content\\g' })}
+      />,
+    );
+    expect(screen.getByText(/file this game points to was not found/)).toBeInTheDocument();
+    expect(screen.getByText('E:\\x\\content\\g')).toBeInTheDocument();
+  });
 });

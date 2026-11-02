@@ -208,6 +208,7 @@ export function buildPresets(input: PresetInput): PresetResult {
         squashfs: spec.squashfs,
         entries: spec.entries,
         argsFile: spec.argsFile,
+        pointerExtensions: spec.pointerExtensions,
         cwd,
       },
       ...Object.values(spec.variants ?? {}).map((variant) => ({
@@ -234,6 +235,9 @@ export function buildPresets(input: PresetInput): PresetResult {
           ...(shape.squashfs ? { squashfs: shape.squashfs } : {}),
           ...(shape.entries?.length ? { entries: shape.entries } : {}),
           ...(shape.argsFile ? { argsFile: shape.argsFile } : {}),
+          ...(shape.pointerExtensions?.length
+            ? { pointerExtensions: shape.pointerExtensions }
+            : {}),
         },
       ];
     });

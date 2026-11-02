@@ -24,6 +24,15 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Fixed
 
+- Xbox 360 and XBLA games start in Xenia Canary: the profile's new **Pointer files** setting
+  (on for `m3u, xbox360` in the Xenia Canary preset) launches the file a game's `.m3u` /
+  `.xbox360` names in its first line, as NextLevelOS did. Xbox 360 now scans its top-level
+  `.m3u` files (it listed none, so the system had no games and was hidden from the menu), and
+  XBLA scans only its top-level `.xbox360` files (FR-EMU-9).
+- Find emulators searches three folders deep, so Xenia Canary
+  (`xenia\Emulators\Xenia Canary\xenia_canary.exe`) is found, and of several copies of one
+  program it sets up the one in a folder named like it (`xemu\xemu.exe` before
+  `xemu-chihiro-…`) (FR-EMU-7).
 - Singe and American Laser Games start: a `<game>.hypseus` folder runs with
   `-singedir <Singe folder> -script <game>.singe`, and a game image runs its Lua zip
   (`-zlua <game>.zip`), as NextLevelOS did. Before, the folder's script could not find its own

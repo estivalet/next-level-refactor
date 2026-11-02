@@ -21,7 +21,7 @@ export async function pickFolder(title: string): Promise<string | null> {
   return unwrap(await getBridge().invoke('app.pickFolder', { title }));
 }
 
-/** Preset programs in a folder, two levels deep (owner decision D6). */
+/** Preset programs in a folder, three levels deep (owner decision D6). */
 export async function detectEmulators(folder: string) {
   return unwrap(await getBridge().invoke('emulators.detect', { folder }));
 }

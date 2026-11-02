@@ -80,6 +80,8 @@ export const PresetProfileSchema = z.object({
   entries: z.array(z.object({ file: z.string(), args: z.array(z.string()).min(1) })).optional(),
   /** FR-EMU-9: a file of extra words added before the game's extra args. */
   argsFile: z.string().optional(),
+  /** FR-EMU-9: ROM extensions whose first line names the game file, see the profile field. */
+  pointerExtensions: z.array(z.string().regex(EXTENSION)).optional(),
 });
 
 export const EmulatorPresetSchema = z.object({

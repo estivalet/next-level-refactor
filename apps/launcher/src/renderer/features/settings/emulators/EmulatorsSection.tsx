@@ -170,6 +170,7 @@ export function EmulatorsSection({ focus }: { focus?: FocusRequest }) {
                           archives: 'pass',
                           squashfs: 'pass',
                           entries: [],
+                          pointerExtensions: [],
                           env: {},
                         },
                       ],

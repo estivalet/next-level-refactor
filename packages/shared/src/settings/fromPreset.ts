@@ -29,6 +29,7 @@ export function profileFromPreset(
     squashfs: preset.squashfs ?? 'pass',
     entries: (preset.entries ?? []).map((rule) => ({ file: rule.file, args: [...rule.args] })),
     ...(preset.argsFile ? { argsFile: preset.argsFile } : {}),
+    pointerExtensions: [...(preset.pointerExtensions ?? [])],
     env: { ...preset.env },
     presetProfileId: preset.id,
   };

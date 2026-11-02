@@ -17,6 +17,7 @@ const profile: EmulatorProfile = {
   archives: 'pass',
   squashfs: 'pass',
   entries: [],
+  pointerExtensions: [],
   env: {},
 };
 const ROM = 'E:\\roms\\Nintendo 64\\Pokémon & Friends (USA) [!] 100%.z64';

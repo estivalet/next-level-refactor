@@ -43,6 +43,7 @@ function plainProfile(
         archives: 'pass',
         squashfs: 'pass',
         entries: [],
+        pointerExtensions: [],
         env: {},
       },
     ],

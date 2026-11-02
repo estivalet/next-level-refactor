@@ -23,6 +23,7 @@ const profile = (id: string, systems: string[]): EmulatorProfile => ({
   archives: 'pass',
   squashfs: 'pass',
   entries: [],
+  pointerExtensions: [],
   env: {},
 });
 

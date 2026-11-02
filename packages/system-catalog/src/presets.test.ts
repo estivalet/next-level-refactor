@@ -81,6 +81,16 @@ describe('emulator presets (FR-EMU-7)', () => {
     expect(renderValue(script.cwd ?? '', game)).toBe(dir);
   });
 
+  it('FR-EMU-9: Xenia Canary follows Xbox 360 / XBLA pointer files; Xbox 360 lists its .m3u', () => {
+    expect(getPresetProfile('xenia-canary:default')?.profile).toMatchObject({
+      systems: ['microsoft-xbla', 'microsoft-xbox-360'],
+      pointerExtensions: ['m3u', 'xbox360'],
+    });
+    expect(getSystem('microsoft-xbox-360')?.extensions).toContain('m3u');
+    expect(getSystem('microsoft-xbla')?.extensions).toEqual(['xbox360']);
+    expect(getPresetProfile('xemu:default')?.profile.pointerExtensions).toBeUndefined();
+  });
+
   it('FR-EMU-9: the Laserdisc systems suggest the Hypseus and Script presets', () => {
     expect(getSystem('singe')?.presetProfiles).toEqual(['hypseus:default']);
     expect(getSystem('daphne')?.presetProfiles).toEqual(['hypseus:daphne']);

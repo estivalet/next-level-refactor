@@ -289,7 +289,7 @@ Left navigation of sections (see IA §1), right form pane.
 - **Emulators** (M3, FR-EMU-2/5/7): **Add emulator…** (choose a preset or Custom, then the
   program; picking a known program offers its preset) creates the emulator and the preset's
   profiles for enabled systems; **Find emulators in a folder…** lists preset programs found up to
-  two folders deep, checked unless already added. Each emulator shows its program and its
+  three folders deep (a copy in a folder named like the program first), checked unless already added. Each emulator shows its program and its
   profiles (virtualized) with **Change program…**, **Add from preset…** (the preset profiles it
   doesn't have, searchable), **New profile**, Edit, and Delete (asks first, naming the profile
   count; clears system defaults that named them).

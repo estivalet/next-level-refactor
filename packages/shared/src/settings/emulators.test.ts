@@ -111,6 +111,19 @@ describe('emulator settings (FR-EMU-2, FR-EMU-4)', () => {
     expect(profile?.entries).toHaveLength(1);
   });
 
+  it('FR-EMU-9: pointer extensions default to none; lowercase extensions without dots parse', () => {
+    expect(SettingsSchema.parse(withProfile({})).profiles[0]?.pointerExtensions).toEqual([]);
+    const profile = SettingsSchema.parse(withProfile({ pointerExtensions: ['m3u', 'xbox360'] }))
+      .profiles[0];
+    expect(profile?.pointerExtensions).toEqual(['m3u', 'xbox360']);
+    expect(issues(withProfile({ pointerExtensions: ['.m3u'] }))[0]?.path).toEqual([
+      'profiles',
+      0,
+      'pointerExtensions',
+      0,
+    ]);
+  });
+
   it('FR-EMU-9: an entry rule with an unknown token fails on save', () => {
     const bad = withProfile({ entries: [{ file: '{gameDir}\\{nope}', args: ['{entry}'] }] });
     expect(issues(bad)[0]?.path).toEqual(['profiles', 0, 'entries', 0, 'file']);

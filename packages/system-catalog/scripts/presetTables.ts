@@ -64,6 +64,8 @@ export interface GameFileSpec {
   squashfs?: 'pass' | 'mount';
   entries?: Array<{ file: string; args: string[] }>;
   argsFile?: string;
+  /** ROM extensions whose first line names the game file (Xbox 360 .m3u, XBLA .xbox360). */
+  pointerExtensions?: string[];
 }
 
 export const RETROARCH = {
@@ -174,6 +176,8 @@ export const STANDALONE: readonly StandaloneSpec[] = [
     homepage: 'https://xenia.jp/',
     args: ['{rom}', '--fullscreen'],
     archives: 'extract',
+    // NextLevelOS's runner reads the first line of these pointer files (_resolve_m3u).
+    pointerExtensions: ['m3u', 'xbox360'],
     runnerKeys: ['xenia_canary'],
     extraSystems: [],
   },
@@ -401,6 +405,10 @@ export const SYSTEM_TWEAKS: Readonly<
   'WoW Action Max': { extensions: ['txt'], scan: { topLevelOnly: true, ignore: ['_*'] } },
   'Pioneer LaserActive': { extensions: ['bat'], scan: { topLevelOnly: true } },
   'VM Labs Nuon': { extensions: ['bat'], scan: { topLevelOnly: true } },
+  // Games are top-level pointer files into content folders (FR-EMU-9 pointerExtensions); the
+  // content folders hold the real images and packages, which must not be scanned as games.
+  'Microsoft XBOX 360': { extensions: ['m3u', 'iso', 'xex', 'zar'], scan: { topLevelOnly: true } },
+  'Microsoft XBLA': { extensions: ['xbox360'], scan: { topLevelOnly: true } },
   ...Object.fromEntries(
     ['Coleco Telstar', ...COLECO_TELSTAR_MODELS].map((name) => [
       name,

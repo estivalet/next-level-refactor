@@ -32,6 +32,7 @@ import {
   type GameValues,
   type PreparedGame,
 } from './prepareGame.ts';
+import { followPointer } from './pointerFile.ts';
 import { resolveProfile } from './resolve.ts';
 import { locateRom, sampleRom } from './romLocation.ts';
 import type { RunningProcess, SpawnFn } from './spawnProcess.ts';
@@ -364,13 +365,24 @@ export class LaunchService {
       dest: join(this.deps.tempDir, EXTRACT_ROOT, folder),
       extractor: this.deps.extractor,
     });
+    // FR-EMU-9: an Xbox 360 .m3u / XBLA .xbox360 launches the file it points to.
+    const romPath = await followPointer({
+      romPath: rom.path,
+      systemDir: target.systemDir,
+      extensions: profile.pointerExtensions,
+      exists: this.deps.exists,
+      readText: this.deps.readText,
+    }).catch(async (error: unknown) => {
+      await rom.cleanup();
+      throw error;
+    });
     return prepareGame({
-      rom,
+      rom: { ...rom, path: romPath },
       emulator,
       profile,
       systemId: target.systemId,
       ctx: tokenContext(
-        this.commandInput(emulator, profile, { ...target, romPath: rom.path }, NO_GAME_VALUES),
+        this.commandInput(emulator, profile, { ...target, romPath }, NO_GAME_VALUES),
       ),
       deps: this.deps,
     });

@@ -53,6 +53,7 @@ function setup(
         archives: 'pass',
         squashfs: 'pass',
         entries: [],
+        pointerExtensions: [],
         env: {},
       },
     ],
@@ -233,6 +234,18 @@ describe('ProfileEditor (FR-EMU-3, FR-EMU-5, US-D1)', () => {
     const call = bridge.calls.find((c) => c.channel === 'settings.save');
     expect(call?.input).toMatchObject({
       settings: { profiles: [{ argsFile: '{gameDir}\\{romName}.commands' }] },
+    });
+  });
+
+  it('FR-EMU-9: pointer file extensions are typed as a list and saved lowercase without dots', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup();
+    const editor = await openEditor(user);
+    await user.type(editor.getByRole('textbox', { name: 'Pointer files' }), '.M3U, xbox360');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const call = bridge.calls.find((c) => c.channel === 'settings.save');
+    expect(call?.input).toMatchObject({
+      settings: { profiles: [{ pointerExtensions: ['m3u', 'xbox360'] }] },
     });
   });
 

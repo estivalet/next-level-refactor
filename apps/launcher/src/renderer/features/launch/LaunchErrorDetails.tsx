@@ -15,6 +15,8 @@ const KNOWN_REASONS = new Set([
   'mountToolMissing',
   'mountFailed',
   'entryMissing',
+  'pointerEmpty',
+  'pointerMissing',
   'ENOENT',
   'EACCES',
   'EPERM',

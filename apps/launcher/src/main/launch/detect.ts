@@ -1,15 +1,26 @@
 import type { DetectedEmulator, EmulatorPreset } from '@nextlevel/shared';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
-
-/** Folders below the chosen one that are searched (`<folder>/<a>/<b>/emu.exe`). */
-const MAX_DEPTH = 2;
+import { basename, dirname, extname, join } from 'node:path';
 
 /**
- * Preset executables in a folder and its subfolders up to two levels deep (owner decision D6),
+ * Folders below the chosen one that are searched (`<folder>/<a>/<b>/<c>/emu.exe`): three, so
+ * Xenia Canary's `xenia\Emulators\Xenia Canary\xenia_canary.exe` is found (D6, amended 2026-11-02).
+ */
+const MAX_DEPTH = 3;
+
+/** 0 when the program sits in a folder named like it (`xemu\xemu.exe`), else 1 (`xemu-c65\…`). */
+function copyRank(executable: string): number {
+  const stem = basename(executable, extname(executable)).toLowerCase();
+  return basename(dirname(executable)).toLowerCase() === stem ? 0 : 1;
+}
+
+/**
+ * Preset executables in a folder and its subfolders up to three levels deep (owner decision D6),
  * matched by file name ignoring case. Unreadable folders are skipped. When the folder exists,
- * Windows tools (`windowsTool` presets: cmd.exe for Script games) come from System32.
+ * Windows tools (`windowsTool` presets: cmd.exe for Script games) come from System32. Copies of
+ * one program are listed with the one in a folder named like it first, since the first copy is
+ * the one set up (variants like `xemu-chihiro` are other builds).
  */
 export async function detectEmulators(
   folder: string,
@@ -42,6 +53,9 @@ export async function detectEmulators(
   };
   await visit(folder, 0);
   return found.sort(
-    (a, b) => a.presetId.localeCompare(b.presetId) || a.executable.localeCompare(b.executable),
+    (a, b) =>
+      a.presetId.localeCompare(b.presetId) ||
+      copyRank(a.executable) - copyRank(b.executable) ||
+      a.executable.localeCompare(b.executable),
   );
 }

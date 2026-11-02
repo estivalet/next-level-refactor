@@ -121,6 +121,7 @@ describe('SettingsApp', () => {
           archives: 'pass' as const,
           squashfs: 'pass' as const,
           entries: [],
+          pointerExtensions: [],
           env: {},
         },
       ],
