@@ -16,7 +16,7 @@ import { readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { EmitEvent } from '../ipc/events.ts';
 import type { LaunchGame, LaunchRepository } from '../library/LaunchRepository.ts';
-import { prepareRom, type Extractor, type PreparedRom } from './archives.ts';
+import { prepareRom, type Extractor } from './archives.ts';
 import {
   buildCommand,
   tokenContext,
@@ -171,7 +171,7 @@ export class LaunchService {
         durationMs: this.deps.clock().getTime() - started.getTime(),
       };
     } finally {
-      await prepared?.cleanup();
+      await this.release(prepared);
       this.busy = false;
     }
   }
@@ -208,7 +208,7 @@ export class LaunchService {
       return { launchId };
     } catch (error) {
       if (logId !== undefined) this.logEnd(logId, null, errorCode(error), null);
-      await prepared?.cleanup();
+      await this.release(prepared);
       this.busy = false;
       throw withFix(error, profile);
     }
@@ -232,7 +232,7 @@ export class LaunchService {
       launchId: number;
       profile: EmulatorProfile;
       started: Date;
-      prepared: PreparedRom;
+      prepared: PreparedGame;
     },
   ): Promise<void> {
     let exitCode: number | null = null;
@@ -257,10 +257,11 @@ export class LaunchService {
         this.deps.launches.recordPlay(run.gameId, durationMs / 1000, ended);
       }
       this.logEnd(run.launchId, exitCode, error ? error.code : null, stderrTail || null);
-      await run.prepared.cleanup();
     } catch (failure) {
       this.deps.log.error({ error: failure, launchId: run.launchId }, 'launch bookkeeping failed');
     } finally {
+      // Always: a library error must not leave an image mounted (FR-EMU-9).
+      await this.release(run.prepared);
       this.deps.window.restore();
       this.current = null;
       this.busy = false;
@@ -278,6 +279,15 @@ export class LaunchService {
   private claim(): void {
     if (this.busy) throw launchError('ALREADY_RUNNING');
     this.busy = true;
+  }
+
+  /** Unmounts and removes the extraction; a failure is logged, never thrown (FR-EMU-8/9). */
+  private async release(prepared: PreparedGame | undefined): Promise<void> {
+    try {
+      await prepared?.cleanup();
+    } catch (error) {
+      this.deps.log.error({ error }, 'could not clean up after a launch');
+    }
   }
 
   private checkExecutable(emulator: Emulator, profile: EmulatorProfile): void {

@@ -1068,9 +1068,7 @@
       "scraper": {
         "screenscraperId": 171
       },
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Atari Jaguar CD"
       ]
@@ -2405,9 +2403,7 @@
       ],
       "defaultFolderName": "Coleco Telstar",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Coleco Telstar"
       ]
@@ -2450,9 +2446,7 @@
       ],
       "defaultFolderName": "Commander X16",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Commander X16"
       ]
@@ -6399,9 +6393,7 @@
       ],
       "defaultFolderName": "Microsoft MSX Remakes",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Microsoft MSX Remakes"
       ]
@@ -8163,9 +8155,7 @@
       ],
       "defaultFolderName": "Nintendo NES 3D",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Nintendo NES 3D"
       ]
@@ -8186,9 +8176,7 @@
       ],
       "defaultFolderName": "Nintendo NES HD",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Nintendo NES HD"
       ]
@@ -8516,9 +8504,7 @@
       "scraper": {
         "screenscraperId": 30
       },
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Nokia N-GAGE"
       ]
@@ -9198,9 +9184,7 @@
       "scraper": {
         "screenscraperId": 143
       },
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Pinball FX2"
       ]
@@ -9245,9 +9229,7 @@
       "scraper": {
         "screenscraperId": 201
       },
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Pinball FX3"
       ]
@@ -9376,9 +9358,7 @@
       ],
       "defaultFolderName": "PinballArcade",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "PinballArcade"
       ]
@@ -9440,9 +9420,7 @@
       ],
       "defaultFolderName": "Pokkito",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Pokkito"
       ]
@@ -15576,9 +15554,7 @@
       ],
       "defaultFolderName": "Zaccaria Pinball",
       "scraper": {},
-      "presetProfiles": [
-        "script:default"
-      ],
+      "presetProfiles": [],
       "aliases": [
         "Zaccaria Pinball"
       ]

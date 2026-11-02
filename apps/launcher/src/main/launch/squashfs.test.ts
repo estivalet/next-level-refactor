@@ -157,6 +157,24 @@ describe('squashfs mounting (FR-EMU-9)', () => {
     expect(record.entries).toEqual([]);
   });
 
+  it('FR-EMU-9: a mount record that cannot be written kills the tool and fails the mount', async () => {
+    const w = world({});
+    const record = { ...memoryRecord(), add: () => Promise.reject(new Error('EBUSY')) };
+    const error = await mounter(w, record)
+      .mount(IMAGE, join(temp.dir, 'ov'))
+      .catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(w.spawned[0]?.killed).toBe(true);
+  });
+
+  it('FR-EMU-9: unmount still releases the drive when the record cannot be updated', async () => {
+    const w = world({});
+    const record = { ...memoryRecord(), remove: () => Promise.reject(new Error('EPERM')) };
+    const mounted = await mounter(w, record).mount(IMAGE, join(temp.dir, 'ov'));
+    await expect(mounted.unmount()).resolves.toBeUndefined();
+    expect(w.spawned[0]?.killed).toBe(true);
+  });
+
   it('FR-EMU-9: start-up sweep kills only recorded PIDs that are still mountsquashfs.exe', async () => {
     const record = memoryRecord();
     await record.add({ pid: 10, drive: 'Z:', image: IMAGE });

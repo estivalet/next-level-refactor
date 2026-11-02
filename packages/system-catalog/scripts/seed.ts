@@ -141,6 +141,7 @@ const presets = buildPresets({
   mameArgs: parseMameArgs(runnerSource),
   gamelistCores,
   systemIds: new Map(catalog.systems.map((system) => [system.name, system.id])),
+  systemExtensions: new Map(catalog.systems.map((system) => [system.id, system.extensions])),
   source: required('source'),
 });
 for (const system of catalog.systems) {

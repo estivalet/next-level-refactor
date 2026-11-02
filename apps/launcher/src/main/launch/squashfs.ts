@@ -91,7 +91,17 @@ export function squashoverlayMounter(deps: {
       void tool.exited.then(() => {
         state.ended = true;
       });
-      await deps.record.add({ pid: tool.pid, drive, image });
+      // The record only helps after a crash: failing to update it never keeps a drive mounted.
+      const forget = () =>
+        deps.record.remove(tool.pid).catch((error: unknown) => {
+          deps.log.warn({ error, pid: tool.pid }, 'could not update the squashfs mount record');
+        });
+      try {
+        await deps.record.add({ pid: tool.pid, drive, image });
+      } catch (error) {
+        tool.kill();
+        throw error;
+      }
       const appeared = await waitFor(
         () => state.ended || deps.driveExists(letter),
         mountTimeoutMs,
@@ -99,7 +109,7 @@ export function squashoverlayMounter(deps: {
       );
       if (!appeared || state.ended) {
         tool.kill();
-        await deps.record.remove(tool.pid);
+        await forget();
         throw failed(tool.output());
       }
       let released: Promise<void> | null = null;
@@ -107,7 +117,7 @@ export function squashoverlayMounter(deps: {
         tool.kill();
         const gone = await waitFor(() => !deps.driveExists(letter), unmountTimeoutMs, pollMs);
         if (!gone) deps.log.warn({ drive, image }, 'squashfs drive still there after unmounting');
-        await deps.record.remove(tool.pid);
+        await forget();
       };
       return {
         root: drive,

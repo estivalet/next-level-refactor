@@ -20,6 +20,8 @@ export interface StandaloneSpec extends GameFileSpec {
   windowsTool?: boolean;
   /** A game's extra args go at the end (Hypseus wants `<game> vldp` first), not the front. */
   extraArgsLast?: boolean;
+  /** Only systems whose games have one of these extensions get the preset (Script: scripts). */
+  forExtensions?: string[];
   /** NextLevelOS system names to add after the runner's choices. */
   extraSystems: string[];
 }
@@ -301,6 +303,8 @@ export const STANDALONE: readonly StandaloneSpec[] = [
     cwd: '{romDir}',
     archives: 'pass',
     extraArgsLast: true,
+    // A non-script ROM through `cmd /c` would just open in its associated program.
+    forExtensions: ['bat', 'cmd', 'lnk'],
     runnerKeys: ['script'],
     extraSystems: [],
   },

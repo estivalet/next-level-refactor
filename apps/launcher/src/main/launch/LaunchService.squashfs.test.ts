@@ -85,6 +85,28 @@ describe('LaunchService with squashfs images (FR-EMU-9)', () => {
     expect(h.mounts.unmounted).toBe(1);
   });
 
+  it('FR-EMU-9: a failing unmount after a spawn failure still frees the launcher', async () => {
+    h.mounts.failUnmount = true;
+    h.spawn.failNext = true;
+    const error = await errorOf(() => h.service.play(h.gameId));
+    expect(error.details).toMatchObject({ reason: 'ENOENT' });
+    h.spawn.failNext = false;
+    h.mounts.failUnmount = false;
+    await h.service.play(h.gameId);
+    expect(h.spawn.calls).toHaveLength(2);
+  });
+
+  it('FR-EMU-9: a library error when the game ends still unmounts', async () => {
+    await h.service.play(h.gameId);
+    vi.spyOn(h.launches, 'recordPlay').mockImplementation(() => {
+      throw new Error('SQLITE_BUSY');
+    });
+    h.clock.advance(60_000);
+    h.spawn.exit(0);
+    await waitFinished();
+    expect(h.mounts.unmounted).toBe(1);
+  });
+
   it('FR-EMU-9: missing game files after mounting → entryMissing, unmounted, nothing spawned', async () => {
     h.mounts.contents = ['Agent328OB.txt'];
     const error = await errorOf(() => h.service.play(h.gameId));

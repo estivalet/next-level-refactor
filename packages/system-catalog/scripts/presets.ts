@@ -21,6 +21,8 @@ export interface PresetInput {
   gamelistCores: Record<string, string>;
   /** NextLevelOS system name → catalog id, for the systems in the catalog. */
   systemIds: ReadonlyMap<string, string>;
+  /** Catalog id → the system's extensions, for presets limited by `forExtensions`. */
+  systemExtensions?: ReadonlyMap<string, readonly string[]>;
   source: string;
 }
 
@@ -155,6 +157,17 @@ export function buildPresets(input: PresetInput): PresetResult {
           continue;
         }
         const variant = spec.variants?.[key];
+        const extensions = input.systemExtensions?.get(id);
+        if (
+          spec.forExtensions &&
+          extensions &&
+          !extensions.some((e) => spec.forExtensions?.includes(e))
+        ) {
+          skipped.push(
+            `${name}: ${key} (no ${spec.forExtensions.map((e) => `.${e}`).join('/')} games)`,
+          );
+          continue;
+        }
         addStandalone(`${spec.id}:${variant ? variant.suffix : 'default'}`, id);
       }
     }

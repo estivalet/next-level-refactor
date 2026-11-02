@@ -117,6 +117,8 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
     calls: [] as Array<{ tool: string; image: string; overlay: string }>,
     unmounted: 0,
     fail: false,
+    /** `unmount()` counts the call, then rejects (a failing cleanup). */
+    failUnmount: false,
   };
   const mounterFor = (tool: string): Mounter => ({
     mount(image, overlay) {
@@ -129,7 +131,7 @@ export async function launchHarness(options: { spawn?: SpawnFn; romFile?: string
         root: mounts.root,
         unmount: () => {
           mounts.unmounted += 1;
-          return Promise.resolve();
+          return mounts.failUnmount ? Promise.reject(new Error('EPERM')) : Promise.resolve();
         },
       });
     },

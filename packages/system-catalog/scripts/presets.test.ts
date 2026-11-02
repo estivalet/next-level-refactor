@@ -234,6 +234,23 @@ describe('emulator presets (FR-EMU-7)', () => {
       expect(catalog.presets.find((preset) => preset.id === 'script')?.windowsTool).toBe(true);
     });
 
+    it('FR-EMU-9: Script is offered only to systems whose games are scripts', () => {
+      const { presetProfiles, skipped } = buildPresets(
+        input({
+          systemEmulators: LASERDISC,
+          systemIds: new Map(Object.keys(LASERDISC).map((name) => [name, slugify(name)])),
+          systemExtensions: new Map([
+            ['vm-labs-nuon', ['bat']],
+            ['pioneer-laseractive', ['bat']],
+            ['coleco-telstar', ['zip', '7z']],
+          ]),
+        }),
+      );
+      expect(presetProfiles['vm-labs-nuon']).toEqual(['script:default']);
+      expect(presetProfiles['coleco-telstar']).toBeUndefined();
+      expect(skipped).toContain('Coleco Telstar: script (no .bat/.cmd/.lnk games)');
+    });
+
     it('FR-EMU-9: new preset templates and rules are valid profile templates', () => {
       const { catalog } = laserdisc();
       expect(PresetCatalogSchema.parse(catalog)).toEqual(catalog);
