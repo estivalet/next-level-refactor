@@ -5492,10 +5492,7 @@
           "id": "hypseus:default",
           "name": "Hypseus Singe",
           "systems": [
-            "mattel-captain-power",
-            "sega-video-driver",
-            "singe",
-            "wow-action-max"
+            "singe"
           ],
           "args": [
             "singe",
@@ -5555,6 +5552,37 @@
           "archives": "pass",
           "squashfs": "mount",
           "argsFile": "{gameDir}\\{romName}.commands"
+        },
+        {
+          "id": "hypseus:lua",
+          "name": "Hypseus Singe (shared Lua zip)",
+          "systems": [
+            "mattel-captain-power",
+            "sega-video-driver",
+            "wow-action-max"
+          ],
+          "args": [
+            "singe",
+            "vldp",
+            "-framefile",
+            "{gameDir}\\{romName}.txt",
+            "{entryArgs}",
+            "-fullscreen",
+            "-opengl",
+            "{extraArgs}"
+          ],
+          "archives": "pass",
+          "entries": [
+            {
+              "file": "{gameDir}\\*.zip",
+              "args": [
+                "-zlua",
+                "{entry}",
+                "-usealt",
+                "{romName}"
+              ]
+            }
+          ]
         }
       ]
     },

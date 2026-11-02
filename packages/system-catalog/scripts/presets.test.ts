@@ -191,11 +191,13 @@ describe('emulator presets (FR-EMU-7)', () => {
         .catalog.presets.flatMap((preset) => preset.profiles)
         .find((p) => p.id === id);
 
-    it('FR-EMU-7: Singe, Captain Power, Video Driver and Action Max get hypseus:default; Daphne gets hypseus:daphne', () => {
+    it('FR-EMU-7: Singe gets hypseus:default, the VHS systems hypseus:lua, Daphne hypseus:daphne', () => {
       const { presetProfiles } = laserdisc();
-      for (const id of ['singe', 'mattel-captain-power', 'sega-video-driver', 'wow-action-max']) {
-        expect(presetProfiles[id]).toEqual(['hypseus:default']);
+      expect(presetProfiles['singe']).toEqual(['hypseus:default']);
+      for (const id of ['mattel-captain-power', 'sega-video-driver', 'wow-action-max']) {
+        expect(presetProfiles[id]).toEqual(['hypseus:lua']);
       }
+      expect(find('hypseus:default')?.systems).toEqual(['singe']);
       expect(presetProfiles['daphne']).toEqual(['hypseus:daphne']);
       expect(find('hypseus:default')).toMatchObject({
         squashfs: 'mount',
@@ -215,6 +217,13 @@ describe('emulator presets (FR-EMU-7)', () => {
         '{gameDir}\\{romName}.zip',
         '{gameDir}\\*.zip',
       ]);
+      // WoW Action Max games also have a <game>.singe that must not be used (the runner's `lua=`).
+      expect(find('hypseus:lua')).toMatchObject({
+        name: 'Hypseus Singe (shared Lua zip)',
+        args: find('hypseus:default')?.args,
+        entries: [{ file: '{gameDir}\\*.zip', args: ['-zlua', '{entry}', '-usealt', '{romName}'] }],
+      });
+      expect(find('hypseus:lua')?.squashfs).toBeUndefined();
       expect(find('hypseus:daphne')).toMatchObject({
         squashfs: 'mount',
         argsFile: '{gameDir}\\{romName}.commands',

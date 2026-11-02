@@ -43,6 +43,8 @@ export interface StandaloneSpec extends GameFileSpec {
       args: string[];
       cwd?: string;
       extraSystems?: string[];
+      /** NextLevelOS systems this variant runs instead of the default profile (same runner key). */
+      claimsSystems?: string[];
     } & GameFileSpec
   >;
   /** Working folder template (default `{emulatorDir}`). */
@@ -317,6 +319,25 @@ export const STANDALONE: readonly StandaloneSpec[] = [
         squashfs: 'mount',
         entries: [],
         argsFile: '{gameDir}\\{romName}.commands',
+      },
+      lua: {
+        // The VHS systems: `<game>.txt` next to the system's one Lua zip (actionmax.zip,
+        // captainpower.zip, videodriver.zip), always `-zlua <zip> -usealt <game>` as the runner's
+        // `lua=` extra did. WoW Action Max also has `<game>.singe` files that don't load as
+        // `-script`, so the default profile's `.singe`-first rules can't be used for them.
+        suffix: 'lua',
+        name: 'Hypseus Singe (shared Lua zip)',
+        args: [
+          'singe',
+          'vldp',
+          '-framefile',
+          '{gameDir}\\{romName}.txt',
+          '{entryArgs}',
+          '-fullscreen',
+          '-opengl',
+        ],
+        entries: [{ file: '{gameDir}\\*.zip', args: ['-zlua', '{entry}', '-usealt', '{romName}'] }],
+        claimsSystems: ['Mattel Captain Power', 'Sega Video Driver', 'WoW Action Max'],
       },
     },
     extraSystems: [],

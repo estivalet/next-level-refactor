@@ -6591,7 +6591,7 @@
       "defaultFolderName": "Mattel Captain Power",
       "scraper": {},
       "presetProfiles": [
-        "hypseus:default"
+        "hypseus:lua"
       ],
       "aliases": [
         "Mattel Captain Power"
@@ -12050,7 +12050,7 @@
       "defaultFolderName": "Sega Video Driver",
       "scraper": {},
       "presetProfiles": [
-        "hypseus:default"
+        "hypseus:lua"
       ],
       "aliases": [
         "Sega Video Driver"
@@ -15900,7 +15900,7 @@
         "screenscraperId": 81
       },
       "presetProfiles": [
-        "hypseus:default"
+        "hypseus:lua"
       ],
       "aliases": [
         "WoW Action Max"

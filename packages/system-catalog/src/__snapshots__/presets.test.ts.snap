@@ -70,6 +70,15 @@ exports[`emulator presets (FR-EMU-7) > C2: each preset renders the expected argv
     "-opengl",
     "--extra",
   ],
+  "hypseus:lua": [
+    "singe",
+    "vldp",
+    "-framefile",
+    "E:\\roms\\Sys\\Game (USA).txt",
+    "-fullscreen",
+    "-opengl",
+    "--extra",
+  ],
   "mame:aamber-pegasus": [
     "pegasus",
     "-rom1",

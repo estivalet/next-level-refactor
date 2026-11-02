@@ -156,7 +156,9 @@ export function buildPresets(input: PresetInput): PresetResult {
           skipped.push(`${name}: ${key}`);
           continue;
         }
-        const variant = spec.variants?.[key];
+        const variant =
+          spec.variants?.[key] ??
+          Object.values(spec.variants ?? {}).find((v) => v.claimsSystems?.includes(name));
         const extensions = input.systemExtensions?.get(id);
         if (
           spec.forExtensions &&

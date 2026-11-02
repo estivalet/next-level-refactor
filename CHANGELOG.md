@@ -24,6 +24,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Fixed
 
+- WoW Action Max games start: Mattel Captain Power, Sega Video Driver and WoW Action Max get
+  their own **Hypseus Singe (shared Lua zip)** profile, which always runs
+  `-zlua <system zip> -usealt <game>`. Before, WoW Action Max was given its `<game>.singe` file,
+  and the game did not load (FR-EMU-9).
+- Settings → Emulators: a profile's edit (pencil) button scrolls up to the editor it opens.
 - Every theme offers a **Favorite** filter on a system with favorites, like the other filters
   (logo `logo/clear/Favorite.png`); it appears with the system's first favorite and goes with
   its last (FR-THM-6).
