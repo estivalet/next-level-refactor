@@ -103,6 +103,20 @@ describe('SystemsSection', () => {
     expect(saved()).toEqual({ 'atari-2600': { enabled: true } });
   });
 
+  it('FR-SCR-6: the LaunchBox platform can be overridden', async () => {
+    const user = userEvent.setup();
+    const { saved } = setup({ 'atari-2600': { enabled: true } });
+    await user.type(await screen.findByRole('searchbox', { name: 'Search systems' }), 'atari 2600');
+    await user.click(screen.getByRole('button', { name: 'Edit Atari 2600' }));
+    const editor = within(screen.getByRole('region', { name: 'Atari 2600' }));
+    const field = editor.getByRole('textbox', { name: 'LaunchBox platform' });
+    expect(field).toHaveValue('');
+    expect(field).toHaveAttribute('placeholder', 'Atari 2600');
+    await user.type(field, 'Atari VCS');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(saved()).toEqual({ 'atari-2600': { enabled: true, launchboxPlatform: 'Atari VCS' } });
+  });
+
   it('FR-SET-2: an invalid extension shows an error and blocks Save', async () => {
     const user = userEvent.setup();
     setup();

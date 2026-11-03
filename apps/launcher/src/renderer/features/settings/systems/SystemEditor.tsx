@@ -35,7 +35,10 @@ export function SystemEditor({
   errors: Record<string, string>;
   onChange: (
     patch: Partial<
-      Pick<SystemSettings, 'folderName' | 'extensions' | 'defaultProfileId' | 'screenscraperId'>
+      Pick<
+        SystemSettings,
+        'folderName' | 'extensions' | 'defaultProfileId' | 'screenscraperId' | 'launchboxPlatform'
+      >
     >,
   ) => void;
   onReset: () => void;
@@ -147,6 +150,26 @@ export function SystemEditor({
           : t('settings.systems.screenscraperHelp', { default: catalogScraperId })}
       </p>
       {scraperError && <p className="text-xs text-[#ff8a80]">{t(scraperError)}</p>}
+      <label className="flex flex-col gap-1 text-xs text-slate-200" htmlFor={`${id}-launchbox`}>
+        {t('settings.systems.launchboxPlatform')}
+        <input
+          id={`${id}-launchbox`}
+          type="text"
+          value={settings?.launchboxPlatform ?? ''}
+          placeholder={system.scraper.launchboxPlatform ?? ''}
+          aria-describedby={`${id}-launchbox-help`}
+          onChange={(event) => {
+            const value = event.target.value;
+            onChange({ launchboxPlatform: value.trim() === '' ? undefined : value });
+          }}
+          className={INPUT}
+        />
+      </label>
+      <p id={`${id}-launchbox-help`} className="text-xs text-slate-400">
+        {system.scraper.launchboxPlatform === undefined
+          ? t('settings.systems.launchboxHelpNone')
+          : t('settings.systems.launchboxHelp', { default: system.scraper.launchboxPlatform })}
+      </p>
       <label className="flex flex-col gap-1 text-xs text-slate-200" htmlFor={`${id}-profile`}>
         {t('settings.systems.defaultProfile')}
         <select

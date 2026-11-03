@@ -292,7 +292,10 @@
       "defaultProfileAuto": "Automatic (first profile for this system)",
       "screenscraperId": "ScreenScraper system id",
       "screenscraperHelp": "Leave empty to use the catalog's id ({{default}}).",
-      "screenscraperHelpNone": "The catalog has no ScreenScraper id for this system."
+      "screenscraperHelpNone": "The catalog has no ScreenScraper id for this system.",
+      "launchboxPlatform": "LaunchBox platform",
+      "launchboxHelp": "Leave empty to use the catalog's platform ({{default}}).",
+      "launchboxHelpNone": "The catalog has no LaunchBox platform for this system."
     },
     "emulators": {
       "intro": "Add the emulators you use. A preset fills in the launch options, so you only choose the program.",
@@ -628,6 +631,18 @@
     "scraper": {
       "account": "ScreenScraper account",
       "accountHelp": "Your screenscraper.fr account raises the daily quota. Credentials are kept in the Windows credential store, never in settings files.",
+      "launchbox": {
+        "title": "LaunchBox Games Database",
+        "help": "A free second source that fills what ScreenScraper can't find. The database (about 110 MB) is downloaded into the NextLevel data folder.",
+        "missing": "Not downloaded",
+        "updated_one": "Updated {{date}} · {{games}} game",
+        "updated_other": "Updated {{date}} · {{games}} games",
+        "downloading": "Downloading",
+        "building": "Building the index",
+        "download": "Download (about 110 MB)",
+        "refresh": "Refresh",
+        "cancel": "Cancel"
+      },
       "user": "User name",
       "password": "Password",
       "developer": "Developer credentials",

@@ -38,6 +38,9 @@ import { openLibrary, type LibraryDb } from './library/openLibrary.ts';
 import { FrontendService } from './frontend/FrontendService.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
+import indexWorkerPath from './launchbox/indexWorker.ts?modulePath';
+import { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
+import { buildInWorker } from './launchbox/workerBuild.ts';
 import { createWorkerWalker } from './scan/workerWalker.ts';
 import { hashRom } from './scraper/hashRom.ts';
 import { MediaWriter } from './scraper/MediaWriter.ts';
@@ -301,8 +304,18 @@ export function startLibrary(
     },
   });
   batch.restore();
+  // FR-SCR-6: the LaunchBox database lives in <data>\launchbox\ (D50).
+  const launchbox = new LaunchBoxService({
+    dataDir,
+    fetch: (input, init) => fetch(input, init),
+    emit,
+    settings: () => currentSettings(settings),
+    system: getSystem,
+    buildInWorker: buildInWorker(indexWorkerPath),
+  });
   closer.beforeClose(() => {
     batch.dispose();
+    launchbox.dispose();
   });
   host.onOpened?.({
     db,
@@ -315,6 +328,7 @@ export function startLibrary(
   return {
     scrape,
     batch,
+    launchbox,
     repo,
     media,
     frontend,

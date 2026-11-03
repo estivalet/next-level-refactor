@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { errorMessageKey } from '../settingsApi.ts';
 import { SettingsSection } from '../form/SettingsSection.tsx';
 import { CredentialsFields } from './CredentialsFields.tsx';
+import { LaunchBoxPanel } from './LaunchBoxPanel.tsx';
 import { ScraperOptions } from './ScraperOptions.tsx';
 import { useCredentialStatus } from './scraperApi.ts';
 
@@ -22,6 +23,7 @@ export function ScraperSection() {
             {t(errorMessageKey(status.error))}
           </p>
         )}
+        <LaunchBoxPanel />
       </div>
       <SettingsSection>
         {({ draft, update, errors }) => (
