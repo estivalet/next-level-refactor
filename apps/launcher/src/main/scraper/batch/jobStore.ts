@@ -10,11 +10,13 @@ import type { LibraryDb } from '../../library/openLibrary.ts';
 export type JobState = 'running' | 'paused' | 'finished' | 'cancelled';
 export type Tally = 'applied' | 'review' | 'notFound' | 'failed';
 
-/** A `scrape_jobs` row in memory. */
-export interface Job {
+export type JobSource = 'scrape' | 'gemini';
+
+/** A `scrape_jobs` row in memory; `R` is the source's rules (BatchRules or GeminiBatchRules). */
+export interface Job<R = BatchRules> {
   id: number;
   scope: BatchScope;
-  rules: BatchRules;
+  rules: R;
   status: JobState;
   cursorGameId: number | null;
   total: number;
@@ -29,7 +31,7 @@ export interface Job {
   resumeAt: string | null;
 }
 
-interface Row extends Omit<Job, 'scope' | 'rules'> {
+interface Row extends Omit<Job<unknown>, 'scope' | 'rules'> {
   scope: string;
   rules: string;
 }
@@ -38,35 +40,42 @@ const COLUMNS = `id, scope, rules, status, cursor_game_id as cursorGameId, total
   review, not_found as notFound, failed, launchbox, paused_reason as pausedReason,
   resume_at as resumeAt`;
 
-/** Batch jobs in `scrape_jobs` (FR-SCR-2): one row per job, saved after every game. */
-export class JobStore {
-  constructor(private readonly db: LibraryDb) {}
+/**
+ * Batch jobs in `scrape_jobs` (FR-SCR-2): one row per job, saved after every game. Each store
+ * sees only its own source's rows (FR-SCR-7: the Gemini batch keeps its own jobs).
+ */
+export class JobStore<R = BatchRules> {
+  constructor(
+    private readonly db: LibraryDb,
+    private readonly source: JobSource = 'scrape',
+    private readonly parseRules: (raw: unknown) => R = (raw) => BatchRulesSchema.parse(raw) as R,
+  ) {}
 
-  create(scope: BatchScope, rules: BatchRules, total: number, now: Date): Job {
+  create(scope: BatchScope, rules: R, total: number, now: Date): Job<R> {
     const at = now.toISOString();
     const { lastInsertRowid } = this.db.$client
       .prepare(
-        `insert into scrape_jobs (scope, rules, status, total, created_at, updated_at)
-         values (?, ?, 'running', ?, ?, ?)`,
+        `insert into scrape_jobs (scope, rules, status, total, source, created_at, updated_at)
+         values (?, ?, 'running', ?, ?, ?, ?)`,
       )
-      .run(JSON.stringify(scope), JSON.stringify(rules), total, at, at);
+      .run(JSON.stringify(scope), JSON.stringify(rules), total, this.source, at, at);
     const job = this.get(Number(lastInsertRowid));
     if (!job) throw new Error('scrape job not created');
     return job;
   }
 
   /** The newest running or paused job, if any (resumed at launch). */
-  active(): Job | null {
+  active(): Job<R> | null {
     const row = this.db.$client
       .prepare(
         `select ${COLUMNS} from scrape_jobs where status in ('running', 'paused')
-         order by id desc limit 1`,
+         and source = ? order by id desc limit 1`,
       )
-      .get() as Row | undefined;
+      .get(this.source) as Row | undefined;
     return row ? this.parse(row) : null;
   }
 
-  save(job: Job, now: Date): void {
+  save(job: Job<R>, now: Date): void {
     this.db.$client
       .prepare(
         `update scrape_jobs set status = @status, cursor_game_id = @cursorGameId, done = @done,
@@ -90,18 +99,18 @@ export class JobStore {
       });
   }
 
-  private get(id: number): Job | null {
+  private get(id: number): Job<R> | null {
     const row = this.db.$client
       .prepare(`select ${COLUMNS} from scrape_jobs where id = ?`)
       .get(id) as Row | undefined;
     return row ? this.parse(row) : null;
   }
 
-  private parse(row: Row): Job {
+  private parse(row: Row): Job<R> {
     return {
       ...row,
       scope: BatchScopeSchema.parse(JSON.parse(row.scope)),
-      rules: BatchRulesSchema.parse(JSON.parse(row.rules)),
+      rules: this.parseRules(JSON.parse(row.rules)),
     };
   }
 }

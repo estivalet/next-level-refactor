@@ -43,6 +43,7 @@ import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
 import { createGeminiHandlers } from './gemini/geminiHandlers.ts';
 import type { GeminiClient } from './gemini/GeminiClient.ts';
 import type { GeminiService } from './gemini/GeminiService.ts';
+import type { GeminiBatchService } from './gemini/GeminiBatchService.ts';
 import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
@@ -92,6 +93,7 @@ export interface MainDeps {
     launchboxScrape: Pick<LaunchBoxScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
     gemini: Pick<GeminiService, 'ask' | 'stored' | 'apply' | 'dismiss'>;
     geminiClient: Pick<GeminiClient, 'test'>;
+    geminiBatch: Pick<GeminiBatchService, 'start' | 'pause' | 'resume' | 'cancel' | 'status'>;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;

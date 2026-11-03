@@ -139,4 +139,32 @@ describe('ScrapeMenu (FR-SCR-2, US-C6)', () => {
     const line = await screen.findByText(/art couldn't be saved/);
     expect(line.className).not.toMatch(/truncate/);
   });
+
+  it('FR-SCR-7: Fill <system> details with Gemini… opens the Gemini batch rules, also while a scrape runs', async () => {
+    const user = userEvent.setup();
+    const gemini: unknown[] = [];
+    installFakeBridge({
+      'scraper.batch.status': () => ok(RUNNING),
+      'gemini.batch.status': () => ok(IDLE_BATCH),
+    });
+    renderInShell(
+      <ScrapeMenu
+        system={{ id: 'snes', name: 'Super Nintendo' }}
+        selectedIds={[3, 5]}
+        onRules={() => undefined}
+        onGeminiRules={(scope) => {
+          gemini.push(scope);
+        }}
+      />,
+    );
+    await user.click(await screen.findByRole('button', { name: /^Scrape/ }));
+    const menu = screen.getByRole('menu', { name: 'Scrape' });
+    expect(within(menu).queryByRole('menuitem', { name: 'Scrape Super Nintendo…' })).toBeNull();
+    await user.click(
+      within(menu).getByRole('menuitem', { name: 'Fill Super Nintendo details with Gemini…' }),
+    );
+    await user.click(screen.getByRole('button', { name: /^Scrape/ }));
+    await user.click(screen.getByRole('menuitem', { name: 'Fill 2 selected games with Gemini…' }));
+    expect(gemini).toEqual([{ systemIds: ['snes'] }, { gameIds: [3, 5] }]);
+  });
 });

@@ -12,6 +12,8 @@ export function useBatchOverlay() {
   // One job at a time: no new batch while one runs or is paused (or before the status is known).
   const canBatch = status.data?.state === 'idle' || status.data?.state === 'finished';
   const [batchRules, setBatchRules] = useState<{ scope: BatchScope; title: string } | null>(null);
+  // FR-SCR-7: the Gemini batch rules, open independently of the scrape batch.
+  const [geminiRules, setGeminiRules] = useState<{ scope: BatchScope; title: string } | null>(null);
   const titleOf = (scope: BatchScope, systemName: (id: string) => string) =>
     'systemIds' in scope
       ? scope.systemIds.map(systemName).join(', ')
@@ -25,6 +27,13 @@ export function useBatchOverlay() {
     openBatch,
     closeBatch: () => {
       setBatchRules(null);
+    },
+    geminiRules,
+    openGeminiBatch: (scope: BatchScope, systemName: (id: string) => string = (id) => id) => {
+      setGeminiRules({ scope, title: titleOf(scope, systemName) });
+    },
+    closeGeminiBatch: () => {
+      setGeminiRules(null);
     },
     /** "Scrape n selected games…" for the game context menu. */
     batchItem: (gameIds: readonly number[]): MenuItem => ({

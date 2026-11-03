@@ -9,6 +9,7 @@ import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
 import { BatchRulesDialog } from '../scrape/BatchRulesDialog.tsx';
 import { useBatchOverlay } from '../scrape/useBatchOverlay.ts';
+import { GeminiBatchDialog } from '../scrape/GeminiBatchDialog.tsx';
 import { GeminiDialog } from '../scrape/GeminiDialog.tsx';
 import { ScrapeDialog } from '../scrape/ScrapeDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
@@ -195,6 +196,9 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
       {overlays.batchRules && (
         <BatchRulesDialog {...overlays.batchRules} onClose={overlays.closeBatch} />
+      )}
+      {overlays.geminiRules && (
+        <GeminiBatchDialog {...overlays.geminiRules} onClose={overlays.closeGeminiBatch} />
       )}
       {overlays.scraping?.provider === 'gemini' && (
         <GeminiDialog gameId={overlays.scraping.gameId} onClose={overlays.closeScrape} />

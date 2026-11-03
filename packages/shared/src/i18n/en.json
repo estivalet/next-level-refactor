@@ -73,7 +73,8 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again.",
     "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
-    "downloadFailed": "The download didn't finish. Try again."
+    "downloadFailed": "The download didn't finish. Try again.",
+    "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first."
   },
   "shell": {
     "window": {
@@ -1179,6 +1180,47 @@
       "done": "Done",
       "saved_one": "Exported {{count}} game.",
       "saved_other": "Exported {{count}} games."
+    },
+    "geminiBatch": {
+      "finished_one": "Gemini filled {{count}} game · saved {{applied}} · review {{review}} · not known {{notFound}} · failed {{failed}}",
+      "finished_other": "Gemini filled {{count}} games · saved {{applied}} · review {{review}} · not known {{notFound}} · failed {{failed}}",
+      "running": "Gemini {{done}}/{{total}} · saved {{applied}} · review {{review}}",
+      "pause": "Pause",
+      "pausing": "Pausing…",
+      "resume": "Resume",
+      "cancel": "Cancel Gemini",
+      "cancelling": "Cancelling…",
+      "openSettings": "Open Settings",
+      "showReview": "Show Needs review",
+      "paused": {
+        "gemini-quota": "Gemini's free daily limit is used up; it resumes at {{time}} ({{done}}/{{total}})",
+        "network": "Paused: Gemini can't be reached ({{done}}/{{total}})",
+        "credentials": "Paused: Gemini refused the API key ({{done}}/{{total}})",
+        "user": "Gemini paused ({{done}}/{{total}})",
+        "error": "Gemini paused after an error — see the log ({{done}}/{{total}})",
+        "webTool": "Paused: the Gemini website tool stopped — check Settings → Scraper and close Firefox ({{done}}/{{total}})",
+        "quota": "Gemini paused ({{done}}/{{total}})",
+        "media": "Gemini paused ({{done}}/{{total}})",
+        "launchbox": "Gemini paused ({{done}}/{{total}})"
+      },
+      "system": "Fill {{system}} details with Gemini…",
+      "selected_one": "Fill {{count}} selected game with Gemini…",
+      "selected_other": "Fill {{count}} selected games with Gemini…",
+      "rulesTitle": "Fill {{title}} details with Gemini",
+      "help": "Only empty fields are asked, and fields you edited are never changed. A batch never changes the title.",
+      "fields": "Fields",
+      "mode": "When Gemini answers",
+      "review": "Review",
+      "reviewHelp": "Answers wait in Needs review.",
+      "auto": "Auto-update",
+      "autoHelp": "Answers are saved without review.",
+      "route": "Ask",
+      "api": "Gemini API",
+      "web": "Gemini website tool",
+      "webHelp": "No daily limit, but the website gives no sources. Close Firefox before starting.",
+      "webSetup": "Set up the website tool in Settings → Scraper first.",
+      "start": "Start",
+      "close": "Close"
     }
   },
   "frontend": {

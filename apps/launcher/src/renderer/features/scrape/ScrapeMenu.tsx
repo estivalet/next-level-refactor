@@ -12,14 +12,23 @@ interface ScrapeMenuProps {
   selectedIds: readonly number[];
   /** Opens the batch rules for a scope (the dialog lives in the Library's overlays). */
   onRules: (scope: BatchScope) => void;
+  /** FR-SCR-7: opens the Gemini batch rules; without it the menu offers no Gemini entries. */
+  onGeminiRules?: (scope: BatchScope) => void;
   /** Shows the Needs review filter (of the job's systems); without it the summary has no button. */
   onShowReview?: (systemIds: string[] | null) => void;
 }
 
 /** Scrape ▾ in the Library header (S7, FR-SCR-2, US-C6), next to Scan ▾, with the job's progress. */
-export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: ScrapeMenuProps) {
+export function ScrapeMenu({
+  system,
+  selectedIds,
+  onRules,
+  onGeminiRules,
+  onShowReview,
+}: ScrapeMenuProps) {
   const { t } = useTranslation();
   const status = useBatchStatus();
+  const gemini = useBatchStatus('gemini');
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -29,6 +38,12 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
   const armed = useRef(false);
   // Unknown until main answers: offer nothing rather than a batch main would refuse.
   const busy = state === undefined || state === 'running' || state === 'paused';
+  const geminiState = gemini.data?.state;
+  const geminiBusy =
+    !onGeminiRules ||
+    geminiState === undefined ||
+    geminiState === 'running' ||
+    geminiState === 'paused';
 
   useEffect(() => {
     if (!open) return;
@@ -54,7 +69,7 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
     }
   }, [state]);
 
-  const items = [
+  const scrapeItems = [
     ...(system
       ? [
           {
@@ -73,14 +88,42 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
           },
         ]
       : []),
-  ];
+  ].map((item) => ({ ...item, open: onRules }));
+  const geminiItems = [
+    ...(system
+      ? [
+          {
+            key: 'gemini-system',
+            label: t('library.geminiBatch.system', { system: system.name }),
+            scope: { systemIds: [system.id] },
+          },
+        ]
+      : []),
+    ...(selectedIds.length > 1
+      ? [
+          {
+            key: 'gemini-selected',
+            label: t('library.geminiBatch.selected', { count: selectedIds.length }),
+            scope: { gameIds: [...selectedIds] },
+          },
+        ]
+      : []),
+  ].map((item) => ({ ...item, open: (scope: BatchScope) => onGeminiRules?.(scope) }));
+  const items = [...(busy ? [] : scrapeItems), ...(geminiBusy ? [] : geminiItems)];
 
   return (
     <div ref={root} className="relative flex items-center gap-3">
       {status.data && (
         <BatchProgress status={status.data} {...(onShowReview ? { onShowReview } : {})} />
       )}
-      {!busy && items.length > 0 && (
+      {onGeminiRules && gemini.data && (
+        <BatchProgress
+          kind="gemini"
+          status={gemini.data}
+          {...(onShowReview ? { onShowReview } : {})}
+        />
+      )}
+      {items.length > 0 && (
         <button
           ref={button}
           type="button"
@@ -119,7 +162,7 @@ export function ScrapeMenu({ system, selectedIds, onRules, onShowReview }: Scrap
                 button.current?.focus();
                 armed.current = true;
                 setOpen(false);
-                onRules(item.scope);
+                item.open(item.scope);
               }}
               className="flex w-full px-4 py-2 text-left hover:bg-white/10 hover:text-white focus:bg-white/10 focus:outline-none"
             >

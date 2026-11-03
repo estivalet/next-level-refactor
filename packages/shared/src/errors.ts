@@ -31,6 +31,8 @@ export const ERROR_CODES = {
   GEMINI_NETWORK: 'errors.geminiNetwork',
   GEMINI_BAD_REPLY: 'errors.geminiBadReply',
   GEMINI_NO_ANSWER: 'errors.geminiNoAnswer',
+  /** The Gemini website tool could not start or stopped; `details.reason` says why. */
+  GEMINI_WEB_TOOL: 'errors.geminiWebTool',
   NO_CREDENTIALS: 'errors.noCredentials',
   SECRETS_UNAVAILABLE: 'errors.secretsUnavailable',
   UNAUTHENTICATED: 'errors.unauthenticated',

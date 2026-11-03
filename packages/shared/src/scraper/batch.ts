@@ -30,7 +30,9 @@ export const BatchScopeSchema = z.union([
 /**
  * `media`: art could not be saved for several games in a row (unwritable or unplugged folder);
  * `error`: something unexpected (e.g. the library could not be written); see the log;
- * `launchbox`: Then fill from LaunchBox is on but the LaunchBox database isn't downloaded.
+ * `launchbox`: Then fill from LaunchBox is on but the LaunchBox database isn't downloaded;
+ * `gemini-quota`: Gemini's free daily limit is used up (resumes at the next reset, FR-SCR-7);
+ * `webTool`: the Gemini website tool could not start or stopped (FR-SCR-7).
  */
 export const BATCH_PAUSE_REASONS = [
   'quota',
@@ -40,6 +42,8 @@ export const BATCH_PAUSE_REASONS = [
   'media',
   'error',
   'launchbox',
+  'gemini-quota',
+  'webTool',
 ] as const;
 
 export const BatchStatusSchema = z.object({

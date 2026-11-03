@@ -5,6 +5,7 @@ import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
 import { BatchStatusSchema } from '../scraper/batch.ts';
 import { catalogEvents } from './catalogContract.ts';
+import { geminiEvents } from './geminiContract.ts';
 import { launchboxEvents } from './launchboxContract.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
 
@@ -30,6 +31,7 @@ export const ipcEvents = {
   'auth.changed': AuthStateSchema,
   ...catalogEvents,
   ...launchboxEvents,
+  ...geminiEvents,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;
