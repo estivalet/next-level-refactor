@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import { GAME_ART_KINDS } from '../frontend/schema.ts';
+import { GeminiSettingsSchema } from './geminiSettings.ts';
 
 // Scraping contracts (FR-SCR-1..5, plan M6). Provider ids are ScreenScraper's integers.
 
 export const GameArtKindSchema = z.enum(GAME_ART_KINDS);
 
-/** Where scraped data comes from: ScreenScraper first, LaunchBox to complement it (FR-SCR-6). */
-export const SCRAPE_PROVIDERS = ['screenscraper', 'launchbox'] as const;
+/** Where scraped data comes from: ScreenScraper first, LaunchBox to complement it (FR-SCR-6),
+ * Gemini for details neither has (FR-SCR-7). */
+export const SCRAPE_PROVIDERS = ['screenscraper', 'launchbox', 'gemini'] as const;
 export type ScrapeProvider = (typeof SCRAPE_PROVIDERS)[number];
 export const ScrapeProviderSchema = z.enum(SCRAPE_PROVIDERS);
 
@@ -44,6 +46,8 @@ export const ScraperSettingsSchema = z.object({
   fields: z
     .array(ScrapeFieldSchema)
     .default(['description', 'year', 'developer', 'publisher', 'genre', 'players', 'rating']),
+  /** FR-SCR-7: the Gemini key itself lives in the secret store, never here. */
+  gemini: GeminiSettingsSchema.prefault({}),
 });
 
 export type ScraperSettings = z.output<typeof ScraperSettingsSchema>;

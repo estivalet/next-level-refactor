@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { GEMINI_DEFAULT_MODEL } from '../scraper/geminiSettings.ts';
 import {
   GeneralSchema,
   SettingsSchema,
@@ -254,6 +255,11 @@ describe('scraper and media settings (FR-SCR-3, FR-SCR-4)', () => {
       languagePriority: [],
       artKinds: ['box-front', 'logo-clear', 'screenshot-game-play', 'fanart'],
       fields: ['description', 'year', 'developer', 'publisher', 'genre', 'players', 'rating'],
+      gemini: {
+        model: GEMINI_DEFAULT_MODEL,
+        grounding: true,
+        webTool: { python: '', firefoxProfile: '', driver: '' },
+      },
     });
     expect(settings.storage.media).toEqual({ mode: 'perRomFolder' });
   });
