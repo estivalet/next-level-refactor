@@ -26,7 +26,7 @@ function players(value: unknown): string | null {
   const match = raw === null ? null : /^(\d{1,2})(?:-(\d{1,2}))?$/.exec(raw);
   if (!match) return null;
   const counts = [match[1], match[2]].filter((part) => part !== undefined).map(Number);
-  return counts.every((count) => count >= 1 && count <= MAX_PLAYERS) ? (raw as string) : null;
+  return counts.every((count) => count >= 1 && count <= MAX_PLAYERS) ? raw : null;
 }
 
 function description(value: unknown): string | null {
