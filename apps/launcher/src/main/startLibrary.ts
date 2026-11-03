@@ -1,4 +1,5 @@
 import { app, nativeImage } from 'electron';
+import { spawn } from 'node:child_process';
 import { existsSync, statSync } from 'node:fs';
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -55,9 +56,9 @@ import { libraryCloser } from './library/libraryCloser.ts';
 import { AnswerStore } from './gemini/AnswerStore.ts';
 import { GeminiClient } from './gemini/GeminiClient.ts';
 import { GeminiService } from './gemini/GeminiService.ts';
-import { GeminiBatchService, type AnswerSource } from './gemini/GeminiBatchService.ts';
+import { GeminiBatchService } from './gemini/GeminiBatchService.ts';
+import { WebToolSource } from './gemini/WebToolSource.ts';
 import { apiSource } from './gemini/apiSource.ts';
-import { AppErrorException, ERROR_CODES } from '@nextlevel/shared';
 import type { SettingsService } from './settings/SettingsService.ts';
 
 /** What the library needs from the app shell (index.ts). */
@@ -382,13 +383,15 @@ export function startLibrary(
       };
     },
   });
-  // The website route (tools/gemini-web) is wired in PR (c); until then it says it can't run.
-  const webSource: AnswerSource = {
-    next: () =>
-      Promise.reject(
-        new AppErrorException({ code: 'GEMINI_WEB_TOOL', message: ERROR_CODES.GEMINI_WEB_TOOL }),
-      ),
-  };
+  // FR-SCR-7: the website route runs tools/gemini-web (Python + Selenium, the owner's fallback).
+  const webSource = new WebToolSource({
+    dataDir,
+    toolPath: geminiToolPath(host.root),
+    settings: () => currentSettings(settings).scraper.gemini,
+    spawn: (command, args, options) => spawn(command, args, options),
+    log,
+    poll: () => new Promise((resolve) => setTimeout(resolve, 500)),
+  });
   const geminiBatch = new GeminiBatchService({
     db,
     gemini,
@@ -448,4 +451,14 @@ export function startLibrary(
 function launchboxDev<T>(name: string, make: (value: string) => T): T | Record<string, never> {
   const value = app.isPackaged ? undefined : process.env[name];
   return value ? make(value) : {};
+}
+
+/**
+ * tools/gemini-web/gemini_web.py: in the NextLevel folder's `tools` when it's there (D50), else
+ * the repo copy next to the app in development.
+ */
+function geminiToolPath(root: string): string {
+  const portable = join(root, 'tools', 'gemini-web', 'gemini_web.py');
+  if (app.isPackaged || existsSync(portable)) return portable;
+  return join(app.getAppPath(), '..', '..', 'tools', 'gemini-web', 'gemini_web.py');
 }

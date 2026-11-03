@@ -29,7 +29,7 @@ const yearOf = (gameId: number, year = 1980) => ({ gameId, year: { known: true, 
 
 type Reply = (games: PromptGame[]) => SourceReply | Error;
 
-async function setup(count: number, replies: Reply[] = []) {
+async function setup(count: number, replies: Reply[] = [], web?: AnswerSource) {
   const library = await tempLibrary();
   cleanups.push(library.cleanup);
   const ids = seedGames(
@@ -74,7 +74,7 @@ async function setup(count: number, replies: Reply[] = []) {
     new GeminiBatchService({
       db: library.db,
       gemini,
-      sources: { api: source, web: source },
+      sources: { api: source, web: web ?? source },
       games,
       blocked: () => false,
       emit: () => undefined,
@@ -223,5 +223,35 @@ describe('GeminiBatchService (FR-SCR-7)', () => {
     await expect(service.start({ systemIds: ['coleco-telstar'] }, RULES)).rejects.toMatchObject({
       error: { code: 'BUSY' },
     });
+  });
+
+  it('FR-SCR-7: the website route prepares once with every remaining game; a refusal pauses webTool', async () => {
+    const prepared: number[][] = [];
+    const web: AnswerSource = {
+      prepare: (_jobId, games) => {
+        prepared.push(games.map((game) => game.gameId));
+        return Promise.resolve();
+      },
+      next: (games) =>
+        Promise.resolve({
+          items: new Map(games.map((g) => [g.gameId, yearOf(g.gameId)])),
+          sources: [],
+          grounded: false,
+        }),
+    };
+    const ok = await setup(12, [], web);
+    await ok.service.start({ systemIds: ['coleco-telstar'] }, { ...RULES, route: 'web' });
+    await ok.service.idle();
+    expect(prepared).toEqual([ok.ids]);
+    expect(ok.service.status()).toMatchObject({ state: 'finished', applied: 12 });
+
+    const refusing: AnswerSource = {
+      prepare: () => Promise.reject(fail('GEMINI_WEB_TOOL')),
+      next: () => Promise.reject(new Error('not reached')),
+    };
+    const refused = await setup(2, [], refusing);
+    await refused.service.start({ systemIds: ['coleco-telstar'] }, { ...RULES, route: 'web' });
+    await refused.service.idle();
+    expect(refused.service.status()).toMatchObject({ state: 'paused', pausedReason: 'webTool' });
   });
 });
