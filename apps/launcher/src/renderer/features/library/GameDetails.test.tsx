@@ -149,6 +149,7 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
       'library.games.get': ({ gameId }) =>
         ok(gameDetails(games.find((g) => g.id === gameId) ?? gameRow(gameId, 'X'), details)),
       'scraper.search': () => ok({ method: 'title', candidates: [] }),
+      'gemini.key.status': () => ok({ available: true, set: false }),
     });
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   }
@@ -197,6 +198,35 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
     });
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     expect(await within(details()).findByText(/^Scraped .+ from LaunchBox$/)).toBeVisible();
+  });
+
+  it('FR-SCR-7: Fill details with Gemini… opens the Gemini dialog; a Gemini review says so', async () => {
+    const user = userEvent.setup();
+    scrapeSetup({
+      scrape: {
+        provider: 'gemini',
+        status: 'review',
+        providerGameId: null,
+        candidates: 0,
+        error: null,
+        scrapedAt: '2026-11-03T12:00:00.000Z',
+      },
+    });
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    expect(await within(details()).findByText('Needs review (Gemini)')).toBeVisible();
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    const names = within(screen.getByRole('menu'))
+      .getAllByRole('menuitem')
+      .map((item) => item.textContent);
+    expect(names.indexOf('Fill details with Gemini…')).toBe(names.indexOf('Edit details…') + 3);
+    await user.click(
+      within(screen.getByRole('menu')).getByRole('menuitem', {
+        name: 'Fill details with Gemini…',
+      }),
+    );
+    expect(
+      await screen.findByRole('dialog', { name: 'Fill details with Gemini: Alpha' }),
+    ).toBeVisible();
   });
 
   it('FR-SCR-5: details show the indexed box art (versioned URL) and the scrape status', async () => {

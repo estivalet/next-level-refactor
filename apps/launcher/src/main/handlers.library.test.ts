@@ -10,6 +10,8 @@ import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import type { BatchScrapeService } from './scraper/batch/BatchScrapeService.ts';
 import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
+import type { GeminiClient } from './gemini/GeminiClient.ts';
+import type { GeminiService } from './gemini/GeminiService.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { ImportService } from './import/ImportService.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
@@ -115,6 +117,8 @@ async function setup(withLibrary: boolean) {
       batch: {} as BatchScrapeService,
       launchbox: {} as LaunchBoxService,
       launchboxScrape: {} as LaunchBoxScrapeService,
+      gemini: {} as GeminiService,
+      geminiClient: {} as GeminiClient,
     };
   }
   const deps: MainDeps = {

@@ -52,6 +52,9 @@ import type { QuotaGate } from './scraper/screenscraper/quota.ts';
 import { ScrapeRepository } from './library/ScrapeRepository.ts';
 import type { EmitEvent } from './ipc/events.ts';
 import { libraryCloser } from './library/libraryCloser.ts';
+import { AnswerStore } from './gemini/AnswerStore.ts';
+import { GeminiClient } from './gemini/GeminiClient.ts';
+import { GeminiService } from './gemini/GeminiService.ts';
 import type { SettingsService } from './settings/SettingsService.ts';
 
 /** What the library needs from the app shell (index.ts). */
@@ -68,6 +71,8 @@ export interface LibraryHost {
   baseEnv: NodeJS.ProcessEnv;
   /** The NextLevel folder moved since last boot: media paths follow (D50). */
   moved: { from: string; to: string } | null;
+  /** The Gemini API key from the OS secret store (FR-SCR-7); null when not set. */
+  geminiKey?: () => Promise<string | null>;
   /** The library is open: the catalog (M9e) builds on its database and repositories. */
   onOpened?: (parts: {
     db: LibraryDb;
@@ -316,6 +321,34 @@ export function startLibrary(
     blocked: () => scan.status().running || importer.running(),
     ...launchboxDev('NEXTLEVEL_LAUNCHBOX_IMAGES', (imagesUrl) => ({ imagesUrl })),
   });
+  // FR-SCR-7: Gemini fills missing details; the key never leaves main.
+  const geminiClient = new GeminiClient({
+    fetch: (input, init) => fetch(input, init),
+    key: host.geminiKey ?? (() => Promise.resolve(null)),
+    settings: () => currentSettings(settings).scraper.gemini,
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    ...launchboxDev('NEXTLEVEL_GEMINI_URL', (baseUrl) => ({ baseUrl })),
+  });
+  const gemini = new GeminiService({
+    client: geminiClient,
+    answers: new AnswerStore(db),
+    games,
+    media,
+    scrapes: new ScrapeRepository(db),
+    writer: new MediaWriter({
+      toPng: (bytes) => {
+        const image = nativeImage.createFromBuffer(bytes);
+        return image.isEmpty() ? null : image.toPNG();
+      },
+    }),
+    transaction: (fn) => {
+      db.$client.transaction(fn)();
+    },
+    settings: () => currentSettings(settings),
+    systemName: (systemId) => getSystem(systemId)?.name ?? systemId,
+    emit,
+    clock: () => new Date(),
+  });
   const batch = new BatchScrapeService({
     db,
     scraper: scrape,
@@ -364,6 +397,8 @@ export function startLibrary(
     batch,
     launchbox,
     launchboxScrape,
+    gemini,
+    geminiClient,
     repo,
     media,
     frontend,
@@ -379,7 +414,7 @@ export function startLibrary(
   };
 }
 
-/** A dev-only override from the environment (e2e fakes); nothing in packaged builds. */
+/** A dev-only override from the environment (e2e fakes: LaunchBox, Gemini); nothing in packaged builds. */
 function launchboxDev<T>(name: string, make: (value: string) => T): T | Record<string, never> {
   const value = app.isPackaged ? undefined : process.env[name];
   return value ? make(value) : {};

@@ -56,6 +56,12 @@
     "noLaunchboxPlatform": "This system has no LaunchBox platform yet.",
     "launchboxBusy": "The LaunchBox database is in use by a batch scrape. Try again when it ends.",
     "launchboxDownload": "The LaunchBox database could not be downloaded. Check the connection and try again.",
+    "geminiNoKey": "Add a Gemini API key in Settings → Scraper first.",
+    "geminiKeyRejected": "Gemini rejected the API key (or the model name). Check it in Settings → Scraper.",
+    "geminiQuota": "Gemini's free daily limit is used up. Try again tomorrow, or use the Gemini website tool.",
+    "geminiNetwork": "Gemini could not be reached. Check the connection and try again.",
+    "geminiBadReply": "Gemini's reply could not be read. Try again.",
+    "geminiNoAnswer": "There is no stored Gemini answer for this game. Ask again.",
     "noCredentials": "Enter your ScreenScraper credentials in Settings → Scraper first.",
     "secretsUnavailable": "Windows could not encrypt the credentials, so they were not saved.",
     "unauthenticated": "Your sign-in has expired. Sign in again.",
@@ -669,7 +675,29 @@
       "languages": "Language priority",
       "languagesHelp": "For descriptions and genres. Empty uses the app language, then English.",
       "artKinds": "Art kinds for batch scraping",
-      "fields": "Fields for batch scraping"
+      "fields": "Fields for batch scraping",
+      "gemini": {
+        "title": "Gemini",
+        "apiKey": "API key",
+        "notSet": "Not set",
+        "saveKey": "Save key",
+        "removeKey": "Remove key",
+        "testOk": "Gemini answered. The key works.",
+        "helpBefore": "Gemini fills details that ScreenScraper and LaunchBox don't have. Create a free API key in",
+        "helpLink": "Google AI Studio",
+        "helpAfter": "and don't add billing: without it Gemini can never cost money, and when the free daily limit is used up it waits until the next day.",
+        "options": "Gemini",
+        "model": "Model",
+        "modelHelp": "A free-tier model name from Google AI Studio. Test checks it.",
+        "grounding": "Check answers with Google Search",
+        "groundingHelp": "Gemini looks the game up and shows its sources. Auto-update batches then save only answers with a source.",
+        "webTool": "Gemini website tool",
+        "webToolHelp": "A fallback with no daily limit: it drives the Gemini website in Firefox (Python and Selenium needed; Firefox must be closed while it runs).",
+        "python": "Python program",
+        "firefoxProfile": "Firefox profile folder",
+        "driver": "geckodriver (optional)",
+        "test": "Test Gemini"
+      }
     }
   },
   "launchScreen": {
@@ -799,7 +827,8 @@
       "play": "Play",
       "launchOptions": "Launch options…",
       "scrape": "Scrape from ScreenScraper…",
-      "scrapeLaunchBox": "Scrape from LaunchBox…"
+      "scrapeLaunchBox": "Scrape from LaunchBox…",
+      "fillGemini": "Fill details with Gemini…"
     },
     "edit": {
       "title": "Edit details",
@@ -808,7 +837,10 @@
       "invalid": "Check this value.",
       "save": "Save",
       "cancel": "Cancel",
-      "tabs": { "info": "Info", "media": "Media" },
+      "tabs": {
+        "info": "Info",
+        "media": "Media"
+      },
       "media": {
         "found": "{{found}} of {{total}} found",
         "foundOnly": "Show found only",
@@ -826,7 +858,11 @@
       "backToMenu": "Menu",
       "menuOnly": "Systems in my menu",
       "sortBy": "Sort:",
-      "sort": { "grade": "Grade (worst first)", "name": "Name", "games": "Games" },
+      "sort": {
+        "grade": "Grade (worst first)",
+        "name": "Name",
+        "games": "Games"
+      },
       "system": "System",
       "games": "Games",
       "grade": "Grade",
@@ -1044,6 +1080,21 @@
         "status": {
           "scraped": "Scraped {{date}} from LaunchBox",
           "review": "Needs review (LaunchBox)"
+        }
+      },
+      "gm": {
+        "title": "Fill details with Gemini: {{title}}",
+        "asking": "Asking Gemini…",
+        "notAvailable": "Gemini doesn't know",
+        "askAll": "Ask about all fields",
+        "askAgain": "Ask again",
+        "sources": "Sources",
+        "dismiss": "Dismiss",
+        "stored": "Answer from {{date}}, waiting for review.",
+        "suggested": "Suggested title",
+        "status": {
+          "scraped": "Scraped {{date}} from Gemini",
+          "review": "Needs review (Gemini)"
         }
       }
     },

@@ -37,7 +37,7 @@ test('US-D6, FR-SCR-3: credentials are saved encrypted, tested, and kept across 
     await settings.getByRole('button', { name: 'Save credentials' }).click();
     await expect(settings.getByText('Credentials saved.')).toBeVisible();
 
-    await settings.getByRole('button', { name: 'Test' }).click();
+    await settings.getByRole('button', { name: 'Test', exact: true }).click();
     await expect(
       settings.getByText(`Signed in as ${FAKE_USER.id} · 5 of 20000 requests today`),
     ).toBeVisible();
@@ -55,7 +55,7 @@ test('US-D6, FR-SCR-3: credentials are saved encrypted, tested, and kept across 
       'placeholder',
       'Saved',
     );
-    await settings.getByRole('button', { name: 'Test' }).click();
+    await settings.getByRole('button', { name: 'Test', exact: true }).click();
     await expect(
       settings.getByText(`Signed in as ${FAKE_USER.id}`, { exact: false }),
     ).toBeVisible();

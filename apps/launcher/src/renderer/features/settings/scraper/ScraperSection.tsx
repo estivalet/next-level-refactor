@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { errorMessageKey } from '../settingsApi.ts';
 import { SettingsSection } from '../form/SettingsSection.tsx';
 import { CredentialsFields } from './CredentialsFields.tsx';
+import { GeminiOptions } from './GeminiOptions.tsx';
+import { GeminiPanel } from './GeminiPanel.tsx';
 import { LaunchBoxPanel } from './LaunchBoxPanel.tsx';
 import { ScraperOptions } from './ScraperOptions.tsx';
 import { useCredentialStatus } from './scraperApi.ts';
@@ -24,10 +26,14 @@ export function ScraperSection() {
           </p>
         )}
         <LaunchBoxPanel />
+        <GeminiPanel />
       </div>
       <SettingsSection>
         {({ draft, update, errors }) => (
-          <ScraperOptions draft={draft} update={update} errors={errors} />
+          <>
+            <ScraperOptions draft={draft} update={update} errors={errors} />
+            <GeminiOptions draft={draft} update={update} errors={errors} />
+          </>
         )}
       </SettingsSection>
     </div>

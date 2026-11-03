@@ -38,7 +38,8 @@ export interface WriteScrapeDeps {
 export interface WriteScrapeInput {
   game: GameDetails;
   provider: ScrapeProvider;
-  providerGameId: number;
+  /** null for a source without ids (Gemini, FR-SCR-7). */
+  providerGameId: number | null;
   kinds: readonly GameArtKind[];
   /** The kind's file; null when the source has none. A throw is a failed download. */
   fetchArt: (kind: GameArtKind) => Promise<{ bytes: Buffer; format: string } | null>;
