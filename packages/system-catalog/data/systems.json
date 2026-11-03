@@ -82,7 +82,8 @@
       ],
       "defaultFolderName": "Aamber Pegasus",
       "scraper": {
-        "screenscraperId": 83
+        "screenscraperId": 83,
+        "launchboxPlatform": "Aamber Pegasus"
       },
       "presetProfiles": [
         "mame:aamber-pegasus"
@@ -176,7 +177,8 @@
       ],
       "defaultFolderName": "Acorn Archimedes",
       "scraper": {
-        "screenscraperId": 84
+        "screenscraperId": 84,
+        "launchboxPlatform": "Acorn Archimedes"
       },
       "presetProfiles": [
         "mame:acorn-archimedes"
@@ -224,7 +226,8 @@
       ],
       "defaultFolderName": "Acorn Atom",
       "scraper": {
-        "screenscraperId": 36
+        "screenscraperId": 36,
+        "launchboxPlatform": "Acorn Atom"
       },
       "presetProfiles": [
         "mame:acorn-atom",
@@ -248,7 +251,8 @@
       ],
       "defaultFolderName": "Acorn BBC Micro",
       "scraper": {
-        "screenscraperId": 37
+        "screenscraperId": 37,
+        "launchboxPlatform": "BBC Microcomputer System"
       },
       "presetProfiles": [
         "mame:acorn-bbc-micro",
@@ -294,7 +298,8 @@
       ],
       "defaultFolderName": "Acorn Electron",
       "scraper": {
-        "screenscraperId": 85
+        "screenscraperId": 85,
+        "launchboxPlatform": "Acorn Electron"
       },
       "presetProfiles": [
         "mame:acorn-electron"
@@ -427,7 +432,8 @@
       ],
       "defaultFolderName": "Amstrad CPC",
       "scraper": {
-        "screenscraperId": 65
+        "screenscraperId": 65,
+        "launchboxPlatform": "Amstrad CPC"
       },
       "presetProfiles": [
         "retroarch:cap32_libretro"
@@ -474,7 +480,8 @@
       ],
       "defaultFolderName": "Amstrad GX4000",
       "scraper": {
-        "screenscraperId": 87
+        "screenscraperId": 87,
+        "launchboxPlatform": "Amstrad GX4000"
       },
       "presetProfiles": [
         "retroarch:cap32_libretro",
@@ -538,7 +545,9 @@
         "7z"
       ],
       "defaultFolderName": "APF Imagination Machine",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "APF Imagination Machine"
+      },
       "presetProfiles": [
         "mame:apf-imagination-machine"
       ],
@@ -599,7 +608,9 @@
         "rka"
       ],
       "defaultFolderName": "Apogee BK-01",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Apogee BK-01"
+      },
       "presetProfiles": [
         "mame:apogee-bk-01"
       ],
@@ -622,7 +633,8 @@
       ],
       "defaultFolderName": "Apple II",
       "scraper": {
-        "screenscraperId": 86
+        "screenscraperId": 86,
+        "launchboxPlatform": "Apple II"
       },
       "presetProfiles": [
         "mame:apple-ii"
@@ -643,7 +655,8 @@
       ],
       "defaultFolderName": "Apple IIGS",
       "scraper": {
-        "screenscraperId": 217
+        "screenscraperId": 217,
+        "launchboxPlatform": "Apple IIGS"
       },
       "presetProfiles": [
         "mame:apple-iigs"
@@ -710,7 +723,8 @@
       ],
       "defaultFolderName": "Apple Macintosh",
       "scraper": {
-        "screenscraperId": 146
+        "screenscraperId": 146,
+        "launchboxPlatform": "Apple Mac OS"
       },
       "presetProfiles": [
         "mame:apple-macintosh"
@@ -795,7 +809,9 @@
         "zip"
       ],
       "defaultFolderName": "Arcade",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Arcade"
+      },
       "presetProfiles": [
         "retroarch:fbneo_libretro",
         "mame:arcade"
@@ -884,7 +900,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Arcade PC",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Taito Type X"
+      },
       "presetProfiles": [],
       "aliases": [
         "Arcade PC"
@@ -902,7 +920,8 @@
       ],
       "defaultFolderName": "Arduboy",
       "scraper": {
-        "screenscraperId": 263
+        "screenscraperId": 263,
+        "launchboxPlatform": "Arduboy"
       },
       "presetProfiles": [
         "retroarch:arduous_libretro"
@@ -924,7 +943,8 @@
       ],
       "defaultFolderName": "Atari 2600",
       "scraper": {
-        "screenscraperId": 26
+        "screenscraperId": 26,
+        "launchboxPlatform": "Atari 2600"
       },
       "presetProfiles": [
         "retroarch:stella_libretro"
@@ -955,7 +975,8 @@
       ],
       "defaultFolderName": "Atari 5200",
       "scraper": {
-        "screenscraperId": 40
+        "screenscraperId": 40,
+        "launchboxPlatform": "Atari 5200"
       },
       "presetProfiles": [
         "retroarch:atari800_libretro"
@@ -977,7 +998,8 @@
       ],
       "defaultFolderName": "Atari 7800",
       "scraper": {
-        "screenscraperId": 41
+        "screenscraperId": 41,
+        "launchboxPlatform": "Atari 7800"
       },
       "presetProfiles": [
         "retroarch:prosystem_libretro"
@@ -1008,7 +1030,8 @@
       ],
       "defaultFolderName": "Atari 800",
       "scraper": {
-        "screenscraperId": 43
+        "screenscraperId": 43,
+        "launchboxPlatform": "Atari 800"
       },
       "presetProfiles": [
         "retroarch:atari800_libretro"
@@ -1038,7 +1061,8 @@
       ],
       "defaultFolderName": "Atari Jaguar",
       "scraper": {
-        "screenscraperId": 27
+        "screenscraperId": 27,
+        "launchboxPlatform": "Atari Jaguar"
       },
       "presetProfiles": [
         "retroarch:virtualjaguar_libretro"
@@ -1066,7 +1090,8 @@
       ],
       "defaultFolderName": "Atari Jaguar CD",
       "scraper": {
-        "screenscraperId": 171
+        "screenscraperId": 171,
+        "launchboxPlatform": "Atari Jaguar CD"
       },
       "presetProfiles": [],
       "aliases": [
@@ -1087,7 +1112,8 @@
       ],
       "defaultFolderName": "Atari Lynx",
       "scraper": {
-        "screenscraperId": 28
+        "screenscraperId": 28,
+        "launchboxPlatform": "Atari Lynx"
       },
       "presetProfiles": [
         "retroarch:mednafen_lynx_libretro"
@@ -1113,7 +1139,8 @@
       ],
       "defaultFolderName": "Atari ST",
       "scraper": {
-        "screenscraperId": 42
+        "screenscraperId": 42,
+        "launchboxPlatform": "Atari ST"
       },
       "presetProfiles": [
         "retroarch:hatarib_libretro"
@@ -1143,7 +1170,9 @@
         "zip"
       ],
       "defaultFolderName": "Atari XEGS",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Atari XEGS"
+      },
       "presetProfiles": [
         "retroarch:atari800_libretro",
         "mame:atari-xegs"
@@ -1163,7 +1192,8 @@
       ],
       "defaultFolderName": "Bally Astrocade",
       "scraper": {
-        "screenscraperId": 44
+        "screenscraperId": 44,
+        "launchboxPlatform": "Bally Astrocade"
       },
       "presetProfiles": [
         "mame:bally-astrocade"
@@ -1420,7 +1450,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Bandai Super Vision 8000",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Bandai Super Vision 8000"
+      },
       "presetProfiles": [
         "mame:bandai-super-vision-8000"
       ],
@@ -1487,7 +1519,8 @@
       ],
       "defaultFolderName": "Bandai Wonderswan",
       "scraper": {
-        "screenscraperId": 45
+        "screenscraperId": 45,
+        "launchboxPlatform": "WonderSwan"
       },
       "presetProfiles": [
         "retroarch:mednafen_wswan_libretro"
@@ -1510,7 +1543,8 @@
       ],
       "defaultFolderName": "Bandai Wonderswan Color",
       "scraper": {
-        "screenscraperId": 46
+        "screenscraperId": 46,
+        "launchboxPlatform": "WonderSwan Color"
       },
       "presetProfiles": [
         "retroarch:mednafen_wswan_libretro"
@@ -1799,7 +1833,8 @@
       ],
       "defaultFolderName": "Camputers Lynx",
       "scraper": {
-        "screenscraperId": 88
+        "screenscraperId": 88,
+        "launchboxPlatform": "Camputers Lynx"
       },
       "presetProfiles": [
         "mame:camputers-lynx"
@@ -1936,7 +1971,8 @@
       ],
       "defaultFolderName": "Casio Loopy",
       "scraper": {
-        "screenscraperId": 98
+        "screenscraperId": 98,
+        "launchboxPlatform": "Casio Loopy"
       },
       "presetProfiles": [
         "mame:casio-loopy"
@@ -1957,7 +1993,8 @@
       ],
       "defaultFolderName": "Casio PV-1000",
       "scraper": {
-        "screenscraperId": 74
+        "screenscraperId": 74,
+        "launchboxPlatform": "Casio PV-1000"
       },
       "presetProfiles": [
         "mame:casio-pv-1000"
@@ -2323,7 +2360,8 @@
       ],
       "defaultFolderName": "Coleco Adam",
       "scraper": {
-        "screenscraperId": 89
+        "screenscraperId": 89,
+        "launchboxPlatform": "Coleco ADAM"
       },
       "presetProfiles": [
         "mame:coleco-adam"
@@ -2355,7 +2393,9 @@
         "zip"
       ],
       "defaultFolderName": "Coleco ColecoVision",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "ColecoVision"
+      },
       "presetProfiles": [
         "retroarch:bluemsx_libretro",
         "colem:default"
@@ -2403,19 +2443,19 @@
       ],
       "defaultFolderName": "Coleco Telstar",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar"
+      ]
     },
     {
       "id": "coleco-telstar-alpha",
@@ -2456,19 +2496,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Alpha",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Alpha"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Alpha"
+      ]
     },
     {
       "id": "coleco-telstar-classic",
@@ -2509,19 +2549,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Classic",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Classic"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Classic"
+      ]
     },
     {
       "id": "coleco-telstar-colormatic",
@@ -2562,19 +2602,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Colormatic",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Colormatic"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Colormatic"
+      ]
     },
     {
       "id": "coleco-telstar-colortron",
@@ -2615,19 +2655,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Colortron",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Colortron"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Colortron"
+      ]
     },
     {
       "id": "coleco-telstar-deluxe",
@@ -2668,19 +2708,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Deluxe",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Deluxe"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Deluxe"
+      ]
     },
     {
       "id": "coleco-telstar-marksman",
@@ -2721,19 +2761,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Marksman",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Marksman"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Marksman"
+      ]
     },
     {
       "id": "coleco-telstar-ranger",
@@ -2774,19 +2814,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Ranger",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Ranger"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Ranger"
+      ]
     },
     {
       "id": "coleco-telstar-regent",
@@ -2827,19 +2867,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Regent",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Regent"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Regent"
+      ]
     },
     {
       "id": "coleco-telstar-sportsman",
@@ -2880,19 +2920,19 @@
       ],
       "defaultFolderName": "Coleco Telstar Sportsman",
       "scraper": {},
-      "presetProfiles": [
-        "script:winarcadia"
-      ],
-      "aliases": [
-        "Coleco Telstar Sportsman"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ],
         "gameFolderFile": "wa.exe"
-      }
+      },
+      "presetProfiles": [
+        "script:winarcadia"
+      ],
+      "aliases": [
+        "Coleco Telstar Sportsman"
+      ]
     },
     {
       "id": "commander-x16",
@@ -2947,7 +2987,8 @@
       ],
       "defaultFolderName": "Commodore 128",
       "scraper": {
-        "screenscraperId": 66
+        "screenscraperId": 66,
+        "launchboxPlatform": "Commodore 128"
       },
       "presetProfiles": [],
       "aliases": [
@@ -3012,7 +3053,8 @@
       ],
       "defaultFolderName": "Commodore 64",
       "scraper": {
-        "screenscraperId": 66
+        "screenscraperId": 66,
+        "launchboxPlatform": "Commodore 64"
       },
       "presetProfiles": [
         "retroarch:vice_x64_libretro"
@@ -3048,7 +3090,9 @@
         "zip"
       ],
       "defaultFolderName": "Commodore Amiga",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Commodore Amiga"
+      },
       "presetProfiles": [
         "retroarch:puae_libretro"
       ],
@@ -3120,7 +3164,9 @@
         "zip"
       ],
       "defaultFolderName": "Commodore Amiga CD32",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Commodore Amiga CD32"
+      },
       "presetProfiles": [
         "retroarch:puae_libretro"
       ],
@@ -3156,7 +3202,8 @@
       ],
       "defaultFolderName": "Commodore CDTV",
       "scraper": {
-        "screenscraperId": 129
+        "screenscraperId": 129,
+        "launchboxPlatform": "Commodore CDTV"
       },
       "presetProfiles": [
         "retroarch:puae_libretro"
@@ -3174,7 +3221,9 @@
         "e0"
       ],
       "defaultFolderName": "Commodore Max Machine",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Commodore MAX Machine"
+      },
       "presetProfiles": [],
       "aliases": [
         "Commodore Max Machine"
@@ -3189,7 +3238,9 @@
         "prg"
       ],
       "defaultFolderName": "Commodore PET",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Commodore PET"
+      },
       "presetProfiles": [
         "retroarch:vice_xpet_libretro"
       ],
@@ -3237,7 +3288,9 @@
         "zip"
       ],
       "defaultFolderName": "Commodore Plus4",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Commodore Plus 4"
+      },
       "presetProfiles": [
         "retroarch:vice_xplus4_libretro",
         "yape:default"
@@ -3290,7 +3343,8 @@
       ],
       "defaultFolderName": "Commodore VIC-20",
       "scraper": {
-        "screenscraperId": 73
+        "screenscraperId": 73,
+        "launchboxPlatform": "Commodore VIC-20"
       },
       "presetProfiles": [
         "retroarch:vice_xvic_libretro"
@@ -3398,7 +3452,8 @@
       ],
       "defaultFolderName": "Creatronic Mega Duck",
       "scraper": {
-        "screenscraperId": 90
+        "screenscraperId": 90,
+        "launchboxPlatform": "Mega Duck"
       },
       "presetProfiles": [
         "mame:creatronic-mega-duck"
@@ -3691,7 +3746,8 @@
       ],
       "defaultFolderName": "Dragon Data Dragon",
       "scraper": {
-        "screenscraperId": 91
+        "screenscraperId": 91,
+        "launchboxPlatform": "Dragon 32/64"
       },
       "presetProfiles": [
         "mame:dragon-data-dragon"
@@ -3844,7 +3900,8 @@
       ],
       "defaultFolderName": "EACA EG2000 Colour Genie",
       "scraper": {
-        "screenscraperId": 92
+        "screenscraperId": 92,
+        "launchboxPlatform": "EACA EG2000 Colour Genie"
       },
       "presetProfiles": [
         "mame:eaca-eg2000-colour-genie"
@@ -3910,7 +3967,8 @@
       ],
       "defaultFolderName": "Elektronika BK",
       "scraper": {
-        "screenscraperId": 93
+        "screenscraperId": 93,
+        "launchboxPlatform": "Elektronika BK"
       },
       "presetProfiles": [
         "mame:elektronika-bk"
@@ -3975,7 +4033,8 @@
       ],
       "defaultFolderName": "Emerson Arcadia 2001",
       "scraper": {
-        "screenscraperId": 94
+        "screenscraperId": 94,
+        "launchboxPlatform": "Emerson Arcadia 2001"
       },
       "presetProfiles": [
         "mame:emerson-arcadia-2001"
@@ -3993,7 +4052,9 @@
         "ep128s"
       ],
       "defaultFolderName": "Enterprise 128",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Enterprise"
+      },
       "presetProfiles": [],
       "aliases": [
         "Enterprise 128"
@@ -4037,7 +4098,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Enterprise 64",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Enterprise"
+      },
       "presetProfiles": [
         "mame:enterprise-64"
       ],
@@ -4084,7 +4147,8 @@
       ],
       "defaultFolderName": "Entex Adventure Vision",
       "scraper": {
-        "screenscraperId": 78
+        "screenscraperId": 78,
+        "launchboxPlatform": "Entex Adventure Vision"
       },
       "presetProfiles": [
         "mame:entex-adventure-vision"
@@ -4132,7 +4196,8 @@
       ],
       "defaultFolderName": "Epoch Game Pocket Computer",
       "scraper": {
-        "screenscraperId": 95
+        "screenscraperId": 95,
+        "launchboxPlatform": "Epoch Game Pocket Computer"
       },
       "presetProfiles": [
         "mame:epoch-game-pocket-computer"
@@ -4198,7 +4263,8 @@
       ],
       "defaultFolderName": "Epoch Super Cassette Vision",
       "scraper": {
-        "screenscraperId": 67
+        "screenscraperId": 67,
+        "launchboxPlatform": "Epoch Super Cassette Vision"
       },
       "presetProfiles": [
         "retroarch:emuscv_libretro",
@@ -4351,7 +4417,8 @@
       ],
       "defaultFolderName": "Exelvision EXL 100",
       "scraper": {
-        "screenscraperId": 96
+        "screenscraperId": 96,
+        "launchboxPlatform": "Exelvision EXL 100"
       },
       "presetProfiles": [
         "mame:exelvision-exl-100"
@@ -4370,7 +4437,8 @@
       ],
       "defaultFolderName": "Exidy Sorcerer",
       "scraper": {
-        "screenscraperId": 165
+        "screenscraperId": 165,
+        "launchboxPlatform": "Exidy Sorcerer"
       },
       "presetProfiles": [
         "mame:exidy-sorcerer"
@@ -4392,7 +4460,8 @@
       ],
       "defaultFolderName": "Fairchild Channel F",
       "scraper": {
-        "screenscraperId": 80
+        "screenscraperId": 80,
+        "launchboxPlatform": "Fairchild Channel F"
       },
       "presetProfiles": [
         "mame:fairchild-channel-f",
@@ -4412,7 +4481,8 @@
       ],
       "defaultFolderName": "Final Burn Neo",
       "scraper": {
-        "screenscraperId": 75
+        "screenscraperId": 75,
+        "launchboxPlatform": "Arcade"
       },
       "presetProfiles": [
         "retroarch:fbneo_libretro"
@@ -4540,7 +4610,8 @@
       ],
       "defaultFolderName": "Fujitsu FM Towns",
       "scraper": {
-        "screenscraperId": 253
+        "screenscraperId": 253,
+        "launchboxPlatform": "Fujitsu FM Towns Marty"
       },
       "presetProfiles": [
         "mame:fujitsu-fm-towns"
@@ -4562,7 +4633,9 @@
         "iso"
       ],
       "defaultFolderName": "Fujitsu FM Towns Marty",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Fujitsu FM Towns Marty"
+      },
       "presetProfiles": [
         "mame:fujitsu-fm-towns-marty"
       ],
@@ -4595,7 +4668,8 @@
       ],
       "defaultFolderName": "Fujitsu FM-7",
       "scraper": {
-        "screenscraperId": 97
+        "screenscraperId": 97,
+        "launchboxPlatform": "Fujitsu FM-7"
       },
       "presetProfiles": [
         "mame:fujitsu-fm-7"
@@ -4662,7 +4736,8 @@
       ],
       "defaultFolderName": "Funtech Super Acan",
       "scraper": {
-        "screenscraperId": 100
+        "screenscraperId": 100,
+        "launchboxPlatform": "Funtech Super Acan"
       },
       "presetProfiles": [],
       "aliases": [
@@ -4678,7 +4753,8 @@
       ],
       "defaultFolderName": "Future Pinball",
       "scraper": {
-        "screenscraperId": 199
+        "screenscraperId": 199,
+        "launchboxPlatform": "Pinball"
       },
       "presetProfiles": [],
       "aliases": [
@@ -4892,7 +4968,8 @@
       ],
       "defaultFolderName": "Game & Watch",
       "scraper": {
-        "screenscraperId": 52
+        "screenscraperId": 52,
+        "launchboxPlatform": "Nintendo Game & Watch"
       },
       "presetProfiles": [
         "retroarch:gw_libretro",
@@ -5026,7 +5103,8 @@
       ],
       "defaultFolderName": "GamePark 32",
       "scraper": {
-        "screenscraperId": 101
+        "screenscraperId": 101,
+        "launchboxPlatform": "GamePark GP32"
       },
       "presetProfiles": [
         "mame:gamepark-32"
@@ -5093,7 +5171,8 @@
       ],
       "defaultFolderName": "GCE Vectrex",
       "scraper": {
-        "screenscraperId": 102
+        "screenscraperId": 102,
+        "launchboxPlatform": "GCE Vectrex"
       },
       "presetProfiles": [
         "retroarch:vecx_libretro"
@@ -5202,7 +5281,8 @@
       ],
       "defaultFolderName": "Hartung Game Master",
       "scraper": {
-        "screenscraperId": 103
+        "screenscraperId": 103,
+        "launchboxPlatform": "Hartung Game Master"
       },
       "presetProfiles": [
         "mame:hartung-game-master"
@@ -5272,7 +5352,8 @@
       ],
       "defaultFolderName": "HBMAME",
       "scraper": {
-        "screenscraperId": 75
+        "screenscraperId": 75,
+        "launchboxPlatform": "Arcade"
       },
       "presetProfiles": [
         "hbmame:default"
@@ -5289,7 +5370,9 @@
         "k7"
       ],
       "defaultFolderName": "Hector HRX",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Hector HRX"
+      },
       "presetProfiles": [
         "mame:hector-hrx"
       ],
@@ -5627,7 +5710,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Interton VC 4000",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Interton VC 4000"
+      },
       "presetProfiles": [
         "mame:interton-vc-4000"
       ],
@@ -5984,7 +6069,8 @@
       ],
       "defaultFolderName": "Jupiter Ace",
       "scraper": {
-        "screenscraperId": 126
+        "screenscraperId": 126,
+        "launchboxPlatform": "Jupiter Ace"
       },
       "presetProfiles": [
         "mame:jupiter-ace"
@@ -6453,7 +6539,8 @@
       ],
       "defaultFolderName": "Magnavox Odyssey 2",
       "scraper": {
-        "screenscraperId": 104
+        "screenscraperId": 104,
+        "launchboxPlatform": "Magnavox Odyssey 2"
       },
       "presetProfiles": [
         "retroarch:o2em_libretro"
@@ -6478,7 +6565,8 @@
       ],
       "defaultFolderName": "MAME",
       "scraper": {
-        "screenscraperId": 75
+        "screenscraperId": 75,
+        "launchboxPlatform": "Arcade"
       },
       "presetProfiles": [
         "retroarch:mame_libretro",
@@ -6525,7 +6613,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Matra and Hachette Alice",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Matra and Hachette Alice"
+      },
       "presetProfiles": [
         "mame:matra-and-hachette-alice"
       ],
@@ -6571,7 +6661,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Mattel Aquarius",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Mattel Aquarius"
+      },
       "presetProfiles": [
         "mame:mattel-aquarius",
         "mame:mattel-aquarius:cass"
@@ -6589,19 +6681,21 @@
         "txt"
       ],
       "defaultFolderName": "Mattel Captain Power",
-      "scraper": {},
-      "presetProfiles": [
-        "hypseus:lua"
-      ],
-      "aliases": [
-        "Mattel Captain Power"
-      ],
+      "scraper": {
+        "launchboxPlatform": "WoW Action Max"
+      },
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ]
-      }
+      },
+      "presetProfiles": [
+        "hypseus:lua"
+      ],
+      "aliases": [
+        "Mattel Captain Power"
+      ]
     },
     {
       "id": "mattel-hyperscan",
@@ -6641,7 +6735,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Mattel HyperScan",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Mattel HyperScan"
+      },
       "presetProfiles": [
         "mame:mattel-hyperscan"
       ],
@@ -6663,7 +6759,8 @@
       ],
       "defaultFolderName": "Mattel Intellivision",
       "scraper": {
-        "screenscraperId": 115
+        "screenscraperId": 115,
+        "launchboxPlatform": "Mattel Intellivision"
       },
       "presetProfiles": [
         "retroarch:freeintv_libretro"
@@ -6709,7 +6806,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Memotech MTX",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Memotech MTX512"
+      },
       "presetProfiles": [
         "mame:memotech-mtx"
       ],
@@ -6731,7 +6830,8 @@
       ],
       "defaultFolderName": "MGT Sam Coupe",
       "scraper": {
-        "screenscraperId": 213
+        "screenscraperId": 213,
+        "launchboxPlatform": "SAM Coupé"
       },
       "presetProfiles": [
         "mame:mgt-sam-coupe"
@@ -6794,7 +6894,9 @@
         "dosz"
       ],
       "defaultFolderName": "Microsoft DOS",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "MS-DOS"
+      },
       "presetProfiles": [
         "retroarch:dosbox_pure_libretro",
         "dosbox:default"
@@ -6831,7 +6933,9 @@
         "zip"
       ],
       "defaultFolderName": "Microsoft MSX",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Microsoft MSX"
+      },
       "presetProfiles": [
         "openmsx:default",
         "retroarch:bluemsx_libretro"
@@ -6913,7 +7017,8 @@
       ],
       "defaultFolderName": "Microsoft MSX Turbo R",
       "scraper": {
-        "screenscraperId": 118
+        "screenscraperId": 118,
+        "launchboxPlatform": "Microsoft MSX2+"
       },
       "presetProfiles": [
         "openmsx:turbor"
@@ -6951,7 +7056,8 @@
       ],
       "defaultFolderName": "Microsoft MSX2",
       "scraper": {
-        "screenscraperId": 116
+        "screenscraperId": 116,
+        "launchboxPlatform": "Microsoft MSX2"
       },
       "presetProfiles": [
         "openmsx:default"
@@ -6989,7 +7095,8 @@
       ],
       "defaultFolderName": "Microsoft MSX2+",
       "scraper": {
-        "screenscraperId": 117
+        "screenscraperId": 117,
+        "launchboxPlatform": "Microsoft MSX2"
       },
       "presetProfiles": [
         "openmsx:default"
@@ -7010,7 +7117,8 @@
       ],
       "defaultFolderName": "Microsoft Windows 3.x",
       "scraper": {
-        "screenscraperId": 136
+        "screenscraperId": 136,
+        "launchboxPlatform": "Windows 3.X"
       },
       "presetProfiles": [],
       "aliases": [
@@ -7027,17 +7135,18 @@
       ],
       "defaultFolderName": "Microsoft XBLA",
       "scraper": {
-        "screenscraperId": 33
+        "screenscraperId": 33,
+        "launchboxPlatform": "Microsoft Xbox 360"
+      },
+      "scan": {
+        "topLevelOnly": true
       },
       "presetProfiles": [
         "xenia-canary:default"
       ],
       "aliases": [
         "Microsoft XBLA"
-      ],
-      "scan": {
-        "topLevelOnly": true
-      }
+      ]
     },
     {
       "id": "microsoft-xbox",
@@ -7051,7 +7160,8 @@
       ],
       "defaultFolderName": "Microsoft XBOX",
       "scraper": {
-        "screenscraperId": 32
+        "screenscraperId": 32,
+        "launchboxPlatform": "Microsoft Xbox"
       },
       "presetProfiles": [
         "xemu:default"
@@ -7073,17 +7183,18 @@
       ],
       "defaultFolderName": "Microsoft XBOX 360",
       "scraper": {
-        "screenscraperId": 33
+        "screenscraperId": 33,
+        "launchboxPlatform": "Microsoft Xbox 360"
+      },
+      "scan": {
+        "topLevelOnly": true
       },
       "presetProfiles": [
         "xenia-canary:default"
       ],
       "aliases": [
         "Microsoft XBOX 360"
-      ],
-      "scan": {
-        "topLevelOnly": true
-      }
+      ]
     },
     {
       "id": "midway-pc",
@@ -7317,7 +7428,9 @@
         "lnk"
       ],
       "defaultFolderName": "MUGEN",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "MUGEN"
+      },
       "presetProfiles": [
         "script:default"
       ],
@@ -7785,7 +7898,8 @@
       ],
       "defaultFolderName": "NEC PC Engine",
       "scraper": {
-        "screenscraperId": 31
+        "screenscraperId": 31,
+        "launchboxPlatform": "NEC TurboGrafx-16"
       },
       "presetProfiles": [
         "retroarch:mednafen_pce_fast_libretro"
@@ -7814,7 +7928,8 @@
       ],
       "defaultFolderName": "NEC PC Engine-CD",
       "scraper": {
-        "screenscraperId": 114
+        "screenscraperId": 114,
+        "launchboxPlatform": "NEC TurboGrafx-CD"
       },
       "presetProfiles": [
         "retroarch:mednafen_pce_fast_libretro"
@@ -7977,7 +8092,8 @@
       ],
       "defaultFolderName": "NEC PC-8801",
       "scraper": {
-        "screenscraperId": 221
+        "screenscraperId": 221,
+        "launchboxPlatform": "NEC PC-8801"
       },
       "presetProfiles": [
         "retroarch:quasi88_libretro"
@@ -8015,7 +8131,8 @@
       ],
       "defaultFolderName": "NEC PC-9801",
       "scraper": {
-        "screenscraperId": 208
+        "screenscraperId": 208,
+        "launchboxPlatform": "NEC PC-9801"
       },
       "presetProfiles": [
         "retroarch:nekop2_libretro"
@@ -8040,7 +8157,8 @@
       ],
       "defaultFolderName": "NEC PC-FX",
       "scraper": {
-        "screenscraperId": 72
+        "screenscraperId": 72,
+        "launchboxPlatform": "NEC PC-FX"
       },
       "presetProfiles": [
         "retroarch:mednafen_pcfx_libretro"
@@ -8066,7 +8184,8 @@
       ],
       "defaultFolderName": "NEC SuperGrafx",
       "scraper": {
-        "screenscraperId": 105
+        "screenscraperId": 105,
+        "launchboxPlatform": "PC Engine SuperGrafx"
       },
       "presetProfiles": [
         "retroarch:mednafen_supergrafx_libretro"
@@ -8096,7 +8215,8 @@
       ],
       "defaultFolderName": "NEC TurboGrafx-16",
       "scraper": {
-        "screenscraperId": 31
+        "screenscraperId": 31,
+        "launchboxPlatform": "NEC TurboGrafx-16"
       },
       "presetProfiles": [
         "retroarch:mednafen_pce_fast_libretro"
@@ -8125,7 +8245,8 @@
       ],
       "defaultFolderName": "NEC TurboGrafx-CD",
       "scraper": {
-        "screenscraperId": 114
+        "screenscraperId": 114,
+        "launchboxPlatform": "NEC TurboGrafx-CD"
       },
       "presetProfiles": [
         "retroarch:mednafen_pce_fast_libretro"
@@ -8198,7 +8319,8 @@
       ],
       "defaultFolderName": "Nintendo 3DS",
       "scraper": {
-        "screenscraperId": 17
+        "screenscraperId": 17,
+        "launchboxPlatform": "Nintendo 3DS"
       },
       "presetProfiles": [
         "azahar:default"
@@ -8226,7 +8348,8 @@
       ],
       "defaultFolderName": "Nintendo 64",
       "scraper": {
-        "screenscraperId": 14
+        "screenscraperId": 14,
+        "launchboxPlatform": "Nintendo 64"
       },
       "presetProfiles": [
         "retroarch:mupen64plus_next_libretro"
@@ -8253,7 +8376,8 @@
       ],
       "defaultFolderName": "Nintendo 64DD",
       "scraper": {
-        "screenscraperId": 122
+        "screenscraperId": 122,
+        "launchboxPlatform": "Nintendo 64DD"
       },
       "presetProfiles": [
         "retroarch:mupen64plus_next_libretro"
@@ -8278,7 +8402,8 @@
       ],
       "defaultFolderName": "Nintendo DS",
       "scraper": {
-        "screenscraperId": 15
+        "screenscraperId": 15,
+        "launchboxPlatform": "Nintendo DS"
       },
       "presetProfiles": [
         "retroarch:desmume_libretro"
@@ -8302,7 +8427,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Famicom",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Entertainment System"
+      },
       "presetProfiles": [
         "retroarch:nestopia_libretro"
       ],
@@ -8325,7 +8452,8 @@
       ],
       "defaultFolderName": "Nintendo Famicom Disk System",
       "scraper": {
-        "screenscraperId": 106
+        "screenscraperId": 106,
+        "launchboxPlatform": "Nintendo Famicom Disk System"
       },
       "presetProfiles": [
         "retroarch:nestopia_libretro"
@@ -8400,7 +8528,8 @@
       ],
       "defaultFolderName": "Nintendo Game Boy",
       "scraper": {
-        "screenscraperId": 9
+        "screenscraperId": 9,
+        "launchboxPlatform": "Nintendo Game Boy"
       },
       "presetProfiles": [
         "retroarch:gambatte_libretro"
@@ -8428,7 +8557,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Game Boy 2 Players",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Game Boy"
+      },
       "presetProfiles": [
         "retroarch:tgbdual_libretro"
       ],
@@ -8456,7 +8587,8 @@
       ],
       "defaultFolderName": "Nintendo Game Boy Advance",
       "scraper": {
-        "screenscraperId": 12
+        "screenscraperId": 12,
+        "launchboxPlatform": "Nintendo Game Boy Advance"
       },
       "presetProfiles": [
         "retroarch:vba_next_libretro"
@@ -8484,7 +8616,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Game Boy Advance 2 Players",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Game Boy Advance"
+      },
       "presetProfiles": [],
       "aliases": [
         "Nintendo Game Boy Advance 2 Players"
@@ -8510,7 +8644,8 @@
       ],
       "defaultFolderName": "Nintendo Game Boy Color",
       "scraper": {
-        "screenscraperId": 10
+        "screenscraperId": 10,
+        "launchboxPlatform": "Nintendo Game Boy Color"
       },
       "presetProfiles": [
         "retroarch:gambatte_libretro"
@@ -8538,7 +8673,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Game Boy Color 2 Players",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Game Boy Color"
+      },
       "presetProfiles": [
         "retroarch:tgbdual_libretro"
       ],
@@ -8571,7 +8708,8 @@
       ],
       "defaultFolderName": "Nintendo GameCube",
       "scraper": {
-        "screenscraperId": 13
+        "screenscraperId": 13,
+        "launchboxPlatform": "Nintendo GameCube"
       },
       "presetProfiles": [
         "dolphin:default"
@@ -8595,7 +8733,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo NES",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Entertainment System"
+      },
       "presetProfiles": [
         "retroarch:nestopia_libretro"
       ],
@@ -8618,7 +8758,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo NES 3D",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Entertainment System"
+      },
       "presetProfiles": [],
       "aliases": [
         "Nintendo NES 3D"
@@ -8639,7 +8781,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo NES HD",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Entertainment System"
+      },
       "presetProfiles": [],
       "aliases": [
         "Nintendo NES HD"
@@ -8660,7 +8804,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo NES MSU-1",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Entertainment System"
+      },
       "presetProfiles": [
         "retroarch:snes9x_libretro"
       ],
@@ -8679,7 +8825,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Pokemon Mini",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Pokemon Mini"
+      },
       "presetProfiles": [
         "retroarch:pokemini_libretro"
       ],
@@ -8704,7 +8852,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Satellaview BSX",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nintendo Satellaview"
+      },
       "presetProfiles": [
         "retroarch:snes9x_libretro"
       ],
@@ -8735,7 +8885,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo SNES",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Super Nintendo Entertainment System"
+      },
       "presetProfiles": [
         "retroarch:snes9x_libretro"
       ],
@@ -8766,7 +8918,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo SNES MSU-1",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Super Nintendo Entertainment System"
+      },
       "presetProfiles": [
         "retroarch:snes9x_libretro"
       ],
@@ -8797,7 +8951,9 @@
         "zip"
       ],
       "defaultFolderName": "Nintendo Super Famicom",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Super Nintendo Entertainment System"
+      },
       "presetProfiles": [
         "retroarch:snes9x_libretro"
       ],
@@ -8819,7 +8975,8 @@
       ],
       "defaultFolderName": "Nintendo Switch",
       "scraper": {
-        "screenscraperId": 225
+        "screenscraperId": 225,
+        "launchboxPlatform": "Nintendo Switch"
       },
       "presetProfiles": [
         "ryujinx:default"
@@ -8842,7 +8999,8 @@
       ],
       "defaultFolderName": "Nintendo Virtual Boy",
       "scraper": {
-        "screenscraperId": 11
+        "screenscraperId": 11,
+        "launchboxPlatform": "Nintendo Virtual Boy"
       },
       "presetProfiles": [
         "retroarch:mednafen_vb_libretro"
@@ -8876,7 +9034,8 @@
       ],
       "defaultFolderName": "Nintendo Wii",
       "scraper": {
-        "screenscraperId": 16
+        "screenscraperId": 16,
+        "launchboxPlatform": "Nintendo Wii"
       },
       "presetProfiles": [
         "dolphin:default"
@@ -8901,7 +9060,8 @@
       ],
       "defaultFolderName": "Nintendo Wii U",
       "scraper": {
-        "screenscraperId": 18
+        "screenscraperId": 18,
+        "launchboxPlatform": "Nintendo Wii U"
       },
       "presetProfiles": [
         "cemu:default"
@@ -8966,7 +9126,8 @@
       ],
       "defaultFolderName": "Nokia N-GAGE",
       "scraper": {
-        "screenscraperId": 30
+        "screenscraperId": 30,
+        "launchboxPlatform": "Nokia N-Gage"
       },
       "presetProfiles": [],
       "aliases": [
@@ -9027,7 +9188,8 @@
       ],
       "defaultFolderName": "OpenBOR",
       "scraper": {
-        "screenscraperId": 214
+        "screenscraperId": 214,
+        "launchboxPlatform": "OpenBOR"
       },
       "presetProfiles": [],
       "aliases": [
@@ -9093,7 +9255,9 @@
         "zip"
       ],
       "defaultFolderName": "Othello Multivision",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Othello Multivision"
+      },
       "presetProfiles": [
         "retroarch:gearsystem_libretro"
       ],
@@ -9226,7 +9390,8 @@
       ],
       "defaultFolderName": "Panasonic 3DO",
       "scraper": {
-        "screenscraperId": 29
+        "screenscraperId": 29,
+        "launchboxPlatform": "3DO Interactive Multiplayer"
       },
       "presetProfiles": [
         "retroarch:opera_libretro"
@@ -9425,7 +9590,8 @@
       ],
       "defaultFolderName": "Philips CD-i",
       "scraper": {
-        "screenscraperId": 133
+        "screenscraperId": 133,
+        "launchboxPlatform": "Philips CD-i"
       },
       "presetProfiles": [
         "mame:philips-cd-i"
@@ -9521,7 +9687,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Philips VG5000",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Philips VG 5000"
+      },
       "presetProfiles": [
         "mame:philips-vg5000"
       ],
@@ -9541,7 +9709,8 @@
       ],
       "defaultFolderName": "Philips Videopac Plus G7400",
       "scraper": {
-        "screenscraperId": 104
+        "screenscraperId": 104,
+        "launchboxPlatform": "Philips Videopac+"
       },
       "presetProfiles": [],
       "aliases": [
@@ -9557,7 +9726,9 @@
         "png"
       ],
       "defaultFolderName": "PICO-8 Fantasy Console",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "PICO-8"
+      },
       "presetProfiles": [
         "retroarch:retro8_libretro"
       ],
@@ -9835,16 +10006,18 @@
         "bat"
       ],
       "defaultFolderName": "Pioneer LaserActive",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Pioneer LaserActive"
+      },
+      "scan": {
+        "topLevelOnly": true
+      },
       "presetProfiles": [
         "script:default"
       ],
       "aliases": [
         "Pioneer LaserActive"
-      ],
-      "scan": {
-        "topLevelOnly": true
-      }
+      ]
     },
     {
       "id": "pokkito",
@@ -10195,7 +10368,9 @@
         "xbox360"
       ],
       "defaultFolderName": "RCA Studio II",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "RCA Studio II"
+      },
       "presetProfiles": [
         "mame:rca-studio-ii"
       ],
@@ -10439,7 +10614,9 @@
         "zip"
       ],
       "defaultFolderName": "Sammy Atomiswave",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sammy Atomiswave"
+      },
       "presetProfiles": [
         "retroarch:flycast_libretro",
         "flycast:default"
@@ -10683,7 +10860,8 @@
       ],
       "defaultFolderName": "ScummVM",
       "scraper": {
-        "screenscraperId": 123
+        "screenscraperId": 123,
+        "launchboxPlatform": "ScummVM"
       },
       "presetProfiles": [
         "retroarch:scummvm_libretro",
@@ -10715,7 +10893,8 @@
       ],
       "defaultFolderName": "Sega 32X",
       "scraper": {
-        "screenscraperId": 19
+        "screenscraperId": 19,
+        "launchboxPlatform": "Sega 32X"
       },
       "presetProfiles": [
         "retroarch:picodrive_libretro"
@@ -10762,7 +10941,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sega 32X CD",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega CD 32X"
+      },
       "presetProfiles": [
         "retroarch:picodrive_libretro"
       ],
@@ -10886,7 +11067,8 @@
       ],
       "defaultFolderName": "Sega CD",
       "scraper": {
-        "screenscraperId": 20
+        "screenscraperId": 20,
+        "launchboxPlatform": "Sega CD"
       },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
@@ -11005,7 +11187,8 @@
       ],
       "defaultFolderName": "Sega Dreamcast",
       "scraper": {
-        "screenscraperId": 23
+        "screenscraperId": 23,
+        "launchboxPlatform": "Sega Dreamcast"
       },
       "presetProfiles": [
         "retroarch:flycast_libretro",
@@ -11087,7 +11270,8 @@
       ],
       "defaultFolderName": "Sega Game Gear",
       "scraper": {
-        "screenscraperId": 21
+        "screenscraperId": 21,
+        "launchboxPlatform": "Sega Game Gear"
       },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
@@ -11122,7 +11306,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Genesis",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Genesis"
+      },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
       ],
@@ -11168,7 +11354,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sega Hikaru",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Hikaru"
+      },
       "presetProfiles": [],
       "aliases": [
         "Sega Hikaru"
@@ -11245,7 +11433,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Mark III",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Master System"
+      },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
       ],
@@ -11281,7 +11471,8 @@
       ],
       "defaultFolderName": "Sega Master System",
       "scraper": {
-        "screenscraperId": 2
+        "screenscraperId": 2,
+        "launchboxPlatform": "Sega Master System"
       },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
@@ -11316,7 +11507,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Mega Drive",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Genesis"
+      },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
       ],
@@ -11350,7 +11543,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Mega Drive MSU-1",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Genesis"
+      },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
       ],
@@ -11383,7 +11578,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Mega-CD",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega CD"
+      },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
       ],
@@ -11401,7 +11598,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Model 2",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Model 2"
+      },
       "presetProfiles": [],
       "aliases": [
         "Sega Model 2"
@@ -11417,7 +11616,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Model 3",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Model 3"
+      },
       "presetProfiles": [],
       "aliases": [
         "Sega Model 3"
@@ -11437,7 +11638,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Naomi",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Naomi"
+      },
       "presetProfiles": [
         "retroarch:flycast_libretro",
         "flycast:default"
@@ -11460,7 +11663,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Naomi 2",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Naomi 2"
+      },
       "presetProfiles": [
         "retroarch:flycast_libretro",
         "flycast:default"
@@ -11507,7 +11712,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sega Naomi 2 GD-ROM",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Naomi 2"
+      },
       "presetProfiles": [],
       "aliases": [
         "Sega Naomi 2 GD-ROM"
@@ -11527,7 +11734,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Naomi GD-ROM",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Naomi"
+      },
       "presetProfiles": [
         "retroarch:flycast_libretro",
         "flycast:default"
@@ -11663,7 +11872,8 @@
       ],
       "defaultFolderName": "Sega Pico",
       "scraper": {
-        "screenscraperId": 250
+        "screenscraperId": 250,
+        "launchboxPlatform": "Sega Pico"
       },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
@@ -11823,7 +12033,8 @@
       ],
       "defaultFolderName": "Sega Saturn",
       "scraper": {
-        "screenscraperId": 22
+        "screenscraperId": 22,
+        "launchboxPlatform": "Sega Saturn"
       },
       "presetProfiles": [
         "retroarch:kronos_libretro"
@@ -11870,7 +12081,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sega SC-3000",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega SC-3000"
+      },
       "presetProfiles": [
         "mame:sega-sc-3000",
         "mame:sega-sc-3000:cass",
@@ -11908,7 +12121,8 @@
       ],
       "defaultFolderName": "Sega SG-1000",
       "scraper": {
-        "screenscraperId": 109
+        "screenscraperId": 109,
+        "launchboxPlatform": "Sega SG-1000"
       },
       "presetProfiles": [
         "retroarch:genesis_plus_gx_libretro"
@@ -11944,7 +12158,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega SG-1000 II",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega SG-1000"
+      },
       "presetProfiles": [
         "mame:sega-sg-1000-ii"
       ],
@@ -11963,7 +12179,8 @@
       ],
       "defaultFolderName": "Sega ST-V",
       "scraper": {
-        "screenscraperId": 69
+        "screenscraperId": 69,
+        "launchboxPlatform": "Sega ST-V"
       },
       "presetProfiles": [
         "retroarch:kronos_libretro"
@@ -11996,7 +12213,9 @@
         "zip"
       ],
       "defaultFolderName": "Sega Triforce",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Triforce"
+      },
       "presetProfiles": [],
       "aliases": [
         "Sega Triforce"
@@ -12011,7 +12230,9 @@
         "bat"
       ],
       "defaultFolderName": "Sega Triforce_old",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Triforce"
+      },
       "presetProfiles": [],
       "aliases": [
         "Sega Triforce_old"
@@ -12027,18 +12248,18 @@
       ],
       "defaultFolderName": "Sega Video Driver",
       "scraper": {},
-      "presetProfiles": [
-        "hypseus:lua"
-      ],
-      "aliases": [
-        "Sega Video Driver"
-      ],
       "scan": {
         "topLevelOnly": true,
         "ignore": [
           "_*"
         ]
-      }
+      },
+      "presetProfiles": [
+        "hypseus:lua"
+      ],
+      "aliases": [
+        "Sega Video Driver"
+      ]
     },
     {
       "id": "sega-vmu",
@@ -12078,7 +12299,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sega VMU",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sega Dreamcast VMU"
+      },
       "presetProfiles": [
         "mame:sega-vmu"
       ],
@@ -12352,7 +12575,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sharp MZ-2500",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sharp MZ-2500"
+      },
       "presetProfiles": [
         "mame:sharp-mz-2500"
       ],
@@ -12474,7 +12699,8 @@
       ],
       "defaultFolderName": "Sharp X1",
       "scraper": {
-        "screenscraperId": 220
+        "screenscraperId": 220,
+        "launchboxPlatform": "Sharp X1"
       },
       "presetProfiles": [
         "retroarch:x1_libretro"
@@ -12505,7 +12731,8 @@
       ],
       "defaultFolderName": "Sharp X68000",
       "scraper": {
-        "screenscraperId": 79
+        "screenscraperId": 79,
+        "launchboxPlatform": "Sharp X68000"
       },
       "presetProfiles": [
         "retroarch:px68k_libretro"
@@ -12539,7 +12766,8 @@
       ],
       "defaultFolderName": "Sinclair ZX Spectrum",
       "scraper": {
-        "screenscraperId": 76
+        "screenscraperId": 76,
+        "launchboxPlatform": "Sinclair ZX Spectrum"
       },
       "presetProfiles": [
         "retroarch:fuse_libretro"
@@ -12561,7 +12789,8 @@
       ],
       "defaultFolderName": "Sinclair ZX81",
       "scraper": {
-        "screenscraperId": 77
+        "screenscraperId": 77,
+        "launchboxPlatform": "Sinclair ZX-81"
       },
       "presetProfiles": [
         "retroarch:81_libretro"
@@ -12645,7 +12874,8 @@
       ],
       "defaultFolderName": "SNK Neo Geo",
       "scraper": {
-        "screenscraperId": 142
+        "screenscraperId": 142,
+        "launchboxPlatform": "SNK Neo Geo AES"
       },
       "presetProfiles": [
         "retroarch:fbneo_libretro"
@@ -12665,7 +12895,9 @@
         "zip"
       ],
       "defaultFolderName": "SNK Neo Geo AES",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "SNK Neo Geo AES"
+      },
       "presetProfiles": [
         "retroarch:fbneo_libretro"
       ],
@@ -12684,7 +12916,8 @@
       ],
       "defaultFolderName": "SNK Neo Geo CD",
       "scraper": {
-        "screenscraperId": 70
+        "screenscraperId": 70,
+        "launchboxPlatform": "SNK Neo Geo CD"
       },
       "presetProfiles": [
         "retroarch:neocd_libretro"
@@ -12704,7 +12937,9 @@
         "zip"
       ],
       "defaultFolderName": "SNK Neo Geo MVS",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "SNK Neo Geo AES"
+      },
       "presetProfiles": [
         "retroarch:fbneo_libretro"
       ],
@@ -12727,7 +12962,8 @@
       ],
       "defaultFolderName": "SNK Neo Geo Pocket",
       "scraper": {
-        "screenscraperId": 25
+        "screenscraperId": 25,
+        "launchboxPlatform": "SNK Neo Geo Pocket"
       },
       "presetProfiles": [
         "retroarch:mednafen_ngp_libretro"
@@ -12751,7 +12987,8 @@
       ],
       "defaultFolderName": "SNK Neo Geo Pocket Color",
       "scraper": {
-        "screenscraperId": 82
+        "screenscraperId": 82,
+        "launchboxPlatform": "SNK Neo Geo Pocket Color"
       },
       "presetProfiles": [
         "retroarch:mednafen_ngp_libretro"
@@ -12804,7 +13041,8 @@
       ],
       "defaultFolderName": "Sony Playstation",
       "scraper": {
-        "screenscraperId": 57
+        "screenscraperId": 57,
+        "launchboxPlatform": "Sony Playstation"
       },
       "presetProfiles": [
         "retroarch:duckstation_libretro",
@@ -12838,7 +13076,8 @@
       ],
       "defaultFolderName": "Sony Playstation 2",
       "scraper": {
-        "screenscraperId": 58
+        "screenscraperId": 58,
+        "launchboxPlatform": "Sony Playstation 2"
       },
       "presetProfiles": [
         "pcsx2:default"
@@ -12859,7 +13098,8 @@
       ],
       "defaultFolderName": "Sony Playstation 3",
       "scraper": {
-        "screenscraperId": 59
+        "screenscraperId": 59,
+        "launchboxPlatform": "Sony Playstation 3"
       },
       "presetProfiles": [],
       "aliases": [
@@ -12904,7 +13144,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sony Pocketstation",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sony PocketStation"
+      },
       "presetProfiles": [
         "mame:sony-pocketstation"
       ],
@@ -12922,7 +13164,8 @@
       ],
       "defaultFolderName": "Sony PS Vita",
       "scraper": {
-        "screenscraperId": 62
+        "screenscraperId": 62,
+        "launchboxPlatform": "Sony Playstation Vita"
       },
       "presetProfiles": [],
       "aliases": [
@@ -12946,7 +13189,8 @@
       ],
       "defaultFolderName": "Sony PSP",
       "scraper": {
-        "screenscraperId": 61
+        "screenscraperId": 61,
+        "launchboxPlatform": "Sony PSP"
       },
       "presetProfiles": [
         "retroarch:ppsspp_libretro",
@@ -13039,7 +13283,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Sord M5",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Sord M5"
+      },
       "presetProfiles": [
         "mame:sord-m5"
       ],
@@ -13155,7 +13401,8 @@
       ],
       "defaultFolderName": "Spectravideo",
       "scraper": {
-        "screenscraperId": 218
+        "screenscraperId": 218,
+        "launchboxPlatform": "Spectravideo"
       },
       "presetProfiles": [
         "retroarch:bluemsx_libretro"
@@ -13201,7 +13448,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Spectravideo SV-318",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Spectravideo"
+      },
       "presetProfiles": [
         "mame:spectravideo-sv-318"
       ],
@@ -13398,7 +13647,8 @@
       ],
       "defaultFolderName": "Taito Type X",
       "scraper": {
-        "screenscraperId": 112
+        "screenscraperId": 112,
+        "launchboxPlatform": "Taito Type X"
       },
       "presetProfiles": [],
       "aliases": [
@@ -13443,7 +13693,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Taito Type X Zero",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Taito Type X"
+      },
       "presetProfiles": [],
       "aliases": [
         "Taito Type X Zero"
@@ -13460,7 +13712,8 @@
       ],
       "defaultFolderName": "Taito Type X+",
       "scraper": {
-        "screenscraperId": 112
+        "screenscraperId": 112,
+        "launchboxPlatform": "Taito Type X"
       },
       "presetProfiles": [],
       "aliases": [
@@ -13505,7 +13758,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Taito Type X2",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Taito Type X"
+      },
       "presetProfiles": [],
       "aliases": [
         "Taito Type X2"
@@ -13549,7 +13804,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Taito Type X3",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Taito Type X"
+      },
       "presetProfiles": [],
       "aliases": [
         "Taito Type X3"
@@ -13593,7 +13850,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Taito Type X4",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Taito Type X"
+      },
       "presetProfiles": [],
       "aliases": [
         "Taito Type X4"
@@ -13878,7 +14137,9 @@
         "dsk"
       ],
       "defaultFolderName": "Tandy TRS-80",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Tandy TRS-80"
+      },
       "presetProfiles": [
         "mame:tandy-trs-80",
         "mame:tandy-trs-80:flop1",
@@ -13901,7 +14162,8 @@
       ],
       "defaultFolderName": "Tandy TRS-80 Color Computer",
       "scraper": {
-        "screenscraperId": 144
+        "screenscraperId": 144,
+        "launchboxPlatform": "Tandy TRS-80"
       },
       "presetProfiles": [
         "mame:tandy-trs-80-color-computer",
@@ -14015,7 +14277,8 @@
       ],
       "defaultFolderName": "Tangerine Oric",
       "scraper": {
-        "screenscraperId": 131
+        "screenscraperId": 131,
+        "launchboxPlatform": "Oric Atmos"
       },
       "presetProfiles": [
         "mame:tangerine-oric"
@@ -14035,7 +14298,9 @@
         "wav"
       ],
       "defaultFolderName": "Tangerine Oric Atmos",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Oric Atmos"
+      },
       "presetProfiles": [
         "mame:tangerine-oric-atmos"
       ],
@@ -14233,7 +14498,8 @@
       ],
       "defaultFolderName": "Texas Instruments TI 99-4A",
       "scraper": {
-        "screenscraperId": 205
+        "screenscraperId": 205,
+        "launchboxPlatform": "Texas Instruments TI 99/4A"
       },
       "presetProfiles": [
         "mame:texas-instruments-ti-99-4a"
@@ -14373,7 +14639,8 @@
       ],
       "defaultFolderName": "Tiger Game.com",
       "scraper": {
-        "screenscraperId": 121
+        "screenscraperId": 121,
+        "launchboxPlatform": "Tiger Game.com"
       },
       "presetProfiles": [
         "mame:tiger-game-com"
@@ -14647,7 +14914,8 @@
       ],
       "defaultFolderName": "Tomy Tutor",
       "scraper": {
-        "screenscraperId": 317
+        "screenscraperId": 317,
+        "launchboxPlatform": "Tomy Tutor"
       },
       "presetProfiles": [
         "mame:tomy-tutor"
@@ -14990,7 +15258,8 @@
       ],
       "defaultFolderName": "Uzebox",
       "scraper": {
-        "screenscraperId": 216
+        "screenscraperId": 216,
+        "launchboxPlatform": "Uzebox"
       },
       "presetProfiles": [
         "retroarch:uzem_libretro"
@@ -15126,7 +15395,9 @@
         "xbox360"
       ],
       "defaultFolderName": "Vector-06C",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Vector-06C"
+      },
       "presetProfiles": [
         "mame:vector-06c"
       ],
@@ -15345,7 +15616,8 @@
       ],
       "defaultFolderName": "Visual Pinball",
       "scraper": {
-        "screenscraperId": 198
+        "screenscraperId": 198,
+        "launchboxPlatform": "Pinball"
       },
       "presetProfiles": [],
       "aliases": [
@@ -15360,16 +15632,18 @@
         "bat"
       ],
       "defaultFolderName": "VM Labs Nuon",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "Nuon"
+      },
+      "scan": {
+        "topLevelOnly": true
+      },
       "presetProfiles": [
         "script:default"
       ],
       "aliases": [
         "VM Labs Nuon"
-      ],
-      "scan": {
-        "topLevelOnly": true
-      }
+      ]
     },
     {
       "id": "voltmace-database",
@@ -15428,7 +15702,9 @@
         "zip"
       ],
       "defaultFolderName": "VTech Creativision",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "VTech CreatiVision"
+      },
       "presetProfiles": [
         "mame:vtech-creativision"
       ],
@@ -15658,7 +15934,9 @@
         "xbox360"
       ],
       "defaultFolderName": "VTech Socrates",
-      "scraper": {},
+      "scraper": {
+        "launchboxPlatform": "VTech Socrates"
+      },
       "presetProfiles": [
         "mame:vtech-socrates",
         "retroarch:mame_libretro"
@@ -15679,7 +15957,8 @@
       ],
       "defaultFolderName": "VTech V.Smile",
       "scraper": {
-        "screenscraperId": 120
+        "screenscraperId": 120,
+        "launchboxPlatform": "VTech V.Smile"
       },
       "presetProfiles": [
         "mame:vtech-v-smile"
@@ -15834,7 +16113,8 @@
       ],
       "defaultFolderName": "WASM-4",
       "scraper": {
-        "screenscraperId": 262
+        "screenscraperId": 262,
+        "launchboxPlatform": "WASM-4"
       },
       "presetProfiles": [
         "retroarch:wasm4_libretro"
@@ -15856,7 +16136,8 @@
       ],
       "defaultFolderName": "Watara Supervision",
       "scraper": {
-        "screenscraperId": 207
+        "screenscraperId": 207,
+        "launchboxPlatform": "Watara Supervision"
       },
       "presetProfiles": [
         "retroarch:potator_libretro",
@@ -15875,20 +16156,21 @@
       ],
       "defaultFolderName": "WoW Action Max",
       "scraper": {
-        "screenscraperId": 81
+        "screenscraperId": 81,
+        "launchboxPlatform": "WoW Action Max"
+      },
+      "scan": {
+        "topLevelOnly": true,
+        "ignore": [
+          "_*"
+        ]
       },
       "presetProfiles": [
         "hypseus:lua"
       ],
       "aliases": [
         "WoW Action Max"
-      ],
-      "scan": {
-        "topLevelOnly": true,
-        "ignore": [
-          "_*"
-        ]
-      }
+      ]
     },
     {
       "id": "yamaha-copera",

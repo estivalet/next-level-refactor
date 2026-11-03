@@ -39,6 +39,8 @@ import {
   type CatalogApi,
 } from './catalog/catalogHandlers.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
+import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
+import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
@@ -82,6 +84,7 @@ export interface MainDeps {
     importer: ImportService;
     scrape: Pick<ScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
     batch: Pick<BatchScrapeService, 'begin' | 'pause' | 'resume' | 'cancel' | 'status'>;
+    launchbox: LaunchBoxService;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;
@@ -165,6 +168,13 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
     ...createBatchHandlers({ batch: () => library().batch }),
+    ...createLaunchBoxHandlers({
+      service: () => library().launchbox,
+      updateSettings: async (change) => {
+        unwrap(await settings.update(change));
+      },
+      systemExists: (systemId) => deps.catalog().some((system) => system.id === systemId),
+    }),
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
     ...createScrapeHandlers({

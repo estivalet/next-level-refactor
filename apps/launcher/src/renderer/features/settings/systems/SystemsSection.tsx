@@ -93,6 +93,7 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
                       folderName: undefined,
                       extensions: undefined,
                       screenscraperId: undefined,
+                      launchboxPlatform: undefined,
                     }),
                   );
                 }}

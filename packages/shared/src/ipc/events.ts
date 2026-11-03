@@ -5,6 +5,7 @@ import { LaunchFinishedSchema, LaunchStartedSchema } from '../launch/schema.ts';
 import { ScanProgressSchema, ScanSummarySchema } from '../library/schema.ts';
 import { BatchStatusSchema } from '../scraper/batch.ts';
 import { catalogEvents } from './catalogContract.ts';
+import { launchboxEvents } from './launchboxContract.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
 
 /** Every event main sends to the renderer, with its payload schema. */
@@ -28,6 +29,7 @@ export const ipcEvents = {
   /** The sign-in state changed (FR-AUTH-5..7): signed in or out, offline, suspended. */
   'auth.changed': AuthStateSchema,
   ...catalogEvents,
+  ...launchboxEvents,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;

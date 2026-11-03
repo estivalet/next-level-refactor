@@ -27,7 +27,11 @@ export const SystemDefinitionSchema = z.object({
   extensions: z.array(z.string().regex(EXTENSION)).min(1),
   defaultFolderName: z.string().min(1),
   multiDisc: z.boolean().optional(),
-  scraper: z.object({ screenscraperId: z.number().int().positive().optional() }),
+  scraper: z.object({
+    screenscraperId: z.number().int().positive().optional(),
+    /** The LaunchBox Games Database platform name (FR-SCR-6). */
+    launchboxPlatform: z.string().min(1).optional(),
+  }),
   /**
    * How a scan walks the system folder: `topLevelOnly` skips sub-folders; `ignore` lists file
    * name patterns (`*` = any characters, case-insensitive) that are never games;

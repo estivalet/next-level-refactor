@@ -85,6 +85,7 @@ describe('LibraryRepository review counts', () => {
         { title: 'H', hidden: true },
       ]);
       new ScrapeRepository(library.db).set(a, {
+        provider: 'screenscraper',
         status: 'review',
         providerGameId: null,
         candidates: 3,
@@ -92,6 +93,7 @@ describe('LibraryRepository review counts', () => {
         scrapedAt: '2026-10-25T12:00:00.000Z',
       });
       new ScrapeRepository(library.db).set(hidden, {
+        provider: 'screenscraper',
         status: 'review',
         providerGameId: null,
         candidates: 2,

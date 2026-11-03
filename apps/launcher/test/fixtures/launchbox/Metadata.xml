@@ -1,0 +1,82 @@
+<?xml version="1.0" standalone="yes"?>
+<LaunchBox>
+  <Game>
+    <Name>Ace Driver Collection</Name>
+    <ReleaseDate>2026-05-15T00:00:00-03:00</ReleaseDate>
+    <Overview>Three Namco racers in one collection.</Overview>
+    <MaxPlayers>2</MaxPlayers>
+    <ReleaseType>Released</ReleaseType>
+    <Cooperative>false</Cooperative>
+    <DatabaseID>472523</DatabaseID>
+    <CommunityRating>4.25</CommunityRating>
+    <Platform>Microsoft Xbox 360</Platform>
+    <CommunityRatingCount>4</CommunityRatingCount>
+    <Genres>Racing</Genres>
+    <Developer>Wans Zai</Developer>
+    <Publisher>Project Aces</Publisher>
+  </Game>
+  <Game>
+    <Name>Dracula: Undead Awakening</Name>
+    <ReleaseYear>2010</ReleaseYear>
+    <Overview>Survive the undead.
+Second line.</Overview>
+    <MaxPlayers>1</MaxPlayers>
+    <DatabaseID>438312</DatabaseID>
+    <Platform>Nintendo DS</Platform>
+    <Genres>Shooter; Action</Genres>
+    <Developer>Moregames Entertainment</Developer>
+    <Publisher>Chillingo</Publisher>
+  </Game>
+  <Game>
+    <Name>Tom &amp; Jerry</Name>
+    <DatabaseID>1001</DatabaseID>
+    <Platform>Nintendo Entertainment System</Platform>
+  </Game>
+  <GameAlternateName>
+    <AlternateName>Ace Driver Trilogy</AlternateName>
+    <DatabaseID>472523</DatabaseID>
+    <Region>Japan</Region>
+  </GameAlternateName>
+  <GameImage>
+    <DatabaseID>472523</DatabaseID>
+    <FileName>87528771-04e4-4148-8df5-e36b63900520.png</FileName>
+    <Type>Clear Logo</Type>
+    <CRC32>1</CRC32>
+  </GameImage>
+  <GameImage>
+    <DatabaseID>472523</DatabaseID>
+    <FileName>ce24b0f1-6282-4af1-97bf-a7b9e195f87d.jpg</FileName>
+    <Type>Fanart - Background</Type>
+    <CRC32>2</CRC32>
+  </GameImage>
+  <GameImage>
+    <DatabaseID>472523</DatabaseID>
+    <FileName>e398a646-ac7b-4774-9bd7-1da3691dc35c.png</FileName>
+    <Type>Fanart - Box - Front</Type>
+    <CRC32>3</CRC32>
+  </GameImage>
+  <GameImage>
+    <DatabaseID>472523</DatabaseID>
+    <FileName>r2_be654e5a-b0cb-4fa2-957e-24eeff9d0ff8.png</FileName>
+    <Type>Fanart - Box - Front</Type>
+    <Region>World</Region>
+    <CRC32>4</CRC32>
+  </GameImage>
+  <GameImage>
+    <DatabaseID>438312</DatabaseID>
+    <FileName>dracula-na.jpg</FileName>
+    <Type>Box - Front</Type>
+    <Region>North America</Region>
+  </GameImage>
+  <GameImage>
+    <DatabaseID>438312</DatabaseID>
+    <FileName>dracula-eu.jpg</FileName>
+    <Type>Box - Front</Type>
+    <Region>Europe</Region>
+  </GameImage>
+  <GameImage>
+    <DatabaseID>438312</DatabaseID>
+    <FileName>dracula-cabinet.jpg</FileName>
+    <Type>Arcade - Cabinet</Type>
+  </GameImage>
+</LaunchBox>

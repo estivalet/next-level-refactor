@@ -52,6 +52,10 @@
     "scraperUnavailable": "O ScreenScraper não está disponível agora. Tente mais tarde.",
     "scraperNetwork": "Não foi possível acessar o ScreenScraper. Verifique sua conexão.",
     "noScraperSystem": "Este sistema ainda não tem um id de sistema do ScreenScraper.",
+    "launchboxIndexMissing": "O banco de dados do LaunchBox ainda não foi baixado.",
+    "noLaunchboxPlatform": "Este sistema ainda não tem uma plataforma do LaunchBox.",
+    "launchboxBusy": "O banco de dados do LaunchBox está em uso por uma busca em lote. Tente quando ela terminar.",
+    "launchboxDownload": "Não foi possível baixar o banco de dados do LaunchBox. Verifique a conexão e tente de novo.",
     "noCredentials": "Informe primeiro suas credenciais do ScreenScraper em Configurações → Scraper.",
     "secretsUnavailable": "O Windows não conseguiu criptografar as credenciais; elas não foram salvas.",
     "unauthenticated": "Sua sessão expirou. Entre novamente.",
@@ -288,7 +292,10 @@
       "defaultProfileAuto": "Automático (primeiro perfil deste sistema)",
       "screenscraperId": "Id de sistema do ScreenScraper",
       "screenscraperHelp": "Deixe vazio para usar o id do catálogo ({{default}}).",
-      "screenscraperHelpNone": "O catálogo não tem id do ScreenScraper para este sistema."
+      "screenscraperHelpNone": "O catálogo não tem id do ScreenScraper para este sistema.",
+      "launchboxPlatform": "Plataforma do LaunchBox",
+      "launchboxHelp": "Deixe vazio para usar a plataforma do catálogo ({{default}}).",
+      "launchboxHelpNone": "O catálogo não tem plataforma do LaunchBox para este sistema."
     },
     "emulators": {
       "intro": "Adicione os emuladores que você usa. Uma predefinição preenche as opções de execução; você só escolhe o programa.",
@@ -624,6 +631,18 @@
     "scraper": {
       "account": "Conta do ScreenScraper",
       "accountHelp": "Sua conta do screenscraper.fr aumenta a cota diária. As credenciais ficam no cofre de credenciais do Windows, nunca nos arquivos de configuração.",
+      "launchbox": {
+        "title": "Banco de dados do LaunchBox",
+        "help": "Uma segunda fonte gratuita que completa o que o ScreenScraper não encontra. O banco (cerca de 110 MB) é baixado na pasta de dados do NextLevel.",
+        "missing": "Não baixado",
+        "updated_one": "Atualizado em {{date}} · {{games}} jogo",
+        "updated_other": "Atualizado em {{date}} · {{games}} jogos",
+        "downloading": "Baixando",
+        "building": "Montando o índice",
+        "download": "Baixar (cerca de 110 MB)",
+        "refresh": "Atualizar",
+        "cancel": "Cancelar"
+      },
       "user": "Usuário",
       "password": "Senha",
       "developer": "Credenciais de desenvolvedor",

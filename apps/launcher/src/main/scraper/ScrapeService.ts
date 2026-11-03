@@ -275,6 +275,7 @@ export class ScrapeService {
       const savedNothing =
         written.length === 0 && failed.length > 0 && !Object.values(values).some((v) => v !== null);
       this.deps.scrapes.set(game.id, {
+        provider: 'screenscraper',
         status: savedNothing ? 'failed' : 'scraped',
         providerGameId: input.providerGameId,
         candidates: opts.candidates ?? 1,

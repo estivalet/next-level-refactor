@@ -156,6 +156,8 @@ export const SystemSettingsSchema = z.object({
   defaultProfileId: z.uuid().optional(),
   /** Overrides the catalog's ScreenScraper system id (data model §6; set by the importer). */
   screenscraperId: z.number().int().positive().optional(),
+  /** Overrides the catalog's LaunchBox platform name (FR-SCR-6). */
+  launchboxPlatform: z.string().min(1).max(120).optional(),
 });
 
 export type SystemSettings = z.output<typeof SystemSettingsSchema>;

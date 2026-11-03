@@ -34,6 +34,7 @@ describe('GameRepository.list', () => {
     const scrapes = new ScrapeRepository(library.db);
     const at = '2026-10-25T12:00:00.000Z';
     scrapes.set(review, {
+      provider: 'screenscraper',
       status: 'review',
       providerGameId: null,
       candidates: 2,
@@ -41,6 +42,7 @@ describe('GameRepository.list', () => {
       scrapedAt: at,
     });
     scrapes.set(scraped, {
+      provider: 'screenscraper',
       status: 'scraped',
       providerGameId: 9,
       candidates: 1,

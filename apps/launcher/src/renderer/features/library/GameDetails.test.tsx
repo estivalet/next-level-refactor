@@ -170,6 +170,7 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
     scrapeSetup({
       media: { 'box-front': 55 },
       scrape: {
+        provider: 'screenscraper',
         status: 'scraped',
         providerGameId: 9,
         candidates: 1,
@@ -188,6 +189,7 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
     const user = userEvent.setup();
     scrapeSetup({
       scrape: {
+        provider: 'screenscraper',
         status: 'review',
         providerGameId: null,
         candidates: 2,

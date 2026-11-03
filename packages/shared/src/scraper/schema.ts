@@ -5,6 +5,11 @@ import { GAME_ART_KINDS } from '../frontend/schema.ts';
 
 export const GameArtKindSchema = z.enum(GAME_ART_KINDS);
 
+/** Where scraped data comes from: ScreenScraper first, LaunchBox to complement it (FR-SCR-6). */
+export const SCRAPE_PROVIDERS = ['screenscraper', 'launchbox'] as const;
+export type ScrapeProvider = (typeof SCRAPE_PROVIDERS)[number];
+export const ScrapeProviderSchema = z.enum(SCRAPE_PROVIDERS);
+
 /** Metadata a scrape can fill; `title` only in the single-game dialog (D19). */
 export const SCRAPE_FIELDS = [
   'title',
@@ -77,6 +82,7 @@ export const ScrapePreviewSchema = z.object({
 export type ScrapePreview = z.output<typeof ScrapePreviewSchema>;
 
 export const ScrapeStatusSchema = z.object({
+  provider: ScrapeProviderSchema,
   status: z.enum(['scraped', 'review', 'notFound', 'failed']),
   providerGameId: providerGameId.nullable(),
   candidates: z.number().int().min(0),
