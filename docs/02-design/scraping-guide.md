@@ -165,3 +165,45 @@ details it has no data for. LaunchBox needs no account.
   database or turn off Then fill from LaunchBox").
 - **Use.** LaunchBox data is for your own library; NextLevel never uses it for the online
   catalog.
+
+## 6. Gemini: details nobody else has (FR-SCR-7)
+
+When ScreenScraper and LaunchBox leave a game without a year, developer or description (often on
+obscure systems), Gemini can fill them. The rule: **Gemini answers only what it is sure of; "I
+don't know" leaves the field empty.**
+
+- **The key (free).** Create an API key in Google AI Studio (https://aistudio.google.com/apikey)
+  and **don't add billing**: without a billing account the key can never cost money. When the
+  free daily limit is used up, Gemini just refuses until the next day (midnight in California).
+  Settings → Scraper → **Gemini**: paste the key, **Save key**, **Test Gemini**. The key goes to
+  the Windows secret store (`data\secrets.bin`), never to the settings file. **Model** names the
+  free model (Test checks it). **Check answers with Google Search** (on) makes Gemini look the
+  game up and list its sources.
+- **What Gemini fills.** Description, year, developer, publisher, genre, players. Never art, never
+  the rating. The title only as a suggestion you tick yourself.
+- **Checks.** Every answer is checked before you see it. A year must be between 1950 and now;
+  players look like `1`, `1-2` (at most 16); fillers ("N/A", "Unknown", "?"), refusals ("I'm
+  sorry…") and over-long text count as unknown.
+- **One game.** Right-click a game → **Fill details with Gemini…**. Gemini is asked about the
+  game's empty fields only (all six when none is empty; **Ask about all fields** asks them all to
+  compare). Unknown fields show "Gemini doesn't know" and can't be ticked. Empty fields with an
+  answer are ticked; filled ones and the title aren't. Sources are listed as links. **Apply**
+  writes the ticked ones; the details say "Scraped <date> from Gemini". The answer is kept until
+  you apply or **Dismiss** it, so opening the dialog again (Needs review) spends no request.
+- **Batch.** Scrape ▾ → **Fill <system> details with Gemini…** (or a selection). Pick the fields,
+  **Review** (answers wait in Needs review) or **Auto-update** (answers are saved), and the
+  route. Only empty fields you never edited are asked, 10 games per request; a batch never
+  changes the title, and Auto-update re-checks each field is still empty before writing. With
+  Search checking on, Auto-update saves only answers that came with a source; the rest go to
+  review. The Gemini batch runs beside a scrape batch, with its own progress line.
+- **Pauses.** The daily limit pauses the batch until Google's reset and it resumes on its own
+  (also after a restart). No connection pauses after 3 tries; a rejected key pauses until you fix
+  it in Settings.
+- **The website tool (fallback, no daily limit).** `tools\gemini-web` drives gemini.google.com in
+  Firefox with Selenium, using a Firefox profile where you are signed in to Google. Install
+  Python and `pip install -r tools/gemini-web/requirements.txt`, put `geckodriver.exe` next to
+  `gemini_web.py` (or set its path), then set **Python program** and **Firefox profile folder**
+  in Settings → Scraper. In the batch dialog pick **Gemini website tool**; close Firefox first.
+  The website gives no sources. The tool writes its answers to `data\gemini\jobs\<id>\` and the
+  launcher checks and saves them; Python never touches the library. It's a personal tool, not
+  shipped to players (see `tools/gemini-web/README.md`).

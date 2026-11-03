@@ -191,6 +191,7 @@ the record cleared. Every launch path unmounts (spawn failure, early exit, norma
   `safeStorage`-encrypted entries in `secrets.bin`. Since M6a it holds `screenscraper.devId`,
   `screenscraper.devPassword`, `screenscraper.user`, `screenscraper.password` (D15: the
   developer pair is user-entered until an ADR before M10 decides how the app ships it).
+  FR-SCR-7 adds `gemini.apiKey` (the Gemini API key; the renderer only sees "set / not set").
 
 ### 2.3 Resolution: which emulator runs a game
 
@@ -351,8 +352,9 @@ erDiagram
 | `game_user_state` | `game_id` PK FK, `favorite` bool, `hidden` bool, `user_rating` int?, `play_count` int, `last_played_at` text?, `play_seconds` int | |
 | `game_launch_override` | `game_id` PK FK, `profile_id` text?, `core` text?, `extra_args` json | Replaces gamelist `core`/`config`/`shader`/`emulator` fields |
 | `game_media` | `game_id` FK, `kind` text, `path` text, `size` int, `version` int (since M6b) | PK(`game_id`,`kind`); since M4a every scan rebuilds a system's rows from `media/<kind>/<rom stem>.<ext>` (png > jpg > jpeg > webp > gif; mp4 > webm); a scrape upserts the row of each kind it writes (M6b); `version` = file mtime in ms, carried by `nextlevel://media/<id>/<kind>?v=<version>` so a replaced file is never served from cache (FR-SCR-5); themes read only this |
-| `scrape_status` | `game_id` PK FK cascade, `provider` text (`screenscraper`/`launchbox`, FR-SCR-6), `provider_game_id` int?, `status` text (`scraped`/`review`/`notFound`/`failed`), `candidates` int, `error` text?, `scraped_at` text | Since M6b (migration 0007); one row per game, replaced by every scrape; the single-game dialog writes `scraped` (or `failed` when nothing was saved); a batch (M6c) writes `scraped`, `review` (with `candidates`), `notFound` or `failed` (with the error code); `GameDetails.scrape` |
-| `scrape_jobs` | `id` PK autoincrement, `scope` json (`{ systemIds }` or `{ gameIds }`), `rules` json (`BatchRules`: `onlyMissing`, `kinds`, `fields`, `regions`, `launchbox` (absent = off)), `status` text (`running`/`paused`/`finished`/`cancelled`), `cursor_game_id` int?, `total` int, `done` int, `applied` int, `review` int, `not_found` int, `failed` int, `launchbox` int (games LaunchBox wrote to; migration 0013, FR-SCR-6), `paused_reason` text? (`quota`/`network`/`credentials`/`user`/`media`/`error`/`launchbox`), `resume_at` text?, `created_at`, `updated_at` | Since M6c (migration 0008); saved after every game; games are handled by id after the cursor; at launch the newest `running` job resumes and a `quota` pause waits for `resume_at` (FR-SCR-2, D18) |
+| `scrape_status` | `game_id` PK FK cascade, `provider` text (`screenscraper`/`launchbox`, FR-SCR-6; `gemini`, FR-SCR-7), `provider_game_id` int?, `status` text (`scraped`/`review`/`notFound`/`failed`), `candidates` int, `error` text?, `scraped_at` text | Since M6b (migration 0007); one row per game, replaced by every scrape; the single-game dialog writes `scraped` (or `failed` when nothing was saved); a batch (M6c) writes `scraped`, `review` (with `candidates`), `notFound` or `failed` (with the error code); `GameDetails.scrape` |
+| `scrape_jobs` | `id` PK autoincrement, `scope` json (`{ systemIds }` or `{ gameIds }`), `rules` json (`BatchRules`: `onlyMissing`, `kinds`, `fields`, `regions`, `launchbox` (absent = off)), `status` text (`running`/`paused`/`finished`/`cancelled`), `cursor_game_id` int?, `total` int, `done` int, `applied` int, `review` int, `not_found` int, `failed` int, `launchbox` int (games LaunchBox wrote to; migration 0013, FR-SCR-6), `paused_reason` text? (`quota`/`network`/`credentials`/`user`/`media`/`error`/`launchbox`/`gemini-quota`/`webTool`), `resume_at` text?, `source` text (`scrape`/`gemini`, migration 0015, FR-SCR-7; Gemini jobs keep `GeminiBatchRules` in `rules`), `created_at`, `updated_at` | Since M6c (migration 0008); saved after every game; games are handled by id after the cursor; at launch the newest `running` job of each source resumes and a `quota` / `gemini-quota` pause waits for `resume_at` (FR-SCR-2, D18) |
+| `gemini_answers` | `game_id` PK FK cascade, `answer` json (`GeminiAnswer`: route, checked fields `{ known, value }`, title suggestion, sources, grounded), `asked_at` text | Since migration 0014 (FR-SCR-7); one row per game until the answer is applied or dismissed, so Needs review reopens it without a new request |
 | `arcade_info` | `game_id` PK FK, `rom`, `parent`, `driver`, `manufacturer` | MAME data |
 | `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `source` text? UNIQUE, `created_at` | `source` since M5a (import provenance) |
 | `collection_games` | `collection_id` FK, `game_id` FK, `position` int | PK(`collection_id`,`game_id`) |
@@ -467,3 +469,11 @@ public `Metadata.zip` (never the library database): `games` (`id` = LaunchBox `D
 `file_name`, `type`, `region`; only the types NextLevel maps) and `meta` (`builtAt`, `games`).
 While refreshing, `Metadata.zip.part` (+ `.part.version` with the server's ETag) and
 `launchbox.db.building` sit beside it; the build swaps in when no batch is using the index.
+
+## Gemini website tool files (FR-SCR-7)
+
+`<data>\gemini\jobs\<job id>\` holds the hand-off with `tools/gemini-web`: `request.json`
+(`GeminiWebRequest`: `jobId`, `fields`, `language`, `games` with `gameId`, `system`, `title`,
+`file`, `known`; never a key), `results.jsonl` (one `{ gameIds, reply }` line per 10 games, the
+raw reply; the launcher checks it) and `done.json`. A resumed job keeps `results.jsonl`; other
+jobs' folders are removed when a website job starts.

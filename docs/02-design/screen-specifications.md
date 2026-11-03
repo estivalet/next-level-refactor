@@ -223,6 +223,22 @@ Scope view (D62)
     the progress adds "· N from LaunchBox". Settings → Scraper → *LaunchBox Games
     Database*: Download / progress + Cancel / "Updated <date> · N games" + Refresh;
     Settings → Systems → *LaunchBox platform*.
+  - **Fill details with Gemini… (FR-SCR-7):** in the context menu after *Scrape from
+    LaunchBox…*. "Fill details with Gemini: <title>": "Asking Gemini…", then a row per asked
+    field (current value struck through, Gemini's value; "Gemini doesn't know" disabled) and a
+    *Suggested title* row (never ticked at first), **Sources** links, **Ask about all fields**;
+    a stored answer shows "Answer from <date>, waiting for review." with **Ask again** and
+    **Dismiss**. No key: the message + **Open Settings**. Details: "Scraped <date> from Gemini"
+    / "Needs review (Gemini)". Scrape ▾ adds *Fill <system> details with Gemini…* / *Fill n
+    selected games with Gemini…* (also while a scrape batch runs) → "Fill <title> details with
+    Gemini": the six fields, *When Gemini answers* (Review / Auto-update), *Ask* (Gemini API /
+    Gemini website tool, with "No daily limit, but the website gives no sources. Close Firefox
+    before starting."), Start; a missing key or tool path disables Start with **Open
+    Settings**. A second progress line "Gemini 3/10 · saved 2 · review 1" with Pause / Resume
+    / Cancel Gemini. Settings → Scraper → *Gemini*: API key (Save key, Test Gemini, Remove
+    key), the AI Studio link and "don't add billing" help; in the Save bar: Model, Check
+    answers with Google Search, Gemini website tool (Python program, Firefox profile folder,
+    geckodriver).
   - **Scrape… (M6b, FR-SCR-1, FR-SCR-5, US-C5, D19):** "Scrape: <title>" searches on open —
     by ROM hash first (files under 512 MiB, not .m3u/.cue/.gdi; never for missing games),
     then by title with relaxed variants — and preselects the best candidate (thumbnail,
