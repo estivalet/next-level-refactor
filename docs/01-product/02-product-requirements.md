@@ -42,6 +42,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-LIB-9 | Smart filters: saved queries (e.g. "Favorites", "Recently played", "Genre = Shooter") usable as menu nodes. | S |
 | FR-LIB-10 | Global search across all systems by title, with results under 150 ms for 200k games. | M |
 | FR-LIB-11 | Import and export of game lists in EmulationStation `gamelist.xml` format. Export is built (owner decision 2026-11-01): a system, collection or smart filter to CSV, JSON or `gamelist.xml`, every game or the list as shown, with the fields the user picks; import is still open. | C |
+| FR-LIB-12 | System health (owner request 2026-11-02): a grade per system (A–F, 0–100) from ROMs found, graded art (box front, gameplay screenshot, clear logo) and details (year, genre, developer, publisher, players, description), sortable worst first, with each system's gaps and a Show that opens its games narrowed to the ones lacking it. Hidden and collection-only games are left out. | S |
 
 ## 4. Systems, emulators & launching (`FR-EMU`)
 

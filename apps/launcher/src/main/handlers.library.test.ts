@@ -189,7 +189,7 @@ describe('library handlers', () => {
 
   it('FR-LIB-3: scan channels fail with LIBRARY_UNAVAILABLE when the library could not open', async () => {
     const { router } = await setup(false);
-    for (const channel of ['scan.status', 'scan.cancel', 'systems.list'] as const) {
+    for (const channel of ['scan.status', 'scan.cancel', 'systems.list', 'library.health'] as const) {
       expect(await router.handle(channel, undefined)).toMatchObject({
         ok: false,
         error: { code: 'LIBRARY_UNAVAILABLE' },
@@ -224,6 +224,22 @@ describe('library handlers', () => {
       value: [
         { id: 'nintendo-64', enabled: false, games: 1, missing: 0, review: 0 },
         { id: 'sega-genesis', enabled: true, games: 0, missing: 0, review: 0 },
+      ],
+    });
+  });
+
+  it('system health: library.health answers each system with games and its gap counts', async () => {
+    const { router, seed } = await setup(true);
+    seed('nintendo-64', [{ title: 'Racer', missing: true }]);
+    const answer = await router.handle('library.health', undefined);
+    expect(answer).toMatchObject({
+      ok: true,
+      value: [
+        {
+          systemId: 'nintendo-64',
+          games: 1,
+          lacking: { rom: 1, 'art:box-front': 1, 'field:year': 1 },
+        },
       ],
     });
   });

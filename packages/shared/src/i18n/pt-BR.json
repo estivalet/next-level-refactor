@@ -800,6 +800,28 @@
       "position": "{{position}} / {{total}}",
       "saveFirst": "Salve ou cancele suas alterações antes"
     },
+    "health": {
+      "open": "Saúde",
+      "title": "Saúde dos sistemas",
+      "backToMenu": "Menu",
+      "menuOnly": "Sistemas do meu menu",
+      "sortBy": "Ordenar:",
+      "sort": { "grade": "Nota (piores primeiro)", "name": "Nome", "games": "Jogos" },
+      "system": "Sistema",
+      "games": "Jogos",
+      "grade": "Nota",
+      "roms": "ROMs encontradas",
+      "art": "Arte",
+      "details": "Detalhes",
+      "score": "Nota {{grade}} · {{score}} / 100",
+      "pullsDown": "O que puxa a nota para baixo",
+      "gapsOf": "O que puxa {{system}} para baixo",
+      "nothingMissing": "Nada faltando.",
+      "show": "Mostrar",
+      "missing": "Faltando: {{what}}",
+      "romFile": "Arquivo da ROM",
+      "clear": "Limpar {{what}}"
+    },
     "relink": {
       "title": "Religar {{title}}",
       "intro": "{{title}} está ausente. Escolha o jogo para o qual o arquivo foi renomeado ou movido.",

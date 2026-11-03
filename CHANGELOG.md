@@ -12,6 +12,12 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   **Show found only**; a tile opens full size (a video plays). Other art folders the library
   indexed for the game (`manual`, `box-side`…) show too. **‹ ›** step through the games of the
   shown list, and the list follows (off while there are unsaved changes) (FR-LIB-6).
+- **System health** (Library home → **Health**): every system with games gets a grade (A–F and
+  a 0–100 score) from ROMs found, art (box front, gameplay screenshot, clear logo) and details
+  (year, genre, developer, publisher, players, description), sorted worst first (or by name or
+  games), optionally only the systems in your menu. Pick a system to see what pulls it down
+  ("Missing: Box front · 51"); **Show** opens its games narrowed to those, with a chip that clears
+  it, and Back returns to Health (FR-LIB-12).
 
 ### Changed
 

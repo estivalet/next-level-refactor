@@ -1,4 +1,4 @@
-import type { GameScope, GameSort, GameTab } from '@nextlevel/shared';
+import type { GameScope, GameSort, GameTab, HealthGap } from '@nextlevel/shared';
 import { useState } from 'react';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { useCollections } from './collectionsApi.ts';
@@ -8,6 +8,13 @@ import { EMPTY_SELECTION, select, type SelectMode } from './selection.ts';
 import { usePagedGames, type GameListParams } from './usePagedGames.ts';
 
 const NOTHING_VISIBLE = { first: 0, last: -1 };
+
+interface Narrowing {
+  key: string;
+  filter?: string;
+  genre?: string;
+  lacking?: HealthGap;
+}
 
 /**
  * The Library's view state (S7): the chosen system, collection or smart filter (none = the home,
@@ -21,11 +28,10 @@ export function useLibraryView(initialScope: GameScope | null = null) {
   const smartFilters = useSmartFilters();
   const [scope, setScope] = useState<GameScope | null>(initialScope);
   const [tab, setTab] = useState<GameTab>('all');
-  // One filter and one genre narrow the list (D62); they belong to the scope they were picked in.
+  // One filter and one genre narrow the list (D62), and System health's Show narrows it to the
+  // games lacking one thing; they belong to the scope they were picked in.
   const scopeKey = JSON.stringify(scope);
-  const [narrowing, setNarrowing] = useState<{ key: string; filter?: string; genre?: string }>({
-    key: scopeKey,
-  });
+  const [narrowing, setNarrowing] = useState<Narrowing>({ key: scopeKey });
   const narrow = narrowing.key === scopeKey ? narrowing : { key: scopeKey };
   const [sort, setSort] = useState<GameSort>('title');
   const params: GameListParams | null = scope
@@ -35,6 +41,7 @@ export function useLibraryView(initialScope: GameScope | null = null) {
         ...(scope.kind === 'system' ? { sort } : {}),
         ...(narrow.filter === undefined ? {} : { filter: narrow.filter }),
         ...(narrow.genre === undefined ? {} : { genre: narrow.genre }),
+        ...(narrow.lacking === undefined ? {} : { lacking: narrow.lacking }),
       }
     : null;
   const viewKey = JSON.stringify(params);
@@ -79,10 +86,10 @@ export function useLibraryView(initialScope: GameScope | null = null) {
       }
       return rows;
     },
-    /** Opening a scope (again) starts without narrowing (D62). */
-    setScope: (next: GameScope) => {
+    /** Opening a scope (again) starts without narrowing (D62), or with the given one. */
+    setScope: (next: GameScope, narrowed: { lacking?: HealthGap } = {}) => {
       setScope(next);
-      setNarrowing({ key: JSON.stringify(next) });
+      setNarrowing({ key: JSON.stringify(next), ...narrowed });
     },
     /** Back to the home, e.g. after the shown collection was deleted. */
     resetScope: () => {
@@ -91,13 +98,18 @@ export function useLibraryView(initialScope: GameScope | null = null) {
     },
     setTab,
     setSort,
-    /** The filter and genre narrowing the list (D62). */
-    narrow: { filter: narrow.filter, genre: narrow.genre },
-    setNarrow: (next: { filter?: string | undefined; genre?: string | undefined }) => {
+    /** The filter, genre (D62) and lacking (System health) narrowing the list. */
+    narrow: { filter: narrow.filter, genre: narrow.genre, lacking: narrow.lacking },
+    setNarrow: (next: {
+      filter?: string | undefined;
+      genre?: string | undefined;
+      lacking?: HealthGap | undefined;
+    }) => {
       setNarrowing({
         key: scopeKey,
         ...(next.filter === undefined ? {} : { filter: next.filter }),
         ...(next.genre === undefined ? {} : { genre: next.genre }),
+        ...(next.lacking === undefined ? {} : { lacking: next.lacking }),
       });
     },
     setRange: (first: number, last: number) => {

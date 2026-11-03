@@ -3,6 +3,7 @@ import {
   ChevronRight,
   Folder,
   Gamepad2,
+  HeartPulse,
   Home,
   Sparkles,
   type LucideIcon,
@@ -47,6 +48,8 @@ interface LibraryHomeProps {
   onPath: (path: string[]) => void;
   /** Controls for the Collections level (New collection, New smart filter). */
   actions?: ReactNode;
+  /** Opens System health. */
+  onHealth?: () => void;
 }
 
 /** The Library home (D61): the active menu one level at a time, as cards or a list. */
@@ -58,6 +61,7 @@ export function LibraryHome({
   onOpen,
   onPath,
   actions,
+  onHealth,
 }: LibraryHomeProps) {
   const { t } = useTranslation();
   const atRoot = level.path.length === 0;
@@ -124,6 +128,12 @@ export function LibraryHome({
           ))}
         </nav>
         {actions}
+        {onHealth && (
+          <button type="button" className={TOOL} onClick={onHealth}>
+            <HeartPulse aria-hidden="true" className="h-3.5 w-3.5" />
+            {t('library.health.open')}
+          </button>
+        )}
         <ViewToggle view={view} onView={onView} />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-4">

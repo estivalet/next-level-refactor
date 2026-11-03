@@ -27,6 +27,7 @@ import {
   SearchResultSchema,
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
+import { SystemHealthSchema } from '../library/health.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
 import {
   ScrapeApplyInputSchema,
@@ -130,6 +131,8 @@ export const ipcContract = {
   },
   'systems.catalog': { input: z.void(), output: z.array(SystemDefinitionSchema) },
   'systems.list': { input: z.void(), output: z.array(SystemSummarySchema) },
+  /** System health: each system with shown games and how many lack a ROM, art kind or detail. */
+  'library.health': { input: z.void(), output: z.array(SystemHealthSchema) },
   'scan.start': {
     input: z.strictObject({ systemIds: z.array(z.string()).min(1).optional() }),
     output: ScanStatusSchema,

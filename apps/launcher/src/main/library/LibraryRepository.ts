@@ -1,5 +1,7 @@
+import { GAME_ART_KINDS, HEALTH_GAPS, type HealthGap, type SystemHealth } from '@nextlevel/shared';
 import { asc, count, eq, sql } from 'drizzle-orm';
 import { titleFromRelPath } from '../scan/discs.ts';
+import { lackingSql } from './gameSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
 import { games } from './schema.ts';
 
@@ -185,4 +187,37 @@ export class LibraryRepository {
       .all()
       .map((row) => ({ ...row, review: review.get(row.systemId) ?? 0 }));
   }
+
+  /**
+   * System health: per system with shown games (not hidden, not collection-only), how many lack
+   * their ROM file, each art kind and each detail. One pass over the media index, pivoted per
+   * game, so 80k games answer well under a second.
+   */
+  systemHealth(): SystemHealth[] {
+    const rows = this.db.$client.prepare(SYSTEM_HEALTH_SQL).all() as Array<
+      Record<string, number> & { systemId: string; games: number }
+    >;
+    return rows.map(({ systemId, games: total, ...counts }) => ({
+      systemId,
+      games: total,
+      lacking: Object.fromEntries(
+        HEALTH_GAPS.map((gap, index) => [gap, counts[`c${String(index)}`] ?? 0]),
+      ) as Record<HealthGap, number>,
+    }));
+  }
 }
+
+/** A gap's "this game lacks it" condition, from fixed fragments only (kinds and fields are constants). */
+function lacksSql(gap: HealthGap): string {
+  const index = GAME_ART_KINDS.findIndex((kind) => `art:${kind}` === gap);
+  return index >= 0 ? `coalesce(md.k${String(index)}, 0) = 0` : lackingSql(gap);
+}
+
+const SYSTEM_HEALTH_SQL = `select g.system_id as systemId, count(*) as games,
+  ${HEALTH_GAPS.map((gap, index) => `sum(case when ${lacksSql(gap)} then 1 else 0 end) as c${String(index)}`).join(', ')}
+  from games g join game_metadata m on m.game_id = g.id
+  left join game_user_state u on u.game_id = g.id
+  left join (select game_id, ${GAME_ART_KINDS.map((kind, index) => `max(kind = '${kind}') as k${String(index)}`).join(', ')}
+    from game_media group by game_id) md on md.game_id = g.id
+  where coalesce(u.hidden, 0) = 0 and g.collection_only = 0
+  group by g.system_id order by g.system_id`;

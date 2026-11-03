@@ -1,5 +1,8 @@
 import {
+  GAME_ART_KINDS,
   GAME_TABS,
+  HEALTH_FIELDS,
+  type HealthGap,
   type CollectionSort,
   type GameListQuery,
   type GameRow,
@@ -94,7 +97,10 @@ export function listShape(
   hasText: boolean,
   /** A smart filter scope: its `select id, rn` query (smartFilterIdsSql). */
   smartIds: string | null = null,
-  narrow: { filter: boolean; genre: boolean } = { filter: false, genre: false },
+  narrow: { filter: boolean; genre: boolean; lacking?: HealthGap | undefined } = {
+    filter: false,
+    genre: false,
+  },
 ) {
   const scope = scopeParts(query.scope, smartIds);
   const where = [scope.where, query.tab === null ? '1 = 1' : TABS[query.tab]];
@@ -105,6 +111,7 @@ export function listShape(
     );
   }
   if (narrow.genre) where.push('m.genre = @genre');
+  if (narrow.lacking !== undefined) where.push(lackingSql(narrow.lacking));
   const sort =
     query.scope.kind === 'collection' ? (collectionSort ?? 'manual') : (query.sort ?? 'title');
   return {
@@ -136,4 +143,18 @@ export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRo
     expectedPath: missing ? resolvePath(raw) : null,
     boxArt: raw.boxArt,
   };
+}
+
+/**
+ * "This game lacks it" for System health's Show (a ROM, an art kind, a detail). Built from the
+ * fixed gap list, never from input text, so it is a fixed SQL fragment per gap.
+ */
+export function lackingSql(gap: HealthGap): string {
+  if (gap === 'rom') return 'g.missing = 1';
+  if (gap.startsWith('art:')) {
+    const kind = GAME_ART_KINDS.find((known) => `art:${known}` === gap) ?? 'box-front';
+    return `not exists (select 1 from game_media gm where gm.game_id = g.id and gm.kind = '${kind}')`;
+  }
+  const field = HEALTH_FIELDS.find((known) => `field:${known}` === gap) ?? 'year';
+  return field === 'year' ? 'm.year is null' : `coalesce(trim(m.${field}), '') = ''`;
 }

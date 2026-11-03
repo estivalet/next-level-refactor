@@ -165,6 +165,27 @@ describe('GameRepository narrowing and facets', () => {
     expect(titles({ genre: 'Shooter', tab: 'hidden' })).toEqual(['G4']);
   });
 
+  it('system health: a list narrows to the games lacking a ROM, an art kind or a detail', () => {
+    const [boxed, , blank] = seedGames(library.db, 'nintendo-64', [
+      { title: 'Boxed', year: 1996 },
+      { title: 'Lost', missing: true, year: 1997 },
+      { title: 'Blank' },
+    ]);
+    library.db.$client
+      .prepare(
+        "insert into game_media (game_id, kind, path, size, version) values (?, 'box-front', 'b.png', 1, 1)",
+      )
+      .run(boxed);
+    library.db.$client
+      .prepare("update game_metadata set description = '  ' where game_id = ?")
+      .run(blank);
+    expect(titles({ lacking: 'rom' })).toEqual(['Lost']);
+    expect(titles({ lacking: 'art:box-front' })).toEqual(['Blank', 'Lost']);
+    expect(titles({ lacking: 'field:year' })).toEqual(['Blank']);
+    expect(titles({ lacking: 'field:description' })).toEqual(['Blank', 'Boxed', 'Lost']);
+    expect(games.list(query({ lacking: 'art:box-front', text: 'lost' })).total).toBe(1);
+  });
+
   it('D62: facets count the scope and tab, sorted by name', () => {
     seedFacets();
     seedGames(library.db, 'snes', [{ title: 'Other', filters: ['zeta'], genre: 'Puzzle' }]);
