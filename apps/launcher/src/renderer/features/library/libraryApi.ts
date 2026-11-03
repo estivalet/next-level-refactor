@@ -1,5 +1,11 @@
 import type { GameFlags, LaunchOverride, MetadataChanges } from '@nextlevel/shared';
-import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
@@ -50,8 +56,10 @@ export function useSystemSummaries() {
   });
 }
 
-export function useGameDetails(gameId: number | null) {
+export function useGameDetails(gameId: number | null, options: { keepPrevious?: boolean } = {}) {
   return useQuery({
+    // Paging through games in Edit details keeps the last game on screen while the next loads.
+    ...(options.keepPrevious ? { placeholderData: keepPreviousData } : {}),
     queryKey: [GAME_KEY, gameId],
     queryFn: async () =>
       unwrap(await getBridge().invoke('library.games.get', { gameId: gameId ?? 0 })),

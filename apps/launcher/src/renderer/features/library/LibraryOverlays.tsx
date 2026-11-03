@@ -163,7 +163,11 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
         />
       )}
       {overlays.editing !== null && (
-        <EditMetadataDialog gameId={overlays.editing} onClose={overlays.closeEdit} />
+        <EditMetadataDialog
+          gameId={overlays.editing}
+          {...editPager(view, overlays, overlays.editing)}
+          onClose={overlays.closeEdit}
+        />
       )}
       {overlays.relinking !== null && (
         <RelinkDialog gameId={overlays.relinking} onClose={overlays.closeRelink} />
@@ -191,4 +195,28 @@ function enabledSystems(view: LibraryView) {
     .filter((system) => system.enabled)
     .map((system) => ({ id: system.id, name: names.get(system.id) ?? system.id }))
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * ‹ › in Edit details: the edited game's place in the shown list. A step selects the next row too
+ * (its page may not be loaded yet), so the list and the details panel follow the dialog.
+ */
+function editPager(view: LibraryView, overlays: Overlays, gameId: number) {
+  const index = view.games.indexOf(gameId);
+  const total = view.games.total;
+  if (index < 0 || total === null) return {};
+  return {
+    pager: {
+      position: index + 1,
+      total,
+      onStep: (delta: -1 | 1) => {
+        const target = index + delta;
+        void view.games.idsInRange(target, target).then(([id]) => {
+          if (id === undefined) return;
+          view.selectRow(target, 'single');
+          overlays.edit(id);
+        });
+      },
+    },
+  };
 }

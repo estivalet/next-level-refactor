@@ -198,6 +198,12 @@ Scope view (D62)
     collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink).
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections.
+  - **Edit details (FR-LIB-6, owner request 2026-11-02):** the game's title, **Info** and
+    **Media** tabs, and **‹ n / total ›** for the shown list (stepping selects that row; off
+    with unsaved changes; the tab is kept). Info = the editable fields. Media is look-only:
+    a tile per standard art kind (found = image from the media index, missing = "Not
+    found") plus any other indexed kind of the game, "N of M found", **Show found only**;
+    a found tile opens full size over the Library (Esc or ✕ closes just that view).
   - **Scrape… (M6b, FR-SCR-1, FR-SCR-5, US-C5, D19):** "Scrape: <title>" searches on open —
     by ROM hash first (files under 512 MiB, not .m3u/.cue/.gdi; never for missing games),
     then by title with relaxed variants — and preselects the best candidate (thumbnail,

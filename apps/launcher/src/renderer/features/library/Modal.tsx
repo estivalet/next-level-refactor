@@ -7,6 +7,8 @@ interface ModalProps {
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  /** A wider dialog (Edit details with its Media tab). */
+  wide?: boolean;
 }
 
 /**
@@ -14,7 +16,7 @@ interface ModalProps {
  * backdrop-filter would make `position: fixed` relative to it anyway). Esc closes; focus goes to
  * the first field and returns where it was on close.
  */
-export function Modal({ title, onClose, children, footer }: ModalProps) {
+export function Modal({ title, onClose, children, footer, wide = false }: ModalProps) {
   const { t } = useTranslation();
   const titleId = useId();
   const box = useRef<HTMLDivElement>(null);
@@ -41,7 +43,7 @@ export function Modal({ title, onClose, children, footer }: ModalProps) {
             onClose();
           }
         }}
-        className="flex max-h-full w-full max-w-lg flex-col rounded-xl border border-white/10 bg-[#1a1a24] shadow-2xl"
+        className={`flex max-h-full w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} flex-col rounded-xl border border-white/10 bg-[#1a1a24] shadow-2xl`}
       >
         <div className="flex items-center gap-2 border-b border-white/5 px-4 py-3">
           <h2 id={titleId} className="flex-1 truncate text-sm font-semibold text-white">

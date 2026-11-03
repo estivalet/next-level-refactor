@@ -183,6 +183,26 @@ describe('LibraryApp', () => {
     expect(selected).toHaveLength(2);
   });
 
+  it('FR-LIB-6: Edit details pages through the list and the list follows', async () => {
+    const user = userEvent.setup();
+    installFakeBridge(libraryResponses(GAMES, SYSTEMS));
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    await user.click(await screen.findByRole('button', { name: 'List view' }));
+    await user.click(await screen.findByRole('option', { name: /Homebrew Demo/ }));
+    await user.click(await screen.findByRole('button', { name: 'Edit details' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Edit details' });
+    expect(within(dialog).getByText('1 / 3')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Next game' }));
+    expect(await within(dialog).findByText('2 / 3')).toBeInTheDocument();
+    expect(await within(dialog).findByRole('textbox', { name: 'Title' })).toHaveValue(
+      'Homebrew Racer',
+    );
+    expect(screen.getByRole('option', { name: /Homebrew Racer/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
   it('FR-LIB-6: an empty library offers Scan', async () => {
     const user = userEvent.setup();
     const bridge = installFakeBridge({
