@@ -1,5 +1,5 @@
 import type { GameFlags, ScrapeProvider } from '@nextlevel/shared';
-import { Database, FolderMinus, FolderPlus, ImageDown } from 'lucide-react';
+import { Database, FolderMinus, FolderPlus, ImageDown, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollectionDialogs, type CollectionDialogState } from './CollectionDialog.tsx';
@@ -9,6 +9,7 @@ import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
 import { BatchRulesDialog } from '../scrape/BatchRulesDialog.tsx';
 import { useBatchOverlay } from '../scrape/useBatchOverlay.ts';
+import { GeminiDialog } from '../scrape/GeminiDialog.tsx';
 import { ScrapeDialog } from '../scrape/ScrapeDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
 import { SmartFilterDialogs, type SmartFilterDialogState } from './SmartFilterDialog.tsx';
@@ -122,6 +123,14 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
               overlays.scrape(onlyId, 'launchbox');
             },
           },
+          {
+            key: 'fillGemini',
+            label: t('library.menu.fillGemini'),
+            icon: Sparkles,
+            run: () => {
+              overlays.scrape(onlyId, 'gemini');
+            },
+          },
         ]
       : [];
   if (ids.length > 1 && overlays.canBatch) {
@@ -187,7 +196,10 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       {overlays.batchRules && (
         <BatchRulesDialog {...overlays.batchRules} onClose={overlays.closeBatch} />
       )}
-      {overlays.scraping !== null && (
+      {overlays.scraping?.provider === 'gemini' && (
+        <GeminiDialog gameId={overlays.scraping.gameId} onClose={overlays.closeScrape} />
+      )}
+      {overlays.scraping !== null && overlays.scraping.provider !== 'gemini' && (
         <ScrapeDialog
           gameId={overlays.scraping.gameId}
           provider={overlays.scraping.provider}

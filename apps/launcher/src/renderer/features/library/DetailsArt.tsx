@@ -51,11 +51,13 @@ export function ScrapeStatusLine({ game }: { game: GameDetails }) {
   if (!game.scrape) return null;
   const { status, scrapedAt, provider } = game.scrape;
   const date = new Date(scrapedAt).toLocaleDateString(i18n.language);
-  // FR-SCR-6: a LaunchBox scrape says so ("Scraped <date> from LaunchBox").
-  const fromLaunchBox = provider === 'launchbox' && (status === 'scraped' || status === 'review');
+  // FR-SCR-6/7: a LaunchBox or Gemini scrape says so ("Scraped <date> from LaunchBox").
+  const named = status === 'scraped' || status === 'review';
+  const group =
+    named && provider === 'launchbox' ? 'lb.' : named && provider === 'gemini' ? 'gm.' : '';
   return (
     <p className={`text-xs ${status === 'scraped' ? 'text-slate-500' : 'text-amber-300'}`}>
-      {t(fromLaunchBox ? `library.scrape.lb.status.${status}` : `library.scrape.status.${status}`, {
+      {t(`library.scrape.${group}status.${status}`, {
         date,
       })}
     </p>
