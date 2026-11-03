@@ -1,10 +1,8 @@
 import type { ScrapeStatus } from '@nextlevel/shared';
 import type { LibraryDb } from './openLibrary.ts';
 
-/** The only provider so far (FR-SCR-1). */
-export const SCREENSCRAPER = 'screenscraper';
-
 interface RawStatus {
+  provider: ScrapeStatus['provider'];
   status: ScrapeStatus['status'];
   providerGameId: number | null;
   candidates: number;
@@ -12,13 +10,14 @@ interface RawStatus {
   scrapedAt: string;
 }
 
-export const SCRAPE_STATUS_COLUMNS = `s.status as status, s.provider_game_id as providerGameId,
+export const SCRAPE_STATUS_COLUMNS = `s.provider as provider, s.status as status, s.provider_game_id as providerGameId,
   s.candidates as candidates, s.error as error, s.scraped_at as scrapedAt`;
 
 /** A `scrape_status` row read with SCRAPE_STATUS_COLUMNS, or null when there is none. */
 export function toScrapeStatus(raw: RawStatus | undefined): ScrapeStatus | null {
   if (!raw?.status) return null;
   return {
+    provider: raw.provider,
     status: raw.status,
     providerGameId: raw.providerGameId,
     candidates: raw.candidates,
@@ -42,7 +41,7 @@ export class ScrapeRepository {
            candidates = excluded.candidates, error = excluded.error,
            scraped_at = excluded.scraped_at`,
       )
-      .run({ gameId, provider: SCREENSCRAPER, ...status });
+      .run({ gameId, ...status });
   }
 
   get(gameId: number): ScrapeStatus | null {

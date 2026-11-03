@@ -39,6 +39,7 @@ import {
   type CatalogApi,
 } from './catalog/catalogHandlers.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
+import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
@@ -165,6 +166,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
     ...createBatchHandlers({ batch: () => library().batch }),
+    ...createLaunchBoxHandlers(),
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
     ...createScrapeHandlers({

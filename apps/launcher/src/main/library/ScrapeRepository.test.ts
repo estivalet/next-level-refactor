@@ -18,6 +18,7 @@ async function setup() {
 }
 
 const scraped = {
+  provider: 'screenscraper' as const,
   status: 'scraped' as const,
   providerGameId: 321,
   candidates: 1,
@@ -35,6 +36,12 @@ describe('ScrapeRepository', () => {
     scrapes.set(a, review);
     expect(scrapes.get(a)).toEqual(review);
     expect(scrapes.get(b)).toBeNull();
+  });
+
+  it('FR-SCR-6: a status keeps the provider that wrote it', async () => {
+    const { scrapes, a } = await setup();
+    scrapes.set(a, { ...scraped, provider: 'launchbox', providerGameId: 472523 });
+    expect(scrapes.get(a)).toEqual({ ...scraped, provider: 'launchbox', providerGameId: 472523 });
   });
 
   it('FR-SCR-5: game details carry the scrape status', async () => {

@@ -318,6 +318,7 @@ export class BatchScrapeService {
     error: string | null,
   ): void {
     this.deps.scrapes.set(gameId, {
+      provider: 'screenscraper',
       status,
       providerGameId: null,
       candidates,

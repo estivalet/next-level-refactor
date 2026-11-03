@@ -257,7 +257,11 @@ describe('ScrapeService.apply (FR-SCR-1, FR-SCR-4, FR-SCR-5)', () => {
     expect(result.written).toEqual(['box-front', 'logo-clear']);
     expect(result.failed).toEqual([]);
     expect(result.game).toMatchObject({ genre: 'Racing', year: 1994, lockedFields: [] });
-    expect(result.game.scrape).toMatchObject({ status: 'scraped', providerGameId: 500 });
+    expect(result.game.scrape).toMatchObject({
+      provider: 'screenscraper',
+      status: 'scraped',
+      providerGameId: 500,
+    });
     expect(await readFile(join(mediaDir, 'box-front', 'Zoom Racer (USA).png'))).toEqual(
       Buffer.concat([Buffer.from('PNG:'), img('box')]),
     );
@@ -486,6 +490,7 @@ describe('ScrapeService.apply clears Needs review (FR-SCR-2)', () => {
   it('scraping a game marked for review takes it off the Needs review list', async () => {
     const { service, gameId, scrapes, games } = await setup();
     scrapes.set(gameId, {
+      provider: 'screenscraper',
       status: 'review',
       providerGameId: null,
       candidates: 2,

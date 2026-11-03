@@ -91,6 +91,7 @@ function setup(
       }
       if (step) return Promise.reject(fail(step));
       scrapes.set(input.gameId, {
+        provider: 'screenscraper',
         status: 'scraped',
         providerGameId: input.providerGameId,
         candidates: o.candidates,
