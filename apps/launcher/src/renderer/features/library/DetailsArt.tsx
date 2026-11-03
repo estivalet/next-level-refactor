@@ -49,11 +49,15 @@ export function DetailsArt({ game }: { game: GameDetails }) {
 export function ScrapeStatusLine({ game }: { game: GameDetails }) {
   const { t, i18n } = useTranslation();
   if (!game.scrape) return null;
-  const { status, scrapedAt } = game.scrape;
+  const { status, scrapedAt, provider } = game.scrape;
   const date = new Date(scrapedAt).toLocaleDateString(i18n.language);
+  // FR-SCR-6: a LaunchBox scrape says so ("Scraped <date> from LaunchBox").
+  const fromLaunchBox = provider === 'launchbox' && (status === 'scraped' || status === 'review');
   return (
     <p className={`text-xs ${status === 'scraped' ? 'text-slate-500' : 'text-amber-300'}`}>
-      {t(`library.scrape.status.${status}`, { date })}
+      {t(fromLaunchBox ? `library.scrape.lb.status.${status}` : `library.scrape.status.${status}`, {
+        date,
+      })}
     </p>
   );
 }

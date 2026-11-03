@@ -80,7 +80,7 @@ test('US-C5, FR-SCR-1, FR-SCR-5: Scrape… writes box art beside the ROMs and th
     await openScope(library, ['Nintendo', 'Nintendo 64']);
     const games = library.getByRole('listbox', { name: 'Games' });
     await games.getByRole('option', { name: /Homebrew Demo/ }).click({ button: 'right' });
-    await page.getByRole('menuitem', { name: 'Scrape…' }).click();
+    await page.getByRole('menuitem', { name: 'Scrape from ScreenScraper…' }).click();
 
     const dialog = library.getByRole('dialog', { name: 'Scrape: Homebrew Demo' });
     await expect(dialog.getByRole('radio', { name: /Homebrew Demo/ })).toBeChecked();

@@ -1,36 +1,45 @@
-import type { ScraperSystem } from '@nextlevel/shared';
+import type { ScrapeProvider } from '@nextlevel/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { INPUT, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
+import { scrapeKey } from './providerText.ts';
 
-/** Links a system to a ScreenScraper system when it has no id yet (NO_SCRAPER_SYSTEM). */
+export interface PickerOption {
+  value: string;
+  label: string;
+}
+
+/**
+ * Links a system to the source's system when it has none yet: a ScreenScraper system
+ * (NO_SCRAPER_SYSTEM) or a LaunchBox platform (NO_LAUNCHBOX_PLATFORM, FR-SCR-6).
+ */
 export function SystemPicker(props: {
-  systems: readonly ScraperSystem[];
-  onSave: (screenscraperId: number) => Promise<void>;
+  provider: ScrapeProvider;
+  options: readonly PickerOption[];
+  onSave: (value: string) => Promise<void>;
   onReload: () => Promise<void>;
 }) {
   const { t } = useTranslation();
+  const key = (name: string) => scrapeKey(props.provider, name);
   const [choice, setChoice] = useState('');
   const [saving, setSaving] = useState(false);
   return (
     <div className="flex flex-col gap-2 text-xs">
-      <p className="text-slate-300">{t('library.scrape.needsSystem')}</p>
-      {props.systems.length === 0 && (
-        <p className="text-slate-500">{t('library.scrape.noSystems')}</p>
-      )}
+      <p className="text-slate-300">{t(key('needsSystem'))}</p>
+      {props.options.length === 0 && <p className="text-slate-500">{t(key('noSystems'))}</p>}
       <div className="flex gap-2">
         <select
-          aria-label={t('library.scrape.systemLabel')}
+          aria-label={t(key('systemLabel'))}
           value={choice}
           onChange={(event) => {
             setChoice(event.target.value);
           }}
           className={INPUT}
         >
-          <option value="">{t('library.scrape.chooseSystem')}</option>
-          {props.systems.map((system) => (
-            <option key={system.id} value={system.id}>
-              {system.name}
+          <option value="">{t(key('chooseSystem'))}</option>
+          {props.options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
@@ -40,12 +49,12 @@ export function SystemPicker(props: {
           disabled={!choice || saving}
           onClick={() => {
             setSaving(true);
-            void props.onSave(Number(choice)).finally(() => {
+            void props.onSave(choice).finally(() => {
               setSaving(false);
             });
           }}
         >
-          {t('library.scrape.saveSystem')}
+          {t(key('saveSystem'))}
         </button>
         <button
           type="button"

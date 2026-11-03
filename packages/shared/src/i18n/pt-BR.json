@@ -798,7 +798,8 @@
       "missingReason": "Mostrar motivo da ausência…",
       "play": "Jogar",
       "launchOptions": "Opções de execução…",
-      "scrape": "Buscar dados…"
+      "scrape": "Buscar no ScreenScraper…",
+      "scrapeLaunchBox": "Buscar no LaunchBox…"
     },
     "edit": {
       "title": "Editar detalhes",
@@ -1023,6 +1024,27 @@
         "review": "Precisa de revisão",
         "notFound": "Não encontrado no ScreenScraper",
         "failed": "A última busca falhou"
+      },
+      "lb": {
+        "title": "Buscar no LaunchBox: {{title}}",
+        "searching": "Buscando no LaunchBox…",
+        "notAvailable": "Não está no LaunchBox",
+        "needsSystem": "Este sistema ainda não está ligado a uma plataforma do LaunchBox.",
+        "systemLabel": "Plataforma do LaunchBox",
+        "chooseSystem": "Escolha uma plataforma…",
+        "saveSystem": "Salvar plataforma",
+        "noSystems": "O banco de dados do LaunchBox não tem plataformas. Atualize-o em Configurações → Scraper.",
+        "failure": {
+          "notAvailable": "não está no LaunchBox"
+        },
+        "needsDownload": "Baixar o banco de dados do LaunchBox (cerca de 110 MB)?",
+        "download": "Baixar",
+        "downloading": "Baixando o banco de dados do LaunchBox…",
+        "try": "Tentar no LaunchBox",
+        "status": {
+          "scraped": "Buscado em {{date}} no LaunchBox",
+          "review": "Precisa de revisão (LaunchBox)"
+        }
       }
     },
     "batch": {

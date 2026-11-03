@@ -26,7 +26,7 @@ const FOUND: ScrapeSearchResult = {
 };
 const APPLIED: ScrapeApplyResult = { written: ['logo-clear'], failed: [], game: GAME };
 
-function setup(responses: FakeResponses = {}) {
+function setup(responses: FakeResponses = {}, provider?: 'screenscraper' | 'launchbox') {
   const fake = installFakeBridge({
     'library.games.get': () => ok(GAME),
     'scraper.search': () => ok(FOUND),
@@ -39,6 +39,7 @@ function setup(responses: FakeResponses = {}) {
     <div className="relative">
       <ScrapeDialog
         gameId={7}
+        {...(provider ? { provider } : {})}
         onClose={() => {
           closed += 1;
         }}
@@ -168,5 +169,97 @@ describe('ScrapeDialog (FR-SCR-1, US-C5)', () => {
       await Promise.resolve();
     });
     expect(inputs('scraper.preview')).toEqual([]);
+  });
+
+  it('FR-SCR-6: Scrape from LaunchBox searches, previews and applies with provider launchbox', async () => {
+    const user = userEvent.setup();
+    const { inputs } = setup({}, 'launchbox');
+    const dialog = await screen.findByRole('dialog', { name: 'Scrape from LaunchBox: Racer' });
+    await within(dialog).findByRole('checkbox', { name: 'Clear logo' });
+    expect(inputs('scraper.search')).toEqual([{ gameId: 7, provider: 'launchbox' }]);
+    expect(inputs('scraper.preview')).toEqual([
+      { gameId: 7, providerGameId: 501, provider: 'launchbox' },
+    ]);
+    await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
+    expect(inputs('scraper.apply')[0]).toMatchObject({ provider: 'launchbox' });
+  });
+
+  it('FR-SCR-6: no ScreenScraper match offers Try LaunchBox in the same dialog', async () => {
+    const user = userEvent.setup();
+    const { inputs } = setup({
+      'scraper.search': (input) =>
+        ok(
+          (input as { provider?: string }).provider === 'launchbox'
+            ? FOUND
+            : { method: 'title', candidates: [] },
+        ),
+    });
+    const dialog = await screen.findByRole('dialog', { name: 'Scrape: Racer' });
+    await user.click(await within(dialog).findByRole('button', { name: 'Try LaunchBox' }));
+    expect(
+      await screen.findByRole('dialog', { name: 'Scrape from LaunchBox: Racer' }),
+    ).toBeVisible();
+    await waitFor(() => {
+      expect(inputs('scraper.search').at(-1)).toEqual({ gameId: 7, provider: 'launchbox' });
+    });
+  });
+
+  it('FR-SCR-6: without the LaunchBox database the dialog offers the download, then searches', async () => {
+    const user = userEvent.setup();
+    let ready = false;
+    const { fake, inputs } = setup(
+      {
+        'scraper.search': () =>
+          ready ? ok(FOUND) : err('LAUNCHBOX_INDEX_MISSING', 'errors.launchboxIndexMissing'),
+        'launchbox.refresh': () =>
+          ok({ state: 'downloading', builtAt: null, games: 0, progress: 0, error: null }),
+      },
+      'launchbox',
+    );
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      await within(dialog).findByText('Download the LaunchBox database (about 110 MB)?'),
+    ).toBeVisible();
+    await user.click(within(dialog).getByRole('button', { name: 'Download' }));
+    expect(fake.calls.some((call) => call.channel === 'launchbox.refresh')).toBe(true);
+    ready = true;
+    act(() => {
+      fake.emit('launchbox.changed', {
+        state: 'ready',
+        builtAt: '2026-11-02T08:00:00.000Z',
+        games: 3,
+        progress: null,
+        error: null,
+      });
+    });
+    expect(await within(dialog).findByRole('radio', { name: /Zoom Racer II/ })).toBeChecked();
+    expect(inputs('scraper.search')).toHaveLength(2);
+  });
+
+  it('FR-SCR-6: a system without a LaunchBox platform shows the platform picker', async () => {
+    const user = userEvent.setup();
+    let mapped = false;
+    const { fake, inputs } = setup(
+      {
+        'scraper.search': () =>
+          mapped ? ok(FOUND) : err('NO_LAUNCHBOX_PLATFORM', 'errors.noLaunchboxPlatform'),
+        'launchbox.platforms': () => ok(['Microsoft Xbox 360', 'Nintendo 64']),
+        'launchbox.setPlatform': () => {
+          mapped = true;
+          return ok(undefined);
+        },
+      },
+      'launchbox',
+    );
+    const dialog = await screen.findByRole('dialog');
+    const picker = await within(dialog).findByRole('combobox', { name: 'LaunchBox platform' });
+    await user.selectOptions(picker, 'Nintendo 64');
+    await user.click(within(dialog).getByRole('button', { name: 'Save platform' }));
+    expect(await within(dialog).findByRole('radio', { name: /Zoom Racer II/ })).toBeChecked();
+    expect(fake.calls.find((call) => call.channel === 'launchbox.setPlatform')?.input).toEqual({
+      systemId: 'nintendo-64',
+      platform: 'Nintendo 64',
+    });
+    expect(inputs('scraper.search')).toHaveLength(2);
   });
 });

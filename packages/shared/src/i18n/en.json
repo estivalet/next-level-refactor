@@ -798,7 +798,8 @@
       "missingReason": "Show missing reason…",
       "play": "Play",
       "launchOptions": "Launch options…",
-      "scrape": "Scrape…"
+      "scrape": "Scrape from ScreenScraper…",
+      "scrapeLaunchBox": "Scrape from LaunchBox…"
     },
     "edit": {
       "title": "Edit details",
@@ -1023,6 +1024,27 @@
         "review": "Needs review",
         "notFound": "Not found on ScreenScraper",
         "failed": "Last scrape failed"
+      },
+      "lb": {
+        "title": "Scrape from LaunchBox: {{title}}",
+        "searching": "Searching LaunchBox…",
+        "notAvailable": "Not on LaunchBox",
+        "needsSystem": "This system is not linked to a LaunchBox platform yet.",
+        "systemLabel": "LaunchBox platform",
+        "chooseSystem": "Choose a platform…",
+        "saveSystem": "Save platform",
+        "noSystems": "The LaunchBox database lists no platforms. Refresh it in Settings → Scraper.",
+        "failure": {
+          "notAvailable": "not on LaunchBox"
+        },
+        "needsDownload": "Download the LaunchBox database (about 110 MB)?",
+        "download": "Download",
+        "downloading": "Downloading the LaunchBox database…",
+        "try": "Try LaunchBox",
+        "status": {
+          "scraped": "Scraped {{date}} from LaunchBox",
+          "review": "Needs review (LaunchBox)"
+        }
       }
     },
     "batch": {

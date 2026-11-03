@@ -1,4 +1,9 @@
-import type { GameDetails, ScrapeApplyResult, ScrapePreview } from '@nextlevel/shared';
+import type {
+  GameDetails,
+  ScrapeApplyResult,
+  ScrapePreview,
+  ScrapeProvider,
+} from '@nextlevel/shared';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,17 +13,34 @@ import { errorMessageKey } from '../settings/settingsApi.ts';
 import { CandidateList } from './CandidateList.tsx';
 import { defaultPicks, selectionOf, type Picks } from './picks.ts';
 import { PreviewTable } from './PreviewTable.tsx';
-import { useApplyScrape } from './scrapeApi.ts';
+import { scrapeKey } from './providerText.ts';
+import { providerInput, useApplyScrape } from './scrapeApi.ts';
 import { SystemPicker } from './SystemPicker.tsx';
 import { useScrape } from './useScrape.ts';
 
 /**
- * Scrape… (S7, FR-SCR-1, US-C5): pick a ScreenScraper candidate, tick the art and fields to take,
- * apply. Opens once the game is loaded (normally cached by the details panel).
+ * Scrape… (S7, FR-SCR-1, US-C5): pick a candidate from ScreenScraper or LaunchBox (FR-SCR-6),
+ * tick the art and fields to take, apply. Opens once the game is loaded (normally cached by the
+ * details panel). Try LaunchBox switches a ScreenScraper dialog that found nothing.
  */
-export function ScrapeDialog({ gameId, onClose }: { gameId: number; onClose: () => void }) {
-  const details = useGameDetails(gameId);
-  return details.data ? <ScrapeForm game={details.data} onClose={onClose} /> : null;
+export function ScrapeDialog(props: {
+  gameId: number;
+  provider?: ScrapeProvider;
+  onClose: () => void;
+}) {
+  const details = useGameDetails(props.gameId);
+  const [source, setSource] = useState<ScrapeProvider>(props.provider ?? 'screenscraper');
+  return details.data ? (
+    <ScrapeForm
+      key={source}
+      game={details.data}
+      provider={source}
+      onTryLaunchBox={() => {
+        setSource('launchbox');
+      }}
+      onClose={props.onClose}
+    />
+  ) : null;
 }
 
 function Busy({ label }: { label: string }) {
@@ -30,9 +52,16 @@ function Busy({ label }: { label: string }) {
   );
 }
 
-function ScrapeForm({ game, onClose }: { game: GameDetails; onClose: () => void }) {
+function ScrapeForm(props: {
+  game: GameDetails;
+  provider: ScrapeProvider;
+  onTryLaunchBox: () => void;
+  onClose: () => void;
+}) {
+  const { game, provider, onClose } = props;
   const { t } = useTranslation();
-  const { state, search, preview, saveSystem, reloadSystems } = useScrape(game);
+  const key = (name: string) => scrapeKey(provider, name);
+  const { state, search, preview, saveSystem, download, reloadSystems } = useScrape(game, provider);
   const apply = useApplyScrape();
   const [query, setQuery] = useState(game.title);
   const [overwrite, setOverwrite] = useState(false);
@@ -53,7 +82,12 @@ function ScrapeForm({ game, onClose }: { game: GameDetails; onClose: () => void 
     if (state.selectedId === null) return;
     setFailed([]);
     apply.mutate(
-      { gameId: game.id, providerGameId: state.selectedId, ...selection },
+      {
+        gameId: game.id,
+        providerGameId: state.selectedId,
+        ...selection,
+        ...providerInput(provider),
+      },
       {
         onSuccess: (result) => {
           if (result.failed.length > 0) setFailed(result.failed);
@@ -66,7 +100,7 @@ function ScrapeForm({ game, onClose }: { game: GameDetails; onClose: () => void 
 
   return (
     <Modal
-      title={t('library.scrape.title', { title: game.title })}
+      title={t(key('title'), { title: game.title })}
       onClose={onClose}
       footer={
         <>
@@ -105,12 +139,44 @@ function ScrapeForm({ game, onClose }: { game: GameDetails; onClose: () => void 
             {t('library.scrape.search')}
           </button>
         </form>
-        {state.phase === 'searching' && <Busy label={t('library.scrape.searching')} />}
+        {state.phase === 'searching' && <Busy label={t(key('searching'))} />}
         {state.phase === 'needsSystem' && (
-          <SystemPicker systems={state.systems} onSave={saveSystem} onReload={reloadSystems} />
+          <SystemPicker
+            provider={provider}
+            options={state.systems}
+            onSave={saveSystem}
+            onReload={reloadSystems}
+          />
+        )}
+        {state.phase === 'needsDownload' && (
+          <div className="flex items-center gap-3 text-xs text-slate-300">
+            <p className="flex-1">{t('library.scrape.lb.needsDownload')}</p>
+            {state.downloading ? (
+              <Busy label={t('library.scrape.lb.downloading')} />
+            ) : (
+              <button
+                type="button"
+                className={`${PRIMARY_BUTTON} shrink-0`}
+                onClick={() => void download()}
+              >
+                {t('library.scrape.lb.download')}
+              </button>
+            )}
+          </div>
         )}
         {state.phase === 'results' && state.candidates.length === 0 && (
-          <p className="text-xs text-slate-400">{t('library.scrape.noMatch')}</p>
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <p className="flex-1">{t('library.scrape.noMatch')}</p>
+            {provider === 'screenscraper' && (
+              <button
+                type="button"
+                className={`${SECONDARY_BUTTON} shrink-0`}
+                onClick={props.onTryLaunchBox}
+              >
+                {t('library.scrape.lb.try')}
+              </button>
+            )}
+          </div>
         )}
         {state.phase === 'results' && state.candidates.length > 0 && (
           <CandidateList
@@ -137,6 +203,7 @@ function ScrapeForm({ game, onClose }: { game: GameDetails; onClose: () => void 
               {t('library.scrape.overwrite')}
             </label>
             <PreviewTable
+              provider={provider}
               preview={state.preview}
               picks={picks}
               onToggle={(key, value) => {
@@ -157,7 +224,7 @@ function ScrapeForm({ game, onClose }: { game: GameDetails; onClose: () => void 
                 <p key={f.kind}>
                   {t('library.scrape.failed', {
                     kind: t(`settings.themes.options.kinds.${f.kind}`),
-                    reason: t(`library.scrape.failure.${f.code}`),
+                    reason: t(key(`failure.${f.code}`)),
                   })}
                 </p>
               ))}

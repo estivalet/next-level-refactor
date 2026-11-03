@@ -1,4 +1,10 @@
-import { GAME_ART_KINDS, SCRAPE_FIELDS, type ScrapePreview } from '@nextlevel/shared';
+import {
+  GAME_ART_KINDS,
+  SCRAPE_FIELDS,
+  type ScrapePreview,
+  type ScrapeProvider,
+} from '@nextlevel/shared';
+import { scrapeKey } from './providerText.ts';
 import { Lock } from 'lucide-react';
 import { useId, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,10 +18,11 @@ interface RowProps {
   detail: ReactNode;
   /** A locked field: the description says ticking it replaces the user's value. */
   lockedNote?: string;
+  /** "Not on ScreenScraper" / "Not on LaunchBox". */
+  notAvailable: string;
 }
 
-function Row({ label, checked, available, onChange, detail, lockedNote }: RowProps) {
-  const { t } = useTranslation();
+function Row({ label, checked, available, onChange, detail, lockedNote, notAvailable }: RowProps) {
   const noteId = useId();
   return (
     <label
@@ -37,7 +44,7 @@ function Row({ label, checked, available, onChange, detail, lockedNote }: RowPro
         {lockedNote && <Lock aria-hidden="true" className="h-3 w-3 text-emerald-400" />}
       </span>
       <span className="min-w-0 flex-1 truncate text-slate-400">
-        {available ? detail : t('library.scrape.notAvailable')}
+        {available ? detail : notAvailable}
       </span>
       {lockedNote && (
         <span id={noteId} className="sr-only">
@@ -50,14 +57,16 @@ function Row({ label, checked, available, onChange, detail, lockedNote }: RowPro
 
 const SECTION = 'px-3 py-1 text-[10px] tracking-wider text-slate-500 uppercase';
 
-/** What ScreenScraper has against what the game has (S7 Scrape…); rows are tickable. */
+/** What the source has against what the game has (S7 Scrape…); rows are tickable. */
 export function PreviewTable(props: {
   preview: ScrapePreview;
   picks: Picks;
   onToggle: (key: string, value: boolean) => void;
+  provider?: ScrapeProvider;
 }) {
   const { preview, picks, onToggle } = props;
   const { t } = useTranslation();
+  const notAvailable = t(scrapeKey(props.provider ?? 'screenscraper', 'notAvailable'));
   return (
     <div className="divide-y divide-white/5 rounded-lg border border-white/10 bg-black/20">
       <div className={SECTION}>{t('library.scrape.art')}</div>
@@ -65,6 +74,7 @@ export function PreviewTable(props: {
         <Row
           key={kind}
           label={t(`settings.themes.options.kinds.${kind}`)}
+          notAvailable={notAvailable}
           checked={!!picks[artKey(kind)]}
           available={preview.art[kind].available}
           onChange={(value) => {
@@ -80,6 +90,7 @@ export function PreviewTable(props: {
           <Row
             key={field}
             label={t(`library.fields.${field}`)}
+            notAvailable={notAvailable}
             checked={!!picks[fieldKey(field)]}
             available={row.scraped !== null && row.scraped !== ''}
             onChange={(value) => {

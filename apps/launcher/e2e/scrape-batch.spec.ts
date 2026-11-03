@@ -138,7 +138,7 @@ test('US-C6, FR-SCR-2, D18: a system batch applies sure matches; Needs review li
     const games = library.getByRole('listbox', { name: 'Games' });
     await expect(games.getByRole('option')).toHaveCount(1);
     await games.getByRole('option', { name: /Ambiguous Pair/ }).click({ button: 'right' });
-    await page.getByRole('menuitem', { name: 'Scrape…' }).click();
+    await page.getByRole('menuitem', { name: 'Scrape from ScreenScraper…' }).click();
     const dialog = library.getByRole('dialog', { name: 'Scrape: Ambiguous Pair' });
     await dialog
       .getByRole('radio', { name: /^Ambiguous Pair usa?/ })
