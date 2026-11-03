@@ -13,6 +13,7 @@ import { invalidateGames, useGameDetails } from '../library/libraryApi.ts';
 import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
 import { useGeminiKeyStatus } from '../settings/scraper/geminiApi.ts';
 import { errorMessageKey, unwrap } from '../settings/settingsApi.ts';
+import { useOpenApp } from '../shell/useOpenApp.ts';
 
 /** Row order: the six details, then the title suggestion (never ticked at first, spec §5). */
 const ROWS = [...GEMINI_FIELDS, 'title'] as const;
@@ -58,6 +59,7 @@ function GeminiForm(props: { game: GameDetails; hasKey: boolean; onClose: () => 
   const { game, hasKey, onClose } = props;
   const { t, i18n } = useTranslation();
   const client = useQueryClient();
+  const openApp = useOpenApp();
   const [request, setRequest] = useState<Request>({ fresh: false, allFields: false });
   const view = useQuery({
     queryKey: ['gemini.view', game.id, request],
@@ -135,7 +137,20 @@ function GeminiForm(props: { game: GameDetails; hasKey: boolean; onClose: () => 
       }
     >
       <div className="flex flex-col gap-3">
-        {!hasKey && <p className="text-xs text-slate-300">{t(ERROR_CODES.GEMINI_NO_KEY)}</p>}
+        {!hasKey && (
+          <div className="flex items-center gap-3 text-xs text-slate-300">
+            <p className="flex-1">{t(ERROR_CODES.GEMINI_NO_KEY)}</p>
+            <button
+              type="button"
+              className={SECONDARY_BUTTON}
+              onClick={() => {
+                openApp('settings', { section: 'scraper' });
+              }}
+            >
+              {t('library.geminiBatch.openSettings')}
+            </button>
+          </div>
+        )}
         {view.isFetching && (
           <p className="flex items-center gap-2 text-xs text-slate-400">
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />

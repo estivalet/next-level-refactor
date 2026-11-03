@@ -139,6 +139,9 @@ export function LibraryApp({
             onRules={(batchScope) => {
               overlays.openBatch(batchScope, systemName);
             }}
+            onGeminiRules={(batchScope) => {
+              overlays.openGeminiBatch(batchScope, systemName);
+            }}
             onShowReview={(systemIds) => {
               const systemId = systemIds?.[0];
               if (systemId && !(scope?.kind === 'system' && scope.systemId === systemId)) {

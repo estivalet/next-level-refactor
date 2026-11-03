@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOpenApp } from '../shell/useOpenApp.ts';
-import { useCancelBatch, usePauseBatch, useResumeBatch } from './batchApi.ts';
+import { useCancelBatch, usePauseBatch, useResumeBatch, type BatchKind } from './batchApi.ts';
 
 const BUTTON =
   'rounded-md bg-white/5 px-2 py-1 text-[11px] text-slate-300 hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:hover:bg-white/5';
@@ -22,16 +22,20 @@ interface Pending {
 export function BatchProgress({
   status,
   onShowReview,
+  kind = 'scrape',
 }: {
   status: BatchStatus;
+  /** FR-SCR-7: the Gemini batch has its own texts and controls. */
+  kind?: BatchKind;
   /** Gets the job's systems (null for a selection batch). */
   onShowReview?: (systemIds: string[] | null) => void;
 }) {
   const { t, i18n } = useTranslation();
   const openApp = useOpenApp();
-  const pause = usePauseBatch();
-  const resume = useResumeBatch();
-  const cancel = useCancelBatch();
+  const pause = usePauseBatch(kind);
+  const resume = useResumeBatch(kind);
+  const cancel = useCancelBatch(kind);
+  const texts = kind === 'gemini' ? 'library.geminiBatch' : 'library.batch';
   const [pending, setPending] = useState<Pending | null>(null);
   // Pending until the job changes state (main pauses or cancels after the current game).
   if (pending && (pending.jobId !== status.jobId || pending.state !== status.state)) {
@@ -56,7 +60,7 @@ export function BatchProgress({
     return (
       <div className="flex items-center gap-2">
         <p role="status" className="max-w-md text-[11px] text-slate-500">
-          {t('library.batch.finished', { ...status, count: done })}
+          {t(`${texts}.finished`, { ...status, count: done })}
           {fromLaunchBox}
         </p>
         {status.review > 0 && onShowReview && (
@@ -67,7 +71,7 @@ export function BatchProgress({
               onShowReview(status.systemIds);
             }}
           >
-            {t('library.batch.showReview')}
+            {t(`${texts}.showReview`)}
           </button>
         )}
       </div>
@@ -82,7 +86,7 @@ export function BatchProgress({
         request('cancel');
       }}
     >
-      {t(pending?.action === 'cancel' ? 'library.batch.cancelling' : 'library.batch.cancel')}
+      {t(pending?.action === 'cancel' ? `${texts}.cancelling` : `${texts}.cancel`)}
     </button>
   );
   if (status.state === 'running') {
@@ -90,7 +94,7 @@ export function BatchProgress({
       <div className="flex items-center gap-2">
         <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin text-emerald-400" />
         <p role="status" className="max-w-md text-[11px] text-slate-400">
-          {t('library.batch.running', { ...counts, review: status.review })}
+          {t(`${texts}.running`, { ...counts, review: status.review })}
           {fromLaunchBox}
         </p>
         <button
@@ -101,7 +105,7 @@ export function BatchProgress({
             request('pause');
           }}
         >
-          {t(pending?.action === 'pause' ? 'library.batch.pausing' : 'library.batch.pause')}
+          {t(pending?.action === 'pause' ? `${texts}.pausing` : `${texts}.pause`)}
         </button>
         {cancelButton}
       </div>
@@ -117,9 +121,9 @@ export function BatchProgress({
   return (
     <div className="flex items-center gap-2">
       <p role="status" className="max-w-md text-[11px] text-amber-200">
-        {t(`library.batch.paused.${reason}`, { ...counts, time })}
+        {t(`${texts}.paused.${reason}`, { ...counts, time })}
       </p>
-      {(reason === 'credentials' || reason === 'launchbox') && (
+      {(reason === 'credentials' || reason === 'launchbox' || reason === 'webTool') && (
         <button
           type="button"
           className={BUTTON}
@@ -127,7 +131,7 @@ export function BatchProgress({
             openApp('settings', { section: 'scraper' });
           }}
         >
-          {t('library.batch.openSettings')}
+          {t(`${texts}.openSettings`)}
         </button>
       )}
       <button
@@ -137,7 +141,7 @@ export function BatchProgress({
           resume.mutate();
         }}
       >
-        {t('library.batch.resume')}
+        {t(`${texts}.resume`)}
       </button>
       {cancelButton}
     </div>
