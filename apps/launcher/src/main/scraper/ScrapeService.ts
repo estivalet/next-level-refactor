@@ -4,7 +4,6 @@ import {
   GAME_ART_KINDS,
   SCRAPE_FIELDS,
   scrapeThumbUrl,
-  type GameArtKind,
   type GameDetails,
   type ScrapeApplyInput,
   type ScrapeApplyResult,
@@ -21,9 +20,10 @@ import type { GameRepository } from '../library/GameRepository.ts';
 import type { MediaRepository } from '../library/MediaRepository.ts';
 import type { ScrapeRepository } from '../library/ScrapeRepository.ts';
 import type { RomHashes } from './hashRom.ts';
-import { mediaDir, romStem } from './mediaTarget.ts';
-import { imageType, isImage } from './sniff.ts';
-import type { MediaWriter, WriteResult } from './MediaWriter.ts';
+import { mediaDir } from './mediaTarget.ts';
+import { writeScrape } from './writeScrape.ts';
+import { imageType } from './sniff.ts';
+import type { MediaWriter } from './MediaWriter.ts';
 import type { ScreenScraperClient } from './screenscraper/client.ts';
 import { selectMedia } from './screenscraper/mediaSelect.ts';
 import {
@@ -62,14 +62,6 @@ export interface ApplyOptions {
   /** From a batch: quota, credential and network failures reject the apply (it pauses). */
   batch?: boolean;
 }
-
-/** Failures of the service, not of one file: a batch pauses on them instead of going on. */
-const TRANSPORT = new Set([
-  'SCRAPER_QUOTA',
-  'SCRAPER_CREDENTIALS',
-  'SCRAPER_NETWORK',
-  'SCRAPER_UNAVAILABLE',
-]);
 
 const MAX_THUMBS = 200;
 /** Candidates past this many get no thumbnail: each costs a rate-limited request. */
@@ -226,65 +218,36 @@ export class ScrapeService {
       this.screenscraperId(game.systemId),
     );
     const selected = selectMedia(remote, opts.regions ?? settings.scraper.regionPriority);
-    const location = this.deps.games.location(game.id);
-    const dir = mediaDir(location, settings, this.deps.system(game.systemId));
-    const stem = romStem(game.relPath);
-    const written: Array<{ kind: GameArtKind; file: WriteResult }> = [];
-    const failed: ScrapeApplyResult['failed'] = [];
-    for (const kind of input.kinds) {
-      const item = selected[kind];
-      const url = item ? text(item.url) : null;
-      if (!item || !url) {
-        failed.push({ kind, code: 'notAvailable' });
-        continue;
-      }
-      let download: Awaited<ReturnType<ScrapeServiceDeps['client']['download']>>;
-      try {
-        download = await this.deps.client.download(url);
-        const usable = kind === 'video' ? download.bytes.length > 0 : isImage(download.bytes);
-        if (!usable) throw new Error('not media');
-      } catch (error) {
-        if (opts.batch && error instanceof AppErrorException && TRANSPORT.has(error.error.code)) {
-          throw error;
-        }
-        failed.push({ kind, code: 'download' });
-        continue;
-      }
-      try {
-        if (!dir) throw new Error('no media folder');
-        const format = formatOf(item, download.contentType);
-        written.push({
-          kind,
-          file: await this.deps.writer.write(dir, kind, stem, download.bytes, format),
-        });
-      } catch {
-        failed.push({ kind, code: 'write' });
-      }
-    }
     const scraped = this.scrapedValues(remote, settings);
-    const values = Object.fromEntries(input.fields.map((field) => [field, scraped[field]]));
-    const now = this.deps.clock();
-    this.deps.transaction(() => {
-      for (const { kind, file } of written) {
-        const { replaced, ...row } = file;
-        this.deps.media.repoint(replaced, row);
-        this.deps.media.upsert({ gameId: game.id, kind, ...row });
-      }
-      // Every ticked field is on purpose, so a locked one is written too (D19).
-      this.deps.games.applyScraped(game.id, values, { overrideLocked: input.fields }, now);
-      const savedNothing =
-        written.length === 0 && failed.length > 0 && !Object.values(values).some((v) => v !== null);
-      this.deps.scrapes.set(game.id, {
+    return writeScrape(
+      {
+        ...this.deps,
+        mediaDir: (target) =>
+          mediaDir(
+            this.deps.games.location(target.id),
+            settings,
+            this.deps.system(target.systemId),
+          ),
+      },
+      {
+        game,
         provider: 'screenscraper',
-        status: savedNothing ? 'failed' : 'scraped',
         providerGameId: input.providerGameId,
+        kinds: input.kinds,
+        fetchArt: async (kind) => {
+          const item = selected[kind];
+          const url = item ? text(item.url) : null;
+          if (!item || !url) return null;
+          const download = await this.deps.client.download(url);
+          return { bytes: download.bytes, format: formatOf(item, download.contentType) };
+        },
+        values: Object.fromEntries(input.fields.map((field) => [field, scraped[field]])),
+        // Every ticked field is on purpose, so a locked one is written too (D19).
+        overrideLocked: input.fields,
         candidates: opts.candidates ?? 1,
-        error: savedNothing ? (failed[0]?.code ?? null) : null,
-        scrapedAt: now.toISOString(),
-      });
-    });
-    this.deps.emit('library.changed', { systems: [game.systemId], gameIds: [game.id] });
-    return { written: written.map((w) => w.kind), failed, game: this.deps.games.get(game.id) };
+        batch: opts.batch ?? false,
+      },
+    );
   }
 
   /** A listed candidate's box image; null for an unknown id, a failed download or a non-image. */

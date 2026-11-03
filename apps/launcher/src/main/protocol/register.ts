@@ -31,6 +31,8 @@ export interface NextlevelHandlerDeps {
   paths: () => { assetsPath: string | null; themesPath: string | null };
   /** A scrape candidate's thumbnail, fetched by main (FR-SCR-1); null = 404. */
   scrapeThumb?: (providerGameId: number) => Promise<{ bytes: Buffer; mime: string } | null>;
+  /** FR-SCR-6: a LaunchBox candidate's box thumbnail. */
+  launchboxThumb?: (databaseId: number) => Promise<{ bytes: Buffer; mime: string } | null>;
   /** A catalog item's art, fetched by main from its signed URL (S8); null = 404. */
   catalogArt?: (itemId: string, kind: string) => Promise<{ bytes: Buffer; mime: string } | null>;
 }
@@ -45,6 +47,11 @@ export function createNextlevelHandler(deps: NextlevelHandlerDeps) {
     if (!parsed) return new Response(null, { status: 404 });
     if (parsed.kind === 'scrape-thumb') {
       const thumb = await deps.scrapeThumb?.(parsed.providerGameId);
+      if (!thumb) return new Response(null, { status: 404 });
+      return new Response(new Uint8Array(thumb.bytes), { headers: { 'content-type': thumb.mime } });
+    }
+    if (parsed.kind === 'launchbox-thumb') {
+      const thumb = await deps.launchboxThumb?.(parsed.databaseId);
       if (!thumb) return new Response(null, { status: 404 });
       return new Response(new Uint8Array(thumb.bytes), { headers: { 'content-type': thumb.mime } });
     }

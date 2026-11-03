@@ -13,8 +13,23 @@ function setup() {
     preview: () => Promise.reject(new Error('not used')),
     apply: () => Promise.reject(new Error('not used')),
   };
+  const launchbox = {
+    search: (input: unknown) => {
+      calls.push(['launchbox.search', input]);
+      return Promise.resolve({ method: 'title' as const, candidates: [] });
+    },
+    preview: (input: unknown) => {
+      calls.push(['launchbox.preview', input]);
+      return Promise.reject(new Error('not used'));
+    },
+    apply: (input: unknown) => {
+      calls.push(['launchbox.apply', input]);
+      return Promise.reject(new Error('not used'));
+    },
+  };
   const handlers = createScrapeHandlers({
     service: () => service,
+    launchbox: () => launchbox,
     systems: (opts) => {
       calls.push(['systems', opts]);
       return Promise.resolve([{ id: 4, name: 'Alpha Console' }]);
@@ -33,6 +48,32 @@ describe('scraper channels (FR-SCR-1, US-C5)', () => {
     const { handlers, calls } = setup();
     await handlers['scraper.search']({ gameId: 3, refresh: true });
     expect(calls).toEqual([['search', { gameId: 3, refresh: true }]]);
+  });
+
+  it('FR-SCR-6: provider launchbox routes every scrape channel to the LaunchBox service', async () => {
+    const { handlers, calls } = setup();
+    await handlers['scraper.search']({ gameId: 3, provider: 'launchbox' });
+    await Promise.resolve(
+      handlers['scraper.preview']({
+        gameId: 3,
+        providerGameId: 9,
+        provider: 'launchbox',
+      }),
+    ).catch(() => undefined);
+    await Promise.resolve(
+      handlers['scraper.apply']({
+        gameId: 3,
+        providerGameId: 9,
+        kinds: [],
+        fields: [],
+        provider: 'launchbox',
+      }),
+    ).catch(() => undefined);
+    expect(calls.map((call) => (call as [string])[0])).toEqual([
+      'launchbox.search',
+      'launchbox.preview',
+      'launchbox.apply',
+    ]);
   });
 
   it('systems lists the ScreenScraper systems; refresh asks again', async () => {

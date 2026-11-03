@@ -1,4 +1,4 @@
-import type { ScrapeApplyInput, ScrapeSearchInput } from '@nextlevel/shared';
+import type { ScrapeApplyInput, ScrapeProvider, ScrapeSearchInput } from '@nextlevel/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { invalidateGames } from '../library/libraryApi.ts';
@@ -10,8 +10,34 @@ export async function searchScrape(input: ScrapeSearchInput) {
   return unwrap(await getBridge().invoke('scraper.search', input));
 }
 
-export async function previewScrape(gameId: number, providerGameId: number) {
-  return unwrap(await getBridge().invoke('scraper.preview', { gameId, providerGameId }));
+/** ScreenScraper calls carry no provider (the default); LaunchBox ones say so (FR-SCR-6). */
+export const providerInput = (provider: ScrapeProvider) =>
+  provider === 'launchbox' ? { provider } : {};
+
+export async function previewScrape(
+  gameId: number,
+  providerGameId: number,
+  provider: ScrapeProvider = 'screenscraper',
+) {
+  return unwrap(
+    await getBridge().invoke('scraper.preview', {
+      gameId,
+      providerGameId,
+      ...providerInput(provider),
+    }),
+  );
+}
+
+export async function launchboxPlatforms() {
+  return unwrap(await getBridge().invoke('launchbox.platforms'));
+}
+
+export async function setLaunchBoxPlatform(systemId: string, platform: string) {
+  unwrap(await getBridge().invoke('launchbox.setPlatform', { systemId, platform }));
+}
+
+export async function refreshLaunchBox() {
+  return unwrap(await getBridge().invoke('launchbox.refresh'));
 }
 
 export async function scraperSystems(refresh: boolean) {

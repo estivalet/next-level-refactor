@@ -1,5 +1,5 @@
-import type { GameFlags } from '@nextlevel/shared';
-import { FolderMinus, FolderPlus, ImageDown } from 'lucide-react';
+import type { GameFlags, ScrapeProvider } from '@nextlevel/shared';
+import { Database, FolderMinus, FolderPlus, ImageDown } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollectionDialogs, type CollectionDialogState } from './CollectionDialog.tsx';
@@ -20,7 +20,9 @@ export function useOverlays() {
   const [editing, setEditing] = useState<number | null>(null);
   const [relinking, setRelinking] = useState<number | null>(null);
   const [launchOptions, setLaunchOptions] = useState<number | null>(null);
-  const [scraping, setScraping] = useState<number | null>(null);
+  const [scraping, setScraping] = useState<{ gameId: number; provider: ScrapeProvider } | null>(
+    null,
+  );
   const batch = useBatchOverlay();
   const [collection, setCollection] = useState<CollectionDialogState | null>(null);
   const [smartFilter, setSmartFilter] = useState<SmartFilterDialogState | null>(null);
@@ -36,7 +38,9 @@ export function useOverlays() {
     edit: setEditing,
     relink: setRelinking,
     openLaunchOptions: setLaunchOptions,
-    scrape: setScraping,
+    scrape: (gameId: number, provider: ScrapeProvider = 'screenscraper') => {
+      setScraping({ gameId, provider });
+    },
     openCollection: setCollection,
     openSmartFilter: setSmartFilter,
     closeMenu: () => {
@@ -110,6 +114,14 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
               overlays.scrape(onlyId);
             },
           },
+          {
+            key: 'scrapeLaunchBox',
+            label: t('library.menu.scrapeLaunchBox'),
+            icon: Database,
+            run: () => {
+              overlays.scrape(onlyId, 'launchbox');
+            },
+          },
         ]
       : [];
   if (ids.length > 1 && overlays.canBatch) {
@@ -176,7 +188,11 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
         <BatchRulesDialog {...overlays.batchRules} onClose={overlays.closeBatch} />
       )}
       {overlays.scraping !== null && (
-        <ScrapeDialog gameId={overlays.scraping} onClose={overlays.closeScrape} />
+        <ScrapeDialog
+          gameId={overlays.scraping.gameId}
+          provider={overlays.scraping.provider}
+          onClose={overlays.closeScrape}
+        />
       )}
       {overlays.launchOptions !== null && (
         <LaunchOptionsDialog

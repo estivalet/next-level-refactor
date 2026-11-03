@@ -153,16 +153,50 @@ describe('Scrape… in the Library (FR-SCR-1, FR-SCR-5)', () => {
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
   }
 
-  it('US-C5: the context menu offers Scrape… after Edit details and opens the dialog', async () => {
+  it('US-C5, FR-SCR-6: the context menu offers both sources after Edit details', async () => {
     const user = userEvent.setup();
     scrapeSetup();
     await user.click(await screen.findByRole('option', { name: /Alpha/ }));
     await user.keyboard('{Shift>}{F10}{/Shift}');
     const items = within(screen.getByRole('menu')).getAllByRole('menuitem');
     const names = items.map((item) => item.textContent);
-    expect(names.indexOf('Scrape…')).toBe(names.indexOf('Edit details…') + 1);
-    await user.click(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Scrape…' }));
+    expect(names.indexOf('Scrape from ScreenScraper…')).toBe(names.indexOf('Edit details…') + 1);
+    expect(names.indexOf('Scrape from LaunchBox…')).toBe(names.indexOf('Edit details…') + 2);
+    await user.click(
+      within(screen.getByRole('menu')).getByRole('menuitem', {
+        name: 'Scrape from ScreenScraper…',
+      }),
+    );
     expect(await screen.findByRole('dialog', { name: 'Scrape: Alpha' })).toBeVisible();
+  });
+
+  it('FR-SCR-6: Scrape from LaunchBox… opens the LaunchBox dialog', async () => {
+    const user = userEvent.setup();
+    scrapeSetup();
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    await user.click(
+      within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Scrape from LaunchBox…' }),
+    );
+    expect(
+      await screen.findByRole('dialog', { name: 'Scrape from LaunchBox: Alpha' }),
+    ).toBeVisible();
+  });
+
+  it('FR-SCR-6: a LaunchBox scrape says where it came from', async () => {
+    const user = userEvent.setup();
+    scrapeSetup({
+      scrape: {
+        provider: 'launchbox',
+        status: 'scraped',
+        providerGameId: 472523,
+        candidates: 1,
+        error: null,
+        scrapedAt: '2026-10-25T12:00:00.000Z',
+      },
+    });
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    expect(await within(details()).findByText(/^Scraped .+ from LaunchBox$/)).toBeVisible();
   });
 
   it('FR-SCR-5: details show the indexed box art (versioned URL) and the scrape status', async () => {
