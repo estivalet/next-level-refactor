@@ -55,6 +55,9 @@ import { libraryCloser } from './library/libraryCloser.ts';
 import { AnswerStore } from './gemini/AnswerStore.ts';
 import { GeminiClient } from './gemini/GeminiClient.ts';
 import { GeminiService } from './gemini/GeminiService.ts';
+import { GeminiBatchService, type AnswerSource } from './gemini/GeminiBatchService.ts';
+import { apiSource } from './gemini/apiSource.ts';
+import { AppErrorException, ERROR_CODES } from '@nextlevel/shared';
 import type { SettingsService } from './settings/SettingsService.ts';
 
 /** What the library needs from the app shell (index.ts). */
@@ -379,8 +382,34 @@ export function startLibrary(
       };
     },
   });
+  // The website route (tools/gemini-web) is wired in PR (c); until then it says it can't run.
+  const webSource: AnswerSource = {
+    next: () =>
+      Promise.reject(
+        new AppErrorException({ code: 'GEMINI_WEB_TOOL', message: ERROR_CODES.GEMINI_WEB_TOOL }),
+      ),
+  };
+  const geminiBatch = new GeminiBatchService({
+    db,
+    gemini,
+    sources: { api: apiSource(geminiClient), web: webSource },
+    games,
+    blocked: () => scan.status().running || importer.running(),
+    emit,
+    log,
+    clock: () => new Date(),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    setTimer: (ms, run) => {
+      const timer = setTimeout(run, ms);
+      return () => {
+        clearTimeout(timer);
+      };
+    },
+  });
   batch.restore();
+  geminiBatch.restore();
   closer.beforeClose(() => {
+    geminiBatch.dispose();
     batch.dispose();
     launchbox.dispose();
   });
@@ -399,6 +428,7 @@ export function startLibrary(
     launchboxScrape,
     gemini,
     geminiClient,
+    geminiBatch,
     repo,
     media,
     frontend,

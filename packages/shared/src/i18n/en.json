@@ -73,7 +73,8 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again.",
     "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
-    "downloadFailed": "The download didn't finish. Try again."
+    "downloadFailed": "The download didn't finish. Try again.",
+    "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first."
   },
   "shell": {
     "window": {

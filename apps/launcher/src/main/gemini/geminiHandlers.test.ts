@@ -1,3 +1,4 @@
+import { IDLE_BATCH } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import { memorySecrets } from '../secrets/testing.ts';
 import { createGeminiHandlers } from './geminiHandlers.ts';
@@ -32,6 +33,19 @@ function setup() {
           return Promise.resolve();
         },
       },
+      geminiBatch: {
+        start: () => {
+          calls.push('batch.start');
+          return Promise.resolve(IDLE_BATCH);
+        },
+        pause: () => IDLE_BATCH,
+        resume: () => Promise.resolve(IDLE_BATCH),
+        cancel: () => IDLE_BATCH,
+        status: () => {
+          calls.push('batch.status');
+          return IDLE_BATCH;
+        },
+      },
     }),
   });
   return { handlers, secrets, calls };
@@ -61,5 +75,15 @@ describe('Gemini handlers (FR-SCR-7)', () => {
     await handlers['gemini.dismiss']({ gameId: 3 });
     expect(await handlers['gemini.test']()).toEqual({ ok: true });
     expect(calls).toEqual(['ask 3 true', 'stored 3', 'apply 3 year,title', 'dismiss 3', 'test']);
+  });
+
+  it('FR-SCR-7: the Gemini batch channels reach the Gemini batch', async () => {
+    const { handlers, calls } = setup();
+    await handlers['gemini.batch.start']({
+      scope: { systemIds: ['coleco-telstar'] },
+      rules: { fields: ['year'], mode: 'review', route: 'api' },
+    });
+    await handlers['gemini.batch.status']();
+    expect(calls).toEqual(['batch.start', 'batch.status']);
   });
 });

@@ -210,7 +210,7 @@ export const geminiAnswers = sqliteTable('gemini_answers', {
   askedAt: text('asked_at').notNull(),
 });
 
-/** Batch scrape jobs (FR-SCR-2, D18); at most one is running or paused at a time. */
+/** Batch jobs (FR-SCR-2, D18, FR-SCR-7); at most one per source is running or paused. */
 export const scrapeJobs = sqliteTable('scrape_jobs', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   /** BatchScope as JSON. */
@@ -228,6 +228,10 @@ export const scrapeJobs = sqliteTable('scrape_jobs', {
   failed: integer('failed').notNull().default(0),
   /** FR-SCR-6: games LaunchBox wrote to. */
   launchbox: integer('launchbox').notNull().default(0),
+  /** FR-SCR-7: which batch owns the job; a scrape job and a Gemini job can run together. */
+  source: text('source', { enum: ['scrape', 'gemini'] })
+    .notNull()
+    .default('scrape'),
   pausedReason: text('paused_reason'),
   resumeAt: text('resume_at'),
   createdAt: text('created_at').notNull(),

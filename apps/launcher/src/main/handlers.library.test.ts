@@ -12,6 +12,7 @@ import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
 import type { GeminiClient } from './gemini/GeminiClient.ts';
 import type { GeminiService } from './gemini/GeminiService.ts';
+import type { GeminiBatchService } from './gemini/GeminiBatchService.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { ImportService } from './import/ImportService.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
@@ -119,6 +120,7 @@ async function setup(withLibrary: boolean) {
       launchboxScrape: {} as LaunchBoxScrapeService,
       gemini: {} as GeminiService,
       geminiClient: {} as GeminiClient,
+      geminiBatch: {} as GeminiBatchService,
     };
   }
   const deps: MainDeps = {
