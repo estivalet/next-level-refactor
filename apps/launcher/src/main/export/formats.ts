@@ -32,6 +32,9 @@ export interface ExportGame {
   lastPlayed: string | null;
   added: string;
   filters: string[];
+  /** works | issues | broken, or null (FR-LIB-13). */
+  playability: string | null;
+  playabilityNote: string | null;
 }
 
 export interface ExportMeta {

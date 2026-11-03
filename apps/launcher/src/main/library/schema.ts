@@ -87,6 +87,10 @@ export const gameUserState = sqliteTable(
     playCount: integer('play_count').notNull().default(0),
     lastPlayedAt: text('last_played_at'),
     playSeconds: integer('play_seconds').notNull().default(0),
+    /** works | issues | broken, or null (FR-LIB-13); note and date go with it. */
+    playability: text('playability', { enum: ['works', 'issues', 'broken'] }),
+    playabilityNote: text('playability_note').notNull().default(''),
+    playabilityAt: text('playability_at'),
   },
   (table) => [
     index('game_user_state_hidden').on(table.hidden),

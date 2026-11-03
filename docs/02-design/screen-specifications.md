@@ -196,14 +196,17 @@ Scope view (D62)
     Delete (asks first). In manual order rows also drag into a new place (see S11).
   - Right: details (the preview from the media index: video, else a gameplay screenshot, else
     the box art (D62); title, system, scrape status, facts, filters, description), Favorite,
-    Completed (D60), 1–5 stars (choosing the same star clears), Edit
-    details, Open folder; a missing game shows since when, the expected path and **Relink…**.
+    Completed (D60), 1–5 stars (choosing the same star clears), **Playability** (Works / Minor
+    issues / Broken; pressing the chosen one clears it) with its note and "Set on <date>"
+    (FR-LIB-13), Edit details, Open folder; a missing game shows since when, the expected path and **Relink…**.
     The scrape status line reads "Scraped <date>", "Needs review", "Not found on
     ScreenScraper" or "Last scrape failed"; a game never scraped shows none.
   - Status bar: "N games · N missing", Sort (title, year, rating, recently added) for systems,
     and what is shown (the tabs moved to the left column, D62).
   - Context menu as built: Play (M3), Edit details…, Scrape… (M6b, one game), Add to / Remove
-    from favorites, Mark completed / Mark not completed (D60), Hide / Unhide, Add to collection…, Remove from collection (in a
+    from favorites, Mark completed / Mark not completed (D60), Hide / Unhide,
+    Playability… (Works / Minor issues / Broken / Clear playability / Back, for every selected
+    game; notes are kept, FR-LIB-13), Add to collection…, Remove from collection (in a
     collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink).
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections.

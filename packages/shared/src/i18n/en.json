@@ -725,6 +725,19 @@
     }
   },
   "library": {
+    "playability": {
+      "label": "Playability",
+      "works": "Works",
+      "issues": "Minor issues",
+      "broken": "Broken",
+      "unset": "Not set",
+      "note": "Playability note",
+      "notePlaceholder": "What works, what doesn't",
+      "setOn": "Set on {{date}}",
+      "menu": "Playability…",
+      "clear": "Clear playability",
+      "back": "Back"
+    },
     "home": {
       "title": "Library",
       "home": "Home",
@@ -1172,7 +1185,9 @@
         "playCount": "Times played",
         "lastPlayed": "Last played",
         "added": "Date added",
-        "filters": "Filters"
+        "filters": "Filters",
+        "playability": "Playability",
+        "playabilityNote": "Playability note"
       },
       "xmlHint": "gamelist.xml always has the title and the file path (relative to the system folder); fields EmulationStation has no tag for are left out.",
       "save": "Export…",
@@ -1497,6 +1512,7 @@
       "perGameProfile": "Per-game emulator or MAME medium, as a launch option",
       "mameAutoboot": "Per-game MAME autoboot command, typed after the system's delay",
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
+      "playability": "Tested status and notes, as the playability mark",
       "replacesImport": "Replaces what an earlier import brought in",
       "artFolder": "Art or theme packs folder"
     }

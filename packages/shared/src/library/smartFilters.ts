@@ -1,9 +1,12 @@
 import { z } from 'zod';
 import { FILTER_SLUG } from './games.ts';
+import { PLAYABILITY_MARKS } from './playability.ts';
 
 /** How a smart filter orders its games (FR-LIB-9). */
 export const SMART_FILTER_SORTS = ['title', 'year', 'lastPlayed', 'playCount', 'added'] as const;
 export const SMART_FILTER_PLAYED = ['any', 'played', 'never'] as const;
+/** A playability mark, or `unset` for games without one (FR-LIB-13). */
+export const SMART_FILTER_PLAYABILITY = [...PLAYABILITY_MARKS, 'unset'] as const;
 
 const year = z.number().int().min(1950).max(2100);
 
@@ -22,6 +25,8 @@ export const SmartFilterQuerySchema = z
     minPlayers: z.number().int().min(1).max(16).optional(),
     played: z.enum(SMART_FILTER_PLAYED).default('any'),
     playedWithinDays: z.number().int().min(1).max(3650).optional(),
+    /** Any of these marks (FR-LIB-13). */
+    playability: z.array(z.enum(SMART_FILTER_PLAYABILITY)).min(1).max(4).optional(),
     sort: z.enum(SMART_FILTER_SORTS).default('title'),
     limit: z.number().int().min(1).max(10000).optional(),
   })
@@ -45,6 +50,7 @@ export const SmartFilterSummarySchema = z.object({
 });
 
 export type SmartFilterSort = (typeof SMART_FILTER_SORTS)[number];
+export type SmartFilterPlayability = (typeof SMART_FILTER_PLAYABILITY)[number];
 export type SmartFilterPlayed = (typeof SMART_FILTER_PLAYED)[number];
 export type SmartFilterQuery = z.output<typeof SmartFilterQuerySchema>;
 export type SmartFilterQueryInput = z.input<typeof SmartFilterQuerySchema>;

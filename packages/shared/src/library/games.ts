@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ScrapeStatusSchema } from '../scraper/schema.ts';
 import { HealthGapSchema } from './health.ts';
+import { PlayabilitySchema } from './playability.ts';
 
 const id = z.number().int().positive();
 const count = z.number().int().min(0);
@@ -105,6 +106,8 @@ export const GameDetailsSchema = GameRowSchema.extend({
   scrape: ScrapeStatusSchema.nullable(),
   /** Indexed media kinds → file version, for `mediaUrl` (FR-SCR-5). */
   media: z.record(z.string(), z.number().int().min(0)),
+  /** Works / Minor issues / Broken with a note and date (FR-LIB-13); null = not set. */
+  playability: PlayabilitySchema.nullable(),
 });
 
 /** Metadata the user can edit in the Library (FR-LIB-6). */

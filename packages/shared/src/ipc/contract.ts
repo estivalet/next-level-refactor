@@ -28,6 +28,7 @@ import {
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { SystemHealthSchema } from '../library/health.ts';
+import { PlayabilityChangeSchema } from '../library/playability.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
 import {
   ScrapeApplyInputSchema,
@@ -153,6 +154,10 @@ export const ipcContract = {
   },
   'library.games.setFlags': {
     input: z.strictObject({ gameIds: GameIdsSchema, flags: GameFlagsSchema }),
+    output: z.void(),
+  },
+  'library.games.setPlayability': {
+    input: z.strictObject({ gameIds: GameIdsSchema, change: PlayabilityChangeSchema }),
     output: z.void(),
   },
   'library.games.relink': {

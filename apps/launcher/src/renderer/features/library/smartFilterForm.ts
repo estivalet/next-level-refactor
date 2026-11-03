@@ -1,6 +1,8 @@
 import {
+  SMART_FILTER_PLAYABILITY,
   SmartFilterNameSchema,
   SmartFilterQuerySchema,
+  type SmartFilterPlayability,
   type SmartFilterPlayed,
   type SmartFilterQuery,
   type SmartFilterSort,
@@ -19,6 +21,8 @@ export interface SmartForm {
   minPlayers: string;
   played: SmartFilterPlayed;
   playedWithinDays: string;
+  /** Marks to match (FR-LIB-13); none = any. */
+  playability: SmartFilterPlayability[];
   sort: SmartFilterSort;
   limit: string;
 }
@@ -36,6 +40,7 @@ export const EMPTY_SMART_FORM: SmartForm = {
   minPlayers: '',
   played: 'any',
   playedWithinDays: '',
+  playability: [],
   sort: 'title',
   limit: '',
 };
@@ -64,6 +69,11 @@ export function toQuery(form: SmartForm): SmartFormResult {
     .map((tag) => tag.trim())
     .filter((tag) => tag !== '');
   if (tags.length > 0) input['filters'] = tags;
+  if (form.playability.length > 0) {
+    input['playability'] = SMART_FILTER_PLAYABILITY.filter((mark) =>
+      form.playability.includes(mark),
+    );
+  }
   if (form.genre.trim() !== '') input['genre'] = form.genre.trim();
   for (const field of NUMBER_FIELDS) {
     const text = form[field].trim();
@@ -97,6 +107,7 @@ export function fromQuery(name: string, query: SmartFilterQuery): SmartForm {
     minPlayers: text(query.minPlayers),
     played: query.played,
     playedWithinDays: text(query.playedWithinDays),
+    playability: [...(query.playability ?? [])],
     sort: query.sort,
     limit: text(query.limit),
   };

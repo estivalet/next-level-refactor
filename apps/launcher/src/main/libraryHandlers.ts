@@ -61,6 +61,10 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
       library().games.setFlags(gameIds, flags);
       changed(gameIds);
     },
+    'library.games.setPlayability': ({ gameIds, change }) => {
+      library().games.setPlayability(gameIds, change, deps.clock());
+      changed(gameIds);
+    },
     'library.games.relink': ({ missingGameId, replacementGameId }) => {
       const details = library().games.relink(missingGameId, replacementGameId);
       changed([missingGameId]);

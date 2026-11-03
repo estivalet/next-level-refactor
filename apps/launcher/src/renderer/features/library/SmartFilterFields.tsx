@@ -1,10 +1,14 @@
-import { SMART_FILTER_PLAYED, SMART_FILTER_SORTS } from '@nextlevel/shared';
+import {
+  SMART_FILTER_PLAYABILITY,
+  SMART_FILTER_PLAYED,
+  SMART_FILTER_SORTS,
+} from '@nextlevel/shared';
 import { useId, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { INPUT } from './Modal.tsx';
 import type { SmartField, SmartForm } from './smartFilterForm.ts';
 
-type TextField = Exclude<SmartField, 'systems' | 'favorite' | 'played' | 'sort'>;
+type TextField = Exclude<SmartField, 'systems' | 'favorite' | 'played' | 'sort' | 'playability'>;
 
 /** The smart filter's fields (D10); a field's message shows once it has been edited. */
 export function SmartFilterFields({
@@ -71,6 +75,27 @@ export function SmartFilterFields({
         />
         {t('library.smart.fields.favorite')}
       </label>
+      <fieldset className="flex flex-wrap gap-x-4 gap-y-1">
+        <legend className="mb-1 text-[11px] text-slate-400">
+          {t('library.playability.label')}
+        </legend>
+        {SMART_FILTER_PLAYABILITY.map((mark) => (
+          <label key={mark} className="flex items-center gap-2 text-slate-300">
+            <input
+              type="checkbox"
+              checked={form.playability.includes(mark)}
+              onChange={(event) => {
+                onChange({
+                  playability: event.target.checked
+                    ? [...form.playability, mark]
+                    : form.playability.filter((value) => value !== mark),
+                });
+              }}
+            />
+            {t(`library.playability.${mark}`)}
+          </label>
+        ))}
+      </fieldset>
       <div className="grid grid-cols-2 gap-3">
         {text('genre')}
         {text('filters')}

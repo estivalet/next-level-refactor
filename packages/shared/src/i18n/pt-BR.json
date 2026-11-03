@@ -725,6 +725,19 @@
     }
   },
   "library": {
+    "playability": {
+      "label": "Jogabilidade",
+      "works": "Funciona",
+      "issues": "Pequenos problemas",
+      "broken": "Não funciona",
+      "unset": "Sem marca",
+      "note": "Nota de jogabilidade",
+      "notePlaceholder": "O que funciona, o que não",
+      "setOn": "Marcado em {{date}}",
+      "menu": "Jogabilidade…",
+      "clear": "Limpar jogabilidade",
+      "back": "Voltar"
+    },
     "home": {
       "title": "Biblioteca",
       "home": "Início",
@@ -1172,7 +1185,9 @@
         "playCount": "Vezes jogado",
         "lastPlayed": "Última vez jogado",
         "added": "Data de inclusão",
-        "filters": "Filtros"
+        "filters": "Filtros",
+        "playability": "Jogabilidade",
+        "playabilityNote": "Nota de jogabilidade"
       },
       "xmlHint": "O gamelist.xml sempre tem o título e o caminho do arquivo (relativo à pasta do sistema); campos sem tag no EmulationStation ficam de fora.",
       "save": "Exportar…",
@@ -1497,6 +1512,7 @@
       "perGameProfile": "Emulador ou mídia do MAME por jogo, como opção de execução",
       "mameAutoboot": "Comando de autoboot do MAME por jogo, digitado após o atraso do sistema",
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
+      "playability": "Status e notas de teste, como a marca de jogabilidade",
       "replacesImport": "Substitui o que uma importação anterior trouxe",
       "artFolder": "Pasta de arte ou de pacotes de tema"
     }

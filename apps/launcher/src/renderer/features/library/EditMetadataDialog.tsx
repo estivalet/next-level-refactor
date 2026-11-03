@@ -1,11 +1,28 @@
-import { EDITABLE_FIELDS, type EditableField, type GameDetails } from '@nextlevel/shared';
+import {
+  EDITABLE_FIELDS,
+  PLAYABILITY_NOTE_MAX,
+  type EditableField,
+  type GameDetails,
+  type PlayabilityMark,
+} from '@nextlevel/shared';
 import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changesOf, draftOf, type EditDraft } from './editForm.ts';
 import { GameMediaTab } from './GameMediaTab.tsx';
-import { useGameDetails, useUpdateMetadata } from './libraryApi.ts';
+import { useGameDetails, useSetPlayability, useUpdateMetadata } from './libraryApi.ts';
 import { INPUT, Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from './Modal.tsx';
+import { PlayabilityPicker } from './PlayabilityPicker.tsx';
+
+interface PlayabilityDraft {
+  mark: PlayabilityMark | null;
+  note: string;
+}
+
+const playabilityOf = (game: GameDetails): PlayabilityDraft => ({
+  mark: game.playability?.mark ?? null,
+  note: game.playability?.note ?? '',
+});
 
 /** Where the edited game sits in the Library list; `onStep` opens the previous or next one. */
 export interface EditPager {
@@ -53,22 +70,45 @@ function EditForm(props: {
   const { t } = useTranslation();
   const formId = useId();
   const update = useUpdateMetadata();
+  const setPlayability = useSetPlayability();
   // The draft belongs to one game: paging to the next starts from its saved values. The dialog
   // stays mounted, so focus stays on ‹ ›.
-  const [edit, setEdit] = useState(() => ({
+  const fresh = () => ({
     id: game.id,
     original: draftOf(game),
     draft: draftOf(game),
-  }));
-  const current =
-    edit.id === game.id ? edit : { id: game.id, original: draftOf(game), draft: draftOf(game) };
-  const { original, draft } = current;
+    playability: playabilityOf(game),
+  });
+  const [edit, setEdit] = useState(fresh);
+  const current = edit.id === game.id ? edit : fresh();
+  const { original, draft, playability } = current;
   const setDraft = (next: EditDraft) => {
     setEdit({ ...current, draft: next });
   };
+  const setPlayabilityDraft = (next: PlayabilityDraft) => {
+    setEdit({ ...current, playability: next });
+  };
   const { changes, invalid } = changesOf(original, draft);
+  const saved = playabilityOf(game);
+  const playabilityChanged =
+    playability.mark !== saved.mark ||
+    (playability.mark !== null && playability.note.trim() !== saved.note);
   // Paging would drop what was typed: save or cancel first.
-  const dirty = changes !== null || invalid.size > 0;
+  const dirty = changes !== null || playabilityChanged || invalid.size > 0;
+  const pending = update.isPending || setPlayability.isPending;
+  const save = async () => {
+    if (playabilityChanged) {
+      await setPlayability.mutateAsync({
+        gameIds: [game.id],
+        change:
+          playability.mark === null
+            ? { mark: null }
+            : { mark: playability.mark, note: playability.note.trim() },
+      });
+    }
+    if (changes) await update.mutateAsync({ gameId: game.id, changes });
+    onClose();
+  };
   const locked = new Set(game.lockedFields);
 
   const field = (name: EditableField) => {
@@ -128,10 +168,10 @@ function EditForm(props: {
           <button
             type="button"
             className={PRIMARY_BUTTON}
-            disabled={!changes || update.isPending}
+            disabled={(!changes && !playabilityChanged) || invalid.size > 0 || pending}
             onClick={() => {
-              if (!changes) return;
-              update.mutate({ gameId: game.id, changes }, { onSuccess: onClose });
+              // A failure shows through the mutation state; the dialog stays open.
+              save().catch(() => undefined);
             }}
           >
             {t('library.edit.save')}
@@ -197,7 +237,30 @@ function EditForm(props: {
       </div>
       <div id={`${formId}-panel`} role="tabpanel" aria-labelledby={`${formId}-tab-${tab}`}>
         {tab === 'info' ? (
-          <div className="grid grid-cols-2 gap-3">{EDITABLE_FIELDS.map(field)}</div>
+          <div className="grid grid-cols-2 gap-3">
+            {EDITABLE_FIELDS.map(field)}
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <span className="text-[11px] text-slate-400">{t('library.playability.label')}</span>
+              <PlayabilityPicker
+                value={playability.mark}
+                onChange={(mark) => {
+                  setPlayabilityDraft({ ...playability, mark });
+                }}
+              />
+              <input
+                type="text"
+                aria-label={t('library.playability.note')}
+                placeholder={t('library.playability.notePlaceholder')}
+                maxLength={PLAYABILITY_NOTE_MAX}
+                disabled={playability.mark === null}
+                value={playability.mark === null ? '' : playability.note}
+                onChange={(event) => {
+                  setPlayabilityDraft({ ...playability, note: event.target.value });
+                }}
+                className={`${INPUT} disabled:opacity-50`}
+              />
+            </div>
+          </div>
         ) : (
           <GameMediaTab game={game} />
         )}

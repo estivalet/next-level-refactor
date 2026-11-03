@@ -92,6 +92,57 @@ describe('GameRepository.setFlags', () => {
   });
 });
 
+describe('GameRepository.setPlayability', () => {
+  it('FR-LIB-13: a mark is saved with its note and date and survives a reopen', () => {
+    const [a = 0, b = 0] = seedGames(library.db, 'nintendo-64', ['Alpha', 'Bravo']);
+    expect(games.get(a).playability).toBeNull();
+    games.setPlayability([a], { mark: 'issues', note: 'sound crackles' }, NOW);
+
+    const file = library.db.$client.name;
+    library.db.$client.close();
+    const reopened = openLibrary(file, { backupsDir: `${file}.backups`, clock: () => NOW });
+    const again = new GameRepository(reopened, (row) => row.relPath);
+    expect(again.get(a).playability).toEqual({
+      mark: 'issues',
+      note: 'sound crackles',
+      at: NOW.toISOString(),
+    });
+    expect(again.get(b).playability).toBeNull();
+    reopened.$client.close();
+  });
+
+  it('FR-LIB-13: without a note each game keeps its own; the date moves on', () => {
+    const [a = 0, b = 0] = seedGames(library.db, 'nintendo-64', ['Alpha', 'Bravo']);
+    games.setPlayability([a], { mark: 'issues', note: 'slow' }, NOW);
+    games.setPlayability([a, b], { mark: 'works' }, LATER);
+    expect(games.get(a).playability).toEqual({
+      mark: 'works',
+      note: 'slow',
+      at: LATER.toISOString(),
+    });
+    expect(games.get(b).playability).toEqual({ mark: 'works', note: '', at: LATER.toISOString() });
+  });
+
+  it('FR-LIB-13: null clears mark, note and date', () => {
+    const [a = 0] = seedGames(library.db, 'nintendo-64', ['Alpha']);
+    games.setPlayability([a], { mark: 'broken', note: 'black screen' }, NOW);
+    games.setPlayability([a], { mark: null }, LATER);
+    expect(games.get(a).playability).toBeNull();
+    games.setPlayability([a], { mark: 'works' }, LATER);
+    expect(games.get(a).playability?.note).toBe('');
+  });
+
+  it('FR-LIB-13: an unknown game writes nothing', () => {
+    const [a = 0] = seedGames(library.db, 'nintendo-64', ['Alpha']);
+    expect(
+      appErrorOf(() => {
+        games.setPlayability([a, 999], { mark: 'works' }, NOW);
+      }).code,
+    ).toBe('NOT_FOUND');
+    expect(games.get(a).playability).toBeNull();
+  });
+});
+
 describe('GameRepository.relink', () => {
   it('FR-LIB-3: relink moves a missing game onto its new file and keeps its id and edits', () => {
     const [old = 0] = seedGames(library.db, 'nintendo-64', [

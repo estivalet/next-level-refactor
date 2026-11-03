@@ -23,6 +23,8 @@ const game = (overrides: Partial<ExportGame> = {}): ExportGame => ({
   lastPlayed: '2026-10-21T12:34:56.000Z',
   added: '2026-10-01T00:00:00.000Z',
   filters: ['hack', 'homebrew'],
+  playability: 'works',
+  playabilityNote: null,
   ...overrides,
 });
 

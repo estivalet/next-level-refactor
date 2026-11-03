@@ -40,6 +40,15 @@ describe('FR-LIB-9 smart filter form', () => {
     expect(result).toEqual({ ok: true, name: 'Recent', query });
   });
 
+  it('FR-LIB-13: picked playability marks go into the query; none leaves it out', () => {
+    const picked = toQuery({ ...EMPTY_SMART_FORM, name: 'Fix', playability: ['broken', 'unset'] });
+    expect(picked.ok && picked.query.playability).toEqual(['broken', 'unset']);
+    const none = toQuery({ ...EMPTY_SMART_FORM, name: 'All' });
+    expect(none.ok && 'playability' in none.query).toBe(false);
+    const query = SmartFilterQuerySchema.parse({ playability: ['issues'] });
+    expect(toQuery(fromQuery('Issues', query))).toEqual({ ok: true, name: 'Issues', query });
+  });
+
   it('a year range that runs backwards is an error on Year to', () => {
     const result = toQuery({ ...EMPTY_SMART_FORM, name: 'X', yearFrom: '1995', yearTo: '1990' });
     expect(result).toEqual({ ok: false, errors: { yearTo: 'library.smart.errors.yearRange' } });

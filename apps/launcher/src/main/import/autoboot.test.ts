@@ -68,6 +68,7 @@ const game = (systemId: string, extra: Partial<GameImport> = {}): GameImport => 
   override: null,
   presetProfileId: null,
   autoboot: 'CLOAD\\n',
+  playability: null,
   arcade: null,
   ...extra,
 });

@@ -1,5 +1,8 @@
-import type { GameFlags, GameRow } from '@nextlevel/shared';
+import { PLAYABILITY_MARKS, type GameFlags, type GameRow } from '@nextlevel/shared';
 import {
+  ArrowLeft,
+  CircleCheck,
+  CircleSlash,
   Eye,
   EyeOff,
   FolderOpen,
@@ -14,13 +17,16 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useRevealGame, useSetFlags } from './libraryApi.ts';
+import { useRevealGame, useSetFlags, useSetPlayability } from './libraryApi.ts';
+import { MARK_ICONS } from './PlayabilityPicker.tsx';
 
 export interface MenuItem {
   key: string;
   label: string;
   icon: LucideIcon;
   run: () => void;
+  /** The menu stays open after it runs (it opened a submenu). */
+  keepOpen?: boolean;
 }
 
 interface GameContextMenuProps {
@@ -50,6 +56,8 @@ interface GameContextMenuProps {
 export function GameContextMenu(props: GameContextMenuProps) {
   const { t } = useTranslation();
   const setFlags = useSetFlags();
+  const setPlayability = useSetPlayability();
+  const [submenu, setSubmenu] = useState(false);
   const reveal = useRevealGame();
   const menu = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -115,6 +123,16 @@ export function GameContextMenu(props: GameContextMenuProps) {
         flag({ hidden: !allHidden });
       },
     },
+    {
+      key: 'playability',
+      label: t('library.playability.menu'),
+      icon: CircleCheck,
+      keepOpen: true,
+      run: () => {
+        setSubmenu(true);
+        setActive(0);
+      },
+    },
     ...(props.extraItems ?? []),
   );
   if (single) {
@@ -146,6 +164,37 @@ export function GameContextMenu(props: GameContextMenuProps) {
     }
   }
 
+  // Playability… swaps the items for the marks (FR-LIB-13); they keep each game's note.
+  const playabilityItems: MenuItem[] = [
+    ...PLAYABILITY_MARKS.map((mark) => ({
+      key: `playability-${mark}`,
+      label: t(`library.playability.${mark}`),
+      icon: MARK_ICONS[mark],
+      run: () => {
+        setPlayability.mutate({ gameIds: ids, change: { mark } });
+      },
+    })),
+    {
+      key: 'playability-clear',
+      label: t('library.playability.clear'),
+      icon: CircleSlash,
+      run: () => {
+        setPlayability.mutate({ gameIds: ids, change: { mark: null } });
+      },
+    },
+    {
+      key: 'back',
+      label: t('library.playability.back'),
+      icon: ArrowLeft,
+      keepOpen: true,
+      run: () => {
+        setSubmenu(false);
+        setActive(0);
+      },
+    },
+  ];
+  const shown = submenu ? playabilityItems : items;
+
   // Keep the menu inside the viewport.
   useLayoutEffect(() => {
     const box = menu.current?.getBoundingClientRect();
@@ -154,10 +203,10 @@ export function GameContextMenu(props: GameContextMenuProps) {
       x: Math.max(0, Math.min(props.point.x, window.innerWidth - box.width)),
       y: Math.max(0, Math.min(props.point.y, window.innerHeight - box.height)),
     });
-  }, [props.point]);
+  }, [props.point, submenu]);
   useEffect(() => {
     menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')[active]?.focus();
-  }, [active]);
+  }, [active, submenu]);
   useEffect(() => {
     const outside = (event: MouseEvent) => {
       if (!menu.current?.contains(event.target as Node)) onClose();
@@ -170,9 +219,9 @@ export function GameContextMenu(props: GameContextMenuProps) {
 
   const onKeyDown = (event: KeyboardEvent) => {
     const step = { ArrowDown: 1, ArrowUp: -1 }[event.key];
-    if (step !== undefined) setActive((active + step + items.length) % items.length);
+    if (step !== undefined) setActive((active + step + shown.length) % shown.length);
     else if (event.key === 'Home') setActive(0);
-    else if (event.key === 'End') setActive(items.length - 1);
+    else if (event.key === 'End') setActive(shown.length - 1);
     else if (event.key === 'Escape' || event.key === 'Tab') onClose();
     else return;
     event.preventDefault();
@@ -187,7 +236,7 @@ export function GameContextMenu(props: GameContextMenuProps) {
       className="fixed z-50 min-w-48 rounded-lg border border-white/10 bg-[#1a1a24] py-1 text-sm text-slate-300 shadow-2xl"
       style={{ left: position.x, top: position.y }}
     >
-      {items.map((item, index) => (
+      {shown.map((item, index) => (
         <button
           key={item.key}
           type="button"
@@ -195,7 +244,7 @@ export function GameContextMenu(props: GameContextMenuProps) {
           tabIndex={index === active ? 0 : -1}
           onClick={() => {
             item.run();
-            onClose();
+            if (!item.keepOpen) onClose();
           }}
           className="flex w-full items-center gap-2 px-4 py-2 text-left hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none"
         >

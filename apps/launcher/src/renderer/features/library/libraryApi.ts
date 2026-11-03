@@ -1,4 +1,9 @@
-import type { GameFlags, LaunchOverride, MetadataChanges } from '@nextlevel/shared';
+import type {
+  GameFlags,
+  LaunchOverride,
+  MetadataChanges,
+  PlayabilityChange,
+} from '@nextlevel/shared';
 import {
   keepPreviousData,
   useMutation,
@@ -123,6 +128,12 @@ export function useUpdateMetadata() {
 export function useSetFlags() {
   return useGameMutation(async (input: { gameIds: number[]; flags: GameFlags }) => {
     unwrap(await getBridge().invoke('library.games.setFlags', input));
+  });
+}
+
+export function useSetPlayability() {
+  return useGameMutation(async (input: { gameIds: number[]; change: PlayabilityChange }) => {
+    unwrap(await getBridge().invoke('library.games.setPlayability', input));
   });
 }
 
