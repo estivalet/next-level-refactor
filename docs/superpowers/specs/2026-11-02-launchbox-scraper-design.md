@@ -146,8 +146,9 @@ Art type fallbacks per NextLevel kind, first one present wins:
   - failures listed per kind.
 - A ScreenScraper dialog whose search finds nothing shows **Try LaunchBox**, which switches the
   same dialog to LaunchBox for that game.
-- **Scrape status:** `scrape_status` records which provider the last scrape used (new
-  `provider` column, library migration; default `screenscraper` for existing rows).
+- **Scrape status:** `scrape_status` records which provider the last scrape used. Its
+  `provider` column already exists; today it's always `screenscraper`, and now it can be
+  `launchbox` too, so no migration is needed.
   "Scraped <date>" in the details can say "from LaunchBox".
 
 ## 8. Batch flow
