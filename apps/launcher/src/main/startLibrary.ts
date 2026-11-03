@@ -289,6 +289,8 @@ export function startLibrary(
     system: getSystem,
     buildInWorker: buildInWorker(indexWorkerPath),
     log,
+    // e2e points LaunchBox at a local fake; packaged builds never read the variables.
+    ...launchboxDev('NEXTLEVEL_LAUNCHBOX_URL', (metadataUrl) => ({ metadataUrl })),
   });
   const launchboxScrape = new LaunchBoxScrapeService({
     launchbox,
@@ -312,6 +314,7 @@ export function startLibrary(
     emit,
     clock: () => new Date(),
     blocked: () => scan.status().running || importer.running(),
+    ...launchboxDev('NEXTLEVEL_LAUNCHBOX_IMAGES', (imagesUrl) => ({ imagesUrl })),
   });
   const batch = new BatchScrapeService({
     db,
@@ -374,4 +377,10 @@ export function startLibrary(
     smartFilters,
     importer,
   };
+}
+
+/** A dev-only override from the environment (e2e fakes); nothing in packaged builds. */
+function launchboxDev<T>(name: string, make: (value: string) => T): T | Record<string, never> {
+  const value = app.isPackaged ? undefined : process.env[name];
+  return value ? make(value) : {};
 }

@@ -1,8 +1,9 @@
 # Scraping guide
 
 How to fetch box art, logos, screenshots, videos and game details from
-[ScreenScraper](https://www.screenscraper.fr): one game at a time, or a whole system in the
-background. For the screens see [screen-specifications.md](screen-specifications.md) S7
+[ScreenScraper](https://www.screenscraper.fr), and fill what it doesn't have from the
+[LaunchBox Games Database](https://gamesdb.launchbox-app.com) (section 5): one game at a time,
+or a whole system in the background. For the screens see [screen-specifications.md](screen-specifications.md) S7
 (Library) and S9 (Settings → Scraper, Settings → Storage).
 
 ## 1. Your ScreenScraper account
@@ -130,3 +131,37 @@ Quitting the launcher mid-batch is fine: the batch carries on at the next start.
 When the batch finishes, the header shows a summary. **Show Needs review** filters the list to
 the games it couldn't match (also in the status bar's **Filter**, with a count). Scrape each one
 with **Scrape…**; it leaves the list once applied.
+
+## 5. LaunchBox: the second source (FR-SCR-6)
+
+ScreenScraper stays the first choice. The LaunchBox Games Database fills what it can't: games
+ScreenScraper doesn't know (for example *Ace Driver Collection* on Xbox 360) and art kinds or
+details it has no data for. LaunchBox needs no account.
+
+- **The database.** LaunchBox publishes its whole database as one download (about 110 MB,
+  updated daily). Settings → Scraper → **LaunchBox Games Database** → **Download** puts it in
+  the NextLevel data folder (`data\launchbox\`) and builds a small index; nothing goes to
+  AppData or Temp. **Refresh** fetches a newer copy later; the old one keeps working until the
+  new one is ready, and Refresh waits while a batch scrape is using it. A download that stops
+  halfway resumes next time (unless LaunchBox published a new file meanwhile).
+- **Scrape one game.** Right-click a game → **Scrape from LaunchBox…**. The dialog works like
+  the ScreenScraper one: candidates by title (alternate names count), the preview ("Not on
+  LaunchBox" for what it lacks), first ticks on missing art and empty fields, Apply. When a
+  ScreenScraper search finds nothing, its dialog offers **Try LaunchBox**. Without the database
+  the dialog offers the download and searches once it's ready.
+- **Platforms.** Each system has a LaunchBox platform name (about 200 systems come filled in).
+  A system without one shows a platform picker the first time; Settings → Systems →
+  *LaunchBox platform* changes it.
+- **Art kinds.** LaunchBox types map to NextLevel kinds, best first: box front ← Box - Front,
+  then Box - Front - Reconstructed, then Fanart - Box - Front; box back likewise; cart ← Cart -
+  Front, then Disc; fanart ← Fanart - Background; screenshots ← Screenshot - Gameplay / Game
+  Title; clear logo ← Clear Logo; marquee ← Arcade - Marquee, then Banner. Your region priority
+  picks between images of one type. LaunchBox has no videos.
+- **Batch.** The batch rules have **Then fill from LaunchBox** (ticked when the database is
+  downloaded). After ScreenScraper, each game's still-missing art and details come from
+  LaunchBox, never replacing what is there. A lone LaunchBox candidate at 90 or more is applied;
+  several or a weak one goes to Needs review when ScreenScraper found nothing. The summary says
+  "… · N from LaunchBox". Without the database the batch pauses ("download the LaunchBox
+  database or turn off Then fill from LaunchBox").
+- **Use.** LaunchBox data is for your own library; NextLevel never uses it for the online
+  catalog.

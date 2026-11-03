@@ -213,6 +213,16 @@ Scope view (D62)
     a tile per standard art kind (found = image from the media index, missing = "Not
     found") plus any other indexed kind of the game, "N of M found", **Show found only**;
     a found tile opens full size over the Library (Esc or ✕ closes just that view).
+  - **Scrape from LaunchBox… (FR-SCR-6):** the context menu has *Scrape from ScreenScraper…*
+    (the Scrape… below) and *Scrape from LaunchBox…* (same dialog, titled "Scrape from
+    LaunchBox: <title>", "Not on LaunchBox"; a missing database shows "Download the
+    LaunchBox database (about 110 MB)?" + **Download**, then searches; a system without a
+    LaunchBox platform shows the platform picker). A ScreenScraper search with no match
+    offers **Try LaunchBox**. Details say "Scraped <date> from LaunchBox". Batch rules add
+    **Then fill from LaunchBox** (ticked when the database exists, else a link to Settings);
+    the progress adds "· N from LaunchBox". Settings → Scraper → *LaunchBox Games
+    Database*: Download / progress + Cancel / "Updated <date> · N games" + Refresh;
+    Settings → Systems → *LaunchBox platform*.
   - **Scrape… (M6b, FR-SCR-1, FR-SCR-5, US-C5, D19):** "Scrape: <title>" searches on open —
     by ROM hash first (files under 512 MiB, not .m3u/.cue/.gdi; never for missing games),
     then by title with relaxed variants — and preselects the best candidate (thumbnail,

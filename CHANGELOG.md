@@ -18,6 +18,17 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   games), optionally only the systems in your menu. Pick a system to see what pulls it down
   ("Missing: Box front · 51"); **Show** opens its games narrowed to those, with a chip that clears
   it, and Back returns to Health (FR-LIB-12).
+- **LaunchBox as a second scraper** (FR-SCR-6, `docs/02-design/scraping-guide.md` §5): the
+  free LaunchBox Games Database fills what ScreenScraper can't find.
+  - Settings → Scraper → *LaunchBox Games Database*: **Download** (about 110 MB, into the data
+    folder) / **Refresh**, with progress and Cancel; Settings → Systems → *LaunchBox platform*
+    (about 200 systems come filled in).
+  - The game menu offers **Scrape from ScreenScraper…** and **Scrape from LaunchBox…**; a
+    ScreenScraper search with no match offers **Try LaunchBox**; the dialog offers the download
+    when needed and a platform picker for a system without one.
+  - Batch scrape: **Then fill from LaunchBox** fills each game's still-missing art and details
+    after ScreenScraper (lone match ≥ 90 applied, else Needs review); "· N from LaunchBox".
+  - Library migration 0013 (`scrape_jobs.launchbox`).
 
 ### Changed
 
