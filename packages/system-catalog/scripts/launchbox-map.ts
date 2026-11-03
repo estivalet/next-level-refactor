@@ -66,7 +66,8 @@ const unmatched: string[] = [];
 for (const system of catalog.systems) {
   const platform = OVERRIDES[system.id] ?? matchPlatform(system, platforms);
   if (platform && !known.has(platform)) throw new Error(`unknown platform ${platform}`);
-  const { launchboxPlatform: _old, ...scraper } = system.scraper;
+  const scraper = { ...system.scraper };
+  delete scraper.launchboxPlatform;
   system.scraper = platform ? { ...scraper, launchboxPlatform: platform } : scraper;
   if (!platform) unmatched.push(system.id);
 }
