@@ -19,5 +19,5 @@ export const launchboxContract = {
 } as const;
 
 export const launchboxEvents = {
-  'launchbox.status': LaunchBoxStatusSchema,
+  'launchbox.changed': LaunchBoxStatusSchema,
 } as const;

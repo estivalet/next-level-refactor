@@ -55,7 +55,7 @@ describe('LaunchBox contracts (FR-SCR-6)', () => {
         .success,
     ).toBe(false);
     expect(
-      ipcEvents['launchbox.status'].safeParse({ ...ready, state: 'building', progress: 0.5 })
+      ipcEvents['launchbox.changed'].safeParse({ ...ready, state: 'building', progress: 0.5 })
         .success,
     ).toBe(true);
   });
