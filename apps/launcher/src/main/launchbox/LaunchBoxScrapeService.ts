@@ -30,6 +30,8 @@ export const LAUNCHBOX_IMAGES_URL = 'https://images.launchbox-app.com/';
 
 /** At most two image downloads a second (be polite to LaunchBox). */
 const IMAGE_GAP_MS = 500;
+/** Candidates past this many get no thumbnail (each is an image download), like ScreenScraper. */
+const THUMBS_PER_SEARCH = 8;
 
 export interface LaunchBoxScrapeDeps {
   launchbox: {
@@ -83,7 +85,7 @@ export class LaunchBoxScrapeService {
       });
       return {
         method: 'title' as const,
-        candidates: matches.map((match) => {
+        candidates: matches.map((match, position) => {
           const year = index.game(match.id)?.year ?? null;
           const box = selectArt(index.images(match.id), regions)['box-front'];
           return {
@@ -92,7 +94,7 @@ export class LaunchBoxScrapeService {
             year: year === null ? null : String(year),
             region: null,
             similarity: match.similarity,
-            thumb: box ? launchboxThumbUrl(match.id) : null,
+            thumb: box && position < THUMBS_PER_SEARCH ? launchboxThumbUrl(match.id) : null,
           };
         }),
       };
@@ -184,9 +186,12 @@ export class LaunchBoxScrapeService {
 
   /** One image, at most two a second; a lost connection is SCRAPER_NETWORK (a batch pauses). */
   private async download(image: LbImage): Promise<Buffer> {
-    const wait = this.lastDownload + IMAGE_GAP_MS - this.deps.now();
-    if (wait > 0) await this.deps.sleep(wait);
-    this.lastDownload = this.deps.now();
+    // Each download reserves its slot before waiting, so simultaneous requests (a candidate
+    // list's thumbnails) still go out 500 ms apart.
+    const now = this.deps.now();
+    const slot = Math.max(now, this.lastDownload + IMAGE_GAP_MS);
+    this.lastDownload = slot;
+    if (slot > now) await this.deps.sleep(slot - now);
     let response: Response;
     try {
       response = await this.deps.fetch(

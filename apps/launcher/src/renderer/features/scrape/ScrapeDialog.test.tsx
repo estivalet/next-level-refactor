@@ -262,4 +262,34 @@ describe('ScrapeDialog (FR-SCR-1, US-C5)', () => {
     });
     expect(inputs('scraper.search')).toHaveLength(2);
   });
+
+  it('PR (b) review: a failed download stops waiting, shows why and offers Download again', async () => {
+    const user = userEvent.setup();
+    const { fake } = setup(
+      {
+        'scraper.search': () => err('LAUNCHBOX_INDEX_MISSING', 'errors.launchboxIndexMissing'),
+        'launchbox.refresh': () =>
+          ok({ state: 'downloading', builtAt: null, games: 0, progress: 0, error: null }),
+      },
+      'launchbox',
+    );
+    const dialog = await screen.findByRole('dialog');
+    await user.click(await within(dialog).findByRole('button', { name: 'Download' }));
+    expect(await within(dialog).findByText('Downloading the LaunchBox database…')).toBeVisible();
+    act(() => {
+      fake.emit('launchbox.changed', {
+        state: 'failed',
+        builtAt: null,
+        games: 0,
+        progress: null,
+        error: 'errors.launchboxDownload',
+      });
+    });
+    expect(
+      await within(dialog).findByText(
+        'The LaunchBox database could not be downloaded. Check the connection and try again.',
+      ),
+    ).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: 'Download' })).toBeVisible();
+  });
 });

@@ -162,7 +162,12 @@ export function useScrape(game: GameDetails, provider: ScrapeProvider = 'screens
   // The database finished downloading while the dialog waited for it: search now.
   const waiting = state.phase === 'needsDownload';
   useIpcEvent('launchbox.changed', (status) => {
-    if (provider === 'launchbox' && waiting && status.state === 'ready') void search();
+    if (provider !== 'launchbox' || !waiting) return;
+    if (status.state === 'ready') void search();
+    // A failed or cancelled download stops the spinner and offers Download again.
+    else if (status.state === 'failed' || status.state === 'missing') {
+      patch({ downloading: false, errorKey: status.error });
+    }
   });
   const download = async () => {
     try {

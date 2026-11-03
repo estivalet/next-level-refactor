@@ -20,11 +20,11 @@ const NOW = new Date('2026-11-02T12:00:00.000Z');
 const png = (tag: string) =>
   Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.from(tag)]);
 
-async function setup(options: { platform?: string | null; index?: boolean } = {}) {
+async function setup(options: { platform?: string | null; index?: boolean; xml?: string } = {}) {
   const library = await tempLibrary();
   cleanups.push(library.cleanup);
   const zip = join(library.dir, 'Metadata.zip');
-  writeFixtureZip(zip);
+  writeFixtureZip(zip, options.xml);
   await buildIndex(zip, join(library.dir, 'launchbox.db'));
   const index = LaunchBoxIndex.open(join(library.dir, 'launchbox.db'));
   if (!index) throw new Error('no index');
@@ -152,5 +152,28 @@ describe('LaunchBoxScrapeService (FR-SCR-6)', () => {
     const { service } = await setup();
     expect((await service.thumbnail(472523))?.mime).toBe('image/png');
     expect(await service.thumbnail(1)).toBeNull();
+  });
+
+  it('PR (b) review: simultaneous thumbnails still keep 500 ms between image downloads', async () => {
+    const { service, slept } = await setup();
+    await Promise.all([
+      service.thumbnail(472523),
+      service.thumbnail(472523),
+      service.thumbnail(472523),
+    ]);
+    expect(slept).toEqual([500, 1000]);
+  });
+
+  it('PR (b) review: only the first 8 candidates get a thumbnail', async () => {
+    const games = Array.from(
+      { length: 10 },
+      (_, i) =>
+        `<Game><Name>Ace Driver ${String(i + 1)}</Name><DatabaseID>${String(i + 1)}</DatabaseID><Platform>Microsoft Xbox 360</Platform></Game>` +
+        `<GameImage><DatabaseID>${String(i + 1)}</DatabaseID><FileName>b${String(i + 1)}.png</FileName><Type>Box - Front</Type></GameImage>`,
+    ).join('');
+    const { service, gameId } = await setup({ xml: `<LaunchBox>${games}</LaunchBox>` });
+    const found = await service.search({ gameId, title: 'Ace Driver' });
+    expect(found.candidates).toHaveLength(10);
+    expect(found.candidates.filter((c) => c.thumb !== null)).toHaveLength(8);
   });
 });
