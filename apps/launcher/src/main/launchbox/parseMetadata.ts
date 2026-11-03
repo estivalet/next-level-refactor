@@ -28,8 +28,7 @@ export interface LbImage {
   region: string | null;
 }
 
-const BLOCKS = ['Game', 'GameAlternateName', 'GameImage'] as const;
-type Block = (typeof BLOCKS)[number];
+type Block = 'Game' | 'GameAlternateName' | 'GameImage';
 const OPEN = /<(Game|GameAlternateName|GameImage)>/g;
 /** The longest opening tag, kept across chunks so a split tag is still found. */
 const KEEP = '<GameAlternateName>'.length;
