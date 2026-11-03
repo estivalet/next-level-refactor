@@ -155,6 +155,18 @@ writeFileSync(
   `${JSON.stringify(presets.catalog, null, 2)}\n`,
 );
 
+// FR-SCR-6: LaunchBox platform names come from scripts/launchbox-map.ts; a re-seed keeps them.
+if (existsSync(required('out'))) {
+  const previous = SystemCatalogSchema.parse(readJson(required('out')));
+  const platforms = new Map(
+    previous.systems.map((system) => [system.id, system.scraper.launchboxPlatform]),
+  );
+  for (const system of catalog.systems) {
+    const platform = platforms.get(system.id);
+    if (platform) system.scraper = { ...system.scraper, launchboxPlatform: platform };
+  }
+}
+
 SystemCatalogSchema.parse(catalog);
 // ADR-011: refuse to drop a released id; record any new ones.
 const releasedPath = join(import.meta.dirname, '..', 'data', 'released-ids.json');
