@@ -27,7 +27,13 @@ describe('batch performance', () => {
   it('FR-SCR-2: selecting the next batch game over 200k games takes ≤ 50 ms', () => {
     const job = {
       scope: { systemIds: Array.from({ length: 20 }, (_, i) => `system-${String(i)}`) },
-      rules: { onlyMissing: true, kinds: ['box-front' as const], fields: [], regions: ['us'] },
+      rules: {
+        onlyMissing: true,
+        kinds: ['box-front' as const],
+        fields: [],
+        regions: ['us'],
+        launchbox: false,
+      },
       cursorGameId: 100_000,
     };
     nextGame(library.db, job);
@@ -44,7 +50,13 @@ describe('batch performance', () => {
   it('FR-SCR-2: one system whose games come last is found fast too', () => {
     const job = {
       scope: { systemIds: ['system-19'] },
-      rules: { onlyMissing: true, kinds: ['box-front' as const], fields: [], regions: ['us'] },
+      rules: {
+        onlyMissing: true,
+        kinds: ['box-front' as const],
+        fields: [],
+        regions: ['us'],
+        launchbox: false,
+      },
       cursorGameId: null,
     };
     nextGame(library.db, job);
@@ -87,6 +99,7 @@ describe('batch performance', () => {
         kinds: ['box-front'],
         fields: [],
         regions: ['us'],
+        launchbox: false,
       },
     );
     await service.idle();

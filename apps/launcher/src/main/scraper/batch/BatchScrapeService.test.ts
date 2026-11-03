@@ -21,6 +21,7 @@ const RULES: BatchRules = {
   kinds: ['box-front', 'logo-clear'],
   fields: ['genre', 'year'],
   regions: ['us'],
+  launchbox: false,
 };
 
 type Step = ScrapeSearchResult | ErrorCode;

@@ -80,9 +80,46 @@ describe('BatchRulesDialog (FR-SCR-2, US-C6, D18)', () => {
           kinds: GAME_ART_KINDS.filter((k) => k !== 'fanart' && defaults.artKinds.includes(k)),
           fields: defaults.fields.filter((field) => field !== 'title'),
           regions: defaults.regionPriority,
+          launchbox: false,
         },
       },
     ]);
+  });
+
+  it('FR-SCR-6: with the LaunchBox database, Then fill from LaunchBox is on and sent', async () => {
+    const user = userEvent.setup();
+    const { started } = setup({
+      'launchbox.status': () =>
+        ok({
+          state: 'ready',
+          builtAt: '2026-11-02T08:00:00.000Z',
+          games: 3,
+          progress: null,
+          error: null,
+        }),
+    });
+    const dialog = await screen.findByRole('dialog', { name: 'Scrape Super Nintendo' });
+    expect(
+      await within(dialog).findByRole('checkbox', { name: 'Then fill from LaunchBox' }),
+    ).toBeChecked();
+    await user.click(within(dialog).getByRole('button', { name: 'Start' }));
+    await waitFor(() => {
+      expect(started[0]?.rules.launchbox).toBe(true);
+    });
+  });
+
+  it('FR-SCR-6: without the LaunchBox database the rule is off and points to Settings', async () => {
+    setup({
+      'launchbox.status': () =>
+        ok({ state: 'missing', builtAt: null, games: 0, progress: null, error: null }),
+    });
+    const dialog = await screen.findByRole('dialog', { name: 'Scrape Super Nintendo' });
+    expect(
+      await within(dialog).findByRole('checkbox', { name: 'Then fill from LaunchBox' }),
+    ).not.toBeChecked();
+    expect(
+      within(dialog).getByRole('button', { name: 'Download the LaunchBox database first' }),
+    ).toBeVisible();
   });
 
   it('Start is off with no kind and no field', async () => {

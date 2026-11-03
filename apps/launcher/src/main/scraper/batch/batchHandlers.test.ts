@@ -2,7 +2,13 @@ import { IDLE_BATCH, ipcContract, type BatchRules } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
 import { createBatchHandlers } from './batchHandlers.ts';
 
-const RULES: BatchRules = { onlyMissing: true, kinds: ['box-front'], fields: [], regions: ['us'] };
+const RULES: BatchRules = {
+  onlyMissing: true,
+  kinds: ['box-front'],
+  fields: [],
+  regions: ['us'],
+  launchbox: false,
+};
 
 describe('batch scrape channels (FR-SCR-2, US-C6)', () => {
   it('pass through to the service', async () => {

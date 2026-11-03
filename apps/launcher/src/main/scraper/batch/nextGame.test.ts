@@ -17,6 +17,7 @@ const RULES: BatchRules = {
   kinds: ['box-front'],
   fields: ['genre'],
   regions: ['us'],
+  launchbox: false,
 };
 
 const ids = (job: Parameters<typeof nextGame>[1]) => {

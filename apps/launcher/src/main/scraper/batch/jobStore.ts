@@ -23,6 +23,8 @@ export interface Job {
   review: number;
   notFound: number;
   failed: number;
+  /** FR-SCR-6: games LaunchBox wrote to. */
+  launchbox: number;
   pausedReason: BatchPauseReason | null;
   resumeAt: string | null;
 }
@@ -33,7 +35,8 @@ interface Row extends Omit<Job, 'scope' | 'rules'> {
 }
 
 const COLUMNS = `id, scope, rules, status, cursor_game_id as cursorGameId, total, done, applied,
-  review, not_found as notFound, failed, paused_reason as pausedReason, resume_at as resumeAt`;
+  review, not_found as notFound, failed, launchbox, paused_reason as pausedReason,
+  resume_at as resumeAt`;
 
 /** Batch jobs in `scrape_jobs` (FR-SCR-2): one row per job, saved after every game. */
 export class JobStore {
@@ -68,7 +71,7 @@ export class JobStore {
       .prepare(
         `update scrape_jobs set status = @status, cursor_game_id = @cursorGameId, done = @done,
            applied = @applied, review = @review, not_found = @notFound, failed = @failed,
-           paused_reason = @pausedReason, resume_at = @resumeAt, updated_at = @updatedAt
+           launchbox = @launchbox, paused_reason = @pausedReason, resume_at = @resumeAt, updated_at = @updatedAt
          where id = @id`,
       )
       .run({
@@ -80,6 +83,7 @@ export class JobStore {
         review: job.review,
         notFound: job.notFound,
         failed: job.failed,
+        launchbox: job.launchbox,
         pausedReason: job.pausedReason,
         resumeAt: job.resumeAt,
         updatedAt: now.toISOString(),

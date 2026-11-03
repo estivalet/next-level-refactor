@@ -23,6 +23,18 @@ export function decide(found: ScrapeSearchResult): BatchOutcome {
   return { kind: 'review' };
 }
 
+/**
+ * What LaunchBox may still give a game after ScreenScraper (FR-SCR-6): only what is missing,
+ * whatever the batch's Only missing (LaunchBox complements, it never replaces).
+ */
+export function fillTargets(
+  rules: BatchRules,
+  game: GameDetails,
+  media: Pick<MediaRepository, 'kindsByGame'>,
+): { kinds: GameArtKind[]; fields: BatchField[] } {
+  return batchTargets({ ...rules, onlyMissing: true }, game, media);
+}
+
 const empty = (value: unknown) => value === null || value === undefined || value === '';
 
 /**

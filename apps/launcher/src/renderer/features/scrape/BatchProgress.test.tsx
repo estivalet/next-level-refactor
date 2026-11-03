@@ -93,4 +93,19 @@ describe('BatchProgress (FR-SCR-2, US-C6)', () => {
     await user.click(await screen.findByRole('button', { name: 'Resume' }));
     expect(await screen.findByRole('button', { name: 'Pause' })).toHaveFocus();
   });
+
+  it('FR-SCR-6: games filled from LaunchBox are named in the counts', async () => {
+    setup({ ...RUNNING, applied: 3, launchbox: 2 });
+    expect(await screen.findByText(/applied 3 · review 1 · 2 from LaunchBox$/)).toBeVisible();
+  });
+
+  it('FR-SCR-6: a pause for the missing LaunchBox database says so and opens Settings', async () => {
+    setup({ ...RUNNING, state: 'paused', pausedReason: 'launchbox' });
+    expect(
+      await screen.findByText(
+        'Paused: download the LaunchBox database or turn off Then fill from LaunchBox (3/10)',
+      ),
+    ).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Open Settings' })).toBeVisible();
+  });
 });
