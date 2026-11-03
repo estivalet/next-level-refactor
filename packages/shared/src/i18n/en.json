@@ -787,7 +787,18 @@
       "locked": "Edited by you; a scrape keeps this value.",
       "invalid": "Check this value.",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "tabs": { "info": "Info", "media": "Media" },
+      "media": {
+        "found": "{{found}} of {{total}} found",
+        "foundOnly": "Show found only",
+        "notFound": "Not found",
+        "view": "View {{kind}}"
+      },
+      "previous": "Previous game",
+      "next": "Next game",
+      "position": "{{position}} / {{total}}",
+      "saveFirst": "Save or cancel your changes first"
     },
     "relink": {
       "title": "Relink {{title}}",

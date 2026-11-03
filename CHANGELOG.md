@@ -5,6 +5,14 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Added
+
+- **Edit details** has a **Media** tab (look-only): a tile for every art kind of the game, the
+  found ones with their image and the missing ones marked "Not found", "N of M found" and
+  **Show found only**; a tile opens full size (a video plays). Other art folders the library
+  indexed for the game (`manual`, `box-side`…) show too. **‹ ›** step through the games of the
+  shown list, and the list follows (off while there are unsaved changes) (FR-LIB-6).
+
 ### Changed
 
 - The startup splash has the NextLevelOS look (logo, progress bar, step label) and shows from

@@ -1,27 +1,74 @@
 import { EDITABLE_FIELDS, type EditableField, type GameDetails } from '@nextlevel/shared';
-import { Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changesOf, draftOf, type EditDraft } from './editForm.ts';
+import { GameMediaTab } from './GameMediaTab.tsx';
 import { useGameDetails, useUpdateMetadata } from './libraryApi.ts';
 import { INPUT, Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from './Modal.tsx';
 
-/**
- * Edit details (FR-LIB-6). Opens once the game is loaded (normally already cached by the details
- * panel), so the dialog mounts once and focus lands on the first field.
- */
-export function EditMetadataDialog({ gameId, onClose }: { gameId: number; onClose: () => void }) {
-  const details = useGameDetails(gameId);
-  return details.data ? <EditForm game={details.data} onClose={onClose} /> : null;
+/** Where the edited game sits in the Library list; `onStep` opens the previous or next one. */
+export interface EditPager {
+  /** 1-based. */
+  position: number;
+  total: number;
+  onStep: (delta: -1 | 1) => void;
 }
 
-function EditForm({ game, onClose }: { game: GameDetails; onClose: () => void }) {
+type EditTab = 'info' | 'media';
+
+/**
+ * Edit details (FR-LIB-6) with an Info tab (the fields) and a look-only Media tab. Opens once the
+ * game is loaded (normally already cached by the details panel), so the dialog mounts once and
+ * focus lands on the first field. Paging keeps the tab and shows the last game until the next
+ * one loads.
+ */
+export function EditMetadataDialog(props: {
+  gameId: number;
+  pager?: EditPager;
+  onClose: () => void;
+}) {
+  const { gameId, pager, onClose } = props;
+  const details = useGameDetails(gameId, { keepPrevious: true });
+  const [tab, setTab] = useState<EditTab>('info');
+  return details.data ? (
+    <EditForm
+      game={details.data}
+      tab={tab}
+      onTab={setTab}
+      {...(pager ? { pager } : {})}
+      onClose={onClose}
+    />
+  ) : null;
+}
+
+function EditForm(props: {
+  game: GameDetails;
+  tab: EditTab;
+  onTab: (tab: EditTab) => void;
+  pager?: EditPager;
+  onClose: () => void;
+}) {
+  const { game, tab, onTab, pager, onClose } = props;
   const { t } = useTranslation();
   const formId = useId();
   const update = useUpdateMetadata();
-  const [original] = useState(() => draftOf(game));
-  const [draft, setDraft] = useState<EditDraft>(original);
+  // The draft belongs to one game: paging to the next starts from its saved values. The dialog
+  // stays mounted, so focus stays on ‹ ›.
+  const [edit, setEdit] = useState(() => ({
+    id: game.id,
+    original: draftOf(game),
+    draft: draftOf(game),
+  }));
+  const current =
+    edit.id === game.id ? edit : { id: game.id, original: draftOf(game), draft: draftOf(game) };
+  const { original, draft } = current;
+  const setDraft = (next: EditDraft) => {
+    setEdit({ ...current, draft: next });
+  };
   const { changes, invalid } = changesOf(original, draft);
+  // Paging would drop what was typed: save or cancel first.
+  const dirty = changes !== null || invalid.size > 0;
   const locked = new Set(game.lockedFields);
 
   const field = (name: EditableField) => {
@@ -71,6 +118,7 @@ function EditForm({ game, onClose }: { game: GameDetails; onClose: () => void })
   return (
     <Modal
       title={t('library.edit.title')}
+      wide
       onClose={onClose}
       footer={
         <>
@@ -91,7 +139,72 @@ function EditForm({ game, onClose }: { game: GameDetails; onClose: () => void })
         </>
       }
     >
-      <div className="grid grid-cols-2 gap-3">{EDITABLE_FIELDS.map(field)}</div>
+      <p className="mb-2 truncate text-sm font-semibold text-white">{game.title}</p>
+      <div className="mb-3 flex items-center gap-4 border-b border-white/5">
+        <div role="tablist" className="flex flex-1 gap-4">
+          {(['info', 'media'] as const).map((name) => (
+            <button
+              key={name}
+              type="button"
+              role="tab"
+              id={`${formId}-tab-${name}`}
+              aria-selected={tab === name}
+              aria-controls={`${formId}-panel`}
+              onClick={() => {
+                onTab(name);
+              }}
+              className={`-mb-px border-b-2 px-1 pb-2 text-xs ${
+                tab === name
+                  ? 'border-emerald-400 text-white'
+                  : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              {t(`library.edit.tabs.${name}`)}
+            </button>
+          ))}
+        </div>
+        {pager && (
+          <div className="flex items-center gap-2 pb-2 text-[11px] text-slate-500">
+            <button
+              type="button"
+              aria-label={t('library.edit.previous')}
+              title={dirty ? t('library.edit.saveFirst') : undefined}
+              disabled={dirty || pager.position <= 1}
+              onClick={() => {
+                pager.onStep(-1);
+              }}
+              className={PAGER}
+            >
+              <ChevronLeft aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+            <span>
+              {t('library.edit.position', { position: pager.position, total: pager.total })}
+            </span>
+            <button
+              type="button"
+              aria-label={t('library.edit.next')}
+              title={dirty ? t('library.edit.saveFirst') : undefined}
+              disabled={dirty || pager.position >= pager.total}
+              onClick={() => {
+                pager.onStep(1);
+              }}
+              className={PAGER}
+            >
+              <ChevronRight aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
+      <div id={`${formId}-panel`} role="tabpanel" aria-labelledby={`${formId}-tab-${tab}`}>
+        {tab === 'info' ? (
+          <div className="grid grid-cols-2 gap-3">{EDITABLE_FIELDS.map(field)}</div>
+        ) : (
+          <GameMediaTab game={game} />
+        )}
+      </div>
     </Modal>
   );
 }
+
+const PAGER =
+  'rounded-md bg-white/5 p-1 text-slate-300 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-30';

@@ -787,7 +787,18 @@
       "locked": "Editado por você; uma busca de dados mantém este valor.",
       "invalid": "Verifique este valor.",
       "save": "Salvar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "tabs": { "info": "Informações", "media": "Mídia" },
+      "media": {
+        "found": "{{found}} de {{total}} encontradas",
+        "foundOnly": "Mostrar só as encontradas",
+        "notFound": "Não encontrada",
+        "view": "Ver {{kind}}"
+      },
+      "previous": "Jogo anterior",
+      "next": "Próximo jogo",
+      "position": "{{position}} / {{total}}",
+      "saveFirst": "Salve ou cancele suas alterações antes"
     },
     "relink": {
       "title": "Religar {{title}}",
