@@ -216,6 +216,8 @@ export const scrapeJobs = sqliteTable('scrape_jobs', {
   review: integer('review').notNull().default(0),
   notFound: integer('not_found').notNull().default(0),
   failed: integer('failed').notNull().default(0),
+  /** FR-SCR-6: games LaunchBox wrote to. */
+  launchbox: integer('launchbox').notNull().default(0),
   pausedReason: text('paused_reason'),
   resumeAt: text('resume_at'),
   createdAt: text('created_at').notNull(),

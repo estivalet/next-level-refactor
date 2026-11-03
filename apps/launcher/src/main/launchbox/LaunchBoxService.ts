@@ -22,6 +22,8 @@ export interface LaunchBoxServiceDeps {
   system: (systemId: string) => { scraper: { launchboxPlatform?: string | undefined } } | undefined;
   buildInWorker: BuildInWorker;
   log?: { warn(context: object, message: string): void };
+  /** e2e only: a local fake for LAUNCHBOX_METADATA_URL. */
+  metadataUrl?: string;
 }
 
 const fail = (
@@ -70,6 +72,10 @@ export class LaunchBoxService {
   constructor(private readonly deps: LaunchBoxServiceDeps) {
     this.current = LaunchBoxIndex.open(this.path('launchbox.db'));
     this.state = this.current ? 'ready' : 'missing';
+  }
+
+  private url(): string {
+    return this.deps.metadataUrl ?? LAUNCHBOX_METADATA_URL;
   }
 
   private path(name: string): string {
@@ -217,7 +223,7 @@ export class LaunchBoxService {
     let size: number;
     let version: string;
     try {
-      const head = await this.deps.fetch(LAUNCHBOX_METADATA_URL, { method: 'HEAD', signal });
+      const head = await this.deps.fetch(this.url(), { method: 'HEAD', signal });
       size = Number(head.headers.get('content-length'));
       if (!head.ok || !Number.isFinite(size) || size <= 0) throw new Error('no size');
       version = head.headers.get('etag') ?? head.headers.get('last-modified') ?? String(size);
@@ -230,7 +236,7 @@ export class LaunchBoxService {
     writeFileSync(versionFile, version);
     let received = 0;
     const result = await downloadFile({
-      url: LAUNCHBOX_METADATA_URL,
+      url: this.url(),
       part,
       expectedSize: size,
       fetch: this.deps.fetch,

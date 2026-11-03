@@ -101,6 +101,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-SCR-3 | Scraper credentials are entered in Settings and stored in the OS credential store. | M |
 | FR-SCR-4 | Media is stored per system under `media/<art kind>/` next to the ROM folder (current convention) or in a central media folder (setting). | M |
 | FR-SCR-5 | The library records which media files exist so themes never probe the disk at render time. | M |
+| FR-SCR-6 | LaunchBox Games Database as a second scraper (owner request 2026-11-02): single game (Scrape from LaunchBox…, Try LaunchBox) and a batch fill after ScreenScraper, from its public database download indexed locally in the data folder; personal use only, never for the online catalog. | S |
 
 ## 9. Settings (`FR-SET`)
 

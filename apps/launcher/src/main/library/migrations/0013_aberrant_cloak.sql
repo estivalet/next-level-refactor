@@ -1,0 +1,1 @@
+ALTER TABLE `scrape_jobs` ADD `launchbox` integer DEFAULT 0 NOT NULL;

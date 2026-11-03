@@ -1076,10 +1076,14 @@
         "credentials": "Paused: ScreenScraper refused the account ({{done}}/{{total}})",
         "user": "Paused ({{done}}/{{total}})",
         "media": "Paused: art couldn't be saved — check the media folder ({{done}}/{{total}})",
-        "error": "Paused after an error — see the log ({{done}}/{{total}})"
+        "error": "Paused after an error — see the log ({{done}}/{{total}})",
+        "launchbox": "Paused: download the LaunchBox database or turn off Then fill from LaunchBox ({{done}}/{{total}})"
       },
       "busy": "A batch scrape is already running or paused. Cancel it first.",
-      "noSystem": "No ScreenScraper system is set for {{systems}}. Choose one in Settings → Systems (or scrape one game with Scrape…, which asks)."
+      "noSystem": "No ScreenScraper system is set for {{systems}}. Choose one in Settings → Systems (or scrape one game with Scrape…, which asks).",
+      "launchbox": "Then fill from LaunchBox",
+      "launchboxDownload": "Download the LaunchBox database first",
+      "fromLaunchBox": " · {{count}} from LaunchBox"
     },
     "export": {
       "open": "Export…",

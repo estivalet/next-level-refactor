@@ -18,6 +18,8 @@ export const BatchRulesSchema = z.strictObject({
     .array(z.string().regex(/^[a-z]{2,4}$/))
     .min(1)
     .max(10),
+  /** FR-SCR-6: after ScreenScraper, fill what is still missing from LaunchBox. */
+  launchbox: z.boolean().default(false),
 });
 
 export const BatchScopeSchema = z.union([
@@ -27,7 +29,8 @@ export const BatchScopeSchema = z.union([
 
 /**
  * `media`: art could not be saved for several games in a row (unwritable or unplugged folder);
- * `error`: something unexpected (e.g. the library could not be written); see the log.
+ * `error`: something unexpected (e.g. the library could not be written); see the log;
+ * `launchbox`: Then fill from LaunchBox is on but the LaunchBox database isn't downloaded.
  */
 export const BATCH_PAUSE_REASONS = [
   'quota',
@@ -36,6 +39,7 @@ export const BATCH_PAUSE_REASONS = [
   'user',
   'media',
   'error',
+  'launchbox',
 ] as const;
 
 export const BatchStatusSchema = z.object({
@@ -50,6 +54,8 @@ export const BatchStatusSchema = z.object({
   review: count,
   notFound: count,
   failed: count,
+  /** Games LaunchBox wrote to (FR-SCR-6), part of `applied`. */
+  launchbox: count,
   current: z.object({ gameId: z.number().int().positive(), title: z.string() }).nullable(),
   /** The systems a system-scope job covers (Show Needs review opens them); null for a selection. */
   systemIds: z.array(z.string()).nullable(),
@@ -66,6 +72,7 @@ export const IDLE_BATCH: BatchStatus = {
   review: 0,
   notFound: 0,
   failed: 0,
+  launchbox: 0,
   current: null,
   systemIds: null,
 };

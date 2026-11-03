@@ -39,6 +39,9 @@ export function BatchProgress({
   }
   const done = Math.min(status.done, status.total);
   const counts = { done, total: status.total, applied: status.applied };
+  // FR-SCR-6: "… · 2 from LaunchBox" once LaunchBox filled any game.
+  const fromLaunchBox =
+    status.launchbox > 0 ? t('library.batch.fromLaunchBox', { count: status.launchbox }) : '';
   const request = (action: Pending['action']) => {
     setPending({ action, jobId: status.jobId, state: status.state });
     (action === 'pause' ? pause : cancel).mutate(undefined, {
@@ -54,6 +57,7 @@ export function BatchProgress({
       <div className="flex items-center gap-2">
         <p role="status" className="max-w-md text-[11px] text-slate-500">
           {t('library.batch.finished', { ...status, count: done })}
+          {fromLaunchBox}
         </p>
         {status.review > 0 && onShowReview && (
           <button
@@ -87,6 +91,7 @@ export function BatchProgress({
         <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin text-emerald-400" />
         <p role="status" className="max-w-md text-[11px] text-slate-400">
           {t('library.batch.running', { ...counts, review: status.review })}
+          {fromLaunchBox}
         </p>
         <button
           type="button"
@@ -114,7 +119,7 @@ export function BatchProgress({
       <p role="status" className="max-w-md text-[11px] text-amber-200">
         {t(`library.batch.paused.${reason}`, { ...counts, time })}
       </p>
-      {reason === 'credentials' && (
+      {(reason === 'credentials' || reason === 'launchbox') && (
         <button
           type="button"
           className={BUTTON}

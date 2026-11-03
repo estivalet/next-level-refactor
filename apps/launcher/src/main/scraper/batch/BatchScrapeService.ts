@@ -17,17 +17,21 @@ import type { LibraryDb } from '../../library/openLibrary.ts';
 import type { ScrapeRepository } from '../../library/ScrapeRepository.ts';
 import { JobStore, type Job, type Tally } from './jobStore.ts';
 import { countGames, nextGame } from './nextGame.ts';
-import { batchTargets, decide } from './rules.ts';
+import { batchTargets, decide, fillTargets } from './rules.ts';
+
+interface BatchScraper {
+  search: (input: { gameId: number; provider?: 'launchbox' }) => Promise<ScrapeSearchResult>;
+  apply: (
+    input: ScrapeApplyInput,
+    opts: { candidates: number; regions?: string[]; batch: true },
+  ) => Promise<ScrapeApplyResult>;
+}
 
 export interface BatchDeps {
   db: LibraryDb;
-  scraper: {
-    search: (input: { gameId: number }) => Promise<ScrapeSearchResult>;
-    apply: (
-      input: ScrapeApplyInput,
-      opts: { candidates: number; regions?: string[]; batch: true },
-    ) => Promise<ScrapeApplyResult>;
-  };
+  scraper: BatchScraper;
+  /** FR-SCR-6: the LaunchBox step (Then fill from LaunchBox) and its index's busy flag. */
+  launchbox?: { scraper: BatchScraper; setBusy: (busy: boolean) => void };
   games: Pick<GameRepository, 'get'>;
   media: Pick<MediaRepository, 'kindsByGame'>;
   scrapes: Pick<ScrapeRepository, 'set'>;
@@ -99,6 +103,7 @@ export class BatchScrapeService {
       review: job.review,
       notFound: job.notFound,
       failed: job.failed,
+      launchbox: job.launchbox,
       current: state === 'running' ? this.current : null,
       systemIds: 'systemIds' in job.scope ? [...new Set(job.scope.systemIds)] : null,
     };
@@ -220,6 +225,17 @@ export class BatchScrapeService {
   }
 
   private async run(): Promise<void> {
+    // The LaunchBox index can't be swapped by a Refresh while a job reads it (FR-SCR-6).
+    const hold = this.deps.launchbox && this.job?.rules.launchbox ? this.deps.launchbox : null;
+    hold?.setBusy(true);
+    try {
+      await this.games();
+    } finally {
+      hold?.setBusy(false);
+    }
+  }
+
+  private async games(): Promise<void> {
     while (this.job?.status === 'running') {
       const next = nextGame(this.deps.db, this.job);
       if (!next) {
@@ -257,6 +273,8 @@ export class BatchScrapeService {
       }
       const found = await this.deps.scraper.search({ gameId });
       const outcome = decide(found);
+      const fill = job.rules.launchbox && this.deps.launchbox !== undefined;
+      let tally: Tally;
       if (outcome.kind === 'apply') {
         const result = await this.deps.scraper.apply(
           { gameId, providerGameId: outcome.providerGameId, ...targets },
@@ -267,21 +285,80 @@ export class BatchScrapeService {
           result.written.length === 0 && result.failed.some((f) => f.code === 'write');
         this.mediaFails = unsaved ? this.mediaFails + 1 : 0;
         const failed = unsaved || result.game.scrape?.status === 'failed';
-        this.advance(gameId, failed ? 'failed' : 'applied');
-        if (this.mediaFails >= MEDIA_TRIES) {
-          this.mediaFails = 0;
-          this.pauseFor('media', null);
+        if (failed || !fill) {
+          this.advance(gameId, failed ? 'failed' : 'applied');
+          if (this.mediaFails >= MEDIA_TRIES) {
+            this.mediaFails = 0;
+            this.pauseFor('media', null);
+          }
+          return;
         }
+        tally = 'applied';
       } else {
         this.networkFails = 0;
         this.mark(gameId, game.systemId, outcome.kind, found.candidates.length, null);
-        this.advance(gameId, outcome.kind);
+        tally = outcome.kind;
       }
+      if (fill) {
+        const filled = await this.fillFromLaunchBox(gameId, game.systemId, job, tally);
+        if (filled === 'paused') return;
+        if (filled === 'applied') {
+          tally = 'applied';
+          job.launchbox += 1;
+        } else if (filled === 'review' && tally === 'notFound') {
+          tally = 'review';
+        }
+      }
+      this.advance(gameId, tally);
     } catch (error) {
       await this.onError(gameId, game.systemId, error);
     } finally {
       this.current = null;
     }
+  }
+
+  /**
+   * FR-SCR-6: after ScreenScraper, what is still missing comes from LaunchBox. A lone candidate
+   * at 90 or more is applied; several or a weak one is Needs review (only when ScreenScraper
+   * found nothing); a missing LaunchBox database pauses the job on this game.
+   */
+  private async fillFromLaunchBox(
+    gameId: number,
+    systemId: string,
+    job: Job,
+    before: Tally,
+  ): Promise<'applied' | 'review' | 'none' | 'paused'> {
+    const launchbox = this.deps.launchbox;
+    if (!launchbox) return 'none';
+    const targets = fillTargets(job.rules, this.deps.games.get(gameId), this.deps.media);
+    if (targets.kinds.length === 0 && targets.fields.length === 0) return 'none';
+    let found: ScrapeSearchResult;
+    try {
+      found = await launchbox.scraper.search({ gameId, provider: 'launchbox' });
+    } catch (error) {
+      const code = error instanceof AppErrorException ? error.error.code : null;
+      if (code === 'LAUNCHBOX_INDEX_MISSING') {
+        this.pauseFor('launchbox', null);
+        return 'paused';
+      }
+      // A system without a LaunchBox platform keeps its ScreenScraper outcome.
+      if (code === 'NO_LAUNCHBOX_PLATFORM') return 'none';
+      throw error;
+    }
+    const outcome = decide(found);
+    if (outcome.kind === 'apply') {
+      const result = await launchbox.scraper.apply(
+        { gameId, providerGameId: outcome.providerGameId, ...targets, provider: 'launchbox' },
+        { candidates: found.candidates.length, regions: job.rules.regions, batch: true },
+      );
+      const scrape = result.game.scrape;
+      return scrape?.provider === 'launchbox' && scrape.status === 'scraped' ? 'applied' : 'none';
+    }
+    if (outcome.kind === 'review' && before === 'notFound') {
+      this.mark(gameId, systemId, 'review', found.candidates.length, null, 'launchbox');
+      return 'review';
+    }
+    return 'none';
   }
 
   private async onError(gameId: number, systemId: string, error: unknown): Promise<void> {
@@ -316,9 +393,10 @@ export class BatchScrapeService {
     status: 'review' | 'notFound' | 'failed',
     candidates: number,
     error: string | null,
+    provider: 'screenscraper' | 'launchbox' = 'screenscraper',
   ): void {
     this.deps.scrapes.set(gameId, {
-      provider: 'screenscraper',
+      provider,
       status,
       providerGameId: null,
       candidates,

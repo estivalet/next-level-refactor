@@ -1076,10 +1076,14 @@
         "credentials": "Pausado: o ScreenScraper recusou a conta ({{done}}/{{total}})",
         "user": "Pausado ({{done}}/{{total}})",
         "media": "Pausado: a arte não pôde ser salva — verifique a pasta de mídia ({{done}}/{{total}})",
-        "error": "Pausado após um erro — veja o log ({{done}}/{{total}})"
+        "error": "Pausado após um erro — veja o log ({{done}}/{{total}})",
+        "launchbox": "Pausado: baixe o banco de dados do LaunchBox ou desligue Depois completar com o LaunchBox ({{done}}/{{total}})"
       },
       "busy": "Já há uma busca em lote em andamento ou pausada. Cancele-a primeiro.",
-      "noSystem": "Nenhum sistema do ScreenScraper definido para {{systems}}. Escolha um em Configurações → Sistemas (ou busque um jogo com Buscar dados…, que pergunta)."
+      "noSystem": "Nenhum sistema do ScreenScraper definido para {{systems}}. Escolha um em Configurações → Sistemas (ou busque um jogo com Buscar dados…, que pergunta).",
+      "launchbox": "Depois completar com o LaunchBox",
+      "launchboxDownload": "Baixe antes o banco de dados do LaunchBox",
+      "fromLaunchBox": " · {{count}} do LaunchBox"
     },
     "export": {
       "open": "Exportar…",

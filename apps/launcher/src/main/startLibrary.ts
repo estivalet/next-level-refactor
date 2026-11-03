@@ -280,31 +280,6 @@ export function startLibrary(
     clock: () => new Date(),
     blocked: () => scan.status().running || importer.running(),
   });
-  const batch = new BatchScrapeService({
-    db,
-    scraper: scrape,
-    games,
-    media,
-    scrapes: new ScrapeRepository(db),
-    quota: () => scraperQuota.state(),
-    blocked: () => scan.status().running || importer.running(),
-    screenscraperId: (systemId) =>
-      currentSettings(settings).systems[systemId]?.screenscraperId ??
-      getSystem(systemId)?.scraper.screenscraperId ??
-      null,
-    emit,
-    log,
-    clock: () => new Date(),
-    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
-    setTimer: (ms, run) => {
-      // setTimeout caps at ~24.8 days; a quota pause is at most a day.
-      const timer = setTimeout(run, Math.min(ms, 2_147_000_000));
-      return () => {
-        clearTimeout(timer);
-      };
-    },
-  });
-  batch.restore();
   // FR-SCR-6: the LaunchBox database lives in <data>\launchbox\ (D50).
   const launchbox = new LaunchBoxService({
     dataDir,
@@ -314,6 +289,8 @@ export function startLibrary(
     system: getSystem,
     buildInWorker: buildInWorker(indexWorkerPath),
     log,
+    // e2e points LaunchBox at a local fake; packaged builds never read the variables.
+    ...launchboxDev('NEXTLEVEL_LAUNCHBOX_URL', (metadataUrl) => ({ metadataUrl })),
   });
   const launchboxScrape = new LaunchBoxScrapeService({
     launchbox,
@@ -337,7 +314,39 @@ export function startLibrary(
     emit,
     clock: () => new Date(),
     blocked: () => scan.status().running || importer.running(),
+    ...launchboxDev('NEXTLEVEL_LAUNCHBOX_IMAGES', (imagesUrl) => ({ imagesUrl })),
   });
+  const batch = new BatchScrapeService({
+    db,
+    scraper: scrape,
+    launchbox: {
+      scraper: launchboxScrape,
+      setBusy: (busy) => {
+        launchbox.setBusy(busy);
+      },
+    },
+    games,
+    media,
+    scrapes: new ScrapeRepository(db),
+    quota: () => scraperQuota.state(),
+    blocked: () => scan.status().running || importer.running(),
+    screenscraperId: (systemId) =>
+      currentSettings(settings).systems[systemId]?.screenscraperId ??
+      getSystem(systemId)?.scraper.screenscraperId ??
+      null,
+    emit,
+    log,
+    clock: () => new Date(),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    setTimer: (ms, run) => {
+      // setTimeout caps at ~24.8 days; a quota pause is at most a day.
+      const timer = setTimeout(run, Math.min(ms, 2_147_000_000));
+      return () => {
+        clearTimeout(timer);
+      };
+    },
+  });
+  batch.restore();
   closer.beforeClose(() => {
     batch.dispose();
     launchbox.dispose();
@@ -368,4 +377,10 @@ export function startLibrary(
     smartFilters,
     importer,
   };
+}
+
+/** A dev-only override from the environment (e2e fakes); nothing in packaged builds. */
+function launchboxDev<T>(name: string, make: (value: string) => T): T | Record<string, never> {
+  const value = app.isPackaged ? undefined : process.env[name];
+  return value ? make(value) : {};
 }

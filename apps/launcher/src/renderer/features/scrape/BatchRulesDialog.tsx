@@ -7,6 +7,8 @@ import {
   type ScraperSettings,
 } from '@nextlevel/shared';
 import { useState } from 'react';
+import { useOpenApp } from '../shell/useOpenApp.ts';
+import { useLaunchBoxStatus } from '../settings/scraper/launchboxApi.ts';
 import { useTranslation } from 'react-i18next';
 import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
 import { REGIONS } from '../settings/scraper/ScraperOptions.tsx';
@@ -48,6 +50,12 @@ function RulesForm({
     defaults.fields.filter((field): field is BatchField => field !== 'title'),
   );
   const [regions, setRegions] = useState<string[]>(defaults.regionPriority);
+  // FR-SCR-6: ticked by default only when the LaunchBox database is there to fill from.
+  const launchboxStatus = useLaunchBoxStatus();
+  const launchboxReady = launchboxStatus.data?.state === 'ready';
+  const [launchboxChoice, setLaunchboxChoice] = useState<boolean | null>(null);
+  const launchbox = launchboxChoice ?? launchboxReady;
+  const openApp = useOpenApp();
   const nothing = kinds.length === 0 && fields.length === 0;
   const box = (label: string, checked: boolean, onChange: () => void) => (
     <label key={label} className="flex items-center gap-2 text-xs text-slate-300">
@@ -84,6 +92,7 @@ function RulesForm({
                     kinds: GAME_ART_KINDS.filter((kind) => kinds.includes(kind)),
                     fields: BATCH_FIELDS.filter((field) => fields.includes(field)),
                     regions,
+                    launchbox,
                   },
                 },
                 { onSuccess: onClose },
@@ -126,6 +135,22 @@ function RulesForm({
             options={REGIONS}
             onChange={setRegions}
           />
+        </div>
+        <div className="flex flex-col gap-1">
+          {box(t('library.batch.launchbox'), launchbox, () => {
+            setLaunchboxChoice(!launchbox);
+          })}
+          {launchboxStatus.data && !launchboxReady && (
+            <button
+              type="button"
+              className="self-start text-[11px] text-cyan-300 hover:underline"
+              onClick={() => {
+                openApp('settings', { section: 'scraper' });
+              }}
+            >
+              {t('library.batch.launchboxDownload')}
+            </button>
+          )}
         </div>
         {start.isError && <StartRefusal error={start.error} />}
       </div>
