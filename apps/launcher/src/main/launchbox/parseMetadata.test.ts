@@ -107,4 +107,14 @@ describe('parseMetadataZip (FR-SCR-6)', () => {
     writeFileSync(zip, bytes.subarray(0, Math.floor(bytes.length / 2)));
     await expect(parse(zip)).rejects.toThrow();
   });
+
+  it('a numeric entity out of range is kept as written instead of ending the build', () => {
+    const records: LbRecord[] = [];
+    const scanner = scanBlocks((record) => records.push(record));
+    scanner.push(
+      '<Game><Name>Bad &#99999999; Entity</Name><DatabaseID>8</DatabaseID><Platform>P</Platform></Game>',
+    );
+    scanner.end();
+    expect(records[0]).toMatchObject({ name: 'Bad &#99999999; Entity' });
+  });
 });

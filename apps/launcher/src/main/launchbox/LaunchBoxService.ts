@@ -4,7 +4,7 @@ import {
   type LaunchBoxStatus,
   type Settings,
 } from '@nextlevel/shared';
-import { existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { downloadFile } from '../catalog/downloadFile.ts';
 import type { EmitEvent } from '../ipc/events.ts';
@@ -21,6 +21,7 @@ export interface LaunchBoxServiceDeps {
   settings: () => Settings;
   system: (systemId: string) => { scraper: { launchboxPlatform?: string | undefined } } | undefined;
   buildInWorker: BuildInWorker;
+  log?: { warn(context: object, message: string): void };
 }
 
 const fail = (
@@ -31,6 +32,23 @@ const fail = (
 };
 
 class DownloadFailed extends Error {}
+
+/** Cleanup never throws: a locked file is replaced by the next build anyway. */
+function removeQuietly(path: string): void {
+  try {
+    rmSync(path, { force: true });
+  } catch {
+    // Left for the next refresh, which overwrites it.
+  }
+}
+
+function readQuietly(path: string): string | null {
+  try {
+    return readFileSync(path, 'utf8');
+  } catch {
+    return null;
+  }
+}
 
 /**
  * The LaunchBox Games Database download and its local index (FR-SCR-6). Refresh downloads
@@ -46,6 +64,8 @@ export class LaunchBoxService {
   private busy = false;
   private work: { controller: AbortController; done: Promise<void> } | null = null;
   private lastEmitted = -1;
+  /** A built index waits here while a batch is busy (it can't be swapped under it). */
+  private pendingSwap = false;
 
   constructor(private readonly deps: LaunchBoxServiceDeps) {
     this.current = LaunchBoxIndex.open(this.path('launchbox.db'));
@@ -101,6 +121,26 @@ export class LaunchBoxService {
   /** A batch is using the index: refresh is refused until it ends. */
   setBusy(busy: boolean): void {
     this.busy = busy;
+    if (!busy && this.pendingSwap) {
+      this.pendingSwap = false;
+      try {
+        this.swap();
+        this.set(this.current ? 'ready' : 'missing', null, null);
+      } catch (error) {
+        this.deps.log?.warn({ err: String(error) }, 'LaunchBox index swap failed');
+        this.current ??= LaunchBoxIndex.open(this.path('launchbox.db'));
+        this.set('failed', null, ERROR_CODES.INTERNAL);
+      }
+    }
+  }
+
+  /** Closes the index in use, puts the built file in its place and opens it. */
+  private swap(): void {
+    this.current?.close();
+    this.current = null;
+    renameSync(this.path('launchbox.db.building'), this.path('launchbox.db'));
+    this.current = LaunchBoxIndex.open(this.path('launchbox.db'));
+    rmSync(this.path('Metadata.zip'), { force: true });
   }
 
   refresh(): LaunchBoxStatus {
@@ -148,17 +188,20 @@ export class LaunchBoxService {
         signal,
       );
       signal.throwIfAborted();
-      this.current?.close();
-      this.current = null;
-      renameSync(building, this.path('launchbox.db'));
-      this.current = LaunchBoxIndex.open(this.path('launchbox.db'));
-      rmSync(zip, { force: true });
+      if (this.busy) {
+        // A batch is reading the index: swap when it ends (setBusy(false)).
+        this.pendingSwap = true;
+        this.set(this.current ? 'ready' : 'missing', null, null);
+        return;
+      }
+      this.swap();
       this.set(this.current ? 'ready' : 'missing', null, null);
     } catch (error) {
-      rmSync(building, { force: true });
+      removeQuietly(building);
       if (signal.aborted) return;
+      this.deps.log?.warn({ err: String(error) }, 'LaunchBox database refresh failed');
       // A built index that can't be read again would fail every time: download it anew.
-      if (!(error instanceof DownloadFailed)) rmSync(zip, { force: true });
+      if (!(error instanceof DownloadFailed)) removeQuietly(zip);
       this.current ??= LaunchBoxIndex.open(this.path('launchbox.db'));
       this.set(
         'failed',
@@ -170,15 +213,21 @@ export class LaunchBoxService {
 
   private async download(zip: string, signal: AbortSignal): Promise<void> {
     const part = `${zip}.part`;
+    const versionFile = `${part}.version`;
     let size: number;
+    let version: string;
     try {
       const head = await this.deps.fetch(LAUNCHBOX_METADATA_URL, { method: 'HEAD', signal });
       size = Number(head.headers.get('content-length'));
       if (!head.ok || !Number.isFinite(size) || size <= 0) throw new Error('no size');
+      version = head.headers.get('etag') ?? head.headers.get('last-modified') ?? String(size);
     } catch (error) {
       signal.throwIfAborted();
       throw new DownloadFailed(String(error));
     }
+    // LaunchBox publishes a new file daily: a part of another day's file is started over.
+    if (existsSync(part) && readQuietly(versionFile) !== version) removeQuietly(part);
+    writeFileSync(versionFile, version);
     let received = 0;
     const result = await downloadFile({
       url: LAUNCHBOX_METADATA_URL,
@@ -193,5 +242,6 @@ export class LaunchBoxService {
     });
     if (result !== 'done') throw new DownloadFailed(result);
     renameSync(part, zip);
+    removeQuietly(versionFile);
   }
 }

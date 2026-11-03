@@ -30,12 +30,18 @@ export function buildInWorker(workerPath: string | URL): BuildInWorker {
         void worker.terminate();
       };
       const onAbort = () => {
-        settle(() => {
+        if (settled) return;
+        settled = true;
+        signal?.removeEventListener('abort', onAbort);
+        // The worker holds the output file open: reject only once it has stopped, so the caller
+        // can delete the half-written file (Windows refuses to delete an open file).
+        void worker.terminate().finally(() => {
           reject(signal?.reason instanceof Error ? signal.reason : new Error('aborted'));
         });
       };
       signal?.addEventListener('abort', onAbort, { once: true });
       worker.on('message', (reply: Reply) => {
+        if (settled) return;
         if ('progress' in reply) onProgress?.(reply.progress);
         else if ('done' in reply)
           settle(() => {

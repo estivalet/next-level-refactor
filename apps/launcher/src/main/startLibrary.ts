@@ -312,6 +312,7 @@ export function startLibrary(
     settings: () => currentSettings(settings),
     system: getSystem,
     buildInWorker: buildInWorker(indexWorkerPath),
+    log,
   });
   closer.beforeClose(() => {
     batch.dispose();

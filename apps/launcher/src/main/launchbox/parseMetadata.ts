@@ -37,11 +37,14 @@ const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"'
 
 function decode(value: string): string {
   return value.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi, (whole, entity: string) => {
-    if (entity.startsWith('#x') || entity.startsWith('#X')) {
-      return String.fromCodePoint(Number.parseInt(entity.slice(2), 16));
-    }
-    if (entity.startsWith('#')) return String.fromCodePoint(Number(entity.slice(1)));
-    return ENTITIES[entity.toLowerCase()] ?? whole;
+    if (!entity.startsWith('#')) return ENTITIES[entity.toLowerCase()] ?? whole;
+    const code = /^#x/i.test(entity)
+      ? Number.parseInt(entity.slice(2), 16)
+      : Number(entity.slice(1));
+    // One malformed entity must not end a 190k-game build: keep it as written.
+    return Number.isInteger(code) && code >= 0 && code <= 0x10ffff
+      ? String.fromCodePoint(code)
+      : whole;
   });
 }
 

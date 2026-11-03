@@ -6,11 +6,12 @@ import {
 } from '@nextlevel/shared';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { tempDir } from '../library/testing.ts';
 import { buildIndex } from './buildIndex.ts';
 import { LAUNCHBOX_METADATA_URL, LaunchBoxService } from './LaunchBoxService.ts';
 import { FIXTURE_XML_PATH, writeFixtureZip } from './testing.ts';
+import { buildInWorker } from './workerBuild.ts';
 
 const cleanups: Array<() => Promise<void> | void> = [];
 afterEach(async () => {
@@ -23,6 +24,8 @@ interface FakeServer {
   /** Serve only this many bytes of the body (a cut connection). */
   cutAt: number | null;
   bytes: Buffer;
+  /** The file's version (ETag); a new daily file has a new one. */
+  etag: string;
 }
 
 function fakeServer(zipBytes: Buffer): FakeServer {
@@ -30,6 +33,7 @@ function fakeServer(zipBytes: Buffer): FakeServer {
     ranges: [],
     cutAt: null,
     bytes: zipBytes,
+    etag: '"day-1"',
     fetch: (async (url: string | URL, init?: RequestInit) => {
       // A real fetch answers on a later tick.
       await Promise.resolve();
@@ -37,7 +41,7 @@ function fakeServer(zipBytes: Buffer): FakeServer {
       if (init?.method === 'HEAD') {
         return new Response(null, {
           status: 200,
-          headers: { 'content-length': String(server.bytes.length) },
+          headers: { 'content-length': String(server.bytes.length), etag: server.etag },
         });
       }
       const range = new Headers(init?.headers).get('range');
@@ -52,13 +56,16 @@ function fakeServer(zipBytes: Buffer): FakeServer {
   return server;
 }
 
-async function setup(options: { settings?: Settings } = {}) {
+type BuildInWorker = ConstructorParameters<typeof LaunchBoxService>[0]['buildInWorker'];
+
+async function setup(options: { settings?: Settings; buildInWorker?: BuildInWorker } = {}) {
   const temp = await tempDir('nextlevel-launchbox-');
   cleanups.push(temp.cleanup);
   const zipPath = join(temp.dir, 'fixture.zip');
   writeFixtureZip(zipPath);
   const server = fakeServer(readFileSync(zipPath));
   const events: LaunchBoxStatus[] = [];
+  const warnings: Array<{ context: object; message: string }> = [];
   let settings = options.settings ?? defaultSettings();
   const service = new LaunchBoxService({
     dataDir: temp.dir,
@@ -73,7 +80,14 @@ async function setup(options: { settings?: Settings } = {}) {
         : id === 'snes'
           ? { scraper: {} }
           : undefined,
-    buildInWorker: (zip, out, onProgress, signal) => buildIndex(zip, out, onProgress, signal),
+    buildInWorker:
+      options.buildInWorker ??
+      ((zip, out, onProgress, signal) => buildIndex(zip, out, onProgress, signal)),
+    log: {
+      warn: (context, message) => {
+        warnings.push({ context, message });
+      },
+    },
   });
   cleanups.push(() => {
     service.dispose();
@@ -82,6 +96,8 @@ async function setup(options: { settings?: Settings } = {}) {
     service,
     server,
     events,
+    warnings,
+    temp: temp.dir,
     dir: join(temp.dir, 'launchbox'),
     setSettings: (next: Settings) => {
       settings = next;
@@ -172,5 +188,94 @@ describe('LaunchBoxService (FR-SCR-6)', () => {
       },
     });
     expect(service.platformOf('snes')).toBe('Super Nintendo Entertainment System');
+  });
+
+  it('PR (a) review: a cancel during a worker build settles cleanly and leaves no build file', async () => {
+    // Big enough that the worker is still building when the cancel arrives.
+    const games = Array.from(
+      { length: 40_000 },
+      (_, i) =>
+        `<Game><Name>Game ${String(i)}</Name><DatabaseID>${String(i + 1)}</DatabaseID><Platform>P</Platform></Game>`,
+    ).join('');
+    const { service, server, events, dir, temp } = await setup({
+      buildInWorker: buildInWorker(new URL('./indexWorker.ts', import.meta.url)),
+    });
+    writeFixtureZip(join(temp, 'big.zip'), `<LaunchBox>${games}</LaunchBox>`);
+    server.bytes = readFileSync(join(temp, 'big.zip'));
+    service.refresh();
+    await vi.waitFor(() => {
+      expect(events.some((e) => e.state === 'building')).toBe(true);
+    });
+    service.cancel();
+    await expect(service.idle()).resolves.toBeUndefined();
+    expect(service.status()).toMatchObject({ state: 'missing', error: null });
+    expect(existsSync(join(dir, 'launchbox.db.building'))).toBe(false);
+  });
+
+  it('PR (a) review: a build that ends while a batch is busy swaps only when the batch ends', async () => {
+    let release = () => {};
+    let gated = false;
+    const { service, server, temp } = await setup({
+      buildInWorker: async (zip, out, onProgress, signal) => {
+        if (gated) {
+          await new Promise<void>((resolve) => {
+            release = resolve;
+          });
+        }
+        return buildIndex(zip, out, onProgress, signal);
+      },
+    });
+    service.refresh();
+    await service.idle();
+    const before = service.index();
+    const xml = readFileSync(FIXTURE_XML_PATH, 'utf8').replace(
+      '</LaunchBox>',
+      '<Game><Name>New Game</Name><DatabaseID>9</DatabaseID><Platform>Nintendo DS</Platform></Game></LaunchBox>',
+    );
+    writeFixtureZip(join(temp, 'newer.zip'), xml);
+    server.bytes = readFileSync(join(temp, 'newer.zip'));
+    gated = true;
+    service.refresh();
+    await vi.waitFor(() => {
+      expect(service.status().state).toBe('building');
+    });
+    service.setBusy(true);
+    release();
+    await service.idle();
+    expect(service.index()).toBe(before);
+    expect(service.status()).toMatchObject({ state: 'ready', games: 3 });
+    service.setBusy(false);
+    expect(service.index()).not.toBe(before);
+    expect(service.status()).toMatchObject({ state: 'ready', games: 4 });
+  });
+
+  it('PR (a) review: a part of an older daily file is dropped, not resumed', async () => {
+    const { service, server, temp } = await setup();
+    server.cutAt = Math.floor(server.bytes.length / 2);
+    service.refresh();
+    await service.idle();
+    expect(service.status().state).toBe('failed');
+    const xml = readFileSync(FIXTURE_XML_PATH, 'utf8').replace(
+      '</LaunchBox>',
+      '<Game><Name>New Game</Name><DatabaseID>9</DatabaseID><Platform>Nintendo DS</Platform></Game></LaunchBox>',
+    );
+    writeFixtureZip(join(temp, 'newer.zip'), xml);
+    server.bytes = readFileSync(join(temp, 'newer.zip'));
+    server.etag = '"day-2"';
+    server.cutAt = null;
+    service.refresh();
+    await service.idle();
+    expect(server.ranges.at(-1)).toBeNull();
+    expect(service.status()).toMatchObject({ state: 'ready', games: 4 });
+  });
+
+  it('PR (a) review: a build failure is logged with its cause', async () => {
+    const { service, warnings } = await setup({
+      buildInWorker: () => Promise.reject(new Error('disk is full')),
+    });
+    service.refresh();
+    await service.idle();
+    expect(service.status()).toMatchObject({ state: 'failed', error: 'errors.internal' });
+    expect(JSON.stringify(warnings)).toContain('disk is full');
   });
 });
