@@ -7,6 +7,14 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Playability mark** (FR-LIB-13, the last item of the dashboard port): every game can be
+  marked **Works**, **Minor issues** or **Broken**, with a short note and the date it was set.
+  Set it in the game details (pressing the chosen mark again clears it), in **Edit details**
+  (mark and note) or from the game menu → **Playability…** for every selected game (notes are
+  kept). Smart filters can match marks (or *Not set*), and Export has *Playability* and
+  *Playability note* columns. **Settings → Import NextLevelOS** brings each game's `tests` over:
+  `passed` → Works, `failed` → Broken, with its notes and date; a mark set here wins.
+
 - **Edit details** has a **Media** tab (look-only): a tile for every art kind of the game, the
   found ones with their image and the missing ones marked "Not found", "N of M found" and
   **Show found only**; a tile opens full size (a video plays). Other art folders the library

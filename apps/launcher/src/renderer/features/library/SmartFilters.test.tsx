@@ -127,6 +127,22 @@ describe('Library smart filters', () => {
     });
   });
 
+  it('FR-LIB-13: a smart filter can match playability marks', async () => {
+    const { bridge, user } = await setup();
+    await user.click(await screen.findByRole('button', { name: 'New smart filter' }));
+    const dialog = await screen.findByRole('dialog', { name: 'New smart filter' });
+    await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'To fix');
+    const marks = within(dialog).getByRole('group', { name: 'Playability' });
+    await user.click(within(marks).getByRole('checkbox', { name: 'Broken' }));
+    await user.click(within(marks).getByRole('checkbox', { name: 'Minor issues' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('smartFilters.create');
+    });
+    const created = bridge.calls.find((c) => c.channel === 'smartFilters.create')?.input;
+    expect(created).toMatchObject({ query: { playability: ['issues', 'broken'] } });
+  });
+
   it('FR-LIB-9: a year range that runs backwards shows the message and disables Save', async () => {
     const { user } = await setup();
     await user.click(await screen.findByRole('button', { name: 'New smart filter' }));

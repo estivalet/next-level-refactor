@@ -56,6 +56,14 @@ export function smartFilterSql(query: SmartFilterQuery, now: Date) {
     where.push('u.last_played_at >= @sf_since');
     params['sf_since'] = new Date(now.getTime() - query.playedWithinDays * DAY_MS).toISOString();
   }
+  if (query.playability) {
+    const marks = query.playability.filter((mark) => mark !== 'unset');
+    const any =
+      marks.length > 0 ? ['u.playability in (select value from json_each(@sf_marks))'] : [];
+    if (query.playability.includes('unset')) any.push('u.playability is null');
+    where.push(`(${any.join(' or ')})`);
+    if (marks.length > 0) params['sf_marks'] = JSON.stringify(marks);
+  }
   return {
     where: where.join(' and '),
     order: ORDERS[query.sort],

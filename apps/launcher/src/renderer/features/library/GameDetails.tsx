@@ -2,8 +2,9 @@ import type { GameFlags } from '@nextlevel/shared';
 import { FolderOpen, Link2, Pencil, Play, SlidersHorizontal, Star, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DetailsArt, ScrapeStatusLine } from './DetailsArt.tsx';
-import { useGameDetails, useRevealGame, useSetFlags } from './libraryApi.ts';
+import { useGameDetails, useRevealGame, useSetFlags, useSetPlayability } from './libraryApi.ts';
 import { PRIMARY_BUTTON } from './Modal.tsx';
+import { PlayabilityPicker } from './PlayabilityPicker.tsx';
 import { RatingStars } from './RatingStars.tsx';
 
 const ACTION =
@@ -22,12 +23,16 @@ interface GameDetailsProps {
   playBusy: boolean;
 }
 
-/** The right panel (S7): one game's media, metadata, favorite, completed, rating and actions. */
+/**
+ * The right panel (S7): one game's media, metadata, favorite, completed, rating, playability
+ * (FR-LIB-13) and actions.
+ */
 export function GameDetails(props: GameDetailsProps) {
   const { gameId, systemName, onEdit, onRelink, onFlags } = props;
   const { t, i18n } = useTranslation();
   const details = useGameDetails(gameId);
   const setFlags = useSetFlags();
+  const setPlayability = useSetPlayability();
   const reveal = useRevealGame();
   const game = details.data;
   if (gameId === null || !game) {
@@ -126,6 +131,24 @@ export function GameDetails(props: GameDetailsProps) {
             setFlags.mutate({ gameIds: [game.id], flags: { userRating } });
           }}
         />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <PlayabilityPicker
+          value={game.playability?.mark ?? null}
+          onChange={(mark) => {
+            setPlayability.mutate({ gameIds: [game.id], change: { mark } });
+          }}
+        />
+        {game.playability?.note && (
+          <p className="text-xs whitespace-pre-line text-slate-300">{game.playability.note}</p>
+        )}
+        {game.playability && (
+          <p className="text-[11px] text-slate-500">
+            {t('library.playability.setOn', {
+              date: new Date(game.playability.at).toLocaleDateString(i18n.language),
+            })}
+          </p>
+        )}
       </div>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
         {facts.map(([field, value]) =>

@@ -61,6 +61,7 @@ export const IMPORT_MAPPED_REASONS = [
   'perGameProfile',
   'mameAutoboot',
   'arcadeInfo',
+  'playability',
   'artFolder',
   'replacesImport',
 ] as const;

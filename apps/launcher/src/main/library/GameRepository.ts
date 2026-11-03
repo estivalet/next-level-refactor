@@ -9,6 +9,8 @@ import {
   type GameScope,
   type GameTab,
   type MetadataChanges,
+  type PlayabilityChange,
+  type PlayabilityMark,
   type ScrapeField,
   type SearchResult,
 } from '@nextlevel/shared';
@@ -38,6 +40,9 @@ interface RawDetails extends RawRow {
   lockedFields: string;
   playCount: number | null;
   lastPlayedAt: string | null;
+  playability: PlayabilityMark | null;
+  playabilityNote: string | null;
+  playabilityAt: string | null;
 }
 
 /** Metadata columns an edit may set; keys come from the shared schema, never raw input. */
@@ -168,7 +173,8 @@ export class GameRepository {
          g.added_at as addedAt, m.developer as developer, m.publisher as publisher,
          m.description as description, m.region as region, m.rating as rating,
          m.locked_fields as lockedFields, u.play_count as playCount,
-         u.last_played_at as lastPlayedAt
+         u.last_played_at as lastPlayedAt, u.playability as playability,
+         u.playability_note as playabilityNote, u.playability_at as playabilityAt
        from games g ${ROW_JOINS} where g.id = ?`,
     ).get(gameId) as RawDetails | undefined;
     if (!raw) throw notFound({ gameId });
@@ -208,6 +214,9 @@ export class GameRepository {
       collectionIds,
       scrape,
       media: Object.fromEntries(media.map((row) => [row.kind, row.version])),
+      playability: raw.playability
+        ? { mark: raw.playability, note: raw.playabilityNote ?? '', at: raw.playabilityAt ?? '' }
+        : null,
     };
   }
 
@@ -308,6 +317,50 @@ export class GameRepository {
     return this.get(gameId);
   }
 
+  /**
+   * Sets the playability mark of several games, dated `now`; without a note each keeps its own.
+   * `mark: null` clears mark, note and date (FR-LIB-13).
+   */
+  setPlayability(gameIds: readonly number[], change: PlayabilityChange, now: Date): void {
+    const ids = [...new Set(gameIds)];
+    this.db.$client.transaction(() => {
+      this.assertKnown(ids);
+      const ensure = this.statement(
+        'insert into game_user_state (game_id) values (?) on conflict do nothing',
+      );
+      const update = this.statement(
+        change.mark === null
+          ? `update game_user_state set playability = null, playability_note = '',
+               playability_at = null where game_id = @gameId`
+          : `update game_user_state set playability = @mark, playability_at = @at
+               ${change.note === undefined ? '' : ', playability_note = @note'}
+             where game_id = @gameId`,
+      );
+      for (const gameId of ids) {
+        ensure.run(gameId);
+        update.run(
+          change.mark === null
+            ? { gameId }
+            : {
+                gameId,
+                mark: change.mark,
+                at: now.toISOString(),
+                ...(change.note === undefined ? {} : { note: change.note }),
+              },
+        );
+      }
+    })();
+  }
+
+  private assertKnown(ids: readonly number[]): void {
+    const known = this.statement(
+      'select count(*) from games where id in (select value from json_each(?))',
+    )
+      .pluck()
+      .get(JSON.stringify(ids)) as number;
+    if (known !== ids.length) throw notFound({ gameIds: ids });
+  }
+
   /** Favorite, hidden and the user's rating for several games at once (FR-LIB-7). */
   setFlags(gameIds: readonly number[], flags: GameFlags): void {
     const ids = [...new Set(gameIds)];
@@ -321,12 +374,7 @@ export class GameRepository {
       userRating: flags.userRating,
     };
     this.db.$client.transaction(() => {
-      const known = this.statement(
-        'select count(*) from games where id in (select value from json_each(?))',
-      )
-        .pluck()
-        .get(JSON.stringify(ids)) as number;
-      if (known !== ids.length) throw notFound({ gameIds: ids });
+      this.assertKnown(ids);
       const ensure = this.statement(
         'insert into game_user_state (game_id) values (?) on conflict do nothing',
       );

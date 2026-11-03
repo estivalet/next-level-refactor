@@ -212,6 +212,15 @@ export class ImportRepository {
       playCount: entry.playCount,
       lastPlayedAt: entry.lastPlayedAt,
     });
+    // A mark set here wins over the imported one (FR-LIB-13).
+    if (entry.playability) {
+      s.importPlayability.run({
+        id,
+        mark: entry.playability.mark,
+        note: entry.playability.note,
+        at: entry.playability.at ?? at,
+      });
+    }
     if (entry.override) {
       s.upsertOverride.run({
         id,
@@ -266,6 +275,11 @@ export class ImportRepository {
              when last_played_at is null or excluded.last_played_at > last_played_at
              then coalesce(excluded.last_played_at, last_played_at)
              else last_played_at end`,
+      ),
+      importPlayability: c.prepare(
+        `update game_user_state set playability = @mark, playability_note = @note,
+           playability_at = @at
+         where game_id = @id and playability is null`,
       ),
       upsertOverride: c.prepare(
         `insert into game_launch_override (game_id, profile_id, core, extra_args)

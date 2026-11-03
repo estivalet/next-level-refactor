@@ -281,6 +281,7 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['library.games.get', { gameId: 1 }],
   ['library.games.updateMetadata', { gameId: 1, changes: { title: 'X' } }],
   ['library.games.setFlags', { gameIds: [1], flags: { favorite: true } }],
+  ['library.games.setPlayability', { gameIds: [1], change: { mark: 'works' } }],
   ['library.games.relink', { missingGameId: 1, replacementGameId: 2 }],
   ['library.games.reveal', { gameId: 1 }],
   ['library.search', { text: 'zelda' }],
@@ -344,6 +345,25 @@ describe('game library handlers', () => {
     ]);
     await router.handle('library.games.updateMetadata', { gameId: a, changes: { title: 'B' } });
     expect(events).toHaveLength(2);
+  });
+
+  it('FR-LIB-13: setPlayability saves the mark and emits library.changed', async () => {
+    const { router, seed, events } = await setup(true);
+    const [a = 0] = seed('nintendo-64', ['Alpha']);
+    expect(
+      await router.handle('library.games.setPlayability', {
+        gameIds: [a],
+        change: { mark: 'broken', note: 'black screen' },
+      }),
+    ).toEqual({ ok: true, value: undefined });
+    expect(events).toEqual([
+      { event: 'library.changed', payload: { systems: ['nintendo-64'], gameIds: [a] } },
+    ]);
+    const details = await router.handle('library.games.get', { gameId: a });
+    expect(details).toMatchObject({
+      ok: true,
+      value: { playability: { mark: 'broken', note: 'black screen' } },
+    });
   });
 
   it('FR-LIB-6: reveal opens the stored file, never a path from the renderer', async () => {

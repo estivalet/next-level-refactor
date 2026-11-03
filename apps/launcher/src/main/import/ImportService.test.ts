@@ -113,6 +113,27 @@ describe('ImportService.apply', () => {
     ).toBe(1);
   });
 
+  it('FR-LIB-13: NextLevelOS tests arrive as the playability mark; one set here wins', async () => {
+    const h = await setup();
+    await h.run();
+    const moon = h.gameId('atari-2600', 'Moon Hopper.a26') ?? 0;
+    expect(h.games.get(moon).playability).toEqual({
+      mark: 'broken',
+      note: 'Black screen after the title',
+      at: new Date(2026, 2, 21, 12, 49, 31).toISOString(),
+    });
+    const pixel = h.gameId('atari-2600', 'Pixel Quest.a26') ?? 0;
+    expect(h.games.get(pixel).playability).toBeNull();
+    const now = new Date(Date.UTC(2026, 10, 3));
+    h.games.setPlayability([moon], { mark: 'works', note: 'Fixed by Stella 7.1' }, now);
+    await h.run();
+    expect(h.games.get(moon).playability).toEqual({
+      mark: 'works',
+      note: 'Fixed by Stella 7.1',
+      at: now.toISOString(),
+    });
+  });
+
   it('D12: a field edited here survives, NextLevelOS flags win, plays take the max', async () => {
     const h = await setup();
     await h.run();

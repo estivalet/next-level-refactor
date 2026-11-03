@@ -33,7 +33,19 @@
       "title": "Moon Hopper",
       "year": "19xx",
       "played": "0",
-      "hidden": true
+      "hidden": true,
+      "tests": [
+        {
+          "id": "INVENTED PC",
+          "cpu": "Invented CPU",
+          "gpu": "Invented GPU",
+          "memory": "8GB",
+          "emulator": "Stella 7.0",
+          "status": "failed",
+          "notes": "Black screen after the title",
+          "updatedAt": "3/21/2026, 12:49:31 PM"
+        }
+      ]
     },
     {
       "filename": "./pixel quest.a26",

@@ -75,6 +75,19 @@ describe('SmartFilterRepository', () => {
     expect(titles({ played: 'played' })).toEqual(['Alpha']);
   });
 
+  it('FR-LIB-13: playability matches any of the marks, unset = no mark', () => {
+    const [a = 0, b = 0] = seedGames(library.db, 'snes', [
+      { title: 'Alpha' },
+      { title: 'Beta' },
+      { title: 'Gamma' },
+    ]);
+    const games = new GameRepository(library.db, (row) => row.relPath);
+    games.setPlayability([a], { mark: 'broken' }, NOW);
+    games.setPlayability([b], { mark: 'works' }, NOW);
+    expect(titles({ playability: ['broken'] })).toEqual(['Alpha']);
+    expect(titles({ playability: ['broken', 'unset'] })).toEqual(['Alpha', 'Gamma']);
+  });
+
   it('FR-LIB-9: genre matches a part of the text, and % is a literal', () => {
     seedGames(library.db, 'snes', [
       { title: 'Alpha', genre: "Shoot 'em up" },

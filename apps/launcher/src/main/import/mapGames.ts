@@ -1,4 +1,10 @@
-import { LegacyGameSchema, type ImportItem, type LegacyGame } from '@nextlevel/shared';
+import {
+  LegacyGameSchema,
+  PLAYABILITY_NOTE_MAX,
+  type ImportItem,
+  type LegacyGame,
+  type PlayabilityMark,
+} from '@nextlevel/shared';
 import {
   discGroupOf,
   discOrder,
@@ -50,6 +56,8 @@ export interface GameImport {
   autoboot: string | null;
   /** Set by the apply: the saved profile for `presetProfileId` (null when it isn't set up). */
   profileId?: string | null;
+  /** From NextLevelOS `tests` (FR-LIB-13); `at` null = date unreadable (the apply uses now). */
+  playability: { mark: PlayabilityMark; note: string; at: string | null } | null;
   arcade: {
     rom: string | null;
     parent: string | null;
@@ -140,6 +148,29 @@ function launchOverride(
   return { core, extraArgs };
 }
 
+const TEST_MARKS: Record<string, PlayabilityMark> = { passed: 'works', failed: 'broken' };
+
+/**
+ * NextLevelOS `tests` (one record per PC: status passed/failed, notes, updatedAt) → the
+ * playability mark of the last record with a known status (FR-LIB-13). PC, CPU, GPU, memory and
+ * emulator are dropped.
+ */
+export function playabilityOf(tests: unknown): GameImport['playability'] {
+  if (!Array.isArray(tests)) return null;
+  for (const record of [...(tests as unknown[])].reverse()) {
+    if (typeof record !== 'object' || record === null) continue;
+    const { status, notes, updatedAt } = record as Record<string, unknown>;
+    const mark = typeof status === 'string' ? TEST_MARKS[status.trim().toLowerCase()] : undefined;
+    if (!mark) continue;
+    return {
+      mark,
+      note: (text(notes) ?? '').slice(0, PLAYABILITY_NOTE_MAX),
+      at: parseLastPlayed(typeof updatedAt === 'string' ? updatedAt : undefined),
+    };
+  }
+  return null;
+}
+
 function arcadeInfo(game: LegacyGame): GameImport['arcade'] {
   const info = {
     rom: text(game.rom) ?? null,
@@ -191,6 +222,8 @@ function toImport(
   }
   const arcade = arcadeInfo(game);
   if (arcade) tally.add('game', systemName, 'arcadeInfo');
+  const playability = playabilityOf(game['tests']);
+  if (playability) tally.add('game', systemName, 'playability');
   const metadata: GameImport['metadata'] = {};
   const set = <K extends keyof GameImport['metadata']>(
     key: K,
@@ -219,6 +252,7 @@ function toImport(
     override: launchOverride(game, systemName, configName, relPath, options, tally),
     presetProfileId,
     autoboot,
+    playability,
     arcade,
   };
 }
@@ -239,6 +273,7 @@ function merge(first: GameImport, other: GameImport): GameImport {
     override: first.override ?? other.override,
     presetProfileId: first.presetProfileId ?? other.presetProfileId,
     autoboot: first.autoboot ?? other.autoboot,
+    playability: first.playability ?? other.playability,
     arcade: first.arcade ?? other.arcade,
   };
 }

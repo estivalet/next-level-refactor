@@ -109,6 +109,51 @@ describe('mapGames', () => {
     expect(game(entries, 'atari-2600', 'Moon Hopper.a26')).toMatchObject({ completed: false });
   });
 
+  it('FR-LIB-13: NextLevelOS tests become the playability mark; hardware is dropped', () => {
+    const test = (status: string, notes: string, updatedAt: string) => ({
+      id: 'NOTEBOOK',
+      cpu: 'Ryzen 5',
+      gpu: 'GTX 1650',
+      memory: '16GB',
+      emulator: 'MAME 0.284',
+      status,
+      notes,
+      updatedAt,
+    });
+    const lists = files.gamelists.map((list) =>
+      list.name === 'Atari 2600'
+        ? {
+            ...list,
+            games: [
+              ...list.games,
+              { filename: './Ok.a26', tests: [test('passed', '', '3/21/2026, 12:49:31 PM')] },
+              { filename: './Bad.a26', tests: [test('failed', ' no sound ', 'yesterday')] },
+              { filename: './Odd.a26', tests: [test('skipped', 'x', '')] },
+              { filename: './Junk.a26', tests: 'nope' },
+            ],
+          }
+        : list,
+    );
+    const { entries, items } = mapGames({ ...files, gamelists: lists }, match, {
+      retroarchDir: null,
+    });
+    expect(game(entries, 'atari-2600', 'Ok.a26')?.playability).toEqual({
+      mark: 'works',
+      note: '',
+      at: new Date(2026, 2, 21, 12, 49, 31).toISOString(),
+    });
+    expect(game(entries, 'atari-2600', 'Bad.a26')?.playability).toEqual({
+      mark: 'broken',
+      note: 'no sound',
+      at: null,
+    });
+    expect(game(entries, 'atari-2600', 'Odd.a26')?.playability).toBeNull();
+    expect(game(entries, 'atari-2600', 'Junk.a26')?.playability).toBeNull();
+    expect(game(entries, 'atari-2600', 'Pixel Quest.a26')?.playability).toBeNull();
+    // Ok, Bad and the fixture's Moon Hopper.
+    expect(item(items, 'Atari 2600', 'playability')?.count).toBe(3);
+  });
+
   it('FR-LIB-5: disc entries of one set become one game named after the set', () => {
     const { entries, items } = run();
     const sony = entries.filter((e) => e.systemId === 'sony-playstation');

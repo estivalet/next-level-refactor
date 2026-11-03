@@ -26,6 +26,8 @@ export const EXPORT_FIELDS = [
   'lastPlayed',
   'added',
   'filters',
+  'playability',
+  'playabilityNote',
 ] as const;
 
 export type ExportFormat = (typeof EXPORT_FORMATS)[number];

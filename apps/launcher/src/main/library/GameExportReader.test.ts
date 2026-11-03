@@ -70,9 +70,26 @@ describe('GameExportReader', () => {
       lastPlayed: null,
       added: '2026-10-21T12:00:00.000Z',
       filters: ['hack'],
+      playability: null,
+      playabilityNote: null,
     });
     expect(games[0]?.hidden).toBe(true);
     expect(games[2]?.missing).toBe(true);
+  });
+
+  it('FR-LIB-13: the playability mark and note export', async () => {
+    const { db, reader } = await setup();
+    const [racer = 0] = seedGames(db, 'nintendo-64', ['Racer']);
+    db.$client
+      .prepare(
+        `insert into game_user_state (game_id, playability, playability_note, playability_at)
+         values (?, 'issues', 'Slow menus', '2026-11-03T00:00:00.000Z')`,
+      )
+      .run(racer);
+    expect(reader.read(N64, null)[0]).toMatchObject({
+      playability: 'issues',
+      playabilityNote: 'Slow menus',
+    });
   });
 
   it('FR-LIB-11: the shown list keeps its tab, genre and sort', async () => {
