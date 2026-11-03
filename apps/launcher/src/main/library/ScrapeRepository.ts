@@ -50,4 +50,9 @@ export class ScrapeRepository {
       .get(gameId) as RawStatus | undefined;
     return toScrapeStatus(raw);
   }
+
+  /** Forgets the game's last scrape (a dismissed Gemini review, FR-SCR-7). */
+  delete(gameId: number): void {
+    this.db.$client.prepare('delete from scrape_status where game_id = ?').run(gameId);
+  }
 }

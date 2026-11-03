@@ -148,10 +148,10 @@ describe('GeminiClient (FR-SCR-7)', () => {
   it('FR-SCR-7: no key is GEMINI_NO_KEY without a request', async () => {
     const calls: unknown[] = [];
     const client = new GeminiClient({
-      fetch: (() => {
+      fetch: () => {
         calls.push(1);
         return Promise.resolve(reply('[]'));
-      }),
+      },
       key: () => Promise.resolve(null),
       settings: () => GeminiSettingsSchema.parse({}),
       sleep: () => Promise.resolve(),

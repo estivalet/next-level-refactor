@@ -58,6 +58,7 @@ import { EmulatorProfileSchema, EmulatorSchema } from '../settings/emulators.ts'
 import { SettingsSchema } from '../settings/schema.ts';
 import { authContract } from './authContract.ts';
 import { catalogContract } from './catalogContract.ts';
+import { geminiContract } from './geminiContract.ts';
 import { launchboxContract } from './launchboxContract.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
@@ -111,6 +112,7 @@ export const ipcContract = {
   ...authContract,
   ...catalogContract,
   ...launchboxContract,
+  ...geminiContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
   'app.paths': {

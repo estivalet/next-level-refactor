@@ -40,6 +40,9 @@ import {
 } from './catalog/catalogHandlers.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
+import { createGeminiHandlers } from './gemini/geminiHandlers.ts';
+import type { GeminiClient } from './gemini/GeminiClient.ts';
+import type { GeminiService } from './gemini/GeminiService.ts';
 import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
@@ -87,6 +90,8 @@ export interface MainDeps {
     batch: Pick<BatchScrapeService, 'begin' | 'pause' | 'resume' | 'cancel' | 'status'>;
     launchbox: LaunchBoxService;
     launchboxScrape: Pick<LaunchBoxScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
+    gemini: Pick<GeminiService, 'ask' | 'stored' | 'apply' | 'dismiss'>;
+    geminiClient: Pick<GeminiClient, 'test'>;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;
@@ -170,6 +175,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createCredentialHandlers({ secrets: deps.secrets, account: deps.scraperAccount }),
     ...createBatchHandlers({ batch: () => library().batch }),
+    ...createGeminiHandlers({ secrets: deps.secrets, library }),
     ...createLaunchBoxHandlers({
       service: () => library().launchbox,
       updateSettings: async (change) => {

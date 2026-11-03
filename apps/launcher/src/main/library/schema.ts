@@ -200,6 +200,16 @@ export const scrapeStatus = sqliteTable('scrape_status', {
   scrapedAt: text('scraped_at').notNull(),
 });
 
+/** Gemini answers kept until applied or dismissed (FR-SCR-7): Needs review reopens them free. */
+export const geminiAnswers = sqliteTable('gemini_answers', {
+  gameId: integer('game_id')
+    .primaryKey()
+    .references(() => games.id, { onDelete: 'cascade' }),
+  /** GeminiAnswer as JSON. */
+  answer: text('answer').notNull(),
+  askedAt: text('asked_at').notNull(),
+});
+
 /** Batch scrape jobs (FR-SCR-2, D18); at most one is running or paused at a time. */
 export const scrapeJobs = sqliteTable('scrape_jobs', {
   id: integer('id').primaryKey({ autoIncrement: true }),

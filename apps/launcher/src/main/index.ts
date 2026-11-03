@@ -228,6 +228,7 @@ async function start(): Promise<void> {
     tempDir: electronPaths(dataDir).temp,
     baseEnv: portable.originalEnv,
     moved: adopted.movedFrom ? { from: adopted.movedFrom, to: portable.root } : null,
+    geminiKey: () => secrets.get('gemini.apiKey'),
     onOpened: (parts) => {
       libraryParts = parts;
     },
