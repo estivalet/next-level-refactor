@@ -17,6 +17,8 @@ export type SecretKey =
   | 'screenscraper.devPassword'
   | 'screenscraper.user'
   | 'screenscraper.password'
+  /** The Gemini API key (FR-SCR-7). */
+  | 'gemini.apiKey'
   /** The launcher's sign-in (SessionRecord JSON, FR-AUTH-2). */
   | 'auth.session';
 
