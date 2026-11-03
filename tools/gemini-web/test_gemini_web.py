@@ -141,3 +141,20 @@ def test_fr_scr_7_the_driver_is_the_given_one_or_the_one_next_to_the_tool(tmp_pa
     assert gemini_web.driver_path('C:/drivers/geckodriver.exe') == 'C:/drivers/geckodriver.exe'
     assert gemini_web.driver_path('').endswith('geckodriver.exe')
     assert 'gemini-web' in gemini_web.driver_path('')
+
+
+class RepeatingBrowser(FakeBrowser):
+    """The page kept the previous answer (or showed none): the same text twice, then empty."""
+
+    def ask(self, prompt):
+        self.prompts.append(prompt)
+        return ['[{"gameId": 1}]', '[{"gameId": 1}]', ''][len(self.prompts) - 1]
+
+
+def test_fr_scr_7_review_fix_4_an_empty_or_repeated_reply_writes_no_line(tmp_path):
+    path = write_request(tmp_path, 30)
+    browser = RepeatingBrowser()
+    assert run(path, browser) == 3
+    written = lines(tmp_path)
+    assert len(written) == 1
+    assert written[0]['gameIds'] == list(range(1, 11))

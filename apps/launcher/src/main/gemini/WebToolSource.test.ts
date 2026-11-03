@@ -24,6 +24,7 @@ const games = (from: number, to: number) =>
 
 class FakeProcess extends EventEmitter implements ToolProcess {
   readonly stderr = new EventEmitter();
+  readonly pid = 4321;
   killed = false;
   kill(): boolean {
     this.killed = true;
@@ -37,7 +38,11 @@ function setup(settings: Partial<GeminiSettings['webTool']> = {}) {
   const spawned: Array<{ command: string; args: string[]; options: unknown }> = [];
   const processes: FakeProcess[] = [];
   const logged: unknown[] = [];
+  const treeKills: number[] = [];
   const source = new WebToolSource({
+    killTree: (pid) => {
+      treeKills.push(pid);
+    },
     dataDir,
     toolPath: 'C:/NextLevel/tools/gemini-web/gemini_web.py',
     settings: () =>
@@ -67,7 +72,7 @@ function setup(settings: Partial<GeminiSettings['webTool']> = {}) {
       })}\n`,
     );
   };
-  return { source, dataDir, spawned, processes, logged, jobDir, answer };
+  return { source, dataDir, spawned, processes, logged, jobDir, answer, treeKills };
 }
 
 async function code(promise: Promise<unknown>): Promise<string> {
@@ -153,18 +158,38 @@ describe('WebToolSource (FR-SCR-7)', () => {
   });
 
   it('FR-SCR-7: starting a job removes other jobs’ folders; close stops the tool', async () => {
-    const { source, jobDir, processes } = setup();
+    const { source, jobDir, treeKills } = setup();
     mkdirSync(jobDir(2), { recursive: true });
     await source.prepare(4, games(1, 2), ['year'], 'English');
     expect(existsSync(jobDir(2))).toBe(false);
     expect(existsSync(jobDir(4))).toBe(true);
     source.close();
-    expect(processes[0]?.killed).toBe(true);
+    expect(treeKills).toEqual([4321]);
   });
 
   it('FR-SCR-7: empty Settings paths refuse to start', async () => {
     const { source, spawned } = setup({ python: '' });
     expect(await code(source.prepare(4, games(1, 2), ['year'], 'English'))).toBe('GEMINI_WEB_TOOL');
     expect(spawned).toHaveLength(0);
+  });
+
+  it('FR-SCR-7: review fix 4 — a line whose reply has no JSON fails its games (never notFound)', async () => {
+    const { source, jobDir } = setup();
+    await source.prepare(4, games(1, 2), ['year'], 'English');
+    appendFileSync(
+      join(jobDir(4), 'results.jsonl'),
+      `${JSON.stringify({ gameIds: [1, 2], reply: 'Sorry, something went wrong.' })}
+`,
+    );
+    const reply = await source.next(games(1, 2));
+    expect(reply.items.size).toBe(0);
+    expect([...(reply.failed ?? [])]).toEqual([1, 2]);
+  });
+
+  it('FR-SCR-7: review fix 5 — close stops the whole tool tree (Python, geckodriver, Firefox)', async () => {
+    const { source, treeKills } = setup();
+    await source.prepare(4, games(1, 2), ['year'], 'English');
+    source.close();
+    expect(treeKills).toEqual([4321]);
   });
 });

@@ -18,6 +18,7 @@ export interface ToolProcess {
   on(event: 'exit', listener: (code: number | null) => void): unknown;
   on(event: 'error', listener: (error: Error) => void): unknown;
   stderr: { on(event: 'data', listener: (chunk: Buffer) => void): unknown } | null;
+  pid?: number | undefined;
   kill(): boolean;
 }
 
@@ -32,6 +33,11 @@ export interface WebToolDeps {
     options: { shell: false; windowsHide: true; cwd?: string },
   ) => ToolProcess;
   log: { warn(context: object, message: string): void };
+  /**
+   * Ends the tool and everything it started (geckodriver, Firefox): killing Python alone leaves
+   * Firefox holding the profile lock (`taskkill /T /F` on Windows).
+   */
+  killTree: (pid: number) => void;
   /** Waits between reads of results.jsonl. */
   poll: () => Promise<void>;
 }
@@ -103,8 +109,14 @@ export class WebToolSource implements AnswerSource {
       const covered = lines.filter((line) => line.gameIds.some((id) => wanted.has(id)));
       const ids = new Set(covered.flatMap((line) => line.gameIds));
       if ([...wanted].every((id) => ids.has(id))) {
-        const items = covered.flatMap((line) => parseReply(line.reply) ?? []);
-        return { items: itemsById(items, wanted), sources: [], grounded: false };
+        const items: unknown[] = [];
+        const failed = new Set<number>();
+        for (const line of covered) {
+          const parsed = parseReply(line.reply);
+          if (parsed) items.push(...parsed);
+          else for (const id of line.gameIds) if (wanted.has(id)) failed.add(id);
+        }
+        return { items: itemsById(items, wanted), failed, sources: [], grounded: false };
       }
       if (exited !== null) {
         this.deps.log.warn({ reason: exited, stderr: this.stderr }, 'gemini website tool stopped');
@@ -115,8 +127,11 @@ export class WebToolSource implements AnswerSource {
   }
 
   close(): void {
-    if (this.child && this.exited === null) this.child.kill();
+    const child = this.child;
     this.child = null;
+    if (!child || this.exited !== null) return;
+    if (child.pid === undefined) child.kill();
+    else this.deps.killTree(child.pid);
   }
 
   /** The tool's lines so far; a half-written last line is skipped until it's complete. */

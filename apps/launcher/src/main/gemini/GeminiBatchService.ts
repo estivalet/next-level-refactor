@@ -30,6 +30,8 @@ const BUSY_WAIT_MS = 5000;
 /** One request's raw answers by gameId (first one per id kept), unchecked. */
 export interface SourceReply {
   items: Map<number, unknown>;
+  /** Games whose reply could not be read (the website route): counted failed, never notFound. */
+  failed?: ReadonlySet<number>;
   sources: GeminiSource[];
   grounded: boolean;
 }
@@ -52,11 +54,13 @@ export interface AnswerSource {
 
 export interface GeminiBatchDeps {
   db: LibraryDb;
-  gemini: Pick<GeminiService, 'record' | 'promptGame' | 'language'>;
+  gemini: Pick<GeminiService, 'record' | 'promptGame' | 'language' | 'emptyFields'>;
   sources: { api: AnswerSource; web: AnswerSource };
   games: Pick<GameRepository, 'get'>;
   /** A scan or import is running. */
   blocked: () => boolean;
+  /** Settings → Check answers with Google Search (sources come per request, not per game). */
+  grounded: () => boolean;
   emit: EmitEvent;
   log: { error(context: object, msg: string): void };
   clock: () => Date;
@@ -178,10 +182,13 @@ export class GeminiBatchService {
     }
   }
 
+  /** At quit: stops the run (and the website tool) and leaves the job `running` for next time. */
   dispose(): void {
     this.disposed = true;
     this.clearTimer();
     this.stop = 'pause';
+    this.deps.sources.web.close?.();
+    this.deps.sources.api.close?.();
   }
 
   private drive(): void {
@@ -191,10 +198,29 @@ export class GeminiBatchService {
       .catch(() => undefined)
       .then(() => this.run())
       .catch((error: unknown) => {
-        this.current = null;
-        this.deps.log.error({ error, jobId: this.job?.id }, 'gemini batch stopped');
-        if (this.job?.status === 'running') this.pauseFor('error', null);
+        this.stopped(error);
       });
+  }
+
+  /** Read through a method: TypeScript would keep `disposed` narrowed across an await. */
+  private quitting(): boolean {
+    return this.disposed;
+  }
+
+  /** The job must not stay "running" with no loop behind it, even when saving fails too. */
+  private stopped(error: unknown): void {
+    this.current = null;
+    if (this.disposed) return;
+    try {
+      this.deps.log.error({ error, jobId: this.job?.id }, 'gemini batch stopped');
+      if (this.job?.status === 'running') this.pauseFor('error', null);
+    } catch {
+      // The library can't be written either: keep the pause in memory; the row still says
+      // running, so the job resumes at the next launch.
+      if (this.job?.status === 'running') {
+        Object.assign(this.job, { status: 'paused', pausedReason: 'error', resumeAt: null });
+      }
+    }
   }
 
   private source() {
@@ -212,19 +238,19 @@ export class GeminiBatchService {
       }
       await this.requests(source, language);
     } catch (error) {
-      await this.onError([], error);
+      if (!this.disposed) await this.onError([], error);
     } finally {
       source.close?.();
     }
   }
 
   private async requests(source: AnswerSource, language: string): Promise<void> {
-    while (this.job?.status === 'running') {
+    while (this.job?.status === 'running' && !this.disposed) {
       if (this.deps.blocked()) {
         await this.deps.sleep(BUSY_WAIT_MS);
         continue;
       }
-      const games = this.remaining(GEMINI_BATCH_SIZE);
+      const games = this.remaining(this.batchSize());
       if (games.length === 0) {
         this.job.status = 'finished';
         this.save();
@@ -238,11 +264,23 @@ export class GeminiBatchService {
         this.networkFails = 0;
         await this.recordAll(games, reply);
       } catch (error) {
+        // Quitting stopped the source: the job stays running and resumes next launch.
+        if (this.quitting()) break;
         await this.onError(games, error);
       }
       this.afterRequest();
     }
     this.current = null;
+  }
+
+  /**
+   * Games per request. Search sources come per request, so Auto-update with Search checking asks
+   * one game at a time: a source then really backs that game's answer (spec §6).
+   */
+  private batchSize(): number {
+    const rules = this.job?.rules;
+    const perGame = rules?.mode === 'auto' && rules.route === 'api' && this.deps.grounded();
+    return perGame ? 1 : GEMINI_BATCH_SIZE;
   }
 
   /** The next games after the cursor (empty requested fields only), as the prompt shows them. */
@@ -265,22 +303,31 @@ export class GeminiBatchService {
     const job = this.job;
     if (!job) return;
     for (const game of games) {
+      if (reply.failed?.has(game.gameId)) {
+        this.advance(game.gameId, 'failed');
+        continue;
+      }
+      // Only the fields this game still lacks count: a filled one Gemini repeats is no answer.
+      const fields = this.deps.gemini.emptyFields(
+        this.deps.games.get(game.gameId),
+        job.rules.fields,
+      );
       const raw = reply.items.get(game.gameId);
-      if (raw === undefined) {
+      if (raw === undefined || fields.length === 0) {
         this.advance(game.gameId, 'notFound');
         continue;
       }
       const answer: GeminiAnswer = {
         gameId: game.gameId,
         route: job.rules.route,
-        ...checkAnswer(raw, game, job.rules.fields, this.deps.clock()),
+        ...checkAnswer(raw, game, fields, this.deps.clock()),
         sources: reply.sources,
         grounded: reply.grounded,
         askedAt: this.deps.clock().toISOString(),
       };
       try {
-        const outcome = await this.deps.gemini.record(answer, job.rules.mode, job.rules.fields);
-        this.advance(game.gameId, outcome === 'applied' ? 'applied' : outcome);
+        const outcome = await this.deps.gemini.record(answer, job.rules.mode, fields);
+        this.advance(game.gameId, outcome);
       } catch (error) {
         this.deps.log.error({ error, gameId: game.gameId }, 'gemini answer not saved');
         this.advance(game.gameId, 'failed');

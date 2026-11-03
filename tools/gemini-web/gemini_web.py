@@ -131,9 +131,15 @@ def main(argv=None, browser_factory=Browser):
         if remaining:
             browser.start(args.profile, driver_path(args.driver))
         with open(results_path, 'a', encoding='utf-8', newline='\n') as results:
+            previous = None
             for start in range(0, len(remaining), BATCH_SIZE):
                 batch = remaining[start : start + BATCH_SIZE]
                 reply = browser.ask(build_prompt(batch, fields, language))
+                # No reply, or the page still showing the last one: stop without a line, so
+                # these games are asked again when the launcher resumes.
+                if not reply.strip() or reply == previous:
+                    raise RuntimeError('Gemini gave no new reply; stopping so it can be retried.')
+                previous = reply
                 line = {'gameIds': [game['gameId'] for game in batch], 'reply': reply}
                 results.write(json.dumps(line, ensure_ascii=False) + '\n')
                 results.flush()

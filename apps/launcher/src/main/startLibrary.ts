@@ -389,6 +389,19 @@ export function startLibrary(
     toolPath: geminiToolPath(host.root),
     settings: () => currentSettings(settings).scraper.gemini,
     spawn: (command, args, options) => spawn(command, args, options),
+    // Python, geckodriver and Firefox together: Firefox must let go of the profile.
+    killTree: (pid) => {
+      if (process.platform === 'win32') {
+        spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
+          shell: false,
+          windowsHide: true,
+        }).on('error', (error) => {
+          log.warn({ error, pid }, 'could not stop the gemini website tool');
+        });
+      } else {
+        process.kill(pid);
+      }
+    },
     log,
     poll: () => new Promise((resolve) => setTimeout(resolve, 500)),
   });
@@ -398,6 +411,7 @@ export function startLibrary(
     sources: { api: apiSource(geminiClient), web: webSource },
     games,
     blocked: () => scan.status().running || importer.running(),
+    grounded: () => currentSettings(settings).scraper.gemini.grounding,
     emit,
     log,
     clock: () => new Date(),
