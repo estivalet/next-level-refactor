@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { artUrl, catalogArtUrl, mediaUrl, parseNextlevelUrl, scrapeThumbUrl } from './urls.ts';
+import {
+  artUrl,
+  catalogArtUrl,
+  mediaUrl,
+  parseNextlevelUrl,
+  scrapeThumbUrl,
+  launchboxThumbUrl,
+} from './urls.ts';
 
 describe('nextlevel URLs', () => {
   it('FR-THM-6: an art URL round-trips with spaces and accents', () => {
@@ -38,6 +45,16 @@ describe('nextlevel URLs', () => {
     });
     expect(parseNextlevelUrl('nextlevel://media/42/box-front?v=x')).toBeNull();
     expect(parseNextlevelUrl('nextlevel://media/42/box-front?w=1')).toBeNull();
+  });
+
+  it('FR-SCR-6: a LaunchBox candidate thumbnail is named by its database id only', () => {
+    expect(launchboxThumbUrl(472523)).toBe('nextlevel://launchbox-thumb/472523');
+    expect(parseNextlevelUrl('nextlevel://launchbox-thumb/472523')).toEqual({
+      kind: 'launchbox-thumb',
+      databaseId: 472523,
+    });
+    expect(parseNextlevelUrl('nextlevel://launchbox-thumb/0')).toBeNull();
+    expect(parseNextlevelUrl('nextlevel://launchbox-thumb/1/x.png')).toBeNull();
   });
 
   it('FR-SCR-1: a candidate thumbnail is named by its ScreenScraper game id only', () => {

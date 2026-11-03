@@ -39,6 +39,7 @@ import { FrontendService } from './frontend/FrontendService.ts';
 import { ScanService } from './scan/ScanService.ts';
 import scanWorkerPath from './scan/scanWorker.ts?modulePath';
 import indexWorkerPath from './launchbox/indexWorker.ts?modulePath';
+import { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
 import { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import { buildInWorker } from './launchbox/workerBuild.ts';
 import { createWorkerWalker } from './scan/workerWalker.ts';
@@ -314,6 +315,29 @@ export function startLibrary(
     buildInWorker: buildInWorker(indexWorkerPath),
     log,
   });
+  const launchboxScrape = new LaunchBoxScrapeService({
+    launchbox,
+    fetch: (input, init) => fetch(input, init),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    now: () => Date.now(),
+    games,
+    media,
+    scrapes: new ScrapeRepository(db),
+    writer: new MediaWriter({
+      toPng: (bytes) => {
+        const image = nativeImage.createFromBuffer(bytes);
+        return image.isEmpty() ? null : image.toPNG();
+      },
+    }),
+    transaction: (fn) => {
+      db.$client.transaction(fn)();
+    },
+    settings: () => currentSettings(settings),
+    system: getSystem,
+    emit,
+    clock: () => new Date(),
+    blocked: () => scan.status().running || importer.running(),
+  });
   closer.beforeClose(() => {
     batch.dispose();
     launchbox.dispose();
@@ -330,6 +354,7 @@ export function startLibrary(
     scrape,
     batch,
     launchbox,
+    launchboxScrape,
     repo,
     media,
     frontend,

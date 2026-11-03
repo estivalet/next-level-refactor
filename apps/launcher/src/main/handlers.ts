@@ -41,6 +41,7 @@ import {
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
 import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
+import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
@@ -85,6 +86,7 @@ export interface MainDeps {
     scrape: Pick<ScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
     batch: Pick<BatchScrapeService, 'begin' | 'pause' | 'resume' | 'cancel' | 'status'>;
     launchbox: LaunchBoxService;
+    launchboxScrape: Pick<LaunchBoxScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
   } | null;
   /** Theme art lists (FR-THM-2); works without the library. */
   artIndex: Pick<ArtIndexService, 'index'>;
@@ -179,6 +181,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
     ...createScrapeHandlers({
       service: () => library().scrape,
+      launchbox: () => library().launchboxScrape,
       systems: deps.scraperSystems,
       updateSettings: async (change) => {
         unwrap(await settings.update(change));

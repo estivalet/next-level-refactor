@@ -245,6 +245,7 @@ async function start(): Promise<void> {
     createNextlevelHandler({
       mediaPath: (gameId, kind) => library?.media.path(gameId, kind) ?? null,
       scrapeThumb: (id) => library?.scrape.thumbnail(id) ?? Promise.resolve(null),
+      launchboxThumb: (id) => library?.launchboxScrape.thumbnail(id) ?? Promise.resolve(null),
       // The catalog starts after sign-in is set up (below); until then there is no art.
       catalogArt: (itemId, kind) => catalogRef.current?.art(itemId, kind) ?? Promise.resolve(null),
       paths: artPaths,

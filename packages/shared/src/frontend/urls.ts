@@ -9,6 +9,7 @@ export type ParsedNextlevelUrl =
   | { kind: 'media'; gameId: number; mediaKind: string }
   | { kind: 'art'; root: ArtRoot; rel: string }
   | { kind: 'scrape-thumb'; providerGameId: number }
+  | { kind: 'launchbox-thumb'; databaseId: number }
   | { kind: 'catalog-art'; itemId: string; artKind: string };
 
 /** `version` (the file's mtime) changes the URL when a file is replaced, so no cached image stays. */
@@ -20,6 +21,11 @@ export function mediaUrl(gameId: number, kind: string, version?: number): string
 /** A scrape candidate's box thumbnail, fetched by main (the real URL carries credentials). */
 export function scrapeThumbUrl(providerGameId: number): string {
   return `nextlevel://scrape-thumb/${String(providerGameId)}`;
+}
+
+/** A LaunchBox candidate's box thumbnail (FR-SCR-6), fetched by main from images.launchbox-app.com. */
+export function launchboxThumbUrl(databaseId: number): string {
+  return `nextlevel://launchbox-thumb/${String(databaseId)}`;
 }
 
 /** A catalog item's art (S8), fetched by main: the signed API URL never reaches the renderer. */
@@ -51,7 +57,9 @@ function decodeSegments(raw: string[]): string[] | null {
 
 /** Parses a `nextlevel://` URL; null for anything that is not a well-formed, in-root reference. */
 export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
-  const match = /^nextlevel:\/\/(media|art|scrape-thumb|catalog-art)\/(.*)$/.exec(url);
+  const match = /^nextlevel:\/\/(media|art|scrape-thumb|launchbox-thumb|catalog-art)\/(.*)$/.exec(
+    url,
+  );
   if (!match) return null;
   const parts = (match[2] ?? '').split('/');
   if (match[1] === 'catalog-art') {
@@ -64,6 +72,10 @@ export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
   if (match[1] === 'scrape-thumb') {
     const id = match[2] ?? '';
     return /^[1-9]\d{0,15}$/.test(id) ? { kind: 'scrape-thumb', providerGameId: Number(id) } : null;
+  }
+  if (match[1] === 'launchbox-thumb') {
+    const id = match[2] ?? '';
+    return /^[1-9]\d{0,15}$/.test(id) ? { kind: 'launchbox-thumb', databaseId: Number(id) } : null;
   }
   if (match[1] === 'media') {
     const [id, kindAndQuery, ...rest] = parts;
