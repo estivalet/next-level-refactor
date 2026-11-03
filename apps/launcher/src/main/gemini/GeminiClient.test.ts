@@ -182,4 +182,13 @@ describe('GeminiClient (FR-SCR-7)', () => {
     await client.ask([game], ['year'], 'English');
     expect(calls[0]).toMatch(/^http:\/\/127\.0\.0\.1:9\/v1beta\/models\//);
   });
+
+  it('FR-SCR-7: review fix 3 — at most 20 sources, so stored answers stay valid', async () => {
+    const chunks = Array.from({ length: 30 }, (_, i) => ({
+      uri: `https://example.org/${String(i)}`,
+      title: `S${String(i)}`,
+    }));
+    const { client } = setup([reply('[{"gameId":7}]', chunks)]);
+    expect((await client.ask([game], ['year'], 'English')).sources).toHaveLength(20);
+  });
 });

@@ -102,6 +102,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-SCR-4 | Media is stored per system under `media/<art kind>/` next to the ROM folder (current convention) or in a central media folder (setting). | M |
 | FR-SCR-5 | The library records which media files exist so themes never probe the disk at render time. | M |
 | FR-SCR-6 | LaunchBox Games Database as a second scraper (owner request 2026-11-02): single game (Scrape from LaunchBox…, Try LaunchBox) and a batch fill after ScreenScraper, from its public database download indexed locally in the data folder; personal use only, never for the online catalog. | S |
+| FR-SCR-7 | Gemini fills missing game details (owner request 2026-11-03): single game (Fill details with Gemini…) and batch (Review or Auto-update), through a free Gemini API key, with a Selenium website tool as a fallback; unknown stays unknown, a batch never changes the title. | S |
 
 ## 9. Settings (`FR-SET`)
 

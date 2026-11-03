@@ -29,7 +29,12 @@ const yearOf = (gameId: number, year = 1980) => ({ gameId, year: { known: true, 
 
 type Reply = (games: PromptGame[]) => SourceReply | Error;
 
-async function setup(count: number, replies: Reply[] = []) {
+async function setup(
+  count: number,
+  replies: Reply[] = [],
+  web?: AnswerSource,
+  options: { grounded?: boolean; emit?: (status: unknown) => void } = {},
+) {
   const library = await tempLibrary();
   cleanups.push(library.cleanup);
   const ids = seedGames(
@@ -74,10 +79,13 @@ async function setup(count: number, replies: Reply[] = []) {
     new GeminiBatchService({
       db: library.db,
       gemini,
-      sources: { api: source, web: source },
+      sources: { api: source, web: web ?? source },
       games,
       blocked: () => false,
-      emit: () => undefined,
+      grounded: () => options.grounded ?? false,
+      emit: (_event, status) => {
+        options.emit?.(status);
+      },
       log: { error: () => undefined },
       clock: () => NOW,
       sleep: () => Promise.resolve(),
@@ -223,5 +231,120 @@ describe('GeminiBatchService (FR-SCR-7)', () => {
     await expect(service.start({ systemIds: ['coleco-telstar'] }, RULES)).rejects.toMatchObject({
       error: { code: 'BUSY' },
     });
+  });
+
+  it('FR-SCR-7: the website route prepares once with every remaining game; a refusal pauses webTool', async () => {
+    const prepared: number[][] = [];
+    const web: AnswerSource = {
+      prepare: (_jobId, games) => {
+        prepared.push(games.map((game) => game.gameId));
+        return Promise.resolve();
+      },
+      next: (games) =>
+        Promise.resolve({
+          items: new Map(games.map((g) => [g.gameId, yearOf(g.gameId)])),
+          sources: [],
+          grounded: false,
+        }),
+    };
+    const ok = await setup(12, [], web);
+    await ok.service.start({ systemIds: ['coleco-telstar'] }, { ...RULES, route: 'web' });
+    await ok.service.idle();
+    expect(prepared).toEqual([ok.ids]);
+    expect(ok.service.status()).toMatchObject({ state: 'finished', applied: 12 });
+
+    const refusing: AnswerSource = {
+      prepare: () => Promise.reject(fail('GEMINI_WEB_TOOL')),
+      next: () => Promise.reject(new Error('not reached')),
+    };
+    const refused = await setup(2, [], refusing);
+    await refused.service.start({ systemIds: ['coleco-telstar'] }, { ...RULES, route: 'web' });
+    await refused.service.idle();
+    expect(refused.service.status()).toMatchObject({ state: 'paused', pausedReason: 'webTool' });
+  });
+
+  it('FR-SCR-7: review fix 1 — a field the game already has never counts as an answer', async () => {
+    const { service, ids, library } = await setup(1, [
+      (games) => ({
+        items: new Map(
+          games.map((g) => [
+            g.gameId,
+            { gameId: g.gameId, year: { known: true, value: 1983 }, developer: { known: false } },
+          ]),
+        ),
+        sources: [],
+        grounded: false,
+      }),
+    ]);
+    library.db.$client
+      .prepare('update game_metadata set year = 1983 where game_id = ?')
+      .run(ids[0]);
+    await service.start(
+      { systemIds: ['coleco-telstar'] },
+      { ...RULES, fields: ['year', 'developer'], mode: 'review' },
+    );
+    await service.idle();
+    expect(service.status()).toMatchObject({ notFound: 1, review: 0 });
+  });
+
+  it('FR-SCR-7: review fix 2 — Auto-update with Search checking asks one game per request', async () => {
+    const { service, asked } = await setup(3, [], undefined, { grounded: true });
+    await service.start({ systemIds: ['coleco-telstar'] }, RULES);
+    await service.idle();
+    expect(asked.map((chunk) => chunk.length)).toEqual([1, 1, 1]);
+    asked.length = 0;
+    const review = await setup(3, [], undefined, { grounded: true });
+    await review.service.start({ systemIds: ['coleco-telstar'] }, { ...RULES, mode: 'review' });
+    await review.service.idle();
+    expect(review.asked.map((chunk) => chunk.length)).toEqual([3]);
+  });
+
+  it('FR-SCR-7: review fix 4 — games a source marks failed count as failed', async () => {
+    const { service, ids } = await setup(2, [
+      () => ({
+        items: new Map([[ids[0] ?? 0, yearOf(ids[0] ?? 0)]]),
+        failed: new Set([ids[1] ?? 0]),
+        sources: [],
+        grounded: false,
+      }),
+    ]);
+    await service.start({ systemIds: ['coleco-telstar'] }, RULES);
+    await service.idle();
+    expect(service.status()).toMatchObject({ applied: 1, failed: 1, notFound: 0 });
+  });
+
+  it('FR-SCR-7: review fix 5 — dispose closes the source and leaves the job running for the next launch', async () => {
+    let closed = 0;
+    let release: () => void = () => undefined;
+    const web: AnswerSource = {
+      next: () =>
+        new Promise((_resolve, reject) => {
+          release = () => {
+            reject(fail('GEMINI_WEB_TOOL'));
+          };
+        }),
+      close: () => {
+        closed += 1;
+        release();
+      },
+    };
+    const { service, library } = await setup(2, [], web);
+    await service.start({ systemIds: ['coleco-telstar'] }, { ...RULES, route: 'web' });
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    service.dispose();
+    await service.idle();
+    expect(closed).toBeGreaterThan(0);
+    expect(new JobStore(library.db, 'gemini', (raw) => raw).active()?.status).toBe('running');
+  });
+
+  it('FR-SCR-7: review fix 6 — a library write that keeps failing pauses in memory, never rejects the loop', async () => {
+    const { service } = await setup(2, [], undefined, {
+      emit: (status) => {
+        if ((status as { done: number }).done >= 1) throw new Error('SQLITE_BUSY');
+      },
+    });
+    await service.start({ systemIds: ['coleco-telstar'] }, RULES);
+    await expect(service.idle()).resolves.toBeUndefined();
+    expect(service.status()).toMatchObject({ state: 'paused', pausedReason: 'error' });
   });
 });

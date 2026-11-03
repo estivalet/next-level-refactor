@@ -9,6 +9,7 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBridge } from '../../bridge.ts';
+import { useIpcEvent } from '../../events.ts';
 import { invalidateGames, useGameDetails } from '../library/libraryApi.ts';
 import { Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
 import { useGeminiKeyStatus } from '../settings/scraper/geminiApi.ts';
@@ -75,6 +76,22 @@ function GeminiForm(props: { game: GameDetails; hasKey: boolean; onClose: () => 
       const input = request.allFields ? { gameId: game.id, allFields: true } : { gameId: game.id };
       return { view: unwrap(await getBridge().invoke('gemini.ask', input)), stored: false };
     },
+  });
+  // The game changed while the dialog is open (a batch, an edit): show its current values from
+  // the stored answer (no new request), so a field filled meanwhile is no longer ticked.
+  useIpcEvent('library.changed', ({ gameIds }) => {
+    const shown = view.data;
+    if (!shown || !gameIds?.includes(game.id)) return;
+    void getBridge()
+      .invoke('gemini.stored', { gameId: game.id })
+      .then((result) => {
+        if (result.ok && result.value) {
+          client.setQueryData(['gemini.view', game.id, request], {
+            view: result.value,
+            stored: shown.stored,
+          });
+        }
+      });
   });
   const [picks, setPicks] = useState<Picks>({});
   const [picksFor, setPicksFor] = useState<GeminiDialogView | null>(null);

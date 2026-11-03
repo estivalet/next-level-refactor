@@ -1,5 +1,5 @@
 import { err, ok, type GeminiDialogView, type ScrapeApplyResult } from '@nextlevel/shared';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -57,7 +57,7 @@ function setup(responses: FakeResponses = {}) {
     </div>,
   );
   const calls = (channel: string) => fake.calls.filter((call) => call.channel === channel);
-  return { calls, closed: () => closed };
+  return { calls, closed: () => closed, fake };
 }
 
 describe('Fill details with Gemini (FR-SCR-7)', () => {
@@ -125,5 +125,20 @@ describe('Fill details with Gemini (FR-SCR-7)', () => {
         "Gemini's free daily limit is used up. Try again tomorrow, or use the Gemini website tool.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it('FR-SCR-7: review fix 7 — a field filled while the dialog is open is shown and unticked', async () => {
+    let stored: GeminiDialogView | null = null;
+    const { fake } = setup({ 'gemini.stored': () => ok(stored) });
+    expect(await screen.findByRole('checkbox', { name: 'Year' })).toBeChecked();
+    stored = {
+      ...VIEW,
+      fields: { ...VIEW.fields, year: { current: 1990, scraped: 1976, locked: false } },
+    };
+    fake.emit('library.changed', { systems: ['nintendo-64'], gameIds: [7] });
+    await waitFor(() => {
+      expect(screen.getByRole('checkbox', { name: 'Year' })).not.toBeChecked();
+    });
+    expect(screen.getByText('1990')).toBeInTheDocument();
   });
 });

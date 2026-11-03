@@ -13,6 +13,8 @@ export const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta'
 /** Per-minute limit waits before giving up as a network-style pause (daily limits never retry). */
 const MAX_MINUTE_RETRIES = 3;
 const DEFAULT_RETRY_MS = 10_000;
+/** GeminiAnswerSchema keeps at most 20 sources (a grounded batch can return more). */
+const MAX_SOURCES = 20;
 
 type GeminiCode =
   'GEMINI_NO_KEY' | 'GEMINI_KEY_REJECTED' | 'GEMINI_QUOTA' | 'GEMINI_NETWORK' | 'GEMINI_BAD_REPLY';
@@ -74,6 +76,7 @@ function sourcesOf(reply: ApiReply): GeminiSource[] {
       title: chunk.web?.title ?? '',
       url: chunk.web?.uri ?? '',
     });
+    if (sources.length >= MAX_SOURCES) break;
     if (parsed.success && !seen.has(parsed.data.url)) {
       seen.add(parsed.data.url);
       sources.push(parsed.data);

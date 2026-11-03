@@ -29,6 +29,20 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   - Batch scrape: **Then fill from LaunchBox** fills each game's still-missing art and details
     after ScreenScraper (lone match ≥ 90 applied, else Needs review); "· N from LaunchBox".
   - Library migration 0013 (`scrape_jobs.launchbox`).
+- **Gemini fills missing details** (FR-SCR-7, `docs/02-design/scraping-guide.md` §6): it
+  answers only what it is sure of, and unknown stays empty.
+  - Settings → Scraper → *Gemini*: a free AI Studio API key (in the secret store; no billing,
+    so it never costs money), **Test Gemini**, the model and **Check answers with Google
+    Search**.
+  - **Fill details with Gemini…** in the game menu: asks about empty fields, shows "Gemini
+    doesn't know", sources and a title suggestion you tick yourself; the answer is kept for
+    Needs review.
+  - Scrape ▾ → **Fill <system> details with Gemini…**: a batch (10 games per request,
+    Review or Auto-update, never the title) beside the scrape batch; the daily limit pauses
+    until Google's reset.
+  - **Gemini website tool** (`tools/gemini-web`, Python + Selenium + Firefox): the fallback
+    with no daily limit; the launcher checks and saves its answers.
+  - Library migrations 0014 (`gemini_answers`) and 0015 (`scrape_jobs.source`).
 
 ### Changed
 

@@ -1,0 +1,3 @@
+# The Firefox driver is downloaded by the user, never committed.
+geckodriver.exe
+__pycache__/
