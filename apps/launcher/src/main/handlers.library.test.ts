@@ -189,7 +189,12 @@ describe('library handlers', () => {
 
   it('FR-LIB-3: scan channels fail with LIBRARY_UNAVAILABLE when the library could not open', async () => {
     const { router } = await setup(false);
-    for (const channel of ['scan.status', 'scan.cancel', 'systems.list', 'library.health'] as const) {
+    for (const channel of [
+      'scan.status',
+      'scan.cancel',
+      'systems.list',
+      'library.health',
+    ] as const) {
       expect(await router.handle(channel, undefined)).toMatchObject({
         ok: false,
         error: { code: 'LIBRARY_UNAVAILABLE' },
