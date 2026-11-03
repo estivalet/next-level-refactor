@@ -32,6 +32,7 @@ export function invalidateGames(client: QueryClient) {
     client.invalidateQueries({ queryKey: [SEARCH_KEY] }),
     client.invalidateQueries({ queryKey: SYSTEMS_KEY }),
     client.invalidateQueries({ queryKey: COLLECTIONS_KEY }),
+    client.invalidateQueries({ queryKey: HEALTH_KEY }),
   ]);
 }
 
@@ -46,6 +47,17 @@ export function useLibraryEvents() {
   };
   useIpcEvent('library.changed', refresh);
   useIpcEvent('scan.finished', refresh);
+}
+
+export const HEALTH_KEY = ['library.health'] as const;
+
+/** System health: each system with shown games and its gap counts (read when Health is open). */
+export function useSystemHealth(enabled: boolean) {
+  return useQuery({
+    queryKey: HEALTH_KEY,
+    queryFn: async () => unwrap(await getBridge().invoke('library.health')),
+    enabled,
+  });
 }
 
 /** Catalog systems with their game counts (`games` includes missing ones). */

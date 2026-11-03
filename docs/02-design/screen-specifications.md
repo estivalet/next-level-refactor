@@ -142,6 +142,15 @@ Scope view (D62)
 - Context menu on a game: Play, Play with…, Edit details, Scrape…, Add to collection, Favorite, Hide, Open folder, Show missing reason.
 - Bulk select: add to collection, hide, scrape, set launch profile.
 - Missing games shown greyed with a tooltip naming the expected path.
+- **System health (FR-LIB-12, owner request 2026-11-02):** Library home → **Health** replaces the
+  cards with a table: System, Games, Grade (A–F badge + score), ROMs found, Art, Details (bar +
+  %). Sort: Grade (worst first, default), Name, Games; **Systems in my menu** narrows to the
+  active menu's systems. Clicking a system opens a side panel: grade and score, "What pulls it
+  down" = every gap with a count (largest first: Missing: ROM file / an art kind / a detail),
+  each with **Show** → the system's games narrowed to the ones lacking it (a "Missing: …" chip
+  above the list clears it). Back from that list returns to Health; **Menu** returns to the
+  cards. Read from the library database when opened (no disk access); refreshed on library
+  changes.
 - **As built in M2c** (look of the current NextLevelOS Game Library, owner decision):
   - Header: global search (≥ 2 characters replaces the list with results from every system,
     each with its system name; Esc clears) and **Scan ▾** (Scan all systems / Scan <system>;

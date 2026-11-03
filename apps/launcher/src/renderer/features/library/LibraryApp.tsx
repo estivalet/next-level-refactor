@@ -1,5 +1,5 @@
-import type { GameFlags, GameScope, MenuTree } from '@nextlevel/shared';
-import { ArrowLeft, FileDown } from 'lucide-react';
+import type { GameFlags, GameScope, MenuNode, MenuTree } from '@nextlevel/shared';
+import { ArrowLeft, FileDown, X } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
@@ -10,7 +10,8 @@ import { GlobalSearch } from './GlobalSearch.tsx';
 import { LibraryEmpty, LibraryUnavailable } from './LibraryEmpty.tsx';
 import { LibraryOverlays, useOverlays } from './LibraryOverlays.tsx';
 import { LibraryStatusBar } from './LibraryStatusBar.tsx';
-import { useGlobalSearch, useLibraryEvents } from './libraryApi.ts';
+import { useGlobalSearch, useLibraryEvents, useSystemHealth } from './libraryApi.ts';
+import { HealthView, useGapLabel } from './home/HealthView.tsx';
 import { ScrapeMenu } from '../scrape/ScrapeMenu.tsx';
 import { ScanMenu } from './ScanMenu.tsx';
 import { SearchResults } from './SearchResults.tsx';
@@ -58,6 +59,10 @@ export function LibraryApp({
   const [searchText, setSearchText] = useState('');
   const [searchPick, setSearchPick] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
+  // System health replaces the home while open; a scope opened from it returns here (Back).
+  const [showHealth, setShowHealth] = useState(false);
+  const health = useSystemHealth(showHealth);
+  const gapLabel = useGapLabel();
   const search = useGlobalSearch(searchText);
   const focusList = () => {
     list.current?.querySelector<HTMLElement>('[role="listbox"]')?.focus();
@@ -145,13 +150,28 @@ export function LibraryApp({
           <ScanMenu system={scopeSystem} />
         </div>
       </header>
-      {!searching && !scope ? (
+      {!searching && !scope && showHealth ? (
+        <HealthView
+          systems={health.data}
+          systemName={systemName}
+          menuSystemIds={menuSystemIds(tree.items)}
+          onBack={() => {
+            setShowHealth(false);
+          }}
+          onShow={(systemId, gap) => {
+            view.setScope({ kind: 'system', systemId }, { lacking: gap });
+          }}
+        />
+      ) : !searching && !scope ? (
         <LibraryHome
           level={level}
           rootTitle={tree.title}
           view={homeView}
           onView={setHomeView}
           onPath={setPath}
+          onHealth={() => {
+            setShowHealth(true);
+          }}
           onOpen={(card) => {
             if (card.scope) view.setScope(card.scope);
             else setPath([...level.path, card.key]);
@@ -226,6 +246,23 @@ export function LibraryApp({
                   </button>
                   <ViewToggle view={shownView} onView={setScopeView} gridDisabled={manualOrder} />
                 </div>
+                {view.narrow.lacking !== undefined && (
+                  <div className="flex shrink-0 items-center gap-2 border-b border-white/5 px-4 py-1.5">
+                    <button
+                      type="button"
+                      aria-label={t('library.health.clear', {
+                        what: gapLabel(view.narrow.lacking),
+                      })}
+                      onClick={() => {
+                        view.setNarrow({ ...view.narrow, lacking: undefined });
+                      }}
+                      className="flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] text-cyan-200 hover:bg-cyan-400/20"
+                    >
+                      {gapLabel(view.narrow.lacking)}
+                      <X aria-hidden="true" className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
                 <ScopeToolbar view={view} overlays={overlays} />
                 {shownView === 'grid' ? (
                   <GameGrid
@@ -317,4 +354,13 @@ export function LibraryApp({
       <PlayLayer play={play} />
     </div>
   );
+}
+
+/** Every system the menu shows, at any depth (System health's "Systems in my menu"). */
+function menuSystemIds(nodes: readonly MenuNode[], into = new Set<string>()): Set<string> {
+  for (const node of nodes) {
+    if (node.systemId !== undefined) into.add(node.systemId);
+    menuSystemIds(node.children, into);
+  }
+  return into;
 }

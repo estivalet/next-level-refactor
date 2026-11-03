@@ -117,6 +117,7 @@ export class GameRepository {
     const shape = listShape(query, collectionSort, match !== null, smart?.sql ?? null, {
       filter: query.filter !== undefined,
       genre: query.genre !== undefined,
+      lacking: query.lacking,
     });
     const params = {
       ...scopeParams,

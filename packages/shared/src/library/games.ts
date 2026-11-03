@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ScrapeStatusSchema } from '../scraper/schema.ts';
+import { HealthGapSchema } from './health.ts';
 
 const id = z.number().int().positive();
 const count = z.number().int().min(0);
@@ -38,6 +39,8 @@ export const GameListQuerySchema = z.strictObject({
   /** Narrows to games with this filter tag and/or genre (D62). */
   filter: z.string().regex(FILTER_SLUG).optional(),
   genre: z.string().max(200).optional(),
+  /** Narrows to games lacking their ROM, an art kind or a detail (System health's Show). */
+  lacking: HealthGapSchema.optional(),
   offset: count,
   limit: z.number().int().min(1).max(1000),
 });

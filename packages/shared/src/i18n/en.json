@@ -819,6 +819,28 @@
       "position": "{{position}} / {{total}}",
       "saveFirst": "Save or cancel your changes first"
     },
+    "health": {
+      "open": "Health",
+      "title": "System health",
+      "backToMenu": "Menu",
+      "menuOnly": "Systems in my menu",
+      "sortBy": "Sort:",
+      "sort": { "grade": "Grade (worst first)", "name": "Name", "games": "Games" },
+      "system": "System",
+      "games": "Games",
+      "grade": "Grade",
+      "roms": "ROMs found",
+      "art": "Art",
+      "details": "Details",
+      "score": "Grade {{grade}} · {{score}} / 100",
+      "pullsDown": "What pulls it down",
+      "gapsOf": "What pulls {{system}} down",
+      "nothingMissing": "Nothing missing.",
+      "show": "Show",
+      "missing": "Missing: {{what}}",
+      "romFile": "ROM file",
+      "clear": "Clear {{what}}"
+    },
     "relink": {
       "title": "Relink {{title}}",
       "intro": "{{title}} is missing. Pick the game its file was renamed or moved to.",
