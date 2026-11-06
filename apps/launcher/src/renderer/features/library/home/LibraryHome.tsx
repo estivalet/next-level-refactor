@@ -5,6 +5,7 @@ import {
   Gamepad2,
   HeartPulse,
   Home,
+  Library,
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
@@ -12,7 +13,7 @@ import type { KeyboardEvent, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ViewMode } from '../useViewMode.ts';
 import { ViewToggle } from '../ViewToggle.tsx';
-import type { HomeCard, HomeCardKind, HomeLevel } from './levels.ts';
+import { COLLECTIONS_LEVEL, type HomeCard, type HomeCardKind, type HomeLevel } from './levels.ts';
 
 /** Card tints, by position, like the NextLevelOS library's. */
 const TINTS = [
@@ -50,6 +51,8 @@ interface LibraryHomeProps {
   actions?: ReactNode;
   /** Opens System health. */
   onHealth?: () => void;
+  /** Jumps to the Collections level; the button hides while it is shown. */
+  onCollections?: () => void;
 }
 
 /** The Library home (D61): the active menu one level at a time, as cards or a list. */
@@ -62,9 +65,11 @@ export function LibraryHome({
   onPath,
   actions,
   onHealth,
+  onCollections,
 }: LibraryHomeProps) {
   const { t } = useTranslation();
   const atRoot = level.path.length === 0;
+  const atCollections = level.path[0] === COLLECTIONS_LEVEL;
   const back = () => {
     onPath(level.path.slice(0, -1));
   };
@@ -128,6 +133,12 @@ export function LibraryHome({
           ))}
         </nav>
         {actions}
+        {onCollections && !atCollections && (
+          <button type="button" className={TOOL} onClick={onCollections}>
+            <Library aria-hidden="true" className="h-3.5 w-3.5" />
+            {t('library.home.collections')}
+          </button>
+        )}
         {onHealth && (
           <button type="button" className={TOOL} onClick={onHealth}>
             <HeartPulse aria-hidden="true" className="h-3.5 w-3.5" />

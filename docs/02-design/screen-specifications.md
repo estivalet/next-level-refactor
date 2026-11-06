@@ -159,7 +159,8 @@ Scope view (D62)
   - **Home (D61, replaces the M2c system tree):** the Library opens on the active menu (or the
     generated one) as cards, one level at a time: categories open deeper, systems, collections
     and smart filters open their games. Home, Back (also Backspace or Alt+←) and a breadcrumb
-    of the levels; a grid/list toggle, remembered on this machine. The root ends with two fixed
+    of the levels; a grid/list toggle, remembered on this machine; **Collections** next to Health
+    jumps to the Collections level from any level (hidden while it is shown). The root ends with two fixed
     cards: **Not in menu** (systems with games the menu doesn't show — left out, hidden or
     disabled — only when there are any) and **Collections** (every collection and smart filter,
     with **New collection** (folder icon) and **New smart filter** (sparkles icon), each

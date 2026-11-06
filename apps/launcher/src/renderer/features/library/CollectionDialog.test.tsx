@@ -185,7 +185,7 @@ describe('collections in the Library', () => {
     expect(bridge.channels()).not.toContain('collections.delete');
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
     expect(bridge.channels()).toContain('collections.delete');
-    const collections = await screen.findByRole('button', { name: /^Collections/ });
+    const collections = await screen.findByRole('button', { name: /^Collections\d/ });
     expect(collections).toHaveTextContent('0 items');
   });
 

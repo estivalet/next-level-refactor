@@ -175,6 +175,9 @@ export function LibraryApp({
           onHealth={() => {
             setShowHealth(true);
           }}
+          onCollections={() => {
+            setPath([COLLECTIONS_LEVEL]);
+          }}
           onOpen={(card) => {
             if (card.scope) view.setScope(card.scope);
             else setPath([...level.path, card.key]);

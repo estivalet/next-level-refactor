@@ -115,8 +115,11 @@ export function libraryResponses(
 export const N64_SCOPE = { kind: 'system', systemId: 'nintendo-64' } as const;
 export const PICKS_SCOPE = { kind: 'collection', collectionId: 1 } as const;
 
-/** From the Library home, opens the Collections level and returns its card list (D61). */
+/**
+ * From the Library home, opens the Collections level through its card (the name has the count,
+ * unlike the header's Collections button) and returns its card list (D61).
+ */
 export async function openCollectionsLevel(user: UserEvent): Promise<HTMLElement> {
-  await user.click(await screen.findByRole('button', { name: /^Collections/ }));
+  await user.click(await screen.findByRole('button', { name: /^Collections\d/ }));
   return screen.findByRole('list', { name: 'Collections' });
 }
