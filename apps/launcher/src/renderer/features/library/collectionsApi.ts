@@ -28,6 +28,19 @@ export function useCreateCollection() {
   );
 }
 
+/**
+ * "New collection “name”" in Add to collection (FR-LIB-8): creates the collection, then adds the
+ * games to it. If the add fails the empty collection stays, as if made with New collection.
+ */
+export function useCreateCollectionWithGames() {
+  return useCollectionMutation(async (input: { name: string; gameIds: number[] }) => {
+    const created = unwrap(await getBridge().invoke('collections.create', { name: input.name }));
+    return unwrap(
+      await getBridge().invoke('collections.addGames', { id: created.id, gameIds: input.gameIds }),
+    );
+  });
+}
+
 export function useUpdateCollection() {
   return useCollectionMutation(
     async (input: { id: number; name?: string; sort?: CollectionSort }) =>

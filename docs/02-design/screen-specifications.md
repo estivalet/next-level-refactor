@@ -210,7 +210,9 @@ Scope view (D62)
     game; notes are kept, FR-LIB-13), Add to collection…, Remove from collection (in a
     collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink).
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
-    listing the collections.
+    listing the collections under a **Find or create a collection…** box: typing narrows the
+    list, and a name no collection has yet (in any case) offers **New collection “name”**
+    (also Enter), which creates it with the selected games in it and keeps the dialog open.
   - **Edit details (FR-LIB-6, owner request 2026-11-02):** the game's title, **Info** and
     **Media** tabs, and **‹ n / total ›** for the shown list (stepping selects that row; off
     with unsaved changes; the tab is kept). Info = the editable fields. Media is look-only:

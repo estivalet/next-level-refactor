@@ -7,6 +7,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Add to collection…** can make a new collection: type a name in the box and choose
+  **New collection “name”** (or press Enter); it is created with the selected games in it
+  (FR-LIB-8).
+
 - **Playability mark** (FR-LIB-13, the last item of the dashboard port): every game can be
   marked **Works**, **Minor issues** or **Broken**, with a short note and the date it was set.
   Set it in the game details (pressing the chosen mark again clears it), in **Edit details**
