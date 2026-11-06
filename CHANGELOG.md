@@ -54,6 +54,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Changed
 
+- Library home → **Collections**: the two identical **+** buttons now read **New collection**
+  (folder icon) and **New smart filter** (sparkles icon), matching their cards (FR-LIB-8,
+  FR-LIB-9).
 - The startup splash has the NextLevelOS look (logo, progress bar, step label) and shows from
   the first paint: the window stays hidden until then, so there is no white flash (S1).
 - Playing a game shows a launch screen (box art, title, spinner) over the launcher instead of

@@ -162,7 +162,8 @@ Scope view (D62)
     of the levels; a grid/list toggle, remembered on this machine. The root ends with two fixed
     cards: **Not in menu** (systems with games the menu doesn't show — left out, hidden or
     disabled — only when there are any) and **Collections** (every collection and smart filter,
-    with **+** New collection and **+** New smart filter). A level that leaves the menu (an
+    with **New collection** (folder icon) and **New smart filter** (sparkles icon), each
+    labelled like Health, matching the icons on their cards). A level that leaves the menu (an
     edit, another active menu, a scan) falls back to the deepest one left; the home follows menu
     changes live.
   - **Scope view (D62):** Back returns to the level it was opened from. Left column: tabs All,

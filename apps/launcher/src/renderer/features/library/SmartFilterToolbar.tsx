@@ -1,5 +1,5 @@
 import type { SmartFilterSummary } from '@nextlevel/shared';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Sparkles, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const BUTTON =
@@ -41,21 +41,24 @@ export function SmartFilterToolbar({
   );
 }
 
-/** The "+" in the tree's Smart filters header. */
+/** Matches the Library home's header tools (Health). */
+const NEW_BUTTON =
+  'flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-white/5 hover:text-white';
+
+/** "New smart filter" in the Library home's Collections header; sparkles match its cards. */
 export function NewSmartFilterButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation();
   return (
     <button
       type="button"
-      aria-label={t('library.smart.new')}
-      title={t('library.smart.new')}
       onClick={(event) => {
         event.stopPropagation();
         onClick();
       }}
-      className="rounded p-0.5 text-slate-500 hover:bg-white/10 hover:text-emerald-400"
+      className={NEW_BUTTON}
     >
-      <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+      <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
+      {t('library.smart.new')}
     </button>
   );
 }
