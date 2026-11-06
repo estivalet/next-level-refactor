@@ -96,6 +96,38 @@ describe('LibraryApp', () => {
     expect(await screen.findByRole('list', { name: 'Next Level' })).toBeVisible();
   });
 
+  it('FR-LIB-8, D61: the header Collections button opens the Collections level from any level', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({
+      ...libraryResponses(GAMES, SYSTEMS),
+      'frontend.menu': () => ok(MENU),
+    });
+    renderInShell(<LibraryApp />);
+    await screen.findByRole('list', { name: 'Next Level' });
+    await user.click(screen.getByRole('button', { name: /Consoles/ }));
+    await user.click(await screen.findByRole('button', { name: /^Nintendo/ }));
+
+    await user.click(screen.getByRole('button', { name: 'Collections' }));
+
+    const trail = screen.getByRole('navigation', { name: 'Where you are' });
+    await waitFor(() => {
+      expect(
+        within(trail)
+          .getAllByRole('button')
+          .map((b) => b.textContent),
+      ).toEqual(['Next Level', 'Collections']);
+    });
+    // No collections yet in this library.
+    expect(screen.getByText('Nothing here yet.')).toBeVisible();
+    // Already there: the header shows New collection / New smart filter instead.
+    expect(screen.getByRole('button', { name: 'New collection' })).toBeVisible();
+    expect(
+      screen.getAllByRole('button', { name: 'Collections' }).every((b) => trail.contains(b)),
+    ).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByRole('list', { name: 'Next Level' })).toBeVisible();
+  });
+
   it('FR-LIB-6, D61: a system card lists its games and count; Back returns to its level', async () => {
     const user = userEvent.setup();
     installFakeBridge({ ...libraryResponses(GAMES, SYSTEMS), 'frontend.menu': () => ok(MENU) });

@@ -58,6 +58,8 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Changed
 
+- Library home: a **Collections** button next to Health opens the Collections level from
+  anywhere in the home, instead of only from the last card of the root (FR-LIB-8, D61).
 - Library home → **Collections**: the two identical **+** buttons now read **New collection**
   (folder icon) and **New smart filter** (sparkles icon), matching their cards (FR-LIB-8,
   FR-LIB-9).
