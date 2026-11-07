@@ -185,17 +185,21 @@ describe('the scope view (D62)', () => {
     );
   });
 
-  it('D62: a manual-order collection shows the list', async () => {
+  it('D62: a manual-order collection opens in the grid and can switch to the list', async () => {
     installFakeBridge({
       ...libraryResponses(GAMES, SYSTEMS),
       'collections.list': () => ok([{ id: 1, name: 'Picks', sort: 'manual', games: 5 }]),
     });
+    const user = userEvent.setup();
     renderInShell(<LibraryApp initialScope={{ kind: 'collection', collectionId: 1 }} />);
-    expect(await screen.findByRole('button', { name: 'List view' })).toHaveAttribute(
+    const grid = await screen.findByRole('button', { name: 'Grid view' });
+    expect(grid).toHaveAttribute('aria-pressed', 'true');
+    expect(grid).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'List view' }));
+    expect(screen.getByRole('button', { name: 'List view' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
-    expect(screen.getByRole('button', { name: 'Grid view' })).toBeDisabled();
   });
 
   it('Final: a scope opened from the home lays the grid out in columns', async () => {

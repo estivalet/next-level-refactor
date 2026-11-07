@@ -103,11 +103,6 @@ export function LibraryApp({
     smartFilters: view.smartFilters.data ?? [],
     labels: { notInMenu: t('library.home.notInMenu'), collections: t('library.home.collections') },
   });
-  // Rows drag into a manual-order collection's order only in the list.
-  const manualOrder =
-    scope?.kind === 'collection' &&
-    view.collections.data?.find((c) => c.id === scope.collectionId)?.sort === 'manual';
-  const shownView = manualOrder ? 'list' : scopeView;
   const scopeSystem =
     scope?.kind === 'system' ? { id: scope.systemId, name: systemName(scope.systemId) } : null;
   const searching = search.active;
@@ -250,7 +245,7 @@ export function LibraryApp({
                     <FileDown aria-hidden="true" className="h-3.5 w-3.5" />
                     {t('library.export.open')}
                   </button>
-                  <ViewToggle view={shownView} onView={setScopeView} gridDisabled={manualOrder} />
+                  <ViewToggle view={scopeView} onView={setScopeView} />
                 </div>
                 {view.narrow.lacking !== undefined && (
                   <div className="flex shrink-0 items-center gap-2 border-b border-white/5 px-4 py-1.5">
@@ -270,7 +265,7 @@ export function LibraryApp({
                   </div>
                 )}
                 <ScopeToolbar view={view} overlays={overlays} />
-                {shownView === 'grid' ? (
+                {scopeView === 'grid' ? (
                   <GameGrid
                     games={view.games}
                     selection={view.selection}

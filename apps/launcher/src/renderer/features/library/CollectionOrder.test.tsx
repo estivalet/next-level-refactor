@@ -49,6 +49,8 @@ function setup(sort: CollectionSummary['sort'] = 'manual') {
   const open = async () => {
     const lists = await openCollectionsLevel(user);
     await user.click(await within(lists).findByRole('button', { name: /Picks/ }));
+    // Collections open in the grid; rows drag into a new place in the list.
+    await user.click(await screen.findByRole('button', { name: 'List view' }));
     return screen.findByRole('listbox', { name: 'Games' });
   };
   const moved = () => bridge.calls.find((call) => call.channel === 'collections.move')?.input;

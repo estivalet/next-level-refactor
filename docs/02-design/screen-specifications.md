@@ -172,8 +172,9 @@ Scope view (D62)
     (D60), then Hidden, Missing, Needs review; then the scope's **Filters** and **Genres** with
     their counts in the tab. One filter and one genre narrow the list (picking it again clears
     it); the narrowing stays across tabs and clears when a scope is opened or left. The header
-    has the scope's name, **Export…** and a grid/list toggle remembered per scope; a
-    manual-order collection always shows the list (rows drag only there).
+    has the scope's name, **Export…** and a grid/list toggle remembered per scope (grid by
+    default, collections included); in a manual-order collection rows drag only in the list,
+    and Move up / Move down work in both.
   - **Export… (FR-LIB-11):** a dialog with the format (Spreadsheet (CSV), JSON, EmulationStation
     `gamelist.xml`), which games (every game of the scope, hidden ones too, with the count; or
     only the games shown, with the tab, filter and genre named), and a checkbox per field with
