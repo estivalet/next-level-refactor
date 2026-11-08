@@ -252,7 +252,8 @@ describe('ProfileEditor (FR-EMU-3, FR-EMU-5, US-D1)', () => {
   it('FR-EMU-2: a new profile needs a system before it can be saved', async () => {
     const user = userEvent.setup();
     setup();
-    await user.click(await screen.findByRole('button', { name: 'New profile' }));
+    await user.click(await screen.findByRole('button', { name: 'Add profile' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Blank profile' }));
     const editor = within(screen.getByRole('region', { name: 'Edit profile' }));
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     await user.type(editor.getByRole('searchbox', { name: 'Search systems' }), 'saturn');

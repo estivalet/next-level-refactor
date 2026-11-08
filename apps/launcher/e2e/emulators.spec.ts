@@ -41,7 +41,8 @@ test('US-D1, FR-EMU-5: add a custom emulator and profile, then Test launch a sca
     await add.getByRole('button', { name: 'Choose program…' }).click();
     await add.getByRole('button', { name: 'Add', exact: true }).click();
 
-    await settings.getByRole('button', { name: 'New profile' }).click();
+    await settings.getByRole('button', { name: 'Add profile' }).click();
+    await settings.getByRole('menuitem', { name: 'Blank profile' }).click();
     const editor = settings.getByRole('region', { name: 'Edit profile' });
     await editor.getByRole('searchbox', { name: 'Search systems' }).fill('nintendo 64');
     await editor.getByRole('checkbox', { name: 'Nintendo 64', exact: true }).check();
