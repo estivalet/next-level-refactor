@@ -5,6 +5,15 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Settings → Emulators** is now two panes (FR-EMU-2): the emulators A–Z on the left with a
+  **Find emulator** search, profile counts and a ⚠ mark on ones that need attention; the
+  selected emulator on the right with its program, a **Filter profiles** search, one
+  **Add profile ▾** (From preset… / Blank profile) and its profiles A–Z, shown without the
+  "<emulator> –" prefix. Editing a profile opens in the right pane with **← Back**, instead of at
+  the top of the page. The squashfs mount tool moved under **Tools** in the left pane.
+
 ### Added
 
 - **Add to collection…** can make a new collection: type a name in the box and choose

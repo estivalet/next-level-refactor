@@ -345,10 +345,18 @@ Left navigation of sections (see IA §1), right form pane.
 - **Emulators** (M3, FR-EMU-2/5/7): **Add emulator…** (choose a preset or Custom, then the
   program; picking a known program offers its preset) creates the emulator and the preset's
   profiles for enabled systems; **Find emulators in a folder…** lists preset programs found up to
-  three folders deep (a copy in a folder named like the program first), checked unless already added. Each emulator shows its program and its
-  profiles (virtualized) with **Change program…**, **Add from preset…** (the preset profiles it
-  doesn't have, searchable), **New profile**, Edit, and Delete (asks first, naming the profile
-  count; clears system defaults that named them).
+  three folders deep (a copy in a folder named like the program first), checked unless already added.
+  Two panes (2026-11-07): on the left, **Find emulator** (filters as you type, ignoring case and
+  accents), the emulators A–Z with their profile count and a ⚠ *Needs attention* mark when the
+  emulator or one of its profiles fails validation, **Add emulator…**, **Find emulators in a
+  folder…**, and under **Tools** the squashfs mount tool. The first emulator is selected; a newly
+  added one becomes selected. On the right, the selected emulator: name, program, **Change
+  program…** and **⋯** → Delete (asks first, naming the profile count; clears system defaults that
+  named them); then **Filter n profiles**, **Add profile ▾** (**From preset…** — the preset
+  profiles it doesn't have, searchable — shown only for preset emulators; **Blank profile**) and
+  the profiles A–Z (virtualized), each with its system count, Edit and Delete. A profile named
+  "<emulator> – <name>" is listed as "<name>". Edit (or Fix in Settings) replaces the list with
+  the profile editor and **← Back to <emulator>**.
 - **Emulator profile editor**: name, a searchable system checklist, one row per argument with token
   autocomplete when `{` is typed and the first problem under the field ("Unknown token {romm}"),
   working folder, RetroArch core, archives (pass / extract first) and environment variables. A
