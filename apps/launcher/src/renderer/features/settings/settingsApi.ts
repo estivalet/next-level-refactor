@@ -6,8 +6,11 @@ import {
   type Settings,
   type SettingsLoad,
   type SettingsSnapshot,
+  type SystemDefinition,
 } from '@nextlevel/shared';
+import { withCustomSystems } from '@nextlevel/system-catalog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
 
@@ -114,12 +117,30 @@ export function useAppPaths() {
 }
 
 /** The shipped system catalog (FR-EMU-1); it never changes while the app runs. */
-export function useSystemCatalog() {
+export function useShippedSystems() {
   return useQuery({
     queryKey: ['systems.catalog'],
     queryFn: async () => unwrap(await getBridge().invoke('systems.catalog')),
     staleTime: Infinity,
   });
+}
+
+const NO_CUSTOM_SYSTEMS: Settings['customSystems'] = [];
+
+/**
+ * Every system: the shipped catalog plus the user's saved custom systems (FR-EMU-11), so a
+ * system added in Settings shows everywhere as soon as it is saved.
+ */
+export function useSystemCatalog(): { data: readonly SystemDefinition[] | undefined } {
+  const shipped = useShippedSystems().data;
+  const settings = useSettings().data;
+  const custom =
+    settings?.kind === 'ok' ? settings.snapshot.settings.customSystems : NO_CUSTOM_SYSTEMS;
+  const data = useMemo(
+    () => (shipped ? withCustomSystems(shipped, custom) : undefined),
+    [shipped, custom],
+  );
+  return { data };
 }
 
 /** Native folder picker in main; resolves null when cancelled. */

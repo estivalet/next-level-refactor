@@ -1,4 +1,4 @@
-import type { Settings, SystemDefinition } from '@nextlevel/shared';
+import { CUSTOM_SYSTEM_ID, type Settings, type SystemDefinition } from '@nextlevel/shared';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -75,7 +75,13 @@ export function SystemList({
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-sm text-white">{system.name}</span>
                 <span className="truncate text-xs text-slate-400">
-                  {[system.manufacturer, t('settings.systems.folder', { folder })]
+                  {[
+                    CUSTOM_SYSTEM_ID.test(system.id)
+                      ? t('settings.systems.custom.badge')
+                      : undefined,
+                    system.manufacturer,
+                    t('settings.systems.folder', { folder }),
+                  ]
                     .filter(Boolean)
                     .join(' · ')}
                 </span>

@@ -4,6 +4,7 @@ import { THEME_ID, ThemeOptionsSchema } from '../frontend/schema.ts';
 import { checkInput, InputSettingsSchema } from './input.ts';
 import { checkThemeSettings } from '../frontend/themeSettings.ts';
 import { ScraperSettingsSchema } from '../scraper/schema.ts';
+import { checkCustomSystems, CustomSystemSchema } from './customSystems.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
 // field has a default, so `{ "schemaVersion": 1 }` is a complete file. Plain objects strip
@@ -178,6 +179,8 @@ export const SettingsSchema = z
       .prefault({}),
     // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.
     systems: z.record(z.string(), SystemSettingsSchema).default({}),
+    /** Systems the user added (FR-EMU-11); enabling and profiles still go through `systems`. */
+    customSystems: z.array(CustomSystemSchema).default([]),
     emulators: z.array(EmulatorSchema).default([]),
     profiles: z.array(EmulatorProfileSchema).default([]),
     /** Helper programs launches use (FR-EMU-9). */
@@ -214,6 +217,7 @@ export const SettingsSchema = z
     checkProfiles(settings, ctx);
     checkInput(settings, ctx);
     checkThemeSettings(settings.themes.entries, ctx);
+    checkCustomSystems(settings.customSystems, ctx);
   });
 
 export type Settings = z.output<typeof SettingsSchema>;

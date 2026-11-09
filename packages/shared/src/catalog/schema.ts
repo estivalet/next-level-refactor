@@ -24,6 +24,8 @@ export const SystemDefinitionSchema = z.object({
   manufacturer: z.string().min(1).optional(),
   releaseYear: z.number().int().min(1950).max(2100).optional(),
   kind: z.enum(SYSTEM_KINDS),
+  /** A few lines about the system; only custom systems have one so far (FR-EMU-11). */
+  description: z.string().min(1).optional(),
   extensions: z.array(z.string().regex(EXTENSION)).min(1),
   defaultFolderName: z.string().min(1),
   multiDisc: z.boolean().optional(),

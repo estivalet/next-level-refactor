@@ -1,5 +1,5 @@
 import { defaultSettings, err, ok, type ScanStatus, type Settings } from '@nextlevel/shared';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -170,5 +170,52 @@ describe('ScanPanel', () => {
     expect(await screen.findByRole('list', { name: 'Scan results' })).toHaveTextContent(
       'Nintendo 642 games · 5 missing',
     );
+  });
+
+  it('FR-EMU-11: results are A–Z, with a custom system among the shipped ones', async () => {
+    const bridge = setup({
+      'settings.get': () =>
+        ok({
+          kind: 'ok' as const,
+          snapshot: {
+            revision: 0,
+            settings: {
+              ...defaultSettings(),
+              storage: { ...defaultSettings().storage, locations: [LOCATION] },
+              customSystems: [
+                {
+                  id: 'custom-a-handheld',
+                  name: 'A Handheld',
+                  kind: 'handheld',
+                  folderName: 'A Handheld',
+                  extensions: ['bin'],
+                },
+              ],
+            },
+          },
+        }),
+    });
+    await screen.findByRole('button', { name: 'Scan now' });
+    const result = (systemId: string) => ({
+      systemId,
+      present: 1,
+      added: 0,
+      moved: 0,
+      restored: 0,
+      missing: 0,
+    });
+    // A summary saved before custom systems were placed by name lists it last.
+    bridge.emit('scan.finished', {
+      scanId: 's',
+      startedAt: '2026-11-09T12:00:00.000Z',
+      finishedAt: '2026-11-09T12:00:05.000Z',
+      outcome: 'completed',
+      systems: [result('nintendo-64'), result('custom-a-handheld')],
+      enabledSystemIds: [],
+    });
+    const rows = within(await screen.findByRole('list', { name: 'Scan results' })).getAllByRole(
+      'listitem',
+    );
+    expect(rows.map((row) => row.textContent)).toEqual(['A Handheld1 game', 'Nintendo 641 game']);
   });
 });

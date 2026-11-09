@@ -1,19 +1,8 @@
 import type { EmulatorProfile, SystemDefinition, SystemSettings } from '@nextlevel/shared';
 import { X } from 'lucide-react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-
-/** "z64, .N64  zip" → ['z64', 'n64', 'zip']; empty → undefined (use the catalog's list). */
-function parseExtensions(text: string): string[] | undefined {
-  const list = text
-    .split(/[\s,]+/)
-    .map((e) => e.replace(/^\./, '').toLowerCase())
-    .filter(Boolean);
-  return list.length > 0 ? list : undefined;
-}
-
-const INPUT =
-  'w-full rounded-md border border-white/10 bg-black/30 px-2 py-1 text-sm text-white focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';
+import { INPUT, parseExtensions } from './filterSystems.ts';
 
 /**
  * Per-system overrides: ROM folder name and file extensions (FR-LIB-2), ScreenScraper id
@@ -24,6 +13,7 @@ export function SystemEditor({
   settings,
   profiles,
   errors,
+  scan,
   onChange,
   onReset,
   onClose,
@@ -33,6 +23,8 @@ export function SystemEditor({
   /** The profiles that cover this system. */
   profiles: readonly EmulatorProfile[];
   errors: Record<string, string>;
+  /** Scan this system (FR-LIB-3). */
+  scan: ReactNode;
   onChange: (
     patch: Partial<
       Pick<
@@ -192,6 +184,7 @@ export function SystemEditor({
           ))}
         </select>
       </label>
+      {scan}
       <button
         type="button"
         onClick={() => {

@@ -4,7 +4,12 @@ import { existsSync, statSync } from 'node:fs';
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defaultSettings } from '@nextlevel/shared';
-import { emulatorPresets, getSystem, systemCatalog } from '@nextlevel/system-catalog';
+import {
+  emulatorPresets,
+  findSystem,
+  systemCatalog,
+  withCustomSystems,
+} from '@nextlevel/system-catalog';
 import { path7za } from '7zip-bin';
 import { v7 as uuidv7 } from 'uuid';
 import { seedBuiltInSmartFilters } from './library/builtInSmartFilters.ts';
@@ -92,6 +97,10 @@ export const currentSettings = (settings: SettingsService) => {
   return loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
 };
 
+/** The shipped catalog plus the user's systems (FR-EMU-11), from the current settings. */
+export const currentSystems = (settings: SettingsService) =>
+  withCustomSystems(systemCatalog(), currentSettings(settings).customSystems);
+
 /** Opens `library.db`; without it the app still runs and library channels fail (M2b). */
 export function startLibrary(
   settings: SettingsService,
@@ -111,6 +120,8 @@ export function startLibrary(
     return null;
   }
   const repo = new LibraryRepository(db);
+  const systems = () => currentSystems(settings);
+  const systemById = (id: string) => findSystem(systems(), id);
   const media = new MediaRepository(db);
   if (moved) {
     try {
@@ -136,7 +147,7 @@ export function startLibrary(
     repo,
     media,
     settings,
-    catalog: systemCatalog,
+    catalog: systems,
     createWalker: () => createWorkerWalker(scanWorkerPath),
     folderExists,
     clock: () => new Date(),
@@ -149,16 +160,12 @@ export function startLibrary(
     const loaded = settings.get();
     return expectedGamePath({
       settings: loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings(),
-      system: systemCatalog().find((system) => system.id === row.systemId),
+      system: systemById(row.systemId),
       ...row,
     });
   };
   const games = new GameRepository(db, gamePath);
-  const exports = new GameExportReader(
-    db,
-    gamePath,
-    (id) => systemCatalog().find((system) => system.id === id)?.name ?? id,
-  );
+  const exports = new GameExportReader(db, gamePath, (id) => systemById(id)?.name ?? id);
   const collections = new CollectionRepository(db, () => new Date());
   const launches = new LaunchRepository(db);
   // FR-EMU-9: a crashed run may have left a mount behind; the record lives in the data folder.
@@ -168,7 +175,7 @@ export function startLibrary(
   const fakeMount = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_FAKE_MOUNT'];
   const launch = new LaunchService({
     settings: () => currentSettings(settings),
-    system: getSystem,
+    system: systemById,
     launches,
     spawn: spawnProcess,
     exists: existsSync,
@@ -244,7 +251,7 @@ export function startLibrary(
   }
   const frontend = new FrontendService({
     db,
-    catalog: systemCatalog,
+    catalog: systems,
     settings: () => currentSettings(settings),
     collections,
     menus,
@@ -283,7 +290,7 @@ export function startLibrary(
       db.$client.transaction(fn)();
     },
     settings: () => currentSettings(settings),
-    system: getSystem,
+    system: systemById,
     hash: (path) => hashRom(path),
     emit,
     clock: () => new Date(),
@@ -295,7 +302,7 @@ export function startLibrary(
     fetch: (input, init) => fetch(input, init),
     emit,
     settings: () => currentSettings(settings),
-    system: getSystem,
+    system: systemById,
     buildInWorker: buildInWorker(indexWorkerPath),
     log,
     // e2e points LaunchBox at a local fake; packaged builds never read the variables.
@@ -319,7 +326,7 @@ export function startLibrary(
       db.$client.transaction(fn)();
     },
     settings: () => currentSettings(settings),
-    system: getSystem,
+    system: systemById,
     emit,
     clock: () => new Date(),
     blocked: () => scan.status().running || importer.running(),
@@ -349,7 +356,7 @@ export function startLibrary(
       db.$client.transaction(fn)();
     },
     settings: () => currentSettings(settings),
-    systemName: (systemId) => getSystem(systemId)?.name ?? systemId,
+    systemName: (systemId) => systemById(systemId)?.name ?? systemId,
     emit,
     clock: () => new Date(),
   });
@@ -369,7 +376,7 @@ export function startLibrary(
     blocked: () => scan.status().running || importer.running(),
     screenscraperId: (systemId) =>
       currentSettings(settings).systems[systemId]?.screenscraperId ??
-      getSystem(systemId)?.scraper.screenscraperId ??
+      systemById(systemId)?.scraper.screenscraperId ??
       null,
     emit,
     log,

@@ -100,6 +100,12 @@ As a collector, I want to set up Dolphin for GameCube without reading docs.
 ### US-D2 Change a system's ROM folder · FR-LIB-2
 - When I set Nintendo 64's folder name to `n64` and extensions to `z64, n64`, then the next scan uses them, and games already in the library keep their metadata.
 
+### US-D7 Add a system the catalog lacks · FR-EMU-11
+- When I choose **Add system** in Settings → Systems, type `Nintendo Switch 2` and `xci, nsp`, fill in its manufacturer and description and save, then it is listed as **Custom** and turned on, and a scan finds the games in each storage location's `Nintendo Switch 2` folder.
+- Given a name already in use (catalog or custom), then Add says "A system with this name already exists."
+- When I then choose **Scan Nintendo Switch 2** in its editor, only that system is scanned.
+- When I delete it, it disappears from Settings, the library and the menu pickers; adding it again with the same name brings its games back.
+
 ### US-D3 Undo a bad change · FR-SET-3
 - Given I saved settings 3 times, when I open Settings → Backups, then I see 3 backups with timestamps and can restore any of them; restoring creates a new backup of the current state first.
 
