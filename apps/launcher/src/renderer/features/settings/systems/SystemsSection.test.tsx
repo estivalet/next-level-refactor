@@ -225,3 +225,93 @@ describe('SystemsSection review fixes', () => {
     });
   });
 });
+
+describe('SystemsSection: custom systems (FR-EMU-11)', () => {
+  const savedSettings = (bridge: ReturnType<typeof installFakeBridge>) =>
+    (bridge.calls.find((c) => c.channel === 'settings.save')?.input as { settings: Settings })
+      .settings;
+
+  function setupCustom(extra: Partial<Settings> = {}) {
+    const settings = { ...defaultSettings(), ...extra };
+    const bridge = installFakeBridge({
+      'systems.catalog': () => ok([...systemCatalog()]),
+      'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings, revision: 0 } }),
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+    });
+    renderInShell(<SystemsSection />);
+    return bridge;
+  }
+
+  it('FR-EMU-11: adds a system with its details, enabled, and saves it', async () => {
+    const user = userEvent.setup();
+    const bridge = setupCustom();
+    await user.click(await screen.findByRole('button', { name: 'Add system' }));
+    const form = within(screen.getByRole('form', { name: 'New system' }));
+    await user.type(form.getByRole('textbox', { name: 'Name' }), 'Nintendo Switch 2');
+    await user.type(form.getByRole('textbox', { name: 'File extensions' }), 'xci, .NSP');
+    await user.click(form.getByRole('button', { name: 'Add' }));
+
+    const editor = within(screen.getByRole('region', { name: 'Nintendo Switch 2' }));
+    await user.type(editor.getByRole('textbox', { name: 'Short name' }), 'Switch 2');
+    await user.type(editor.getByRole('textbox', { name: 'Manufacturer' }), 'Nintendo');
+    await user.type(editor.getByRole('spinbutton', { name: 'Release year' }), '2025');
+    await user.selectOptions(editor.getByRole('combobox', { name: 'Type' }), 'Handheld');
+    await user.type(editor.getByRole('textbox', { name: 'Description' }), 'Hybrid console.');
+    expect(screen.getByText('1 of 448 enabled')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const saved = savedSettings(bridge);
+    expect(saved.customSystems).toEqual([
+      {
+        id: 'custom-nintendo-switch-2',
+        name: 'Nintendo Switch 2',
+        shortName: 'Switch 2',
+        manufacturer: 'Nintendo',
+        releaseYear: 2025,
+        kind: 'handheld',
+        description: 'Hybrid console.',
+        folderName: 'Nintendo Switch 2',
+        extensions: ['xci', 'nsp'],
+      },
+    ]);
+    expect(saved.systems).toEqual({ 'custom-nintendo-switch-2': { enabled: true } });
+  });
+
+  it('FR-EMU-11: a name already in the catalog is refused', async () => {
+    const user = userEvent.setup();
+    setupCustom();
+    await user.click(await screen.findByRole('button', { name: 'Add system' }));
+    const form = within(screen.getByRole('form', { name: 'New system' }));
+    await user.type(form.getByRole('textbox', { name: 'Name' }), 'nintendo switch');
+    await user.type(form.getByRole('textbox', { name: 'File extensions' }), 'xci');
+    await user.click(form.getByRole('button', { name: 'Add' }));
+    expect(form.getByRole('alert')).toHaveTextContent('A system with this name already exists.');
+  });
+
+  it('FR-EMU-11: a saved custom system is listed, tagged, and can be deleted', async () => {
+    const user = userEvent.setup();
+    const bridge = setupCustom({
+      customSystems: [
+        {
+          id: 'custom-nintendo-switch-2',
+          name: 'Nintendo Switch 2',
+          kind: 'console',
+          folderName: 'Switch2',
+          extensions: ['xci'],
+        },
+      ],
+      systems: { 'custom-nintendo-switch-2': { enabled: true } },
+    });
+    await user.type(await screen.findByRole('searchbox', { name: 'Search systems' }), 'switch 2');
+    expect(list().getByText('Custom · Folder: Switch2')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Edit Nintendo Switch 2' }));
+    const editor = within(screen.getByRole('region', { name: 'Nintendo Switch 2' }));
+    await user.click(editor.getByRole('button', { name: 'Delete system' }));
+    await user.click(editor.getByRole('button', { name: 'Delete' }));
+    expect(screen.queryByRole('region', { name: 'Nintendo Switch 2' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    const saved = savedSettings(bridge);
+    expect(saved.customSystems).toEqual([]);
+    expect(saved.systems).toEqual({});
+  });
+});

@@ -22,6 +22,8 @@ const CUSTOM_ISSUES = new Set([
   'unknownEmulator',
   'notExecutable',
   'duplicateBinding',
+  'duplicateSystemId',
+  'duplicateSystemName',
 ]);
 
 function messageKey(issue: z.core.$ZodIssue): string {

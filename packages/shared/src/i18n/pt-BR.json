@@ -44,7 +44,9 @@
       "entryOnlyInRules": "{entry} só pode ser usado nos argumentos de uma regra.",
       "unknownEmulator": "Escolha um emulador.",
       "notExecutable": "Escolha o programa do emulador (.exe).",
-      "duplicateBinding": "Esta tecla ou botão já é usado por outra ação."
+      "duplicateBinding": "Esta tecla ou botão já é usado por outra ação.",
+      "duplicateSystemId": "Outro sistema já tem este id.",
+      "duplicateSystemName": "Outro sistema já tem este nome."
     },
     "busy": "Uma varredura ou importação está em andamento. Tente de novo quando terminar.",
     "scraperCredentials": "O ScreenScraper recusou as credenciais. Confira em Configurações → Scraper.",
@@ -302,7 +304,42 @@
       "screenscraperHelpNone": "O catálogo não tem id do ScreenScraper para este sistema.",
       "launchboxPlatform": "Plataforma do LaunchBox",
       "launchboxHelp": "Deixe vazio para usar a plataforma do catálogo ({{default}}).",
-      "launchboxHelpNone": "O catálogo não tem plataforma do LaunchBox para este sistema."
+      "launchboxHelpNone": "O catálogo não tem plataforma do LaunchBox para este sistema.",
+      "custom": {
+        "addButton": "Adicionar sistema",
+        "addTitle": "Novo sistema",
+        "add": "Adicionar",
+        "cancel": "Cancelar",
+        "name": "Nome",
+        "namePlaceholder": "Nintendo Switch 2",
+        "nameRequired": "Digite um nome para o sistema.",
+        "nameTaken": "Já existe um sistema com este nome.",
+        "extensionsHelp": "Separadas por vírgula, como xci, nsp. Arquivos com outras extensões não são jogos.",
+        "extensionsRequired": "Digite pelo menos uma extensão de arquivo (apenas letras e números).",
+        "badge": "Personalizado",
+        "untitled": "Sistema sem nome",
+        "shortName": "Nome curto",
+        "manufacturer": "Fabricante",
+        "releaseYear": "Ano de lançamento",
+        "kind": "Tipo",
+        "kinds": {
+          "console": "Console",
+          "handheld": "Portátil",
+          "arcade": "Arcade",
+          "computer": "Computador",
+          "pinball": "Pinball",
+          "engine": "Motor de jogo",
+          "other": "Outro"
+        },
+        "description": "Descrição",
+        "folderHelp": "A pasta que guarda os jogos dentro de cada local de armazenamento.",
+        "screenscraperHelp": "Opcional. Sem ele, a busca de dados não encontra os jogos deste sistema no ScreenScraper.",
+        "noProfiles": "Nenhum perfil de emulador roda este sistema ainda. Adicione um em Configurações → Emuladores e marque este sistema.",
+        "delete": "Excluir sistema",
+        "deleteTitle": "Excluir sistema",
+        "deleteConfirm": "Excluir {{name}}? Os jogos dele deixam de aparecer. Adicionar de novo um sistema com o mesmo nome traz os jogos de volta.",
+        "deleteYes": "Excluir"
+      }
     },
     "emulators": {
       "intro": "Adicione os emuladores que você usa. Uma predefinição preenche as opções de execução; você só escolhe o programa.",

@@ -44,7 +44,9 @@
       "entryOnlyInRules": "{entry} can be used only in a rule’s arguments.",
       "unknownEmulator": "Choose an emulator.",
       "notExecutable": "Choose the emulator program (.exe).",
-      "duplicateBinding": "This key or button is already used by another action."
+      "duplicateBinding": "This key or button is already used by another action.",
+      "duplicateSystemId": "Another system already has this id.",
+      "duplicateSystemName": "Another system already has this name."
     },
     "busy": "A scan or an import is running. Try again when it finishes.",
     "scraperCredentials": "ScreenScraper rejected the credentials. Check them in Settings → Scraper.",
@@ -302,7 +304,42 @@
       "screenscraperHelpNone": "The catalog has no ScreenScraper id for this system.",
       "launchboxPlatform": "LaunchBox platform",
       "launchboxHelp": "Leave empty to use the catalog's platform ({{default}}).",
-      "launchboxHelpNone": "The catalog has no LaunchBox platform for this system."
+      "launchboxHelpNone": "The catalog has no LaunchBox platform for this system.",
+      "custom": {
+        "addButton": "Add system",
+        "addTitle": "New system",
+        "add": "Add",
+        "cancel": "Cancel",
+        "name": "Name",
+        "namePlaceholder": "Nintendo Switch 2",
+        "nameRequired": "Type a name for the system.",
+        "nameTaken": "A system with this name already exists.",
+        "extensionsHelp": "Comma-separated, such as xci, nsp. Files with other extensions are not games.",
+        "extensionsRequired": "Type at least one file extension (letters and digits only).",
+        "badge": "Custom",
+        "untitled": "Untitled system",
+        "shortName": "Short name",
+        "manufacturer": "Manufacturer",
+        "releaseYear": "Release year",
+        "kind": "Type",
+        "kinds": {
+          "console": "Console",
+          "handheld": "Handheld",
+          "arcade": "Arcade",
+          "computer": "Computer",
+          "pinball": "Pinball",
+          "engine": "Game engine",
+          "other": "Other"
+        },
+        "description": "Description",
+        "folderHelp": "The folder that holds its games inside each storage location.",
+        "screenscraperHelp": "Optional. Without it, scraping can’t find this system’s games on ScreenScraper.",
+        "noProfiles": "No emulator profile plays this system yet. Add one in Settings → Emulators and tick this system.",
+        "delete": "Delete system",
+        "deleteTitle": "Delete system",
+        "deleteConfirm": "Delete {{name}}? Its games are no longer listed. Adding a system with the same name again brings them back.",
+        "deleteYes": "Delete"
+      }
     },
     "emulators": {
       "intro": "Add the emulators you use. A preset fills in the launch options, so you only choose the program.",

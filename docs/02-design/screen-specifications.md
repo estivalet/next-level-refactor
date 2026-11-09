@@ -385,6 +385,14 @@ Left navigation of sections (see IA §1), right form pane.
   "The folder changed — run the dry run again."
 - **Systems → system editor → ScreenScraper system id** (M5d): empty uses the catalog id
   (shown as the placeholder); Reset clears it with the folder and extensions.
+- **Systems → Add system** (FR-EMU-11, US-D7): a form with name and file extensions (an empty or
+  taken name, or no valid extension, says why under the fields); **Add** creates the system
+  turned on, with the name as its folder, and opens its editor. A custom system's row reads
+  "Custom · <manufacturer> · Folder: …"; its editor (titled with the name, "Custom · <id>") edits
+  name, short name, manufacturer, release year, type, description, ROM folder name, extensions,
+  ScreenScraper id, LaunchBox platform and emulator profile (with a hint to add one in Emulators
+  when none covers it), and **Delete system** asks inline before removing it. All through the
+  Save bar.
 - **Data & logs → Launch log** (M3, FR-EMU-10): the last 1,000 launches, newest first, loaded a
   page at a time: time, game (with a **Test** badge for Test launches), profile, duration
   ("Unknown" while it runs, or when the launcher never saw the end) and outcome (exit code or Failed). A row

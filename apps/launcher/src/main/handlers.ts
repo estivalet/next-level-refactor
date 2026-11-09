@@ -12,6 +12,7 @@ import {
   uiScaleFactor,
 } from '@nextlevel/shared';
 import { mkdir } from 'node:fs/promises';
+import { withCustomSystems } from '@nextlevel/system-catalog';
 import type { EmitEvent } from './ipc/events.ts';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { LaunchService } from './launch/LaunchService.ts';
@@ -129,6 +130,15 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     backups: settings.paths.backups,
     logs: deps.paths.logs,
   });
+  // The shipped catalog plus the user's systems (FR-EMU-11). `systems.catalog` stays the shipped
+  // list: the renderer adds the custom systems from the settings it already has.
+  const allSystems = () => {
+    const loaded = settings.get();
+    return withCustomSystems(
+      deps.catalog(),
+      loaded.kind === 'ok' ? loaded.snapshot.settings.customSystems : [],
+    );
+  };
 
   // Settings that affect the OS or the window are applied after every successful write.
   const applied = (snapshot: SettingsSnapshot): SettingsSnapshot => {
@@ -183,7 +193,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       updateSettings: async (change) => {
         unwrap(await settings.update(change));
       },
-      systemExists: (systemId) => deps.catalog().some((system) => system.id === systemId),
+      systemExists: (systemId) => allSystems().some((system) => system.id === systemId),
     }),
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
@@ -194,7 +204,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       updateSettings: async (change) => {
         unwrap(await settings.update(change));
       },
-      systemExists: (systemId) => deps.catalog().some((system) => system.id === systemId),
+      systemExists: (systemId) => allSystems().some((system) => system.id === systemId),
     }),
     ...createLaunchHandlers({
       launch: () => {
@@ -227,7 +237,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       );
       const loaded = settings.get();
       const own = loaded.kind === 'ok' ? loaded.snapshot.settings.systems : {};
-      return deps.catalog().map((system) => ({
+      return allSystems().map((system) => ({
         id: system.id,
         enabled: own[system.id]?.enabled ?? false,
         games: counts.get(system.id)?.games ?? 0,

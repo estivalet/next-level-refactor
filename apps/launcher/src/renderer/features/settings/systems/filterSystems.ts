@@ -32,3 +32,16 @@ export function withSystem(settings: Settings, id: string, patch: SystemPatch): 
   );
   return { ...settings, systems: { ...settings.systems, [id]: merged as SystemSettings } };
 }
+
+/** "z64, .N64  zip" → ['z64', 'n64', 'zip']; empty → undefined (use the catalog's list). */
+export function parseExtensions(text: string): string[] | undefined {
+  const list = text
+    .split(/[\s,]+/)
+    .map((e) => e.replace(/^\./, '').toLowerCase())
+    .filter(Boolean);
+  return list.length > 0 ? list : undefined;
+}
+
+/** The text input style of the system editors. */
+export const INPUT =
+  'w-full rounded-md border border-white/10 bg-black/30 px-2 py-1 text-sm text-white focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none';

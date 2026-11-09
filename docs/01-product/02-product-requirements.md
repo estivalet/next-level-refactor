@@ -59,6 +59,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-EMU-8 | Archives (`.zip`, `.7z`) are passed directly when the profile supports them, otherwise extracted to a temp folder that is cleaned after exit. | S |
 | FR-EMU-9 | Pre-launch steps (mount squashfs, WSL, custom script) as optional profile hooks. *2026-11-01:* squashfs mounting (WinFsp tool, no WSL), game file rules and script games are built (Laserdisc and VHS); other hooks stay later. *2026-11-02:* pointer files (Xbox 360 `.m3u`, XBLA `.xbox360`) launch the file they name. | C |
 | FR-EMU-10 | Each launch is recorded in a launch log (time, profile, command, exit code, duration) viewable in Settings. | S |
+| FR-EMU-11 | Users **add, edit and delete their own systems** in Settings → Systems for hardware the catalog lacks (name, short name, manufacturer, release year, type, description, ROM folder, extensions, ScreenScraper id, LaunchBox platform, emulator profile). They work like catalog systems everywhere (scan, library, menus, emulator profiles, scraping); catalog systems stay read-only apart from FR-LIB-2 overrides. *2026-11-09, owner request (Nintendo Switch 2).* | S |
 
 ## 5. Online catalog & downloads (`FR-CAT`)
 

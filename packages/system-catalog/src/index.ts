@@ -70,3 +70,4 @@ export function presetForExecutable(fileName: string): EmulatorPreset | undefine
   );
 }
 export { POPULAR_SYSTEM_IDS } from './popular.ts';
+export { customSystemDefinition, findSystem, withCustomSystems } from './custom.ts';
