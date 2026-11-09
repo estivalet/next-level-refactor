@@ -890,7 +890,8 @@
       "launchOptions": "Launch options…",
       "scrape": "Scrape from ScreenScraper…",
       "scrapeLaunchBox": "Scrape from LaunchBox…",
-      "fillGemini": "Fill details with Gemini…"
+      "fillGemini": "Fill details with Gemini…",
+      "remove": "Remove from library…"
     },
     "edit": {
       "title": "Edit details",
@@ -939,6 +940,14 @@
       "missing": "Missing: {{what}}",
       "romFile": "ROM file",
       "clear": "Clear {{what}}"
+    },
+    "remove": {
+      "titleOne": "Remove {{title}} from the library?",
+      "titleMany_one": "Remove {{count}} game from the library?",
+      "titleMany_other": "Remove {{count}} games from the library?",
+      "body": "Their files are missing. Their details, favorites, play history, playability and collection places are removed too. The files on disk aren't touched; if a file comes back, the next scan adds it as a new game.",
+      "confirm": "Remove",
+      "cancel": "Cancel"
     },
     "relink": {
       "title": "Relink {{title}}",

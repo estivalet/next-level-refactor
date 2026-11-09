@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { diffSystem } from '../scan/diff.ts';
+import { CollectionRepository } from './CollectionRepository.ts';
 import { GameRepository } from './GameRepository.ts';
 import type { FoundGame } from './LibraryRepository.ts';
 import { openLibrary } from './openLibrary.ts';
@@ -255,5 +256,57 @@ describe('GameRepository.location', () => {
       relPath: '!hacks/r.sfc',
     });
     expect(appErrorOf(() => games.location(999)).code).toBe('NOT_FOUND');
+  });
+});
+
+describe('GameRepository.removeMissing', () => {
+  const count = (sql: string, id: number) =>
+    library.db.$client.prepare(sql).pluck().get(id) as number;
+
+  it('FR-LIB-14: removes missing games with their state, metadata, search entry and memberships', () => {
+    const [gone = 0, kept = 0] = seedGames(library.db, 'nintendo-64', [
+      { title: 'Zelda Old', missing: true, favorite: true, playCount: 2 },
+      'Zelda New',
+    ]);
+    const [other = 0] = seedGames(library.db, 'snes', [{ title: 'Snes Gone', missing: true }]);
+    const collections = new CollectionRepository(library.db, () => NOW);
+    const { id: picks } = collections.create('Picks');
+    collections.addGames(picks, [gone, kept]);
+
+    expect(games.removeMissing([gone, other])).toEqual({
+      removed: [gone, other],
+      systems: ['nintendo-64', 'snes'],
+    });
+    expect(appErrorOf(() => games.get(gone)).code).toBe('NOT_FOUND');
+    expect(appErrorOf(() => games.get(other)).code).toBe('NOT_FOUND');
+    for (const table of ['game_metadata', 'game_user_state', 'collection_games']) {
+      expect(count(`select count(*) from ${table} where game_id = ?`, gone), table).toBe(0);
+    }
+    expect(searchTitles('zelda')).toEqual(['Zelda New']);
+    expect(collections.list().find((c) => c.id === picks)?.games).toBe(1);
+  });
+
+  it('FR-LIB-14: never removes a present game and ignores unknown ids', () => {
+    const [present = 0, gone = 0] = seedGames(library.db, 'nintendo-64', [
+      'Here',
+      { title: 'Gone', missing: true },
+    ]);
+    expect(games.removeMissing([present, gone, 999])).toEqual({
+      removed: [gone],
+      systems: ['nintendo-64'],
+    });
+    expect(games.get(present).title).toBe('Here');
+    expect(games.removeMissing([present])).toEqual({ removed: [], systems: [] });
+  });
+
+  it('FR-LIB-14: a removed game stays gone after a rescan without its file', () => {
+    const [gone = 0] = seedGames(library.db, 'nintendo-64', [
+      { title: 'Gone', relPath: 'Gone.zip', missing: true },
+      { title: 'Here', relPath: 'Here.zip' },
+    ]);
+    games.removeMissing([gone]);
+    const diff = diffSystem(library.repo.listSystemGames('nintendo-64'), [found('Here.zip')]);
+    expect(diff.added).toEqual([]);
+    expect(diff.missing).toEqual([]);
   });
 });

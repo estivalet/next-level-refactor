@@ -11,6 +11,7 @@ import {
   Play,
   SlidersHorizontal,
   Star,
+  Trash2,
   Trophy,
   type LucideIcon,
 } from 'lucide-react';
@@ -41,6 +42,8 @@ interface GameContextMenuProps {
   onPlay?: (gameId: number) => void;
   onLaunchOptions: (gameId: number) => void;
   onMissingReason: (gameId: number) => void;
+  /** Remove from library… (FR-LIB-14); offered when every selected game is missing. */
+  onRemove?: (gameIds: number[]) => void;
   /** Told about flag changes, so the list can move the selection when games leave it. */
   onFlags: (flags: GameFlags) => void;
   /** Items added by the caller, e.g. collections (Task 11). */
@@ -70,6 +73,7 @@ export function GameContextMenu(props: GameContextMenuProps) {
   const allFavorite = allKnown && games.every((game) => game.favorite);
   const allHidden = allKnown && games.every((game) => game.hidden);
   const allCompleted = allKnown && games.every((game) => game.completed);
+  const allMissing = allKnown && games.every((game) => game.missing);
 
   const flag = (flags: GameFlags) => {
     setFlags.mutate({ gameIds: ids, flags });
@@ -162,6 +166,18 @@ export function GameContextMenu(props: GameContextMenuProps) {
         },
       });
     }
+  }
+
+  const { onRemove } = props;
+  if (allMissing && onRemove) {
+    items.push({
+      key: 'remove',
+      label: t('library.menu.remove'),
+      icon: Trash2,
+      run: () => {
+        onRemove(ids);
+      },
+    });
   }
 
   // Playability… swaps the items for the marks (FR-LIB-13); they keep each game's note.

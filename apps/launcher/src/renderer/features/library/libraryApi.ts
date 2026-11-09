@@ -143,6 +143,13 @@ export function useRelink() {
   );
 }
 
+/** Removes the missing games among the ids (FR-LIB-14); main skips present ones. */
+export function useRemoveGames() {
+  return useGameMutation(async (gameIds: number[]) =>
+    unwrap(await getBridge().invoke('library.games.remove', { gameIds })),
+  );
+}
+
 export function useRevealGame() {
   return useMutation({
     mutationFn: async (gameId: number) => {

@@ -18,6 +18,7 @@ import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
 import { ROW_COLUMNS, ROW_JOINS, listShape, tabCountsSql, toRow, type RawRow } from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
+import { removeMissingGames, type RemovedGames } from './missingGames.ts';
 import { resolveScope } from './scopeQuery.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
@@ -418,6 +419,11 @@ export class GameRepository {
       ).run({ ...replacement, id: missing.id });
     })();
     return this.get(missingGameId);
+  }
+
+  /** Removes the missing games among `gameIds` (FR-LIB-14); present ones stay. */
+  removeMissing(gameIds: readonly number[]): RemovedGames {
+    return removeMissingGames(this.db.$client, gameIds);
   }
 
   /** The file of a game, resolved from the library only (never from renderer input). */

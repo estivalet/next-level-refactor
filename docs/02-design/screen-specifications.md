@@ -210,7 +210,9 @@ Scope view (D62)
     from favorites, Mark completed / Mark not completed (D60), Hide / Unhide,
     Playability… (Works / Minor issues / Broken / Clear playability / Back, for every selected
     game; notes are kept, FR-LIB-13), Add to collection…, Remove from collection (in a
-    collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink).
+    collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink), Remove
+    from library… (FR-LIB-14: only when every selected game is missing; asks "Remove <title> /
+    N games from the library?" with Cancel / Remove, and says the files on disk aren't touched).
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections under a **Find or create a collection…** box: typing narrows the
     list, and a name no collection has yet (in any case) offers **New collection “name”**

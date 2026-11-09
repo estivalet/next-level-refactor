@@ -70,6 +70,15 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
       changed([missingGameId]);
       return details;
     },
+    'library.games.remove': ({ gameIds }) => {
+      const { removed, systems } = library().games.removeMissing(gameIds);
+      if (removed.length > 0) {
+        // The systems were read before the delete. A collection may have emptied (FR-MENU-2).
+        deps.emit('library.changed', { systems, gameIds: removed });
+        announceMenus();
+      }
+      return { removed: removed.length };
+    },
     'library.games.reveal': ({ gameId }) => {
       const { path, missing } = library().games.filePath(gameId);
       // A missing file can't be selected; show the closest folder that still exists.

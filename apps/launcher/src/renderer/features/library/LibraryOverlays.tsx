@@ -13,6 +13,7 @@ import { GeminiBatchDialog } from '../scrape/GeminiBatchDialog.tsx';
 import { GeminiDialog } from '../scrape/GeminiDialog.tsx';
 import { ScrapeDialog } from '../scrape/ScrapeDialog.tsx';
 import { RelinkDialog } from './RelinkDialog.tsx';
+import { RemoveGamesDialog, type RemoveGamesTarget } from './RemoveGamesDialog.tsx';
 import { SmartFilterDialogs, type SmartFilterDialogState } from './SmartFilterDialog.tsx';
 import type { LibraryView } from './useLibraryView.ts';
 
@@ -21,6 +22,7 @@ export function useOverlays() {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [relinking, setRelinking] = useState<number | null>(null);
+  const [removing, setRemoving] = useState<RemoveGamesTarget | null>(null);
   const [launchOptions, setLaunchOptions] = useState<number | null>(null);
   const [scraping, setScraping] = useState<{ gameId: number; provider: ScrapeProvider } | null>(
     null,
@@ -32,6 +34,7 @@ export function useOverlays() {
     menu,
     editing,
     relinking,
+    removing,
     launchOptions,
     scraping,
     collection,
@@ -39,6 +42,7 @@ export function useOverlays() {
     openMenu: setMenu,
     edit: setEditing,
     relink: setRelinking,
+    remove: setRemoving,
     openLaunchOptions: setLaunchOptions,
     scrape: (gameId: number, provider: ScrapeProvider = 'screenscraper') => {
       setScraping({ gameId, provider });
@@ -53,6 +57,9 @@ export function useOverlays() {
     },
     closeRelink: () => {
       setRelinking(null);
+    },
+    closeRemove: () => {
+      setRemoving(null);
     },
     closeLaunchOptions: () => {
       setLaunchOptions(null);
@@ -164,6 +171,12 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
           onLaunchOptions={overlays.openLaunchOptions}
           {...(props.onPlay ? { onPlay: props.onPlay } : {})}
           onMissingReason={overlays.relink}
+          onRemove={(gameIds) => {
+            const [only] = targets;
+            overlays.remove(
+              gameIds.length === 1 && only ? { gameIds, title: only.title } : { gameIds },
+            );
+          }}
           onFlags={onFlags}
           extraItems={collectionItems}
           editItems={editItems}
@@ -193,6 +206,9 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
       {overlays.relinking !== null && (
         <RelinkDialog gameId={overlays.relinking} onClose={overlays.closeRelink} />
+      )}
+      {overlays.removing && (
+        <RemoveGamesDialog target={overlays.removing} onClose={overlays.closeRemove} />
       )}
       {overlays.batchRules && (
         <BatchRulesDialog {...overlays.batchRules} onClose={overlays.closeBatch} />

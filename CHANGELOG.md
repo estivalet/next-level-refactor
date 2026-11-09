@@ -16,6 +16,11 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Remove from library…** (FR-LIB-14): the game menu offers it when every selected game is
+  missing, for example the old file of a game you replaced with a newer version. After a
+  confirmation the games leave every list, search, collection and count, with their details and
+  play history; files on disk are never touched. Present games can't be removed (use Hide), and
+  to keep a game's history on its new file use **Show missing reason… → Relink** instead.
 - **Add your own systems** (FR-EMU-11): Settings → Systems → **Add system** creates a system
   the catalog doesn't have yet, such as Nintendo Switch 2, with its name, short name,
   manufacturer, release year, type, description, ROM folder, file extensions, ScreenScraper id,

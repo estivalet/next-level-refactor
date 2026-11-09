@@ -890,7 +890,8 @@
       "launchOptions": "Opções de execução…",
       "scrape": "Buscar no ScreenScraper…",
       "scrapeLaunchBox": "Buscar no LaunchBox…",
-      "fillGemini": "Preencher detalhes com o Gemini…"
+      "fillGemini": "Preencher detalhes com o Gemini…",
+      "remove": "Remover da biblioteca…"
     },
     "edit": {
       "title": "Editar detalhes",
@@ -939,6 +940,14 @@
       "missing": "Faltando: {{what}}",
       "romFile": "Arquivo da ROM",
       "clear": "Limpar {{what}}"
+    },
+    "remove": {
+      "titleOne": "Remover {{title}} da biblioteca?",
+      "titleMany_one": "Remover {{count}} jogo da biblioteca?",
+      "titleMany_other": "Remover {{count}} jogos da biblioteca?",
+      "body": "Os arquivos estão ausentes. Os detalhes, favoritos, histórico de jogo, jogabilidade e lugares em coleções também são removidos. Os arquivos no disco não são alterados; se um arquivo voltar, a próxima varredura o adiciona como um jogo novo.",
+      "confirm": "Remover",
+      "cancel": "Cancelar"
     },
     "relink": {
       "title": "Religar {{title}}",
