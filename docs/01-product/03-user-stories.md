@@ -87,6 +87,12 @@ As a collector, I want art for a whole system without clicking every game.
 - Only exact file matches and single confident matches (≥ 90 %) are applied; the rest are listed under **Needs review**.
 - When the daily ScreenScraper quota runs out, or I quit, then the batch pauses and carries on later where it stopped.
 
+### US-C7 Remove games I deleted · FR-LIB-14
+As a collector, I want games whose files I deleted on purpose to leave the library.
+- Given one or more selected games are all missing, when I choose **Remove from library…** and confirm, then they disappear from every list, search, collection and count, and stay gone after a rescan.
+- When the selection has a present game, then the menu doesn't offer Remove (Hide is the way to keep a present game out of lists).
+- Removing never deletes or moves a file on disk.
+
 ---
 
 ## Epic D — Configuration without files

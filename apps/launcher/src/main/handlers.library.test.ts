@@ -283,6 +283,7 @@ const LIBRARY_CHANNELS: Array<[IpcChannel, unknown]> = [
   ['library.games.setFlags', { gameIds: [1], flags: { favorite: true } }],
   ['library.games.setPlayability', { gameIds: [1], change: { mark: 'works' } }],
   ['library.games.relink', { missingGameId: 1, replacementGameId: 2 }],
+  ['library.games.remove', { gameIds: [1] }],
   ['library.games.reveal', { gameId: 1 }],
   ['library.search', { text: 'zelda' }],
   ['collections.list', undefined],
@@ -344,6 +345,25 @@ describe('game library handlers', () => {
       { event: 'library.changed', payload: { systems: ['nintendo-64'], gameIds: [a] } },
     ]);
     await router.handle('library.games.updateMetadata', { gameId: a, changes: { title: 'B' } });
+    expect(events).toHaveLength(2);
+  });
+
+  it('FR-LIB-14: remove deletes missing games only and announces the library and menus', async () => {
+    const { router, seed, events } = await setup(true);
+    const [here = 0, gone = 0] = seed('nintendo-64', ['Here', { title: 'Gone', missing: true }]);
+    expect(await router.handle('library.games.remove', { gameIds: [here, gone] })).toEqual({
+      ok: true,
+      value: { removed: 1 },
+    });
+    expect(events).toEqual([
+      { event: 'library.changed', payload: { systems: ['nintendo-64'], gameIds: [gone] } },
+      { event: 'menus.changed', payload: {} },
+    ]);
+    expect(await router.handle('library.games.get', { gameId: here })).toMatchObject({ ok: true });
+    expect(await router.handle('library.games.remove', { gameIds: [here] })).toEqual({
+      ok: true,
+      value: { removed: 0 },
+    });
     expect(events).toHaveLength(2);
   });
 

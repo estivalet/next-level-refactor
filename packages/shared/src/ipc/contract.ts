@@ -164,6 +164,11 @@ export const ipcContract = {
     input: z.strictObject({ missingGameId: gameId, replacementGameId: gameId }),
     output: GameDetailsSchema,
   },
+  /** FR-LIB-14: removes the missing games among `gameIds`; present ones are skipped. */
+  'library.games.remove': {
+    input: z.strictObject({ gameIds: GameIdsSchema }),
+    output: z.strictObject({ removed: z.number().int().min(0) }),
+  },
   'library.games.reveal': { input: z.strictObject({ gameId }), output: z.void() },
   'library.search': {
     input: z.strictObject({
