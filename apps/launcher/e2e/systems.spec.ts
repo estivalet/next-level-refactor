@@ -57,7 +57,7 @@ test('FR-EMU-1/FR-LIB-1/FR-LIB-2: enable a system, override its folder, add stor
   }
 });
 
-test('FR-EMU-11: add a custom system; it persists and a scan finds its games', async () => {
+test('FR-EMU-11, FR-LIB-3: add a custom system; it persists and scanning just it finds its game', async () => {
   const data = await freshDataDir();
   const roms = await freshDataDir();
   try {
@@ -91,9 +91,10 @@ test('FR-EMU-11: add a custom system; it persists and a scan finds its games', a
     await settings.getByRole('searchbox', { name: 'Search systems' }).fill('switch 2');
     await expect(settings.getByText('Custom · Nintendo · Folder: Nintendo Switch 2')).toBeVisible();
     await expect(settings.getByText('1 of 448 enabled')).toBeVisible();
-    await settings.getByRole('button', { name: 'Storage' }).click();
-    await settings.getByRole('button', { name: 'Scan now' }).click();
-    await expect(settings.getByText(/^1 game in 1 system/)).toBeVisible();
+    // FR-LIB-3: scan just this system from its editor.
+    await settings.getByRole('button', { name: 'Edit Nintendo Switch 2' }).click();
+    await settings.getByRole('button', { name: 'Scan Nintendo Switch 2' }).click();
+    await expect(settings.getByText('1 game in 1 system · 1 new')).toBeVisible();
     await app.close();
   } finally {
     await data.remove();

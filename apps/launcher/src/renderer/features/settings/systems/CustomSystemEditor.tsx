@@ -25,6 +25,7 @@ export function CustomSystemEditor({
   settings,
   profiles,
   errors,
+  scan,
   onChange,
   onProfileChange,
   onDelete,
@@ -36,6 +37,8 @@ export function CustomSystemEditor({
   settings: SystemSettings | undefined;
   profiles: readonly EmulatorProfile[];
   errors: Record<string, string>;
+  /** Scan this system (FR-LIB-3). */
+  scan: ReactNode;
   onChange: (patch: CustomSystemPatch) => void;
   onProfileChange: (profileId: string | undefined) => void;
   onDelete: () => void;
@@ -228,6 +231,7 @@ export function CustomSystemEditor({
         </select>,
         profiles.length === 0 ? t('settings.systems.custom.noProfiles') : undefined,
       )}
+      {scan}
       {confirmingDelete ? (
         <div
           role="group"

@@ -315,3 +315,73 @@ describe('SystemsSection: custom systems (FR-EMU-11)', () => {
     expect(saved.systems).toEqual({});
   });
 });
+
+describe('SystemsSection: scan one system (FR-LIB-3)', () => {
+  function setupScan(extra: Partial<Settings> = {}) {
+    const settings = {
+      ...defaultSettings(),
+      storage: {
+        ...defaultSettings().storage,
+        locations: [
+          {
+            id: '018f2c1e-0000-7000-8000-000000000003',
+            name: 'Roms',
+            path: 'E:\roms',
+            priority: 1,
+          },
+        ],
+      },
+      ...extra,
+    };
+    const bridge = installFakeBridge({
+      'systems.catalog': () => ok([...systemCatalog()]),
+      'settings.get': () => ok({ kind: 'ok' as const, snapshot: { settings, revision: 0 } }),
+      'settings.save': (input) => ok({ settings: input.settings, revision: 1 }),
+      'scan.status': () => ok({ running: false, progress: null, last: null }),
+      'scan.start': () => ok({ running: false, progress: null, last: null }),
+    });
+    renderInShell(<SystemsSection />);
+    return bridge;
+  }
+
+  it("FR-LIB-3: a shipped system's editor scans just that system; unsaved edits block it", async () => {
+    const user = userEvent.setup();
+    const bridge = setupScan();
+    await user.type(
+      await screen.findByRole('searchbox', { name: 'Search systems' }),
+      'nintendo 64',
+    );
+    await user.click(screen.getByRole('button', { name: 'Edit Nintendo 64' }));
+    const editor = within(screen.getByRole('region', { name: 'Nintendo 64' }));
+    await user.click(editor.getByRole('button', { name: 'Scan Nintendo 64' }));
+    expect(bridge.calls.find((c) => c.channel === 'scan.start')?.input).toEqual({
+      systemIds: ['nintendo-64'],
+    });
+    await user.type(editor.getByRole('textbox', { name: 'ROM folder name' }), 'N64');
+    expect(editor.getByRole('button', { name: 'Scan Nintendo 64' })).toBeDisabled();
+    expect(editor.getByText('Save your changes before scanning.')).toBeVisible();
+  });
+
+  it("FR-LIB-3, FR-EMU-11: a custom system's editor scans just that system", async () => {
+    const user = userEvent.setup();
+    const bridge = setupScan({
+      customSystems: [
+        {
+          id: 'custom-nintendo-switch-2',
+          name: 'Nintendo Switch 2',
+          kind: 'console',
+          folderName: 'Nintendo Switch 2',
+          extensions: ['xci'],
+        },
+      ],
+      systems: { 'custom-nintendo-switch-2': { enabled: true } },
+    });
+    await user.type(await screen.findByRole('searchbox', { name: 'Search systems' }), 'switch 2');
+    await user.click(screen.getByRole('button', { name: 'Edit Nintendo Switch 2' }));
+    const editor = within(screen.getByRole('region', { name: 'Nintendo Switch 2' }));
+    await user.click(editor.getByRole('button', { name: 'Scan Nintendo Switch 2' }));
+    expect(bridge.calls.find((c) => c.channel === 'scan.start')?.input).toEqual({
+      systemIds: ['custom-nintendo-switch-2'],
+    });
+  });
+});

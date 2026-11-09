@@ -22,6 +22,9 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   LaunchBox platform and emulator profile. It is tagged **Custom**, works like any other system
   (scan, library, menus, emulator profiles, scraping) and can be edited or deleted.
 
+- **Scan one system from Settings** (FR-LIB-3): every system's editor in Settings → Systems,
+  shipped or custom, has **Scan <system>**, which scans just that system instead of all of them.
+
 - **Add to collection…** can make a new collection: type a name in the box and choose
   **New collection “name”** (or press Enter); it is created with the selected games in it
   (FR-LIB-8).

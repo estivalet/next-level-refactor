@@ -16,6 +16,7 @@ import {
 import { filterSystems, withSystem } from './filterSystems.ts';
 import { SystemEditor } from './SystemEditor.tsx';
 import { NewSystemForm } from './NewSystemForm.tsx';
+import { ScanSystemButton } from './ScanSystemButton.tsx';
 import { SystemList } from './SystemList.tsx';
 
 /**
@@ -35,7 +36,7 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
 
   return (
     <SettingsSection>
-      {({ draft, update, errors }) => {
+      {({ draft, update, errors, dirty }) => {
         // Unsaved custom systems show too: they are part of the draft.
         const systems = withCustomSystems(shipped.data ?? [], draft.customSystems);
         const customIndex = draft.customSystems.findIndex((s) => s.id === editingId);
@@ -58,6 +59,14 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
             setEditingId(id);
           }
         };
+        const scanButton = (system: { id: string; name: string }) => (
+          <ScanSystemButton
+            systemId={system.id}
+            name={system.name}
+            unsaved={dirty}
+            hasLocations={draft.storage.locations.length > 0}
+          />
+        );
         const addSystem = (input: { name: string; extensions: string[] }) => {
           const taken = systems.map((s) => s.id);
           update((current) => withNewCustomSystem(current, input, taken).settings);
@@ -135,6 +144,7 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
                 settings={draft.systems[custom.id]}
                 profiles={draft.profiles.filter((p) => p.systems.includes(custom.id))}
                 errors={errors}
+                scan={scanButton(custom)}
                 onChange={(patch) => {
                   update((current) => withCustomSystemPatch(current, custom.id, patch));
                 }}
@@ -155,6 +165,7 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
                 settings={draft.systems[editing.id]}
                 profiles={draft.profiles.filter((p) => p.systems.includes(editing.id))}
                 errors={errors}
+                scan={scanButton(editing)}
                 onChange={(patch) => {
                   update((current) => withSystem(current, editing.id, patch));
                 }}
