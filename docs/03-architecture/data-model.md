@@ -250,7 +250,7 @@ Seeded by `packages/system-catalog/scripts/seed.ts` from the current `launchers.
 systems, plus the seed's `EXTRA_SYSTEMS`: 9 Coleco Telstar models, 447 in all; id = slug of the NextLevelOS name), `screenscraper.json` IDs and ES-DE's `es_systems.xml`
 (MIT) for extensions, falling back to the NextLevelOS per-system `romext`, then the global
 `scanExtensions`. `kind` is `other` where unknown. Since M3 the seed also writes `data/presets.json` (RetroArch per core, MAME per system with the runner's `-uimodekey DEL -skip_gameinfo`, standalone emulators including HBMAME) and each system's `presetProfiles`, from `nextlevel-launcher.py`'s `SYSTEM_EMULATORS` and `MAME_CUSTOM_ARGS` (see `packages/system-catalog/README.md`). Versioned with the launcher; user overrides live in
-settings. User-added systems (`settings.customSystems`, §2) are appended after the shipped ones by `withCustomSystems()` (`src/custom.ts`) as definitions with no preset profiles or aliases; IPC `systems.catalog` stays the shipped list and the renderer's `useSystemCatalog()` adds the saved custom systems.
+settings. User-added systems (`settings.customSystems`, §2) are placed by name among the shipped ones (which are A–Z; a test pins it) by `withCustomSystems()` (`src/custom.ts`), so every system list stays A–Z, as definitions with no preset profiles or aliases; IPC `systems.catalog` stays the shipped list and the renderer's `useSystemCatalog()` adds the saved custom systems.
 
 ---
 

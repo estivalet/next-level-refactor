@@ -124,9 +124,14 @@ export function ScanPanel({ dirty, hasLocations }: { dirty: boolean; hasLocation
           )}
           <p className="text-xs text-white">{summaryLine(t, last)}</p>
           <ScanResults
-            results={last.systems.filter(
-              (system) => system.present + missingOf(system.systemId, system.missing) > 0,
-            )}
+            results={last.systems
+              .filter((system) => system.present + missingOf(system.systemId, system.missing) > 0)
+              // A–Z, also for summaries saved before a custom system was placed by name.
+              .sort((a, b) =>
+                nameOf(a.systemId).localeCompare(nameOf(b.systemId), undefined, {
+                  sensitivity: 'base',
+                }),
+              )}
             nameOf={nameOf}
             missingOf={missingOf}
           />

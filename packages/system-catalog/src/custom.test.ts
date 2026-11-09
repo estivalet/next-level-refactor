@@ -34,10 +34,25 @@ describe('custom systems in the catalog (FR-EMU-11)', () => {
     });
   });
 
-  it('FR-EMU-11: custom systems come after the shipped ones', () => {
-    const all = withCustomSystems(systemCatalog(), [SWITCH_2]);
-    expect(all).toHaveLength(systemCatalog().length + 1);
-    expect(all.at(-1)?.id).toBe('custom-nintendo-switch-2');
+  it('FR-EMU-11: custom systems are placed among the shipped ones by name', () => {
+    const all = withCustomSystems(systemCatalog(), [
+      { ...SWITCH_2, id: 'custom-zz-last', name: 'zz last' },
+      SWITCH_2,
+      { ...SWITCH_2, id: 'custom-aa-first', name: 'AA first' },
+    ]);
+    expect(all).toHaveLength(systemCatalog().length + 3);
+    const names = all.map((system) => system.name);
+    expect(names).toEqual(
+      [...names].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+    );
+    const at = names.indexOf('Nintendo Switch 2');
+    expect(names.slice(at - 1, at + 2)).toEqual([
+      'Nintendo Switch',
+      'Nintendo Switch 2',
+      'Nintendo Virtual Boy',
+    ]);
+    expect(names[0]).toBe('AA first');
+    expect(names.at(-1)).toBe('zz last');
     expect(findSystem(all, 'custom-nintendo-switch-2')?.name).toBe('Nintendo Switch 2');
     expect(findSystem(all, 'nintendo-64')?.name).toBe('Nintendo 64');
   });

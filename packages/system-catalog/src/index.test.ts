@@ -87,3 +87,12 @@ describe('variant systems share their base system formats', () => {
     expect(getSystem(variant)?.extensions).toEqual(baseExtensions);
   });
 });
+
+describe('catalog order (FR-EMU-11)', () => {
+  it('FR-EMU-11: the shipped catalog is A–Z by name, so custom systems can be placed into it', () => {
+    const names = systemCatalog().map((system) => system.name);
+    expect(names).toEqual(
+      [...names].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })),
+    );
+  });
+});

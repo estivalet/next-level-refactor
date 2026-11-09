@@ -23,12 +23,21 @@ export function customSystemDefinition(system: CustomSystem): SystemDefinition {
   };
 }
 
-/** The shipped catalog followed by the user's systems (FR-EMU-11). */
+const byName = (a: SystemDefinition, b: SystemDefinition) =>
+  a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+
+/**
+ * The shipped catalog with the user's systems (FR-EMU-11) placed by name, so every list (Settings
+ * → Systems, profile system pickers, scan results) stays A–Z. The shipped catalog is already in
+ * this order; the sort is stable, so it keeps its order for equal names.
+ */
 export function withCustomSystems(
   catalog: readonly SystemDefinition[],
   custom: readonly CustomSystem[],
 ): readonly SystemDefinition[] {
-  return custom.length === 0 ? catalog : [...catalog, ...custom.map(customSystemDefinition)];
+  return custom.length === 0
+    ? catalog
+    : [...catalog, ...custom.map(customSystemDefinition)].sort(byName);
 }
 
 export function findSystem(
