@@ -120,6 +120,8 @@ export const collections = sqliteTable('collections', {
   createdAt: text('created_at').notNull(),
   /** Import provenance (`nextlevelos:<name>`); null for collections made here (D12). */
   source: text('source').unique(),
+  /** Settings sync's id for it (FR-SET-5, D55): the same on every PC; set when sync first reads it. */
+  syncId: text('sync_id').unique(),
 });
 
 export const collectionGames = sqliteTable(
@@ -259,6 +261,8 @@ export const smartFilters = sqliteTable('smart_filters', {
   name: nocaseText('name').notNull().unique(),
   query: text('query').notNull(),
   createdAt: text('created_at').notNull(),
+  /** Settings sync's id for it (FR-SET-5, D55), as for collections. */
+  syncId: text('sync_id').unique(),
 });
 
 /** Menus (FR-MENU-3): at most one active; `source` marks imported ones (D12). */

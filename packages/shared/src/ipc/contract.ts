@@ -63,6 +63,7 @@ import { geminiContract } from './geminiContract.ts';
 import { launchboxContract } from './launchboxContract.ts';
 import { updateContract } from './updateContract.ts';
 import { kioskContract } from './kioskContract.ts';
+import { syncContract } from './syncContract.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
 
@@ -119,6 +120,7 @@ export const ipcContract = {
   ...geminiContract,
   ...updateContract,
   ...kioskContract,
+  ...syncContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
   'app.paths': {

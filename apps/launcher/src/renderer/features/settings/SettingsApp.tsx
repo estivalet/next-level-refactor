@@ -9,6 +9,7 @@ import {
   Keyboard,
   Lock,
   Palette,
+  RefreshCw,
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ import { useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AboutSection } from './AboutSection.tsx';
 import { KioskSection } from './KioskSection.tsx';
+import { SyncSection } from './SyncSection.tsx';
 import { BackupsSection } from './BackupsSection.tsx';
 import { DataSection } from './DataSection.tsx';
 import { EmulatorsSection } from './emulators/EmulatorsSection.tsx';
@@ -88,6 +90,7 @@ const SECTIONS: readonly Section[] = [
   },
   { id: 'data', labelKey: 'settings.sections.data', icon: FolderOpen, Component: DataSection },
   { id: 'kiosk', labelKey: 'settings.sections.kiosk', icon: Lock, Component: KioskSection },
+  { id: 'sync', labelKey: 'settings.sections.sync', icon: RefreshCw, Component: SyncSection },
   { id: 'about', labelKey: 'settings.sections.about', icon: Info, Component: AboutSection },
 ];
 

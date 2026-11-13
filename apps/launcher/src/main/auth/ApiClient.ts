@@ -112,11 +112,14 @@ export class ApiClient {
     return this.#call('POST', '/v1/me/billing/portal', RedirectResponseSchema, { access });
   }
 
-  /** Any API call (the catalog's): the same envelope, timeout and offline handling. */
+  /**
+   * Any API call (the catalog's, sync's): the same envelope, timeout and offline handling. A null
+   * schema expects no body (204).
+   */
   request<T>(
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     path: string,
-    schema: z.ZodType<T>,
+    schema: z.ZodType<T> | null,
     opts: { body?: unknown; access?: string } = {},
   ): Promise<T> {
     return this.#call(method, path, schema, opts);

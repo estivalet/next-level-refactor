@@ -138,7 +138,8 @@
       "input": "Controles",
       "themes": "Temas",
       "scraper": "Scraper",
-      "kiosk": "Quiosque"
+      "kiosk": "Quiosque",
+      "sync": "Sincronização"
     },
     "about": {
       "product": "NextLevel",
@@ -790,6 +791,28 @@
       "save": "Salvar",
       "lockNow": "Travar agora",
       "saveFailed": "Não foi possível salvar o modo quiosque."
+    },
+    "sync": {
+      "enabled": "Sincronizar com minha conta",
+      "help": "Mantém iguais seu idioma, escolhas e opções de tema, sons, mapeamento de controles, preferências do scraper, menus, coleções, filtros inteligentes, favoritos, jogos ocultos, jogos concluídos, notas, número de partidas, tempo de jogo e última partida em todos os PCs onde você ativar isto. As mudanças são combinadas uma a uma; partidas e tempo se somam entre os PCs.",
+      "notSynced": "Nunca sincronizados: pastas e locais de armazenamento, emuladores e perfis, configurações por sistema, chaves e senhas, modo quiosque. Um jogo é reconhecido em outro PC pelo sistema e pelo caminho dentro do local de armazenamento (jogos do catálogo pelo item); o estado de um jogo que este PC não tem espera até ele aparecer.",
+      "never": "Nunca sincronizado neste PC.",
+      "syncing": "Sincronizando…",
+      "lastSync": "Última sincronização: {{time}}.",
+      "now": "Sincronizar agora",
+      "delete": "Apagar dados sincronizados",
+      "deleteConfirm": "Isto remove da sua conta tudo o que foi sincronizado e desativa a sincronização neste PC. Os outros PCs desativam na próxima sincronização. Nada é apagado em nenhum PC.",
+      "deleteYes": "Apagar da minha conta",
+      "cancel": "Cancelar",
+      "failed": "Não deu certo. Verifique sua conexão e tente de novo.",
+      "errors": {
+        "offline": "Não foi possível acessar o NextLevel agora. A sincronização tenta de novo em uma hora, ou use Sincronizar agora.",
+        "subscription": "A sincronização precisa de uma assinatura ativa.",
+        "deletedElsewhere": "Os dados sincronizados foram apagados em outro PC, então a sincronização foi desativada aqui. Ative de novo para recomeçar com os dados deste PC.",
+        "tooLarge": "Há dados demais para sincronizar (mais de 5 MB).",
+        "conflict": "Outro PC estava sincronizando ao mesmo tempo. A sincronização tenta de novo em uma hora, ou use Sincronizar agora.",
+        "other": "A sincronização não terminou. Ela tenta de novo em uma hora, ou use Sincronizar agora."
+      }
     }
   },
   "launchScreen": {
