@@ -4,16 +4,19 @@ import { dirname, join, resolve } from 'node:path';
  * The NextLevel folder and its data folder (D50: the launcher writes nothing outside them).
  * Packaged: the folder of NextLevel.exe, data in `<folder>\data`. Development: the repo, data in
  * `<repo>\.nextlevel-dev`; `NEXTLEVEL_USER_DATA` (e2e) replaces the data folder in development
- * only.
+ * only. A packaged build started by electron-builder's `portable` target runs from a copy unpacked
+ * into a temporary folder; `PORTABLE_EXECUTABLE_DIR` (`portableDir`) names the folder of the real
+ * exe and wins (D51).
  */
 export function portableRoot(o: {
   execPath: string;
   isPackaged: boolean;
   appPath: string;
   override?: string | undefined;
+  portableDir?: string | undefined;
 }): { root: string; data: string } {
   if (o.isPackaged) {
-    const root = dirname(o.execPath);
+    const root = o.portableDir || dirname(o.execPath);
     return { root, data: join(root, 'data') };
   }
   const root = resolve(o.appPath, '../..');
