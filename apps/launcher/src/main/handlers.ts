@@ -41,6 +41,8 @@ import {
 } from './catalog/catalogHandlers.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
+import { createUpdateHandlers } from './update/updateHandlers.ts';
+import type { UpdateService } from './update/UpdateService.ts';
 import { createGeminiHandlers } from './gemini/geminiHandlers.ts';
 import type { GeminiClient } from './gemini/GeminiClient.ts';
 import type { GeminiService } from './gemini/GeminiService.ts';
@@ -115,6 +117,8 @@ export interface MainDeps {
   auth: AuthApi;
   /** Catalog games and downloads (FR-CAT-*); unavailable until it is wired (M9e). */
   gameCatalog?: CatalogApi;
+  /** Updates (NFR-UPD-1); absent in tests that don't wire them (acts as a development build). */
+  updates?: Pick<UpdateService, 'state' | 'check' | 'restart'>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -197,6 +201,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
+    ...createUpdateHandlers(deps.updates),
     ...createScrapeHandlers({
       service: () => library().scrape,
       launchbox: () => library().launchboxScrape,
