@@ -13,6 +13,8 @@ export interface GoogleClient {
 export interface Env {
   nodeEnv: 'development' | 'test' | 'production';
   port: number;
+  /** The address to listen on: 127.0.0.1, or 0.0.0.0 in the container (Caddy in front). */
+  host: string;
   publicUrl: string;
   /** The SQLite file from `DATABASE_URL` (`file:<path>`). */
   databaseFile: string;
@@ -84,6 +86,7 @@ const EnvSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']),
     PORT: z.coerce.number().int().min(0).max(65535).default(4000),
+    HOST: z.union([z.ipv4(), z.ipv6()]).default('127.0.0.1'),
     PUBLIC_URL: z.url({ protocol: /^https?$/ }).transform((url) => url.replace(/\/+$/, '')),
     DATABASE_URL: z.string().regex(/^file:.+/, 'must be file:<path>'),
     JWT_SECRET: secret,
@@ -231,6 +234,7 @@ export function loadEnv(source: Record<string, string | undefined>): Env {
   return {
     nodeEnv: env.NODE_ENV,
     port: env.PORT,
+    host: env.HOST,
     publicUrl: env.PUBLIC_URL,
     databaseFile: env.DATABASE_URL.slice('file:'.length),
     jwtSecret: Buffer.from(env.JWT_SECRET, 'base64'),

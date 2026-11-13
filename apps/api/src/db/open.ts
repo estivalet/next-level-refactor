@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import pkg from '../../package.json' with { type: 'json' };
+import { snapshotBeforeMigrate } from '../ops/snapshot.ts';
 import { seedAppSettings } from '../settings/AppSettingsRepository.ts';
 import * as schema from './schema.ts';
 
@@ -35,9 +37,13 @@ export function openDb(file: string): ApiDb {
   try {
     client.pragma('journal_mode = WAL');
     client.pragma('foreign_keys = ON');
-    if (appliedMigrations(client) > knownMigrations()) {
+    const applied = appliedMigrations(client);
+    const known = knownMigrations();
+    if (applied > known) {
       throw new Error(`${file} was written by a newer NextLevel API; refusing to open it`);
     }
+    // A copy to go back to if this version's migrations go wrong (deployment runbook).
+    snapshotBeforeMigrate(client, file, { applied, known }, pkg.version);
     const db = drizzle(client, { schema });
     migrate(db, { migrationsFolder: MIGRATIONS });
     db.insert(schema.plans)

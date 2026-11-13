@@ -177,4 +177,9 @@ describe('API environment (environment-setup, ADR-007)', () => {
     });
     expect(problems({ ...STUB, FILE_STORE: 'gdrive' })[0]).toMatch(/^FILE_STORE:/);
   });
+
+  it('D56: HOST defaults to 127.0.0.1; the container listens on 0.0.0.0', () => {
+    expect(loadEnv(STUB).host).toBe('127.0.0.1');
+    expect(loadEnv({ ...STUB, HOST: '0.0.0.0' }).host).toBe('0.0.0.0');
+  });
 });

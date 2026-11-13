@@ -54,7 +54,7 @@ export const DEFAULT_LIMITS: UploadLimits = {
 };
 
 /** The local disk, or the S3 bucket (R2) with uploads spooled next to the database (D57). */
-function fileStoreFor(env: Env): FileStore {
+export function fileStoreFor(env: Env): FileStore {
   const store = env.fileStore;
   if (store.kind === 'local') return new LocalDiskStore(env.filesDir);
   return new S3Store({ ...store, tempDir: join(dirname(env.databaseFile), 'upload-temp') });
