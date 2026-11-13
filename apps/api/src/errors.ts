@@ -17,6 +17,7 @@ const STATUS: Partial<Record<ErrorCode, number>> = {
   CONFLICT: 409,
   DEVICE_LIMIT: 409,
   UPDATE_REQUIRED: 426,
+  PAYLOAD_TOO_LARGE: 413,
   RATE_LIMITED: 429,
   INTERNAL: 500,
   BILLING_UNAVAILABLE: 503,
@@ -33,6 +34,7 @@ export const MESSAGES: Partial<Record<ErrorCode, string>> = {
   CONFLICT: 'The change conflicts with the current state.',
   DEVICE_LIMIT: 'Device limit reached.',
   UPDATE_REQUIRED: 'Update NextLevel to continue.',
+  PAYLOAD_TOO_LARGE: 'The request body is too large.',
   RATE_LIMITED: 'Too many requests.',
   INTERNAL: 'Something went wrong.',
   BILLING_UNAVAILABLE: 'Billing is unavailable right now.',
@@ -122,7 +124,12 @@ export function registerErrorHandling(app: FastifyInstance): void {
         .status(429)
         .send(envelope('RATE_LIMITED', MESSAGES.RATE_LIMITED ?? '', request.id));
     }
-    // Fastify's own client errors: malformed JSON, wrong content type, body too large.
+    if (error.statusCode === 413) {
+      return reply
+        .status(413)
+        .send(envelope('PAYLOAD_TOO_LARGE', MESSAGES.PAYLOAD_TOO_LARGE ?? '', request.id));
+    }
+    // Fastify's own client errors: malformed JSON, wrong content type.
     if (error.statusCode !== undefined && error.statusCode >= 400 && error.statusCode < 500) {
       return reply
         .status(error.statusCode)

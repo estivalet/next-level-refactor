@@ -1,3 +1,4 @@
+import { AppErrorException, ERROR_CODES } from '@nextlevel/shared';
 import { defaultSettings } from '@nextlevel/shared';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -12,7 +13,7 @@ import { settingsFixture } from './settings/testing.ts';
 let cleanup: () => Promise<void> = () => Promise.resolve();
 afterEach(() => cleanup());
 
-async function setup() {
+async function setup(extra: Partial<MainDeps> = {}) {
   const fixture = await settingsFixture();
   cleanup = fixture.cleanup;
   const settings = new SettingsService(fixture.deps);
@@ -47,6 +48,7 @@ async function setup() {
     emit: vi.fn(),
     revealFile: vi.fn(),
     pathExists: () => false,
+    ...extra,
   };
   const router = createIpcRouter(createHandlers(deps), { error: () => undefined });
   return { deps, router, warn, dir: fixture.dir };
@@ -69,6 +71,27 @@ const startWithWindows = () => {
 };
 
 describe('createHandlers', () => {
+  it('FR-SET-6: a locked kiosk refuses the guarded channels through the real handler map', async () => {
+    const kiosk = {
+      state: () => ({ enabled: true, locked: true, hide: ['quit' as const], retryAfterMs: 0 }),
+      unlock: vi.fn(),
+      lock: vi.fn(),
+      configure: vi.fn(),
+      guard: (part: string) => {
+        if (part === 'quit') {
+          throw new AppErrorException({ code: 'KIOSK_LOCKED', message: ERROR_CODES.KIOSK_LOCKED });
+        }
+      },
+    };
+    const { router, deps } = await setup({ kiosk });
+    expect(await router.handle('app.quit', undefined)).toMatchObject({
+      ok: false,
+      error: { code: 'KIOSK_LOCKED' },
+    });
+    expect(deps.quit).not.toHaveBeenCalled();
+    expect(await router.handle('app.version', undefined)).toMatchObject({ ok: true });
+  });
+
   it('FR-SET-1: settings.save round-trips through the router', async () => {
     const { router } = await setup();
     const saved = await router.handle('settings.save', {

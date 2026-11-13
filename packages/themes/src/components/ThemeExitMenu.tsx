@@ -16,7 +16,8 @@ const ENTRIES: { id: ActionId; labelKey: string; shortcut: InputAction }[] = [
 
 /**
  * The theme menu (IA: back at the root): Desktop · Switch theme · Resume. Its keys never reach
- * the theme or the shell behind it. Without `onSwitchTheme` the switch entry is left out.
+ * the theme or the shell behind it. Without `onSwitchTheme` the switch entry is left out, and
+ * without `onDesktop` the desktop entry (kiosk mode hides both, FR-SET-6).
  */
 export function ThemeExitMenu({
   input,
@@ -25,12 +26,14 @@ export function ThemeExitMenu({
   onClose,
 }: {
   input: InputSettings;
-  onDesktop: () => void;
+  onDesktop?: () => void;
   onSwitchTheme?: () => void;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
-  const entries = ENTRIES.filter((entry) => entry.id !== 'switch' || onSwitchTheme);
+  const entries = ENTRIES.filter(
+    (entry) => (entry.id !== 'switch' || onSwitchTheme) && (entry.id !== 'desktop' || onDesktop),
+  );
   const [index, setIndex] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -48,7 +51,7 @@ export function ThemeExitMenu({
   }, []);
 
   const run = (id: ActionId | undefined) => {
-    if (id === 'desktop') onDesktop();
+    if (id === 'desktop') onDesktop?.();
     else if (id === 'switch') onSwitchTheme?.();
     else onClose();
   };
@@ -65,7 +68,7 @@ export function ThemeExitMenu({
       else if (action === 'down' || action === 'right') move(1);
       else if (action === 'select') run(entries[index]?.id);
       else if (action === 'back' || action === 'menu') onClose();
-      else if (action === 'toDesktop') onDesktop();
+      else if (action === 'toDesktop') onDesktop?.();
       else if (action === 'switchTheme') onSwitchTheme?.();
     },
   });

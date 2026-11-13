@@ -88,6 +88,20 @@ export const AccountExportSchema = z.object({
   audit: z.array(
     z.object({ action: z.string(), at: isoTime, before: z.unknown(), after: z.unknown() }),
   ),
+  /**
+   * Synced settings, menus, collections and game state (FR-SET-5), as stored. Absent from APIs
+   * older than M10b.
+   */
+  syncDocuments: z.optional(
+    z.array(
+      z.object({
+        kind: z.string(),
+        revision: z.number().int(),
+        updatedAt: isoTime,
+        data: z.unknown(),
+      }),
+    ),
+  ),
 });
 
 /** Deleting an account is confirmed by typing its email (D36). */

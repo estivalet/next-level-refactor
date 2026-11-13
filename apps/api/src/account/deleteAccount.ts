@@ -11,6 +11,7 @@ import {
 } from '../db/schema.ts';
 import { ApiError, apiError } from '../errors.ts';
 import { isPayingStripe } from '../subscriptions/current.ts';
+import { deleteDocuments } from '../sync/repository.ts';
 import type { UserRow } from '../users/UserRepository.ts';
 
 /**
@@ -112,6 +113,7 @@ function removeRows(ctx: ApiContext, user: UserRow): void {
   }
   ctx.db.delete(devices).where(eq(devices.userId, user.id)).run();
   ctx.db.delete(adminSessions).where(eq(adminSessions.userId, user.id)).run();
+  deleteDocuments(ctx.db, user.id);
   // Grants this user gave themselves (as an admin) go with their own subscriptions.
   ctx.db.delete(subscriptions).where(eq(subscriptions.userId, user.id)).run();
   if (referenced(ctx, user.id)) {

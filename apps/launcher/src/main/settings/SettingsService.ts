@@ -123,7 +123,7 @@ export class SettingsService {
     }
     // A new Catalog folder path keeps the old folder as an ordinary location (D45).
     const kept = SettingsSchema.safeParse(
-      keepManagedHistory(this.state.snapshot.settings, parsed.data, randomUUID),
+      keepManagedHistory(this.state.snapshot.settings, this.keepMainOwned(parsed.data), randomUUID),
     );
     if (!kept.success) {
       return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, kept.error.issues);
@@ -182,7 +182,7 @@ export class SettingsService {
   }
 
   reset(): Promise<SettingsSnapshot> {
-    return this.exclusive(() => this.write(defaultSettings()));
+    return this.exclusive(() => this.write(this.keepMainOwned(defaultSettings())));
   }
 
   /** Backups newest first, each with what the next newer state changed (US-D3). */
@@ -218,7 +218,7 @@ export class SettingsService {
     if (parsed.kind === 'invalid') {
       return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: parsed.reason });
     }
-    return ok(await this.write(parsed.settings));
+    return ok(await this.write(this.keepMainOwned(parsed.settings)));
   }
 
   /** Writes the current settings to a file the user picks (FR-SET-4). */
@@ -245,7 +245,20 @@ export class SettingsService {
     if (parsed.kind === 'invalid') {
       return err('INVALID_SETTINGS', ERROR_CODES.INVALID_SETTINGS, { reason: parsed.reason });
     }
-    return ok({ status: 'imported', snapshot: await this.write(parsed.settings) });
+    return ok({
+      status: 'imported',
+      snapshot: await this.write(this.keepMainOwned(parsed.settings)),
+    });
+  }
+
+  /**
+   * The user's own writes (save, reset, restore, import) keep main-owned sections as they are:
+   * `kiosk` changes only through `kiosk.configure` (FR-SET-6), so a settings write can't turn a
+   * locked kiosk off or replace its PIN. Main's `update` changes them.
+   */
+  private keepMainOwned(next: Settings): Settings {
+    if (this.state.kind !== 'ok') return next;
+    return { ...next, kiosk: this.state.snapshot.settings.kiosk };
   }
 
   /** Backs up the current file (if any), writes `settings`, prunes backups, bumps the revision. */

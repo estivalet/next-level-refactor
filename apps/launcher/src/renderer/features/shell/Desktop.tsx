@@ -6,6 +6,7 @@ import { OfflineBadge } from '../auth/OfflineBadge.tsx';
 import { FrontendLayer } from '../frontend/FrontendLayer.tsx';
 import { MenuPreviewLayer } from '../frontend/MenuPreviewLayer.tsx';
 import { useFrontend } from '../frontend/useFrontend.ts';
+import { KioskGate } from '../kiosk/KioskGate.tsx';
 import { DesktopIcons } from './DesktopIcons.tsx';
 import { useShell } from './ShellContext.tsx';
 import { ShellWindow } from './ShellWindow.tsx';
@@ -85,6 +86,7 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
         </div>
       )}
       {frontend.preview && <MenuPreviewLayer draft={frontend.preview} onClose={frontend.hide} />}
+      <KioskGate />
     </div>
   );
 }

@@ -433,6 +433,18 @@ Left navigation of sections (see IA §1), right form pane.
   …" when the theme pack sets it) and **Use default** once the user set one. Values out of range
   show the range and disable Save. An open theme follows a save at once.
 - **Backups**: table (time, what changed, size) with Restore and Export.
+- **Kiosk** (M10b, FR-SET-6, US-D4, D54): **Kiosk mode** switch; turning it on asks for a
+  **New PIN** and **PIN again** (4–8 digits, "Use 4 to 8 digits." / "The PINs don't match.");
+  once on, typing a new PIN twice changes it. **While locked, hide**: Desktop, Settings, Theme
+  switcher, Catalog, Account, Quit (all ticked at first), with the unlock help (hold Esc or
+  Start 3 s; forgot the PIN → empty `reset-kiosk` file next to `NextLevel.exe`). **Save**
+  (`kiosk.configure`, its own button: the section isn't part of the settings form) and **Lock
+  now**. While locked: hidden apps leave the desktop icons and Start menu and can't be opened
+  from the tray (the Menu Editor goes with Settings), Quit leaves the Start menu, and with the
+  desktop hidden the front-end stays open (also when booting to the desktop) and its menu has
+  no Desktop or Switch theme entry. Holding Esc or Start 3 s opens the **PIN pad**: dots for the
+  digits, keys 1–9, ⌫, 0, OK (arrows/d-pad and select or A, or typed digits), Cancel; "Wrong
+  PIN.", and after five "Too many tries. Try again in 60 s." with OK off.
 - **About** (M10a, NFR-UPD-1, D53): product name, version, **Third-party licenses** (opens
   `resources\licenses.txt`), then **Updates**: a status line (not checked yet / up to date with the
   last check time / checking / downloading N% / ready — installs when NextLevel closes / network,

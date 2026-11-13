@@ -77,7 +77,9 @@
     "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
     "updateRequired": "This version of NextLevel is too old for the NextLevel service. Update to continue.",
     "downloadFailed": "The download didn't finish. Try again.",
-    "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first."
+    "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first.",
+    "kioskLocked": "Kiosk mode is on. Unlock it with the PIN first.",
+    "payloadTooLarge": "That is too much data to send at once."
   },
   "shell": {
     "window": {
@@ -135,7 +137,8 @@
       "emulators": "Emulators",
       "input": "Input",
       "themes": "Themes",
-      "scraper": "Scraper"
+      "scraper": "Scraper",
+      "kiosk": "Kiosk"
     },
     "about": {
       "product": "NextLevel",
@@ -764,6 +767,29 @@
         "driver": "geckodriver (optional)",
         "test": "Test Gemini"
       }
+    },
+    "kiosk": {
+      "enabled": "Kiosk mode",
+      "help": "Locks NextLevel for guests: the parts ticked below are hidden and refused until someone unlocks it with the PIN. It locks again at every start.",
+      "newPin": "New PIN",
+      "pinAgain": "PIN again",
+      "newPinHelp": "Choose a PIN of 4 to 8 digits. You need it to unlock.",
+      "changePin": "To change the PIN, type a new one twice; leave both empty to keep it.",
+      "pinFormat": "Use 4 to 8 digits.",
+      "pinMismatch": "The PINs don't match.",
+      "hide": "While locked, hide",
+      "parts": {
+        "desktop": "Desktop",
+        "settings": "Settings",
+        "themeSwitcher": "Theme switcher",
+        "catalog": "Catalog",
+        "account": "Account",
+        "quit": "Quit"
+      },
+      "unlockHelp": "To unlock, hold Esc on the keyboard or Start on a gamepad for 3 seconds. Forgot the PIN? Create an empty file named reset-kiosk next to NextLevel.exe and start NextLevel.",
+      "save": "Save",
+      "lockNow": "Lock now",
+      "saveFailed": "Kiosk settings couldn't be saved."
     }
   },
   "launchScreen": {
@@ -1881,5 +1907,16 @@
     "restart": "Restart to update",
     "openRelease": "Open the download page",
     "trayRestart": "Restart to update to {{version}}"
+  },
+  "kiosk": {
+    "pad": {
+      "title": "Enter the kiosk PIN",
+      "pin": "PIN",
+      "wrong": "Wrong PIN.",
+      "wait": "Too many tries. Try again in {{seconds}} s.",
+      "delete": "Delete",
+      "ok": "OK",
+      "cancel": "Cancel"
+    }
   }
 }

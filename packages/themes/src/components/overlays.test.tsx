@@ -77,6 +77,18 @@ describe('ThemeExitMenu (FR-THM-3, US-C1)', () => {
     ]);
   });
 
+  it('kiosk (FR-SET-6): without onDesktop the desktop entry and M are gone', () => {
+    const onClose = vi.fn();
+    render(<ThemeExitMenu input={input} onClose={onClose} />);
+    const dialog = screen.getByRole('dialog', { name: 'Theme menu' });
+    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
+      expect.stringContaining('Resume'),
+    ]);
+    press(dialog, 'KeyM');
+    press(dialog, 'Enter');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the user’s key for each shortcut', () => {
     setupMenu();
     expect(screen.getByRole('button', { name: /Return to desktop/ })).toHaveTextContent('M');

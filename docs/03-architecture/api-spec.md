@@ -35,6 +35,7 @@ Entity shapes are defined in [data-model.md](data-model.md).
 | `NOT_FOUND` | 404 | |
 | `CONFLICT` | 409 | Revision mismatch (sync, admin edits) |
 | `UPDATE_REQUIRED` | 426 | The launcher is older than `app_settings.minLauncherVersion` (device routes only); `details.minLauncherVersion` (NFR-UPD-1, M10a) |
+| `PAYLOAD_TOO_LARGE` | 413 | Body over the route's limit (M10b; was `VALIDATION_FAILED`) |
 | `RATE_LIMITED` | 429 | `Retry-After` header set |
 | `NOT_ALLOWED` | 403 | Sign-up mode doesn't admit this Google account (D22) |
 | `INTERNAL` | 500 | Logged with `requestId` |
@@ -90,12 +91,19 @@ Role `device`. Visible = published, in a scope of the caller's entitlement, lice
 | `POST /v1/catalog/status` | `{ items: [{ id, version }] }` (≤ 5,000) → `{ items: [{ id, state: 'current'|'update'|'gone', version, onLapse }] }`; `gone`: unpublished, license expired, outside the caller's scopes, or unknown (`onLapse` the item's, `keep` when unknown). Replaces the planned `GET /v1/catalog/changes` (a `since` list can't see one user's scope change) |
 | `GET /v1/files/:token` | Role `public`: the signed token (HMAC, key derived from `JWT_SECRET`) names the file or art, user and device. `200`, or `206` for one `Range: bytes=a-b` / `a-` with `Content-Range`, `416` past the end; `Accept-Ranges: bytes`, `ETag` = sha256. Bad or expired token → `401 UNAUTHENTICATED`; revoked device or suspended user → `403 FORBIDDEN`; file no longer there → `410` (`NOT_FOUND` envelope) |
 
-### Sync (M10)
+### Sync (M10b, FR-SET-5, D55)
+
+Role `device` with an active entitlement (`SUBSCRIPTION_REQUIRED` / `SUSPENDED` otherwise).
+`:kind` is `settings`, `menus`, `collections` or `userState`; anything else is `400`. The server
+stamps `updatedAt`; a body with other keys is refused.
 
 | Method & path | Body → Response |
 |---|---|
-| `GET /v1/sync/:kind` | → `{ revision, data, updatedAt }` |
-| `PUT /v1/sync/:kind` | `{ baseRevision, data }` → `{ revision }` or `409 CONFLICT` with server copy |
+| `GET /v1/sync/:kind` | → `{ revision, data, updatedAt }`; never written → `{ revision: 0, data: null, updatedAt: null }` |
+| `PUT /v1/sync/:kind` | `{ baseRevision, data }` (≤ 5 MiB, else `413 PAYLOAD_TOO_LARGE`) → `{ revision: baseRevision + 1, updatedAt }`; a newer revision on the server → `409 CONFLICT` with `details: { revision, data, updatedAt }` (the server copy) |
+| `DELETE /v1/sync` | → `204`; clears every document of the account (Settings → Sync → Delete synced data): `data` becomes null and `revision` keeps counting up, so a launcher that still holds an older revision gets `409` instead of writing over newer data. A PUT with `data` null or missing → `400` |
+
+Account export (`GET /v1/me/export`) includes `syncDocuments`; deleting the account removes them.
 
 ### Admin (role `admin`; every mutation writes `audit_log`)
 
@@ -198,8 +206,9 @@ channels also return `VALIDATION_FAILED`.
 | Catalog | `catalog.list`, `catalog.get`, `catalog.install`, `catalog.uninstall`, `downloads.list`, `downloads.pause`, `downloads.resume`, `downloads.cancel` |
 | Auth | Since M7b (`packages/shared/src/ipc/authContract.ts`): `auth.state` (→ `AuthState`: `disabled` \| `checking` \| `signedOut { reason, banner }` \| `signingIn` \| `deviceLimit { devices }` \| `signedIn { user, entitlement, offline, banner, remembered }`; reasons `cancelled`, `timeout`, `notAllowed`, `revoked`, `offlineExpired`, `unreachable`, `error`, `deleted` (M8), `updateRequired` (M10a: the API answered 426; the session is kept)), `auth.signIn` (opens the system browser; resolves when the sign-in ends), `auth.cancelSignIn`, `auth.signOut` (tokens removed, device freed on the API; library untouched), `auth.refreshEntitlement`, `auth.resolveDeviceLimit` (`{ revokeDeviceId }`), `auth.devices.list`, `auth.devices.revoke` (`{ deviceId }` → devices). Device calls offline fail with `API_UNREACHABLE`. M8 adds `auth.openCheckout`, `auth.openPortal`. Main talks to the API; the renderer never does |
 | Updates | Since M10a (`packages/shared/src/ipc/updateContract.ts`, NFR-UPD-1, D53): `update.state` (→ `UpdateState`: `unsupported { reason: dev\|zip, availableVersion, releaseUrl }` \| `idle { lastCheck }` \| `checking` \| `downloading { version, percent }` \| `ready { version }` \| `error { code: network\|signature\|other }`), `update.check` (checks now, also with automatic checks off), `update.restart` (quit and install a downloaded update), `update.openRelease` (opens the release a zip copy found, else the releases page; main never opens a URL from the renderer); event `update.changed`. `app.openPath` key `licenses` opens the bundled third-party licenses file |
+| Kiosk | Since M10b (`packages/shared/src/ipc/kioskContract.ts`, FR-SET-6, D54): `kiosk.state` (→ `{ enabled, locked, hide, retryAfterMs }`), `kiosk.unlock` (`{ pin }` → `{ ok: true }` \| `{ ok: false, retryAfterMs }`; 5 wrong → 60 s), `kiosk.lock`, `kiosk.configure` (`{ enabled, pin?, hide }`, unlocked only; turning it on needs a PIN); event `kiosk.changed`. While locked, the channels of each hidden part answer `KIOSK_LOCKED` in main (`main/kiosk/kioskGuards.ts`: what Settings and the Menu Editor change or open, incl. credentials, API keys, test launches, Explorer and the file dialogs → `settings`; library edits, collections, smart filters, scraping and exports → `desktop`; `app.quit` and `update.restart` → `quit`; catalog install/uninstall/cancel → `catalog`; sign-out, device revoke, account export/delete → `account`). The front-end's channels are never guarded. Opening the desktop and switching themes have no channel: the renderer hides them and closes hidden apps' windows when kiosk locks. The window's own close (X, Alt+F4) is refused like `app.quit` |
 | Import | Since M5d: `import.inspect` (`{ folder }` → `{ emulatorsFolder }`: `<parent of NextLevelOS's first storage location>\emulators` when it exists, else null; D14), `import.dryRun` (`{ folder, emulatorsFolder }` → `ImportReport`: `source`, `token`, `counts`, per-system `{ systemId, entries, withFile, missing, newFiles }`, `mapped` / `unmapped` / `willReplace` items `{ area, key, reason, detail?, count? }`; writes nothing), `import.apply` (`{ folder, emulatorsFolder, reportToken }` → `{ games: { matched, inserted, missing }, collections, menus, settingsBackupId, durationMs }`; folder changed since the dry run → `CONFLICT` with `details.reason: 'folderChanged'`, a scan or import running → `BUSY`, both before any write). Schemas in `packages/shared/src/import/` |
-| System | `app.paths`, `app.openPath` (takes a folder key `data`/`backups`/`logs`, never a path), `app.pickFolder` (`{ title? }` → path or null; native dialog in main), `app.pickFile` (`{ kind: 'executable', title? }` → path or null; `.exe` filter), `app.version`, `app.quit`, `app.setKioskUnlocked` |
+| System | `app.paths`, `app.openPath` (takes a folder key `data`/`backups`/`logs`, never a path), `app.pickFolder` (`{ title? }` → path or null; native dialog in main), `app.pickFile` (`{ kind: 'executable', title? }` → path or null; `.exe` filter), `app.version`, `app.quit` (kiosk: `kiosk.*`, below) |
 
 **Events (main → renderer):** `settings.changed`, `scan.progress`, `scan.finished`,
 `launch.started`, `launch.finished`, `downloads.progress`, `downloads.finished`,

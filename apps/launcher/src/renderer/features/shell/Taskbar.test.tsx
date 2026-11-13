@@ -79,8 +79,8 @@ describe('Taskbar', () => {
     renderShell();
     await user.click(taskbar().getByRole('button', { name: 'Start' }));
     await user.click(screen.getByRole('button', { name: 'Quit' }));
-    // The tray reads the auth state, the download queue and the update state on its own.
-    const tray = ['auth.state', 'downloads.list', 'update.state'];
+    // The shell reads the auth, download, update and kiosk state on its own.
+    const tray = ['auth.state', 'downloads.list', 'update.state', 'kiosk.state'];
     expect(calls.filter((channel) => !tray.includes(channel))).toEqual(['app.quit']);
   });
 

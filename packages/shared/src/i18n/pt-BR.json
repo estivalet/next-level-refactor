@@ -77,7 +77,9 @@
     "billingUnavailable": "A cobrança está indisponível no momento. Tente de novo em alguns minutos.",
     "updateRequired": "Esta versão do NextLevel é antiga demais para o serviço NextLevel. Atualize para continuar.",
     "downloadFailed": "O download não terminou. Tente de novo.",
-    "geminiWebTool": "Não foi possível rodar a ferramenta do site do Gemini. Confira os caminhos em Configurações → Scraper e feche o Firefox antes."
+    "geminiWebTool": "Não foi possível rodar a ferramenta do site do Gemini. Confira os caminhos em Configurações → Scraper e feche o Firefox antes.",
+    "kioskLocked": "O modo quiosque está ligado. Desbloqueie com o PIN primeiro.",
+    "payloadTooLarge": "São dados demais para enviar de uma vez."
   },
   "shell": {
     "window": {
@@ -135,7 +137,8 @@
       "emulators": "Emuladores",
       "input": "Controles",
       "themes": "Temas",
-      "scraper": "Scraper"
+      "scraper": "Scraper",
+      "kiosk": "Quiosque"
     },
     "about": {
       "product": "NextLevel",
@@ -764,6 +767,29 @@
         "driver": "geckodriver (opcional)",
         "test": "Testar o Gemini"
       }
+    },
+    "kiosk": {
+      "enabled": "Modo quiosque",
+      "help": "Trava o NextLevel para visitantes: as partes marcadas abaixo ficam escondidas e bloqueadas até alguém destravar com o PIN. Ele trava de novo a cada início.",
+      "newPin": "Novo PIN",
+      "pinAgain": "PIN de novo",
+      "newPinHelp": "Escolha um PIN de 4 a 8 dígitos. Você precisa dele para destravar.",
+      "changePin": "Para trocar o PIN, digite um novo duas vezes; deixe os dois vazios para mantê-lo.",
+      "pinFormat": "Use de 4 a 8 dígitos.",
+      "pinMismatch": "Os PINs não são iguais.",
+      "hide": "Enquanto travado, esconder",
+      "parts": {
+        "desktop": "Área de trabalho",
+        "settings": "Configurações",
+        "themeSwitcher": "Troca de tema",
+        "catalog": "Catálogo",
+        "account": "Conta",
+        "quit": "Sair"
+      },
+      "unlockHelp": "Para destravar, segure Esc no teclado ou Start no controle por 3 segundos. Esqueceu o PIN? Crie um arquivo vazio chamado reset-kiosk ao lado do NextLevel.exe e inicie o NextLevel.",
+      "save": "Salvar",
+      "lockNow": "Travar agora",
+      "saveFailed": "Não foi possível salvar o modo quiosque."
     }
   },
   "launchScreen": {
@@ -1881,5 +1907,16 @@
     "restart": "Reiniciar para atualizar",
     "openRelease": "Abrir a página de download",
     "trayRestart": "Reiniciar para atualizar para {{version}}"
+  },
+  "kiosk": {
+    "pad": {
+      "title": "Digite o PIN do quiosque",
+      "pin": "PIN",
+      "wrong": "PIN errado.",
+      "wait": "Tentativas demais. Tente de novo em {{seconds}} s.",
+      "delete": "Apagar",
+      "ok": "OK",
+      "cancel": "Cancelar"
+    }
   }
 }

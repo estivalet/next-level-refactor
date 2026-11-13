@@ -367,3 +367,30 @@ describe('front-end art from Settings (FR-THM-2)', () => {
     expect(bridge.channels().filter((c) => c === 'frontend.artIndex').length).toBe(loads + 1);
   });
 });
+
+describe('kiosk in the front-end (FR-SET-6, US-D4)', () => {
+  const lockedHiding = (hide: ('desktop' | 'themeSwitcher')[]) => ({
+    'kiosk.state': () => ok({ enabled: true, locked: true, hide, retryAfterMs: 0 }),
+  });
+
+  it('desktop hidden: the front-end opens on its own; M and the menu have no way to the desktop', async () => {
+    setup(lockedHiding(['desktop', 'themeSwitcher']));
+    await waitFor(() => {
+      expect(card()).toHaveTextContent('Nintendo');
+    });
+    await waitFor(() => {
+      expect(layer().contains(document.activeElement)).toBe(true);
+    });
+    press('KeyM');
+    press('KeyT');
+    expect(layer()).toBeVisible();
+    expect(screen.queryByRole('dialog', { name: 'Switch theme' })).toBeNull();
+    press('Escape');
+    const menu = await screen.findByRole('dialog', { name: 'Theme menu' });
+    expect(
+      within(menu)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual([expect.stringContaining('Resume')]);
+  });
+});
