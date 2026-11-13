@@ -17,6 +17,8 @@ interface GameCardProps {
 /**
  * One game in the grid (D62): its box art, or a placeholder of the same size when there is none
  * or it fails to load; missing games are greyed and name their expected path (FR-LIB-4).
+ * The art is fitted whole (never cropped) and stands on the bottom edge, so boxes of any
+ * proportions line up on a shelf inside the fixed-size cells the virtualized grid needs.
  */
 export function GameCard({
   game,
@@ -54,7 +56,7 @@ export function GameCard({
             alt={game.title}
             loading="lazy"
             draggable={false}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain object-bottom p-1.5"
             onError={() => {
               setBroken(src);
             }}
