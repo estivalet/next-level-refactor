@@ -78,7 +78,8 @@
     "updateRequired": "Esta versão do NextLevel é antiga demais para o serviço NextLevel. Atualize para continuar.",
     "downloadFailed": "O download não terminou. Tente de novo.",
     "geminiWebTool": "Não foi possível rodar a ferramenta do site do Gemini. Confira os caminhos em Configurações → Scraper e feche o Firefox antes.",
-    "kioskLocked": "O modo quiosque está ligado. Desbloqueie com o PIN primeiro."
+    "kioskLocked": "O modo quiosque está ligado. Desbloqueie com o PIN primeiro.",
+    "payloadTooLarge": "São dados demais para enviar de uma vez."
   },
   "shell": {
     "window": {

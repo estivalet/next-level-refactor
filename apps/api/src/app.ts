@@ -42,6 +42,7 @@ import { healthRoutes } from './routes/health.ts';
 import { launcherAuthRoutes } from './routes/launcherAuth.ts';
 import { launcherConfigRoutes } from './routes/launcherConfig.ts';
 import { meRoutes } from './routes/me.ts';
+import { syncRoutes } from './sync/routes.ts';
 import { planRoutes } from './routes/plans.ts';
 import { stubRoutes } from './routes/stub.ts';
 import { webhookRoutes } from './routes/webhooks.ts';
@@ -159,6 +160,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   launcherConfigRoutes(app, identity.desktop, deps.db);
   launcherAuthRoutes(app, ctx, identity.desktop);
   meRoutes(app, ctx);
+  syncRoutes(app, ctx);
   accountRoutes(app, ctx);
   adminAuthRoutes(app, ctx, identity.web);
   adminRoutes(app, ctx);

@@ -3,6 +3,7 @@ import { asc, inArray } from 'drizzle-orm';
 import type { ApiContext } from '../context.ts';
 import { auditLog } from '../db/schema.ts';
 import { apiError } from '../errors.ts';
+import { allDocuments } from '../sync/repository.ts';
 
 /** Keys never exported: other people (who granted) and secrets, wherever they appear. */
 const HIDDEN = new Set(['grantedBy', 'tokenHash', 'refreshToken', 'accessToken', 'googleSub']);
@@ -21,7 +22,7 @@ function scrub(value: unknown): unknown {
 
 /**
  * "Download my data" (security §5, D36): the profile, every device (revoked ones too), the
- * subscriptions and the audit entries about the account. No token hashes, no admin sessions,
+ * subscriptions, the audit entries about the account and its synced documents (FR-SET-5). No token hashes, no admin sessions,
  * and no other people: who made a change is left out.
  */
 export function exportData(ctx: ApiContext, userId: string): AccountExport {
@@ -74,5 +75,6 @@ export function exportData(ctx: ApiContext, userId: string): AccountExport {
       before: scrub(entry.before),
       after: scrub(entry.after),
     })),
+    syncDocuments: allDocuments(ctx.db, user.id),
   };
 }

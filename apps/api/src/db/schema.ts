@@ -124,6 +124,24 @@ export const stripeEvents = sqliteTable('stripe_events', {
   processedAt: text('processed_at'),
 });
 
+/**
+ * Synced launcher documents (FR-SET-5, D55): one per account and kind, `revision` bumped on every
+ * write (optimistic concurrency), `updated_at` stamped by the server.
+ */
+export const syncDocuments = sqliteTable(
+  'sync_documents',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id),
+    kind: text('kind', { enum: ['settings', 'menus', 'collections', 'userState'] }).notNull(),
+    revision: integer('revision').notNull(),
+    data: text('data', { mode: 'json' }).notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.kind] })],
+);
+
 export const appSettings = sqliteTable('app_settings', {
   key: text('key').primaryKey(),
   value: text('value', { mode: 'json' }),
