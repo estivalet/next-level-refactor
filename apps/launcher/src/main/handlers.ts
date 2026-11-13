@@ -61,7 +61,8 @@ export interface MainDeps {
   settings: SettingsService;
   appVersion: () => string;
   quit: () => void;
-  paths: { data: string; logs: string };
+  /** `licenses`: the third-party licenses file shipped in resources (About → Licenses). */
+  paths: { data: string; logs: string; licenses: string };
   /** Opens a folder in the OS; resolves an error message, or '' on success (Electron's shell). */
   openPath: (path: string) => Promise<string>;
   setOpenAtLogin: (enabled: boolean) => void;
@@ -135,6 +136,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     data: deps.paths.data,
     backups: settings.paths.backups,
     logs: deps.paths.logs,
+    licenses: deps.paths.licenses,
   });
   // The shipped catalog plus the user's systems (FR-EMU-11). `systems.catalog` stays the shipped
   // list: the renderer adds the custom systems from the settings it already has.
@@ -230,7 +232,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     'app.openPath': async ({ key }) => {
       const path = folders()[key];
       // The backups and logs folders only appear after the first backup or log line.
-      await mkdir(path, { recursive: true });
+      if (key !== 'licenses') await mkdir(path, { recursive: true });
       const failure = await deps.openPath(path);
       if (failure) deps.log.warn({ key, path, failure }, 'could not open folder');
     },

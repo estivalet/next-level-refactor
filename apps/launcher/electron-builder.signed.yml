@@ -1,0 +1,10 @@
+# Signed Windows builds (D52): used by the release workflow only when the Azure Trusted Signing
+# secrets exist; without them the release is built unsigned from electron-builder.yml. The
+# AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_CLIENT_SECRET credentials come from the environment.
+extends: ./electron-builder.yml
+win:
+  azureSignOptions:
+    publisherName: ${env.NL_SIGN_PUBLISHER}
+    endpoint: ${env.NL_SIGN_ENDPOINT}
+    codeSigningAccountName: ${env.NL_SIGN_ACCOUNT}
+    certificateProfileName: ${env.NL_SIGN_PROFILE}

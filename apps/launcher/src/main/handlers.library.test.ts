@@ -129,7 +129,11 @@ async function setup(withLibrary: boolean) {
     artIndex: { index: () => Promise.reject(new Error('no art index in this test')) },
     appVersion: () => '1.0.0',
     quit: vi.fn(),
-    paths: { data: fixture.dir, logs: join(fixture.dir, 'logs') },
+    paths: {
+      data: fixture.dir,
+      logs: join(fixture.dir, 'logs'),
+      licenses: join(fixture.dir, 'resources', 'licenses.txt'),
+    },
     openPath: vi.fn(() => Promise.resolve('')),
     setOpenAtLogin: vi.fn(),
     setUiScale: vi.fn(),

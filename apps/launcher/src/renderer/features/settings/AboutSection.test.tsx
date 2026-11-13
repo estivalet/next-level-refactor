@@ -79,6 +79,17 @@ describe('Settings → About (NFR-UPD-1, D53)', () => {
     expect(screen.getByRole('button', { name: 'Check now' })).toBeEnabled();
   });
 
+  it('Third-party licenses opens the bundled licenses file', async () => {
+    const u = userEvent.setup();
+    const bridge = installFakeBridge({
+      'update.state': () => ok(idle),
+      'app.openPath': () => ok(undefined),
+    });
+    renderInShell(<AboutSection />);
+    await u.click(await screen.findByRole('button', { name: 'Third-party licenses' }));
+    expect(bridge.calls).toContainEqual({ channel: 'app.openPath', input: { key: 'licenses' } });
+  });
+
   it('development builds have no Check now', async () => {
     installFakeBridge({
       'update.state': () =>

@@ -36,6 +36,20 @@
   FunctionEnd
 !endif
 
+!macro customInstall
+  ; electron-builder keeps a copy of the installer in %LOCALAPPDATA%\<name>-updater for
+  ; differential updates. D50: move it into data\updates, where NextLevel's updater keeps its
+  ; cache (main/update/updaterAdapter.ts), and leave nothing behind in %LOCALAPPDATA%.
+  ${If} ${FileExists} "$LOCALAPPDATA\${APP_INSTALLER_STORE_FILE}"
+    ${GetParent} "$INSTDIR\data\updates\${APP_INSTALLER_STORE_FILE}" $0
+    CreateDirectory "$0"
+    CopyFiles /SILENT "$LOCALAPPDATA\${APP_INSTALLER_STORE_FILE}" "$INSTDIR\data\updates\${APP_INSTALLER_STORE_FILE}"
+    Delete "$LOCALAPPDATA\${APP_INSTALLER_STORE_FILE}"
+    ${GetParent} "$LOCALAPPDATA\${APP_INSTALLER_STORE_FILE}" $0
+    RMDir "$0"
+  ${EndIf}
+!macroend
+
 !macro customRemoveFiles
   Delete "$INSTDIR\NextLevel.exe"
   RMDir /r "$INSTDIR\resources"

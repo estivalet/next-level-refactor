@@ -141,7 +141,8 @@
       "product": "NextLevel",
       "version": "Version {{version}}",
       "versionUnavailable": "Version unavailable",
-      "updates": "Updates"
+      "updates": "Updates",
+      "licenses": "Third-party licenses"
     },
     "fields": {
       "general": {

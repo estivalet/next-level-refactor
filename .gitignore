@@ -34,5 +34,8 @@ Thumbs.db
 # API local database
 apps/api/data/
 
+# Generated before packaging (apps/launcher/scripts/licenses.ts)
+apps/launcher/resources/licenses.txt
+
 # Launcher data in development (D50)
 .nextlevel-dev/

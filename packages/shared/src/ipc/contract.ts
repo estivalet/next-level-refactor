@@ -101,7 +101,8 @@ function launchDraft<G extends z.ZodType>(game: G) {
 export const DetectedEmulatorSchema = z.object({ presetId: z.string(), executable: z.string() });
 export type DetectedEmulator = z.output<typeof DetectedEmulatorSchema>;
 
-export const APP_PATH_KEYS = ['data', 'backups', 'logs'] as const;
+/** Folders (and `licenses`, the third-party licenses file) Settings can open in the OS. */
+export const APP_PATH_KEYS = ['data', 'backups', 'logs', 'licenses'] as const;
 
 export type SettingsLoad = z.output<typeof SettingsLoadSchema>;
 export type BackupInfo = z.output<typeof BackupInfoSchema>;

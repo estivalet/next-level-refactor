@@ -11,6 +11,10 @@ directories:
 files:
   - out/**
   - package.json
+# Third-party licenses (scripts/licenses.ts writes it; About → Third-party licenses opens it).
+extraResources:
+  - from: resources/licenses.txt
+    to: licenses.txt
 # better-sqlite3 ships Node-API prebuilds (no per-Electron rebuild; there is no compiler on CI).
 npmRebuild: false
 asarUnpack:

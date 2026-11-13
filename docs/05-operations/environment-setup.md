@@ -80,7 +80,51 @@ read or write your dev data.
 | `npm run test:e2e` | Playwright (launcher + admin) |
 | `npm run db:generate -w apps/api` | create a Drizzle migration after a schema change (the API applies pending migrations at start) |
 | `npm run build` | build all apps |
-| `npm run package -w apps/launcher` | build installer into `apps/launcher/dist` |
+| `npm run dist -w apps/launcher` | licenses file + build + NSIS installer and zip into `apps/launcher/dist` (unsigned, nothing published) |
+
+## Packaging and releases (M10a, D51–D53)
+
+`npm run dist -w apps/launcher` writes `apps/launcher/resources/licenses.txt` (every production
+dependency's license, `scripts/licenses.ts`), builds the app and packages it with
+`electron-builder.yml`: `NextLevel Setup <version>.exe` (assisted, per-user, default folder
+`C:\NextLevel`, Program Files refused) and `NextLevel-<version>-win.zip`, from the same
+`dist/win-unpacked`. The installer's `build/installer.nsh` keeps `data\` and `Catalog\` on update
+and uninstall, and moves its copy of itself (used for differential updates) from `%LOCALAPPDATA%`
+into `data\updates` (D50).
+
+To try a packaged build from a VS Code terminal, unset `ELECTRON_RUN_AS_NODE` first (VS Code sets
+it, and `NextLevel.exe` then runs as plain Node and exits at once).
+
+`apps/launcher/scripts/packaging-smoke.ps1 -Installer <exe>` installs silently into a temporary
+folder, starts NextLevel once, installs again over it and uninstalls, and fails unless `data\` and
+`Catalog\` survive byte for byte and nothing lands in `%LOCALAPPDATA%`. It adds and removes a real
+per-user install (shortcuts, Apps & features entry): run it on CI or a PC without NextLevel.
+
+**Releasing.** Set the version in every workspace (`npm version <v> --workspaces
+--include-workspace-root --no-git-tag-version`), commit, then push the tag `v<version>`. The
+Release workflow (`.github/workflows/release.yml`) checks the tag matches `apps/launcher`'s
+version, runs lint/typecheck/tests, publishes the installer, zip, blockmap and `latest.yml` to a
+**draft** GitHub release, marks tags with `-` (`v1.0.0-beta.1`) as pre-releases, and runs the
+packaging smoke on the built installer. Launchers see the release once you publish the draft;
+the beta channel also takes pre-releases.
+
+## Signing (D52)
+
+No certificate is bought for now (no-spending rule, 2026-10-30): releases are unsigned and Windows
+SmartScreen warns ("More info → Run anyway"); the workflow logs a warning. To sign with Azure
+Trusted Signing later, add these repository secrets — the workflow then builds with
+`electron-builder.signed.yml`:
+
+| Secret | Value |
+|---|---|
+| `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` | the app registration allowed to sign |
+| `NL_SIGN_PUBLISHER` | the certificate's subject name (also checked by the updater) |
+| `NL_SIGN_ENDPOINT` | e.g. `https://eus.codesigning.azure.net` |
+| `NL_SIGN_ACCOUNT` | the Trusted Signing account name |
+| `NL_SIGN_PROFILE` | the certificate profile name |
+
+Once a signed release is out, updates from it are checked against the publisher name, so an
+unsigned or differently signed update is refused (`update.errors.signature`).
 
 ## Google OAuth setup (once)
 
@@ -148,5 +192,7 @@ you pick a test user — `admin`, `subscriber`, `suspended` or `outsider`, signi
 | `better-sqlite3` "was compiled against a different Node.js version" | `npm run rebuild -w apps/launcher` |
 | Paid in Stripe but the launcher still shows Subscribe | `stripe listen` must be running with its `whsec_…` in `STRIPE_WEBHOOK_SECRET`; check the API log for `stripe event not applied` (price not on any plan) |
 | Electron window blank in dev | Vite dev server not up; check the `dev` script output port |
+| `NextLevel.exe` from `dist` exits at once with no window | `ELECTRON_RUN_AS_NODE` is set (VS Code terminals); start it without it |
+| Hundreds of renderer tests fail with `Invalid Chai property: toBeVisible` | Vitest was started from a lower-case drive path (`/c/…` in Git Bash) and loaded twice; run it from `C:/…` |
 | Google sign-in returns `redirect_uri_mismatch` | Launcher must use the Desktop client; admin the Web client |
 | Webhooks not arriving locally | `stripe listen --forward-to localhost:4000/v1/webhooks/stripe` |

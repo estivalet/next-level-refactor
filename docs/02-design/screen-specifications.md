@@ -45,6 +45,7 @@ relevant), **populated**.
 - States: idle, waiting-for-browser (with timeout 5 min), error (with message + retry), not-allowed ("This Google account isn't authorized" when sign-up is closed).
 - Gamepad: A = sign in.
 - As built (M7b): the reasons shown are cancelled, browser timeout, not authorized, PC signed out (revoked), "Connect to the internet to continue" (offline past the grace), can't reach NextLevel, and a generic failure — each with **Try again**. The maintenance banner (D28) shows above the card. A device-limit step lists the account's devices with **Remove and continue** (US-A4); Cancel signs out. A suspended account sees "This account is suspended" with Sign out only (FR-AUTH-7).
+- As built (M10a, NFR-UPD-1): when the API answers `426 UPDATE_REQUIRED` the gate shows **Update NextLevel to continue** with the update status: **Update now** (checks and downloads), then **Restart to update**; a zip copy gets **Open the download page** instead. The sign-in is kept, so the updated launcher goes straight back in.
 
 ## S3 Subscribe
 
@@ -110,7 +111,7 @@ requirements:
 - Visual style follows the current NextLevelOS shell (owner decision 2026-10-21): floating
   centered dock-style taskbar, macOS-style window buttons, dark glass Start menu with search. The
   wireframe above shows contents, not style. Requirements: FR-SHELL-1..5.
-- Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock.
+- Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock; a downloaded update shows a **Restart to update to <version>** button (M10a).
 - Start menu: apps, Front-end, Account, Sign out, Quit.
 
 ## S7 Library
@@ -432,6 +433,13 @@ Left navigation of sections (see IA §1), right form pane.
   …" when the theme pack sets it) and **Use default** once the user set one. Values out of range
   show the range and disable Save. An open theme follows a save at once.
 - **Backups**: table (time, what changed, size) with Restore and Export.
+- **About** (M10a, NFR-UPD-1, D53): product name, version, **Third-party licenses** (opens
+  `resources\licenses.txt`), then **Updates**: a status line (not checked yet / up to date with the
+  last check time / checking / downloading N% / ready — installs when NextLevel closes / network,
+  signature or other error / development builds don't update / an unzipped copy can't update
+  itself) with **Check now** (disabled while busy) or **Restart to update**; a zip copy names a
+  newer version and offers **Open the download page**. Below, the schema form: **Update channel**
+  (Stable / Beta) and **Check for updates automatically**.
 
 ## S10 Menu Editor
 

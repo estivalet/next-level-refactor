@@ -314,7 +314,14 @@ async function start(): Promise<void> {
     quit: () => {
       app.quit();
     },
-    paths: { data: dataDir, logs: logsDir },
+    paths: {
+      data: dataDir,
+      logs: logsDir,
+      // Written by scripts/licenses.ts before packaging (release workflow).
+      licenses: app.isPackaged
+        ? join(process.resourcesPath, 'licenses.txt')
+        : join(app.getAppPath(), 'resources', 'licenses.txt'),
+    },
     openPath: (path) => shell.openPath(path),
     setOpenAtLogin,
     setUiScale,
