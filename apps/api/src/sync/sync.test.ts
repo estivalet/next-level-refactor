@@ -87,6 +87,27 @@ describe('sync documents (FR-SET-5, D55)', () => {
     expect((await t.app.inject({ url: '/v1/sync/settings' })).statusCode).toBe(401);
   });
 
+  it('after Delete synced data, a launcher with an old revision gets 409 and never overwrites', async () => {
+    const t = await setup();
+    await t.put('menus', { baseRevision: 0, data: { from: 'B' } });
+    // PC B last saw revision 1. The user deletes synced data; PC A writes again.
+    await t.app.inject({ method: 'DELETE', url: '/v1/sync', headers: t.auth });
+    const fresh = await t.get('menus');
+    expect(fresh.json()).toMatchObject({ revision: 2, data: null });
+    expect((await t.put('menus', { baseRevision: 2, data: { from: 'A' } })).json()).toMatchObject({
+      revision: 3,
+    });
+    const stale = await t.put('menus', { baseRevision: 1, data: { from: 'B, stale' } });
+    expect(stale.statusCode).toBe(409);
+    expect((await t.get('menus')).json()).toMatchObject({ revision: 3, data: { from: 'A' } });
+  });
+
+  it('data null or missing is refused (400), never a server error', async () => {
+    const t = await setup();
+    expect((await t.put('settings', { baseRevision: 0, data: null })).statusCode).toBe(400);
+    expect((await t.put('settings', { baseRevision: 0 })).statusCode).toBe(400);
+  });
+
   it('6 MiB body → PAYLOAD_TOO_LARGE', async () => {
     const t = await setup();
     const big = 'x'.repeat(6 * 1024 * 1024);
@@ -109,7 +130,11 @@ describe('sync documents (FR-SET-5, D55)', () => {
 
     const cleared = await t.app.inject({ method: 'DELETE', url: '/v1/sync', headers: t.auth });
     expect(cleared.statusCode).toBe(204);
-    expect((await t.get('settings')).json()).toEqual({ revision: 0, data: null, updatedAt: null });
+    expect((await t.get('settings')).json()).toMatchObject({ revision: 2, data: null });
+    const afterClear = (await t.app.inject({ url: '/v1/me/export', headers: t.auth })).json<{
+      syncDocuments: unknown[];
+    }>();
+    expect(afterClear.syncDocuments).toEqual([]);
 
     await t.put('menus', { baseRevision: 0, data: [] });
     const deleted = await t.app.inject({

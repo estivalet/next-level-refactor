@@ -1,5 +1,5 @@
 import type { SyncDocument, SyncKind } from '@nextlevel/shared';
-import { and, asc, eq } from 'drizzle-orm';
+import { and, asc, eq, isNotNull, sql } from 'drizzle-orm';
 import type { ApiDb } from '../db/open.ts';
 import { syncDocuments } from '../db/schema.ts';
 
@@ -50,7 +50,7 @@ export function allDocuments(db: ApiDb, userId: string) {
   return db
     .select()
     .from(syncDocuments)
-    .where(eq(syncDocuments.userId, userId))
+    .where(and(eq(syncDocuments.userId, userId), isNotNull(syncDocuments.data)))
     .orderBy(asc(syncDocuments.kind))
     .all()
     .map((row) => ({
@@ -61,7 +61,18 @@ export function allDocuments(db: ApiDb, userId: string) {
     }));
 }
 
-/** Delete synced data (Settings → Sync) and account deletion. */
+/**
+ * Delete synced data (Settings → Sync): the data goes, the rows stay with their revision bumped,
+ * so a launcher that still holds an old revision gets 409 instead of writing over a newer one.
+ */
+export function clearDocuments(db: ApiDb, userId: string, now: Date): void {
+  db.update(syncDocuments)
+    .set({ data: null, revision: sql`${syncDocuments.revision} + 1`, updatedAt: now.toISOString() })
+    .where(eq(syncDocuments.userId, userId))
+    .run();
+}
+
+/** Account deletion: the rows go too. */
 export function deleteDocuments(db: ApiDb, userId: string): void {
   db.delete(syncDocuments).where(eq(syncDocuments.userId, userId)).run();
 }

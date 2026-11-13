@@ -136,7 +136,8 @@ export const syncDocuments = sqliteTable(
       .references(() => users.id),
     kind: text('kind', { enum: ['settings', 'menus', 'collections', 'userState'] }).notNull(),
     revision: integer('revision').notNull(),
-    data: text('data', { mode: 'json' }).notNull(),
+    /** Null after Delete synced data: the row stays so its revision keeps counting up. */
+    data: text('data', { mode: 'json' }),
     updatedAt: text('updated_at').notNull(),
   },
   (table) => [primaryKey({ columns: [table.userId, table.kind] })],

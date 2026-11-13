@@ -140,5 +140,21 @@ describe('KioskService (FR-SET-6, US-D4, D54)', () => {
       expect(log.info).toHaveBeenCalled();
       expect(await service.resetIfRequested(dir)).toBe(false);
     });
+
+    it('a settings write that fails never stops NextLevel from starting; the file stays for next time', async () => {
+      dir = await mkdtemp(join(tmpdir(), 'nextlevel-kiosk-'));
+      await writeFile(join(dir, RESET_FILE), '');
+      const log = { info: vi.fn(), warn: vi.fn() };
+      const service = new KioskService({
+        settings: () => ({ enabled: false, pinHash: null, hide: [] }),
+        update: () => Promise.reject(new Error('settings file is invalid')),
+        clock: () => new Date(),
+        emit: vi.fn(),
+        log,
+      });
+      expect(await service.resetIfRequested(dir)).toBe(false);
+      expect(log.warn).toHaveBeenCalled();
+      expect(existsSync(join(dir, RESET_FILE))).toBe(true);
+    });
   });
 });

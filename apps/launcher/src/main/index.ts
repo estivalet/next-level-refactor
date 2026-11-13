@@ -25,6 +25,7 @@ import { currentSettings, startLibrary, type LibraryHost } from './startLibrary.
 import { preparePortable, setPortablePaths } from './portable/boot.ts';
 import { startUpdates } from './update/startUpdates.ts';
 import { KioskService } from './kiosk/KioskService.ts';
+import { createCloseGuard } from './kiosk/closeGuard.ts';
 import type { UpdateService } from './update/UpdateService.ts';
 import { electronPaths } from './portable/portableRoot.ts';
 
@@ -65,7 +66,10 @@ function setUiScale(factor: number): void {
 }
 
 /** `uiScale` is read at every page load: Chromium resets the zoom when the page reloads. */
-function createWindow(uiScale: () => number): BrowserWindow {
+function createWindow(
+  uiScale: () => number,
+  onClose: (event: { preventDefault(): void }) => void,
+): BrowserWindow {
   const window = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -82,6 +86,7 @@ function createWindow(uiScale: () => number): BrowserWindow {
       webSecurity: true,
     },
   });
+  window.on('close', onClose);
   // FR-SHELL-6: open maximized; 1280×800 is the size it restores to.
   window.once('ready-to-show', () => {
     window.maximize();
@@ -201,6 +206,18 @@ async function start(): Promise<void> {
     log,
   });
   await kiosk.resetIfRequested(portable.root);
+  // Set by before-quit: quits NextLevel starts itself close the window; the X and Alt+F4 ask the
+  // kiosk first.
+  let quitting = false;
+  app.on('before-quit', () => {
+    quitting = true;
+  });
+  const closeGuard = createCloseGuard({
+    guard: () => {
+      kiosk.guard('quit');
+    },
+    quitting: () => quitting,
+  });
   // A theme switch right before quitting must still be remembered (FR-THM-5).
   let settingsSettled = false;
   app.on('before-quit', (event) => {
@@ -394,13 +411,13 @@ async function start(): Promise<void> {
     { skip: !app.isPackaged && process.env['NEXTLEVEL_E2E_SETUP'] === 'skip', log },
   );
   const uiScale = () => uiScaleFactor(currentSettings(settings).general.uiScale);
-  mainWindow = createWindow(uiScale);
+  mainWindow = createWindow(uiScale, closeGuard);
   // The gate shows "checking" until boot routing (F2) settles; it never blocks the window.
   signIn.start().catch((error: unknown) => {
     log.error({ error }, 'sign-in could not start');
   });
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow(uiScale);
+    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow(uiScale, closeGuard);
   });
 }
 

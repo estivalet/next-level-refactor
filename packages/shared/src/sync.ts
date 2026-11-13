@@ -20,7 +20,10 @@ export type SyncDocument = z.output<typeof SyncDocumentSchema>;
 export const SyncPutRequestSchema = z.strictObject({
   /** The revision this write is based on; a newer one on the server → 409 with its copy. */
   baseRevision: z.number().int().min(0),
-  data: z.unknown(),
+  /** Required and never null: null is what Delete synced data leaves behind. */
+  data: z.unknown().refine((value) => value !== null && value !== undefined, {
+    message: 'data is required',
+  }),
 });
 
 export const SyncPutResponseSchema = z.object({

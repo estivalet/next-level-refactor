@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { entitlementOf } from '../auth/session.ts';
 import type { ApiContext } from '../context.ts';
 import { apiError } from '../errors.ts';
-import { deleteDocuments, getDocument, putDocument } from './repository.ts';
+import { clearDocuments, getDocument, putDocument } from './repository.ts';
 
 const params = z.object({ kind: z.enum(SYNC_KINDS) });
 const config = { role: 'device' as const };
@@ -49,7 +49,7 @@ export function syncRoutes(app: FastifyInstance, ctx: ApiContext): void {
         userId: subscriber(ctx, request),
         kind: request.params.kind,
         baseRevision: request.body.baseRevision,
-        data: request.body.data ?? null,
+        data: request.body.data,
         now: ctx.clock(),
       });
       if (result.kind === 'conflict') throw apiError('CONFLICT', undefined, result.current);
@@ -58,7 +58,7 @@ export function syncRoutes(app: FastifyInstance, ctx: ApiContext): void {
   );
 
   route.delete('/v1/sync', { config }, async (request, reply) => {
-    deleteDocuments(ctx.db, subscriber(ctx, request));
+    clearDocuments(ctx.db, subscriber(ctx, request), ctx.clock());
     return reply.status(204).send();
   });
 }

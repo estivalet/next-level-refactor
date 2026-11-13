@@ -1,7 +1,7 @@
 import { ok, type KioskState } from '@nextlevel/shared';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { Desktop } from '../shell/Desktop.tsx';
@@ -37,5 +37,23 @@ describe('kiosk in the shell (FR-SET-6, US-D4)', () => {
     bridge.emit('kiosk.changed', { ...locked(['settings']), locked: false });
     expect(await icons.findByRole('button', { name: 'Settings' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Quit' })).toBeVisible();
+  });
+
+  it('Lock now closes the open windows of hidden apps (Settings stays usable otherwise)', async () => {
+    const u = userEvent.setup();
+    const bridge = installFakeBridge({
+      'kiosk.state': () => ok({ ...locked(['settings']), locked: false }),
+      'downloads.list': () => ok([]),
+    });
+    renderInShell(<Desktop taskbar={<Taskbar />} />);
+    const icons = within(await screen.findByRole('navigation', { name: 'Desktop apps' }));
+    await u.dblClick(await icons.findByRole('button', { name: 'Settings' }));
+    await u.dblClick(icons.getByRole('button', { name: 'Game Library' }));
+    expect(await screen.findByRole('dialog', { name: 'Settings' })).toBeVisible();
+    bridge.emit('kiosk.changed', locked(['settings']));
+    await vi.waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Settings' })).toBeNull();
+    });
+    expect(screen.getByRole('dialog', { name: 'Game Library' })).toBeVisible();
   });
 });

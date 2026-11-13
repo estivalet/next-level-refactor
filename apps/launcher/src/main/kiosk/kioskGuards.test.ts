@@ -54,7 +54,42 @@ describe('kiosk guards in main (FR-SET-6, Review Focus 3)', () => {
     expect(await r.handle('app.version', undefined)).toEqual(ok('1.0.0'));
   });
 
-  it('every guarded channel exists in the contract', () => {
-    expect(Object.keys(KIOSK_GUARDED).length).toBeGreaterThan(10);
+  it('Settings-page, desktop-app and OS-escape channels are guarded too; the front-end’s are not', () => {
+    expect(KIOSK_GUARDED).toMatchObject({
+      'scraper.credentials.set': 'settings',
+      'gemini.key.set': 'settings',
+      'scraper.setSystemId': 'settings',
+      'launchbox.setPlatform': 'settings',
+      'launch.test': 'settings',
+      'app.openPath': 'settings',
+      'app.pickFile': 'settings',
+      'app.pickFolder': 'settings',
+      'settings.export': 'settings',
+      'library.games.remove': 'desktop',
+      'library.games.updateMetadata': 'desktop',
+      'library.games.setLaunchOverride': 'desktop',
+      'library.games.setPlayability': 'desktop',
+      'library.games.relink': 'desktop',
+      'library.games.reveal': 'desktop',
+      'library.export': 'desktop',
+      'collections.create': 'desktop',
+      'collections.delete': 'desktop',
+      'smartFilters.update': 'desktop',
+      'account.export': 'account',
+      'update.restart': 'quit',
+    });
+    for (const channel of [
+      'frontend.menu',
+      'frontend.games',
+      'frontend.themeOpened',
+      'launch.game',
+      'launch.running',
+      'library.games.get',
+      'library.games.setFlags',
+      'kiosk.unlock',
+      'kiosk.state',
+    ] as const) {
+      expect(KIOSK_GUARDED[channel], channel).toBeUndefined();
+    }
   });
 });

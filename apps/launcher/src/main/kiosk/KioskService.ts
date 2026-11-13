@@ -24,7 +24,10 @@ export interface KioskServiceDeps {
   update: (change: (settings: Settings) => Settings) => Promise<void>;
   clock: () => Date;
   emit: (event: 'kiosk.changed', state: KioskState) => void;
-  log: { info(context: object, message: string): void };
+  log: {
+    info(context: object, message: string): void;
+    warn(context: object, message: string): void;
+  };
 }
 
 const fail = (code: 'KIOSK_LOCKED' | 'VALIDATION_FAILED', details?: unknown): never => {
@@ -101,10 +104,17 @@ export class KioskService {
   async resetIfRequested(root: string): Promise<boolean> {
     const file = join(root, RESET_FILE);
     if (!existsSync(file)) return false;
-    await this.deps.update((settings) => ({
-      ...settings,
-      kiosk: { ...settings.kiosk, enabled: false, pinHash: null },
-    }));
+    try {
+      await this.deps.update((settings) => ({
+        ...settings,
+        kiosk: { ...settings.kiosk, enabled: false, pinHash: null },
+      }));
+    } catch (error) {
+      // An unreadable settings file starts on defaults (kiosk off) and shows its recovery screen;
+      // the file stays, so the reset applies once the settings can be written again.
+      this.deps.log.warn({ error, file }, 'kiosk reset could not be saved');
+      return false;
+    }
     rmSync(file, { force: true });
     this.deps.log.info({ file }, 'kiosk turned off by the reset-kiosk file');
     this.setLocked(false);

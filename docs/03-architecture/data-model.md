@@ -405,7 +405,7 @@ Unchanged from the current app: `logo/clear|silver|steel`, `background/wallpaper
 | `stripe_events` | `id` PK (Stripe event id), `type`, `received_at`, `processed_at`? | webhook idempotency |
 | `app_settings` | `key` PK, `value` json | `graceDays` (14, 1–30: never past the 30-day refresh token), `signUpMode` (`open`/`allowList`/`closed`, default `allowList`), `allowList` (lowercased emails), `banner` (≤ 280 chars or null), `minLauncherVersion` (semver or null, default null, M10a: older launchers get `426 UPDATE_REQUIRED`); seeded with these defaults |
 | `admin_sessions` | `id` PK, `token_hash` UNIQUE (SHA-256 of the `nl_session` cookie), `user_id` FK, `created_at`, `last_seen_at` | admin console sessions; 8 h idle timeout |
-| `sync_documents` | `user_id` → users, `kind` (`settings`/`menus`/`collections`/`userState`), `revision` int (bumped per write; the update matches the base revision), `data` json (≤ 5 MiB), `updated_at` (server time) | PK(`user_id`,`kind`); migration 0005 (M10b); in the account export, removed with the account |
+| `sync_documents` | `user_id` → users, `kind` (`settings`/`menus`/`collections`/`userState`), `revision` int (bumped per write; the update matches the base revision), `data` json (≤ 5 MiB; null after Delete synced data, the row and its revision stay), `updated_at` (server time) | PK(`user_id`,`kind`); migrations 0005 + 0006 (M10b, `data` nullable); in the account export (cleared ones left out), removed with the account |
 
 ### Entitlement (computed, returned by `/v1/me/entitlement`, cached by the launcher)
 
