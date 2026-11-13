@@ -138,7 +138,8 @@
       "input": "Input",
       "themes": "Themes",
       "scraper": "Scraper",
-      "kiosk": "Kiosk"
+      "kiosk": "Kiosk",
+      "sync": "Sync"
     },
     "about": {
       "product": "NextLevel",
@@ -790,6 +791,28 @@
       "save": "Save",
       "lockNow": "Lock now",
       "saveFailed": "Kiosk settings couldn't be saved."
+    },
+    "sync": {
+      "enabled": "Sync with my account",
+      "help": "Keeps your language, theme choices and options, sounds, input mapping, scraper preferences, menus, collections, smart filters, favorites, hidden games, completed games, ratings, play counts, play time and last played the same on every PC where you turn this on. Changes merge one by one; play counts and time add up across PCs.",
+      "notSynced": "Never synced: folders and storage locations, emulators and profiles, per-system settings, keys and passwords, kiosk mode. A game matches on another PC by its system and its path inside the storage location (catalog games by item); state for a game this PC doesn't have waits until it appears.",
+      "never": "Never synced on this PC.",
+      "syncing": "Syncing…",
+      "lastSync": "Last synced {{time}}.",
+      "now": "Sync now",
+      "delete": "Delete synced data",
+      "deleteConfirm": "This removes everything synced from your account and turns sync off on this PC. Other PCs turn sync off at their next sync. Nothing on any PC is deleted.",
+      "deleteYes": "Delete from my account",
+      "cancel": "Cancel",
+      "failed": "That didn't work. Check your connection and try again.",
+      "errors": {
+        "offline": "Can't reach NextLevel right now. Sync tries again in an hour, or use Sync now.",
+        "subscription": "Sync needs an active subscription.",
+        "deletedElsewhere": "Synced data was deleted on another PC, so sync was turned off here. Turn it on again to start over with this PC's data.",
+        "tooLarge": "There is too much to sync (over 5 MB).",
+        "conflict": "Another PC was syncing at the same time. Sync tries again in an hour, or use Sync now.",
+        "other": "Sync didn't finish. It tries again in an hour, or use Sync now."
+      }
     }
   },
   "launchScreen": {

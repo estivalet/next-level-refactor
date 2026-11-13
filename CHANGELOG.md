@@ -22,9 +22,16 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
   Start for 3 seconds to get the PIN pad; it stays unlocked until restart or **Lock now**. Five
   wrong PINs make it wait a minute. Forgot the PIN: put an empty file named `reset-kiosk` next
   to `NextLevel.exe` and start NextLevel.
-- **Sync API** (M10b, FR-SET-5): the service can store an account's synced settings, menus,
-  collections and game state (`/v1/sync`), included in Download my data and removed with the
-  account. The launcher side comes next.
+- **Settings sync** (M10b, FR-SET-5, D55): Settings → Sync keeps your language, theme choices,
+  sounds, input mapping, scraper preferences, menus, collections, smart filters, favorites,
+  hidden and completed games, ratings, play counts, play time and last played the same on every
+  PC where you turn it on (off by default; signed-in subscribers). Changes merge one by one, so
+  a rename on one PC and an add on another both survive; play counts and time add up across PCs.
+  Folders, emulators, per-system settings, keys and kiosk mode never sync. A game matches by its
+  system and path inside its storage location (catalog games by item); state for a game a PC
+  doesn't have waits until a scan finds it. **Sync now** and **Delete synced data** (turns sync off
+  everywhere at the next sync). The service stores it at `/v1/sync`, included in Download my
+  data and removed with the account.
 - **Installer and zip** (M10a, D51): `npm run dist -w apps/launcher` builds a per-user Windows
   installer (default folder `C:\NextLevel`, Program Files refused; Start-menu and desktop
   shortcuts) and a zip of the same build. Updating or uninstalling never deletes the `data` and

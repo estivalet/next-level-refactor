@@ -5,6 +5,7 @@ export * from './ipc/events.ts';
 export * from './ipc/catalogContract.ts';
 export * from './ipc/updateContract.ts';
 export * from './ipc/kioskContract.ts';
+export * from './ipc/syncContract.ts';
 export * from './semver.ts';
 export * from './sync.ts';
 export * from './library/schema.ts';

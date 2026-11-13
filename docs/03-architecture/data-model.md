@@ -50,7 +50,7 @@ the next save backs up the old file first. v1 → v2 (M6) renames `screenshot-ti
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1; `general.uiScale` (FR-SET-8, default `'100'`);
 `storage.locations` and `systems` (`enabled`, `folderName`, `extensions`) since M2; `emulators`, `profiles` and `systems[id].defaultProfileId` since M3; `storage.assetsPath`, `storage.themesPath` (absolute or null) and `input` since M4a; `general.bootTarget` and `themes` (`activeDefault`, `lastUsed`, `entries`) since M4b; `themes.sound` (on, 50) since M4d, `systems[id].screenscraperId` (positive integer, overrides the catalog id; Settings → Systems, written by the importer) since M5d, `scraper` (`regionPriority`, `languagePriority`, `artKinds`, `fields`) and `storage.media` since M6a (schema v2), and each known theme's `entries[id].settings` is checked against that theme's schema (`packages/shared/src/frontend/themeSettings.ts`: HyperSpin `filtersInMenu`, `wheel`, `menuWheel`; Showcase `filtersInMenu`; unknown keys and unknown themes pass). Theme ids are kept even when unknown (a newer launcher's theme) and fall back to Big Box where used; `themes.lastUsed` is written by main when the front-end opens a theme (`frontend.themeOpened`, only when it changed). An emulator's `executable` is an absolute `.exe`/`.bat`/`.cmd` path (a `.bat`/`.cmd` emulator is refused at launch; script games run through the Script preset, `cmd.exe /d /s /c ""<rom>""` with verbatim arguments); every profile names an existing emulator and its templates pass §2.1 (`unknownToken`, `unclosedBrace`, `extraArgsAlone`). A `defaultProfileId` or per-game override that names a deleted profile is not an error: resolution falls through (§2.3), and deleting a profile in Settings clears the defaults that named it. Profiles copied from a preset keep `presetProfileId`. Storage paths
 must be absolute and unique (compared case-insensitively, either slash, no trailing separator);
-priority follows list order. `kiosk` (M10b, FR-SET-6, D54; default off, no PIN, every part hidden; no schema version change) is main-owned: Settings saves, resets, restores and imports keep the current section, and only `kiosk.configure` (unlocked) or a `reset-kiosk` file next to `NextLevel.exe` at start (turns it off and forgets the PIN) change it. `pinHash` is `scrypt$16384$<salt>$<hash>` of a 4–8 digit PIN. The lock itself is not stored: an enabled kiosk is locked at every start. `updates` (M10a, NFR-UPD-1, D53; default `{ channel: 'stable', auto: true }`, no schema version change: like every section added since v2 it comes from defaults; Settings → About) holds the update channel (`beta` also takes pre-releases) and whether checks run at start and every 6 hours. The updater's download cache is `<data>\updates\` (D50), where the installer also leaves its copy for differential updates. `customSystems` (FR-EMU-11, 2026-11-09; default `[]`, no schema version change) lists the systems the user added: `{ id, name, shortName?, manufacturer?, releaseYear?, kind (default console), description?, folderName, extensions (≥ 1), screenscraperId?, launchboxPlatform? }`. Ids are `custom-<slug of the name>` (`+` → `plus`, numbered when taken), fixed at creation, so they never clash with catalog ids (ADR-011); repeated ids or names (ignoring case) fail with `duplicateSystemId` / `duplicateSystemName` on the later entry. Enabling and the default profile still live in `systems[id]`; deleting one removes its `systems` entry and its id from profiles that cover other systems too. Its games stay in `library.db` and come back if a system with that id is added again. Main and the renderer see `withCustomSystems(catalog, customSystems)` (§3); the NextLevelOS importer uses the shipped catalog only. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
+priority follows list order. `sync` (M10b, FR-SET-5, D55; default `{ enabled: false, deviceKey: null }`, no schema version change) is main-owned like `kiosk`: saves, resets, restores and imports keep it, so a settings file from another PC never brings its device key; only Settings → Sync changes it. `deviceKey` (a UUID) is created the first time sync is turned on and names this PC's play counters; it stays when sync is turned off. What sync keeps between runs is `<data>\sync.json` (§4, Settings sync). `kiosk` (M10b, FR-SET-6, D54; default off, no PIN, every part hidden; no schema version change) is main-owned: Settings saves, resets, restores and imports keep the current section, and only `kiosk.configure` (unlocked) or a `reset-kiosk` file next to `NextLevel.exe` at start (turns it off and forgets the PIN) change it. `pinHash` is `scrypt$16384$<salt>$<hash>` of a 4–8 digit PIN. The lock itself is not stored: an enabled kiosk is locked at every start. `updates` (M10a, NFR-UPD-1, D53; default `{ channel: 'stable', auto: true }`, no schema version change: like every section added since v2 it comes from defaults; Settings → About) holds the update channel (`beta` also takes pre-releases) and whether checks run at start and every 6 hours. The updater's download cache is `<data>\updates\` (D50), where the installer also leaves its copy for differential updates. `customSystems` (FR-EMU-11, 2026-11-09; default `[]`, no schema version change) lists the systems the user added: `{ id, name, shortName?, manufacturer?, releaseYear?, kind (default console), description?, folderName, extensions (≥ 1), screenscraperId?, launchboxPlatform? }`. Ids are `custom-<slug of the name>` (`+` → `plus`, numbered when taken), fixed at creation, so they never clash with catalog ids (ADR-011); repeated ids or names (ignoring case) fail with `duplicateSystemId` / `duplicateSystemName` on the later entry. Enabling and the default profile still live in `systems[id]`; deleting one removes its `systems` entry and its id from profiles that cover other systems too. Its games stay in `library.db` and come back if a system with that id is added again. Main and the renderer see `withCustomSystems(catalog, customSystems)` (§3); the NextLevelOS importer uses the shipped catalog only. Unknown `systems` keys are kept so a newer catalog survives a downgrade. A `systems` entry, once written, records a decision (switching a system off keeps `{ enabled: false }`); a scan only turns on systems that have no entry (M2b). Each later
 section is added, with defaults, by the milestone that uses it; `general.bootTarget` arrives with
 themes in M4 (owner decision 2026-10-21). Unknown keys are stripped on load; wrong types make the
 file invalid.
@@ -91,7 +91,7 @@ type Settings = {
   };
   updates: { channel: 'stable' | 'beta'; auto: boolean }; // M10a (NFR-UPD-1, D53): default stable, true
   kiosk: { enabled: boolean; pinHash: string | null; hide: ('desktop'|'settings'|'themeSwitcher'|'catalog'|'account'|'quit')[] }; // M10b; main-owned
-  sync: { enabled: boolean };
+  sync: { enabled: boolean; deviceKey: string | null }; // M10b (FR-SET-5, D55); main-owned
   experimental: Record<string, boolean>;
 };
 
@@ -358,9 +358,9 @@ erDiagram
 | `scrape_jobs` | `id` PK autoincrement, `scope` json (`{ systemIds }` or `{ gameIds }`), `rules` json (`BatchRules`: `onlyMissing`, `kinds`, `fields`, `regions`, `launchbox` (absent = off)), `status` text (`running`/`paused`/`finished`/`cancelled`), `cursor_game_id` int?, `total` int, `done` int, `applied` int, `review` int, `not_found` int, `failed` int, `launchbox` int (games LaunchBox wrote to; migration 0013, FR-SCR-6), `paused_reason` text? (`quota`/`network`/`credentials`/`user`/`media`/`error`/`launchbox`/`gemini-quota`/`webTool`), `resume_at` text?, `source` text (`scrape`/`gemini`, migration 0015, FR-SCR-7; Gemini jobs keep `GeminiBatchRules` in `rules`), `created_at`, `updated_at` | Since M6c (migration 0008); saved after every game; games are handled by id after the cursor; at launch the newest `running` job of each source resumes and a `quota` / `gemini-quota` pause waits for `resume_at` (FR-SCR-2, D18) |
 | `gemini_answers` | `game_id` PK FK cascade, `answer` json (`GeminiAnswer`: route, checked fields `{ known, value }`, title suggestion, sources, grounded), `asked_at` text | Since migration 0014 (FR-SCR-7); one row per game until the answer is applied or dismissed, so Needs review reopens it without a new request |
 | `arcade_info` | `game_id` PK FK, `rom`, `parent`, `driver`, `manufacturer` | MAME data |
-| `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `source` text? UNIQUE, `created_at` | `source` since M5a (import provenance) |
+| `collections` | `id` PK, `name` UNIQUE, `sort` text (`manual`/`title`/`year`), `source` text? UNIQUE, `created_at`, `sync_id` text? UNIQUE | `source` since M5a (import provenance); `sync_id` since migration 0017 (M10b, D55): the collection's id in settings sync, the same on every PC, given when sync first reads it |
 | `collection_games` | `collection_id` FK, `game_id` FK, `position` int | PK(`collection_id`,`game_id`) |
-| `smart_filters` | `id` PK (autoincrement), `name` UNIQUE NOCASE, `query` json, `created_at` | `SmartFilterQuery` serialized |
+| `smart_filters` | `id` PK (autoincrement), `name` UNIQUE NOCASE, `query` json, `created_at`, `sync_id` text? UNIQUE | `SmartFilterQuery` serialized; `sync_id` as for collections (0017) |
 | `menus` | `id` PK, `title`, `active` bool, `revision` int, `source` text? UNIQUE, `created_at`, `updated_at` | at most one active (partial unique index) |
 | `menu_nodes` | `id` PK, `menu_id` FK, `parent_id` FK?, `position` int, `type` (`category`/`system`/`collection`/`smartFilter`), `ref_id` text?, `name` text, `display_name`?, `short_name`?, `theme_id`?, `filter_tabs` bool?, `visible` bool | `name` is also the menu-art key (current convention) |
 | `launch_log` | `id` PK, `game_id` FK? (set null on delete), `game_title`, `profile_id`, `profile_name`, `argv` json (executable first), `cwd`, `test` bool, `started_at`, `ended_at`?, `exit_code` int?, `error_code` text?, `stderr_tail` text? (last 4 KiB) | keep last 1,000; titles and names are copies so rows outlive renames and deletes; `ended_at` null = still running or the launcher quit first |
@@ -385,6 +385,44 @@ Unchanged from the current app: `logo/clear|silver|steel`, `background/wallpaper
 `video`, `art/hardware`, `system-info`, `pointer`, `sound`. Keyed by menu node `name`.
 
 ---
+
+### Settings sync (M10b, FR-SET-5, D55)
+
+The four API documents (`settings`, `menus`, `collections`, `userState`; §5 `sync_documents`)
+each hold `{ v: 1, entries: { [key]: { value, updatedAt, deleted? } } }` (`SyncDataSchema`).
+Entries merge one by one: the newer `updatedAt` wins, equal stamps take the server's copy;
+an entry is never newer than its document's server `updatedAt` (clamped on read, so a PC
+whose clock runs ahead can't win every merge); tombstones (`deleted`, value null) are dropped
+after 90 days. A change here is stamped now, or 1 ms after the copy it replaces if this PC's
+clock is behind; at a PC's first sync its values are stamped 1970, so the account's copy wins.
+
+| Document | Keys → value |
+|---|---|
+| `settings` | `SYNC_SETTINGS_KEYS` paths (`general.language`, `themes.activeDefault`, `themes.entries`, `themes.sound`, `input`, `scraper.regionPriority`, `scraper.languagePriority`, `scraper.artKinds`, `scraper.fields`, `scraper.gemini.model`, `scraper.gemini.grounding`) → that value. Anything else in a document is never applied; a value this version can't parse is skipped |
+| `collections` | `c:<syncId>` → `{ name, sort }`; `m:<syncId>\|<gameKey>` → `{ position }` (a number; games added between others get a position between theirs, a reorder renumbers); `f:<syncId>` → `{ name, query }` (smart filter). A collection or smart filter made on two PCs with the same name (ignoring case) becomes one when the PC's own never synced |
+| `userState` | `g:<gameKey>` → `{ favorite, hidden, completed, userRating }` (absent = all off); `p:<deviceKey>\|<gameKey>` → `{ count, seconds, lastPlayedAt }`, written only by that PC. Locally `play_count` / `play_seconds` are the sum over PCs and `last_played_at` the latest; this PC's counter is the total minus the other PCs'. Playability stays per PC |
+| `menus` | `menu:<id>` (or `menu:s:<source>` for an imported menu, the same on every PC that imported it) → `{ id (null when imported), title, source, nodes }` with collection and smart filter nodes naming their target by sync id (a node whose target this PC lacks is left out); `active` → the active menu's key |
+
+A game key is `catalog:<itemId>` for a catalog game, else `<systemId>/<relPath>` lowercased with
+`/`. State for a game this PC doesn't have stays in the document and is applied when a scan adds
+the game; a game found again takes the document's state rather than resetting it.
+
+`<data>\sync.json` (`SyncStoreSchema`): `{ v: 1, userId, lastSync, kinds: { [kind]: { revision, entries, held } } }`:
+the merged document per kind, the server revision it was merged with, and the game keys this PC
+had then. Another account signing in starts over. Delete synced data (here or on another PC)
+keeps only the other PCs' play counters, so this PC's own share stays apart if sync is turned
+on again; another PC finding a document cleared after it synced turns sync off instead of
+uploading its copy again; Delete synced data waits for a running sync first. The merged copy
+is kept right after it is applied, before the write to the API, so a write that fails never
+makes applied values (other PCs' plays) look like changes made here; after a write its stamps are
+clamped to the server's `updatedAt`, so a PC whose clock runs ahead doesn't keep winning. A value
+this PC can't apply (a collection name taken here, a newer version's value) keeps this PC's own
+copy in `sync.json` stamped as the account's entry: the account keeps its copy and it is tried
+again. Renames go through a temporary name, so names swapped on one PC swap on the others. A
+collection or smart filter here whose sync id the account doesn't have takes the account's id for
+the same name. Each document syncs on its own: one that fails (or is over 5 MiB, counted in bytes
+before anything is applied) doesn't stop the others. A write of this file that fails is logged
+and never fails a sync.
 
 ## 5. Service database (API)
 

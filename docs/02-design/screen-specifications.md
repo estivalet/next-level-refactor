@@ -433,6 +433,14 @@ Left navigation of sections (see IA §1), right form pane.
   …" when the theme pack sets it) and **Use default** once the user set one. Values out of range
   show the range and disable Save. An open theme follows a save at once.
 - **Backups**: table (time, what changed, size) with Restore and Export.
+- **Sync** (M10b, FR-SET-5, D55): **Sync with my account** switch (off on every PC until turned
+  on there), with what syncs and what never does (folders and storage locations, emulators and
+  profiles, per-system settings, keys and passwords, kiosk mode). A status line: "Never synced on
+  this PC.", "Syncing…" or "Last synced <date and time>."; the last error in red (can't reach
+  NextLevel, needs a subscription, deleted on another PC so sync was turned off here, over 5 MB,
+  another PC syncing at the same time). **Sync now** (when on) and **Delete synced data**, which
+  asks first ("Delete from my account" / Cancel) and turns sync off on this PC. Syncs at start,
+  10 s after a change, hourly and on Sync now; a locked kiosk refuses the three actions.
 - **Kiosk** (M10b, FR-SET-6, US-D4, D54): **Kiosk mode** switch; turning it on asks for a
   **New PIN** and **PIN again** (4–8 digits, "Use 4 to 8 digits." / "The PINs don't match.");
   once on, typing a new PIN twice changes it. **While locked, hide**: Desktop, Settings, Theme

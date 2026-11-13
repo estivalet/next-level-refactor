@@ -235,6 +235,16 @@ export const SettingsSchema = z
         hide: z.array(z.enum(KIOSK_HIDE)).default([...KIOSK_HIDE]),
       })
       .prefault({}),
+    /**
+     * Settings sync (FR-SET-5, D55), off by default on every PC. Main-owned like `kiosk`:
+     * `deviceKey` names this PC's play counters and is created when sync is first turned on.
+     */
+    sync: z
+      .object({
+        enabled: z.boolean().default(false),
+        deviceKey: z.uuid().nullable().default(null),
+      })
+      .prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),
   })
   .superRefine((settings, ctx) => {

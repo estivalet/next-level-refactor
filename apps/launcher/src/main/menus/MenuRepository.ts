@@ -130,6 +130,32 @@ export class MenuRepository {
     })();
   }
 
+  /**
+   * Settings sync (FR-SET-5, D55): writes a menu as another PC has it, over `localId` when this
+   * PC has it, else as a new (inactive) menu under the synced id. Node ids are kept, so the same
+   * menu stays the same on every PC.
+   */
+  putSynced(
+    localId: string | null,
+    menu: { id: string; title: string; source: string | null },
+    nodes: readonly MenuDocNode[],
+  ): void {
+    this.client.transaction(() => {
+      if (localId !== null) {
+        this.replace(localId, { title: menu.title, nodes: [...nodes] });
+        return;
+      }
+      const now = this.clock().toISOString();
+      this.client
+        .prepare(
+          `insert into menus (id, title, active, revision, source, created_at, updated_at)
+           values (?, ?, 0, 0, ?, ?, ?)`,
+        )
+        .run(menu.id, menu.title, menu.source, now, now);
+      this.writeNodes(menu.id, nodes);
+    })();
+  }
+
   setActive(id: string): void {
     this.client.transaction(() => {
       this.get(id);

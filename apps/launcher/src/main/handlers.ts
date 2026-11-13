@@ -43,6 +43,8 @@ import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
 import { createUpdateHandlers } from './update/updateHandlers.ts';
 import { createKioskHandlers } from './kiosk/kioskHandlers.ts';
+import { createSyncHandlers } from './sync/syncHandlers.ts';
+import type { SyncService } from './sync/SyncService.ts';
 import { withKioskGuards } from './kiosk/kioskGuards.ts';
 import type { KioskService } from './kiosk/KioskService.ts';
 import type { UpdateService } from './update/UpdateService.ts';
@@ -125,6 +127,8 @@ export interface MainDeps {
   updates?: Pick<UpdateService, 'state' | 'check' | 'restart'>;
   /** Kiosk mode (FR-SET-6); absent in tests that don't wire it (kiosk off, nothing guarded). */
   kiosk?: Pick<KioskService, 'state' | 'unlock' | 'lock' | 'configure' | 'guard'>;
+  /** Settings sync (FR-SET-5); absent without sign-in (sync off). */
+  sync?: Pick<SyncService, 'state' | 'setEnabled' | 'sync' | 'deleteRemote'>;
   /** Opens a web page in the browser (Electron's shell). */
   openExternal?: (url: string) => Promise<void>;
 }
@@ -212,6 +216,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
     ...createUpdateHandlers(deps.updates, deps.openExternal ?? (() => Promise.resolve())),
     ...createKioskHandlers(deps.kiosk),
+    ...createSyncHandlers(deps.sync),
     ...createScrapeHandlers({
       service: () => library().scrape,
       launchbox: () => library().launchboxScrape,

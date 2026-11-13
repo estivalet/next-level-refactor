@@ -254,11 +254,13 @@ export class SettingsService {
   /**
    * The user's own writes (save, reset, restore, import) keep main-owned sections as they are:
    * `kiosk` changes only through `kiosk.configure` (FR-SET-6), so a settings write can't turn a
-   * locked kiosk off or replace its PIN. Main's `update` changes them.
+   * locked kiosk off or replace its PIN; `sync` only through Settings → Sync (D55), so a file
+   * from another PC never brings its device key here. Main's `update` changes them.
    */
   private keepMainOwned(next: Settings): Settings {
     if (this.state.kind !== 'ok') return next;
-    return { ...next, kiosk: this.state.snapshot.settings.kiosk };
+    const { kiosk, sync } = this.state.snapshot.settings;
+    return { ...next, kiosk, sync };
   }
 
   /** Backs up the current file (if any), writes `settings`, prunes backups, bumps the revision. */

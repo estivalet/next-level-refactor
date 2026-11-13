@@ -7,7 +7,7 @@ import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { v7 as uuidv7 } from 'uuid';
 import { createAuth } from './auth/startAuth.ts';
 import { createHandlers } from './handlers.ts';
-import { createEventSink } from './ipc/events.ts';
+import { createEventSink, type EmitEvent } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
 import { initLogger, logger as log } from './log.ts';
@@ -20,6 +20,8 @@ import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
 import { SettingsService } from './settings/SettingsService.ts';
 import { startCatalog } from './catalog/startCatalog.ts';
+import { startSync } from './sync/startSync.ts';
+import type { SyncService } from './sync/SyncService.ts';
 import { markSetupAtBoot } from './settings/setupComplete.ts';
 import { currentSettings, startLibrary, type LibraryHost } from './startLibrary.ts';
 import { preparePortable, setPortablePaths } from './portable/boot.ts';
@@ -139,7 +141,17 @@ const menuWatch = createMenuWatch(
   ),
   log,
 );
-const emit = menuWatch.emit;
+/** Set once sync starts (after sign-in is set up); changes it syncs reach it (D55). */
+let sync: SyncService | undefined;
+const SYNCED_EVENTS: ReadonlySet<string> = new Set([
+  'settings.changed',
+  'library.changed',
+  'menus.changed',
+]);
+const emit: EmitEvent = (event, payload) => {
+  menuWatch.emit(event, payload);
+  if (SYNCED_EVENTS.has(event)) sync?.notify();
+};
 
 /** A Save dialog for a JSON file; null when cancelled. */
 async function pickJsonSavePath(defaultName: string): Promise<string | null> {
@@ -330,6 +342,21 @@ async function start(): Promise<void> {
         })
       : undefined;
   catalogRef.current = gameCatalog;
+  // Settings sync (FR-SET-5, D55): signed-in subscribers only, so none with sign-in off.
+  sync = signIn.catalog
+    ? startSync({
+        settings,
+        library: opened,
+        auth: signIn.catalog.service,
+        api: signIn.catalog.api,
+        dataDir,
+        emit,
+        log,
+      })
+    : undefined;
+  app.on('will-quit', () => {
+    sync?.dispose();
+  });
   // After the library, so a slow first check never delays it (D53).
   updates = startUpdates({
     root: portable.root,
@@ -371,6 +398,7 @@ async function start(): Promise<void> {
     ...(gameCatalog ? { gameCatalog } : {}),
     updates,
     kiosk,
+    ...(sync ? { sync } : {}),
     openExternal: (url) => shell.openExternal(url),
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
     scraperSystems: (opts) => scraper.client.systems(opts),
