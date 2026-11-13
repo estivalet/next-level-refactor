@@ -42,6 +42,9 @@ import {
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
 import { createUpdateHandlers } from './update/updateHandlers.ts';
+import { createKioskHandlers } from './kiosk/kioskHandlers.ts';
+import { withKioskGuards } from './kiosk/kioskGuards.ts';
+import type { KioskService } from './kiosk/KioskService.ts';
 import type { UpdateService } from './update/UpdateService.ts';
 import { createGeminiHandlers } from './gemini/geminiHandlers.ts';
 import type { GeminiClient } from './gemini/GeminiClient.ts';
@@ -120,6 +123,8 @@ export interface MainDeps {
   gameCatalog?: CatalogApi;
   /** Updates (NFR-UPD-1); absent in tests that don't wire them (acts as a development build). */
   updates?: Pick<UpdateService, 'state' | 'check' | 'restart'>;
+  /** Kiosk mode (FR-SET-6); absent in tests that don't wire it (kiosk off, nothing guarded). */
+  kiosk?: Pick<KioskService, 'state' | 'unlock' | 'lock' | 'configure' | 'guard'>;
   /** Opens a web page in the browser (Electron's shell). */
   openExternal?: (url: string) => Promise<void>;
 }
@@ -165,7 +170,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     return deps.library;
   };
 
-  return {
+  const all: IpcHandlers = {
     ...createLibraryHandlers(deps),
     ...createSmartFilterHandlers({ smartFilters: () => library().smartFilters, emit: deps.emit }),
     ...createMenuHandlers({
@@ -206,6 +211,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
     ...createUpdateHandlers(deps.updates, deps.openExternal ?? (() => Promise.resolve())),
+    ...createKioskHandlers(deps.kiosk),
     ...createScrapeHandlers({
       service: () => library().scrape,
       launchbox: () => library().launchboxScrape,
@@ -270,4 +276,11 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       return result;
     },
   };
+  // Kiosk (FR-SET-6): the parts it hides are refused here too, not only hidden in the renderer.
+  const { kiosk } = deps;
+  return kiosk
+    ? withKioskGuards(all, (part) => {
+        kiosk.guard(part);
+      })
+    : all;
 }

@@ -77,7 +77,8 @@
     "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
     "updateRequired": "This version of NextLevel is too old for the NextLevel service. Update to continue.",
     "downloadFailed": "The download didn't finish. Try again.",
-    "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first."
+    "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first.",
+    "kioskLocked": "Kiosk mode is on. Unlock it with the PIN first."
   },
   "shell": {
     "window": {

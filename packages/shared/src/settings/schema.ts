@@ -5,6 +5,7 @@ import { checkInput, InputSettingsSchema } from './input.ts';
 import { checkThemeSettings } from '../frontend/themeSettings.ts';
 import { ScraperSettingsSchema } from '../scraper/schema.ts';
 import { checkCustomSystems, CustomSystemSchema } from './customSystems.ts';
+import { KIOSK_HIDE } from '../ipc/kioskContract.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
 // field has a default, so `{ "schemaVersion": 1 }` is a complete file. Plain objects strip
@@ -222,6 +223,18 @@ export const SettingsSchema = z
     input: InputSettingsSchema.prefault({}),
     scraper: ScraperSettingsSchema.prefault({}),
     updates: UpdateSettingsSchema.prefault({}),
+    /**
+     * Kiosk mode (FR-SET-6, D54). Main-owned: Settings saves, imports, restores and resets keep
+     * it; only `kiosk.configure` (unlocked) changes it.
+     */
+    kiosk: z
+      .object({
+        enabled: z.boolean().default(false),
+        /** `scrypt$N$salt$hash` of the PIN; never the PIN itself. */
+        pinHash: z.string().startsWith('scrypt$').nullable().default(null),
+        hide: z.array(z.enum(KIOSK_HIDE)).default([...KIOSK_HIDE]),
+      })
+      .prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),
   })
   .superRefine((settings, ctx) => {

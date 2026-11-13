@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, shell } fro
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { uiScaleFactor, type ExportFormat } from '@nextlevel/shared';
+import { AppErrorException, uiScaleFactor, type ExportFormat } from '@nextlevel/shared';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { v7 as uuidv7 } from 'uuid';
 import { createAuth } from './auth/startAuth.ts';
@@ -24,6 +24,7 @@ import { markSetupAtBoot } from './settings/setupComplete.ts';
 import { currentSettings, startLibrary, type LibraryHost } from './startLibrary.ts';
 import { preparePortable, setPortablePaths } from './portable/boot.ts';
 import { startUpdates } from './update/startUpdates.ts';
+import { KioskService } from './kiosk/KioskService.ts';
 import type { UpdateService } from './update/UpdateService.ts';
 import { electronPaths } from './portable/portableRoot.ts';
 
@@ -188,6 +189,18 @@ async function start(): Promise<void> {
   });
   await settings.load();
   const adopted = await settings.adoptRoot(portable.root);
+  // Kiosk (FR-SET-6, D54): locked at every start; `reset-kiosk` next to the exe turns it off.
+  const kiosk = new KioskService({
+    settings: () => currentSettings(settings).kiosk,
+    update: async (change) => {
+      const result = await settings.update(change);
+      if (!result.ok) throw new AppErrorException(result.error);
+    },
+    clock: () => new Date(),
+    emit,
+    log,
+  });
+  await kiosk.resetIfRequested(portable.root);
   // A theme switch right before quitting must still be remembered (FR-THM-5).
   let settingsSettled = false;
   app.on('before-quit', (event) => {
@@ -340,6 +353,7 @@ async function start(): Promise<void> {
     auth: signIn.auth,
     ...(gameCatalog ? { gameCatalog } : {}),
     updates,
+    kiosk,
     openExternal: (url) => shell.openExternal(url),
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
     scraperSystems: (opts) => scraper.client.systems(opts),

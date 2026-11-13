@@ -46,6 +46,8 @@ export const ERROR_CODES = {
   BILLING_UNAVAILABLE: 'errors.billingUnavailable',
   /** This launcher is older than the API's minLauncherVersion (`details.minLauncherVersion`). */
   UPDATE_REQUIRED: 'errors.updateRequired',
+  /** Kiosk mode is locked and hides this part (FR-SET-6). */
+  KIOSK_LOCKED: 'errors.kioskLocked',
   /** A catalog download failed; `details.reason` is a DownloadFailure. */
   DOWNLOAD_FAILED: 'errors.downloadFailed',
 } as const;
