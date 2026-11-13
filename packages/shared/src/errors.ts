@@ -44,6 +44,8 @@ export const ERROR_CODES = {
   RATE_LIMITED: 'errors.rateLimited',
   API_UNREACHABLE: 'errors.apiUnreachable',
   BILLING_UNAVAILABLE: 'errors.billingUnavailable',
+  /** This launcher is older than the API's minLauncherVersion (`details.minLauncherVersion`). */
+  UPDATE_REQUIRED: 'errors.updateRequired',
   /** A catalog download failed; `details.reason` is a DownloadFailure. */
   DOWNLOAD_FAILED: 'errors.downloadFailed',
 } as const;

@@ -24,6 +24,17 @@ describe('SettingsSchema', () => {
     });
   });
 
+  it('NFR-UPD-1: a file without updates gets the stable channel with automatic checks (D53)', () => {
+    expect(SettingsSchema.parse({ schemaVersion: 2 }).updates).toEqual({
+      channel: 'stable',
+      auto: true,
+    });
+    const beta = { schemaVersion: 2, updates: { channel: 'beta', auto: false } };
+    expect(SettingsSchema.parse(beta).updates).toEqual({ channel: 'beta', auto: false });
+    const wrong = SettingsSchema.safeParse({ schemaVersion: 2, updates: { channel: 'nightly' } });
+    expect(wrong.error?.issues[0]?.path).toEqual(['updates', 'channel']);
+  });
+
   it('FR-SET-2: wrong types fail with the field path', () => {
     const result = SettingsSchema.safeParse({ schemaVersion: 2, general: { language: 'xx' } });
     expect(result.success).toBe(false);

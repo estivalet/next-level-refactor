@@ -64,6 +64,7 @@ describe('app settings (FR-ADM-4, D22)', () => {
       signUpMode: 'allowList',
       allowList: [],
       banner: null,
+      minLauncherVersion: null,
     });
     expect(AppSettingsSchema.parse(defaultAppSettings())).toEqual(defaultAppSettings());
   });

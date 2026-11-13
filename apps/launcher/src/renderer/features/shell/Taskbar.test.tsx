@@ -79,10 +79,9 @@ describe('Taskbar', () => {
     renderShell();
     await user.click(taskbar().getByRole('button', { name: 'Start' }));
     await user.click(screen.getByRole('button', { name: 'Quit' }));
-    // The tray reads the auth state and the download queue on its own.
-    expect(
-      calls.filter((channel) => channel !== 'auth.state' && channel !== 'downloads.list'),
-    ).toEqual(['app.quit']);
+    // The tray reads the auth state, the download queue and the update state on its own.
+    const tray = ['auth.state', 'downloads.list', 'update.state'];
+    expect(calls.filter((channel) => !tray.includes(channel))).toEqual(['app.quit']);
   });
 
   it('FR-SHELL-4: the taskbar slides away when a window reaches into its strip', async () => {

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isVersion } from '../semver.ts';
 
 // Service-wide settings kept in the API's `app_settings` table (FR-ADM-4, D22, D28).
 
@@ -31,6 +32,15 @@ export const AppSettingsSchema = z.strictObject({
   signUpMode: z.enum(SIGN_UP_MODES),
   allowList,
   banner,
+  /**
+   * Launchers older than this get `426 UPDATE_REQUIRED` on device routes (NFR-UPD-1, D53); null
+   * = no minimum.
+   */
+  minLauncherVersion: z
+    .string()
+    .trim()
+    .refine(isVersion, { message: 'Use a version like 1.0.0' })
+    .nullable(),
 });
 
 export const AppSettingsPatchSchema = AppSettingsSchema.partial();
@@ -44,10 +54,17 @@ export const AppSettingsViewSchema = z.object({
   signUpMode: z.enum(SIGN_UP_MODES),
   allowList: z.array(z.string()),
   banner: z.string().nullable(),
+  minLauncherVersion: z.string().nullable(),
 });
 
 export function defaultAppSettings(): AppSettings {
-  return { graceDays: 14, signUpMode: 'allowList', allowList: [], banner: null };
+  return {
+    graceDays: 14,
+    signUpMode: 'allowList',
+    allowList: [],
+    banner: null,
+    minLauncherVersion: null,
+  };
 }
 
 export type AppSettings = z.output<typeof AppSettingsSchema>;

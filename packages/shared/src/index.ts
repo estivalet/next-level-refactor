@@ -3,6 +3,8 @@ export * from './result.ts';
 export * from './ipc/contract.ts';
 export * from './ipc/events.ts';
 export * from './ipc/catalogContract.ts';
+export * from './ipc/updateContract.ts';
+export * from './semver.ts';
 export * from './library/schema.ts';
 export * from './library/games.ts';
 export * from './library/collections.ts';

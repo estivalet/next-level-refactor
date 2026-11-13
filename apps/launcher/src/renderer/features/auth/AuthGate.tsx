@@ -4,6 +4,7 @@ import { DeviceLimitScreen, SuspendedScreen } from './AccountScreens.tsx';
 import { useAuthState } from './authApi.ts';
 import { SignInScreen } from './SignInScreen.tsx';
 import { SubscribeScreen } from './SubscribeScreen.tsx';
+import { UpdateRequired } from './UpdateRequired.tsx';
 
 /**
  * The gate layer (IA §1, F2): nothing of the launcher shows until the account may use it —
@@ -19,6 +20,8 @@ export function AuthGate({ children }: { children: ReactNode }) {
     case 'disabled':
       return children;
     case 'signedOut':
+      if (state.reason === 'updateRequired') return <UpdateRequired banner={state.banner} />;
+      return <SignInScreen state={state} />;
     case 'signingIn':
       return <SignInScreen state={state} />;
     case 'deviceLimit':

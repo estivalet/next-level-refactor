@@ -71,6 +71,16 @@ describe('boot routing (IA F2, C6 launcher side)', () => {
     expect(await t.stored()).toBeNull();
   });
 
+  it('NFR-UPD-1: 426 → signedOut updateRequired; the session is kept for after the update', async () => {
+    const t = setup({ session: storedSession(T0 - DAY) });
+    t.queues.entitlement.push(api('UPDATE_REQUIRED', 426, { minLauncherVersion: '1.0.0' }));
+    await t.service.start();
+    expect(t.service.state()).toMatchObject({ kind: 'signedOut', reason: 'updateRequired' });
+    expect(await t.stored()).not.toBeNull();
+    await t.service.refreshEntitlement();
+    expect(t.service.state()).toMatchObject({ kind: 'signedIn', offline: false });
+  });
+
   it('a stored session that does not parse counts as none', async () => {
     const t = setup({ session: '{"nope":1}' });
     await t.service.start();

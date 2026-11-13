@@ -1,0 +1,46 @@
+# Windows packaging (D51): an assisted NSIS installer (per-user, folder picker, default
+# C:\NextLevel) and a zip of the same build. Everything the app writes stays in the install
+# folder (D50); updating or uninstalling never deletes data\ or Catalog\ (build/installer.nsh).
+appId: com.nextlevel.launcher
+productName: NextLevel
+executableName: NextLevel
+copyright: Copyright © NextLevel
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**
+  - package.json
+# Third-party licenses (scripts/licenses.ts writes it; About → Third-party licenses opens it).
+extraResources:
+  - from: resources/licenses.txt
+    to: licenses.txt
+# better-sqlite3 ships Node-API prebuilds (no per-Electron rebuild; there is no compiler on CI).
+npmRebuild: false
+asarUnpack:
+  - '**/*.node'
+  - '**/7zip-bin/win/**'
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: zip
+      arch: [x64]
+  icon: build/icon.ico
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: NextLevel
+  uninstallDisplayName: NextLevel
+  deleteAppDataOnUninstall: false
+  include: build/installer.nsh
+  # The app's two languages (installer.nsh has its texts in both).
+  installerLanguages: [en_US, pt_BR]
+publish:
+  provider: github
+  owner: estivalet
+  repo: next-level-refactor
+  releaseType: draft

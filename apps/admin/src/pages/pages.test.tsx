@@ -235,6 +235,7 @@ describe('Settings (S13, FR-ADM-4)', () => {
     signUpMode: 'allowList',
     allowList: ['a@x.test'],
     banner: null,
+    minLauncherVersion: null,
   };
 
   it('Save is off until something changes; bad emails are named; the patch carries the change', async () => {
@@ -279,6 +280,25 @@ describe('Settings (S13, FR-ADM-4)', () => {
     await u.type(list, '{enter}nope');
     expect(list).toHaveAttribute('aria-invalid', 'true');
     expect(list).toHaveAccessibleDescription('Not an email: nope');
+  });
+
+  it('NFR-UPD-1: the minimum launcher version must be a version; blank clears it', async () => {
+    const u = userEvent.setup();
+    const calls = stubApi({
+      'GET /v1/admin/settings': () => ({ body: { ...SETTINGS, minLauncherVersion: '0.9.0' } }),
+      'PATCH /v1/admin/settings': ({ body }) => ({ body: { ...SETTINGS, ...(body as object) } }),
+    });
+    renderPage(<SettingsPage />);
+    const field = await screen.findByLabelText('Minimum launcher version');
+    expect(field).toHaveValue('0.9.0');
+    await u.clear(field);
+    await u.type(field, 'one');
+    expect(field).toHaveAccessibleDescription(/Use a version like 1\.0\.0\./);
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await u.clear(field);
+    await u.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('Saved.')).toBeVisible();
+    expect(calls.find((c) => c.method === 'PATCH')?.body).toEqual({ minLauncherVersion: null });
   });
 
   it('FR-ADM-4: an email that only differs in case or repeats is not a change', async () => {

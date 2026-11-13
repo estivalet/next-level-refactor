@@ -23,6 +23,8 @@ import { startCatalog } from './catalog/startCatalog.ts';
 import { markSetupAtBoot } from './settings/setupComplete.ts';
 import { currentSettings, startLibrary, type LibraryHost } from './startLibrary.ts';
 import { preparePortable, setPortablePaths } from './portable/boot.ts';
+import { startUpdates } from './update/startUpdates.ts';
+import type { UpdateService } from './update/UpdateService.ts';
 import { electronPaths } from './portable/portableRoot.ts';
 
 // D50: everything the launcher writes lives in its own folder; set before `ready`.
@@ -159,6 +161,9 @@ async function pickExportPath(defaultName: string, format: ExportFormat): Promis
   return result.canceled || !result.filePath ? null : result.filePath;
 }
 
+/** Set in start(); settings changes reach it once it exists. */
+let updates: UpdateService | undefined;
+
 async function start(): Promise<void> {
   if (!(await preparePortable(portable))) return;
   const settings = new SettingsService({
@@ -167,6 +172,7 @@ async function start(): Promise<void> {
     log,
     onChanged: (snapshot) => {
       emit('settings.changed', snapshot);
+      updates?.applySettings();
     },
     dialogs: {
       pickExportPath: pickJsonSavePath,
@@ -294,13 +300,28 @@ async function start(): Promise<void> {
         })
       : undefined;
   catalogRef.current = gameCatalog;
+  // After the library, so a slow first check never delays it (D53).
+  updates = startUpdates({
+    root: portable.root,
+    dataDir,
+    settings: () => currentSettings(settings).updates,
+    emit,
+    log,
+  });
   const handlers = createHandlers({
     settings,
     appVersion: () => app.getVersion(),
     quit: () => {
       app.quit();
     },
-    paths: { data: dataDir, logs: logsDir },
+    paths: {
+      data: dataDir,
+      logs: logsDir,
+      // Written by scripts/licenses.ts before packaging (release workflow).
+      licenses: app.isPackaged
+        ? join(process.resourcesPath, 'licenses.txt')
+        : join(app.getAppPath(), 'resources', 'licenses.txt'),
+    },
     openPath: (path) => shell.openPath(path),
     setOpenAtLogin,
     setUiScale,
@@ -318,6 +339,8 @@ async function start(): Promise<void> {
     secrets,
     auth: signIn.auth,
     ...(gameCatalog ? { gameCatalog } : {}),
+    updates,
+    openExternal: (url) => shell.openExternal(url),
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
     scraperSystems: (opts) => scraper.client.systems(opts),
     presets: emulatorPresets,

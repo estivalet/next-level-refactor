@@ -26,6 +26,7 @@ export function setPortablePaths(): PortableFolders {
     isPackaged: app.isPackaged,
     appPath: app.getAppPath(),
     override,
+    portableDir: process.env['PORTABLE_EXECUTABLE_DIR'],
   });
   const paths = electronPaths(where.data);
   for (const name of Object.keys(paths) as ElectronPathName[]) app.setPath(name, paths[name]);

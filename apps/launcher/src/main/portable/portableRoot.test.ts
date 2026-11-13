@@ -19,6 +19,23 @@ describe('portable root (D50)', () => {
     ).toBe(join('E:', 'NextLevel', 'data'));
   });
 
+  it('portableRoot: a packaged portable build uses PORTABLE_EXECUTABLE_DIR\\data (D51)', () => {
+    const exe = join('C:', 'Temp', 'unpacked', 'NextLevel.exe');
+    const portableDir = join('E:', 'NextLevel');
+    expect(portableRoot({ execPath: exe, isPackaged: true, appPath: 'x', portableDir })).toEqual({
+      root: portableDir,
+      data: join(portableDir, 'data'),
+    });
+  });
+
+  it('development ignores PORTABLE_EXECUTABLE_DIR', () => {
+    const appPath = join('C:', 'src', 'repo', 'apps', 'launcher');
+    expect(
+      portableRoot({ execPath: 'e.exe', isPackaged: false, appPath, portableDir: join('E:', 'x') })
+        .root,
+    ).toBe(resolve(appPath, '../..'));
+  });
+
   it('development: <repo>/.nextlevel-dev, the repo two levels above apps/launcher', () => {
     const appPath = join('C:', 'src', 'next-level-claude', 'apps', 'launcher');
     expect(portableRoot({ execPath: 'electron.exe', isPackaged: false, appPath })).toEqual({

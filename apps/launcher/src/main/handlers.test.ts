@@ -24,7 +24,11 @@ async function setup() {
     artIndex: { index: () => Promise.reject(new Error('no art index in this test')) },
     appVersion: () => '1.0.0',
     quit: vi.fn(),
-    paths: { data: fixture.dir, logs: join(fixture.dir, 'logs') },
+    paths: {
+      data: fixture.dir,
+      logs: join(fixture.dir, 'logs'),
+      licenses: join(fixture.dir, 'resources', 'licenses.txt'),
+    },
     openPath: vi.fn(() => Promise.resolve('')),
     setOpenAtLogin: vi.fn(),
     setUiScale: vi.fn(),
@@ -125,6 +129,14 @@ describe('createHandlers', () => {
       ok: false,
       error: { code: 'VALIDATION_FAILED' },
     });
+  });
+
+  it('About → Licenses opens the bundled licenses file and creates no folder for it', async () => {
+    const { router, deps, dir } = await setup();
+    const file = join(dir, 'resources', 'licenses.txt');
+    expect(await router.handle('app.openPath', { key: 'licenses' })).toMatchObject({ ok: true });
+    expect(deps.openPath).toHaveBeenCalledWith(file);
+    await expect(stat(file)).rejects.toThrow();
   });
 
   it('FR-SET-7: opening a folder that does not exist yet creates it first', async () => {

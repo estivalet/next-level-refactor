@@ -16,6 +16,26 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Installer and zip** (M10a, D51): `npm run dist -w apps/launcher` builds a per-user Windows
+  installer (default folder `C:\NextLevel`, Program Files refused; Start-menu and desktop
+  shortcuts) and a zip of the same build. Updating or uninstalling never deletes the `data` and
+  `Catalog` folders; a manual uninstall says they were kept. Builds are unsigned for now (D52).
+- **Automatic updates** (M10a, NFR-UPD-1, D53): installed copies check GitHub Releases at start
+  and every 6 hours (Settings → About → **Check for updates automatically**), download in the
+  background and install when NextLevel closes, or now with **Restart to update** (About, or the
+  tray button). **Update channel** Stable or Beta (pre-releases); a beta build always follows
+  Beta, so testers of `1.0.0-beta.1` get the next beta. Everything the updater writes,
+  including the installer's own copy, stays in `data\updates` (D50). A zip copy can't update
+  itself: About names a newer release and opens its download page.
+- **Minimum launcher version** (M10a): console Settings → **Minimum launcher version**. Older
+  launchers get `426 UPDATE_REQUIRED` from the API and show **Update NextLevel to continue**
+  (Update now / Restart to update, or the download page for a zip copy); the sign-in is kept.
+  The launcher sends `X-NextLevel-Version` on every API call.
+- **Third-party licenses** (M10a): Settings → About opens the licenses of every package NextLevel
+  ships.
+- **Release workflow** (M10a): a `v*` tag builds, publishes a draft GitHub release (pre-release
+  for `-` tags) and runs the packaging smoke test (install, upgrade and uninstall keep `data\`
+  and `Catalog\`; nothing in `%LOCALAPPDATA%`). Signs when signing secrets exist.
 - **Remove from library…** (FR-LIB-14): the game menu offers it when every selected game is
   missing, for example the old file of a game you replaced with a newer version. After a
   confirmation the games leave every list, search, collection and count, with their details and

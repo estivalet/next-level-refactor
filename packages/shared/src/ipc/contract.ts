@@ -61,6 +61,7 @@ import { authContract } from './authContract.ts';
 import { catalogContract } from './catalogContract.ts';
 import { geminiContract } from './geminiContract.ts';
 import { launchboxContract } from './launchboxContract.ts';
+import { updateContract } from './updateContract.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
 
@@ -100,7 +101,8 @@ function launchDraft<G extends z.ZodType>(game: G) {
 export const DetectedEmulatorSchema = z.object({ presetId: z.string(), executable: z.string() });
 export type DetectedEmulator = z.output<typeof DetectedEmulatorSchema>;
 
-export const APP_PATH_KEYS = ['data', 'backups', 'logs'] as const;
+/** Folders (and `licenses`, the third-party licenses file) Settings can open in the OS. */
+export const APP_PATH_KEYS = ['data', 'backups', 'logs', 'licenses'] as const;
 
 export type SettingsLoad = z.output<typeof SettingsLoadSchema>;
 export type BackupInfo = z.output<typeof BackupInfoSchema>;
@@ -114,6 +116,7 @@ export const ipcContract = {
   ...catalogContract,
   ...launchboxContract,
   ...geminiContract,
+  ...updateContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
   'app.paths': {

@@ -1,0 +1,74 @@
+name: Release
+
+# A tag v<version> builds the Windows installer and zip, publishes them to a draft GitHub
+# release (electron-updater reads latest.yml from it once it is published) and runs the
+# packaging smoke test on the built installer. Tags with a "-" (v1.0.0-beta.1) are marked
+# pre-release: only launchers on the beta channel take them (D53).
+#
+# Signing (D52): with the Azure Trusted Signing secrets the build is signed; without them it is
+# unsigned and the run logs a warning — Windows SmartScreen will warn users ("More info → Run
+# anyway"). See docs/05-operations/environment-setup.md → Signing.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      SIGNING: ${{ secrets.AZURE_CLIENT_SECRET != '' && 'yes' || 'no' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: The tag matches the launcher version
+        shell: pwsh
+        run: |
+          $version = (Get-Content apps/launcher/package.json -Raw | ConvertFrom-Json).version
+          if ("v$version" -ne "${{ github.ref_name }}") {
+            Write-Error "Tag ${{ github.ref_name }} does not match apps/launcher version $version"
+            exit 1
+          }
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run licenses -w apps/launcher
+      - run: npm run build -w apps/launcher
+      - name: Package and publish (signed)
+        if: env.SIGNING == 'yes'
+        working-directory: apps/launcher
+        run: npx electron-builder --win --publish always --config electron-builder.signed.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          NL_SIGN_PUBLISHER: ${{ secrets.NL_SIGN_PUBLISHER }}
+          NL_SIGN_ENDPOINT: ${{ secrets.NL_SIGN_ENDPOINT }}
+          NL_SIGN_ACCOUNT: ${{ secrets.NL_SIGN_ACCOUNT }}
+          NL_SIGN_PROFILE: ${{ secrets.NL_SIGN_PROFILE }}
+      - name: Package and publish (unsigned)
+        if: env.SIGNING != 'yes'
+        working-directory: apps/launcher
+        run: |
+          echo "::warning title=Unsigned build::No signing secrets (D52): this release is unsigned and Windows SmartScreen will warn when it is run."
+          npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Mark pre-releases
+        if: contains(github.ref_name, '-')
+        run: gh release edit "${{ github.ref_name }}" --prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Packaging smoke test
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem apps/launcher/dist -Filter 'NextLevel Setup *.exe' | Select-Object -First 1
+          ./apps/launcher/scripts/packaging-smoke.ps1 -Installer $installer.FullName

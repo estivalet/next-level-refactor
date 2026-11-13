@@ -75,6 +75,7 @@
     "rateLimited": "Too many attempts. Wait a minute and try again.",
     "apiUnreachable": "Can't reach NextLevel. Check your internet connection and try again.",
     "billingUnavailable": "Billing is unavailable right now. Try again in a few minutes.",
+    "updateRequired": "This version of NextLevel is too old for the NextLevel service. Update to continue.",
     "downloadFailed": "The download didn't finish. Try again.",
     "geminiWebTool": "The Gemini website tool could not run. Check its paths in Settings → Scraper, and close Firefox first."
   },
@@ -139,7 +140,9 @@
     "about": {
       "product": "NextLevel",
       "version": "Version {{version}}",
-      "versionUnavailable": "Version unavailable"
+      "versionUnavailable": "Version unavailable",
+      "updates": "Updates",
+      "licenses": "Third-party licenses"
     },
     "fields": {
       "general": {
@@ -167,6 +170,20 @@
             "150": "150%",
             "175": "175%"
           }
+        }
+      },
+      "updates": {
+        "channel": {
+          "label": "Update channel",
+          "help": "Beta also gets test versions before everyone else.",
+          "options": {
+            "stable": "Stable",
+            "beta": "Beta"
+          }
+        },
+        "auto": {
+          "label": "Check for updates automatically",
+          "help": "When NextLevel starts and every 6 hours. Off: only when you press Check now."
         }
       }
     },
@@ -1645,7 +1662,12 @@
     },
     "offline": "Offline",
     "offlineUntil": "Offline — access until {{date}}",
-    "bannerDismiss": "Dismiss"
+    "bannerDismiss": "Dismiss",
+    "updateRequired": {
+      "title": "Update NextLevel to continue",
+      "body": "The NextLevel service needs a newer version of the launcher. Your games, settings and sign-in stay as they are.",
+      "updateNow": "Update now"
+    }
   },
   "account": {
     "plan": "{{plan}} plan — billing not enabled",
@@ -1840,5 +1862,24 @@
       "start": "Start",
       "browse": "Browse catalog"
     }
+  },
+  "update": {
+    "notChecked": "Not checked yet.",
+    "upToDate": "NextLevel is up to date. Last checked {{when}}.",
+    "checking": "Checking for updates…",
+    "downloading": "Downloading {{version}}… {{percent}}%",
+    "ready": "Version {{version}} is ready. It installs when NextLevel closes.",
+    "errors": {
+      "network": "Couldn't reach the update server.",
+      "signature": "The update was refused: it isn't signed by NextLevel.",
+      "other": "The update didn't work. Check now tries again."
+    },
+    "dev": "Development builds don’t update.",
+    "zip": "This copy was unzipped, so it can't update itself. Install NextLevel with the installer to get updates, or download the new zip.",
+    "available": "Version {{version}} is available.",
+    "checkNow": "Check now",
+    "restart": "Restart to update",
+    "openRelease": "Open the download page",
+    "trayRestart": "Restart to update to {{version}}"
   }
 }

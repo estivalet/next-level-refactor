@@ -41,6 +41,16 @@ export type BootTarget = z.output<typeof BootTargetSchema>;
 export const UI_SCALES = ['80', '90', '100', '110', '125', '150', '175'] as const;
 export type UiScale = (typeof UI_SCALES)[number];
 
+/** Update channels (D53): `beta` also takes pre-releases. */
+export const UPDATE_CHANNELS = ['stable', 'beta'] as const;
+
+/** Updates (NFR-UPD-1, D53); changed in Settings → About. */
+export const UpdateSettingsSchema = z.object({
+  channel: z.enum(UPDATE_CHANNELS).default('stable').meta(field('updates.channel')),
+  /** Check at start and every 6 hours; off = only when asked. */
+  auto: z.boolean().default(true).meta(field('updates.auto')),
+});
+
 /** The window zoom factor for a UI scale: '125' → 1.25. */
 export function uiScaleFactor(scale: UiScale): number {
   return Number(scale) / 100;
@@ -211,6 +221,7 @@ export const SettingsSchema = z
       .prefault({}),
     input: InputSettingsSchema.prefault({}),
     scraper: ScraperSettingsSchema.prefault({}),
+    updates: UpdateSettingsSchema.prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),
   })
   .superRefine((settings, ctx) => {

@@ -41,6 +41,8 @@ import {
 } from './catalog/catalogHandlers.ts';
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
+import { createUpdateHandlers } from './update/updateHandlers.ts';
+import type { UpdateService } from './update/UpdateService.ts';
 import { createGeminiHandlers } from './gemini/geminiHandlers.ts';
 import type { GeminiClient } from './gemini/GeminiClient.ts';
 import type { GeminiService } from './gemini/GeminiService.ts';
@@ -59,7 +61,8 @@ export interface MainDeps {
   settings: SettingsService;
   appVersion: () => string;
   quit: () => void;
-  paths: { data: string; logs: string };
+  /** `licenses`: the third-party licenses file shipped in resources (About → Licenses). */
+  paths: { data: string; logs: string; licenses: string };
   /** Opens a folder in the OS; resolves an error message, or '' on success (Electron's shell). */
   openPath: (path: string) => Promise<string>;
   setOpenAtLogin: (enabled: boolean) => void;
@@ -115,6 +118,10 @@ export interface MainDeps {
   auth: AuthApi;
   /** Catalog games and downloads (FR-CAT-*); unavailable until it is wired (M9e). */
   gameCatalog?: CatalogApi;
+  /** Updates (NFR-UPD-1); absent in tests that don't wire them (acts as a development build). */
+  updates?: Pick<UpdateService, 'state' | 'check' | 'restart'>;
+  /** Opens a web page in the browser (Electron's shell). */
+  openExternal?: (url: string) => Promise<void>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -129,6 +136,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     data: deps.paths.data,
     backups: settings.paths.backups,
     logs: deps.paths.logs,
+    licenses: deps.paths.licenses,
   });
   // The shipped catalog plus the user's systems (FR-EMU-11). `systems.catalog` stays the shipped
   // list: the renderer adds the custom systems from the settings it already has.
@@ -197,6 +205,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
+    ...createUpdateHandlers(deps.updates, deps.openExternal ?? (() => Promise.resolve())),
     ...createScrapeHandlers({
       service: () => library().scrape,
       launchbox: () => library().launchboxScrape,
@@ -223,7 +232,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     'app.openPath': async ({ key }) => {
       const path = folders()[key];
       // The backups and logs folders only appear after the first backup or log line.
-      await mkdir(path, { recursive: true });
+      if (key !== 'licenses') await mkdir(path, { recursive: true });
       const failure = await deps.openPath(path);
       if (failure) deps.log.warn({ key, path, failure }, 'could not open folder');
     },

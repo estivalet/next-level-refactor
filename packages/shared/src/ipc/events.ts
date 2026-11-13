@@ -8,6 +8,7 @@ import { catalogEvents } from './catalogContract.ts';
 import { geminiEvents } from './geminiContract.ts';
 import { launchboxEvents } from './launchboxContract.ts';
 import { SettingsSnapshotSchema } from './snapshot.ts';
+import { updateEvents } from './updateContract.ts';
 
 /** Every event main sends to the renderer, with its payload schema. */
 export const ipcEvents = {
@@ -32,6 +33,7 @@ export const ipcEvents = {
   ...catalogEvents,
   ...launchboxEvents,
   ...geminiEvents,
+  ...updateEvents,
 } as const;
 
 export type IpcEvent = keyof typeof ipcEvents;
