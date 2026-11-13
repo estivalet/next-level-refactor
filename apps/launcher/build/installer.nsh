@@ -51,17 +51,33 @@
 !macroend
 
 !macro customRemoveFiles
-  Delete "$INSTDIR\NextLevel.exe"
+  ; Only NextLevel's own files, by name: the folder may also hold another program's files (an
+  ; install into an existing emulator folder), so no wildcards. An Electron upgrade that adds a
+  ; top-level file must add it here; the packaging smoke test fails on anything left behind.
   RMDir /r "$INSTDIR\resources"
   RMDir /r "$INSTDIR\locales"
-  Delete "$INSTDIR\*.dll"
-  Delete "$INSTDIR\*.pak"
-  Delete "$INSTDIR\*.bin"
-  Delete "$INSTDIR\*.dat"
-  Delete "$INSTDIR\*.json"
-  Delete "$INSTDIR\LICENSE*"
+  Delete "$INSTDIR\NextLevel.exe"
   Delete "$INSTDIR\Uninstall NextLevel.exe"
-  ; Removed only when empty, i.e. when there is no data\ or Catalog\ left to keep.
+  Delete "$INSTDIR\LICENSE.electron.txt"
+  Delete "$INSTDIR\LICENSES.chromium.html"
+  Delete "$INSTDIR\chrome_100_percent.pak"
+  Delete "$INSTDIR\chrome_200_percent.pak"
+  Delete "$INSTDIR\resources.pak"
+  Delete "$INSTDIR\icudtl.dat"
+  Delete "$INSTDIR\snapshot_blob.bin"
+  Delete "$INSTDIR\v8_context_snapshot.bin"
+  Delete "$INSTDIR\d3dcompiler_47.dll"
+  Delete "$INSTDIR\dxcompiler.dll"
+  Delete "$INSTDIR\dxil.dll"
+  Delete "$INSTDIR\electron_wer.dll"
+  Delete "$INSTDIR\ffmpeg.dll"
+  Delete "$INSTDIR\libEGL.dll"
+  Delete "$INSTDIR\libGLESv2.dll"
+  Delete "$INSTDIR\vk_swiftshader.dll"
+  Delete "$INSTDIR\vk_swiftshader_icd.json"
+  Delete "$INSTDIR\vulkan-1.dll"
+  ; Out of the folder, so it can go when nothing is left (no data\ or Catalog\ to keep).
+  SetOutPath $TEMP
   RMDir "$INSTDIR"
 !macroend
 

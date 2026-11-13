@@ -96,6 +96,11 @@ try {
   if ((Markers) -eq $hashes) { Pass 'data\ and Catalog\ unchanged after the upgrade' } else { Fail 'markers changed after the upgrade' }
   if (Test-Path $exe) { Pass 'NextLevel.exe present after the upgrade' } else { Fail 'NextLevel.exe missing after the upgrade' }
 
+  # Another program's files in the same folder (e.g. NextLevel installed into an emulator folder):
+  # the uninstaller removes only NextLevel's own files.
+  $decoys = @('other-core.dll', 'game.bin', 'mame.dat', 'config.json', 'LICENSE-other.txt')
+  foreach ($name in $decoys) { Set-Content -Path (Join-Path $target $name) -Value 'not NextLevel' -Encoding ascii }
+
   # 5. Uninstall. The NSIS uninstaller copies itself away and returns at once: wait for the exe.
   Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait | Out-Null
   if (WaitUntil { -not (Test-Path $exe) } 60) { Pass 'NextLevel.exe removed by the uninstaller' } else { Fail 'NextLevel.exe still there after uninstall' }
@@ -104,6 +109,13 @@ try {
     Pass 'data\ and Catalog\ kept, byte for byte, after the uninstall'
   } else {
     Fail 'markers missing or changed after the uninstall'
+  }
+  $left = @(Get-ChildItem -Force $target | ForEach-Object { $_.Name } | Sort-Object)
+  $expected = @(@('data', 'Catalog') + $decoys | Sort-Object)
+  if (($left -join '|') -eq ($expected -join '|')) {
+    Pass 'only data\, Catalog\ and the other program''s files are left'
+  } else {
+    Fail "after uninstall the folder holds: $($left -join ', ') (expected $($expected -join ', '))"
   }
 
   # 6. D50: the updater wrote nothing to %LOCALAPPDATA%.

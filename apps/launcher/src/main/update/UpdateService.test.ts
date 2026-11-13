@@ -23,7 +23,9 @@ function fakePort() {
   };
 }
 
-function setup(o: { auto?: boolean; channel?: 'stable' | 'beta'; mode?: UpdateMode } = {}) {
+function setup(
+  o: { auto?: boolean; channel?: 'stable' | 'beta'; mode?: UpdateMode; version?: string } = {},
+) {
   const prefs: { channel: 'stable' | 'beta'; auto: boolean } = {
     channel: o.channel ?? 'stable',
     auto: o.auto ?? true,
@@ -32,7 +34,7 @@ function setup(o: { auto?: boolean; channel?: 'stable' | 'beta'; mode?: UpdateMo
   const emitted: UpdateState[] = [];
   const service = new UpdateService({
     mode: o.mode ?? { kind: 'nsis', updater: port },
-    currentVersion: '0.10.0',
+    currentVersion: o.version ?? '0.10.0',
     settings: () => prefs,
     emit: (_event, state) => emitted.push(state),
     clock: () => new Date('2026-11-13T10:00:00.000Z'),
@@ -69,6 +71,21 @@ describe('UpdateService (NFR-UPD-1, D53)', () => {
     await service.check();
     expect(port.check).toHaveBeenCalledTimes(1);
     service.stop();
+  });
+
+  it('a 1.0.0-beta.1 launcher with default settings takes pre-releases (D59: the first release is a beta)', async () => {
+    const { service, port } = setup({ auto: false, version: '1.0.0-beta.1' });
+    service.start();
+    expect(port.setPrerelease).toHaveBeenLastCalledWith(true);
+    const latest = vi.fn(() =>
+      Promise.resolve({ version: '1.0.0-beta.2', url: 'https://example.test/b2' }),
+    );
+    const zip = setup({ auto: false, version: '1.0.0-beta.1', mode: { kind: 'zip', latest } });
+    zip.service.start();
+    await zip.service.check();
+    expect(latest).toHaveBeenCalledWith('beta');
+    service.stop();
+    zip.service.stop();
   });
 
   it('a settings change applies the channel and starts or stops the timer', async () => {

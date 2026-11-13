@@ -85,10 +85,22 @@ export class UpdateService {
     this.timer = null;
   }
 
+  /**
+   * The channel in effect: a pre-release build (1.0.0-beta.1) always follows beta, otherwise a
+   * beta tester on the default setting would never get the next beta (D59: 1.0 starts as a beta).
+   */
+  private channel(): Channel {
+    const { channel } = this.deps.settings();
+    const prerelease =
+      isVersion(this.deps.currentVersion) && this.deps.currentVersion.includes('-');
+    return prerelease ? 'beta' : channel;
+  }
+
   /** Follows Settings → About: the channel, and whether checks run on their own. */
   applySettings(): void {
-    const { channel, auto } = this.deps.settings();
-    if (this.deps.mode.kind === 'nsis') this.deps.mode.updater.setPrerelease(channel === 'beta');
+    const { auto } = this.deps.settings();
+    if (this.deps.mode.kind === 'nsis')
+      this.deps.mode.updater.setPrerelease(this.channel() === 'beta');
     if (auto && !this.timer) {
       this.timer = setInterval(() => void this.check(), CHECK_EVERY_MS);
       // Node timers: an unref'd timer never keeps NextLevel running.
@@ -120,7 +132,7 @@ export class UpdateService {
 
   private async newerRelease(latest: LatestRelease) {
     try {
-      const release = await latest(this.deps.settings().channel);
+      const release = await latest(this.channel());
       if (!release || !isVersion(release.version)) return null;
       return compareVersions(release.version, this.deps.currentVersion) > 0 ? release : null;
     } catch (error) {

@@ -23,7 +23,8 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 - **Automatic updates** (M10a, NFR-UPD-1, D53): installed copies check GitHub Releases at start
   and every 6 hours (Settings → About → **Check for updates automatically**), download in the
   background and install when NextLevel closes, or now with **Restart to update** (About, or the
-  tray button). **Update channel** Stable or Beta (pre-releases). Everything the updater writes,
+  tray button). **Update channel** Stable or Beta (pre-releases); a beta build always follows
+  Beta, so testers of `1.0.0-beta.1` get the next beta. Everything the updater writes,
   including the installer's own copy, stays in `data\updates` (D50). A zip copy can't update
   itself: About names a newer release and opens its download page.
 - **Minimum launcher version** (M10a): console Settings → **Minimum launcher version**. Older
