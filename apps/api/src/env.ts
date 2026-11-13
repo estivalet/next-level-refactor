@@ -25,6 +25,20 @@ export interface Env {
   adminDist: string | null;
   /** Catalog files, art and license evidence (`FILES_DIR`, default `<database folder>/files`). */
   filesDir: string;
+  /**
+   * Where catalog files live (D40, D57): the local disk (`FILES_DIR`, the API serves them) or an
+   * S3-compatible bucket (Cloudflare R2; downloads go straight to it through presigned URLs).
+   */
+  fileStore:
+    | { kind: 'local' }
+    | {
+        kind: 's3';
+        endpoint: string;
+        bucket: string;
+        accessKeyId: string;
+        secretAccessKey: string;
+        region: string;
+      };
   adminOrigin: string | null;
   /**
    * `enabled`: access needs a subscription or comp grant (D33). `mode`: which provider serves
@@ -111,6 +125,12 @@ const EnvSchema = z
       .transform((value) => value === '1'),
     ADMIN_DIST: optional,
     FILES_DIR: optional,
+    FILE_STORE: z.enum(['local', 's3']).default('local'),
+    S3_ENDPOINT: z.url({ protocol: /^https?$/ }).optional(),
+    S3_BUCKET: optional,
+    S3_ACCESS_KEY_ID: optional,
+    S3_SECRET_ACCESS_KEY: optional,
+    S3_REGION: z.string().trim().min(1).default('auto'),
     ADMIN_ORIGIN: z.url().optional(),
   })
   .superRefine((env, ctx) => {
@@ -121,6 +141,18 @@ const EnvSchema = z
       for (const key of GOOGLE_KEYS) {
         if (env[key] === null) {
           ctx.addIssue({ code: 'custom', path: [key], message: 'is required without AUTH_STUB=1' });
+        }
+      }
+    }
+    if (env.FILE_STORE === 's3') {
+      for (const key of [
+        'S3_ENDPOINT',
+        'S3_BUCKET',
+        'S3_ACCESS_KEY_ID',
+        'S3_SECRET_ACCESS_KEY',
+      ] as const) {
+        if (!env[key]) {
+          ctx.addIssue({ code: 'custom', path: [key], message: 'is required with FILE_STORE=s3' });
         }
       }
     }
@@ -156,6 +188,27 @@ function billingOf(env: z.output<typeof EnvSchema>): Env['billing'] {
   return { enabled, mode: 'none', secretKey: null, webhookSecret: null };
 }
 
+function fileStoreOf(env: z.output<typeof EnvSchema>): Env['fileStore'] {
+  const { S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = env;
+  if (
+    env.FILE_STORE !== 's3' ||
+    !S3_ENDPOINT ||
+    !S3_BUCKET ||
+    !S3_ACCESS_KEY_ID ||
+    !S3_SECRET_ACCESS_KEY
+  ) {
+    return { kind: 'local' };
+  }
+  return {
+    kind: 's3',
+    endpoint: S3_ENDPOINT.replace(/\/+$/, ''),
+    bucket: S3_BUCKET,
+    accessKeyId: S3_ACCESS_KEY_ID,
+    secretAccessKey: S3_SECRET_ACCESS_KEY,
+    region: env.S3_REGION,
+  };
+}
+
 export function loadEnv(source: Record<string, string | undefined>): Env {
   const parsed = EnvSchema.safeParse(source);
   if (!parsed.success) {
@@ -189,6 +242,7 @@ export function loadEnv(source: Record<string, string | undefined>): Env {
     authStub: env.AUTH_STUB,
     adminDist: env.ADMIN_DIST,
     filesDir: env.FILES_DIR ?? join(dirname(env.DATABASE_URL.slice('file:'.length)), 'files'),
+    fileStore: fileStoreOf(env),
     adminOrigin: env.ADMIN_ORIGIN ?? null,
     billing: billingOf(env),
   };

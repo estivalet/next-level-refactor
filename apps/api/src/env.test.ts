@@ -150,4 +150,31 @@ describe('API environment (environment-setup, ADR-007)', () => {
       'D:/nextlevel-files',
     );
   });
+
+  it('D57: FILE_STORE defaults to the local disk; s3 needs its endpoint, bucket and keys', () => {
+    expect(loadEnv(STUB).fileStore).toEqual({ kind: 'local' });
+    expect(problems({ ...STUB, FILE_STORE: 's3' })).toEqual([
+      'S3_ENDPOINT: is required with FILE_STORE=s3',
+      'S3_BUCKET: is required with FILE_STORE=s3',
+      'S3_ACCESS_KEY_ID: is required with FILE_STORE=s3',
+      'S3_SECRET_ACCESS_KEY: is required with FILE_STORE=s3',
+    ]);
+    const env = loadEnv({
+      ...STUB,
+      FILE_STORE: 's3',
+      S3_ENDPOINT: 'https://acct.r2.cloudflarestorage.com',
+      S3_BUCKET: 'nextlevel-catalog',
+      S3_ACCESS_KEY_ID: 'key-id',
+      S3_SECRET_ACCESS_KEY: 'key-secret',
+    });
+    expect(env.fileStore).toEqual({
+      kind: 's3',
+      endpoint: 'https://acct.r2.cloudflarestorage.com',
+      bucket: 'nextlevel-catalog',
+      accessKeyId: 'key-id',
+      secretAccessKey: 'key-secret',
+      region: 'auto',
+    });
+    expect(problems({ ...STUB, FILE_STORE: 'gdrive' })[0]).toMatch(/^FILE_STORE:/);
+  });
 });

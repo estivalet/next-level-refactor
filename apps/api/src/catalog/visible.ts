@@ -86,7 +86,14 @@ export function visibleItem(ctx: ApiContext, caller: CatalogCaller, itemId: stri
   return row;
 }
 
-const mediaUrl = (ctx: ApiContext, caller: CatalogCaller, itemId: string, kind: string) =>
+const mediaUrl = (
+  ctx: ApiContext,
+  caller: CatalogCaller,
+  itemId: string,
+  kind: string,
+  storageKey: string,
+) =>
+  ctx.files.downloadUrl(storageKey, { expiresInSeconds: MEDIA_URL_MS / 1000 }) ??
   `${ctx.env.publicUrl}/v1/files/${
     signFileToken(ctx, {
       kind: 'media',
@@ -106,7 +113,7 @@ const readyFiles = (ctx: ApiContext, itemId: string) =>
 
 function toSummary(ctx: ApiContext, caller: CatalogCaller, row: Row): CatalogItemSummary {
   const box = ctx.db
-    .select({ kind: catalogMedia.kind })
+    .select({ kind: catalogMedia.kind, storageKey: catalogMedia.storageKey })
     .from(catalogMedia)
     .where(and(eq(catalogMedia.itemId, row.id), eq(catalogMedia.kind, 'box-front')))
     .get();
@@ -123,7 +130,7 @@ function toSummary(ctx: ApiContext, caller: CatalogCaller, row: Row): CatalogIte
     starter: row.starter,
     version: row.version,
     publishedAt: row.publishedAt,
-    boxArt: box ? mediaUrl(ctx, caller, row.id, 'box-front') : null,
+    boxArt: box ? mediaUrl(ctx, caller, row.id, 'box-front', box.storageKey) : null,
   };
 }
 
@@ -144,7 +151,7 @@ export function toCatalogItem(ctx: ApiContext, caller: CatalogCaller, row: Row):
     })),
     media: media.map((m) => ({
       kind: m.kind as CatalogMediaKind,
-      url: mediaUrl(ctx, caller, row.id, m.kind),
+      url: mediaUrl(ctx, caller, row.id, m.kind, m.storageKey),
     })),
     license: { type: row.licenseType, rightsHolder: row.rightsHolder, terms: row.terms },
   };

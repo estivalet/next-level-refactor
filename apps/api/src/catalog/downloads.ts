@@ -86,7 +86,12 @@ export function issueDownloads(
         filename: file.filename,
         size: file.size,
         sha256: file.sha256,
-        url: `${ctx.env.publicUrl}/v1/files/${token}`,
+        // A store with its own URLs (R2) is downloaded from directly; else the API serves it.
+        url:
+          ctx.files.downloadUrl(file.storageKey, {
+            expiresInSeconds: FILE_URL_MS / 1000,
+            filename: file.filename,
+          }) ?? `${ctx.env.publicUrl}/v1/files/${token}`,
         expiresAt,
       });
     }

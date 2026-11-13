@@ -16,6 +16,10 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **R2 file store** (M10c, D40, D57): `FILE_STORE=s3` keeps catalog files, art and license
+  evidence in an S3-compatible bucket (Cloudflare R2, MinIO), and downloads and art go straight to
+  it through presigned URLs (files 10 minutes, art 1 hour). `FILE_STORE=local` stays the default.
+  The maintenance job also deletes stored files no catalog row names after 24 hours.
 - **Kiosk mode** (M10b, FR-SET-6, US-D4, D54): Settings → Kiosk turns it on with a PIN of 4 to 8
   digits. At every start NextLevel is locked: the parts you ticked (desktop, Settings, theme
   switcher, Catalog, Account, Quit) are hidden and also refused behind the scenes. Hold Esc or

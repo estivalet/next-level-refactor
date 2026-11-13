@@ -6,7 +6,9 @@ import { createContext } from '../context.ts';
 import { testEnv } from '../../test/testApp.ts';
 import { seedItem } from '../../test/catalogSeed.ts';
 import { auditPage } from '../admin/audit.ts';
-import { runMaintenance } from './maintenance.ts';
+import { maintenanceFailure, runMaintenance } from './maintenance.ts';
+import { utimes } from 'node:fs/promises';
+import { join } from 'node:path';
 
 const closers: Array<() => Promise<void>> = [];
 afterEach(async () => {
@@ -97,5 +99,36 @@ describe('the maintenance job (D44, security §5)', () => {
     expect(test.db.$client.prepare('select status from catalog_items').pluck().get()).toBe(
       'unpublished',
     );
+  });
+
+  it('orphan sweep deletes keys with no row older than 24 h, keeps newer ones', async () => {
+    const t = await setup();
+    const id = await t.createItem();
+    await t.makePublishable(id);
+    const referenced = t.db.$client
+      .prepare('select storage_key from catalog_files')
+      .pluck()
+      .get() as string;
+    await t.ctx.files.put('files/gone/old', Readable.from(['x']), 1024);
+    await t.ctx.files.put('media/gone/box-front/1', Readable.from(['x']), 1024);
+    await t.ctx.files.put('files/gone/new', Readable.from(['x']), 1024);
+    const old = new Date(t.clock.read().getTime() - 2 * 24 * 3600 * 1000);
+    const recent = new Date(t.clock.read().getTime() - 3600 * 1000);
+    const at = (key: string) => join(t.filesDir, ...key.split('/'));
+    for (const key of ['files/gone/old', 'media/gone/box-front/1', referenced]) {
+      await utimes(at(key), old, old);
+    }
+    await utimes(at('files/gone/new'), recent, recent);
+    expect(await runMaintenance(t.ctx)).toMatchObject({ orphansDeleted: 2 });
+    expect(await t.ctx.files.size('files/gone/old')).toBeNull();
+    expect(await t.ctx.files.size('media/gone/box-front/1')).toBeNull();
+    expect(await t.ctx.files.size('files/gone/new')).toBe(1);
+    expect(await t.ctx.files.size(referenced)).not.toBeNull();
+  });
+
+  it('maintenance failure log includes error.code', () => {
+    const error = Object.assign(new Error('S3 LIST failed with 503'), { code: 'S3_ERROR' });
+    expect(maintenanceFailure(error)).toEqual({ err: 'Error', code: 'S3_ERROR' });
+    expect(maintenanceFailure('boom')).toEqual({ err: 'unknown', code: null });
   });
 });

@@ -17,6 +17,17 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      # S3Store's contract against a real S3-compatible store (D57): a pinned MinIO on localhost.
+      - name: Start MinIO
+        shell: pwsh
+        run: |
+          $minio = "$env:RUNNER_TEMP\minio.exe"
+          Invoke-WebRequest -UseBasicParsing -OutFile $minio -Uri 'https://dl.min.io/server/minio/release/windows-amd64/archive/minio.RELEASE.2024-01-16T16-07-38Z'
+          Start-Process -FilePath $minio -ArgumentList 'server', "$env:RUNNER_TEMP\minio-data", '--address', '127.0.0.1:9000' -WindowStyle Hidden
+          for ($i = 0; $i -lt 30; $i++) {
+            try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:9000/minio/health/live | Out-Null; break } catch { Start-Sleep 1 }
+          }
+          "S3_TEST_ENDPOINT=http://127.0.0.1:9000" >> $env:GITHUB_ENV
       - run: npm test
       # Launcher e2e drives the Electron binary from npm ci; the admin console e2e needs Chromium.
       - run: npx playwright install chromium

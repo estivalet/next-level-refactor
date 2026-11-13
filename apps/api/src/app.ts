@@ -23,7 +23,7 @@ import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
 import type { ApiContext, UploadLimits } from './context.ts';
 import type { FileStore } from './storage/FileStore.ts';
-import { runMaintenance } from './catalog/maintenance.ts';
+import { maintenanceFailure, runMaintenance } from './catalog/maintenance.ts';
 import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
 import { accountRoutes } from './routes/account.ts';
@@ -191,7 +191,7 @@ const MAINTENANCE_EVERY_MS = 10 * 60 * 1000;
 function scheduleMaintenance(app: FastifyInstance, ctx: ApiContext): void {
   const run = () =>
     runMaintenance(ctx).catch((error: unknown) => {
-      app.log.error({ err: error instanceof Error ? error.name : 'unknown' }, 'maintenance failed');
+      app.log.error(maintenanceFailure(error), 'maintenance failed');
     });
   let timer: NodeJS.Timeout | undefined;
   app.addHook('onReady', async () => {

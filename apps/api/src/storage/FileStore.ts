@@ -17,6 +17,20 @@ export interface FileStore {
   size(key: string): Promise<number | null>;
   /** Removes the file; a missing one is fine. */
   delete(key: string): Promise<void>;
+  /**
+   * A URL the launcher downloads `key` from directly (a presigned R2 GET, D57), or null when the
+   * API serves it itself through `/v1/files/:token` (the local disk). No I/O: the URL is signed
+   * here. `filename` names the download.
+   */
+  downloadUrl(key: string, opts: { expiresInSeconds: number; filename?: string }): string | null;
+  /** Every file under `prefix` (the orphan sweep). */
+  list(prefix: string): AsyncIterable<StoredFile>;
+}
+
+export interface StoredFile {
+  key: string;
+  size: number;
+  modifiedAt: Date;
 }
 
 /** Store keys: lowercase-safe segments separated by `/`, never `.`/`..` or empty. */

@@ -1,11 +1,11 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
-import { mkdir, rename, rm, stat } from 'node:fs/promises';
+import { mkdir, readdir, rename, rm, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { Transform, type Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { apiError } from '../errors.ts';
-import { checkKey, type FileStore } from './FileStore.ts';
+import { checkKey, type FileStore, type StoredFile } from './FileStore.ts';
 
 /** Files under one folder on the API's disk (`FILES_DIR`, D40). */
 export class LocalDiskStore implements FileStore {
@@ -71,5 +71,29 @@ export class LocalDiskStore implements FileStore {
 
   async delete(key: string): Promise<void> {
     await rm(this.#path(key), { force: true });
+  }
+
+  /** The API serves local files itself (`/v1/files/:token`). */
+  downloadUrl(): null {
+    return null;
+  }
+
+  /** Files under `prefix`, without the temp files of uploads still running. */
+  async *list(prefix: string): AsyncIterable<StoredFile> {
+    let entries;
+    try {
+      entries = await readdir(this.#root, { recursive: true, withFileTypes: true });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
+    }
+    for (const entry of entries) {
+      if (!entry.isFile() || entry.name.endsWith('.tmp')) continue;
+      const path = join(entry.parentPath, entry.name);
+      const key = path.slice(this.#root.length + 1).replace(/\\/g, '/');
+      if (!key.startsWith(prefix)) continue;
+      const info = await stat(path).catch(() => null);
+      if (info) yield { key, size: info.size, modifiedAt: info.mtime };
+    }
   }
 }
