@@ -16,6 +16,15 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ### Added
 
+- **Kiosk mode** (M10b, FR-SET-6, US-D4, D54): Settings → Kiosk turns it on with a PIN of 4 to 8
+  digits. At every start NextLevel is locked: the parts you ticked (desktop, Settings, theme
+  switcher, Catalog, Account, Quit) are hidden and also refused behind the scenes. Hold Esc or
+  Start for 3 seconds to get the PIN pad; it stays unlocked until restart or **Lock now**. Five
+  wrong PINs make it wait a minute. Forgot the PIN: put an empty file named `reset-kiosk` next
+  to `NextLevel.exe` and start NextLevel.
+- **Sync API** (M10b, FR-SET-5): the service can store an account's synced settings, menus,
+  collections and game state (`/v1/sync`), included in Download my data and removed with the
+  account. The launcher side comes next.
 - **Installer and zip** (M10a, D51): `npm run dist -w apps/launcher` builds a per-user Windows
   installer (default folder `C:\NextLevel`, Program Files refused; Start-menu and desktop
   shortcuts) and a zip of the same build. Updating or uninstalling never deletes the `data` and
