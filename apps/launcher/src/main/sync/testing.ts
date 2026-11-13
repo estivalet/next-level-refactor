@@ -33,6 +33,8 @@ export function fakeSyncServer() {
     offline: false,
     /** Runs once before the next PUT is handled (another PC writing first). */
     beforePut: null as (() => Promise<void>) | null,
+    /** Runs once right after the next PUT is stored. */
+    afterPut: null as (() => void) | null,
     request(method: string, path: string, _schema: unknown, opts: { body?: unknown } = {}) {
       calls.push(`${method} ${path}`);
       if (server.offline) {
@@ -71,6 +73,9 @@ export function fakeSyncServer() {
           data: structuredClone(body.data),
           updatedAt,
         });
+        const after = server.afterPut;
+        server.afterPut = null;
+        after?.();
         return { revision: current.revision + 1, updatedAt };
       })();
     },
@@ -93,7 +98,11 @@ const signedIn = (userId: string): AuthState =>
 /** One PC: its own library, settings and sync.json, against `server`. */
 export async function syncPc(
   server: Server,
-  opts: { now?: () => Date; write?: (file: string, data: string) => Promise<void> } = {},
+  opts: {
+    now?: () => Date;
+    write?: (file: string, data: string) => Promise<void>;
+    maxBytes?: (kind: string) => number;
+  } = {},
 ) {
   const library = await tempLibrary();
   let settings: Settings = defaultSettings();
@@ -148,6 +157,7 @@ export async function syncPc(
     }),
     file: join(library.dir, 'sync.json'),
     ...(opts.write ? { write: opts.write } : {}),
+    ...(opts.maxBytes ? { maxBytes: opts.maxBytes } : {}),
     newId: randomUUID,
     clock,
     every: (_ms, run) => {

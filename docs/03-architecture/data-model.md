@@ -412,7 +412,17 @@ the merged document per kind, the server revision it was merged with, and the ga
 had then. Another account signing in starts over. Delete synced data (here or on another PC)
 keeps only the other PCs' play counters, so this PC's own share stays apart if sync is turned
 on again; another PC finding a document cleared after it synced turns sync off instead of
-uploading its copy again. A write of this file that fails is logged and never fails a sync.
+uploading its copy again; Delete synced data waits for a running sync first. The merged copy
+is kept right after it is applied, before the write to the API, so a write that fails never
+makes applied values (other PCs' plays) look like changes made here; after a write its stamps are
+clamped to the server's `updatedAt`, so a PC whose clock runs ahead doesn't keep winning. A value
+this PC can't apply (a collection name taken here, a newer version's value) keeps this PC's own
+copy in `sync.json` stamped as the account's entry: the account keeps its copy and it is tried
+again. Renames go through a temporary name, so names swapped on one PC swap on the others. A
+collection or smart filter here whose sync id the account doesn't have takes the account's id for
+the same name. Each document syncs on its own: one that fails (or is over 5 MiB, counted in bytes
+before anything is applied) doesn't stop the others. A write of this file that fails is logged
+and never fails a sync.
 
 ## 5. Service database (API)
 

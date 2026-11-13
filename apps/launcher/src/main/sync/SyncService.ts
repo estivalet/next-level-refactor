@@ -19,7 +19,17 @@ import { readFile } from 'node:fs/promises';
 import type { ApiClient } from '../auth/ApiClient.ts';
 import { atomicWrite } from '../fs/atomicWrite.ts';
 import type { KindAdapter } from './documents.ts';
-import { changedKeys, clampEntries, mergeEntries, sameEntries, stampLocal } from './merge.ts';
+import {
+  changedKeys,
+  clampEntries,
+  EPOCH,
+  liveValue,
+  mergeEntries,
+  sameEntries,
+  sameValue,
+  stampLocal,
+  type LocalView,
+} from './merge.ts';
 
 export const SYNC_EVERY_MS = 60 * 60_000;
 export const SYNC_DEBOUNCE_MS = 10_000;
@@ -43,6 +53,8 @@ export interface SyncDeps {
   kinds: () => Partial<Record<SyncKind, KindAdapter>>;
   /** `<data>\sync.json`. */
   file: string;
+  /** The most a document may weigh (SYNC_MAX_BYTES); injected so tests can reach it. */
+  maxBytes?: (kind: SyncKind) => number;
   /** atomicWrite; injected so a failing disk can be tested. */
   write?: (file: string, data: string) => Promise<void>;
   newId: () => string;
@@ -93,6 +105,8 @@ export class SyncService {
   #error: SyncError | null = null;
   #stops: Array<() => void> = [];
   #cancelDebounce: (() => void) | null = null;
+  /** Delete synced data is under way: no sync starts meanwhile. */
+  #holding = false;
 
   constructor(deps: SyncDeps) {
     this.#deps = deps;
@@ -138,6 +152,7 @@ export class SyncService {
   }
 
   async setEnabled(enabled: boolean): Promise<SyncState> {
+    if (!enabled) await this.#settle();
     const section = this.#deps.section();
     await this.#deps.writeSection({
       enabled,
@@ -154,17 +169,31 @@ export class SyncService {
 
   /** Delete synced data: the account's documents go, and sync turns off on this PC. */
   async deleteRemote(): Promise<SyncState> {
-    await this.#deps.auth.accessCall((access) =>
-      this.#deps.api.request('DELETE', '/v1/sync', null, { access }),
-    );
-    await this.#forget();
-    await this.#deps.writeSection({ ...this.#deps.section(), enabled: false });
-    this.#error = null;
+    // A sync still running would write its copy back after the delete.
+    this.#holding = true;
+    try {
+      await this.#settle();
+      await this.#deps.auth.accessCall((access) =>
+        this.#deps.api.request('DELETE', '/v1/sync', null, { access }),
+      );
+      await this.#forget();
+      await this.#deps.writeSection({ ...this.#deps.section(), enabled: false });
+      this.#error = null;
+    } finally {
+      this.#holding = false;
+    }
     return this.#announce();
+  }
+
+  /** Waits for a running sync (and its follow-up) to finish. */
+  async #settle(): Promise<void> {
+    this.#cancelDebounce?.();
+    while (this.#running) await this.#running.catch(() => undefined);
   }
 
   /** One sync of every kind; a call while one runs waits for it and then runs once more. */
   sync(): Promise<SyncState> {
+    if (this.#holding) return Promise.resolve(this.state());
     if (this.#running) {
       this.#again = true;
       return this.#running;
@@ -192,15 +221,30 @@ export class SyncService {
         store.kinds = {};
       }
       const kinds = this.#deps.kinds();
+      let failed: unknown = null;
       for (const kind of SYNC_ORDER) {
         const adapter = kinds[kind];
-        if (!adapter) continue;
-        store.kinds[kind] = await this.#syncKind(kind, adapter, store.kinds[kind] ?? null);
+        // Turned off meanwhile: stop before the next document.
+        if (!adapter || !this.#deps.section().enabled) continue;
+        try {
+          await this.#syncKind(kind, adapter, store.kinds[kind] ?? null, async (state) => {
+            store.kinds[kind] = state;
+            await this.#save();
+          });
+        } catch (error) {
+          if (error instanceof DeletedElsewhere) throw error;
+          // One document failing (too large, ...) never stops the others.
+          failed ??= error;
+          if (errorOf(error) === 'other') {
+            this.#deps.log.warn({ error, kind }, 'settings sync failed');
+          }
+        }
+      }
+      this.#error = failed === null ? null : errorOf(failed);
+      if (failed === null) {
+        store.lastSync = this.#deps.clock().toISOString();
         await this.#save();
       }
-      store.lastSync = this.#deps.clock().toISOString();
-      await this.#save();
-      this.#error = null;
     } catch (error) {
       this.#error = errorOf(error);
       if (error instanceof DeletedElsewhere) {
@@ -215,11 +259,17 @@ export class SyncService {
     return this.#announce();
   }
 
+  /**
+   * One kind: pull, merge, apply here, keep what this PC now has (`commit`, before writing, so a
+   * failed write can't make applied values look like changes made here), then push when the
+   * account's copy differs. A 409 pulls the newer copy and goes round once more.
+   */
   async #syncKind(
     kind: SyncKind,
     adapter: KindAdapter,
     stored: SyncKindState | null,
-  ): Promise<SyncKindState> {
+    commit: (state: SyncKindState) => Promise<void>,
+  ): Promise<void> {
     const path = `/v1/sync/${kind}`;
     let doc: SyncDocument = await this.#deps.auth.accessCall((access) =>
       this.#deps.api.request('GET', path, SyncDocumentSchema, { access }),
@@ -239,24 +289,37 @@ export class SyncService {
       const read = adapter.read(baseEntries, remote);
       const local = stampLocal(baseEntries, new Set(base?.held), read.view, now, base === null);
       const merged = mergeEntries(local, remote, now);
-      await adapter.apply(merged, changedKeys(baseEntries, merged, read.view, read.present), read);
-      base = { revision: doc.revision, entries: merged, held: held(merged, read) };
-      if (sameEntries(merged, remote)) return base;
-      const data = { v: 1 as const, entries: merged };
-      if (JSON.stringify({ baseRevision: doc.revision, data }).length > SYNC_MAX_BYTES) {
+      const write = !sameEntries(merged, remote);
+      const body = { baseRevision: doc.revision, data: { v: 1 as const, entries: merged } };
+      // Checked before anything is applied: a document the API would refuse changes nothing.
+      const limit = this.#deps.maxBytes?.(kind) ?? SYNC_MAX_BYTES;
+      if (write && Buffer.byteLength(JSON.stringify(body)) > limit) {
         throw new AppErrorException({
           code: 'PAYLOAD_TOO_LARGE',
           message: 'errors.payloadTooLarge',
         });
       }
+      const keys = changedKeys(baseEntries, merged, read.view, read.present);
+      await adapter.apply(merged, keys, read);
+      const after = adapter.read(merged, remote);
+      base = {
+        revision: doc.revision,
+        entries: settle(merged, keys, after.view),
+        held: held(merged, after),
+      };
+      await commit(base);
+      if (!write || !this.#deps.section().enabled) return;
       try {
         const written = await this.#deps.auth.accessCall((access) =>
-          this.#deps.api.request('PUT', path, SyncPutResponseSchema, {
-            access,
-            body: { baseRevision: doc.revision, data },
-          }),
+          this.#deps.api.request('PUT', path, SyncPutResponseSchema, { access, body }),
         );
-        return { ...base, revision: written.revision };
+        // The server's time bounds every stamp kept here, as on every other PC.
+        await commit({
+          ...base,
+          revision: written.revision,
+          entries: clampEntries(base.entries, written.updatedAt),
+        });
+        return;
       } catch (error) {
         const newer =
           error instanceof AppErrorException && error.error.code === 'CONFLICT'
@@ -319,6 +382,24 @@ export class SyncService {
     this.#deps.emit(state);
     return state;
   }
+}
+
+/**
+ * What this PC holds after applying `merged`. A value it couldn't apply (a name taken here, a
+ * newer version's value) or applied only in part keeps this PC's own copy, stamped as the
+ * merged entry: it is not a change made here, so the account's copy stays and is tried again.
+ */
+function settle(merged: SyncEntries, keys: readonly string[], view: LocalView): SyncEntries {
+  const settled: SyncEntries = { ...merged };
+  for (const key of keys) {
+    if (!view.holds(key)) continue;
+    const here = view.values.get(key);
+    if (sameValue(here, liveValue(merged[key]))) continue;
+    const updatedAt = merged[key]?.updatedAt ?? EPOCH;
+    settled[key] =
+      here === undefined ? { value: null, updatedAt, deleted: true } : { value: here, updatedAt };
+  }
+  return settled;
 }
 
 /** The games the merged document is about that this PC has. */

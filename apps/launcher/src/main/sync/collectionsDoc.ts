@@ -73,12 +73,16 @@ export function collectionsDoc(deps: CollectionsDocDeps): KindAdapter {
   const rows = (table: Table) =>
     client.prepare(`select id, name, sync_id as syncId from ${table} order by id`).all() as Row[];
 
-  /** Gives missing sync ids, adopting the account's id for a same-named, never-synced row. */
-  function ensureIds(table: Table, prefix: string, base: SyncEntries, remote: SyncEntries) {
+  /**
+   * Gives missing sync ids. A row here whose id the account doesn't have (never synced, or its
+   * write lost a race) takes the account's id for the same name, so the two become one.
+   */
+  function ensureIds(table: Table, prefix: string, remote: SyncEntries) {
     const setId = client.prepare(`update ${table} set sync_id = ? where id = ?`);
     const local = rows(table);
     const taken = new Set(local.map((row) => row.syncId));
-    const unsynced = (row: Row) => row.syncId === null || !(`${prefix}${row.syncId}` in base);
+    const unsynced = (row: Row) =>
+      row.syncId === null || liveValue(remote[`${prefix}${row.syncId}`]) === undefined;
     for (const [key, entry] of Object.entries(remote)) {
       if (!key.startsWith(prefix) || key.includes('|') || entry.deleted) continue;
       const syncId = key.slice(prefix.length);
@@ -100,8 +104,8 @@ export function collectionsDoc(deps: CollectionsDocDeps): KindAdapter {
   return {
     read(base, remote) {
       client.transaction(() => {
-        ensureIds('collections', 'c:', base, remote);
-        ensureIds('smart_filters', 'f:', base, remote);
+        ensureIds('collections', 'c:', remote);
+        ensureIds('smart_filters', 'f:', remote);
       })();
       const games = gameIndex(deps.db);
       const keyOf = new Map([...games].map(([key, id]) => [id, key]));
@@ -162,6 +166,19 @@ export function collectionsDoc(deps: CollectionsDocDeps): KindAdapter {
     table: Table,
     now: string,
   ) {
+    // Renames go through a name no one uses first, so two names swapped elsewhere swap here too.
+    const renamed = new Map<string, string>();
+    const current = client.prepare(`select name from ${table} where sync_id = ?`).pluck();
+    const setName = client.prepare(`update ${table} set name = ? where sync_id = ?`);
+    for (const key of keys) {
+      if (!key.startsWith(prefix) || key.includes('|')) continue;
+      const syncId = key.slice(prefix.length);
+      const name = (liveValue(merged[key]) as { name?: unknown } | undefined)?.name;
+      const before = current.get(syncId) as string | undefined;
+      if (before === undefined || typeof name !== 'string' || name === before) continue;
+      setName.run(`\u0001${syncId}`, syncId);
+      renamed.set(syncId, before);
+    }
     for (const key of keys) {
       if (!key.startsWith(prefix) || key.includes('|')) continue;
       const syncId = key.slice(prefix.length);
@@ -171,7 +188,10 @@ export function collectionsDoc(deps: CollectionsDocDeps): KindAdapter {
         continue;
       }
       const fields = table === 'collections' ? collectionFields(value) : smartFilterFields(value);
-      if (!fields) continue;
+      if (!fields) {
+        restore(table, syncId, renamed);
+        continue;
+      }
       const names = Object.keys(fields);
       try {
         const updated = client
@@ -189,9 +209,23 @@ export function collectionsDoc(deps: CollectionsDocDeps): KindAdapter {
             .run({ ...fields, now, syncId });
         }
       } catch (error) {
-        // Another collection here already has that name: this one keeps its own until renamed.
+        // Another collection here already has that name: this one keeps its own (sync keeps
+        // the account's copy and tries again next time).
+        restore(table, syncId, renamed);
         deps.log.warn({ error, table }, 'a synced collection or filter was not applied');
       }
+    }
+  }
+
+  /** Puts back the name a row had before the rename that couldn't be made. */
+  function restore(table: Table, syncId: string, renamed: ReadonlyMap<string, string>) {
+    const before = renamed.get(syncId);
+    if (before === undefined) return;
+    const setName = client.prepare(`update ${table} set name = ? where sync_id = ?`);
+    try {
+      setName.run(before, syncId);
+    } catch {
+      setName.run(`${before} (${syncId.slice(0, 4)})`, syncId);
     }
   }
 
