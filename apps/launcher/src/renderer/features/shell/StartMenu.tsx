@@ -6,6 +6,7 @@ import { apps, type AppId } from '../../apps/registry.ts';
 import { useFrontend } from '../frontend/useFrontend.ts';
 import { useQuitApp } from './api.ts';
 import { filterApps } from './filterApps.ts';
+import { useKioskHides, useKioskHidesApp } from '../kiosk/kioskApi.ts';
 import { useOpenApp } from './useOpenApp.ts';
 
 const ROW =
@@ -26,7 +27,13 @@ export function StartMenu({
   const frontend = useFrontend();
   const [query, setQuery] = useState('');
   const panel = useRef<HTMLDivElement>(null);
-  const matches = filterApps(apps, query, t);
+  const hidden = useKioskHidesApp();
+  const hides = useKioskHides();
+  const matches = filterApps(
+    apps.filter((app) => !hidden(app.id)),
+    query,
+    t,
+  );
 
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {
@@ -111,12 +118,14 @@ export function StartMenu({
           <li className="px-3 py-2 text-xs text-slate-500">{t('shell.start.noResults')}</li>
         )}
       </ul>
-      <div className="border-t border-white/5 p-2">
-        <button type="button" className={ROW} onClick={quit}>
-          <Power aria-hidden="true" className="h-4 w-4 text-[#ff5f56]" />
-          {t('shell.start.quit')}
-        </button>
-      </div>
+      {!hides('quit') && (
+        <div className="border-t border-white/5 p-2">
+          <button type="button" className={ROW} onClick={quit}>
+            <Power aria-hidden="true" className="h-4 w-4 text-[#ff5f56]" />
+            {t('shell.start.quit')}
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 }

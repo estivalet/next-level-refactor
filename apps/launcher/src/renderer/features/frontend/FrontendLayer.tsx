@@ -10,6 +10,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../settings/settingsApi.ts';
+import { useKioskHides } from '../kiosk/kioskApi.ts';
 import { useOpenApp } from '../shell/useOpenApp.ts';
 import { FrontendLaunchError } from './FrontendLaunchError.tsx';
 import { useFrontend } from './useFrontend.ts';
@@ -36,6 +37,10 @@ export function FrontendLayer() {
   const artSession = useThemeArtSession();
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const layerRef = useRef<HTMLDivElement>(null);
+  // Kiosk (FR-SET-6): a locked kiosk can hide the way to the desktop and the theme switcher.
+  const hides = useKioskHides();
+  const canDesktop = !hides('desktop');
+  const canSwitch = !hides('themeSwitcher');
 
   const host = useLauncherThemeHost({
     settings,
@@ -47,11 +52,13 @@ export function FrontendLayer() {
   const { theme, switchTo } = useFrontendTheme(settings);
 
   const toDesktop = () => {
+    if (!canDesktop) return;
     setMenuOpen(false);
     setSwitcherOpen(false);
     hide();
   };
   const openSwitcher = () => {
+    if (!canSwitch) return;
     setMenuOpen(false);
     setSwitcherOpen(true);
   };
@@ -126,8 +133,8 @@ export function FrontendLayer() {
       {menuOpen && (
         <ThemeExitMenu
           input={settings.input}
-          onDesktop={toDesktop}
-          onSwitchTheme={openSwitcher}
+          {...(canDesktop ? { onDesktop: toDesktop } : {})}
+          {...(canSwitch ? { onSwitchTheme: openSwitcher } : {})}
           onClose={() => {
             setMenuOpen(false);
           }}
