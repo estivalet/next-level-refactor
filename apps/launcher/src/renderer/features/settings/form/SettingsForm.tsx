@@ -1,4 +1,4 @@
-import { GeneralSchema } from '@nextlevel/shared';
+import { GeneralSchema, UpdateSettingsSchema } from '@nextlevel/shared';
 import { useMemo, type ReactNode } from 'react';
 import { FieldControl } from './FieldControl.tsx';
 import { fieldsOf, getAt, setAt } from './fields.ts';
@@ -6,7 +6,7 @@ import { SettingsSection } from './SettingsSection.tsx';
 import type { SettingsDraft } from './useSettingsDraft.ts';
 
 // Sections that are plain schema forms; others (Storage, Systems, …) render their own fields.
-const SECTIONS = { general: GeneralSchema } as const;
+const SECTIONS = { general: GeneralSchema, updates: UpdateSettingsSchema } as const;
 export type FormSectionKey = keyof typeof SECTIONS;
 
 /**

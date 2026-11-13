@@ -333,6 +333,7 @@ async function start(): Promise<void> {
     auth: signIn.auth,
     ...(gameCatalog ? { gameCatalog } : {}),
     updates,
+    openExternal: (url) => shell.openExternal(url),
     scraperAccount: () => accountOf(scraper.client, scraper.quota),
     scraperSystems: (opts) => scraper.client.systems(opts),
     presets: emulatorPresets,

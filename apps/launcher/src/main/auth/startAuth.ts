@@ -93,6 +93,7 @@ export function createAuth(opts: {
     baseUrl,
     fetch: (input, init) => fetch(input, init),
     timeoutMs: API_TIMEOUT_MS,
+    version: opts.appVersion,
   });
   const clock = () => new Date(Date.now() + offsetMs);
   const every = (ms: number, run: () => void) => {

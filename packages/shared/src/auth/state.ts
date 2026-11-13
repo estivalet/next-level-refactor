@@ -13,6 +13,8 @@ export const SIGNED_OUT_REASONS = [
   'error',
   /** The account was deleted from this launcher (D36). */
   'deleted',
+  /** The API needs a newer launcher (`426 UPDATE_REQUIRED`, NFR-UPD-1); the session is kept. */
+  'updateRequired',
 ] as const;
 
 export const AuthStateSchema = z.discriminatedUnion('kind', [

@@ -75,6 +75,7 @@
     "rateLimited": "Tentativas demais. Aguarde um minuto e tente de novo.",
     "apiUnreachable": "Não foi possível falar com o NextLevel. Verifique sua conexão e tente de novo.",
     "billingUnavailable": "A cobrança está indisponível no momento. Tente de novo em alguns minutos.",
+    "updateRequired": "Esta versão do NextLevel é antiga demais para o serviço NextLevel. Atualize para continuar.",
     "downloadFailed": "O download não terminou. Tente de novo.",
     "geminiWebTool": "Não foi possível rodar a ferramenta do site do Gemini. Confira os caminhos em Configurações → Scraper e feche o Firefox antes."
   },
@@ -139,7 +140,8 @@
     "about": {
       "product": "NextLevel",
       "version": "Versão {{version}}",
-      "versionUnavailable": "Versão indisponível"
+      "versionUnavailable": "Versão indisponível",
+      "updates": "Atualizações"
     },
     "fields": {
       "general": {
@@ -167,6 +169,20 @@
             "150": "150%",
             "175": "175%"
           }
+        }
+      },
+      "updates": {
+        "channel": {
+          "label": "Canal de atualização",
+          "help": "Beta também recebe versões de teste antes de todo mundo.",
+          "options": {
+            "stable": "Estável",
+            "beta": "Beta"
+          }
+        },
+        "auto": {
+          "label": "Procurar atualizações automaticamente",
+          "help": "Ao iniciar o NextLevel e a cada 6 horas. Desligado: só quando você clicar em Verificar agora."
         }
       }
     },
@@ -1645,7 +1661,12 @@
     },
     "offline": "Offline",
     "offlineUntil": "Offline — acesso até {{date}}",
-    "bannerDismiss": "Dispensar"
+    "bannerDismiss": "Dispensar",
+    "updateRequired": {
+      "title": "Atualize o NextLevel para continuar",
+      "body": "O serviço NextLevel precisa de uma versão mais nova do launcher. Seus jogos, configurações e login continuam como estão.",
+      "updateNow": "Atualizar agora"
+    }
   },
   "account": {
     "plan": "Plano {{plan}} — cobrança não ativada",
@@ -1840,5 +1861,24 @@
       "start": "Começar",
       "browse": "Explorar o catálogo"
     }
+  },
+  "update": {
+    "notChecked": "Ainda não verificado.",
+    "upToDate": "O NextLevel está atualizado. Última verificação: {{when}}.",
+    "checking": "Procurando atualizações…",
+    "downloading": "Baixando {{version}}… {{percent}}%",
+    "ready": "A versão {{version}} está pronta. Ela é instalada quando o NextLevel fechar.",
+    "errors": {
+      "network": "Não foi possível acessar o servidor de atualizações.",
+      "signature": "A atualização foi recusada: ela não foi assinada pelo NextLevel.",
+      "other": "A atualização não funcionou. Verificar agora tenta de novo."
+    },
+    "dev": "Versões de desenvolvimento não se atualizam.",
+    "zip": "Esta cópia foi descompactada e não consegue se atualizar. Instale o NextLevel com o instalador para receber atualizações, ou baixe o novo zip.",
+    "available": "A versão {{version}} está disponível.",
+    "checkNow": "Verificar agora",
+    "restart": "Reiniciar para atualizar",
+    "openRelease": "Abrir a página de download",
+    "trayRestart": "Reiniciar para atualizar para {{version}}"
   }
 }

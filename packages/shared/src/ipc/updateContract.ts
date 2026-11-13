@@ -33,6 +33,8 @@ export const updateContract = {
   'update.check': { input: z.void(), output: UpdateStateSchema },
   /** Quits and installs a downloaded update, then starts NextLevel again. */
   'update.restart': { input: z.void(), output: z.void() },
+  /** Opens the release a zip copy found (or the releases page) in the browser. */
+  'update.openRelease': { input: z.void(), output: z.void() },
 } as const;
 
 export const updateEvents = {

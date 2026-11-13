@@ -125,6 +125,9 @@
       "invalidEmails": "Not an email: {{lines}}",
       "banner": "Maintenance banner",
       "bannerCount": "{{count}}/280",
+      "minLauncherVersion": "Minimum launcher version",
+      "minLauncherVersionHelp": "Launchers older than this must update before they can use the service. Leave blank for no minimum.",
+      "invalidVersion": "Use a version like 1.0.0.",
       "save": "Save",
       "saved": "Saved."
     },

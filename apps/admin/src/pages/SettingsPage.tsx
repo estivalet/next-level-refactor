@@ -1,4 +1,4 @@
-import { EmailSchema, SIGN_UP_MODES, type AppSettingsPatch } from '@nextlevel/shared';
+import { EmailSchema, isVersion, SIGN_UP_MODES, type AppSettingsPatch } from '@nextlevel/shared';
 import { Button, TextArea, TextField } from '@nextlevel/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,10 @@ import { errorKey } from '../errors.ts';
 
 type Settings = NonNullable<ReturnType<typeof useAppSettings>['data']>;
 
-/** S13 Settings (FR-ADM-4): grace days, sign-up mode, allow-list, maintenance banner. */
+/**
+ * S13 Settings (FR-ADM-4): grace days, sign-up mode, allow-list, maintenance banner, and the
+ * minimum launcher version (NFR-UPD-1).
+ */
 export function SettingsPage() {
   const { t } = useTranslation();
   const settings = useAppSettings();
@@ -47,6 +50,7 @@ function SettingsForm({
   const [mode, setMode] = useState(saved.signUpMode);
   const [list, setList] = useState(saved.allowList.join('\n'));
   const [banner, setBanner] = useState(saved.banner ?? '');
+  const [minVersion, setMinVersion] = useState(saved.minLauncherVersion ?? '');
 
   // Normalized as the server does (trimmed, lowercased, once each), so equal lists compare equal.
   const lines = [
@@ -60,11 +64,14 @@ function SettingsForm({
   const invalid = lines.filter((line) => !EmailSchema.safeParse(line).success);
   const graceDays = Number(grace);
   const graceOk = Number.isInteger(graceDays) && graceDays >= 1 && graceDays <= 30;
+  const minLauncherVersion = minVersion.trim() || null;
+  const versionOk = minLauncherVersion === null || isVersion(minLauncherVersion);
   const patch: AppSettingsPatch = {
     ...(graceDays !== saved.graceDays ? { graceDays } : {}),
     ...(mode !== saved.signUpMode ? { signUpMode: mode } : {}),
     ...(lines.join('\n') !== saved.allowList.join('\n') ? { allowList: lines } : {}),
     ...((banner.trim() || null) !== saved.banner ? { banner: banner.trim() || null } : {}),
+    ...(minLauncherVersion !== saved.minLauncherVersion ? { minLauncherVersion } : {}),
   };
   const changed = Object.keys(patch).length > 0;
 
@@ -127,6 +134,15 @@ function SettingsForm({
           setBanner(event.target.value);
         }}
       />
+      <TextField
+        label={t('admin.settings.minLauncherVersion')}
+        help={t('admin.settings.minLauncherVersionHelp')}
+        error={versionOk ? null : t('admin.settings.invalidVersion')}
+        value={minVersion}
+        onChange={(event) => {
+          setMinVersion(event.target.value);
+        }}
+      />
       {save.error && (
         <p role="alert" className="text-sm text-[#ff8a80]">
           {t(errorKey(save.error))}
@@ -136,7 +152,7 @@ function SettingsForm({
         <Button
           type="submit"
           variant="primary"
-          disabled={!changed || !graceOk || invalid.length > 0 || save.isPending}
+          disabled={!changed || !graceOk || !versionOk || invalid.length > 0 || save.isPending}
         >
           {t('admin.settings.save')}
         </Button>

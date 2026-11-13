@@ -9,6 +9,7 @@ import { OfflineBadge } from '../auth/OfflineBadge.tsx';
 import { TrayClock } from './TrayClock.tsx';
 import { CatalogRemovedNotice } from './CatalogRemovedNotice.tsx';
 import { TrayDownloads } from './TrayDownloads.tsx';
+import { TrayUpdate } from './TrayUpdate.tsx';
 import { dockCovered } from './dock.ts';
 import { useDockReveal } from './useDockReveal.ts';
 import type { ShellWindow } from './windowManager.ts';
@@ -110,6 +111,7 @@ export function Taskbar() {
       <div className="flex items-center gap-2 px-2">
         <OfflineBadge />
         <TrayDownloads />
+        <TrayUpdate />
         <CatalogRemovedNotice />
         <TrayClock />
       </div>

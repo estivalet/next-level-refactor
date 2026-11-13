@@ -133,3 +133,37 @@ describe('sign-in gate (IA §1, S2, US-A1..A3)', () => {
     expect(await screen.findByText('the launcher')).toBeVisible();
   });
 });
+
+describe('update required (NFR-UPD-1, D53)', () => {
+  const required = SIGNED_OUT('updateRequired');
+
+  it('UpdateRequired shows Update now when supported; ready → Restart to update', async () => {
+    const user = userEvent.setup();
+    const fake = setup(required, {
+      'update.state': () => ok({ kind: 'idle', lastCheck: null }),
+      'update.check': () => ok({ kind: 'checking' }),
+      'update.restart': () => ok(undefined),
+    });
+    expect(
+      await screen.findByRole('heading', { name: 'Update NextLevel to continue' }),
+    ).toBeVisible();
+    await user.click(await screen.findByRole('button', { name: 'Update now' }));
+    expect(fake.channels()).toContain('update.check');
+    fake.emit('update.changed', { kind: 'ready', version: '1.0.1' });
+    await user.click(await screen.findByRole('button', { name: 'Restart to update' }));
+    expect(fake.channels()).toContain('update.restart');
+    expect(screen.queryByText('the launcher')).not.toBeInTheDocument();
+  });
+
+  it('UpdateRequired shows the release page link for zip', async () => {
+    const user = userEvent.setup();
+    const fake = setup(required, {
+      'update.state': () =>
+        ok({ kind: 'unsupported', reason: 'zip', availableVersion: null, releaseUrl: null }),
+      'update.openRelease': () => ok(undefined),
+    });
+    await user.click(await screen.findByRole('button', { name: 'Open the download page' }));
+    expect(fake.channels()).toContain('update.openRelease');
+    expect(screen.queryByRole('button', { name: 'Update now' })).toBeNull();
+  });
+});

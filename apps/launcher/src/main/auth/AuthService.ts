@@ -271,6 +271,10 @@ export class AuthService {
         await this.#clear();
         return this.#signedOut('revoked');
       }
+      // The session stays: after the update the launcher signs back in without the browser.
+      if (failure?.kind === 'api' && failure.code === 'UPDATE_REQUIRED') {
+        return this.#signedOut('updateRequired');
+      }
       if (failure === null) this.#deps.log.warn({ error }, 'entitlement check failed');
       const current = this.#vault.current();
       if (current && offlineAllowed(current, this.#deps.clock())) return this.#signedIn(true);
@@ -288,6 +292,9 @@ export class AuthService {
       if (failure?.kind === 'api' && failure.status === 401) {
         await this.#clear();
         await this.#signedOut('revoked');
+      }
+      if (failure?.kind === 'api' && failure.code === 'UPDATE_REQUIRED') {
+        await this.#signedOut('updateRequired');
       }
       if (failure?.kind === 'api') {
         throw new AppErrorException({

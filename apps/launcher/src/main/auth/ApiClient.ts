@@ -48,11 +48,14 @@ export class ApiClient {
   readonly #baseUrl: string;
   readonly #fetch: typeof fetch;
   readonly #timeoutMs: number;
+  readonly #version: string;
 
-  constructor(opts: { baseUrl: string; fetch: typeof fetch; timeoutMs: number }) {
+  /** `version`: this launcher's, sent as `X-NextLevel-Version` (minimum version, NFR-UPD-1). */
+  constructor(opts: { baseUrl: string; fetch: typeof fetch; timeoutMs: number; version: string }) {
     this.#baseUrl = opts.baseUrl;
     this.#fetch = opts.fetch;
     this.#timeoutMs = opts.timeoutMs;
+    this.#version = opts.version;
   }
 
   launcherConfig(): Promise<LauncherConfig> {
@@ -125,7 +128,7 @@ export class ApiClient {
     schema: z.ZodType<T> | null,
     opts: { body?: unknown; access?: string } = {},
   ): Promise<T> {
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = { 'x-nextlevel-version': this.#version };
     if (opts.body !== undefined) headers['content-type'] = 'application/json';
     if (opts.access) headers['authorization'] = `Bearer ${opts.access}`;
     // A timer (not AbortSignal.timeout) so a hung request is bounded the same way in tests.

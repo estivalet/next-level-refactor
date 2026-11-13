@@ -13,7 +13,7 @@ const ENTITLEMENT = {
 
 type Answer = { status: number; body?: unknown } | 'network' | 'hang';
 
-function client(answer: Answer, timeoutMs = 10_000) {
+function client(answer: Answer, timeoutMs = 10_000, version = '0.10.0') {
   const requests: Array<{ url: string; init: RequestInit | undefined }> = [];
   const fakeFetch = (input: string | URL | Request, init?: RequestInit) => {
     requests.push({ url: input instanceof Request ? input.url : input.toString(), init });
@@ -33,7 +33,7 @@ function client(answer: Answer, timeoutMs = 10_000) {
     );
   };
   return {
-    api: new ApiClient({ baseUrl: 'http://api.test', fetch: fakeFetch, timeoutMs }),
+    api: new ApiClient({ baseUrl: 'http://api.test', fetch: fakeFetch, timeoutMs, version }),
     requests,
   };
 }
@@ -43,6 +43,30 @@ const failureOf = (promise: Promise<unknown>) =>
     () => null,
     (error: unknown) => (error instanceof ApiFailure ? error.failure : error),
   );
+
+describe('API client version header (NFR-UPD-1)', () => {
+  it('ApiClient sends X-NextLevel-Version on every call', async () => {
+    const { api, requests } = client({ status: 200, body: [] }, 10_000, '1.0.0-beta.1');
+    await api.devices('a1');
+    await api.plans().catch(() => undefined);
+    for (const request of requests) {
+      expect(new Headers(request.init?.headers).get('x-nextlevel-version')).toBe('1.0.0-beta.1');
+    }
+    expect(requests).toHaveLength(2);
+  });
+
+  it('426 UPDATE_REQUIRED is an API failure, not offline', async () => {
+    const { api } = client({
+      status: 426,
+      body: { error: { code: 'UPDATE_REQUIRED', message: 'x', requestId: 'r' } },
+    });
+    expect(await failureOf(api.entitlement('a1'))).toMatchObject({
+      kind: 'api',
+      status: 426,
+      code: 'UPDATE_REQUIRED',
+    });
+  });
+});
 
 describe('API client (FR-AUTH-5: offline means "keep the grace")', () => {
   it('a good answer is parsed; the Bearer token goes in the header, never the URL', async () => {

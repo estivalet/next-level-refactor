@@ -119,6 +119,8 @@ export interface MainDeps {
   gameCatalog?: CatalogApi;
   /** Updates (NFR-UPD-1); absent in tests that don't wire them (acts as a development build). */
   updates?: Pick<UpdateService, 'state' | 'check' | 'restart'>;
+  /** Opens a web page in the browser (Electron's shell). */
+  openExternal?: (url: string) => Promise<void>;
 }
 
 function unwrap<T>(result: Result<T>): T {
@@ -201,7 +203,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
     }),
     ...createAuthHandlers(deps.auth),
     ...createCatalogHandlers(deps.gameCatalog ?? UNAVAILABLE_CATALOG),
-    ...createUpdateHandlers(deps.updates),
+    ...createUpdateHandlers(deps.updates, deps.openExternal ?? (() => Promise.resolve())),
     ...createScrapeHandlers({
       service: () => library().scrape,
       launchbox: () => library().launchboxScrape,
