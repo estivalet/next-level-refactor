@@ -19,6 +19,11 @@ M10-1 — polish before 1.0.
   is inside or contains one of your ROM folders.
 - **Essentials only** (D63): a Library filter for the games in your "… Essentials" collections
   (exports keep it), and an *Essentials collections only* option in Import NextLevelOS.
+- **Linked catalog files** (FR-CAT-9, ADR-015): in the admin console a catalog file can be a
+  Google Drive or archive.org link instead of an upload. The API downloads it once to record its
+  size and SHA-256 (nothing is kept); players download it straight from the host, checked as
+  usual. **Check again** picks up a file changed at its host as an update. If the host refuses
+  (Drive's daily limit), the download pauses until the player resumes it.
 
 ### Fixed
 
