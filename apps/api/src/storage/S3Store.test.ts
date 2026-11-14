@@ -103,7 +103,8 @@ s3Cases('in-process fake S3', async (opts) => {
   };
 });
 
-// A real S3-compatible store (CI starts MinIO and sets these; R2 works the same way).
+// A real S3-compatible store (R2, MinIO, …) when S3_TEST_ENDPOINT is set. Not run in CI: the S3
+// store is on hold (owner, 2026-11-14) and MinIO's binaries are no longer published.
 const real = process.env['S3_TEST_ENDPOINT'];
 if (real) {
   const bucket = process.env['S3_TEST_BUCKET'] ?? 'nextlevel-test';

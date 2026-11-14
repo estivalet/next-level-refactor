@@ -30,27 +30,3 @@ jobs:
             apps/launcher/test-results
             apps/admin/test-results
           retention-days: 7
-
-  # S3Store's contract and cases against a real S3-compatible store (D57): MinIO in a container
-  # (its Windows binaries are no longer published), pinned to a release image.
-  s3:
-    runs-on: ubuntu-latest
-    env:
-      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
-      S3_TEST_ENDPOINT: http://127.0.0.1:9000
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: Start MinIO
-        run: |
-          docker run -d --name minio -p 9000:9000             -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin             minio/minio:RELEASE.2025-04-22T22-12-26Z server /data
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:9000/minio/health/live && break
-            sleep 1
-          done
-      - run: npm ci --ignore-scripts
-      - run: npm rebuild better-sqlite3
-      - run: npx vitest run apps/api/src/storage apps/api/src/routes/catalogDownloads.s3.test.ts

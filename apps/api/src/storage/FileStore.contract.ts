@@ -4,8 +4,8 @@ import { text } from 'node:stream/consumers';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { FileStore } from './FileStore.ts';
 
-// What every FileStore does (D40, D57): the local disk always, an S3 store (R2, MinIO) when one
-// is reachable. Each test uses its own key prefix so a shared bucket is fine.
+// What every FileStore does (D40, D57): the local disk and an in-process fake S3 always, a real S3
+// store (R2, MinIO) when S3_TEST_ENDPOINT is set. Each test uses its own key prefix so a shared bucket is fine.
 
 export interface ContractSubject {
   store: FileStore;

@@ -156,7 +156,11 @@ actions.
 
 ## 8. Provisioning (when the owner chooses to host)
 
-Written in M10c and not carried out (D56, D59: no-spending rule, 2026-10-30). In order:
+Written in M10c and not carried out (D56, D59: no-spending rule, 2026-10-30). In order. The R2
+steps are **on hold** (owner, 2026-11-14): `FILE_STORE=s3` was never tried against a real
+bucket, so run `S3_TEST_ENDPOINT=<bucket endpoint> npx vitest run apps/api/src/storage` against
+it before relying on it; without R2, keep `FILE_STORE=local` and back up `/data` (database and
+`files/`) together.
 
 1. **VPS:** one small server (Hetzner CX22 or similar), Ubuntu LTS, SSH key login only, a firewall
    allowing 22, 80 and 443. Install Docker Engine and the compose plugin. Make `/opt/nextlevel`
