@@ -1,0 +1,45 @@
+# Production on one VPS (D56): `docker compose up -d` in the folder with this file, the Caddyfile
+# and a .env made from .env.example. See docs/05-operations/deployment-and-operations.md §8.
+name: nextlevel
+
+services:
+  api:
+    image: ghcr.io/estivalet/nextlevel-api:${NEXTLEVEL_VERSION:?set NEXTLEVEL_VERSION in .env}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Only Caddy can reach the API (no published port), so its X-Forwarded-For is believed.
+      TRUST_PROXY: 'true'
+    volumes:
+      - data:/data
+    expose:
+      - '4000'
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      NEXTLEVEL_DOMAIN: ${NEXTLEVEL_DOMAIN:?set NEXTLEVEL_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  # The daily database backup, 03:00 UTC, to BACKUP_S3_* (else the file store).
+  backup:
+    image: ghcr.io/estivalet/nextlevel-api:${NEXTLEVEL_VERSION:?set NEXTLEVEL_VERSION in .env}
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - data:/data
+    command: ['node', 'apps/api/src/ops/backup.ts', '--daily']
+
+volumes:
+  data:
+  caddy-data:
+  caddy-config:

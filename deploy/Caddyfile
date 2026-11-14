@@ -1,0 +1,5 @@
+# HTTPS in front of the API and the admin console (D56); Caddy gets and renews the certificate.
+{$NEXTLEVEL_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:4000
+}

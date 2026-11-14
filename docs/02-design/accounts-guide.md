@@ -73,6 +73,20 @@ paid subscription at once (no automatic refund — ask the operator), deletes th
 devices on the service, and signs this PC out. Your games, settings, menus and collections on
 this PC stay as they are. Signing in again later starts a new account.
 
+### Settings sync
+
+**Settings → Sync → Sync with my account** (off on every PC until you turn it on there, D55)
+keeps your language, theme choices, sounds, input mapping, scraper preferences, menus,
+collections, smart filters and each game's favorite, hidden, completed, rating, play count, play
+time and last played the same on every PC where it is on. It syncs at start, 10 seconds after a
+change, every hour and on **Sync now**. Changes merge one by one, so a rename on one PC and a new
+game in the same collection on another both stay; play counts and time add up. Folders, storage
+locations, emulators, per-system settings, keys and kiosk mode never sync. A game is matched by
+its system and its path inside the storage location (catalog games by item); a game this PC
+doesn't have keeps its state in your account until a scan finds it. **Delete synced data**
+removes it from your account and turns sync off on this PC; other PCs turn it off at their next
+sync. Nothing on any PC is deleted.
+
 ### Suspended accounts
 
 If the operator suspends an account, the launcher locks at its next check (within an hour while

@@ -134,6 +134,8 @@ describe('the files route (FR-CAT-6, security §2, Review Focus 1)', () => {
         put: (key, body, limit) => store.put(key, body, limit),
         size: (key) => store.size(key),
         delete: (key) => store.delete(key),
+        downloadUrl: () => null,
+        list: (prefix) => store.list(prefix),
         open: async (key, range) => {
           if (vanish) await store.delete(key);
           return store.open(key, range);

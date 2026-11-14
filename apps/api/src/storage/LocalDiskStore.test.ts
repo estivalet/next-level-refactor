@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { text } from 'node:stream/consumers';
 import { afterEach, describe, expect, it } from 'vitest';
+import { fileStoreContract } from './FileStore.contract.ts';
+import type { FileStore } from './FileStore.ts';
 import { LocalDiskStore } from './LocalDiskStore.ts';
 
 const dirs: string[] = [];
@@ -89,5 +91,31 @@ describe('LocalDiskStore (D40, ADR-012)', () => {
     const { files } = await store();
     await expect(files.put('../escape', Readable.from(['x']), 10)).rejects.toThrow(/key/);
     await expect(files.size('files/../../x')).rejects.toThrow(/key/);
+  });
+});
+
+fileStoreContract('LocalDiskStore', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'nextlevel-files-'));
+  return {
+    store: new LocalDiskStore(dir),
+    cleanup: () => rm(dir, { recursive: true, force: true }),
+  };
+});
+
+describe('LocalDiskStore downloads (D57)', () => {
+  it('has no direct URL: the API serves the file through /v1/files/:token', async () => {
+    const files: FileStore = (await store()).files;
+    expect(
+      files.downloadUrl('files/i1/f1', { expiresInSeconds: 600, filename: 'a.zip' }),
+    ).toBeNull();
+  });
+
+  it('list skips temp files of uploads still running', async () => {
+    const { dir, files } = await store();
+    await files.put('files/i1/f1', Readable.from(['x']), 1024);
+    await writeFile(join(dir, 'files', 'i1', 'f2.0000.tmp'), 'partial');
+    const keys: string[] = [];
+    for await (const file of files.list('files/')) keys.push(file.key);
+    expect(keys).toEqual(['files/i1/f1']);
   });
 });

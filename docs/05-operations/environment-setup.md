@@ -33,7 +33,8 @@ cp apps/api/.env.example apps/api/.env   # then set JWT_SECRET (the file says ho
 | Variable | Example | Required |
 |---|---|---|
 | `NODE_ENV` | `development` | yes |
-| `PORT` | `4000` | yes |
+| `PORT` | `4000` | no (default `4000`) |
+| `HOST` | `127.0.0.1` | no (default `127.0.0.1`); the Docker image sets `0.0.0.0` so Caddy reaches it |
 | `PUBLIC_URL` | `http://localhost:4000` | yes |
 | `DATABASE_URL` | `file:./data/nextlevel.db` | yes |
 | `JWT_SECRET` | 64 random bytes, base64 (≥ 32 bytes) | yes |
@@ -46,13 +47,22 @@ cp apps/api/.env.example apps/api/.env   # then set JWT_SECRET (the file says ho
 | `BILLING_STUB` | `1` | no; fake Checkout/Portal and signed webhooks (D32); development and tests only, refused with `NODE_ENV=production` |
 | `STRIPE_SECRET_KEY` | `sk_test_…` | when `BILLING_ENABLED=true` and `BILLING_STUB` is not `1` |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_…` (from `stripe listen` or the Dashboard endpoint) | when `BILLING_ENABLED=true` and `BILLING_STUB` is not `1`; the stub uses a fixed dev value |
-| `STORAGE_DRIVER` | `local` or `s3` | yes |
-| `STORAGE_LOCAL_DIR` | `./data/files` | when `local` |
-| `S3_ENDPOINT` / `S3_BUCKET` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | R2 values | when `s3` |
+| `FILE_STORE` | `local` or `s3` | no (default `local`, D40); `s3` keeps catalog files, art, evidence and backups in an S3-compatible bucket and hands out presigned download URLs (D57) |
+| `FILES_DIR` | `./data/files` | no; with `local`, default `<database folder>/files` |
+| `S3_ENDPOINT` / `S3_BUCKET` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | `https://<account id>.r2.cloudflarestorage.com`, `nextlevel-catalog`, an R2 API token's key pair | when `FILE_STORE=s3` |
+| `S3_REGION` | `auto` | no (default `auto`, right for R2; MinIO uses `us-east-1`) |
+| `BACKUP_S3_ENDPOINT` / `BACKUP_S3_BUCKET` / `BACKUP_S3_ACCESS_KEY_ID` / `BACKUP_S3_SECRET_ACCESS_KEY` | a second R2 bucket and a token that only reaches it | no; where `ops/backup.ts` writes the daily backups (else the file store). Use them in production: a key leaked from the API can't delete the backups |
+| `BACKUP_S3_REGION` | `auto` | no (default `auto`) |
+| `TRUST_PROXY` | `true`, or `172.16.0.0/12,10.0.0.1` | no (default off); believe `X-Forwarded-For` (rate limits and download `ip_hash` per client behind Caddy). `true` only when nothing but the proxy can reach the API (`deploy/compose.yaml` sets it) |
 | `ADMIN_ORIGIN` | `http://localhost:5174` | dev only: where the admin sign-in returns (the Vite dev server) |
 | `ADMIN_DIST` | `../admin/dist` | no; the built admin console the API serves at `/` |
 
 The API validates these at startup (Zod) and refuses to start with a clear message if any are invalid.
+
+> **Warning:** `BILLING_ENABLED=true` with no Stripe keys and no `BILLING_STUB=1` is refused at
+> start. Billing stays `false` in production until the owner's Stripe test-mode check (D32) and
+> the live switch (D58, §8 of deployment-and-operations). With billing on and Stripe unreachable,
+> sign-ups get `BILLING_UNAVAILABLE` (503) instead of access.
 
 Launcher dev config: the API address is fixed per build (`MAIN_VITE_API_URL`, default
 `http://localhost:4000`). Development builds also honour `NEXTLEVEL_API_URL` (another API) and

@@ -1,7 +1,7 @@
 import type { DownloadGrant } from '@nextlevel/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 import { catalogWorld } from '../../test/catalogPlayer.ts';
-import { signIn } from '../../test/launcherSignIn.ts';
+import { bearer, signIn } from '../../test/launcherSignIn.ts';
 import { createTestApp } from '../../test/testApp.ts';
 
 const closers: Array<() => Promise<void>> = [];
@@ -81,5 +81,26 @@ describe('download URLs (FR-CAT-6, security §2)', () => {
     // The access token expired meanwhile (15 min): the launcher refreshes; here, sign in again.
     const again = await signIn(t.app, 'subscriber');
     expect((await t.issue(again.deviceId, again.accessToken)).statusCode).toBe(200);
+  });
+
+  it('D56: behind Caddy (TRUST_PROXY=true) each client keeps its own address; without it, not', async () => {
+    const hashes = async (rawEnv: Record<string, string>) => {
+      const test = await createTestApp({ rawEnv });
+      closers.push(test.close);
+      const world = await catalogWorld(test.app);
+      const id = await world.publish('star-hopper');
+      await world.planScopes(['homebrew-8bit']);
+      for (const address of ['203.0.113.7', '198.51.100.9']) {
+        await test.app.inject({
+          method: 'POST',
+          url: `/v1/catalog/items/${id}/downloads`,
+          headers: { ...bearer(world.player.accessToken), 'x-forwarded-for': address },
+          payload: { deviceId: world.player.deviceId },
+        });
+      }
+      return new Set(test.db.$client.prepare('select ip_hash from downloads').pluck().all());
+    };
+    expect((await hashes({ TRUST_PROXY: 'true' })).size).toBe(2);
+    expect((await hashes({})).size).toBe(1);
   });
 });

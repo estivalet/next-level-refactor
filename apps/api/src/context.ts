@@ -1,5 +1,7 @@
+import { dirname, join } from 'node:path';
 import type { FileStore } from './storage/FileStore.ts';
 import { LocalDiskStore } from './storage/LocalDiskStore.ts';
+import { S3Store } from './storage/S3Store.ts';
 import { MAX_UPLOAD_BYTES, type AppSettings } from '@nextlevel/shared';
 import { v7 as uuidv7 } from 'uuid';
 import { jwtKeys, type JwtKeys } from './auth/tokens.ts';
@@ -51,6 +53,13 @@ export const DEFAULT_LIMITS: UploadLimits = {
   evidence: 20 * 1024 ** 2,
 };
 
+/** The local disk, or the S3 bucket (R2) with uploads spooled next to the database (D57). */
+export function fileStoreFor(env: Env): FileStore {
+  const store = env.fileStore;
+  if (store.kind === 'local') return new LocalDiskStore(env.filesDir);
+  return new S3Store({ ...store, tempDir: join(dirname(env.databaseFile), 'upload-temp') });
+}
+
 export function createContext(deps: {
   env: Env;
   db: ApiDb;
@@ -76,7 +85,7 @@ export function createContext(deps: {
     subscriptions: new SubscriptionRepository(db),
     billing: deps.billing,
     settings: () => loadAppSettings(db),
-    files: deps.files ? deps.files(env.filesDir) : new LocalDiskStore(env.filesDir),
+    files: deps.files ? deps.files(env.filesDir) : fileStoreFor(env),
     limits: { ...DEFAULT_LIMITS, ...deps.limits },
   };
 }

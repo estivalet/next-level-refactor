@@ -108,6 +108,43 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     });
   });
 
+  it('D57: a 403 after the URL expired re-issues URLs once and resumes from the partial file', async () => {
+    const w = await downloadWorld(closers);
+    const contents = body('one');
+    const item = w.add('i1', [contents]);
+    const file = item.files[0];
+    if (!file) throw new Error('no file');
+    // A presigned URL (R2) that delivers 100 bytes, then expires while the download is paused.
+    w.server.serve('presigned-1', contents);
+    w.server.cutAfter('presigned-1', 100);
+    const grantWith = (url: string) =>
+      Promise.resolve({
+        files: [
+          {
+            fileId: file.id,
+            filename: file.filename,
+            size: file.size,
+            sha256: file.sha256,
+            url,
+            expiresAt: '2026-10-29T10:10:00.000Z',
+          },
+        ],
+      });
+    w.state.nextGrant = () => grantWith(w.server.url('presigned-1'));
+    const service = w.make();
+    await service.install('i1');
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'paused', pausedReason: 'network' });
+    w.server.refuse('presigned-1', 403);
+    w.state.nextGrant = () => grantWith(w.server.url('presigned-1'));
+    w.server.ranges.length = 0;
+    service.networkBack();
+    await service.idle();
+    expect(w.state.grantCalls).toBe(3);
+    expect(w.server.ranges).toEqual(['bytes=100-', 'bytes=100-']);
+    expect(w.installed).toHaveLength(1);
+  });
+
   it('an expired URL that works the second time finishes', async () => {
     const w = await downloadWorld(closers);
     const item = w.add('i1', [body('one')]);
