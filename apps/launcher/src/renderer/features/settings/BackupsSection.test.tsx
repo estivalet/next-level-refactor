@@ -42,6 +42,24 @@ describe('BackupsSection', () => {
     expect(await screen.findByText('Backup restored.')).toBeVisible();
   });
 
+  it('FR-SET-3: Backup restored shows as soon as the restore is done, not after the list reloads', async () => {
+    const user = userEvent.setup();
+    let lists = 0;
+    installFakeBridge({
+      // The list reload after the restore never answers (a slow disk): the notice can't wait on it.
+      'settings.backups.list': () => {
+        lists += 1;
+        return lists === 1 ? ok([BACKUP]) : new Promise<never>(() => undefined);
+      },
+      'settings.backups.restore': () => ok({ settings: defaultSettings(), revision: 2 }),
+    });
+    renderInShell(<BackupsSection />);
+    await user.click(await screen.findByRole('button', { name: 'Restore' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm restore' }));
+    expect(await screen.findByText('Backup restored.')).toBeVisible();
+    expect(lists).toBe(2);
+  });
+
   it('US-D3: Cancel leaves the settings alone', async () => {
     const user = userEvent.setup();
     const bridge = installFakeBridge({ 'settings.backups.list': () => ok([BACKUP]) });

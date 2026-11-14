@@ -9,7 +9,11 @@
 .worktrees
 docs
 deploy
-apps/api/.env
+# Secrets and local dev data never go into an image.
+**/.env
+**/.env.*
+!**/.env.example
+**/.nextlevel-dev
 apps/api/data
 **/*.db
 **/*.db-*

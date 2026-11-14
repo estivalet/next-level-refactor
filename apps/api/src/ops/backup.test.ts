@@ -77,6 +77,25 @@ describe('daily backup (D56, deployment runbook)', () => {
     expect((await readdir(t.dir)).filter((name) => name.includes('backup-'))).toEqual([]);
   });
 
+  it('NFR-REL-1: a read error while compressing the backup fails the backup instead of hanging', async () => {
+    const t = await setup();
+    const failing = () =>
+      new Readable({
+        read() {
+          this.destroy(new Error('disk read failed'));
+        },
+      });
+    await expect(
+      runBackup({
+        databaseFile: t.databaseFile,
+        store: t.store,
+        clock: () => new Date('2026-11-14T03:00:00.000Z'),
+        readTemp: failing,
+      }),
+    ).rejects.toThrow('disk read failed');
+    expect(await t.store.size('backups/heartbeat.json')).toBeNull();
+  });
+
   it('the daily loop waits until the next 03:00 UTC', () => {
     expect(msUntilNext(3, new Date('2026-11-14T01:00:00.000Z'))).toBe(2 * 3600_000);
     expect(msUntilNext(3, new Date('2026-11-14T03:00:00.000Z'))).toBe(24 * 3600_000);

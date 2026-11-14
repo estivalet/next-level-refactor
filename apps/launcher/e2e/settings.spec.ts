@@ -44,7 +44,8 @@ test('FR-SET-1/3, US-D3: a setting persists across restart, and a backup restore
     await settings.getByRole('button', { name: 'Backups' }).click();
     await settings.getByRole('button', { name: 'Restaurar' }).first().click();
     await settings.getByRole('button', { name: 'Confirmar restauração' }).click();
-    await expect(settings.getByText('Backup restaurado.')).toBeVisible();
+    // The restore writes and fsyncs the file and its backup: slow on a cold CI runner.
+    await expect(settings.getByText('Backup restaurado.')).toBeVisible({ timeout: 15_000 });
     await settings.getByRole('button', { name: 'Geral' }).click();
     await expect(settings.getByRole('switch', { name: 'Iniciar com o Windows' })).not.toBeChecked();
     await expect(settings.getByRole('combobox', { name: 'Idioma' })).toHaveValue('pt-BR');

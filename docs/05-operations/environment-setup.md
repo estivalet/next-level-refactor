@@ -113,10 +113,12 @@ per-user install (shortcuts, Apps & features entry): run it on CI or a PC withou
 **Releasing.** Set the version in every workspace (`npm version <v> --workspaces
 --include-workspace-root --no-git-tag-version`), commit, then push the tag `v<version>`. The
 Release workflow (`.github/workflows/release.yml`) checks the tag matches `apps/launcher`'s
-version, runs lint/typecheck/tests, publishes the installer, zip, blockmap and `latest.yml` to a
-**draft** GitHub release, marks tags with `-` (`v1.0.0-beta.1`) as pre-releases, and runs the
-packaging smoke on the built installer. Launchers see the release once you publish the draft;
-the beta channel also takes pre-releases.
+version, runs lint/typecheck/tests, builds the installer and zip, runs the packaging smoke on the
+built installer and only then creates a **draft** GitHub release with the installer, zip,
+blockmap and `latest.yml` (beta versions write `latest.yml` too; asset names use `-` for spaces,
+as `latest.yml` names them). Tags with `-` (`v1.0.0-beta.1`) are marked pre-releases. A failed
+smoke leaves no draft. Launchers see the release once you publish the draft; the beta channel
+also takes pre-releases.
 
 ## Signing (D52)
 
