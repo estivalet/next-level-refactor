@@ -61,7 +61,8 @@ describe('snapshot before migrations (D56, deployment runbook)', () => {
     const before = await readdir(dir);
     openDb(path).$client.close();
     expect(await readdir(dir)).toEqual(before);
-  });
+    // Three database passes (build at 0000, migrate with the snapshot, open again): ~11 s on CI.
+  }, 30_000);
 
   it('a brand-new database has nothing to keep: no snapshot', async () => {
     const dir = await folder();
