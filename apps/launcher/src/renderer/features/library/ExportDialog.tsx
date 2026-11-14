@@ -32,7 +32,7 @@ const OPTION = 'flex items-center gap-2 rounded px-1 py-1 text-xs text-slate-300
  * game or only the ones shown, with the fields the user ticks. Format and fields are remembered.
  */
 export function ExportDialog({ scope, title, view, counts, onClose }: ExportDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [choices, setChoices] = useState(readChoices);
   const [which, setWhich] = useState<'every' | 'shown'>('every');
   const exporting = useMutation({
@@ -43,7 +43,8 @@ export function ExportDialog({ scope, title, view, counts, onClose }: ExportDial
     setChoices(next);
     saveChoices(next);
   };
-  const count = (value: number | null) => (value === null ? '…' : value.toLocaleString());
+  const count = (value: number | null) =>
+    value === null ? '…' : value.toLocaleString(i18n.language);
   const narrowing = [
     t(`library.tabs.${view.tab}`),
     ...(view.filter ? [view.filter] : []),

@@ -3,6 +3,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
+import i18n from '../../i18n.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
 import { gameRow, libraryResponses, N64_SCOPE } from './testing.ts';
@@ -151,6 +152,17 @@ describe('the scope view (D62)', () => {
     await waitFor(() => {
       expect(lastQuery().essentials).toBeUndefined();
     });
+  });
+
+  it("D63: counts follow the app's language, not the system's", async () => {
+    await i18n.changeLanguage('pt-BR');
+    try {
+      setup(12345);
+      const essentials = await screen.findByRole('button', { name: /Só essenciais/ });
+      expect(essentials).toHaveTextContent('12.345');
+    } finally {
+      await i18n.changeLanguage('en');
+    }
   });
 
   it('D63: no Essentials only filter when the scope has no Essentials games', async () => {
