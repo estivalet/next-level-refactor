@@ -5,6 +5,20 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] - 2026-11-13
+
+M10 — Release 1.0, first beta: a Windows installer and zip that never touch your `data` and
+`Catalog` folders, automatic updates (stable and beta), kiosk mode for cabinets, and settings
+sync between your PCs. The service side is ready to host (Docker image, Caddy, daily backups,
+Cloudflare R2 for catalog files) but **not deployed**: like 0.9 it runs on your own PC (D56).
+
+- **Builds are not code-signed** (D52): Windows SmartScreen warns the first time — choose
+  **More info → Run anyway**.
+- **Billing is in Stripe test mode only** and off by default; the real Stripe check (D32) and real
+  Google sign-in (D26) are owner checks on the 1.0 checklist.
+- Beta first: after at least 48 hours on the beta channel and the release checklist, the same
+  build becomes `v1.0.0`.
+
 ### Changed
 
 - **Settings → Emulators** is now two panes (FR-EMU-2): the emulators A–Z on the left with a
@@ -326,6 +340,9 @@ for the owner's checks.
 - M9 catalog plan (`docs/superpowers/plans/2026-10-28-m9-catalog.md`).
 
 ## [0.8.0] - 2026-10-27
+
+Never tagged on its own: these changes first shipped in 0.9.0. The real Stripe test-mode check
+(D32) that held the tag moved to the 1.0 release checklist.
 
 M8 — Subscriptions, in **Stripe test mode only** (D31): plans with monthly/yearly prices, the
 launcher's Subscribe screen with Stripe Checkout, the Customer Portal for billing, webhooks that

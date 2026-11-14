@@ -80,7 +80,7 @@ reads it as empty (sign in again, re-enter ScreenScraper credentials) and logs t
 | Devices (name, platform, app version, last seen) | device limits, security | launcher | until revoked + 90 days |
 | Download log (user, file, time, hashed IP) | abuse detection, license reporting | API | 12 months |
 | Audit log | accountability | API | 3 years |
-| Synced settings/menus/collections/game state (M10) | sync feature | launcher (opt-in) | while sync enabled; deleted on disable |
+| Synced settings/menus/collections/game state (M10b, D55) | sync feature | launcher (opt-in, per PC) | until Settings → Sync → Delete synced data or account deletion (turning sync off keeps it) |
 | Crash reports | stability | launcher (opt-in) | 90 days |
 
 **Not collected:** payment card data (Stripe only), local ROM file lists (unless sync is enabled,
