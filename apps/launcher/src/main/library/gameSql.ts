@@ -76,9 +76,19 @@ function scopeParts(scope: GameScope, smartIds: string | null) {
 }
 
 /** The game is in an Essentials collection (D63; the SQL twin of `isEssentialsName`). */
+const ESSENTIALS_NAME = (n: string) =>
+  [
+    `${n} = 'essentials'`,
+    `${n} like '% essentials'`,
+    `${n} = 'essentials (nextlevelos)'`,
+    `${n} like '% essentials (nextlevelos)'`,
+    `${n} glob 'essentials (nextlevelos [1-9]*)'`,
+    `${n} glob '* essentials (nextlevelos [1-9]*)'`,
+  ].join(' or ');
+
 export const ESSENTIALS_SQL = `g.id in (select cg.game_id from collection_games cg
   join collections c on c.id = cg.collection_id
-  where lower(trim(c.name)) = 'essentials' or lower(trim(c.name)) like '% essentials')`;
+  where ${ESSENTIALS_NAME('lower(trim(c.name))')})`;
 
 /** One row with each tab's game count in a scope, columns named after the tabs. */
 export function tabCountsSql(scope: GameScope, smartIds: string | null = null): string {

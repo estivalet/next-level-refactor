@@ -1,6 +1,10 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
+// CI runners have 2 cores: a busy one has taken over 5 s (vitest's default) for a test that runs
+// in 70 ms here (Installer.test.ts, PR #87). A hang still fails, later; local runs keep 5 s.
+const testTimeout = process.env.GITHUB_ACTIONS === 'true' ? 20_000 : 5_000;
+
 export default defineConfig({
   test: {
     passWithNoTests: true,
@@ -9,6 +13,7 @@ export default defineConfig({
         test: {
           name: 'launcher-main',
           environment: 'node',
+          testTimeout,
           include: ['src/main/**/*.test.ts', 'scripts/**/*.test.ts'],
           exclude: ['src/main/**/*.perf.test.ts'],
         },
@@ -29,6 +34,7 @@ export default defineConfig({
         test: {
           name: 'launcher-renderer',
           environment: 'jsdom',
+          testTimeout,
           include: ['src/renderer/**/*.test.{ts,tsx}'],
           setupFiles: ['./src/renderer/test-setup.ts'],
         },

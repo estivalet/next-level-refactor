@@ -8,7 +8,6 @@ import {
   type AuthState,
   type Settings,
   type SyncDocument,
-  type SyncEntries,
   type SyncError,
   type SyncKind,
   type SyncKindState,
@@ -20,17 +19,16 @@ import type { ApiClient } from '../auth/ApiClient.ts';
 import { atomicWrite } from '../fs/atomicWrite.ts';
 import { claimedSection, enabledSection } from './deviceClaim.ts';
 import type { KindAdapter } from './documents.ts';
+import { changedKeys, clampEntries, mergeEntries, sameEntries, stampLocal } from './merge.ts';
 import {
-  changedKeys,
-  clampEntries,
-  EPOCH,
-  liveValue,
-  mergeEntries,
-  sameEntries,
-  sameValue,
-  stampLocal,
-  type LocalView,
-} from './merge.ts';
+  DeletedElsewhere,
+  EMPTY_STORE,
+  errorOf,
+  held,
+  keptAfterForget,
+  settle,
+  StillConflicting,
+} from './syncSupport.ts';
 
 export const SYNC_EVERY_MS = 60 * 60_000;
 export const SYNC_DEBOUNCE_MS = 10_000;
@@ -66,31 +64,6 @@ export interface SyncDeps {
   after: (ms: number, run: () => void) => () => void;
   emit: (state: SyncState) => void;
   log: { warn(context: object, msg: string): void };
-}
-
-class DeletedElsewhere extends Error {}
-class StillConflicting extends Error {}
-
-const EMPTY_STORE: SyncStore = { v: 1, userId: null, lastSync: null, kinds: {} };
-
-function errorOf(error: unknown): SyncError {
-  if (error instanceof DeletedElsewhere) return 'deletedElsewhere';
-  if (error instanceof StillConflicting) return 'conflict';
-  if (!(error instanceof AppErrorException)) return 'other';
-  switch (error.error.code) {
-    case 'API_UNREACHABLE':
-    case 'UNAUTHENTICATED':
-      return 'offline';
-    case 'SUBSCRIPTION_REQUIRED':
-    case 'SUSPENDED':
-      return 'subscription';
-    case 'PAYLOAD_TOO_LARGE':
-      return 'tooLarge';
-    case 'CONFLICT':
-      return 'conflict';
-    default:
-      return 'other';
-  }
 }
 
 /**
@@ -176,6 +149,8 @@ export class SyncService {
       await this.#deps.auth.accessCall((access) =>
         this.#deps.api.request('DELETE', '/v1/sync', null, { access }),
       );
+      // A copied folder's key is the other PC's: claim ours first, so its plays stay its own.
+      await this.#claimDevice();
       await this.#forget();
       await this.#deps.writeSection({ ...this.#deps.section(), enabled: false });
       this.#error = null;
@@ -349,17 +324,7 @@ export class SyncService {
    */
   async #forget(): Promise<void> {
     const store = await this.#load();
-    const key = this.#deps.section().deviceKey;
-    const userState = store.kinds.userState;
-    const others: SyncEntries = {};
-    for (const [entryKey, entry] of Object.entries(userState?.entries ?? {})) {
-      if (entryKey.startsWith('p:') && !entryKey.startsWith(`p:${key ?? ''}|`)) {
-        others[entryKey] = entry;
-      }
-    }
-    store.kinds = userState
-      ? { userState: { revision: 0, entries: others, held: userState.held } }
-      : {};
+    store.kinds = keptAfterForget(store, this.#deps.section().deviceKey);
     await this.#save();
   }
 
@@ -393,32 +358,4 @@ export class SyncService {
     this.#deps.emit(state);
     return state;
   }
-}
-
-/**
- * What this PC holds after applying `merged`. A value it couldn't apply (a name taken here, a
- * newer version's value) or applied only in part keeps this PC's own copy, stamped as the
- * merged entry: it is not a change made here, so the account's copy stays and is tried again.
- */
-function settle(merged: SyncEntries, keys: readonly string[], view: LocalView): SyncEntries {
-  const settled: SyncEntries = { ...merged };
-  for (const key of keys) {
-    if (!view.holds(key)) continue;
-    const here = view.values.get(key);
-    if (sameValue(here, liveValue(merged[key]))) continue;
-    const updatedAt = merged[key]?.updatedAt ?? EPOCH;
-    settled[key] =
-      here === undefined ? { value: null, updatedAt, deleted: true } : { value: here, updatedAt };
-  }
-  return settled;
-}
-
-/** The games the merged document is about that this PC has. */
-function held(merged: SyncEntries, read: ReturnType<KindAdapter['read']>): string[] {
-  const subjects = new Set<string>();
-  for (const key of Object.keys(merged)) {
-    const subject = read.view.subject(key);
-    if (subject !== null && read.hasSubject(subject)) subjects.add(subject);
-  }
-  return [...subjects];
 }

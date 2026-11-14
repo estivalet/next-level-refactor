@@ -150,7 +150,7 @@ export class ImportService {
       const collectionIds = this.applyCollections(plan, now);
       await this.scanImported(plan.systemIds);
       const games = { ...written, missing: this.deps.repo.missingAmong(plan.games) };
-      const menus = this.applyMenus(plan, collectionIds);
+      const menus = this.applyMenus(plan, collectionIds, options.essentialsOnly === true);
       this.deps.emit('library.changed', { systems: plan.systemIds });
       this.deps.emit('menus.changed', {});
       return {
@@ -224,13 +224,17 @@ export class ImportService {
   }
 
   /** D12: imported menus are replaced in place; config.json's menu becomes the active one. */
-  private applyMenus(plan: ImportPlan, collectionIds: ReadonlyMap<string, number>): number {
+  private applyMenus(
+    plan: ImportPlan,
+    collectionIds: ReadonlyMap<string, number>,
+    essentialsOnly: boolean,
+  ): number {
     let active: string | null = null;
     for (const [index, menu] of plan.menus.entries()) {
       const saved = this.deps.menus.upsertBySource(
         menu.source,
         menu.title,
-        bindCollections(menu.nodes, collectionIds),
+        bindCollections(menu.nodes, collectionIds, essentialsOnly),
       );
       if (menu.active) active = saved.id;
       this.progress('menus', index + 1, plan.menus.length);

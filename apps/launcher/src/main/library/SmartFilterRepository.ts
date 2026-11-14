@@ -4,7 +4,7 @@ import {
   type SmartFilterSummary,
 } from '@nextlevel/shared';
 import { nameTaken } from './CollectionRepository.ts';
-import { notFound } from './GameRepository.ts';
+import { notFound } from './libraryErrors.ts';
 import type { LibraryDb } from './openLibrary.ts';
 import { smartFilterIdsSql, smartFilterSql } from './smartFilterSql.ts';
 

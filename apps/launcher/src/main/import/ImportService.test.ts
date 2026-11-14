@@ -196,6 +196,19 @@ describe('ImportService.apply', () => {
     expect(loaded.kind === 'ok' && loaded.snapshot.revision).toBe(0);
   });
 
+  it('D63: a dry run with Essentials only does not apply an import of everything (and back)', async () => {
+    const h = await setup();
+    const essentials = await h.service.dryRun(h.copy.data, null, { essentialsOnly: true });
+    await expect(h.service.apply(h.copy.data, null, essentials.token)).rejects.toMatchObject({
+      error: { code: 'CONFLICT' },
+    });
+    const all = await h.service.dryRun(h.copy.data, null);
+    await expect(
+      h.service.apply(h.copy.data, null, all.token, { essentialsOnly: true }),
+    ).rejects.toMatchObject({ error: { code: 'CONFLICT' } });
+    expect(h.count('select count(*) from games')).toBe(0);
+  });
+
   it('the library follows the gamelists: files no list names are not added', async () => {
     const h = await setup();
     await h.run();

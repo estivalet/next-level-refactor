@@ -138,20 +138,23 @@ export function mapMenus(
 }
 
 /**
- * Collection nodes get the imported collections' ids; those without one are dropped, and so is a
- * node whose children were all dropped that way (D63: an Essentials-only import leaves the other
- * collections' folders empty). A node that had no children to begin with stays.
+ * Collection nodes get the imported collections' ids; those without one are dropped. With
+ * Essentials only (D63), a node whose children were all dropped that way goes too (the other
+ * collections' folders would be empty); otherwise, and for a node with no children to begin with,
+ * it stays as it was before D63.
  */
 export function bindCollections(
   nodes: readonly MenuDocNode[],
   idsByName: ReadonlyMap<string, number>,
+  essentialsOnly: boolean,
 ): MenuDocNode[] {
   return nodes.flatMap((n) => {
     if (n.type === 'collection') {
       const id = idsByName.get((n.refId ?? '').toLowerCase());
       return id === undefined ? [] : [{ ...n, refId: String(id) }];
     }
-    const children = bindCollections(n.children, idsByName);
-    return n.children.length > 0 && children.length === 0 ? [] : [{ ...n, children }];
+    const children = bindCollections(n.children, idsByName, essentialsOnly);
+    const emptied = n.children.length > 0 && children.length === 0;
+    return essentialsOnly && emptied ? [] : [{ ...n, children }];
   });
 }

@@ -76,7 +76,15 @@ jobs:
             Where-Object { $_.Name -match '\.(exe|blockmap|zip)$' -or $_.Name -eq 'latest.yml' } |
             ForEach-Object { Copy-Item $_.FullName (Join-Path $stage ($_.Name -replace ' ', '-')) }
           $assets = (Get-ChildItem $stage -File).FullName
-          $flags = @('--draft', '--title', $tag.Substring(1), '--notes', 'Write the release notes, then publish.')
+          # A re-run replaces a draft's assets; a published release is never touched.
+          $existing = gh release view $tag --json isDraft 2>$null | ConvertFrom-Json
+          if ($existing) {
+            if (-not $existing.isDraft) { Write-Error "$tag is already published"; exit 1 }
+            gh release upload $tag @assets --clobber
+            exit $LASTEXITCODE
+          }
+          # The tag as title, as earlier releases ("v0.7.0 — M7 Accounts"): add the name when publishing.
+          $flags = @('--draft', '--title', $tag, '--notes', 'Write the release notes, then publish.')
           if ($tag.Contains('-')) { $flags += '--prerelease' }
           gh release create $tag @flags @assets
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

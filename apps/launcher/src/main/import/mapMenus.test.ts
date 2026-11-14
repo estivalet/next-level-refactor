@@ -171,10 +171,16 @@ describe('bindCollections (D63)', () => {
       node('category', 'Collections', [node('collection', 'Party Picks')]),
       node('category', 'Empty before'),
     ];
-    const bound = bindCollections(nodes, new Map([['arcade essentials', 7]]));
+    const bound = bindCollections(nodes, new Map([['arcade essentials', 7]]), true);
     expect(bound.map((n) => [n.name, n.children.map((c) => c.refId)])).toEqual([
       ['Essentials', ['7']],
       ['Empty before', []],
     ]);
+  });
+
+  it('D63: without Essentials only, a folder whose collection was not bound stays (empty)', () => {
+    const nodes = [node('category', 'Collections', [node('collection', 'Party Picks')])];
+    const bound = bindCollections(nodes, new Map(), false);
+    expect(bound.map((n) => [n.name, n.children.length])).toEqual([['Collections', 0]]);
   });
 });

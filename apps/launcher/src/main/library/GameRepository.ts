@@ -1,6 +1,4 @@
 import {
-  AppErrorException,
-  ERROR_CODES,
   type GameDetails,
   type GameFacets,
   type GameFlags,
@@ -26,8 +24,11 @@ import {
   type RawRow,
 } from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
+import { notFound } from './libraryErrors.ts';
 import { removeMissingGames, type RemovedGames } from './missingGames.ts';
+import { relinkGame } from './relinkGame.ts';
 import { resolveScope } from './scopeQuery.ts';
+import { setGamesFlags, setGamesPlayability } from './userStateWrites.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
 /** Where a game's file is (or, when missing, was expected: FR-LIB-4), from library and settings. */
@@ -70,38 +71,6 @@ const METADATA_COLUMNS = {
 const SCRAPE_COLUMNS = { ...METADATA_COLUMNS, rating: 'rating' } as const satisfies Partial<
   Record<ScrapeField | 'region', string>
 >;
-
-const FLAG_COLUMNS = {
-  favorite: 'favorite',
-  hidden: 'hidden',
-  completed: 'completed',
-  userRating: 'user_rating',
-} as const;
-
-interface FileRow {
-  id: number;
-  systemId: string;
-  missing: number;
-  relPath: string;
-  locationId: string | null;
-  size: number;
-  mtime: number;
-  discGroup: string | null;
-}
-
-type RelinkRefusal = 'same' | 'notMissing' | 'replacementMissing' | 'otherSystem';
-
-function refuseRelink(reason: RelinkRefusal): AppErrorException {
-  return new AppErrorException({
-    code: 'VALIDATION_FAILED',
-    message: ERROR_CODES.VALIDATION_FAILED,
-    details: { reason },
-  });
-}
-
-export function notFound(details?: unknown): AppErrorException {
-  return new AppErrorException({ code: 'NOT_FOUND', message: ERROR_CODES.NOT_FOUND, details });
-}
 
 /**
  * Reads games for the Library (FR-LIB-6, FR-LIB-10): pages of a system or collection, one game's
@@ -335,74 +304,12 @@ export class GameRepository {
    * `mark: null` clears mark, note and date (FR-LIB-13).
    */
   setPlayability(gameIds: readonly number[], change: PlayabilityChange, now: Date): void {
-    const ids = [...new Set(gameIds)];
-    this.db.$client.transaction(() => {
-      this.assertKnown(ids);
-      const ensure = this.statement(
-        'insert into game_user_state (game_id) values (?) on conflict do nothing',
-      );
-      const update = this.statement(
-        change.mark === null
-          ? `update game_user_state set playability = null, playability_note = '',
-               playability_at = null where game_id = @gameId`
-          : `update game_user_state set playability = @mark, playability_at = @at
-               ${change.note === undefined ? '' : ', playability_note = @note'}
-             where game_id = @gameId`,
-      );
-      for (const gameId of ids) {
-        ensure.run(gameId);
-        update.run(
-          change.mark === null
-            ? { gameId }
-            : {
-                gameId,
-                mark: change.mark,
-                at: now.toISOString(),
-                ...(change.note === undefined ? {} : { note: change.note }),
-              },
-        );
-      }
-    })();
-  }
-
-  private assertKnown(ids: readonly number[]): void {
-    const known = this.statement(
-      'select count(*) from games where id in (select value from json_each(?))',
-    )
-      .pluck()
-      .get(JSON.stringify(ids)) as number;
-    if (known !== ids.length) throw notFound({ gameIds: ids });
+    setGamesPlayability(this.db.$client, gameIds, change, now);
   }
 
   /** Favorite, hidden and the user's rating for several games at once (FR-LIB-7). */
   setFlags(gameIds: readonly number[], flags: GameFlags): void {
-    const ids = [...new Set(gameIds)];
-    const sets = Object.entries(FLAG_COLUMNS)
-      .filter(([flag]) => flags[flag as keyof GameFlags] !== undefined)
-      .map(([flag, column]) => `${column} = @${flag}`);
-    const params = {
-      favorite: flags.favorite === undefined ? undefined : Number(flags.favorite),
-      hidden: flags.hidden === undefined ? undefined : Number(flags.hidden),
-      completed: flags.completed === undefined ? undefined : Number(flags.completed),
-      userRating: flags.userRating,
-    };
-    this.db.$client.transaction(() => {
-      this.assertKnown(ids);
-      const ensure = this.statement(
-        'insert into game_user_state (game_id) values (?) on conflict do nothing',
-      );
-      const update = this.statement(
-        `update game_user_state set ${sets.join(', ')} where game_id = @gameId`,
-      );
-      for (const gameId of ids) {
-        ensure.run(gameId);
-        update.run(
-          Object.fromEntries(
-            Object.entries({ ...params, gameId }).filter(([, value]) => value !== undefined),
-          ),
-        );
-      }
-    })();
+    setGamesFlags(this.db.$client, gameIds, flags);
   }
 
   /**
@@ -410,26 +317,7 @@ export class GameRepository {
    * missing row keeps its id, metadata, flags and collections; the other row is deleted.
    */
   relink(missingGameId: number, replacementGameId: number): GameDetails {
-    this.db.$client.transaction(() => {
-      const read = this.statement(
-        `select id, system_id as systemId, missing, rel_path as relPath, location_id as locationId,
-           size, mtime, disc_group as discGroup from games where id = ?`,
-      );
-      const missing = read.get(missingGameId) as FileRow | undefined;
-      const replacement = read.get(replacementGameId) as FileRow | undefined;
-      if (!missing || !replacement) throw notFound({ missingGameId, replacementGameId });
-      if (missing.id === replacement.id) throw refuseRelink('same');
-      if (missing.missing !== 1) throw refuseRelink('notMissing');
-      if (replacement.missing === 1) throw refuseRelink('replacementMissing');
-      if (missing.systemId !== replacement.systemId) throw refuseRelink('otherSystem');
-      // Delete first: the rel_path is unique per system.
-      this.statement('delete from games where id = ?').run(replacement.id);
-      this.statement(
-        `update games set rel_path = @relPath, location_id = @locationId, size = @size,
-           mtime = @mtime, disc_group = @discGroup, missing = 0, missing_since = null
-         where id = @id`,
-      ).run({ ...replacement, id: missing.id });
-    })();
+    relinkGame(this.db.$client, missingGameId, replacementGameId);
     return this.get(missingGameId);
   }
 

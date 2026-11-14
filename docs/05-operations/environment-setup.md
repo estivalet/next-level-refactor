@@ -117,8 +117,10 @@ version, runs lint/typecheck/tests, builds the installer and zip, runs the packa
 built installer and only then creates a **draft** GitHub release with the installer, zip,
 blockmap and `latest.yml` (beta versions write `latest.yml` too; asset names use `-` for spaces,
 as `latest.yml` names them). Tags with `-` (`v1.0.0-beta.1`) are marked pre-releases. A failed
-smoke leaves no draft. Launchers see the release once you publish the draft; the beta channel
-also takes pre-releases.
+smoke leaves no draft. The draft is titled with the tag (add the release name when you publish,
+as in "v0.7.0 — M7 Accounts"). Re-running the workflow replaces a draft's assets; it fails, and
+changes nothing, if that tag's release is already published. Launchers see the release once you
+publish the draft; the beta channel also takes pre-releases.
 
 ## Signing (D52)
 

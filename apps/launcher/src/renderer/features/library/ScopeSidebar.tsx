@@ -59,7 +59,7 @@ interface ScopeSidebarProps {
  * tags and genres with their counts. A filter or genre narrows the list; picking it again clears it.
  */
 export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSidebarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const filterLabel = useFilterLabel();
   const tabButton = ([value, Icon]: [GameTab, LucideIcon]) => (
     <button
@@ -76,7 +76,7 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
       {/* The heading counts the open tab for screen readers; the name stays the tab's. */}
       {facets && (
         <span aria-hidden="true" className="font-mono text-[10px] text-slate-500">
-          {facets.tabs[value].toLocaleString()}
+          {facets.tabs[value].toLocaleString(i18n.language)}
         </span>
       )}
     </button>
@@ -112,7 +112,7 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
               <span className="flex-1 truncate">{show(item.value)}</span>
               <span className="font-mono text-[10px] text-slate-500">
-                {item.count.toLocaleString()}
+                {item.count.toLocaleString(i18n.language)}
               </span>
             </button>
           ))}
@@ -146,7 +146,7 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
             <Star aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span className="flex-1 truncate">{t('library.sidebar.essentials')}</span>
             <span className="font-mono text-[10px] text-slate-500">
-              {(facets?.essentials ?? 0).toLocaleString()}
+              {(facets?.essentials ?? 0).toLocaleString(i18n.language)}
             </span>
           </button>
         </div>
