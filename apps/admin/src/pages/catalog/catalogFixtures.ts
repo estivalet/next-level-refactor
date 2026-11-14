@@ -14,6 +14,7 @@ export const file = (overrides: Record<string, unknown> = {}) => ({
   role: 'rom',
   status: 'ready',
   createdAt: '2026-10-28T10:00:00.000Z',
+  link: null,
   ...overrides,
 });
 

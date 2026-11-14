@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { CATALOG_SLUG, CATALOG_SLUG_MAX, safeFilename } from '../catalog/filename.ts';
 import { SYSTEM_ID } from '../catalog/schema.ts';
 import { GAME_ART_KINDS } from '../frontend/schema.ts';
+import { LinkErrorSchema, LinkHostSchema } from './linkedFiles.ts';
 
 // Catalog contracts (api-spec Catalog and Admin catalog, data model §5, content policy, M9).
 
@@ -78,6 +79,15 @@ export const AdminCatalogFileSchema = z.object({
   role: FileRoleSchema,
   status: z.enum(['pending', 'ready']),
   createdAt: isoTime,
+  /** FR-CAT-9: a file kept at Drive or archive.org (null: uploaded); `state` of its last check. */
+  link: z
+    .object({
+      host: LinkHostSchema,
+      url: z.string(),
+      state: z.enum(['checking', 'failed']).nullable(),
+      error: LinkErrorSchema.nullable(),
+    })
+    .nullable(),
 });
 
 export const AdminCatalogMediaSchema = z.object({
@@ -159,6 +169,13 @@ export const StartUploadSchema = z.strictObject({
   role: FileRoleSchema,
 });
 
+/** FR-CAT-9: a catalog file kept at Google Drive or archive.org (the share link). */
+export const AddLinkSchema = z.strictObject({
+  filename: z.string().refine((name) => safeFilename(name), { message: 'filename' }),
+  role: FileRoleSchema,
+  link: z.string().max(2000),
+});
+
 export const StartUploadResponseSchema = z.object({ fileId: z.string(), uploadUrl: z.string() });
 export const UploadResultSchema = z.object({ size: z.number().int().min(0), sha256: z.string() });
 export const CompleteUploadSchema = z.strictObject({ sha256: sha256.optional() });
@@ -229,6 +246,8 @@ export const DownloadGrantSchema = z.object({
       sha256: z.string(),
       url: z.string(),
       expiresAt: isoTime,
+      /** FR-CAT-9: `url` is the host's (Drive, archive.org): public, not the API's. */
+      linked: z.boolean().optional(),
     }),
   ),
 });
@@ -269,6 +288,7 @@ export type AdminCatalogQuery = z.output<typeof AdminCatalogQuerySchema>;
 export type CreateItem = z.output<typeof CreateItemSchema>;
 export type UpdateItem = z.output<typeof UpdateItemSchema>;
 export type StartUpload = z.output<typeof StartUploadSchema>;
+export type AddLink = z.output<typeof AddLinkSchema>;
 export type CatalogQuery = z.output<typeof CatalogQuerySchema>;
 export type CatalogItemSummary = z.output<typeof CatalogItemSummarySchema>;
 export type CatalogItem = z.output<typeof CatalogItemSchema>;

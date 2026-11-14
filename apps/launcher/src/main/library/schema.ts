@@ -321,7 +321,7 @@ export const downloads = sqliteTable(
     version: integer('version').notNull(),
     item: text('item').notNull(),
     state: text('state', { enum: ['queued', 'downloading', 'paused', 'failed', 'done'] }).notNull(),
-    pausedReason: text('paused_reason', { enum: ['user', 'network', 'offline'] }),
+    pausedReason: text('paused_reason', { enum: ['user', 'network', 'offline', 'hostLimit'] }),
     bytesDone: integer('bytes_done').notNull().default(0),
     bytesTotal: integer('bytes_total').notNull(),
     error: text('error'),

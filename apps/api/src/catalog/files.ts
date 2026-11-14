@@ -37,6 +37,7 @@ export function toAdminFile(row: FileRow): AdminCatalogFile {
     role: row.role,
     status: row.status,
     createdAt: row.createdAt,
+    link: null,
   };
 }
 

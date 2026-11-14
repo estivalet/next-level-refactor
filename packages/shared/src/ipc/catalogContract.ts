@@ -20,10 +20,20 @@ export const INSTALL_STATES = [
   'failed',
 ] as const;
 export const DOWNLOAD_STATES = ['queued', 'downloading', 'paused', 'failed', 'done'] as const;
-/** `network`: the connection dropped (resumes by itself); `offline`: signed out or no API. */
-export const PAUSED_REASONS = ['user', 'network', 'offline'] as const;
-/** `DOWNLOAD_FAILED` `details.reason` and a failed download's `error`. */
-export const DOWNLOAD_FAILURES = ['checksum', 'diskFull', 'network', 'refused', 'write'] as const;
+/**
+ * `network`: the connection dropped (resumes by itself); `offline`: signed out or no API;
+ * `hostLimit`: a linked file's host refused it (FR-CAT-9; only the player resumes it).
+ */
+export const PAUSED_REASONS = ['user', 'network', 'offline', 'hostLimit'] as const;
+/** `DOWNLOAD_FAILED` `details.reason` and a failed download's `error` (`linkGone`: FR-CAT-9). */
+export const DOWNLOAD_FAILURES = [
+  'checksum',
+  'diskFull',
+  'network',
+  'refused',
+  'write',
+  'linkGone',
+] as const;
 
 export const InstallStateSchema = z.enum(INSTALL_STATES);
 export const DownloadStateSchema = z.enum(DOWNLOAD_STATES);
