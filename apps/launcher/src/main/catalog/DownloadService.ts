@@ -1,79 +1,39 @@
 import {
   AppErrorException,
   ERROR_CODES,
-  type CatalogItem,
   type DownloadFailure,
   type DownloadGrant,
   type DownloadSummary,
   type PausedReason,
 } from '@nextlevel/shared';
-import { createHash } from 'node:crypto';
-import { createReadStream } from 'node:fs';
-import { mkdir, readdir, rm, stat, statfs } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { pipeline } from 'node:stream/promises';
-import type { EmitEvent } from '../ipc/events.ts';
 import {
   toSummary,
   type DownloadRepository,
   type DownloadRow,
 } from '../library/DownloadRepository.ts';
-import type { CatalogClient } from './CatalogClient.ts';
-import { DiskWriteError, downloadFile } from './downloadFile.ts';
-import type { ItemLocks } from './itemLocks.ts';
-import type { ItemInstaller, VerifiedFile } from './types.ts';
+import { DiskWriteError } from './downloadFile.ts';
+import { downloadItemFiles } from './downloadItemFiles.ts';
+import {
+  diskFree,
+  freshItem,
+  partSize,
+  removeFolder,
+  repairUnreadable,
+  SAFE_ID,
+  sha256Of,
+  sweepFolders,
+  verifyParts,
+} from './downloadParts.ts';
+import type { DownloadDeps } from './types.ts';
 
-export interface DownloadLog {
-  info(context: Record<string, unknown>, msg: string): void;
-  warn(context: object, msg: string): void;
-  error(context: Record<string, unknown>, msg: string): void;
-}
-
-export interface DownloadDeps {
-  repo: DownloadRepository;
-  catalog: Pick<CatalogClient, 'get' | 'downloads'>;
-  installer: ItemInstaller;
-  /** `<data>\downloads`: one folder of `.part` files per download. */
-  dir: string;
-  fetch: typeof fetch;
-  freeSpace?: (dir: string) => Promise<number>;
-  emit: EmitEvent;
-  log: DownloadLog;
-  clock: () => Date;
-  newId: () => string;
-  locks: ItemLocks;
-  /** SHA-256 of a part (tests hold it to act during verify); stops when `signal` aborts. */
-  hash?: (path: string, signal: AbortSignal) => Promise<string>;
-  /** Deletes a download's folder (tests make it fail). */
-  removeDir?: (path: string) => Promise<void>;
-}
+export type { DownloadDeps, DownloadLog } from './types.ts';
 
 /** Why the running download was aborted: pause and cancel by the player, quit by the app. */
 type Stop = 'pause' | 'cancel' | 'quit';
 
 const PROGRESS_MS = 250;
-/** What an API file id may look like before it becomes a file name. */
-const SAFE_ID = /^[A-Za-z0-9-]{1,64}$/;
-
-const diskFree = async (dir: string) => {
-  const info = await statfs(dir);
-  return info.bavail * info.bsize;
-};
-
-async function partSize(path: string): Promise<number> {
-  try {
-    return (await stat(path)).size;
-  } catch {
-    return 0;
-  }
-}
-
-async function sha256Of(path: string, signal: AbortSignal): Promise<string> {
-  const hash = createHash('sha256');
-  await pipeline(createReadStream(path), hash, { signal });
-  return hash.digest('hex');
-}
-
 /**
  * The catalog download queue (FR-CAT-4, D47, Review Focus 3): one download at a time, oldest
  * first; partial files resume with Range after a restart; an expired URL is asked for once more;
@@ -219,57 +179,17 @@ export class DownloadService {
     return this.#disposed;
   }
 
-  /**
-   * Rows whose stored item no longer parses (written by an older launcher): the API's copy of the
-   * same version replaces it and the parts are kept (verify still checks them); an item that
-   * changed version or left the catalog is dropped; without the API the row waits untouched.
-   */
+  /** Rows an older launcher wrote (downloadParts.ts `repairUnreadable`). */
   async #dropUnreadable(): Promise<void> {
-    for (const row of this.#deps.repo.unreadable()) {
-      let item: CatalogItem | null;
-      try {
-        item = await this.#deps.catalog.get(row.itemId);
-      } catch (error) {
-        if (!(error instanceof AppErrorException) || error.error.code !== 'NOT_FOUND') continue;
-        item = null;
-      }
-      const repaired = item?.version === row.version;
-      this.#deps.log.warn(
-        { downloadId: row.id, itemId: row.itemId, repaired },
-        'catalog download unreadable',
-      );
-      if (item && repaired) {
-        this.#deps.repo.replaceItem(row.id, item, this.#now());
-        // It waited for the network while unreadable: the API just answered, so it runs again.
-        const fixed = this.#deps.repo.get(row.id);
-        if (fixed?.state === 'paused' && fixed.pausedReason !== 'user') {
-          this.#deps.repo.update(row.id, { state: 'queued', pausedReason: null }, this.#now());
-        }
-      } else await this.#discard(row.id);
-    }
+    await repairUnreadable(this.#deps, (id) => this.#discard(id));
   }
 
   async #sweepOrphans(): Promise<void> {
-    try {
-      const wanted = new Set(this.#deps.repo.ids());
-      const entries = await readdir(this.#deps.dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && !wanted.has(entry.name)) await this.#removeFolder(entry.name);
-      }
-    } catch (error) {
-      this.#deps.log.warn({ error }, 'download folders could not be checked');
-    }
+    await sweepFolders(this.#deps, new Set(this.#deps.repo.ids()));
   }
 
-  /** A folder that can't be deleted (held by a virus scanner) is logged; start() sweeps it. */
   async #removeFolder(id: string): Promise<void> {
-    const remove =
-      this.#deps.removeDir ?? ((path: string) => rm(path, { recursive: true, force: true }));
-    try {
-      await remove(join(this.#deps.dir, id));
-    } catch (error) {
-      this.#deps.log.warn({ downloadId: id, error }, 'download folder could not be removed');
-    }
+    await removeFolder(this.#deps, id);
   }
 
   async #run(row: DownloadRow): Promise<void> {
@@ -333,50 +253,35 @@ export class DownloadService {
       this.#fail(row, 'diskFull');
       return;
     }
-    let grant = await this.#grant(row);
-    if (!grant) return;
-    for (const file of row.item.files) {
-      let renewed = false;
-      for (;;) {
-        const url = grant.files.find((issued) => issued.fileId === file.id)?.url;
-        if (!url) {
-          this.#fail(row, 'refused');
-          return;
-        }
-        const result = await downloadFile({
-          url,
-          part: part(file.id),
-          expectedSize: file.size,
-          fetch: this.#deps.fetch,
-          signal,
-          onBytes: (count) => {
-            done += count;
-            this.#progress({ ...row, state: 'downloading' }, done, false);
-          },
-          // A whole-file answer to a ranged request: the part's earlier bytes no longer count.
-          onRestart: (dropped) => {
-            done -= dropped;
-          },
-        });
-        if (result === 'done') break;
-        if (result === 'network') {
-          this.#deps.repo.update(row.id, { bytesDone: done }, this.#now());
-          this.#pause(row, 'network');
-          return;
-        }
-        if (renewed) {
-          this.#fail(row, 'refused');
-          return;
-        }
-        renewed = true;
-        grant = await this.#grant(row);
-        if (!grant) return;
-      }
+    const outcome = await downloadItemFiles({
+      files: row.item.files,
+      part,
+      fetch: this.#deps.fetch,
+      signal,
+      grant: () => this.#grant(row),
+      onBytes: (count) => {
+        done += count;
+        this.#progress({ ...row, state: 'downloading' }, done, false);
+      },
+      // A whole-file answer to a ranged request: the part's earlier bytes no longer count.
+      onRestart: (dropped) => {
+        done -= dropped;
+      },
+    });
+    if (outcome.kind === 'stopped') return;
+    if (outcome.kind === 'pause') {
+      this.#deps.repo.update(row.id, { bytesDone: done }, this.#now());
+      this.#pause(row, outcome.reason);
+      return;
+    }
+    if (outcome.kind === 'fail') {
+      this.#fail(row, outcome.reason);
+      return;
     }
     const verified = await this.#verify(row, part, signal);
     if (!verified) return;
     this.#progress({ ...row, state: 'downloading' }, row.bytesTotal, true);
-    const item = await this.#fresh(row);
+    const item = await freshItem(this.#deps.catalog, row.item);
     // Paused or cancelled while verifying: nothing is installed (the parts stay for a pause).
     signal.throwIfAborted();
     try {
@@ -398,42 +303,14 @@ export class DownloadService {
     });
   }
 
-  /**
-   * The item as the catalog has it now: art URLs live an hour, and a download can take longer
-   * (or wait days paused). Files and version stay the ones downloaded; offline, the stored item.
-   */
-  async #fresh(row: DownloadRow): Promise<CatalogItem> {
-    try {
-      const now = await this.#deps.catalog.get(row.itemId);
-      return { ...now, files: row.item.files, version: row.item.version, size: row.item.size };
-    } catch {
-      return row.item;
-    }
-  }
-
-  /** Size and SHA-256 of every part (C9); a mismatching one is deleted. */
+  /** Size and SHA-256 of every part (C9); a mismatching one is deleted and fails the download. */
   async #verify(row: DownloadRow, part: (fileId: string) => string, signal: AbortSignal) {
-    const verified: VerifiedFile[] = [];
-    const hash = this.#deps.hash ?? sha256Of;
-    for (const file of row.item.files) {
-      const path = part(file.id);
-      const size = await partSize(path);
-      const sha256 = size === file.size ? await hash(path, signal) : '';
-      if (sha256 !== file.sha256) {
-        await rm(path, { force: true });
-        this.#fail(row, 'checksum', { fileId: file.id });
-        return null;
-      }
-      verified.push({
-        fileId: file.id,
-        filename: file.filename,
-        role: file.role,
-        path,
-        size,
-        sha256,
-      });
+    const checked = await verifyParts(row.item.files, part, this.#deps.hash ?? sha256Of, signal);
+    if ('mismatch' in checked) {
+      this.#fail(row, 'checksum', { fileId: checked.mismatch });
+      return null;
     }
-    return verified;
+    return checked.verified;
   }
 
   /** Signed URLs; no API pauses (offline), a refusal fails (refused). */
