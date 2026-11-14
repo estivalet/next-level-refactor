@@ -85,6 +85,8 @@ export const ExportViewSchema = z.strictObject({
   filter: z.string().regex(FILTER_SLUG).optional(),
   genre: z.string().max(200).optional(),
   essentials: z.literal(true).optional(),
+  /** FR-LIB-10, D66: the list's search text, matched like the list. */
+  text: z.string().max(200).optional(),
 });
 
 export const GameExportRequestSchema = z.strictObject({
