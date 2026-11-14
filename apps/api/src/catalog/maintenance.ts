@@ -11,11 +11,16 @@ import { setStatus } from './items.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-export async function runMaintenance(ctx: ApiContext): Promise<{
+export async function runMaintenance(
+  ctx: ApiContext,
+  opts: { sweep?: boolean } = {},
+): Promise<{
   expired: number;
   downloadsPruned: number;
   uploadsPruned: number;
   orphansDeleted: number;
+  /** `off`: not this run (the one at start); `skipped`: the sweep's guard held (sweepOrphans). */
+  orphanSweep: 'done' | 'skipped' | 'off';
 }> {
   const now = ctx.clock();
   const expired = ctx.db
@@ -55,8 +60,14 @@ export async function runMaintenance(ctx: ApiContext): Promise<{
     await ctx.files.delete(file.storageKey);
     ctx.db.delete(catalogFiles).where(eq(catalogFiles.id, file.id)).run();
   }
-  const orphansDeleted = await sweepOrphans(ctx);
-  return { expired: expired.length, downloadsPruned, uploadsPruned: stale.length, orphansDeleted };
+  const swept = opts.sweep === false ? null : await sweepOrphans(ctx);
+  return {
+    expired: expired.length,
+    downloadsPruned,
+    uploadsPruned: stale.length,
+    orphansDeleted: swept?.deleted ?? 0,
+    orphanSweep: swept?.sweep ?? 'off',
+  };
 }
 
 /** What the log says about a failed run: the error's name and code (an S3 status, ENOSPC…). */

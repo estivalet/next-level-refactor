@@ -7,6 +7,7 @@ import { testEnv } from '../../test/testApp.ts';
 import { seedItem } from '../../test/catalogSeed.ts';
 import { auditPage } from '../admin/audit.ts';
 import { maintenanceFailure, runMaintenance } from './maintenance.ts';
+import { LocalDiskStore } from '../storage/LocalDiskStore.ts';
 import { utimes } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -130,5 +131,58 @@ describe('the maintenance job (D44, security §5)', () => {
     const error = Object.assign(new Error('S3 LIST failed with 503'), { code: 'S3_ERROR' });
     expect(maintenanceFailure(error)).toEqual({ err: 'Error', code: 'S3_ERROR' });
     expect(maintenanceFailure('boom')).toEqual({ err: 'unknown', code: null });
+  });
+
+  it('the sweep deletes nothing when the database names no files (a new or restored database)', async () => {
+    const t = await setup();
+    await t.ctx.files.put('files/i1/f1', Readable.from(['x']), 1024);
+    const old = new Date(t.clock.read().getTime() - 2 * 24 * 3600 * 1000);
+    await utimes(join(t.filesDir, 'files', 'i1', 'f1'), old, old);
+    expect(await runMaintenance(t.ctx)).toMatchObject({
+      orphansDeleted: 0,
+      orphanSweep: 'skipped',
+    });
+    expect(await t.ctx.files.size('files/i1/f1')).toBe(1);
+  });
+
+  it('a sweep that would delete more than a tenth of the store (and over 25 files) deletes nothing', async () => {
+    const t = await setup();
+    const id = await t.createItem();
+    await t.makePublishable(id);
+    const old = new Date(t.clock.read().getTime() - 2 * 24 * 3600 * 1000);
+    for (let i = 0; i < 30; i += 1) {
+      await t.ctx.files.put(`files/gone/f${String(i)}`, Readable.from(['x']), 1024);
+      await utimes(join(t.filesDir, 'files', 'gone', `f${String(i)}`), old, old);
+    }
+    expect(await runMaintenance(t.ctx)).toMatchObject({
+      orphansDeleted: 0,
+      orphanSweep: 'skipped',
+    });
+    expect(await t.ctx.files.size('files/gone/f0')).toBe(1);
+  });
+
+  it('the run at start never sweeps', async () => {
+    const t = await setup();
+    expect(await runMaintenance(t.ctx, { sweep: false })).toMatchObject({ orphanSweep: 'off' });
+  });
+
+  it('a store that never answers keeps neither the API from starting nor runs piling up', async () => {
+    let lists = 0;
+    const test = await createTestApp({
+      files: (dir) => {
+        const store = new LocalDiskStore(dir);
+        return Object.assign(Object.create(store) as LocalDiskStore, {
+          // eslint-disable-next-line require-yield -- a listing that never answers (a stalled S3)
+          list: async function* () {
+            lists += 1;
+            await new Promise(() => undefined);
+          },
+        });
+      },
+    });
+    closers.push(test.close);
+    const health = await test.app.inject({ method: 'GET', url: '/v1/health' });
+    expect(health.statusCode).toBe(200);
+    expect(lists).toBe(0);
   });
 });

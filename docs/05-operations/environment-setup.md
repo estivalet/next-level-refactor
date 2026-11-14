@@ -51,6 +51,9 @@ cp apps/api/.env.example apps/api/.env   # then set JWT_SECRET (the file says ho
 | `FILES_DIR` | `./data/files` | no; with `local`, default `<database folder>/files` |
 | `S3_ENDPOINT` / `S3_BUCKET` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | `https://<account id>.r2.cloudflarestorage.com`, `nextlevel-catalog`, an R2 API token's key pair | when `FILE_STORE=s3` |
 | `S3_REGION` | `auto` | no (default `auto`, right for R2; MinIO uses `us-east-1`) |
+| `BACKUP_S3_ENDPOINT` / `BACKUP_S3_BUCKET` / `BACKUP_S3_ACCESS_KEY_ID` / `BACKUP_S3_SECRET_ACCESS_KEY` | a second R2 bucket and a token that only reaches it | no; where `ops/backup.ts` writes the daily backups (else the file store). Use them in production: a key leaked from the API can't delete the backups |
+| `BACKUP_S3_REGION` | `auto` | no (default `auto`) |
+| `TRUST_PROXY` | `true`, or `172.16.0.0/12,10.0.0.1` | no (default off); believe `X-Forwarded-For` (rate limits and download `ip_hash` per client behind Caddy). `true` only when nothing but the proxy can reach the API (`deploy/compose.yaml` sets it) |
 | `ADMIN_ORIGIN` | `http://localhost:5174` | dev only: where the admin sign-in returns (the Vite dev server) |
 | `ADMIN_DIST` | `../admin/dist` | no; the built admin console the API serves at `/` |
 

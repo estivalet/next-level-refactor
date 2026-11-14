@@ -182,4 +182,34 @@ describe('API environment (environment-setup, ADR-007)', () => {
     expect(loadEnv(STUB).host).toBe('127.0.0.1');
     expect(loadEnv({ ...STUB, HOST: '0.0.0.0' }).host).toBe('0.0.0.0');
   });
+
+  it('D56: TRUST_PROXY true or a list; backups can go to their own bucket (BACKUP_S3_*)', () => {
+    expect(loadEnv(STUB).trustProxy).toBe(false);
+    expect(loadEnv({ ...STUB, TRUST_PROXY: 'true' }).trustProxy).toBe(true);
+    expect(loadEnv({ ...STUB, TRUST_PROXY: '172.16.0.0/12, 10.0.0.1' }).trustProxy).toEqual([
+      '172.16.0.0/12',
+      '10.0.0.1',
+    ]);
+    expect(loadEnv(STUB).backupStore).toBeNull();
+    expect(problems({ ...STUB, BACKUP_S3_BUCKET: 'nextlevel-backups' })).toEqual([
+      'BACKUP_S3_ENDPOINT: is required with BACKUP_S3_BUCKET',
+      'BACKUP_S3_ACCESS_KEY_ID: is required with BACKUP_S3_BUCKET',
+      'BACKUP_S3_SECRET_ACCESS_KEY: is required with BACKUP_S3_BUCKET',
+    ]);
+    expect(
+      loadEnv({
+        ...STUB,
+        BACKUP_S3_ENDPOINT: 'https://acct.r2.cloudflarestorage.com',
+        BACKUP_S3_BUCKET: 'nextlevel-backups',
+        BACKUP_S3_ACCESS_KEY_ID: 'backup-id',
+        BACKUP_S3_SECRET_ACCESS_KEY: 'backup-secret',
+      }).backupStore,
+    ).toEqual({
+      endpoint: 'https://acct.r2.cloudflarestorage.com',
+      bucket: 'nextlevel-backups',
+      accessKeyId: 'backup-id',
+      secretAccessKey: 'backup-secret',
+      region: 'auto',
+    });
+  });
 });

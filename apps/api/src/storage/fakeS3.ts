@@ -12,7 +12,19 @@ export async function fakeS3(bucket: string) {
   const server: Server = createServer((request, response) => {
     const url = new URL(request.url ?? '/', 'http://localhost');
     const auth = request.headers.authorization ?? '';
-    if (!auth.startsWith('AWS4-HMAC-SHA256 Credential=') || !request.headers['x-amz-date']) {
+    const presigned = url.searchParams.get('X-Amz-Signature');
+    if (presigned) {
+      // Query authentication (a presigned URL): refused once X-Amz-Date + X-Amz-Expires passed.
+      const stamp = (url.searchParams.get('X-Amz-Date') ?? '').replace(
+        /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
+        '$1-$2-$3T$4:$5:$6Z',
+      );
+      const expires = Number(url.searchParams.get('X-Amz-Expires'));
+      if (Date.parse(stamp) + expires * 1000 < Date.now()) {
+        response.writeHead(403).end();
+        return;
+      }
+    } else if (!auth.startsWith('AWS4-HMAC-SHA256 Credential=') || !request.headers['x-amz-date']) {
       unsigned.push(`${request.method ?? ''} ${url.pathname}`);
       response.writeHead(403).end();
       return;
@@ -27,7 +39,7 @@ export async function fakeS3(bucket: string) {
       const prefix = url.searchParams.get('prefix') ?? '';
       const after = url.searchParams.get('continuation-token') ?? '';
       const keys = [...objects.keys()].filter((k) => k.startsWith(prefix) && k > after).sort();
-      const page = keys.slice(0, 2);
+      const page = keys.slice(0, Number(url.searchParams.get('max-keys') ?? 1000));
       const contents = page
         .map((k) => {
           const object = objects.get(k);
@@ -67,9 +79,14 @@ export async function fakeS3(bucket: string) {
       response.writeHead(404).end();
       return;
     }
-    const range = /^bytes=(\d+)-(\d+)$/.exec(request.headers.range ?? '');
-    const body = range ? object.body.subarray(Number(range[1]), Number(range[2]) + 1) : object.body;
-    response.writeHead(range ? 206 : 200, { 'content-length': String(body.length) });
+    const range = /^bytes=(\d+)-(\d*)$/.exec(request.headers.range ?? '');
+    const end = range?.[2] ? Number(range[2]) + 1 : object.body.length;
+    const body = range ? object.body.subarray(Number(range[1]), end) : object.body;
+    const disposition = url.searchParams.get('response-content-disposition');
+    response.writeHead(range ? 206 : 200, {
+      'content-length': String(body.length),
+      ...(disposition ? { 'content-disposition': disposition } : {}),
+    });
     response.end(request.method === 'HEAD' ? undefined : body);
   });
   await new Promise<void>((resolve) => {

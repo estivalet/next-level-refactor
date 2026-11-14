@@ -50,10 +50,12 @@ for TLS, Cloudflare R2 for files (no egress fees, which matters for game downloa
 - **Compose:** `deploy/compose.yaml`: `api`, `caddy` (ports 80/443, certificates for
   `NEXTLEVEL_DOMAIN`, `deploy/Caddyfile`) and `backup` (the same image running
   `apps/api/src/ops/backup.ts --daily`). The server's `.env` comes from `deploy/.env.example`.
-- **Deploy:** `.github/workflows/deploy-api.yml`. A manual run builds the image and checks that it
-  answers `/v1/health` with its version (no server needed); ticking *deploy*, or pushing an
-  `api-v*` tag, pushes the image and runs `docker compose pull && up -d` over SSH, then checks the
-  public `/v1/health`. Migrations run at container start **after** an automatic snapshot,
+- **Deploy:** `.github/workflows/deploy-api.yml`. Every run builds the image and boots it in
+  production mode (dummy Google clients, billing off): it must answer `/v1/health` with its
+  version. A manual run stops there unless *deploy* is ticked; with it, or on an `api-v*` tag
+  (checked against `apps/api/package.json`), the image is pushed and `docker compose pull && up -d`
+  runs over SSH, then the public `/v1/health` is checked. Caddy is the only way in, so the API
+  believes its `X-Forwarded-For` (`TRUST_PROXY=true` in compose). Migrations run at container start **after** an automatic snapshot,
   `<db>.pre-<version>.bak`, next to the database. **Nothing is deployed yet** (D56, no-spending
   rule, 2026-10-30): the API runs locally.
 - **Config:** environment variables (see [environment-setup](environment-setup.md#environment-variables-appsapienv)),
@@ -65,8 +67,8 @@ for TLS, Cloudflare R2 for files (no egress fees, which matters for game downloa
 
 | What | How | Frequency | Retention |
 |---|---|---|---|
-| API SQLite DB | `ops/backup.ts`: SQLite online backup → gzip → the file store at `backups/<date>.db.gz` + `backups/heartbeat.json` (M10c); `<db>.pre-<version>.bak` before migrations | 03:00 UTC daily + before each migration | 30 days |
-| Catalog files | `FILE_STORE=local`: `FILES_DIR` on the API machine (default `<database folder>/files`, D40) — back it up with the database; `FILE_STORE=s3`: R2 with bucket versioning on. Files no row names are deleted after 24 h by the maintenance job | continuous | 30 days of versions |
+| API SQLite DB | `ops/backup.ts`: SQLite online backup → gzip → `backups/<date>.db.gz` + `backups/heartbeat.json` in the `BACKUP_S3_*` bucket (its own token; else the file store) (M10c); `<db>.pre-<version>.bak` next to the database before migrations | 03:00 UTC daily + before each migration | 30 days, and the first of each month 12 months |
+| Catalog files | `FILE_STORE=local`: `FILES_DIR` on the API machine (default `<database folder>/files`, D40) — back it up with the database. `FILE_STORE=s3`: R2, which keeps **no old versions: a delete is final**. Keep the originals you uploaded outside R2. The maintenance job deletes stored files no row names after 24 h, but deletes nothing when the database names none of the stored files or a run would remove more than a tenth of them (and over 25) — it logs "orphan sweep skipped" instead | continuous | — |
 | License evidence | same as catalog files, separate prefix | continuous | life of the item + 3 years |
 | Launcher user data | user's machine: settings backups (10), library DB backup before migrations | on change | — |
 
@@ -135,10 +137,15 @@ actions.
 ### Restore a backup
 
 1. `docker compose stop api backup` on the server.
-2. Download `backups/<date>.db.gz` from the bucket (R2 dashboard or `rclone`), `gunzip` it.
-3. Copy it over `/data/nextlevel.db` in the `data` volume (keep the old file aside).
+2. Download `backups/<date>.db.gz` from the backup bucket (R2 dashboard or `rclone`), `gunzip` it.
+3. In the `data` volume, move `nextlevel.db` aside **with** `nextlevel.db-wal` and
+   `nextlevel.db-shm` (a WAL left next to the restored file would be replayed onto it), copy the
+   backup in as `nextlevel.db` and give it to the image's user: `chown 1000:1000 nextlevel.db`.
 4. `docker compose up -d`, then the smoke test below. A `.pre-<version>.bak` from a failed
    migration is restored the same way (it isn't gzipped).
+5. Catalog files uploaded after the backup's date are no longer named by the database: the
+   maintenance job deletes them after 24 hours (a few at a time; it refuses when that is most of
+   the store). Download any you'll add again from the bucket first.
 
 ## 7. Smoke test (after every deploy)
 
@@ -156,24 +163,34 @@ Written in M10c and not carried out (D56, D59: no-spending rule, 2026-10-30). In
    and copy `deploy/compose.yaml` and `deploy/Caddyfile` into it.
 2. **DNS:** an `A` (and `AAAA`) record for the API host name (e.g. `api.example.com`) to the
    server. Caddy gets the certificate on first start.
-3. **R2:** a bucket (`nextlevel-catalog`) with versioning on, and an R2 API token limited to it
-   (Object Read & Write). Its endpoint is `https://<account id>.r2.cloudflarestorage.com`. Move
-   existing local files in once with `rclone copy <FILES_DIR> r2:nextlevel-catalog` before
-   switching `FILE_STORE=s3`.
-4. **Server `.env`:** from `deploy/.env.example`, mode 600: `NEXTLEVEL_DOMAIN`, `PUBLIC_URL`, a new
-   `JWT_SECRET` (`openssl rand -base64 64`), `ADMIN_EMAILS`, the Google clients (step 6),
-   `FILE_STORE=s3` with the R2 values, `BILLING_ENABLED=false`.
-5. **GitHub:** repository secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` (a deploy-only
-   key on the server) and `DEPLOY_URL` (`https://api.example.com`). The image goes to GHCR with
-   the workflow's own token.
-6. **Google OAuth production clients:** in the production Google Cloud project, a *Desktop app*
+3. **R2:** two buckets, `nextlevel-catalog` and `nextlevel-backups`, each with its own R2 API token
+   limited to it (Object Read & Write). The endpoint is
+   `https://<account id>.r2.cloudflarestorage.com`. R2 keeps no old versions of objects. Move
+   existing local files in once with `rclone copy <FILES_DIR> r2:nextlevel-catalog`.
+4. **The database:** copy the current `nextlevel.db` (after `sqlite3 nextlevel.db ".backup
+   copy.db"` on the old machine) into the `data` volume as `nextlevel.db`, `chown 1000:1000`. An
+   API started with an empty database never sweeps the copied files (the sweep's guard), but it
+   has no catalog either.
+5. **Server `.env`:** from `deploy/.env.example`, mode 600: `NEXTLEVEL_DOMAIN`, `PUBLIC_URL`, a new
+   `JWT_SECRET` (`openssl rand -base64 64`), `ADMIN_EMAILS`, the Google clients (step 7),
+   `FILE_STORE=s3` with the catalog bucket, `BACKUP_S3_*` with the backup bucket,
+   `BILLING_ENABLED=false`. Never point another environment (development, staging) at these
+   buckets.
+6. **GitHub and GHCR:** repository secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` (a
+   deploy-only key on the server) and `DEPLOY_URL` (`https://api.example.com`). The workflow
+   pushes to GHCR with its own token; the package is private, so on the server run
+   `docker login ghcr.io` once with a personal access token that only has `read:packages` (or
+   make the package public).
+7. **Google OAuth production clients:** in the production Google Cloud project, a *Desktop app*
    client (launcher) and a *Web application* client (admin) with
    `https://api.example.com/v1/auth/google/callback` as redirect URI; publish the consent screen.
    Launcher builds point at the API with `MAIN_VITE_API_URL` at build time (add it to the release
    workflow's environment then; it isn't set today).
-7. **First deploy:** run *Deploy API* with *deploy* ticked (or push `api-v<version>`); it checks
-   `/v1/health`. Then the smoke test (§7) and a backup restore drill (§6) on a copy.
-8. **Stripe live switch (after D32):** only once the owner's test-mode check passed: live
+8. **First deploy:** run *Deploy API* with *deploy* ticked (or push `api-v<version>`, which must
+   match `apps/api/package.json`). It boots the image in production mode first, then deploys and
+   checks the public `/v1/health`. Then the smoke test (§7) and a backup restore drill (§6) on a
+   copy.
+9. **Stripe live switch (after D32):** only once the owner's test-mode check passed: live
    products and prices, a live webhook endpoint (`/v1/webhooks/stripe`), `STRIPE_SECRET_KEY` /
    `STRIPE_WEBHOOK_SECRET` live values, then `BILLING_ENABLED=true` and a redeploy (D58).
 

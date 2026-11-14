@@ -18,7 +18,13 @@ export interface S3Config extends S3Credentials {
   /** Where an upload is spooled (hashed, size-checked) before it is sent with its length. */
   tempDir: string;
   clock?: () => Date;
+  /** A request (connect, or the connection idle mid-transfer) gives up after this long. */
+  timeoutMs?: number;
+  /** Keys per ListObjectsV2 page (S3's default and maximum: 1000). */
+  pageSize?: number;
 }
+
+const TIMEOUT_MS = 60_000;
 
 const XML_ENTITIES: Record<string, string> = {
   '&amp;': '&',
@@ -88,6 +94,10 @@ export class S3Store implements FileStore {
     return new Promise((resolve, reject) => {
       const req = send(url, { method, headers }, resolve);
       req.on('error', reject);
+      // An unreachable or stalled store fails the call instead of hanging it (and the API).
+      req.setTimeout(this.#config.timeoutMs ?? TIMEOUT_MS, () => {
+        req.destroy(Object.assign(new Error(`S3 ${method} timed out`), { code: 'ETIMEDOUT' }));
+      });
       if (o.body) o.body.on('error', (error) => req.destroy(error)).pipe(req);
       else req.end();
     });
@@ -176,7 +186,11 @@ export class S3Store implements FileStore {
   async *list(prefix: string): AsyncIterable<StoredFile> {
     let token: string | undefined;
     do {
-      const query: Record<string, string> = { 'list-type': '2', prefix };
+      const query: Record<string, string> = {
+        'list-type': '2',
+        prefix,
+        'max-keys': String(this.#config.pageSize ?? 1000),
+      };
       if (token) query['continuation-token'] = token;
       const response = await this.#send('GET', this.#url(null, query));
       const xml = await text(response);

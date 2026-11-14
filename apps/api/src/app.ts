@@ -121,6 +121,9 @@ function billingProvider(deps: AppDeps, app: FastifyInstance): BillingProvider |
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const app = Fastify({
     logger: deps.log ?? false,
+    // Behind Caddy (D56) the client's address comes from X-Forwarded-For: rate limits and
+    // download ip_hash are per client, not per proxy.
+    trustProxy: deps.env.trustProxy,
     genReqId: () => uuidv7(),
     requestIdHeader: false,
     // Download tokens (/v1/files/:token) are ~250 characters; longer parameters are 414.
@@ -185,18 +188,31 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 const MAINTENANCE_EVERY_MS = 10 * 60 * 1000;
 
 /**
- * The catalog maintenance job (M9: license expiry, download log retention, abandoned uploads):
- * once when the API is ready, then every 10 minutes; stopped on close.
+ * The catalog maintenance job (M9: license expiry, download log retention, abandoned uploads;
+ * M10c: the orphan sweep): once when the API is ready, without the sweep and without holding up
+ * the start (a slow store never keeps the API from listening), then every 10 minutes. A run still
+ * going when the next is due is not doubled. Stopped on close.
  */
 function scheduleMaintenance(app: FastifyInstance, ctx: ApiContext): void {
-  const run = () =>
-    runMaintenance(ctx).catch((error: unknown) => {
+  let running = false;
+  const run = async (sweep: boolean) => {
+    if (running) return;
+    running = true;
+    try {
+      const result = await runMaintenance(ctx, { sweep });
+      if (result.orphanSweep === 'skipped') {
+        app.log.warn('orphan sweep skipped: the database names none or few of the stored files');
+      }
+    } catch (error: unknown) {
       app.log.error(maintenanceFailure(error), 'maintenance failed');
-    });
+    } finally {
+      running = false;
+    }
+  };
   let timer: NodeJS.Timeout | undefined;
-  app.addHook('onReady', async () => {
-    await run();
-    timer = setInterval(() => void run(), MAINTENANCE_EVERY_MS);
+  app.addHook('onReady', () => {
+    void run(false);
+    timer = setInterval(() => void run(true), MAINTENANCE_EVERY_MS);
     timer.unref();
   });
   app.addHook('onClose', (_instance, done) => {

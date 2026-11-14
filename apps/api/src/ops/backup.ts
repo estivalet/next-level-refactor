@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { rm } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { createGzip } from 'node:zlib';
 import Database from 'better-sqlite3';
 import { fileStoreFor } from '../context.ts';
+import { S3Store } from '../storage/S3Store.ts';
 import { loadEnv } from '../env.ts';
 import type { FileStore } from '../storage/FileStore.ts';
 
@@ -15,6 +16,8 @@ import type { FileStore } from '../storage/FileStore.ts';
 // production) under `backups/`, which the orphan sweep never touches.
 
 const KEEP_DAYS = 30;
+/** The first of each month is kept this long (deployment §4). */
+const KEEP_MONTHLY_DAYS = 365;
 const DAY_MS = 24 * 3600_000;
 /** A backup is never refused for size (the database is far below this). */
 const LIMIT = 64 * 1024 ** 3;
@@ -57,12 +60,13 @@ export async function runBackup(o: {
 }
 
 async function prune(store: FileStore, now: Date): Promise<void> {
-  const cutoff = now.getTime() - KEEP_DAYS * DAY_MS;
+  const daily = now.getTime() - KEEP_DAYS * DAY_MS;
+  const monthly = now.getTime() - KEEP_MONTHLY_DAYS * DAY_MS;
   for await (const file of store.list('backups/')) {
     const day = BACKUP_KEY.exec(file.key)?.[1];
-    if (day !== undefined && Date.parse(`${day}T00:00:00.000Z`) < cutoff) {
-      await store.delete(file.key);
-    }
+    if (day === undefined) continue;
+    const at = Date.parse(`${day}T00:00:00.000Z`);
+    if (at < (day.endsWith('-01') ? monthly : daily)) await store.delete(file.key);
   }
 }
 
@@ -80,7 +84,9 @@ async function main(): Promise<void> {
     try {
       const result = await runBackup({
         databaseFile: env.databaseFile,
-        store: fileStoreFor(env),
+        store: env.backupStore
+          ? new S3Store({ ...env.backupStore, tempDir: dirname(env.databaseFile) })
+          : fileStoreFor(env),
         clock: () => new Date(),
       });
       console.log(JSON.stringify({ msg: 'backup written', key: result.key, size: result.size }));

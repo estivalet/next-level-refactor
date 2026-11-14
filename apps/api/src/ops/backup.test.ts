@@ -57,16 +57,21 @@ describe('daily backup (D56, deployment runbook)', () => {
     });
   });
 
-  it('keeps 30 days of backups and leaves no temp copy behind', async () => {
+  it('keeps 30 days of backups, the first of each month for 12 months, and no temp copy', async () => {
     const t = await setup();
-    await t.store.put('backups/2026-10-01.db.gz', Readable.from(['old']), 1024);
+    await t.store.put('backups/2026-10-01.db.gz', Readable.from(['month start']), 1024);
+    await t.store.put('backups/2026-10-02.db.gz', Readable.from(['old']), 1024);
+    await t.store.put('backups/2025-10-01.db.gz', Readable.from(['a year old']), 1024);
     await t.store.put('backups/2026-10-20.db.gz', Readable.from(['recent']), 1024);
     await runBackup({
       databaseFile: t.databaseFile,
       store: t.store,
       clock: () => new Date('2026-11-14T03:00:00.000Z'),
     });
-    expect(await t.store.size('backups/2026-10-01.db.gz')).toBeNull();
+    expect(await t.store.size('backups/2026-10-02.db.gz')).toBeNull();
+    // The first of each month is kept 12 months.
+    expect(await t.store.size('backups/2026-10-01.db.gz')).not.toBeNull();
+    expect(await t.store.size('backups/2025-10-01.db.gz')).toBeNull();
     expect(await t.store.size('backups/2026-10-20.db.gz')).not.toBeNull();
     const { readdir } = await import('node:fs/promises');
     expect((await readdir(t.dir)).filter((name) => name.includes('backup-'))).toEqual([]);

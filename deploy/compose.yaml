@@ -7,6 +7,9 @@ services:
     image: ghcr.io/estivalet/nextlevel-api:${NEXTLEVEL_VERSION:?set NEXTLEVEL_VERSION in .env}
     restart: unless-stopped
     env_file: .env
+    environment:
+      # Only Caddy can reach the API (no published port), so its X-Forwarded-For is believed.
+      TRUST_PROXY: 'true'
     volumes:
       - data:/data
     expose:
@@ -27,7 +30,7 @@ services:
       - caddy-data:/data
       - caddy-config:/config
 
-  # The daily database backup to the file store (R2), 03:00 UTC.
+  # The daily database backup, 03:00 UTC, to BACKUP_S3_* (else the file store).
   backup:
     image: ghcr.io/estivalet/nextlevel-api:${NEXTLEVEL_VERSION:?set NEXTLEVEL_VERSION in .env}
     restart: unless-stopped
