@@ -47,6 +47,31 @@ describe('one device key per PC (D64, FR-SET-5)', () => {
     expect(b.state(bGame)?.playCount).toBe(3);
   });
 
+  it('D64: Delete synced data on a copied folder before its first sync never counts plays twice', async () => {
+    const server = fakeSyncServer();
+    const a = await pc(server, 'aaaaaaaaaaaaaaaa');
+    const [aGame = 0] = seedGames(a.db, 'snes', ['Mario']);
+    await a.service.setEnabled(true);
+    new LaunchRepository(a.db).recordPlay(aGame, 10, T);
+    await a.service.sync();
+
+    const b = await pc(server, 'bbbbbbbbbbbbbbbb');
+    const [bGame = 0] = seedGames(b.db, 'snes', ['Mario']);
+    new LaunchRepository(b.db).recordPlay(bGame, 10, T);
+    b.setSettings({ ...b.settings(), sync: a.settings().sync });
+    await copyFile(join(a.dir, 'sync.json'), join(b.dir, 'sync.json'));
+
+    await b.service.deleteRemote();
+    expect(b.settings().sync.deviceKey).not.toBe(a.settings().sync.deviceKey);
+    await b.service.setEnabled(true);
+    await a.service.sync();
+    await b.service.sync();
+
+    // One play in all: it was A's, made before the copy.
+    expect(a.state(aGame)?.playCount).toBe(1);
+    expect(b.state(bGame)?.playCount).toBe(1);
+  });
+
   it('D64: a PC that synced before deviceHost existed keeps its key', async () => {
     const server = fakeSyncServer();
     const a = await pc(server, 'aaaaaaaaaaaaaaaa');

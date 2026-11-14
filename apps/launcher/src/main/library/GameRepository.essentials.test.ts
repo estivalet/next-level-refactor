@@ -46,4 +46,18 @@ describe('Essentials only (D63)', () => {
     expect(games.facets(SNES, 'all').essentials).toBe(2);
     expect(games.facets({ kind: 'system', systemId: 'nes' }, 'all').essentials).toBe(0);
   });
+
+  it('D63: an imported Essentials collection renamed on a clash still counts', () => {
+    const [mario = 0, zelda = 0, party = 0] = seedGames(library.db, 'snes', [
+      'Mario',
+      'Zelda',
+      'Party',
+    ]);
+    const collections = new CollectionRepository(library.db, () => new Date());
+    collections.addGames(collections.create('SNES Essentials (NextLevelOS)').id, [mario]);
+    collections.addGames(collections.create('Essentials (NextLevelOS 2)').id, [zelda]);
+    collections.addGames(collections.create('Party (NextLevelOS)').id, [party]);
+    expect(titles({ essentials: true })).toEqual(['Mario', 'Zelda']);
+    expect(games.facets(SNES, 'all').essentials).toBe(2);
+  });
 });

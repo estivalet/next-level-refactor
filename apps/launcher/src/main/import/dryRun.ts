@@ -17,7 +17,7 @@ import type { FoundGame } from '../library/LibraryRepository.ts';
 import { planScan } from '../scan/plan.ts';
 import type { Walker } from '../scan/walker.ts';
 import { addDetectedProfiles } from './detectedProfiles.ts';
-import { essentialsOnly } from './essentialsImport.ts';
+import { essentialsOnly, planToken } from './essentialsImport.ts';
 import { mapCollections, type CollectionImport } from './mapCollections.ts';
 import { mapGames, type GameImport } from './mapGames.ts';
 import { mapMenus, type MenuImport } from './mapMenus.ts';
@@ -299,7 +299,7 @@ export async function planImport(
     }
   }
   return {
-    fingerprint,
+    fingerprint: planToken(fingerprint, options),
     files,
     settings: withPresets.next,
     detected,

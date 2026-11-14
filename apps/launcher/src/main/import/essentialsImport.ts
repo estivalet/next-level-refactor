@@ -22,3 +22,8 @@ export function essentialsOnly<T extends { collections: CollectionImport[] }>(
     })),
   };
 }
+
+/** The dry run's token covers the option too: a plan for Essentials only never applies everything. */
+export function planToken(fingerprint: string, options: { essentialsOnly?: boolean | undefined }) {
+  return options.essentialsOnly === true ? `${fingerprint}:essentials` : fingerprint;
+}

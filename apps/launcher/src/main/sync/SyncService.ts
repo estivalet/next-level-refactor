@@ -176,6 +176,8 @@ export class SyncService {
       await this.#deps.auth.accessCall((access) =>
         this.#deps.api.request('DELETE', '/v1/sync', null, { access }),
       );
+      // A copied folder's key is the other PC's: claim ours first, so its plays stay its own.
+      await this.#claimDevice();
       await this.#forget();
       await this.#deps.writeSection({ ...this.#deps.section(), enabled: false });
       this.#error = null;

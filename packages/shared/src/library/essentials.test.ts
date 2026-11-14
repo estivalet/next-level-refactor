@@ -12,4 +12,11 @@ describe('isEssentialsName (D63)', () => {
     expect(isEssentialsName('Essentials of SNES')).toBe(false);
     expect(isEssentialsName('NonEssentials')).toBe(false);
   });
+
+  it('D63: one renamed on import ("SNES Essentials (NextLevelOS 2)") still is; "Party (NextLevelOS)" is not', () => {
+    expect(isEssentialsName('SNES Essentials (NextLevelOS)')).toBe(true);
+    expect(isEssentialsName('Essentials (NextLevelOS 2)')).toBe(true);
+    expect(isEssentialsName('Party (NextLevelOS)')).toBe(false);
+    expect(isEssentialsName('SNES Essentials (mine)')).toBe(false);
+  });
 });
