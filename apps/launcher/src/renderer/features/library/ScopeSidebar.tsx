@@ -6,6 +6,7 @@ import {
   Heart,
   LayoutGrid,
   SearchCheck,
+  Star,
   Trophy,
   type LucideIcon,
 } from 'lucide-react';
@@ -39,12 +40,18 @@ function useFilterLabel() {
   };
 }
 
+interface Narrow {
+  filter?: string | undefined;
+  genre?: string | undefined;
+  essentials?: true | undefined;
+}
+
 interface ScopeSidebarProps {
   tab: GameTab;
   onTab: (tab: GameTab) => void;
   facets: GameFacets | undefined;
-  narrow: { filter?: string | undefined; genre?: string | undefined };
-  onNarrow: (narrow: { filter?: string | undefined; genre?: string | undefined }) => void;
+  narrow: Narrow;
+  onNarrow: (narrow: Narrow) => void;
 }
 
 /**
@@ -125,6 +132,25 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
       <div className="space-y-0.5 border-t border-white/5 px-2 py-3">
         {MORE_TABS.map(tabButton)}
       </div>
+      {/* D63: only games in an Essentials collection; shown when the scope has some. */}
+      {(Boolean(narrow.essentials) || (facets?.essentials ?? 0) > 0) && (
+        <div className="border-t border-white/5 px-2 py-3">
+          <button
+            type="button"
+            aria-pressed={Boolean(narrow.essentials)}
+            className={`${ITEM} ${itemState(Boolean(narrow.essentials))}`}
+            onClick={() => {
+              onNarrow({ ...narrow, essentials: narrow.essentials ? undefined : true });
+            }}
+          >
+            <Star aria-hidden="true" className="h-4 w-4 shrink-0" />
+            <span className="flex-1 truncate">{t('library.sidebar.essentials')}</span>
+            <span className="font-mono text-[10px] text-slate-500">
+              {(facets?.essentials ?? 0).toLocaleString()}
+            </span>
+          </button>
+        </div>
+      )}
       {facetGroup(
         t('library.sidebar.filters'),
         facets?.filters ?? [],

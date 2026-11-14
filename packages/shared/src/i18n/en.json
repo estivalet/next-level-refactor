@@ -710,7 +710,8 @@
         "scraper": "ScreenScraper",
         "config": "config.json"
       },
-      "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again."
+      "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again.",
+      "essentialsOnly": "Essentials collections only"
     },
     "scraper": {
       "account": "ScreenScraper account",
@@ -878,7 +879,8 @@
     "sidebar": {
       "label": "Show and narrow",
       "filters": "Filters",
-      "genres": "Genres"
+      "genres": "Genres",
+      "essentials": "Essentials only"
     },
     "list": {
       "label": "Games",
@@ -1653,7 +1655,8 @@
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
       "playability": "Tested status and notes, as the playability mark",
       "replacesImport": "Replaces what an earlier import brought in",
-      "artFolder": "Art or theme packs folder"
+      "artFolder": "Art or theme packs folder",
+      "notEssentials": "Not imported (Essentials collections only)"
     }
   },
   "scrape": {

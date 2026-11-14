@@ -16,7 +16,15 @@ import {
 } from '@nextlevel/shared';
 import type Database from 'better-sqlite3';
 import { ftsQuery, titlePrefixPattern } from './ftsQuery.ts';
-import { ROW_COLUMNS, ROW_JOINS, listShape, tabCountsSql, toRow, type RawRow } from './gameSql.ts';
+import {
+  ESSENTIALS_SQL,
+  ROW_COLUMNS,
+  ROW_JOINS,
+  listShape,
+  tabCountsSql,
+  toRow,
+  type RawRow,
+} from './gameSql.ts';
 import { SCRAPE_STATUS_COLUMNS, toScrapeStatus } from './ScrapeRepository.ts';
 import { removeMissingGames, type RemovedGames } from './missingGames.ts';
 import { resolveScope } from './scopeQuery.ts';
@@ -124,6 +132,7 @@ export class GameRepository {
       filter: query.filter !== undefined,
       genre: query.genre !== undefined,
       lacking: query.lacking,
+      essentials: query.essentials === true,
     });
     const params = {
       ...scopeParams,
@@ -161,7 +170,10 @@ export class GameRepository {
     const tabs = this.statement(tabCountsSql(scope, smart?.sql ?? null)).get(
       params,
     ) as GameFacets['tabs'];
-    return { filters, genres, tabs };
+    const essentials = this.statement(`select count(*) ${from} and ${ESSENTIALS_SQL}`)
+      .pluck()
+      .get(params) as number;
+    return { filters, genres, tabs, essentials };
   }
 
   private scope(scope: GameScope) {

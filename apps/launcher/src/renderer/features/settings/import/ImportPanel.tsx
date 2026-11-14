@@ -19,6 +19,7 @@ type Phase = 'idle' | 'dryRunning' | 'confirming' | 'importing';
 interface DryRun {
   folder: string;
   emulatorsFolder: string | null;
+  essentialsOnly: boolean;
   report: ImportReport;
 }
 
@@ -32,13 +33,17 @@ export function ImportPanel() {
   const { progress, reset } = useImportProgress();
   const [folder, setFolder] = useState<string | null>(null);
   const [emulatorsFolder, setEmulatorsFolder] = useState<string | null>(null);
+  const [essentialsOnly, setEssentialsOnly] = useState(false);
   const [dryRun, setDryRun] = useState<DryRun | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [summary, setSummary] = useState<ImportSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const format = (n: number) => n.toLocaleString(i18n.language);
   const current =
-    dryRun && dryRun.folder === folder && dryRun.emulatorsFolder === emulatorsFolder
+    dryRun &&
+    dryRun.folder === folder &&
+    dryRun.emulatorsFolder === emulatorsFolder &&
+    dryRun.essentialsOnly === essentialsOnly
       ? dryRun
       : null;
 
@@ -72,7 +77,12 @@ export function ImportPanel() {
       setDryRun({
         folder,
         emulatorsFolder,
-        report: await dryRunImport({ folder, emulatorsFolder }),
+        essentialsOnly,
+        report: await dryRunImport({
+          folder,
+          emulatorsFolder,
+          ...(essentialsOnly ? { essentialsOnly: true } : {}),
+        }),
       });
     } catch (cause) {
       fail(cause);
@@ -92,6 +102,7 @@ export function ImportPanel() {
           folder: current.folder,
           emulatorsFolder: current.emulatorsFolder,
           reportToken: current.report.token,
+          ...(current.essentialsOnly ? { essentialsOnly: true } : {}),
         }),
       );
       setDryRun(null);
@@ -116,6 +127,17 @@ export function ImportPanel() {
         onChooseFolder={() => void chooseFolder()}
         onEmulatorsFolder={setEmulatorsFolder}
       />
+      <label className="flex items-center gap-2 text-xs text-slate-200">
+        <input
+          type="checkbox"
+          checked={essentialsOnly}
+          disabled={busy}
+          onChange={(event) => {
+            setEssentialsOnly(event.target.checked);
+          }}
+        />
+        {t('settings.import.essentialsOnly')}
+      </label>
       <div className="flex gap-2">
         <button
           type="button"

@@ -229,6 +229,8 @@ export const ipcContract = {
     input: z.strictObject({
       folder: z.string().trim().min(3).max(500),
       emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
+      /** D63: import only the Essentials collections. */
+      essentialsOnly: z.boolean().optional(),
     }),
     output: ImportReportSchema,
   },
@@ -238,6 +240,7 @@ export const ipcContract = {
       folder: z.string().trim().min(3).max(500),
       emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
       reportToken: z.string().min(1).max(200),
+      essentialsOnly: z.boolean().optional(),
     }),
     output: ImportSummarySchema,
   },

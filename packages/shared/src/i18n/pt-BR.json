@@ -710,7 +710,8 @@
         "scraper": "ScreenScraper",
         "config": "config.json"
       },
-      "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo."
+      "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo.",
+      "essentialsOnly": "Só as coleções Essentials"
     },
     "scraper": {
       "account": "Conta do ScreenScraper",
@@ -878,7 +879,8 @@
     "sidebar": {
       "label": "Mostrar e filtrar",
       "filters": "Filtros",
-      "genres": "Gêneros"
+      "genres": "Gêneros",
+      "essentials": "Só essenciais"
     },
     "list": {
       "label": "Jogos",
@@ -1653,7 +1655,8 @@
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
       "playability": "Status e notas de teste, como a marca de jogabilidade",
       "replacesImport": "Substitui o que uma importação anterior trouxe",
-      "artFolder": "Pasta de arte ou de pacotes de tema"
+      "artFolder": "Pasta de arte ou de pacotes de tema",
+      "notEssentials": "Não importada (só coleções Essentials)"
     }
   },
   "scrape": {

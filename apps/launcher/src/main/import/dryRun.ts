@@ -1,6 +1,7 @@
 import {
   defaultProfileFor,
   IMPORT_MAPPED_REASONS,
+  isEssentialsName,
   type DetectedEmulator,
   type EmulatorPreset,
   type ImportItem,
@@ -50,6 +51,12 @@ export interface ImportDeps {
 }
 
 /** Everything an import would write, computed without writing (IA F6). */
+/** What the user chose for this import (D63). */
+export interface ImportOptions {
+  /** Only the Essentials collections (`isEssentialsName`); the others are reported. */
+  essentialsOnly?: boolean | undefined;
+}
+
 export interface ImportPlan {
   fingerprint: string;
   files: LegacyFiles;
@@ -203,6 +210,7 @@ export async function planImport(
   folder: string,
   emulatorsFolder: string | null,
   deps: ImportDeps,
+  options: ImportOptions = {},
 ): Promise<ImportPlan> {
   const { files, problems, fingerprint } = await readLegacy(folder);
   const match = createSystemMatcher(deps.catalog);
@@ -250,10 +258,20 @@ export async function planImport(
     deps.presets,
     (id) => deps.catalog.find((s) => s.id === id)?.name ?? id,
   );
-  const collections = mapCollections(files, match);
-  const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
+  const mappedCollections = mapCollections(files, match);
+  // D63: with Essentials only, the other collections are reported and never imported; their menu
+  // nodes are dropped when the menus are bound (bindCollections).
+  const notEssentials = options.essentialsOnly
+    ? mappedCollections.collections.filter((c) => !isEssentialsName(c.name))
+    : [];
+  const collections = {
+    ...mappedCollections,
+    collections: mappedCollections.collections.filter((c) => !notEssentials.includes(c)),
+  };
+  const names = new Set(mappedCollections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
   const used = menuCollections(menus.menus);
+  const dropped = new Set(notEssentials.map((c) => c.name));
   const inMenus = collections.collections.filter((c) => used.has(c.name.toLowerCase()));
   const notInMenus = collections.collections.filter((c) => !used.has(c.name.toLowerCase()));
   const skipped = new Set(notInMenus.map((c) => c.name));
@@ -267,7 +285,13 @@ export async function planImport(
     ...withPresets.items,
     ...games.items,
     ...booted.items,
-    ...collections.items.filter((item) => !skipped.has(item.key)),
+    ...collections.items.filter((item) => !skipped.has(item.key) && !dropped.has(item.key)),
+    ...notEssentials.map((c): ImportItem => ({
+      area: 'collection',
+      key: c.name,
+      reason: 'notEssentials',
+      ...(c.entries.length > 0 ? { count: c.entries.length } : {}),
+    })),
     ...notInMenus.map((c): ImportItem => ({
       area: 'collection',
       key: c.name,
@@ -342,8 +366,9 @@ export async function dryRun(
   emulatorsFolder: string | null,
   deps: ImportDeps,
   onProgress: (progress: ImportProgress) => void = () => undefined,
+  options: ImportOptions = {},
 ): Promise<ImportReport> {
-  const plan = await planImport(folder, emulatorsFolder, deps);
+  const plan = await planImport(folder, emulatorsFolder, deps, options);
   const bySystem = new Map<string, GameImport[]>();
   for (const game of plan.games) {
     const list = bySystem.get(game.systemId);

@@ -79,6 +79,35 @@ describe('ImportPanel', () => {
     });
   });
 
+  it('D63: the Essentials collections only tick is sent with the dry run and the import', async () => {
+    const user = userEvent.setup();
+    const bridge = setup();
+    await user.click(button('Choose NextLevelOS data folder…'));
+    await screen.findByDisplayValue('C:\\NextLevel\\emulators');
+    await user.click(screen.getByRole('checkbox', { name: 'Essentials collections only' }));
+    await user.click(button('Dry run'));
+    await screen.findByText('No matching system in NextLevel');
+    await user.click(button('Import…'));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Import' }));
+    await screen.findByText('Imported 13 games (5 missing), 2 collections and 2 menus.');
+    const sent = (channel: string) =>
+      bridge.calls.find((c) => c.channel === channel)?.input as { essentialsOnly?: boolean };
+    expect(sent('import.dryRun').essentialsOnly).toBe(true);
+    expect(sent('import.apply').essentialsOnly).toBe(true);
+  });
+
+  it('D63: changing the tick after a dry run asks for a new dry run', async () => {
+    const user = userEvent.setup();
+    setup();
+    await user.click(button('Choose NextLevelOS data folder…'));
+    await screen.findByDisplayValue('C:\\NextLevel\\emulators');
+    await user.click(button('Dry run'));
+    await screen.findByText('No matching system in NextLevel');
+    expect(button('Import…')).toBeEnabled();
+    await user.click(screen.getByRole('checkbox', { name: 'Essentials collections only' }));
+    expect(button('Import…')).toBeDisabled();
+  });
+
   it('FR-IMP-2: the report reads in Portuguese too', async () => {
     await i18n.changeLanguage('pt-BR');
     const user = userEvent.setup();

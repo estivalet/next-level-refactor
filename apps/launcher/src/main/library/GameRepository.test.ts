@@ -210,6 +210,7 @@ describe('GameRepository narrowing and facets', () => {
         missing: 0,
         needsReview: 0,
       },
+      essentials: 0,
     });
     expect(games.facets(N64, 'hidden')).toMatchObject({
       filters: [{ value: 'hack', count: 1 }],

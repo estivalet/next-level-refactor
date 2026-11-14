@@ -48,6 +48,7 @@ export function ExportDialog({ scope, title, view, counts, onClose }: ExportDial
     t(`library.tabs.${view.tab}`),
     ...(view.filter ? [view.filter] : []),
     ...(view.genre ? [view.genre] : []),
+    ...(view.essentials ? [t('library.sidebar.essentials')] : []),
   ].join(' · ');
   const saved = exporting.data?.status === 'saved' ? exporting.data.count : null;
 

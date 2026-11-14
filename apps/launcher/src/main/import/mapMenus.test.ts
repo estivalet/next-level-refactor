@@ -3,7 +3,7 @@ import { MenuDraftSchema } from '@nextlevel/shared';
 import { systemCatalog } from '@nextlevel/system-catalog';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { mapCollections } from './mapCollections.ts';
-import { mapMenus } from './mapMenus.ts';
+import { bindCollections, mapMenus } from './mapMenus.ts';
 import { createSystemMatcher } from './matchSystem.ts';
 import { readLegacy, type LegacyFiles } from './readLegacy.ts';
 import { legacyCopy, type LegacyCopy } from './testing.ts';
@@ -149,5 +149,32 @@ describe('mapMenus', () => {
       ) as unknown;
       expect(MenuDraftSchema.safeParse({ title: menu.title, nodes }).success).toBe(true);
     }
+  });
+});
+
+describe('bindCollections (D63)', () => {
+  const node = (type: MenuDocNode['type'], name: string, children: MenuDocNode[] = []) =>
+    ({
+      id: newId(),
+      type,
+      refId: type === 'collection' ? name : null,
+      name,
+      displayName: null,
+      shortName: null,
+      filterTabs: false,
+      children,
+    }) as MenuDocNode;
+
+  it('D63: menu nodes of collections not imported are dropped, and a folder left empty is dropped', () => {
+    const nodes = [
+      node('category', 'Essentials', [node('collection', 'Arcade Essentials')]),
+      node('category', 'Collections', [node('collection', 'Party Picks')]),
+      node('category', 'Empty before'),
+    ];
+    const bound = bindCollections(nodes, new Map([['arcade essentials', 7]]));
+    expect(bound.map((n) => [n.name, n.children.map((c) => c.refId)])).toEqual([
+      ['Essentials', ['7']],
+      ['Empty before', []],
+    ]);
   });
 });

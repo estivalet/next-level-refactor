@@ -127,4 +127,13 @@ describe('GameExportReader', () => {
     const { reader } = await setup();
     expect(() => reader.read({ kind: 'collection', collectionId: 99 }, null)).toThrow();
   });
+
+  it('D63: an export of the list narrowed to Essentials only has just those games', async () => {
+    const { db, reader } = await setup();
+    const [mario = 0] = seedGames(db, 'nintendo-64', ['Mario 64', 'Other']);
+    const collections = new CollectionRepository(db, () => new Date());
+    collections.addGames(collections.create('N64 Essentials').id, [mario]);
+    const games = reader.read(N64, { tab: 'all', essentials: true });
+    expect(games.map((g) => g.title)).toEqual(['Mario 64']);
+  });
 });

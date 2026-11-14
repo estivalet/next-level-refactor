@@ -38,6 +38,8 @@ export const IMPORT_UNMAPPED_REASONS = [
   'collectionLaunchFields',
   'unknownTheme',
   'notInMenu',
+  /** D63: Essentials collections only was ticked and this collection isn't one. */
+  'notEssentials',
   'presetEmulatorMissing',
 ] as const;
 

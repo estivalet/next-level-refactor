@@ -137,7 +137,11 @@ export function mapMenus(
   return { menus, items: tally.items() };
 }
 
-/** Collection nodes get the imported collections' ids; those without one are dropped. */
+/**
+ * Collection nodes get the imported collections' ids; those without one are dropped, and so is a
+ * node whose children were all dropped that way (D63: an Essentials-only import leaves the other
+ * collections' folders empty). A node that had no children to begin with stays.
+ */
 export function bindCollections(
   nodes: readonly MenuDocNode[],
   idsByName: ReadonlyMap<string, number>,
@@ -147,6 +151,7 @@ export function bindCollections(
       const id = idsByName.get((n.refId ?? '').toLowerCase());
       return id === undefined ? [] : [{ ...n, refId: String(id) }];
     }
-    return [{ ...n, children: bindCollections(n.children, idsByName) }];
+    const children = bindCollections(n.children, idsByName);
+    return n.children.length > 0 && children.length === 0 ? [] : [{ ...n, children }];
   });
 }

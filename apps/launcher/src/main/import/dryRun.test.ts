@@ -103,6 +103,40 @@ describe('dryRun', () => {
     });
   });
 
+  it('D63: Essentials collections only imports just the Essentials collections; the others are reported notEssentials', async () => {
+    const { copy, deps } = await setup();
+    await writeFile(
+      join(copy.data, 'gamelists', 'Arcade Essentials.json'),
+      JSON.stringify({
+        games: [{ filename: './blastoid.zip', system: 'Arcade', title: 'Blastoid' }],
+      }),
+    );
+    const menuPath = join(copy.data, 'menu.json');
+    const menu = JSON.parse(await readFile(menuPath, 'utf8')) as { items: unknown[] };
+    menu.items.push({
+      name: 'Essentials',
+      items: [{ name: 'Arcade Essentials', type: 'collection' }],
+    });
+    await writeFile(menuPath, JSON.stringify(menu));
+
+    const all = await planImport(copy.data, null, deps);
+    expect(all.collections.map((c) => c.name).sort()).toEqual([
+      'Arcade Essentials',
+      'Favorites Mix',
+      'Party Picks',
+    ]);
+    const plan = await planImport(copy.data, null, deps, { essentialsOnly: true });
+    expect(plan.collections.map((c) => c.name)).toEqual(['Arcade Essentials']);
+    const notEssentials = plan.unmapped.filter((i) => i.reason === 'notEssentials');
+    expect(notEssentials.map((i) => [i.area, i.key])).toEqual([
+      ['collection', 'Favorites Mix'],
+      ['collection', 'Party Picks'],
+    ]);
+    expect(plan.unmapped.some((i) => i.reason === 'notInMenu' && i.key === 'Party Picks')).toBe(
+      false,
+    );
+  });
+
   it('D12: a suffixed name that is also taken counts up; a renamed import holds its new name', async () => {
     const { copy, deps } = await setup({
       collections: [

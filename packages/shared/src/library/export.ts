@@ -84,6 +84,7 @@ export const ExportViewSchema = z.strictObject({
   sort: z.enum(GAME_SORTS).optional(),
   filter: z.string().regex(FILTER_SLUG).optional(),
   genre: z.string().max(200).optional(),
+  essentials: z.literal(true).optional(),
 });
 
 export const GameExportRequestSchema = z.strictObject({

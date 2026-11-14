@@ -75,6 +75,11 @@ function scopeParts(scope: GameScope, smartIds: string | null) {
         };
 }
 
+/** The game is in an Essentials collection (D63; the SQL twin of `isEssentialsName`). */
+export const ESSENTIALS_SQL = `g.id in (select cg.game_id from collection_games cg
+  join collections c on c.id = cg.collection_id
+  where lower(trim(c.name)) = 'essentials' or lower(trim(c.name)) like '% essentials')`;
+
 /** One row with each tab's game count in a scope, columns named after the tabs. */
 export function tabCountsSql(scope: GameScope, smartIds: string | null = null): string {
   const parts = scopeParts(scope, smartIds);
@@ -97,7 +102,12 @@ export function listShape(
   hasText: boolean,
   /** A smart filter scope: its `select id, rn` query (smartFilterIdsSql). */
   smartIds: string | null = null,
-  narrow: { filter: boolean; genre: boolean; lacking?: HealthGap | undefined } = {
+  narrow: {
+    filter: boolean;
+    genre: boolean;
+    lacking?: HealthGap | undefined;
+    essentials?: boolean | undefined;
+  } = {
     filter: false,
     genre: false,
   },
@@ -112,6 +122,7 @@ export function listShape(
   }
   if (narrow.genre) where.push('m.genre = @genre');
   if (narrow.lacking !== undefined) where.push(lackingSql(narrow.lacking));
+  if (narrow.essentials) where.push(ESSENTIALS_SQL);
   const sort =
     query.scope.kind === 'collection' ? (collectionSort ?? 'manual') : (query.sort ?? 'title');
   return {
