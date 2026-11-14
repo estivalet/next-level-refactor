@@ -1,6 +1,6 @@
 # Linked catalog files (Google Drive, archive.org) — design
 
-Date: 2026-11-14 · Owner decision: D65 · Requirement: FR-CAT-8 (new) · ADR: ADR-015 (to write)
+Date: 2026-11-14 · Owner decision: D65 · Requirement: FR-CAT-9 (new) · ADR: ADR-015 (to write)
 
 ## Intent
 
@@ -134,7 +134,7 @@ behaviour). Checksum check before install is unchanged. New strings in en and pt
 
 ### Docs
 
-ADR-015 (linked files, choice A and its trade-off), a new requirement **FR-CAT-8** "Catalog files
+ADR-015 (linked files, choice A and its trade-off), a new requirement **FR-CAT-9** "Catalog files
 can be links to Google Drive or archive.org (owner request 2026-11-14, D65)" — tests are named
 with it — plus notes on FR-ADM-3 and FR-CAT-6 (linked URLs don't expire), security doc (threat row "download URL shared": linked files are
 public by design), api-spec (Add link / Retry / Check again routes, grant `linked`), data model, admin screen
