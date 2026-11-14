@@ -337,7 +337,34 @@
         "replaceAction": "Substituir",
         "removeTitle": "Remover {{name}}?",
         "removeBody": "O arquivo é apagado.",
-        "removeBodyPublished": "O item está publicado: a versão sobe e os jogadores veem Atualização disponível."
+        "removeBodyPublished": "O item está publicado: a versão sobe e os jogadores veem Atualização disponível.",
+        "link": {
+          "title": "Adicionar um link",
+          "help": "Coloque o arquivo no Google Drive (compartilhado com qualquer pessoa com o link) ou no archive.org e cole o link. O NextLevel baixa uma vez para registrar o tamanho e o SHA-256; os jogadores baixam de lá.",
+          "name": "Nome do arquivo",
+          "link": "Link de compartilhamento",
+          "add": "Adicionar link",
+          "onlyHosts": "Só é possível adicionar links de arquivos do Google Drive e do archive.org.",
+          "notAFile": "Este link não aponta para um arquivo (uma pasta ou uma página de item sem arquivo).",
+          "checking": "Verificando o link…",
+          "failed": "Link com falha: {{reason}}",
+          "retry": "Tentar de novo",
+          "retryLabel": "Tentar de novo {{name}}",
+          "check": "Verificar de novo",
+          "checkLabel": "Verificar de novo {{name}}",
+          "hosts": {
+            "drive": "Google Drive",
+            "archive": "archive.org"
+          },
+          "errors": {
+            "linkHost": "o link não é do Google Drive nem do archive.org",
+            "linkFile": "o link não aponta para um arquivo",
+            "linkStatus": "o servidor recusou (removido ou não compartilhado?)",
+            "linkNotFile": "o servidor mandou uma página da web, não o arquivo",
+            "linkNetwork": "não foi possível falar com o servidor",
+            "tooLarge": "o arquivo tem mais de 4 GB"
+          }
+        }
       },
       "art": {
         "title": "Arte",

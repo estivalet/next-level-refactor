@@ -2,6 +2,7 @@ import {
   FILE_ROLES,
   MAX_UPLOAD_BYTES,
   safeFilename,
+  type AdminCatalogFile,
   type AdminCatalogItem,
   type FileRole,
 } from '@nextlevel/shared';
@@ -9,9 +10,10 @@ import { getSystem } from '@nextlevel/system-catalog';
 import { Button, Select, Table } from '@nextlevel/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRemoveFile, useUploadFile } from '../../api/catalog.ts';
+import { useCheckLink, useRemoveFile, useUploadFile } from '../../api/catalog.ts';
 import { catalogErrorKey, formatBytes, reasonOf, systemName } from './catalogText.ts';
 import { Confirm } from './Confirm.tsx';
+import { LinkForm } from './LinkForm.tsx';
 import { Progress, type Sending } from './Progress.tsx';
 
 interface Choice {
@@ -29,13 +31,15 @@ export function FilesTab({ item }: { item: AdminCatalogItem }) {
   const { t, i18n } = useTranslation();
   const upload = useUploadFile(item.id);
   const remove = useRemoveFile(item.id);
+  const check = useCheckLink(item.id);
   const [role, setRole] = useState<FileRole>('rom');
   const [sending, setSending] = useState<Sending | null>(null);
   const [done, setDone] = useState<{ name: string; size: number; sha256: string } | null>(null);
   const [badName, setBadName] = useState<string | null>(null);
   const [replacing, setReplacing] = useState<Choice | null>(null);
   const [removing, setRemoving] = useState<{ id: string; name: string } | null>(null);
-  const files = item.files.filter((file) => file.status === 'ready');
+  // Ready files, and links still being checked or that failed (FR-CAT-9).
+  const files = item.files.filter((file) => file.status === 'ready' || file.link !== null);
   const published = item.status === 'published';
   const busy = sending !== null || upload.isPending;
 
@@ -104,7 +108,32 @@ export function FilesTab({ item }: { item: AdminCatalogItem }) {
       : upload.error
         ? t(catalogErrorKey(upload.error))
         : null;
-  const error = badName ?? uploadError ?? (remove.error ? t(catalogErrorKey(remove.error)) : null);
+  const writeError = remove.error ?? check.error;
+  const error = badName ?? uploadError ?? (writeError ? t(catalogErrorKey(writeError)) : null);
+
+  /** A link's state where an upload shows its checksum (FR-CAT-9). */
+  const checksum = (file: AdminCatalogFile) => {
+    if (file.link?.state === 'checking') return t('admin.catalog.files.link.checking');
+    if (file.link?.state === 'failed' && file.status !== 'ready') {
+      return t('admin.catalog.files.link.failed', {
+        reason: t(`admin.catalog.files.link.errors.${file.link.error ?? 'linkNetwork'}`),
+      });
+    }
+    return (
+      <span className="flex flex-col gap-0.5">
+        <code className="text-xs break-all text-slate-400">{file.sha256}</code>
+        {file.link && (
+          <span className="text-xs text-slate-500">
+            {t(`admin.catalog.files.link.hosts.${file.link.host}`)}
+            {file.link.state === 'failed' &&
+              ` · ${t('admin.catalog.files.link.failed', {
+                reason: t(`admin.catalog.files.link.errors.${file.link.error ?? 'linkNetwork'}`),
+              })}`}
+          </span>
+        )}
+      </span>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -124,24 +153,46 @@ export function FilesTab({ item }: { item: AdminCatalogItem }) {
             file.filename,
             t(`admin.catalog.roles.${file.role}`),
             formatBytes(file.size, i18n.language),
-            <code key="sha" className="text-xs break-all text-slate-400">
-              {file.sha256}
-            </code>,
+            <span key="sha">{checksum(file)}</span>,
             <div key="actions" className="flex gap-2 whitespace-nowrap">
-              <label className="cursor-pointer rounded-lg bg-white/10 px-3 py-1.5 text-sm hover:bg-white/15">
-                {t('admin.catalog.files.replace')}
-                <input
-                  type="file"
-                  className="sr-only"
-                  disabled={busy}
-                  aria-label={t('admin.catalog.files.replaceLabel', { name: file.filename })}
-                  onChange={(event) => {
-                    const picked = event.target.files?.[0];
-                    event.target.value = '';
-                    if (picked) choose({ file: picked, filename: file.filename, role: file.role });
-                  }}
-                />
-              </label>
+              {file.link ? (
+                file.link.state !== 'checking' && (
+                  <Button
+                    aria-label={t(
+                      file.status === 'ready'
+                        ? 'admin.catalog.files.link.checkLabel'
+                        : 'admin.catalog.files.link.retryLabel',
+                      { name: file.filename },
+                    )}
+                    disabled={check.isPending}
+                    onClick={() => {
+                      check.mutate(file.id);
+                    }}
+                  >
+                    {t(
+                      file.status === 'ready'
+                        ? 'admin.catalog.files.link.check'
+                        : 'admin.catalog.files.link.retry',
+                    )}
+                  </Button>
+                )
+              ) : (
+                <label className="cursor-pointer rounded-lg bg-white/10 px-3 py-1.5 text-sm hover:bg-white/15">
+                  {t('admin.catalog.files.replace')}
+                  <input
+                    type="file"
+                    className="sr-only"
+                    disabled={busy}
+                    aria-label={t('admin.catalog.files.replaceLabel', { name: file.filename })}
+                    onChange={(event) => {
+                      const picked = event.target.files?.[0];
+                      event.target.value = '';
+                      if (picked)
+                        choose({ file: picked, filename: file.filename, role: file.role });
+                    }}
+                  />
+                </label>
+              )}
               <Button
                 aria-label={t('admin.catalog.files.removeLabel', { name: file.filename })}
                 disabled={remove.isPending}
@@ -183,6 +234,7 @@ export function FilesTab({ item }: { item: AdminCatalogItem }) {
         </label>
       </div>
       <p className="text-xs text-slate-500">{t('admin.catalog.files.uploadHelp')}</p>
+      <LinkForm itemId={item.id} role={role} nameProblem={nameProblem} />
       {sending && <Progress sending={sending} />}
       {done && (
         <p role="status" className="text-sm break-all text-emerald-300">

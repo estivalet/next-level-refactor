@@ -5,6 +5,7 @@ import {
   AdminCatalogPageSchema,
   StartUploadResponseSchema,
   UploadResultSchema,
+  type AddLink,
   type AdminCatalogItem,
   type CatalogMediaKind,
   type CreateItem,
@@ -41,10 +42,17 @@ export function useCatalogItems(filters: { q: string; status: string; scope: str
   });
 }
 
+/** How often an item is read again while one of its links is being checked (FR-CAT-9). */
+export const LINK_POLL_MS = 3000;
+
 export function useCatalogItem(id: string) {
   return useQuery({
     queryKey: itemKey(id),
     queryFn: () => apiFetch(itemPath(id), { schema: AdminCatalogItemSchema }),
+    refetchInterval: (query) =>
+      query.state.data?.files.some((file) => file.link?.state === 'checking')
+        ? LINK_POLL_MS
+        : false,
   });
 }
 
@@ -106,6 +114,21 @@ export const useRemoveFile = (id: string) =>
     apiFetch(`${itemPath(id)}/files/${encodeURIComponent(fileId)}`, {
       method: 'DELETE',
       schema: z.unknown(),
+    }),
+  );
+
+/** FR-CAT-9: a file kept at Google Drive or archive.org; the API checks it in the background. */
+export const useAddLink = (id: string) =>
+  useItemWrite(id, (body: AddLink) =>
+    apiFetch(`${itemPath(id)}/links`, { method: 'POST', body, schema: AdminCatalogFileSchema }),
+  );
+
+/** Retry a failed link, or check a ready one again (FR-CAT-9). */
+export const useCheckLink = (id: string) =>
+  useItemWrite(id, (fileId: string) =>
+    apiFetch(`${itemPath(id)}/files/${encodeURIComponent(fileId)}/check`, {
+      method: 'POST',
+      schema: AdminCatalogFileSchema,
     }),
   );
 

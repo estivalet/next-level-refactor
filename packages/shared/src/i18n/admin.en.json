@@ -337,7 +337,34 @@
         "replaceAction": "Replace",
         "removeTitle": "Remove {{name}}?",
         "removeBody": "The file is deleted.",
-        "removeBodyPublished": "The item is published: its version goes up and players see Update available."
+        "removeBodyPublished": "The item is published: its version goes up and players see Update available.",
+        "link": {
+          "title": "Add a link",
+          "help": "Put the file on Google Drive (shared with anyone who has the link) or archive.org, then paste its link. NextLevel downloads it once to record its size and SHA-256; players download it from there.",
+          "name": "File name",
+          "link": "Share link",
+          "add": "Add link",
+          "onlyHosts": "Only Google Drive and archive.org file links can be added.",
+          "notAFile": "This link doesn't point to one file (a folder or an item page without a file).",
+          "checking": "Checking link…",
+          "failed": "Link failed: {{reason}}",
+          "retry": "Retry",
+          "retryLabel": "Retry {{name}}",
+          "check": "Check again",
+          "checkLabel": "Check again {{name}}",
+          "hosts": {
+            "drive": "Google Drive",
+            "archive": "archive.org"
+          },
+          "errors": {
+            "linkHost": "the link isn't on Google Drive or archive.org",
+            "linkFile": "the link doesn't point to one file",
+            "linkStatus": "the host refused it (removed or not shared?)",
+            "linkNotFile": "the host sent a web page, not the file",
+            "linkNetwork": "the host couldn't be reached",
+            "tooLarge": "the file is larger than 4 GB"
+          }
+        }
       },
       "art": {
         "title": "Art",
