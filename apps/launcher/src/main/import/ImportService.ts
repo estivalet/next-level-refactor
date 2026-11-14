@@ -17,7 +17,13 @@ import type { ScanService } from '../scan/ScanService.ts';
 import type { Walker } from '../scan/walker.ts';
 import type { SettingsService } from '../settings/SettingsService.ts';
 import { addDetectedProfiles } from './detectedProfiles.ts';
-import { dryRun, planImport, type ImportDeps, type ImportPlan } from './dryRun.ts';
+import {
+  dryRun,
+  planImport,
+  type ImportDeps,
+  type ImportOptions,
+  type ImportPlan,
+} from './dryRun.ts';
 import { bindCollections } from './mapMenus.ts';
 import { mapSettings } from './mapSettings.ts';
 import { addMameUiKey } from './mameUiKey.ts';
@@ -100,19 +106,34 @@ export class ImportService {
     }
   }
 
-  dryRun(folder: string, emulatorsFolder: string | null): Promise<ImportReport> {
+  dryRun(
+    folder: string,
+    emulatorsFolder: string | null,
+    options: ImportOptions = {},
+  ): Promise<ImportReport> {
     return this.exclusive(() =>
-      dryRun(folder, emulatorsFolder, this.planDeps(), (p) => {
-        this.progress(p.stage, p.done, p.total);
-      }),
+      dryRun(
+        folder,
+        emulatorsFolder,
+        this.planDeps(),
+        (p) => {
+          this.progress(p.stage, p.done, p.total);
+        },
+        options,
+      ),
     );
   }
 
   /** Applies the import; `token` is the dry run's, and a folder changed since is `CONFLICT`. */
-  apply(folder: string, emulatorsFolder: string | null, token: string): Promise<ImportSummary> {
+  apply(
+    folder: string,
+    emulatorsFolder: string | null,
+    token: string,
+    options: ImportOptions = {},
+  ): Promise<ImportSummary> {
     return this.exclusive(async () => {
       const started = this.deps.clock().getTime();
-      const plan = await planImport(folder, emulatorsFolder, this.planDeps());
+      const plan = await planImport(folder, emulatorsFolder, this.planDeps(), options);
       if (plan.fingerprint !== token) fail('CONFLICT', { reason: 'folderChanged' });
       const settingsBackupId = await this.applySettings(plan);
       const now = this.deps.clock();

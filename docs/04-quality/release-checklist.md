@@ -20,6 +20,15 @@ Copy into the release PR/issue and tick every box. Skip a box only with a writte
 
 ## Manual checks (Windows 10 and Windows 11)
 
+Run every line below on Windows 10 22H2 and on Windows 11, x64 (NFR-COMP-1).
+
+- [ ] Idle memory (NFR-PERF-4): with a theme open and idle for a minute, Task Manager's total for
+      the NextLevel processes is ≤ 400 MB
+- [ ] Theme crash (NFR-REL-2): a theme that crashes shows *Theme stopped working* with Restart
+      theme, Switch theme and Back to desktop; the library and settings are unchanged after it
+- [ ] Scan with an unplugged drive (FR-LIB-3): the summary names the storage location not found
+- [ ] Copied portable folder (D64): copy a synced NextLevel folder to another PC, play there and
+      sync on both: play counts add up on both PCs
 - [ ] Clean install → sign in → first-run wizard → play a catalog game (≤ 5 min, G2)
 - [ ] Upgrade install over previous version keeps settings, library, sign-in
 - [ ] Real emulators: RetroArch (2 cores), Dolphin, PCSX2/DuckStation, MAME — launch and return

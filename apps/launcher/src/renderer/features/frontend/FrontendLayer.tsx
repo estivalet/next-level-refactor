@@ -11,8 +11,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../settings/settingsApi.ts';
 import { useKioskHides } from '../kiosk/kioskApi.ts';
+import { ErrorBoundary } from '../shell/ErrorBoundary.tsx';
+import { reportCrash } from '../shell/reportCrash.ts';
 import { useOpenApp } from '../shell/useOpenApp.ts';
 import { FrontendLaunchError } from './FrontendLaunchError.tsx';
+import { ThemeCrashScreen } from './ThemeCrashScreen.tsx';
 import { useFrontend } from './useFrontend.ts';
 import { useFrontendSession } from './useFrontendSession.ts';
 import { useFrontendTheme } from './useFrontendTheme.ts';
@@ -50,6 +53,11 @@ export function FrontendLayer() {
   });
 
   const { theme, switchTo } = useFrontendTheme(settings);
+  // NFR-REL-2: a theme crash is caught below; Restart theme or another theme mounts it afresh.
+  const [restarts, setRestarts] = useState(0);
+  const boundaryKey = `${theme.id}:${String(restarts)}`;
+  const [crashedKey, setCrashedKey] = useState<string | null>(null);
+  const crashed = crashedKey === boundaryKey;
 
   const toDesktop = () => {
     if (!canDesktop) return;
@@ -69,7 +77,8 @@ export function FrontendLayer() {
     !menuOpen &&
     !switcherOpen &&
     session.playingGameId === null &&
-    session.failure === null;
+    session.failure === null &&
+    !crashed;
   useInputActions({
     targetRef: layerRef,
     enabled: themeInput,
@@ -113,23 +122,45 @@ export function FrontendLayer() {
       aria-label={t('frontend.label')}
       className="fixed inset-0 z-[100] bg-black outline-none"
     >
-      <ThemeEngineProvider host={host} onExit={openMenu}>
-        <ThemeArtProvider
-          host={host}
-          themeId={theme.id}
-          moduleArt={theme.art}
-          {...(theme.settings ? { moduleSettings: theme.settings } : {})}
-          preview={artSession.preview.has(theme.id)}
-          artRevision={artSession.rescans[theme.id] ?? 0}
-        >
-          <Theme
-            key={theme.id}
-            onExit={openMenu}
-            inputEnabled={themeInput}
-            active={visible && session.playingGameId === null}
+      <ErrorBoundary
+        resetKey={boundaryKey}
+        onError={(error) => {
+          setCrashedKey(boundaryKey);
+          setMenuOpen(false);
+          reportCrash('theme', theme.id, error);
+        }}
+        fallback={() => (
+          <ThemeCrashScreen
+            enabled={
+              visible && preview === null && !menuOpen && !switcherOpen && session.failure === null
+            }
+            input={settings.input}
+            onRestart={() => {
+              setRestarts((n) => n + 1);
+            }}
+            onSwitchTheme={canSwitch ? openSwitcher : undefined}
+            onDesktop={canDesktop ? toDesktop : undefined}
           />
-        </ThemeArtProvider>
-      </ThemeEngineProvider>
+        )}
+      >
+        <ThemeEngineProvider host={host} onExit={openMenu}>
+          <ThemeArtProvider
+            host={host}
+            themeId={theme.id}
+            moduleArt={theme.art}
+            {...(theme.settings ? { moduleSettings: theme.settings } : {})}
+            preview={artSession.preview.has(theme.id)}
+            artRevision={artSession.rescans[theme.id] ?? 0}
+          >
+            <Theme
+              key={theme.id}
+              onExit={openMenu}
+              inputEnabled={themeInput}
+              active={visible && session.playingGameId === null}
+            />
+          </ThemeArtProvider>
+        </ThemeEngineProvider>
+      </ErrorBoundary>
       {menuOpen && (
         <ThemeExitMenu
           input={settings.input}

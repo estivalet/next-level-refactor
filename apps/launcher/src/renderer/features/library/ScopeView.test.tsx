@@ -39,7 +39,7 @@ const SYSTEMS = [
   { id: 'snes', enabled: true, games: 2, missing: 0, review: 0 },
 ];
 
-function setup() {
+function setup(essentials = 0) {
   const bridge = installFakeBridge({
     ...libraryResponses(GAMES, SYSTEMS),
     'library.games.facets': () =>
@@ -50,6 +50,7 @@ function setup() {
         ],
         genres: [{ value: 'Shooter', count: 3 }],
         tabs: TAB_COUNTS,
+        essentials: essentials,
       }),
     'launch.game': () => ok({ launchId: 10 }),
   });
@@ -135,6 +136,27 @@ describe('the scope view (D62)', () => {
       expect(lastQuery()).toMatchObject({ tab: 'favorites' });
       expect(lastQuery().filter).toBeUndefined();
     });
+  });
+
+  it('D63: the Essentials only filter narrows the list; picking it again clears it', async () => {
+    const { user, lastQuery } = setup(3);
+    const essentials = await screen.findByRole('button', { name: /Essentials only/ });
+    expect(essentials).toHaveTextContent('3');
+    await user.click(essentials);
+    expect(essentials).toHaveAttribute('aria-pressed', 'true');
+    await waitFor(() => {
+      expect(lastQuery()).toMatchObject({ essentials: true });
+    });
+    await user.click(essentials);
+    await waitFor(() => {
+      expect(lastQuery().essentials).toBeUndefined();
+    });
+  });
+
+  it('D63: no Essentials only filter when the scope has no Essentials games', async () => {
+    setup(0);
+    await screen.findByRole('group', { name: 'Filters' });
+    expect(screen.queryByRole('button', { name: /Essentials only/ })).toBeNull();
   });
 
   it('D62: genres list with counts and narrow the list', async () => {
@@ -223,6 +245,7 @@ describe('the scope view (D62)', () => {
           filters: tab === 'all' ? [{ value: 'hack', count: 2 }] : [],
           genres: [],
           tabs: TAB_COUNTS,
+          essentials: 0,
         }),
     });
     const user = userEvent.setup();

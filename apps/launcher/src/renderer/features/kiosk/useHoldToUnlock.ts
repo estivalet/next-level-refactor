@@ -41,6 +41,11 @@ export function useHoldToUnlock({
       clearTimeout(keyTimer);
       keyTimer = null;
     };
+    // Focus lost mid-hold (Alt+Tab): the keyup goes to another window, so the hold ends here.
+    const onBlur = () => {
+      if (keyTimer) clearTimeout(keyTimer);
+      keyTimer = null;
+    };
     // Counted in poll steps, so fake timers in tests and a throttled window behave the same.
     const poll = setInterval(() => {
       const pad = firstStandardPad(getPads());
@@ -59,7 +64,9 @@ export function useHoldToUnlock({
 
     window.addEventListener('keydown', onKeyDown, true);
     window.addEventListener('keyup', onKeyUp, true);
+    window.addEventListener('blur', onBlur);
     return () => {
+      window.removeEventListener('blur', onBlur);
       window.removeEventListener('keydown', onKeyDown, true);
       window.removeEventListener('keyup', onKeyUp, true);
       if (keyTimer) clearTimeout(keyTimer);

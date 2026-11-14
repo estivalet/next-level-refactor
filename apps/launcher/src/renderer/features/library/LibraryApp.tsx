@@ -342,6 +342,7 @@ export function LibraryApp({
             ...(scope.kind === 'system' ? { sort: view.sort } : {}),
             ...(view.narrow.filter === undefined ? {} : { filter: view.narrow.filter }),
             ...(view.narrow.genre === undefined ? {} : { genre: view.narrow.genre }),
+            ...(view.narrow.essentials ? { essentials: true as const } : {}),
           }}
           counts={{
             every: facets.data ? facets.data.tabs.all + facets.data.tabs.hidden : null,

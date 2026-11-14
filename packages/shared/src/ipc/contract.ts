@@ -123,6 +123,16 @@ export const ipcContract = {
   ...syncContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
+  /** NFR-REL-2: a renderer error boundary caught a crash; main writes it to the log. */
+  'app.reportError': {
+    input: z.strictObject({
+      where: z.enum(['theme', 'window', 'shell']),
+      id: z.string().max(100),
+      message: z.string().max(2000),
+      stack: z.string().max(20000).optional(),
+    }),
+    output: z.void(),
+  },
   'app.paths': {
     input: z.void(),
     output: z.object({
@@ -219,6 +229,8 @@ export const ipcContract = {
     input: z.strictObject({
       folder: z.string().trim().min(3).max(500),
       emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
+      /** D63: import only the Essentials collections. */
+      essentialsOnly: z.boolean().optional(),
     }),
     output: ImportReportSchema,
   },
@@ -228,6 +240,7 @@ export const ipcContract = {
       folder: z.string().trim().min(3).max(500),
       emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
       reportToken: z.string().min(1).max(200),
+      essentialsOnly: z.boolean().optional(),
     }),
     output: ImportSummarySchema,
   },

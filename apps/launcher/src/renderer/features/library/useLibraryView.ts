@@ -14,6 +14,8 @@ interface Narrowing {
   filter?: string;
   genre?: string;
   lacking?: HealthGap;
+  /** D63: only games in an Essentials collection. */
+  essentials?: true;
 }
 
 /**
@@ -42,6 +44,7 @@ export function useLibraryView(initialScope: GameScope | null = null) {
         ...(narrow.filter === undefined ? {} : { filter: narrow.filter }),
         ...(narrow.genre === undefined ? {} : { genre: narrow.genre }),
         ...(narrow.lacking === undefined ? {} : { lacking: narrow.lacking }),
+        ...(narrow.essentials ? { essentials: true as const } : {}),
       }
     : null;
   const viewKey = JSON.stringify(params);
@@ -99,17 +102,24 @@ export function useLibraryView(initialScope: GameScope | null = null) {
     setTab,
     setSort,
     /** The filter, genre (D62) and lacking (System health) narrowing the list. */
-    narrow: { filter: narrow.filter, genre: narrow.genre, lacking: narrow.lacking },
+    narrow: {
+      filter: narrow.filter,
+      genre: narrow.genre,
+      lacking: narrow.lacking,
+      essentials: narrow.essentials,
+    },
     setNarrow: (next: {
       filter?: string | undefined;
       genre?: string | undefined;
       lacking?: HealthGap | undefined;
+      essentials?: true | undefined;
     }) => {
       setNarrowing({
         key: scopeKey,
         ...(next.filter === undefined ? {} : { filter: next.filter }),
         ...(next.genre === undefined ? {} : { genre: next.genre }),
         ...(next.lacking === undefined ? {} : { lacking: next.lacking }),
+        ...(next.essentials ? { essentials: true as const } : {}),
       });
     },
     setRange: (first: number, last: number) => {

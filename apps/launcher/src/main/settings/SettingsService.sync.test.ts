@@ -13,6 +13,7 @@ afterEach(async () => {
 const SYNC_ON: Settings['sync'] = {
   enabled: true,
   deviceKey: '0195b2a4-6f1e-7c3d-8a9b-0c1d2e3f4a5b',
+  deviceHost: '0123456789abcdef',
 };
 
 describe('the sync section is main-owned (FR-SET-5, D55)', () => {
@@ -28,7 +29,7 @@ describe('the sync section is main-owned (FR-SET-5, D55)', () => {
     const updated = await service.update((settings) => ({ ...settings, sync: SYNC_ON }));
     if (!updated.ok) throw new Error(updated.error.code);
     const saved = await service.save(
-      { ...defaultSettings(), sync: { enabled: false, deviceKey: null } },
+      { ...defaultSettings(), sync: { enabled: false, deviceKey: null, deviceHost: null } },
       updated.value.revision,
     );
     expect(saved.ok && saved.value.settings.sync).toEqual(SYNC_ON);

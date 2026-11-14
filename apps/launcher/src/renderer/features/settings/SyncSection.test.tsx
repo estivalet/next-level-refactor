@@ -57,4 +57,26 @@ describe('Settings → Sync (FR-SET-5, D55)', () => {
       'false',
     );
   });
+
+  it('FR-SET-5: signed out with sync on, Sync says to sign in instead of "Never synced"', async () => {
+    installFakeBridge({
+      'auth.state': () => ok({ kind: 'signedOut', reason: null, banner: null }),
+      'sync.state': () => ok({ ...on, lastSync: null }),
+    });
+    renderInShell(<SyncSection />);
+    expect(await screen.findByText('Sign in to sync this PC.')).toBeVisible();
+    expect(screen.queryByText('Never synced on this PC.')).toBeNull();
+  });
+
+  it('FR-SET-5: Delete synced data says other PCs turn off only if they sync first', async () => {
+    const u = userEvent.setup();
+    installFakeBridge({ 'sync.state': () => ok(on) });
+    renderInShell(<SyncSection />);
+    await u.click(await screen.findByRole('button', { name: 'Delete synced data' }));
+    expect(
+      screen.getByText(
+        'This removes everything synced from your account and turns sync off on this PC. Other PCs turn sync off at their next sync, unless this PC syncs again first. Nothing on any PC is deleted.',
+      ),
+    ).toBeVisible();
+  });
 });

@@ -1,9 +1,10 @@
 name: Release
 
-# A tag v<version> builds the Windows installer and zip, publishes them to a draft GitHub
-# release (electron-updater reads latest.yml from it once it is published) and runs the
-# packaging smoke test on the built installer. Tags with a "-" (v1.0.0-beta.1) are marked
-# pre-release: only launchers on the beta channel take them (D53).
+# A tag v<version> builds the Windows installer and zip, runs the packaging smoke test on the
+# built installer, and only then creates a draft GitHub release with the installer, its blockmap,
+# the zip and latest.yml (electron-updater reads latest.yml once the draft is published; beta
+# versions write latest.yml too). A failed smoke test leaves no draft behind. Tags with a "-"
+# (v1.0.0-beta.1) are marked pre-release: only launchers on the beta channel take them (D53).
 #
 # Signing (D52): with the Azure Trusted Signing secrets the build is signed; without them it is
 # unsigned and the run logs a warning — Windows SmartScreen will warn users ("More info → Run
@@ -41,12 +42,11 @@ jobs:
       - run: npm test
       - run: npm run licenses -w apps/launcher
       - run: npm run build -w apps/launcher
-      - name: Package and publish (signed)
+      - name: Package (signed)
         if: env.SIGNING == 'yes'
         working-directory: apps/launcher
-        run: npx electron-builder --win --publish always --config electron-builder.signed.yml
+        run: npx electron-builder --win --publish never --config electron-builder.signed.yml
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -54,21 +54,31 @@ jobs:
           NL_SIGN_ENDPOINT: ${{ secrets.NL_SIGN_ENDPOINT }}
           NL_SIGN_ACCOUNT: ${{ secrets.NL_SIGN_ACCOUNT }}
           NL_SIGN_PROFILE: ${{ secrets.NL_SIGN_PROFILE }}
-      - name: Package and publish (unsigned)
+      - name: Package (unsigned)
         if: env.SIGNING != 'yes'
         working-directory: apps/launcher
         run: |
           echo "::warning title=Unsigned build::No signing secrets (D52): this release is unsigned and Windows SmartScreen will warn when it is run."
-          npx electron-builder --win --publish always
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Mark pre-releases
-        if: contains(github.ref_name, '-')
-        run: gh release edit "${{ github.ref_name }}" --prerelease
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npx electron-builder --win --publish never
       - name: Packaging smoke test
         shell: pwsh
         run: |
           $installer = Get-ChildItem apps/launcher/dist -Filter 'NextLevel Setup *.exe' | Select-Object -First 1
           ./apps/launcher/scripts/packaging-smoke.ps1 -Installer $installer.FullName
+      # Only after the smoke test passed. latest.yml names the assets with "-" for spaces (GitHub
+      # would turn spaces into dots), so they are uploaded under those names.
+      - name: Create the draft release
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $stage = New-Item -ItemType Directory -Force -Path release-assets
+          Get-ChildItem apps/launcher/dist -File |
+            Where-Object { $_.Name -match '\.(exe|blockmap|zip)$' -or $_.Name -eq 'latest.yml' } |
+            ForEach-Object { Copy-Item $_.FullName (Join-Path $stage ($_.Name -replace ' ', '-')) }
+          $assets = (Get-ChildItem $stage -File).FullName
+          $flags = @('--draft', '--title', $tag.Substring(1), '--notes', 'Write the release notes, then publish.')
+          if ($tag.Contains('-')) { $flags += '--prerelease' }
+          gh release create $tag @flags @assets
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

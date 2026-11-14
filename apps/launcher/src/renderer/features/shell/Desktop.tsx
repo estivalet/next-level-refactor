@@ -9,7 +9,10 @@ import { useFrontend } from '../frontend/useFrontend.ts';
 import { KioskGate } from '../kiosk/KioskGate.tsx';
 import { DesktopIcons } from './DesktopIcons.tsx';
 import { useShell } from './ShellContext.tsx';
+import { ErrorBoundary } from './ErrorBoundary.tsx';
+import { reportCrash } from './reportCrash.ts';
 import { ShellWindow } from './ShellWindow.tsx';
+import { WindowCrash } from './WindowCrash.tsx';
 
 /**
  * The desktop: icons and windows in the full-height work area, an optional taskbar floating over
@@ -67,7 +70,14 @@ export function Desktop({ taskbar }: { taskbar?: ReactNode }) {
           if (!app) return null;
           return (
             <ShellWindow key={win.id} win={win} title={t(app.titleKey)}>
-              <app.Component {...(win.params ? { params: win.params } : {})} />
+              <ErrorBoundary
+                onError={(error) => {
+                  reportCrash('window', win.appId, error);
+                }}
+                fallback={(_, reset) => <WindowCrash onReload={reset} />}
+              >
+                <app.Component {...(win.params ? { params: win.params } : {})} />
+              </ErrorBoundary>
             </ShellWindow>
           );
         })}

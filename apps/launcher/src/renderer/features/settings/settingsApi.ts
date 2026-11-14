@@ -60,9 +60,11 @@ function useSnapshotWrite<TInput>(write: (input: TInput) => Promise<SettingsSnap
   const client = useQueryClient();
   return useMutation({
     mutationFn: write,
-    onSuccess: async (snapshot) => {
+    onSuccess: (snapshot) => {
       client.setQueryData(SETTINGS, loaded(snapshot));
-      await client.invalidateQueries({ queryKey: BACKUPS });
+      // Not awaited: the caller's "saved / restored" must not wait for the backups list to
+      // reload (it reads every backup file; slow disks made Backup restored late).
+      void client.invalidateQueries({ queryKey: BACKUPS });
     },
   });
 }

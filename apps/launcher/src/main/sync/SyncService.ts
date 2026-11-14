@@ -18,6 +18,7 @@ import {
 import { readFile } from 'node:fs/promises';
 import type { ApiClient } from '../auth/ApiClient.ts';
 import { atomicWrite } from '../fs/atomicWrite.ts';
+import { claimedSection, enabledSection } from './deviceClaim.ts';
 import type { KindAdapter } from './documents.ts';
 import {
   changedKeys,
@@ -58,6 +59,8 @@ export interface SyncDeps {
   /** atomicWrite; injected so a failing disk can be tested. */
   write?: (file: string, data: string) => Promise<void>;
   newId: () => string;
+  /** D64: this PC's host id (16 hex characters); a different one means a copied folder. */
+  hostId: () => string;
   clock: () => Date;
   every: (ms: number, run: () => void) => () => void;
   after: (ms: number, run: () => void) => () => void;
@@ -153,12 +156,9 @@ export class SyncService {
 
   async setEnabled(enabled: boolean): Promise<SyncState> {
     if (!enabled) await this.#settle();
-    const section = this.#deps.section();
-    await this.#deps.writeSection({
-      enabled,
-      // Created once, the first time sync is turned on: it names this PC's play counters.
-      deviceKey: section.deviceKey ?? (enabled ? this.#deps.newId() : null),
-    });
+    await this.#deps.writeSection(
+      enabledSection(this.#deps.section(), enabled, this.#deps.hostId(), this.#deps.newId),
+    );
     this.#error = null;
     if (!enabled) {
       this.#cancelDebounce?.();
@@ -183,6 +183,16 @@ export class SyncService {
       this.#holding = false;
     }
     return this.#announce();
+  }
+
+  /** D64: claims the device key for this PC (deviceClaim.ts). */
+  async #claimDevice(): Promise<void> {
+    const claimed = claimedSection(this.#deps.section(), this.#deps.hostId(), this.#deps.newId);
+    if (!claimed) return;
+    if (claimed.copied) {
+      this.#deps.log.warn({}, 'sync: this folder was copied from another PC; it gets its own key');
+    }
+    await this.#deps.writeSection(claimed.section);
   }
 
   /** Waits for a running sync (and its follow-up) to finish. */
@@ -214,6 +224,7 @@ export class SyncService {
     this.#syncing = true;
     this.#announce();
     try {
+      await this.#claimDevice();
       const store = await this.#load();
       if (store.userId !== auth.user.id) {
         // Another account on this PC: nothing merged for the previous one carries over.

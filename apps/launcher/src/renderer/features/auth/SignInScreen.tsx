@@ -1,6 +1,7 @@
 import type { AuthState } from '@nextlevel/shared';
 import { useTranslation } from 'react-i18next';
 import { getBridge } from '../../bridge.ts';
+import { useKioskHides } from '../kiosk/kioskApi.ts';
 import { useCancelSignIn, useSignIn } from './authApi.ts';
 import { GateFrame, PRIMARY, SECONDARY } from './GateFrame.tsx';
 
@@ -9,6 +10,7 @@ type SignInState = Extract<AuthState, { kind: 'signedOut' } | { kind: 'signingIn
 /** S2 Sign-in (US-A1): the system browser does the Google part; this screen waits for it. */
 export function SignInScreen({ state }: { state: SignInState }) {
   const { t } = useTranslation();
+  const hides = useKioskHides();
   const signIn = useSignIn();
   const cancel = useCancelSignIn();
   const waiting = state.kind === 'signingIn';
@@ -52,15 +54,18 @@ export function SignInScreen({ state }: { state: SignInState }) {
           <button type="button" autoFocus className={PRIMARY} onClick={start}>
             {reason && reason !== 'deleted' ? t('auth.retry') : t('auth.signIn')}
           </button>
-          <button
-            type="button"
-            className={SECONDARY}
-            onClick={() => {
-              void getBridge().invoke('app.quit');
-            }}
-          >
-            {t('auth.quit')}
-          </button>
+          {/* A locked kiosk that hides Quit (FR-SET-6) would refuse it anyway. */}
+          {!hides('quit') && (
+            <button
+              type="button"
+              className={SECONDARY}
+              onClick={() => {
+                void getBridge().invoke('app.quit');
+              }}
+            >
+              {t('auth.quit')}
+            </button>
+          )}
         </div>
       )}
     </GateFrame>

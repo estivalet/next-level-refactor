@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuthState } from '../auth/authApi.ts';
 import { useDeleteSynced, useSetSyncEnabled, useSyncNow, useSyncState } from '../sync/syncApi.ts';
 import { Switch } from './form/Switch.tsx';
 
@@ -16,22 +17,26 @@ export function SyncSection() {
   const { t, i18n } = useTranslation();
   const id = useId();
   const state = useSyncState().data;
+  const signedOut = useAuthState().data?.kind === 'signedOut';
   const setEnabled = useSetSyncEnabled();
   const syncNow = useSyncNow();
   const remove = useDeleteSynced();
   const [confirming, setConfirming] = useState(false);
   if (!state) return null;
   const busy = state.syncing || setEnabled.isPending || syncNow.isPending || remove.isPending;
+  // Signed out, sync on: nothing syncs until the user signs in again; say so (not "Never synced").
   const status = state.syncing
     ? t('settings.sync.syncing')
-    : state.lastSync
-      ? t('settings.sync.lastSync', {
-          time: new Intl.DateTimeFormat(i18n.language, {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-          }).format(new Date(state.lastSync)),
-        })
-      : t('settings.sync.never');
+    : state.enabled && signedOut
+      ? t('settings.sync.signedOut')
+      : state.lastSync
+        ? t('settings.sync.lastSync', {
+            time: new Intl.DateTimeFormat(i18n.language, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+            }).format(new Date(state.lastSync)),
+          })
+        : t('settings.sync.never');
 
   return (
     <div className="flex h-full flex-col gap-5 overflow-y-auto p-6">

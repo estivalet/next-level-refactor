@@ -1,4 +1,9 @@
-import { orderedLocations, type Settings, type StorageLocation } from '@nextlevel/shared';
+import {
+  catalogOverlaps,
+  orderedLocations,
+  type Settings,
+  type StorageLocation,
+} from '@nextlevel/shared';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { useRef } from 'react';
 import { flushSync } from 'react-dom';
@@ -60,6 +65,8 @@ export function StorageSection() {
         const locations = draft.storage.locations;
         // The Catalog games folder (D45) is kept last: the others move among themselves.
         const lastMovable = locations.filter((l) => !l.managed).length - 1;
+        // FR-CAT-3: a Catalog folder inside, equal to or around a ROM folder mixes the two.
+        const overlaps = catalogOverlaps(locations);
         const changeManaged = (id: string) => {
           pickFolder.mutate(t('settings.storage.pickTitle'), {
             onSuccess: (path) => {
@@ -130,6 +137,13 @@ export function StorageSection() {
                       {location.managed && (
                         <p className="text-xs text-slate-400">
                           {t('settings.storage.managedHelp')}
+                        </p>
+                      )}
+                      {location.managed && overlaps.length > 0 && (
+                        <p role="alert" className="text-xs text-amber-300">
+                          {t('settings.storage.catalogOverlap', {
+                            list: overlaps.map((l) => `${l.name} (${l.path})`).join(', '),
+                          })}
                         </p>
                       )}
                     </div>

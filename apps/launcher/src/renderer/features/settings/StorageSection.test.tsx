@@ -232,4 +232,41 @@ describe('StorageSection media location (FR-SCR-4)', () => {
       managed: true,
     });
   });
+
+  it('FR-CAT-3: Storage warns when the Catalog folder is one of your ROM folders; Save still works', async () => {
+    const user = userEvent.setup();
+    const catalog: StorageLocation = {
+      id: '01928c3e-0000-7000-8000-00000000000c',
+      name: 'Catalog',
+      path: 'E:\\roms\\Catalog',
+      priority: 3,
+      managed: true,
+    };
+    const { savedLocations } = setup([A, B, catalog]);
+    const warning = await screen.findByRole('alert');
+    expect(warning).toHaveTextContent(
+      'The Catalog folder overlaps 16TB (E:\\roms). Catalog installs and uninstalls would mix with your own games — pick a separate folder.',
+    );
+    await user.clear(screen.getByRole('textbox', { name: 'Name of location 1' }));
+    await user.type(screen.getByRole('textbox', { name: 'Name of location 1' }), 'Big');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(savedLocations()).toHaveLength(3);
+  });
+
+  it('FR-CAT-3: no warning when the Catalog folder is apart from the ROM folders', async () => {
+    setup([
+      A,
+      B,
+      {
+        ...A,
+        id: '01928c3e-0000-7000-8000-00000000000d',
+        name: 'Catalog',
+        path: 'D:\\Catalog',
+        priority: 3,
+        managed: true,
+      },
+    ]);
+    expect(await screen.findByRole('textbox', { name: 'Name of location 1' })).toBeVisible();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });

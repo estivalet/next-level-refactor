@@ -5,6 +5,36 @@ versions follow [SemVer](https://semver.org/) (`0.<milestone>.<patch>` until 1.0
 
 ## [Unreleased]
 
+M10-1 — polish before 1.0.
+
+### Added
+
+- **Theme crash screen** (NFR-REL-2): a theme that crashes shows *Theme stopped working* with
+  Restart theme, Switch theme and Back to desktop (the last two only when a locked kiosk allows
+  them); your library and settings are untouched. A crashed desktop app shows Reload window in its
+  own window, and a crash of the whole shell offers Reload NextLevel. Crashes go to the log.
+- **Scan: storage locations not found** (FR-LIB-3): the scan result names each storage location
+  whose folder wasn't there ("Not found: Arcade drive (E:\Roms) — is the drive connected?").
+- **Catalog folder warning** (FR-CAT-3): Settings → Storage warns when the Catalog folder is,
+  is inside or contains one of your ROM folders.
+- **Essentials only** (D63): a Library filter for the games in your "… Essentials" collections
+  (exports keep it), and an *Essentials collections only* option in Import NextLevelOS.
+
+### Fixed
+
+- A portable NextLevel folder copied to another PC gets its own sync device key (D64), so play
+  counts from both PCs add up instead of overwriting each other.
+- Settings → Sync says "Sign in to sync this PC." when signed out; the Delete synced data
+  confirmation says other PCs turn sync off at their next sync unless this PC syncs again first
+  (1.0.0-beta.1's notes said "everywhere").
+- Kiosk: hidden parts no longer show until the kiosk state loads; an Esc hold ends when the
+  window loses focus; the sign-in screen hides Quit when a locked kiosk hides it.
+- A zip copy that is offline keeps showing the newer version it found.
+- *Backup restored* shows as soon as the restore is done.
+- Release workflow: the packaging smoke runs before the draft release is created.
+- The daily API backup fails on a read error instead of hanging; `.dockerignore` keeps every
+  `.env*` file and `.nextlevel-dev` out of images.
+
 ## [1.0.0-beta.1] - 2026-11-13
 
 M10 — Release 1.0, first beta: a Windows installer and zip that never touch your `data` and

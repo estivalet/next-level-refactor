@@ -114,7 +114,10 @@ export class UpdateService {
     const { mode } = this.deps;
     if (mode.kind === 'dev') return this.current;
     if (mode.kind === 'zip') {
-      this.set(unsupported('zip', await this.newerRelease(mode.latest)));
+      const release = await this.newerRelease(mode.latest);
+      // A lookup that failed (offline) keeps a newer version found before (NFR-UPD-1).
+      if (release !== undefined) this.set(unsupported('zip', release));
+      else if (this.current.kind !== 'unsupported') this.set(unsupported('zip'));
       return this.current;
     }
     // A check is running, or an update is on its way or waiting for the restart.
@@ -130,6 +133,7 @@ export class UpdateService {
     }
   }
 
+  /** A newer release, null when there is none, undefined when the lookup failed. */
   private async newerRelease(latest: LatestRelease) {
     try {
       const release = await latest(this.channel());
@@ -137,7 +141,7 @@ export class UpdateService {
       return compareVersions(release.version, this.deps.currentVersion) > 0 ? release : null;
     } catch (error) {
       this.deps.log.warn({ error }, 'could not look up the latest release');
-      return null;
+      return undefined;
     }
   }
 

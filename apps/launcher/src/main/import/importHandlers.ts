@@ -42,9 +42,11 @@ export function createImportHandlers(deps: {
     'import.inspect': async ({ folder }) => ({
       emulatorsFolder: await guessEmulatorsFolder(folder, deps.folderExists),
     }),
-    'import.dryRun': ({ folder, emulatorsFolder }) =>
-      deps.importer().dryRun(folder, emulatorsFolder),
-    'import.apply': ({ folder, emulatorsFolder, reportToken }) =>
-      deps.importer().apply(folder, emulatorsFolder, reportToken),
+    'import.dryRun': ({ folder, emulatorsFolder, essentialsOnly }) =>
+      deps.importer().dryRun(folder, emulatorsFolder, { essentialsOnly: essentialsOnly === true }),
+    'import.apply': ({ folder, emulatorsFolder, reportToken, essentialsOnly }) =>
+      deps.importer().apply(folder, emulatorsFolder, reportToken, {
+        essentialsOnly: essentialsOnly === true,
+      }),
   };
 }

@@ -1,4 +1,4 @@
-import { ok, type KioskState } from '@nextlevel/shared';
+import { defaultSettings, err, ok, type KioskState } from '@nextlevel/shared';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -56,4 +56,53 @@ describe('kiosk in the shell (FR-SET-6, US-D4)', () => {
     });
     expect(screen.getByRole('dialog', { name: 'Game Library' })).toBeVisible();
   });
+
+  it('FR-SET-6: until kiosk.state loads, the saved kiosk settings decide what is hidden', async () => {
+    const kioskOn = {
+      ...defaultSettings(),
+      kiosk: { enabled: true, pinHash: null, hide: ['settings' as const] },
+    };
+    installFakeBridge({
+      'settings.get': () =>
+        ok({ kind: 'ok' as const, snapshot: { settings: kioskOn, revision: 0 } }),
+      // Never answers: the renderer has only the saved settings to go by.
+      'kiosk.state': () => new Promise<never>(() => undefined),
+      'downloads.list': () => ok([]),
+    });
+    renderInShell(<Desktop taskbar={<Taskbar />} />);
+    const icons = within(await screen.findByRole('navigation', { name: 'Desktop apps' }));
+    expect(await icons.findByRole('button', { name: 'Game Library' })).toBeVisible();
+    expect(icons.queryByRole('button', { name: 'Settings' })).toBeNull();
+  });
+
+  it('FR-SET-6: with the kiosk off, nothing is hidden while kiosk.state loads', async () => {
+    installFakeBridge({
+      'kiosk.state': () => new Promise<never>(() => undefined),
+      'downloads.list': () => ok([]),
+    });
+    renderInShell(<Desktop taskbar={<Taskbar />} />);
+    const icons = within(await screen.findByRole('navigation', { name: 'Desktop apps' }));
+    expect(await icons.findByRole('button', { name: 'Settings' })).toBeVisible();
+  });
+
+  it('Final: FR-SET-6: if kiosk.state fails, a saved kiosk is treated as locked and Esc held opens the PIN pad', async () => {
+    const kioskOn = {
+      ...defaultSettings(),
+      kiosk: { enabled: true, pinHash: null, hide: ['desktop' as const, 'settings' as const] },
+    };
+    installFakeBridge({
+      'settings.get': () =>
+        ok({ kind: 'ok' as const, snapshot: { settings: kioskOn, revision: 0 } }),
+      'kiosk.state': () => err('INTERNAL', 'errors.internal'),
+      'downloads.list': () => ok([]),
+      'frontend.menu': () => ok({ id: 'm', title: 'Main', nodes: [] } as never),
+    });
+    renderInShell(<Desktop taskbar={<Taskbar />} />);
+    await screen.findByTestId('frontend-layer');
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', key: 'Escape' }));
+    expect(
+      await screen.findByRole('dialog', { name: 'Enter the kiosk PIN' }, { timeout: 4500 }),
+    ).toBeVisible();
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Escape', key: 'Escape' }));
+  }, 10_000);
 });

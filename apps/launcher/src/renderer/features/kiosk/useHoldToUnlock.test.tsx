@@ -19,6 +19,19 @@ describe('hold to unlock (US-D4, D54)', () => {
     vi.useRealTimers();
   });
 
+  it('FR-SET-6: the Esc hold is cancelled when the window loses focus', () => {
+    const onHold = vi.fn();
+    renderHook(() => {
+      useHoldToUnlock({ enabled: true, onHold, getPads: () => [] });
+    });
+    key('keydown');
+    vi.advanceTimersByTime(1000);
+    // Alt+Tab away mid-hold: the keyup goes to another window.
+    window.dispatchEvent(new Event('blur'));
+    vi.advanceTimersByTime(3000);
+    expect(onHold).not.toHaveBeenCalled();
+  });
+
   it('useHoldToUnlock: Esc held 3 s opens the PIN pad; released early does nothing', () => {
     const onHold = vi.fn();
     renderHook(() => {

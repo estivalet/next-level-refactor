@@ -27,6 +27,8 @@ export * from './settings/emulators.ts';
 export * from './settings/input.ts';
 export * from './settings/changedPaths.ts';
 export * from './settings/relocate.ts';
+export * from './settings/locationOverlap.ts';
+export * from './library/essentials.ts';
 export * from './catalog/schema.ts';
 export * from './catalog/filename.ts';
 export * from './launch/template.ts';

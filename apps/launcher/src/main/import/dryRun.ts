@@ -17,6 +17,7 @@ import type { FoundGame } from '../library/LibraryRepository.ts';
 import { planScan } from '../scan/plan.ts';
 import type { Walker } from '../scan/walker.ts';
 import { addDetectedProfiles } from './detectedProfiles.ts';
+import { essentialsOnly } from './essentialsImport.ts';
 import { mapCollections, type CollectionImport } from './mapCollections.ts';
 import { mapGames, type GameImport } from './mapGames.ts';
 import { mapMenus, type MenuImport } from './mapMenus.ts';
@@ -50,6 +51,12 @@ export interface ImportDeps {
 }
 
 /** Everything an import would write, computed without writing (IA F6). */
+/** What the user chose for this import (D63). */
+export interface ImportOptions {
+  /** Only the Essentials collections (`isEssentialsName`); the others are reported. */
+  essentialsOnly?: boolean | undefined;
+}
+
 export interface ImportPlan {
   fingerprint: string;
   files: LegacyFiles;
@@ -203,6 +210,7 @@ export async function planImport(
   folder: string,
   emulatorsFolder: string | null,
   deps: ImportDeps,
+  options: ImportOptions = {},
 ): Promise<ImportPlan> {
   const { files, problems, fingerprint } = await readLegacy(folder);
   const match = createSystemMatcher(deps.catalog);
@@ -250,10 +258,13 @@ export async function planImport(
     deps.presets,
     (id) => deps.catalog.find((s) => s.id === id)?.name ?? id,
   );
-  const collections = mapCollections(files, match);
-  const names = new Set(collections.collections.map((c) => c.name.toLowerCase()));
+  const mappedCollections = mapCollections(files, match);
+  const essentials = essentialsOnly(mappedCollections, options.essentialsOnly);
+  const collections = essentials.kept;
+  const names = new Set(mappedCollections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
   const used = menuCollections(menus.menus);
+  const { dropped } = essentials;
   const inMenus = collections.collections.filter((c) => used.has(c.name.toLowerCase()));
   const notInMenus = collections.collections.filter((c) => !used.has(c.name.toLowerCase()));
   const skipped = new Set(notInMenus.map((c) => c.name));
@@ -267,7 +278,8 @@ export async function planImport(
     ...withPresets.items,
     ...games.items,
     ...booted.items,
-    ...collections.items.filter((item) => !skipped.has(item.key)),
+    ...collections.items.filter((item) => !skipped.has(item.key) && !dropped.has(item.key)),
+    ...essentials.items,
     ...notInMenus.map((c): ImportItem => ({
       area: 'collection',
       key: c.name,
@@ -342,8 +354,9 @@ export async function dryRun(
   emulatorsFolder: string | null,
   deps: ImportDeps,
   onProgress: (progress: ImportProgress) => void = () => undefined,
+  options: ImportOptions = {},
 ): Promise<ImportReport> {
-  const plan = await planImport(folder, emulatorsFolder, deps);
+  const plan = await planImport(folder, emulatorsFolder, deps, options);
   const bySystem = new Map<string, GameImport[]>();
   for (const game of plan.games) {
     const list = bySystem.get(game.systemId);

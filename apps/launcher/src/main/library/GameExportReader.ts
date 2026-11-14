@@ -51,7 +51,11 @@ export class GameExportReader {
       collectionSort,
       false,
       smart?.sql ?? null,
-      { filter: view?.filter !== undefined, genre: view?.genre !== undefined },
+      {
+        filter: view?.filter !== undefined,
+        genre: view?.genre !== undefined,
+        essentials: view?.essentials === true,
+      },
     );
     const rows = client
       .prepare(`select ${EXPORT_COLUMNS} ${shape.from} order by ${shape.order}`)

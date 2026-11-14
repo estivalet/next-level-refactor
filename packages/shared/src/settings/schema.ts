@@ -243,6 +243,16 @@ export const SettingsSchema = z
       .object({
         enabled: z.boolean().default(false),
         deviceKey: z.uuid().nullable().default(null),
+        /**
+         * D64: a hash of the PC's host name the key was made on. A portable folder copied to
+         * another PC finds a different host and makes its own key, so the two PCs never share one
+         * play counter. Null on PCs that synced before 1.0.0-beta.2 (adopted at the next sync).
+         */
+        deviceHost: z
+          .string()
+          .regex(/^[0-9a-f]{16}$/)
+          .nullable()
+          .default(null),
       })
       .prefault({}),
     experimental: z.record(z.string(), z.boolean()).default({}),

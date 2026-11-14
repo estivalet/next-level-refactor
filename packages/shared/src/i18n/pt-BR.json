@@ -86,7 +86,9 @@
       "close": "Fechar",
       "minimize": "Minimizar",
       "maximize": "Maximizar",
-      "restore": "Restaurar"
+      "restore": "Restaurar",
+      "crash": "Esta janela encontrou um problema.",
+      "reload": "Recarregar janela"
     },
     "desktop": {
       "label": "Área de trabalho",
@@ -106,6 +108,10 @@
     },
     "tray": {
       "clock": "Relógio"
+    },
+    "crash": {
+      "title": "O NextLevel encontrou um problema",
+      "reload": "Recarregar o NextLevel"
     }
   },
   "apps": {
@@ -277,7 +283,8 @@
         "results": "Resultados da busca",
         "rowGames_one": "{{count}} jogo",
         "rowGames_other": "{{count}} jogos",
-        "openData": "Abrir pasta de dados"
+        "openData": "Abrir pasta de dados",
+        "locationsMissing": "Não encontrado: {{list}} — a unidade está conectada?"
       },
       "art": {
         "title": "Arte",
@@ -299,7 +306,8 @@
       },
       "managed": "Jogos do catálogo",
       "managedHelp": "As novas instalações do catálogo vão para cá. Mudar a pasta só afeta as novas instalações: os jogos já instalados ficam onde estão.",
-      "changeFolder": "Mudar pasta…"
+      "changeFolder": "Mudar pasta…",
+      "catalogOverlap": "A pasta do Catálogo se sobrepõe a {{list}}. As instalações e desinstalações do Catálogo se misturariam com seus próprios jogos — escolha uma pasta separada."
     },
     "systems": {
       "intro": "Ative os sistemas que você joga. Cada um é procurado como uma pasta dentro dos seus locais de armazenamento.",
@@ -702,7 +710,8 @@
         "scraper": "ScreenScraper",
         "config": "config.json"
       },
-      "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo."
+      "scanIncomplete": "A varredura não terminou (cancelada, ou uma pasta não pôde ser lida), então nenhum jogo foi importado. Rode a importação de novo.",
+      "essentialsOnly": "Só as coleções Essentials"
     },
     "scraper": {
       "account": "Conta do ScreenScraper",
@@ -801,7 +810,7 @@
       "lastSync": "Última sincronização: {{time}}.",
       "now": "Sincronizar agora",
       "delete": "Apagar dados sincronizados",
-      "deleteConfirm": "Isto remove da sua conta tudo o que foi sincronizado e desativa a sincronização neste PC. Os outros PCs desativam na próxima sincronização. Nada é apagado em nenhum PC.",
+      "deleteConfirm": "Isto remove da sua conta tudo o que foi sincronizado e desativa a sincronização neste PC. Os outros PCs desativam na próxima sincronização deles, a menos que este PC sincronize de novo antes. Nada é apagado em nenhum PC.",
       "deleteYes": "Apagar da minha conta",
       "cancel": "Cancelar",
       "failed": "Não deu certo. Verifique sua conexão e tente de novo.",
@@ -812,7 +821,8 @@
         "tooLarge": "Há dados demais para sincronizar (mais de 5 MB).",
         "conflict": "Outro PC estava sincronizando ao mesmo tempo. A sincronização tenta de novo em uma hora, ou use Sincronizar agora.",
         "other": "A sincronização não terminou. Ela tenta de novo em uma hora, ou use Sincronizar agora."
-      }
+      },
+      "signedOut": "Entre na sua conta para sincronizar este PC."
     }
   },
   "launchScreen": {
@@ -870,7 +880,8 @@
     "sidebar": {
       "label": "Mostrar e filtrar",
       "filters": "Filtros",
-      "genres": "Gêneros"
+      "genres": "Gêneros",
+      "essentials": "Só essenciais"
     },
     "list": {
       "label": "Jogos",
@@ -1379,7 +1390,14 @@
     "open": "Front-end",
     "label": "Front-end",
     "playing": "Jogando",
-    "playingHint": "Jogando… O front-end volta quando o jogo fechar."
+    "playingHint": "Jogando… O front-end volta quando o jogo fechar.",
+    "crash": {
+      "title": "O tema parou de funcionar",
+      "body": "O tema encontrou um problema. Sua biblioteca e suas configurações estão seguras.",
+      "restart": "Reiniciar tema",
+      "switch": "Trocar tema",
+      "desktop": "Voltar à área de trabalho"
+    }
   },
   "themes": {
     "intents": {
@@ -1638,7 +1656,8 @@
       "arcadeInfo": "ROM, parent, driver e fabricante de arcade",
       "playability": "Status e notas de teste, como a marca de jogabilidade",
       "replacesImport": "Substitui o que uma importação anterior trouxe",
-      "artFolder": "Pasta de arte ou de pacotes de tema"
+      "artFolder": "Pasta de arte ou de pacotes de tema",
+      "notEssentials": "Não importada (só coleções Essentials)"
     }
   },
   "scrape": {

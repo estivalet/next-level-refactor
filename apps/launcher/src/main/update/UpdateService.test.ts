@@ -209,4 +209,24 @@ describe('UpdateService (NFR-UPD-1, D53)', () => {
     expect(zip.service.state()).toEqual(plainZip);
     zip.service.stop();
   });
+
+  it('NFR-UPD-1: a failed release lookup on a zip copy keeps the version found before', async () => {
+    let online = true;
+    const latest = vi.fn(() =>
+      online
+        ? Promise.resolve({ version: '9.0.0', url: 'https://example.test/new' })
+        : Promise.reject(new Error('offline')),
+    );
+    const zip = setup({ auto: false, mode: { kind: 'zip', latest } });
+    zip.service.start();
+    expect((await zip.service.check()).kind).toBe('unsupported');
+    online = false;
+    expect(await zip.service.check()).toEqual({
+      kind: 'unsupported',
+      reason: 'zip',
+      availableVersion: '9.0.0',
+      releaseUrl: 'https://example.test/new',
+    });
+    zip.service.stop();
+  });
 });

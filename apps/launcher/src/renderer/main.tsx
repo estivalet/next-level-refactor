@@ -5,6 +5,9 @@ import { BootGate } from './features/boot/BootGate.tsx';
 import { BootShell } from './features/boot/BootShell.tsx';
 import { GameLaunchScreen } from './features/launch/GameLaunchScreen.tsx';
 import { Desktop } from './features/shell/Desktop.tsx';
+import { ErrorBoundary } from './features/shell/ErrorBoundary.tsx';
+import { reportCrash } from './features/shell/reportCrash.ts';
+import { ShellCrash } from './features/shell/ShellCrash.tsx';
 import { blockFileDrops } from './fileDrop.ts';
 import { Taskbar } from './features/shell/Taskbar.tsx';
 import './i18n.ts';
@@ -22,12 +25,19 @@ const initialBounds = { width: window.innerWidth, height: window.innerHeight };
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BootGate>
-        <BootShell initialBounds={initialBounds}>
-          <Desktop taskbar={<Taskbar />} />
-          <GameLaunchScreen />
-        </BootShell>
-      </BootGate>
+      <ErrorBoundary
+        onError={(error) => {
+          reportCrash('shell', 'root', error);
+        }}
+        fallback={() => <ShellCrash />}
+      >
+        <BootGate>
+          <BootShell initialBounds={initialBounds}>
+            <Desktop taskbar={<Taskbar />} />
+            <GameLaunchScreen />
+          </BootShell>
+        </BootGate>
+      </ErrorBoundary>
     </QueryClientProvider>
   </StrictMode>,
 );

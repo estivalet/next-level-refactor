@@ -2,7 +2,7 @@ import { ok, type AuthState } from '@nextlevel/shared';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { createQueryClient } from '../../queryClient.ts';
 import { installFakeBridge } from '../../test-utils.tsx';
@@ -55,6 +55,21 @@ describe('sign-in gate (IA §1, S2, US-A1..A3)', () => {
     await user.keyboard('{Enter}');
     expect(fake.channels()).toContain('auth.signIn');
     expect(screen.queryByText('the launcher')).not.toBeInTheDocument();
+  });
+
+  it('FR-SET-6: a locked kiosk hiding Quit shows no Quit button on the sign-in screen', async () => {
+    setup(SIGNED_OUT(null), {
+      'kiosk.state': () => ok({ enabled: true, locked: true, hide: ['quit'], retryAfterMs: 0 }),
+    });
+    expect(await screen.findByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+    await vi.waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Quit' })).toBeNull();
+    });
+  });
+
+  it('FR-SET-6: without a kiosk the sign-in screen has Quit', async () => {
+    setup(SIGNED_OUT(null));
+    expect(await screen.findByRole('button', { name: 'Quit' })).toBeVisible();
   });
 
   it('US-A1: waiting for the browser shows Cancel', async () => {

@@ -102,6 +102,8 @@ export async function syncPc(
     now?: () => Date;
     write?: (file: string, data: string) => Promise<void>;
     maxBytes?: (kind: string) => number;
+    /** This PC's host id (D64); one fixed host by default. */
+    hostId?: () => string;
   } = {},
 ) {
   const library = await tempLibrary();
@@ -159,6 +161,7 @@ export async function syncPc(
     ...(opts.write ? { write: opts.write } : {}),
     ...(opts.maxBytes ? { maxBytes: opts.maxBytes } : {}),
     newId: randomUUID,
+    hostId: opts.hostId ?? (() => '0123456789abcdef'),
     clock,
     every: (_ms, run) => {
       timers.push(run);

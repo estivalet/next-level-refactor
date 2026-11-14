@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { Readable } from 'node:stream';
+import { pipeline, Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { createGzip } from 'node:zlib';
 import Database from 'better-sqlite3';
@@ -38,6 +38,8 @@ export async function runBackup(o: {
   databaseFile: string;
   store: FileStore;
   clock: () => Date;
+  /** Opens the temp copy (createReadStream); injected so a failing read can be tested. */
+  readTemp?: (path: string) => Readable;
 }): Promise<BackupResult> {
   const now = o.clock();
   const temp = `${o.databaseFile}.backup-${randomUUID()}`;
@@ -49,7 +51,11 @@ export async function runBackup(o: {
     } finally {
       source.close();
     }
-    const stored = await o.store.put(key, createReadStream(temp).pipe(createGzip()), LIMIT);
+    const read = o.readTemp ?? ((path: string) => createReadStream(path));
+    // pipeline, not pipe: a read error destroys the gzip stream too, so put fails instead of
+    // waiting forever for an end that never comes.
+    const gzip = pipeline(read(temp), createGzip(), () => undefined);
+    const stored = await o.store.put(key, gzip, LIMIT);
     const heartbeat = { at: now.toISOString(), key, ...stored };
     await o.store.put('backups/heartbeat.json', Readable.from([JSON.stringify(heartbeat)]), 1024);
     await prune(o.store, now);

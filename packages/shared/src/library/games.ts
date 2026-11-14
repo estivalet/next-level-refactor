@@ -42,6 +42,8 @@ export const GameListQuerySchema = z.strictObject({
   genre: z.string().max(200).optional(),
   /** Narrows to games lacking their ROM, an art kind or a detail (System health's Show). */
   lacking: HealthGapSchema.optional(),
+  /** Narrows to games in an Essentials collection (D63, `isEssentialsName`). */
+  essentials: z.literal(true).optional(),
   offset: count,
   limit: z.number().int().min(1).max(1000),
 });
@@ -77,6 +79,8 @@ export const GameFacetsSchema = z.object({
   genres: z.array(FacetSchema),
   /** Games in each tab of the scope, not narrowed by a filter, genre or text. */
   tabs: z.record(z.enum(GAME_TABS), count),
+  /** Games of the scope and tab in an Essentials collection (D63); 0 hides the filter. */
+  essentials: count,
 });
 
 export const GameListPageSchema = z.object({

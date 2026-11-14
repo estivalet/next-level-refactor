@@ -86,7 +86,9 @@
       "close": "Close",
       "minimize": "Minimize",
       "maximize": "Maximize",
-      "restore": "Restore"
+      "restore": "Restore",
+      "crash": "This window ran into a problem.",
+      "reload": "Reload window"
     },
     "desktop": {
       "label": "Desktop",
@@ -106,6 +108,10 @@
     },
     "tray": {
       "clock": "Clock"
+    },
+    "crash": {
+      "title": "NextLevel ran into a problem",
+      "reload": "Reload NextLevel"
     }
   },
   "apps": {
@@ -277,7 +283,8 @@
         "results": "Scan results",
         "rowGames_one": "{{count}} game",
         "rowGames_other": "{{count}} games",
-        "openData": "Open data folder"
+        "openData": "Open data folder",
+        "locationsMissing": "Not found: {{list}} — is the drive connected?"
       },
       "art": {
         "title": "Art",
@@ -299,7 +306,8 @@
       },
       "managed": "Catalog games",
       "managedHelp": "New catalog installs go here. Changing the folder affects new installs only: games already installed stay where they are.",
-      "changeFolder": "Change folder…"
+      "changeFolder": "Change folder…",
+      "catalogOverlap": "The Catalog folder overlaps {{list}}. Catalog installs and uninstalls would mix with your own games — pick a separate folder."
     },
     "systems": {
       "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",
@@ -702,7 +710,8 @@
         "scraper": "ScreenScraper",
         "config": "config.json"
       },
-      "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again."
+      "scanIncomplete": "The scan didn't finish (cancelled, or a folder couldn't be read), so no games were imported. Run the import again.",
+      "essentialsOnly": "Essentials collections only"
     },
     "scraper": {
       "account": "ScreenScraper account",
@@ -801,7 +810,7 @@
       "lastSync": "Last synced {{time}}.",
       "now": "Sync now",
       "delete": "Delete synced data",
-      "deleteConfirm": "This removes everything synced from your account and turns sync off on this PC. Other PCs turn sync off at their next sync. Nothing on any PC is deleted.",
+      "deleteConfirm": "This removes everything synced from your account and turns sync off on this PC. Other PCs turn sync off at their next sync, unless this PC syncs again first. Nothing on any PC is deleted.",
       "deleteYes": "Delete from my account",
       "cancel": "Cancel",
       "failed": "That didn't work. Check your connection and try again.",
@@ -812,7 +821,8 @@
         "tooLarge": "There is too much to sync (over 5 MB).",
         "conflict": "Another PC was syncing at the same time. Sync tries again in an hour, or use Sync now.",
         "other": "Sync didn't finish. It tries again in an hour, or use Sync now."
-      }
+      },
+      "signedOut": "Sign in to sync this PC."
     }
   },
   "launchScreen": {
@@ -870,7 +880,8 @@
     "sidebar": {
       "label": "Show and narrow",
       "filters": "Filters",
-      "genres": "Genres"
+      "genres": "Genres",
+      "essentials": "Essentials only"
     },
     "list": {
       "label": "Games",
@@ -1379,7 +1390,14 @@
     "open": "Front-end",
     "label": "Front-end",
     "playing": "Playing",
-    "playingHint": "Playing… The front-end comes back when the game closes."
+    "playingHint": "Playing… The front-end comes back when the game closes.",
+    "crash": {
+      "title": "Theme stopped working",
+      "body": "The theme ran into a problem. Your library and settings are safe.",
+      "restart": "Restart theme",
+      "switch": "Switch theme",
+      "desktop": "Back to desktop"
+    }
   },
   "themes": {
     "intents": {
@@ -1638,7 +1656,8 @@
       "arcadeInfo": "Arcade ROM, parent, driver and manufacturer",
       "playability": "Tested status and notes, as the playability mark",
       "replacesImport": "Replaces what an earlier import brought in",
-      "artFolder": "Art or theme packs folder"
+      "artFolder": "Art or theme packs folder",
+      "notEssentials": "Not imported (Essentials collections only)"
     }
   },
   "scrape": {
