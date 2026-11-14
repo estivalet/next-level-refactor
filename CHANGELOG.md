@@ -31,7 +31,15 @@ M10-1 — polish before 1.0.
   window loses focus; the sign-in screen hides Quit when a locked kiosk hides it.
 - A zip copy that is offline keeps showing the newer version it found.
 - *Backup restored* shows as soon as the restore is done.
-- Release workflow: the packaging smoke runs before the draft release is created.
+- Release workflow: the packaging smoke runs before the draft release is created; the draft is
+  titled with the tag, and re-running the workflow replaces a draft's files (a published release
+  is left alone).
+- The whole-launcher crash screen works with a gamepad (select reloads).
+- Delete synced data on a copied portable folder gives it its own device key first (D64).
+- Import NextLevelOS: an import must use the same *Essentials collections only* choice as its
+  dry run; menu folders are only dropped when that option leaves them empty; an imported
+  Essentials collection renamed on a name clash ("… Essentials (NextLevelOS)") counts as Essentials.
+- Library counts use the app's language (1.234 in Portuguese), not the system's.
 - The daily API backup fails on a read error instead of hanging; `.dockerignore` keeps every
   `.env*` file and `.nextlevel-dev` out of images.
 

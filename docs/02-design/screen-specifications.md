@@ -179,7 +179,8 @@ Scope view (D62)
     their counts in the tab. One filter and one genre narrow the list (picking it again clears
     it); the narrowing stays across tabs and clears when a scope is opened or left. **Essentials
     only** (M10-1, D63), above Filters when the scope has any, narrows to games in a collection
-    named "Essentials" or "… Essentials"; an export of the list keeps it. The header
+    named "Essentials" or "… Essentials" (also when an import renamed it, "… Essentials
+    (NextLevelOS)"); counts use the app's language; an export of the list keeps it. The header
     has the scope's name, **Export…** and a grid/list toggle remembered per scope (grid by
     default, collections included); in a manual-order collection rows drag only in the list,
     and Move up / Move down work in both.
