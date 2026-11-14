@@ -36,6 +36,8 @@ export interface ApiContext {
   files: FileStore;
   /** Upload limits in bytes (Global Constraints); tests lower them. */
   limits: UploadLimits;
+  /** Fetches linked catalog files to verify them (FR-CAT-9); tests inject a fake host. */
+  linkFetch: typeof fetch;
 }
 
 export interface UploadLimits {
@@ -67,6 +69,7 @@ export function createContext(deps: {
   billing: BillingProvider | null;
   limits?: Partial<UploadLimits>;
   files?: (filesDir: string) => FileStore;
+  linkFetch?: typeof fetch;
 }): ApiContext {
   const { env, db, clock } = deps;
   const newId = () => uuidv7();
@@ -87,5 +90,6 @@ export function createContext(deps: {
     settings: () => loadAppSettings(db),
     files: deps.files ? deps.files(env.filesDir) : fileStoreFor(env),
     limits: { ...DEFAULT_LIMITS, ...deps.limits },
+    linkFetch: deps.linkFetch ?? fetch,
   };
 }

@@ -50,6 +50,13 @@
       "when": 1794604004441,
       "tag": "0006_sloppy_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1794694485424,
+      "tag": "0007_new_rafael_vega",
+      "breakpoints": true
     }
   ]
 }

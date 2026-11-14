@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, lt, lte } from 'drizzle-orm';
+import { and, eq, isNotNull, isNull, lt, lte } from 'drizzle-orm';
 import type { ApiContext } from '../context.ts';
 import { catalogFiles, catalogItems, downloads, licenses } from '../db/schema.ts';
 import { sweepOrphans } from '../storage/orphanSweep.ts';
@@ -52,6 +52,8 @@ export async function runMaintenance(
     .where(
       and(
         eq(catalogFiles.status, 'pending'),
+        // A link checking or failed (FR-CAT-9) is the admin's to retry or remove.
+        isNull(catalogFiles.linkUrl),
         lt(catalogFiles.createdAt, new Date(now.getTime() - DAY_MS).toISOString()),
       ),
     )

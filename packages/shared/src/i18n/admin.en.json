@@ -101,6 +101,7 @@
         "item.create": "Item created",
         "item.update": "Item changed",
         "item.file.add": "File added",
+        "item.file.recheck": "File checked again (changed at its host)",
         "item.file.remove": "File removed",
         "item.media.set": "Art set",
         "item.media.remove": "Art removed",

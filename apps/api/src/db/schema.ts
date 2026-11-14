@@ -249,6 +249,12 @@ export const catalogFiles = sqliteTable(
       .notNull()
       .default('pending'),
     createdAt: text('created_at').notNull(),
+    /** FR-CAT-9: the normalized Drive/archive.org link; null for an uploaded file. */
+    linkUrl: text('link_url'),
+    /** The link's check running now, or the last one failed; null when idle. */
+    linkState: text('link_state', { enum: ['checking', 'failed'] }),
+    /** Why the last check failed (`LINK_ERRORS`). */
+    linkError: text('link_error'),
   },
   (table) => [index('catalog_files_item').on(table.itemId)],
 );

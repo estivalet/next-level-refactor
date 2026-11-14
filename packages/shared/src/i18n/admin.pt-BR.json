@@ -101,6 +101,7 @@
         "item.create": "Item criado",
         "item.update": "Item alterado",
         "item.file.add": "Arquivo adicionado",
+        "item.file.recheck": "Arquivo verificado de novo (mudou no servidor)",
         "item.file.remove": "Arquivo removido",
         "item.media.set": "Arte definida",
         "item.media.remove": "Arte removida",

@@ -55,6 +55,8 @@ export interface AppDeps {
   log?: boolean | Record<string, unknown>;
   /** Google's token endpoint client; tests inject a fake. */
   fetch?: typeof fetch;
+  /** Linked catalog files' hosts (FR-CAT-9); tests inject a fake. */
+  linkFetch?: typeof fetch;
   /** Google's signing keys; tests inject a local set. */
   googleJwks?: JWTVerifyGetKey;
   /** The billing provider; tests inject a fake. Default: from `Env.billing.mode`. */
