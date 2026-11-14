@@ -4,14 +4,24 @@ import type { AddressInfo } from 'node:net';
 /**
  * An in-process stand-in for the API's files route (`GET /v1/files/:token`, one simple Range):
  * tests register bodies by token and can refuse a token or cut a response after N bytes.
+ *
+ * A cut waits until `kept()` (the bytes the client has on disk) reaches N: a stream that errors
+ * drops chunks not yet read, so cutting on a timer lost them on slow runners.
  */
-export async function fakeFilesServer() {
+export async function fakeFilesServer(options: { kept: () => Promise<number> }) {
   const files = new Map<string, Buffer>();
   const refused = new Map<string, number>();
   const cuts = new Map<string, number>();
   const holds = new Map<string, number>();
   const wholeOnly = new Set<string>();
   const ranges: Array<string | undefined> = [];
+  /** Resolves once the client keeps `bytes` (or after 5 s, so a test that never reads still ends). */
+  const cutOnceKept = async (bytes: number) => {
+    const deadline = Date.now() + 5000;
+    while (Date.now() < deadline && (await options.kept()) < bytes) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+  };
   const server: Server = createServer((request, response) => {
     const token = (request.url ?? '').replace(/^\/v1\/files\//, '');
     ranges.push(request.headers.range);
@@ -44,11 +54,8 @@ export async function fakeFilesServer() {
       cuts.delete(token);
       // Close the connection mid-body (fewer bytes than Content-Length). A graceful close, not a
       // reset: on Windows a reset also throws away bytes the client hasn't read yet.
-      response.write(slice.subarray(0, cut), () => {
-        setTimeout(() => {
-          request.socket.end();
-        }, 20);
-      });
+      response.write(slice.subarray(0, cut));
+      void cutOnceKept(cut).then(() => request.socket.end());
       return;
     }
     response.end(slice);
