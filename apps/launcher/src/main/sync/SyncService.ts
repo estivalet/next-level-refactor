@@ -58,6 +58,8 @@ export interface SyncDeps {
   /** atomicWrite; injected so a failing disk can be tested. */
   write?: (file: string, data: string) => Promise<void>;
   newId: () => string;
+  /** D64: this PC's host id (16 hex characters); a different one means a copied folder. */
+  hostId: () => string;
   clock: () => Date;
   every: (ms: number, run: () => void) => () => void;
   after: (ms: number, run: () => void) => () => void;
@@ -154,10 +156,15 @@ export class SyncService {
   async setEnabled(enabled: boolean): Promise<SyncState> {
     if (!enabled) await this.#settle();
     const section = this.#deps.section();
+    const host = this.#deps.hostId();
+    // Created the first time sync is turned on on this PC: it names this PC's play counters. A
+    // key made on another PC (a copied portable folder, D64) is replaced.
+    const own = section.deviceHost === null || section.deviceHost === host;
+    const deviceKey = section.deviceKey !== null && own ? section.deviceKey : null;
     await this.#deps.writeSection({
       enabled,
-      // Created once, the first time sync is turned on: it names this PC's play counters.
-      deviceKey: section.deviceKey ?? (enabled ? this.#deps.newId() : null),
+      deviceKey: deviceKey ?? (enabled ? this.#deps.newId() : null),
+      deviceHost: deviceKey !== null || enabled ? host : section.deviceHost,
     });
     this.#error = null;
     if (!enabled) {
@@ -186,6 +193,30 @@ export class SyncService {
   }
 
   /** Waits for a running sync (and its follow-up) to finish. */
+  /**
+   * D64: the device key belongs to the PC it was made on. A section from before deviceHost
+   * existed adopts this host; one made on another host (a copied portable folder) gets a new key,
+   * so the old key's plays count as the other PC's and nothing is counted twice.
+   */
+  async #claimDevice(): Promise<void> {
+    const section = this.#deps.section();
+    const host = this.#deps.hostId();
+    if (section.deviceHost === host) return;
+    if (section.deviceHost !== null && section.deviceKey !== null) {
+      this.#deps.log.warn(
+        { from: section.deviceHost, to: host },
+        'sync: this folder was copied from another PC; it gets its own device key',
+      );
+      await this.#deps.writeSection({
+        ...section,
+        deviceKey: this.#deps.newId(),
+        deviceHost: host,
+      });
+      return;
+    }
+    await this.#deps.writeSection({ ...section, deviceHost: host });
+  }
+
   async #settle(): Promise<void> {
     this.#cancelDebounce?.();
     while (this.#running) await this.#running.catch(() => undefined);
@@ -214,6 +245,7 @@ export class SyncService {
     this.#syncing = true;
     this.#announce();
     try {
+      await this.#claimDevice();
       const store = await this.#load();
       if (store.userId !== auth.user.id) {
         // Another account on this PC: nothing merged for the previous one carries over.

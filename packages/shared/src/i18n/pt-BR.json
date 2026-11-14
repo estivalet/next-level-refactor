@@ -810,7 +810,7 @@
       "lastSync": "Última sincronização: {{time}}.",
       "now": "Sincronizar agora",
       "delete": "Apagar dados sincronizados",
-      "deleteConfirm": "Isto remove da sua conta tudo o que foi sincronizado e desativa a sincronização neste PC. Os outros PCs desativam na próxima sincronização. Nada é apagado em nenhum PC.",
+      "deleteConfirm": "Isto remove da sua conta tudo o que foi sincronizado e desativa a sincronização neste PC. Os outros PCs desativam na próxima sincronização deles, a menos que este PC sincronize de novo antes. Nada é apagado em nenhum PC.",
       "deleteYes": "Apagar da minha conta",
       "cancel": "Cancelar",
       "failed": "Não deu certo. Verifique sua conexão e tente de novo.",
@@ -821,7 +821,8 @@
         "tooLarge": "Há dados demais para sincronizar (mais de 5 MB).",
         "conflict": "Outro PC estava sincronizando ao mesmo tempo. A sincronização tenta de novo em uma hora, ou use Sincronizar agora.",
         "other": "A sincronização não terminou. Ela tenta de novo em uma hora, ou use Sincronizar agora."
-      }
+      },
+      "signedOut": "Entre na sua conta para sincronizar este PC."
     }
   },
   "launchScreen": {

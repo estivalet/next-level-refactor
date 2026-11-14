@@ -1,5 +1,6 @@
 import { AppErrorException, type SyncKind } from '@nextlevel/shared';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import { hostname } from 'node:os';
 import { join } from 'node:path';
 import { v7 as uuidv7 } from 'uuid';
 import type { ApiClient } from '../auth/ApiClient.ts';
@@ -16,6 +17,11 @@ import { menusDoc } from './menusDoc.ts';
 import { settingsDoc } from './settingsDoc.ts';
 import { SyncService } from './SyncService.ts';
 import { userStateDoc } from './userStateDoc.ts';
+
+/** D64: this PC as 16 hex characters (the host name itself never leaves the PC). */
+export function hostId(name: string): string {
+  return createHash('sha256').update(name.trim().toLowerCase()).digest('hex').slice(0, 16);
+}
 
 export interface StartSyncDeps {
   settings: SettingsService;
@@ -83,6 +89,7 @@ export function startSync(deps: StartSyncDeps): SyncService {
     kinds,
     file: join(deps.dataDir, 'sync.json'),
     newId: randomUUID,
+    hostId: () => hostId(hostname()),
     clock,
     every: (ms, run) => {
       const timer = setInterval(run, ms);

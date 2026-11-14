@@ -810,7 +810,7 @@
       "lastSync": "Last synced {{time}}.",
       "now": "Sync now",
       "delete": "Delete synced data",
-      "deleteConfirm": "This removes everything synced from your account and turns sync off on this PC. Other PCs turn sync off at their next sync. Nothing on any PC is deleted.",
+      "deleteConfirm": "This removes everything synced from your account and turns sync off on this PC. Other PCs turn sync off at their next sync, unless this PC syncs again first. Nothing on any PC is deleted.",
       "deleteYes": "Delete from my account",
       "cancel": "Cancel",
       "failed": "That didn't work. Check your connection and try again.",
@@ -821,7 +821,8 @@
         "tooLarge": "There is too much to sync (over 5 MB).",
         "conflict": "Another PC was syncing at the same time. Sync tries again in an hour, or use Sync now.",
         "other": "Sync didn't finish. It tries again in an hour, or use Sync now."
-      }
+      },
+      "signedOut": "Sign in to sync this PC."
     }
   },
   "launchScreen": {
