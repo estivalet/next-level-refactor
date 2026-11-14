@@ -3,6 +3,7 @@ import {
   CatalogQuerySchema,
   CompleteUploadSchema,
   CreateItemSchema,
+  DownloadGrantSchema,
   InstallStatusRequestSchema,
   LicenseInputSchema,
   StartUploadSchema,
@@ -64,5 +65,20 @@ describe('catalog contracts (FR-CAT-2, FR-CAT-8, FR-ADM-3)', () => {
       Array.from({ length: n }, (_, i) => ({ id: `i${String(i)}`, version: 1 }));
     expect(InstallStatusRequestSchema.safeParse({ items: items(5000) }).success).toBe(true);
     expect(InstallStatusRequestSchema.safeParse({ items: items(5001) }).success).toBe(false);
+  });
+
+  it('FR-CAT-9: a grant file may say linked; without it, it parses as before', () => {
+    const file = {
+      fileId: 'f1',
+      filename: 'Star Hopper.nes',
+      size: 10,
+      sha256: 'a'.repeat(64),
+      url: 'https://archive.org/download/nl-demo/Star%20Hopper.nes',
+      expiresAt: '2026-11-14T10:00:00.000Z',
+    };
+    expect(DownloadGrantSchema.parse({ files: [{ ...file, linked: true }] }).files[0]?.linked).toBe(
+      true,
+    );
+    expect(DownloadGrantSchema.parse({ files: [file] }).files[0]?.linked).toBeUndefined();
   });
 });

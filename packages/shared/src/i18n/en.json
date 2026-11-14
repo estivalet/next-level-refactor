@@ -1857,14 +1857,16 @@
       "paused": {
         "user": "Paused",
         "network": "Waiting for the network",
-        "offline": "Waiting to be online"
+        "offline": "Waiting to be online",
+        "hostLimit": "The game's host is busy or over its daily limit — try again later"
       },
       "failed": {
         "checksum": "Download corrupted — retry",
         "diskFull": "Not enough disk space",
         "network": "Download failed — retry",
         "refused": "NextLevel refused this download",
-        "write": "Couldn't write the game to disk"
+        "write": "Couldn't write the game to disk",
+        "linkGone": "The game's file is no longer at its host"
       },
       "pause": "Pause",
       "resume": "Resume",

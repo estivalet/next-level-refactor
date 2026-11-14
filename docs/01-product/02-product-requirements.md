@@ -71,9 +71,10 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-CAT-3 | Install downloads the files into a launcher-managed storage location, verifies SHA-256 checksums, and adds the game (with metadata and art) to the library. Built in M9: the Catalog games folder (`<NextLevel folder>\Catalog` by default, D45). | M |
 | FR-CAT-4 | Downloads are resumable, queued, cancellable, and show progress. Built in M9: one at a time, queue and partial files survive restarts, an expired link is asked for again once. | M |
 | FR-CAT-5 | Installed catalog games can be uninstalled from the launcher. Local ROMs are never deleted by uninstall. | M |
-| FR-CAT-6 | Download URLs are short-lived and tied to the user; they cannot be shared. | M |
+| FR-CAT-6 | Download URLs are short-lived and tied to the user; they cannot be shared. Linked files (FR-CAT-9) are the exception: their host's link is public. | M |
 | FR-CAT-7 | When a catalog item is removed or a subscription lapses, installed copies remain playable or are removed according to the item's license terms (field on the item). Built in M9: `on_lapse` keep/remove, applied after each online sign-in check (D43); a lapsed subscription locks the launcher and removes nothing. | M |
 | FR-CAT-8 | Every catalog item has a license record (see [content policy](../06-legal/content-policy.md)); items without one cannot be published. | M |
+| FR-CAT-9 | A catalog file can be a link to a copy on Google Drive or archive.org instead of an upload; the API verifies it once (size, SHA-256, no copy kept) and the launcher downloads it from the host. Owner request 2026-11-14, D65 ([ADR-015](../03-architecture/adr/ADR-015-linked-catalog-files.md)): linked URLs are public and don't expire. | S |
 
 ## 6. Themes & front-end mode (`FR-THM`)
 

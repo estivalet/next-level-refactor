@@ -1,4 +1,5 @@
 import {
+  AddLinkSchema,
   AdminCatalogFileSchema,
   AdminCatalogMediaSchema,
   CatalogMediaKindSchema,
@@ -19,6 +20,7 @@ import {
   removeMedia,
   startUpload,
 } from '../catalog/files.ts';
+import { addLink, checkLinkAgain } from '../catalog/linkedFiles.ts';
 import type { ApiContext } from '../context.ts';
 import { apiError } from '../errors.ts';
 
@@ -86,6 +88,33 @@ export async function adminCatalogFileRoutes(app: FastifyInstance, ctx: ApiConte
         request.params.fileId,
         request.body.sha256,
       ),
+  );
+
+  // FR-CAT-9: a file kept at Google Drive or archive.org, checked in the background.
+  route.post(
+    '/v1/admin/catalog/items/:id/links',
+    {
+      config,
+      schema: {
+        params: z.object({ id }),
+        body: AddLinkSchema,
+        response: { 200: AdminCatalogFileSchema },
+      },
+    },
+    (request) => addLink(ctx, adminActor(request), request.params.id, request.body),
+  );
+
+  /** Retry a failed link, or check a ready one again (FR-CAT-9). */
+  route.post(
+    '/v1/admin/catalog/items/:id/files/:fileId/check',
+    {
+      config,
+      schema: {
+        params: z.object({ id, fileId: id }),
+        response: { 200: AdminCatalogFileSchema },
+      },
+    },
+    (request) => checkLinkAgain(ctx, adminActor(request), request.params.id, request.params.fileId),
   );
 
   route.delete(

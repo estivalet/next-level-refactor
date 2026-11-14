@@ -77,6 +77,22 @@ describe('the maintenance job (D44, security §5)', () => {
     expect(await t.ctx.files.size(`files/${id}/${fileId}`)).toBeNull();
   });
 
+  it('FR-CAT-9: the daily clean-up keeps linked files that are checking or failed', async () => {
+    const t = await setup();
+    const id = await t.createItem();
+    const insert = t.db.$client.prepare(
+      `insert into catalog_files (id, item_id, filename, storage_key, role, status, created_at,
+         link_url, link_state, link_error)
+       values (?, ?, ?, '', 'rom', 'pending', '2026-10-25T00:00:00.000Z',
+         'https://archive.org/download/nl-demo/a.nes', ?, ?)`,
+    );
+    insert.run('l1', id, 'a.nes', 'checking', null);
+    insert.run('l2', id, 'b.nes', 'failed', 'linkStatus');
+    t.clock.advance(25 * 3600 * 1000);
+    expect(await runMaintenance(t.ctx, { sweep: false })).toMatchObject({ uploadsPruned: 0 });
+    expect(t.db.$client.prepare('select count(*) from catalog_files').pluck().get()).toBe(2);
+  });
+
   it('a fresh pending upload stays', async () => {
     const t = await setup();
     const id = await t.createItem();
@@ -100,6 +116,24 @@ describe('the maintenance job (D44, security §5)', () => {
     expect(test.db.$client.prepare('select status from catalog_items').pluck().get()).toBe(
       'unpublished',
     );
+  });
+
+  it('FR-CAT-9: a link check cut off by a restart fails linkNetwork when the API starts, so it can be retried', async () => {
+    const test = await createTestApp();
+    closers.push(test.close);
+    seedItem(test.db);
+    test.db.$client
+      .prepare(
+        `insert into catalog_files (id, item_id, filename, storage_key, role, status, created_at,
+           link_url, link_state)
+         values ('l1', 'item-1', 'a.nes', '', 'rom', 'pending', '2026-10-25T00:00:00.000Z',
+           'https://archive.org/download/nl-demo/a.nes', 'checking')`,
+      )
+      .run();
+    await test.app.ready();
+    expect(
+      test.db.$client.prepare('select link_state, link_error from catalog_files').get(),
+    ).toEqual({ link_state: 'failed', link_error: 'linkNetwork' });
   });
 
   it('orphan sweep deletes keys with no row older than 24 h, keeps newer ones', async () => {

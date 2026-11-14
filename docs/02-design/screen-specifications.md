@@ -327,8 +327,9 @@ state; while it is queued, downloading or paused, its state, a progress bar and 
 Uninstall asks "Uninstall <title>?" only for a favorite or a game in a collection (US-E3).
 **Installed**: this PC's catalog games (works offline) with Play, Update and Uninstall and a "No
 longer in the catalog" / "Update available" line. **Downloads**: each download's progress bar,
-state (Queued, Downloading n%, Paused, Waiting for the network, Waiting to be online, or why it
-failed) and Pause / Resume / Retry / Cancel. A failed action (Install, Update, Uninstall, a download
+state (Queued, Downloading n%, Paused, Waiting for the network, Waiting to be online, "The game's
+host is busy or over its daily limit — try again later" for a linked file (FR-CAT-9; only Resume
+restarts it), or why it failed, e.g. "The game's file is no longer at its host") and Pause / Resume / Retry / Cancel. A failed action (Install, Update, Uninstall, a download
 button) says "That didn't work. Try again.", or the connection notice when offline. Games removed by the lapse rule show "Removed because
 they left the catalog: …" (dismissable). Art reaches the app as `nextlevel://catalog-art/…`: main
 fetches the signed URL, and asks the API for the item again (fresh URLs) when one has expired.
@@ -568,7 +569,11 @@ players, developer, publisher, genre, scope; Save sends only what changed. *File
 with its percentage, then "<name> uploaded: <size> · SHA-256 <hash>"; a name the system can't
 use is explained before anything is sent ("…must end in .nes, … or .zip"); on a published
 item Replace (or uploading a file with an existing name) and Remove ask first (the version goes
-up, players see Update available); removing its last game file is explained. *Art*: one row
+up, players see Update available); removing its last game file is explained. **Add a link**
+(FR-CAT-9): file name + share link (Google Drive or archive.org; anything else is explained
+before sending) with the role picked above; the row shows "Checking link…" (the item is read
+again every 3 s), then the SHA-256 and the host, or "Link failed: <reason>" with **Retry** and
+**Remove**; a ready link has **Check again** instead of Replace. *Art*: one row
 per art kind (stored size and version, or None) with Upload/Remove. *License*: type, rights
 holder, contact, terms, territories (country codes), starts/expires on (UTC days); a note that
 saving replaces the license (evidence and verification start over), and on a published item a

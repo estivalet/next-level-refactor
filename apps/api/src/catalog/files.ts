@@ -3,6 +3,7 @@ import {
   type AdminCatalogFile,
   type CatalogMediaKind,
   type FileRole,
+  type LinkError,
 } from '@nextlevel/shared';
 import { getSystem } from '@nextlevel/system-catalog';
 import { and, eq, ne, sql } from 'drizzle-orm';
@@ -16,8 +17,8 @@ import { apiError } from '../errors.ts';
 // which computes size and SHA-256. A file is replaced, never edited; any file change on a
 // published item bumps its `version` (D42: the launcher shows Update available).
 
-type FileRow = typeof catalogFiles.$inferSelect;
-type ItemRow = typeof catalogItems.$inferSelect;
+export type FileRow = typeof catalogFiles.$inferSelect;
+export type ItemRow = typeof catalogItems.$inferSelect;
 
 export const MEDIA_TYPES = new Set([
   'image/png',
@@ -37,6 +38,14 @@ export function toAdminFile(row: FileRow): AdminCatalogFile {
     role: row.role,
     status: row.status,
     createdAt: row.createdAt,
+    link: row.linkUrl
+      ? {
+          host: new URL(row.linkUrl).hostname.endsWith('archive.org') ? 'archive' : 'drive',
+          url: row.linkUrl,
+          state: row.linkState,
+          error: (row.linkError as LinkError | null) ?? null,
+        }
+      : null,
   };
 }
 
@@ -51,7 +60,7 @@ export function itemOrNotFound(ctx: ApiContext, itemId: string): ItemRow {
  * Update available (D42), even if it is unpublished right now and published again later. The
  * bump is done in SQL, so two changes are two bumps.
  */
-function touch(ctx: ApiContext, item: ItemRow): void {
+export function touch(ctx: ApiContext, item: ItemRow): void {
   ctx.db
     .update(catalogItems)
     .set({
@@ -67,11 +76,13 @@ function touch(ctx: ApiContext, item: ItemRow): void {
  * doesn't undo or fail the change: the bytes are left behind.
  */
 export async function dropStored(ctx: ApiContext, key: string): Promise<void> {
+  // A linked file (FR-CAT-9) has no stored bytes.
+  if (key === '') return;
   await ctx.files.delete(key).catch(() => undefined);
 }
 
 /** `rom`/`disc` names need one of the system's extensions; `extra` (manuals) any safe name. */
-function checkFilename(item: ItemRow, filename: string, role: FileRole): void {
+export function checkFilename(item: ItemRow, filename: string, role: FileRole): void {
   const extensions = role === 'extra' ? undefined : (getSystem(item.systemId)?.extensions ?? []);
   if (!safeFilename(filename, extensions)) {
     throw apiError('VALIDATION_FAILED', 'This file name is not allowed.', { reason: 'filename' });
@@ -156,6 +167,23 @@ export async function completeUpload(
     ctx.db.delete(catalogFiles).where(eq(catalogFiles.id, fileId)).run();
     throw apiError('VALIDATION_FAILED', 'The checksum does not match.', { reason: 'checksum' });
   }
+  return markReady(ctx, actorId, item, row);
+}
+
+/**
+ * A verified file (an upload, or a link: FR-CAT-9) becomes ready: a ready file with the same name
+ * (any case: Windows) is replaced, audited `item.file.add`, and a published item's version bumps.
+ * A published item never loses its last game file to an extra (CONFLICT `lastFile`; the new file
+ * is dropped).
+ */
+export async function markReady(
+  ctx: ApiContext,
+  actorId: string,
+  item: ItemRow,
+  row: FileRow,
+): Promise<AdminCatalogFile> {
+  const itemId = item.id;
+  const fileId = row.id;
   const replaced = ctx.db
     .select()
     .from(catalogFiles)
@@ -171,7 +199,7 @@ export async function completeUpload(
       .all()
       .some((other) => other.role !== 'extra' && !replaced.some((old) => old.id === other.id));
     if (!gameLeft && replaced.some((old) => old.role !== 'extra')) {
-      await ctx.files.delete(row.storageKey);
+      await dropStored(ctx, row.storageKey);
       ctx.db.delete(catalogFiles).where(eq(catalogFiles.id, fileId)).run();
       throw apiError('CONFLICT', 'A published item needs a game file.', { reason: 'lastFile' });
     }
@@ -200,7 +228,10 @@ export async function completeUpload(
   return toAdminFile(ready);
 }
 
-/** Removes a ready file (`item.file.remove`); a published item keeps at least one rom/disc. */
+/**
+ * Removes a ready file, or a link not ready yet (FR-CAT-9), audited `item.file.remove`; a
+ * published item keeps at least one ready rom/disc.
+ */
 export async function removeFile(
   ctx: ApiContext,
   actorId: string,
@@ -209,8 +240,9 @@ export async function removeFile(
 ): Promise<void> {
   const item = itemOrNotFound(ctx, itemId);
   const row = ctx.db.select().from(catalogFiles).where(eq(catalogFiles.id, fileId)).get();
-  if (row?.itemId !== itemId || row.status !== 'ready') throw apiError('NOT_FOUND');
-  if (item.status === 'published' && row.role !== 'extra') {
+  const removable = row?.status === 'ready' || row?.linkUrl != null;
+  if (row?.itemId !== itemId || !removable) throw apiError('NOT_FOUND');
+  if (item.status === 'published' && row.status === 'ready' && row.role !== 'extra') {
     const others = ctx.db
       .select()
       .from(catalogFiles)
@@ -241,7 +273,7 @@ export async function removeFile(
     ],
     () => {
       ctx.db.delete(catalogFiles).where(eq(catalogFiles.id, fileId)).run();
-      touch(ctx, item);
+      if (row.status === 'ready') touch(ctx, item);
     },
   );
   await dropStored(ctx, row.storageKey);

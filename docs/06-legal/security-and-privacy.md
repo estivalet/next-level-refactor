@@ -65,7 +65,7 @@ reads it as empty (sign in again, re-enter ScreenScraper credentials) and logs t
 - Input validation on every route (Zod), output serialization schemas (no accidental field leaks).
 - Parameterized queries only (Drizzle).
 - Stripe webhooks: verify signature on raw body; idempotent processing.
-- Presigned download URLs: 10-minute expiry, per user/file, logged.
+- Presigned download URLs: 10-minute expiry, per user/file, logged. Linked catalog files (Google Drive, archive.org: FR-CAT-9) use their host's public link; the API verifies the file once and the launcher checks its SHA-256 before installing.
 - Security headers (`@fastify/helmet`), CORS limited to admin origin in dev, same-origin in prod.
 - Secrets only in environment; validated at boot; never logged.
 - Dependency scanning (Dependabot + `npm audit`) and pinned lockfile.
@@ -131,6 +131,6 @@ steps in M10, before live keys.
 | Spoofing: stolen refresh token | DPAPI storage, rotation + reuse detection, device revoke |
 | Tampering: modified launcher skips entitlement | Server enforces everything that matters (catalog, downloads, sync). Local-only play after tampering is accepted risk |
 | Repudiation: admin denies change | Append-only audit log |
-| Information disclosure: download URL shared | 10-min expiry, per-user logging, rate limits |
+| Information disclosure: download URL shared | 10-min expiry, per-user logging, rate limits; linked files (FR-CAT-9, ADR-015) are public by design: their grants are still per-user and logged |
 | DoS: download abuse | Rate limits, Cloudflare in front, R2 egress free |
 | Elevation: subscriber calls admin route | Role guard on every route, contract tests |

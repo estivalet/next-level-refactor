@@ -223,4 +223,15 @@ describe('the files route (FR-CAT-6, security §2, Review Focus 1)', () => {
     await t.app.inject({ method: 'POST', url: new URL(url).pathname });
     expect(t.lines.join('\n')).not.toContain(token.split('.')[0] ?? 'never');
   });
+
+  it('FR-CAT-9: /v1/files/:token never serves a linked file', async () => {
+    const t = await setup();
+    const file = await t.grant();
+    t.db.$client
+      .prepare("update catalog_files set link_url = ?, storage_key = ''")
+      .run('https://archive.org/download/nl-demo/Star%20Hopper.nes');
+    const served = await t.fetchFile(file?.url ?? '');
+    // Gone, like a removed file: the launcher asks for a new grant, which hands the link.
+    expect(served.statusCode).toBe(410);
+  });
 });
