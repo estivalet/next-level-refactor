@@ -30,6 +30,11 @@ export const ScanSummarySchema = z.object({
   enabledSystemIds: z.array(z.string()),
   /** False when the scan only looked for files of games already listed (an import's scan). */
   addNew: z.boolean().optional(),
+  /**
+   * The user's storage locations whose folder wasn't found (an unplugged drive), in list order;
+   * absent when all were found. The Catalog folder is never listed (FR-LIB-3).
+   */
+  missingLocations: z.array(z.object({ name: z.string(), path: z.string() })).optional(),
 });
 
 export const ScanStatusSchema = z.object({

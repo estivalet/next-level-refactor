@@ -283,7 +283,8 @@
         "results": "Scan results",
         "rowGames_one": "{{count}} game",
         "rowGames_other": "{{count}} games",
-        "openData": "Open data folder"
+        "openData": "Open data folder",
+        "locationsMissing": "Not found: {{list}} — is the drive connected?"
       },
       "art": {
         "title": "Art",

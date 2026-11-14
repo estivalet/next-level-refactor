@@ -27,7 +27,7 @@ export interface ScanDeps {
   folderExists: (dir: string) => Promise<boolean>;
   clock: () => Date;
   emit: EmitEvent;
-  log: { error(context: object, msg: string): void };
+  log: { error(context: object, msg: string): void; warn?(context: object, msg: string): void };
   newId: () => string;
 }
 
@@ -129,7 +129,9 @@ export class ScanService {
   ): Promise<void> {
     const results: ScanSystemResult[] = [];
     let outcome: ScanSummary['outcome'] = 'completed';
+    let missingLocations: NonNullable<ScanSummary['missingLocations']> = [];
     try {
+      missingLocations = await this.missingLocations(settings);
       const jobs = await planScan(settings, this.deps.catalog(), systemIds, this.deps.folderExists);
       this.progress(running, { systemsTotal: jobs.length });
       for (const job of jobs) {
@@ -183,9 +185,25 @@ export class ScanService {
       systems: results,
       enabledSystemIds,
       ...(running.addNew ? {} : { addNew: false }),
+      ...(missingLocations.length > 0 ? { missingLocations } : {}),
     };
     this.running = null;
     this.deps.emit('scan.finished', this.last);
+  }
+
+  /** The user's storage locations whose folder isn't there; the Catalog folder is left out. */
+  private async missingLocations(
+    settings: Settings,
+  ): Promise<NonNullable<ScanSummary['missingLocations']>> {
+    const own = settings.storage.locations.filter((location) => !location.managed);
+    const found = await Promise.all(own.map((location) => this.deps.folderExists(location.path)));
+    const missing = own
+      .filter((_, index) => !found[index])
+      .map(({ name, path }) => ({ name, path }));
+    if (missing.length > 0) {
+      this.deps.log.warn?.({ paths: missing.map((m) => m.path) }, 'storage locations not found');
+    }
+    return missing;
   }
 
   /** Re-indexes the media of a system's present games (FR-THM-2); true when it changed. */

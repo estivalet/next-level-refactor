@@ -283,7 +283,8 @@
         "results": "Resultados da busca",
         "rowGames_one": "{{count}} jogo",
         "rowGames_other": "{{count}} jogos",
-        "openData": "Abrir pasta de dados"
+        "openData": "Abrir pasta de dados",
+        "locationsMissing": "Não encontrado: {{list}} — a unidade está conectada?"
       },
       "art": {
         "title": "Arte",

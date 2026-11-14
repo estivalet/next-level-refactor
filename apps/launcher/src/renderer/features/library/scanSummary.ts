@@ -22,5 +22,10 @@ export function summaryLine(t: TFunction, summary: ScanSummary): string {
   if (summary.enabledSystemIds.length > 0) {
     parts.push(t('settings.storage.scan.enabled', { count: summary.enabledSystemIds.length }));
   }
+  const missing = summary.missingLocations ?? [];
+  if (missing.length > 0) {
+    const list = missing.map(({ name, path }) => `${name} (${path})`).join(', ');
+    parts.push(t('settings.storage.scan.locationsMissing', { list }));
+  }
   return parts.join(' · ');
 }
