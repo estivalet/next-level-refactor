@@ -1857,14 +1857,16 @@
       "paused": {
         "user": "Pausado",
         "network": "Esperando a rede",
-        "offline": "Esperando ficar online"
+        "offline": "Esperando ficar online",
+        "hostLimit": "O servidor do jogo está ocupado ou no limite diário — tente mais tarde"
       },
       "failed": {
         "checksum": "Download corrompido — tentar de novo",
         "diskFull": "Sem espaço em disco",
         "network": "Falha no download — tentar de novo",
         "refused": "O NextLevel recusou este download",
-        "write": "Não foi possível gravar o jogo no disco"
+        "write": "Não foi possível gravar o jogo no disco",
+        "linkGone": "O arquivo do jogo não está mais no servidor"
       },
       "pause": "Pausar",
       "resume": "Continuar",

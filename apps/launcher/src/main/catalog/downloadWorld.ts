@@ -50,7 +50,10 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
     verifying: number;
     /** `catalog.get` can't reach the API either (install is never tried then). */
     getUnreachable: boolean;
+    /** Grants mark every file as kept at Drive / archive.org (FR-CAT-9). */
+    linked: boolean;
   } = {
+    linked: false,
     getUnreachable: false,
     free: 10 ** 12,
     offline: false,
@@ -84,6 +87,7 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
         sha256: file.sha256,
         url: server.url(`${itemId}-${file.id}`),
         expiresAt: '2026-10-29T10:10:00.000Z',
+        ...(state.linked ? { linked: true } : {}),
       })),
     });
   };

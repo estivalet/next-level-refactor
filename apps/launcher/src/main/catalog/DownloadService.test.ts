@@ -474,4 +474,48 @@ describe('catalog downloads (FR-CAT-3, FR-CAT-4, C9, D47)', () => {
     expect(logged).not.toContain('127.0.0.1');
     expect(logged).not.toContain('/v1/files/');
   });
+
+  it('FR-CAT-9: a linked file refused by its host pauses hostLimit after one grant', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.linked = true;
+    w.server.refuse(w.token('i1'), 403);
+    const service = w.make();
+    await service.install('i1');
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'paused', pausedReason: 'hostLimit' });
+    expect(w.state.grantCalls).toBe(1);
+  });
+
+  it('FR-CAT-9: networkBack does not restart a hostLimit pause; Resume does', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.linked = true;
+    w.server.page(w.token('i1'));
+    const service = w.make();
+    const queued = await service.install('i1');
+    await service.idle();
+    service.networkBack();
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'paused', pausedReason: 'hostLimit' });
+    expect(w.state.grantCalls).toBe(1);
+    await service.resume(queued.id);
+    await service.idle();
+    expect(w.state.grantCalls).toBe(2);
+  });
+
+  it('FR-CAT-9: a linked file gone from its host fails linkGone', async () => {
+    const w = await downloadWorld(closers);
+    w.add('i1', [body('one')]);
+    w.state.linked = true;
+    w.server.refuse(w.token('i1'), 404);
+    const service = w.make();
+    await service.install('i1');
+    await service.idle();
+    expect(service.list()[0]).toMatchObject({ state: 'failed', error: 'linkGone' });
+    expect(w.eventsOf('downloads.finished')[0]).toMatchObject({
+      result: 'failed',
+      error: 'linkGone',
+    });
+  });
 });

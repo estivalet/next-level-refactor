@@ -11,6 +11,7 @@ import type { AddressInfo } from 'node:net';
 export async function fakeFilesServer(options: { kept: () => Promise<number> }) {
   const files = new Map<string, Buffer>();
   const refused = new Map<string, number>();
+  const pages = new Set<string>();
   const cuts = new Map<string, number>();
   const holds = new Map<string, number>();
   const wholeOnly = new Set<string>();
@@ -25,6 +26,11 @@ export async function fakeFilesServer(options: { kept: () => Promise<number> }) 
   const server: Server = createServer((request, response) => {
     const token = (request.url ?? '').replace(/^\/v1\/files\//, '');
     ranges.push(request.headers.range);
+    if (pages.has(token)) {
+      // A host's warning or quota page instead of the file (Drive, FR-CAT-9).
+      response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }).end('<html></html>');
+      return;
+    }
     const status = refused.get(token);
     if (status !== undefined) {
       response.writeHead(status).end();
@@ -68,6 +74,10 @@ export async function fakeFilesServer(options: { kept: () => Promise<number> }) 
     url: (token: string) => `http://127.0.0.1:${String(port)}/v1/files/${token}`,
     serve(token: string, body: Buffer) {
       files.set(token, body);
+    },
+    /** Answers this token with an HTML page (200), as Drive does over its daily limit. */
+    page(token: string) {
+      pages.add(token);
     },
     refuse(token: string, status = 410) {
       refused.set(token, status);

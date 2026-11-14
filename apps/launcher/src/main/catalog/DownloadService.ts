@@ -136,10 +136,17 @@ export class DownloadService {
     if (active) await this.cancel(active.id);
   }
 
-  /** The network or the session is back: downloads that paused for it continue. */
+  /**
+   * The network or the session is back: downloads that paused for it continue. A player's pause
+   * and a linked file's host limit (FR-CAT-9) wait for Resume.
+   */
   networkBack(): void {
     for (const row of this.#deps.repo.list()) {
-      if (row.state === 'paused' && row.pausedReason !== 'user') {
+      if (
+        row.state === 'paused' &&
+        row.pausedReason !== 'user' &&
+        row.pausedReason !== 'hostLimit'
+      ) {
         this.#deps.repo.update(row.id, { state: 'queued', pausedReason: null }, this.#now());
       }
     }

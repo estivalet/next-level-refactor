@@ -40,7 +40,12 @@ export async function downloadFile(o: {
   onBytes?: (count: number) => void;
   /** The server sent the whole file to a ranged request: the part's `dropped` bytes are rewritten. */
   onRestart?: (dropped: number) => void;
-}): Promise<'done' | 'expired' | 'network'> {
+  /**
+   * FR-CAT-9: `url` is a Drive / archive.org link. Its host's refusals mean something else: 403,
+   * 429 or a text page (Drive's limit or warning) is `hostLimit`, 404/410 is `gone`.
+   */
+  linked?: boolean;
+}): Promise<'done' | 'expired' | 'network' | 'hostLimit' | 'gone'> {
   o.signal.throwIfAborted();
   let start = await sizeOf(o.part);
   if (start > o.expectedSize) {
@@ -57,6 +62,14 @@ export async function downloadFile(o: {
   } catch {
     o.signal.throwIfAborted();
     return 'network';
+  }
+  if (o.linked) {
+    const page = (response.headers.get('content-type') ?? '').toLowerCase().startsWith('text/');
+    if (response.status === 403 || response.status === 429 || (response.ok && page)) {
+      await response.body?.cancel().catch(() => undefined);
+      return 'hostLimit';
+    }
+    if (response.status === 404 || response.status === 410) return 'gone';
   }
   if (EXPIRED.has(response.status)) return 'expired';
   if (response.status === 416) {

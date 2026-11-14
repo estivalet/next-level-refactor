@@ -117,4 +117,40 @@ describe('one catalog file (FR-CAT-4, Review Focus 3)', () => {
     controller.abort();
     await expect(t.run('t1', controller.signal)).rejects.toThrow();
   });
+
+  const linked = (t: Awaited<ReturnType<typeof setup>>, token = 't1') =>
+    downloadFile({
+      url: t.server.url(token),
+      part: t.part,
+      expectedSize: BODY.length,
+      fetch,
+      signal: new AbortController().signal,
+      linked: true,
+    });
+
+  it.each([403, 429])('FR-CAT-9: a linked file answered %i is hostLimit', async (status) => {
+    const t = await setup();
+    t.server.refuse('t1', status);
+    expect(await linked(t)).toBe('hostLimit');
+  });
+
+  it('FR-CAT-9: a linked file answered 200 text/html is hostLimit and the part is untouched', async () => {
+    const t = await setup();
+    await writeFile(t.part, BODY.subarray(0, 100));
+    t.server.page('t1');
+    expect(await linked(t)).toBe('hostLimit');
+    expect(await readFile(t.part)).toEqual(BODY.subarray(0, 100));
+  });
+
+  it.each([404, 410])('FR-CAT-9: a linked file answered %i is gone', async (status) => {
+    const t = await setup();
+    t.server.refuse('t1', status);
+    expect(await linked(t)).toBe('gone');
+  });
+
+  it('FR-CAT-9: an unlinked 403 is still expired', async () => {
+    const t = await setup();
+    t.server.refuse('t1', 403);
+    expect(await t.run()).toBe('expired');
+  });
 });
