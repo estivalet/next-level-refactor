@@ -93,6 +93,11 @@ requirements:
   The new theme opens on the same level with the same game focused and becomes the last-used
   theme. LT/RT (PageUp/PageDown) jump a page in game lists: 7 tiles in Big Box, 10 rows in Big
   Box List, 3 rows in Console Home, 2 rows in PS5 Style; HyperSpin keeps letter jumps (M4d).
+- As built (M10-1, NFR-REL-2): a theme that crashes shows **Theme stopped working** ("Your
+  library and settings are safe") with **Restart theme**, **Switch theme** and **Back to
+  desktop** (the last two only when a locked kiosk doesn't hide them), driven by the same input
+  actions. The crash is written to the log. A crashed desktop app shows **Reload window** inside
+  its own window; a crash of the whole shell shows **Reload NextLevel**.
 
 ## S6 Desktop shell
 
@@ -172,7 +177,9 @@ Scope view (D62)
     Favorites, Recently played (played games, newest first, whatever the sort), Completed
     (D60), then Hidden, Missing, Needs review; then the scope's **Filters** and **Genres** with
     their counts in the tab. One filter and one genre narrow the list (picking it again clears
-    it); the narrowing stays across tabs and clears when a scope is opened or left. The header
+    it); the narrowing stays across tabs and clears when a scope is opened or left. **Essentials
+    only** (M10-1, D63), above Filters when the scope has any, narrows to games in a collection
+    named "Essentials" or "… Essentials"; an export of the list keeps it. The header
     has the scope's name, **Export…** and a grid/list toggle remembered per scope (grid by
     default, collections included); in a manual-order collection rows drag only in the list,
     and Move up / Move down work in both.
@@ -342,7 +349,9 @@ Left navigation of sections (see IA §1), right form pane.
 - **Storage → Scan for games** (M2b, FR-LIB-3): **Scan now** (disabled with a hint while the
   section has unsaved changes or no storage location), then a progress bar (systems done / total,
   current system, files found) with **Cancel scan**, then the last result: "N games in N systems ·
-  N new · N moved · N restored · N missing · N systems turned on" (zero counts omitted), a
+  N new · N moved · N restored · N missing · N systems turned on · Not found: <name> (<path>) —
+  is the drive connected?" (zero counts omitted; the last part names storage locations whose
+  folder wasn't there, never the Catalog folder; M10-1), a
   cancelled/failed line, and a virtualized per-system list. If the library can't be opened, the
   panel shows that error with **Open data folder**. The Library app's Scan ▾ (S7, M2c) uses the
   same channels.
@@ -379,7 +388,9 @@ Left navigation of sections (see IA §1), right form pane.
   file, Save bar): region priority and language priority (ordered lists; no region disables
   Save), and checkboxes for the batch art kinds and batch fields (no title, D19).
 - **Data & logs → Import NextLevelOS** (M5d, FR-IMP-1/2, US-B3): data folder (folder picker,
-  shown as a path), emulators folder (pre-filled, editable, optional), **Dry run** and
+  shown as a path), emulators folder (pre-filled, editable, optional), **Essentials collections
+  only** (M10-1, D63: other collections are reported "Not imported (Essentials collections
+  only)" and menu folders left empty by that are dropped; changing it needs a new dry run), **Dry run** and
   **Import…** (enabled only after a dry run of exactly these folders). The report lists counts
   (systems to enable, menus, entries, collections; entries with a file, kept as missing, new
   files) and three collapsible lists by area — not imported or changed (open), will replace,

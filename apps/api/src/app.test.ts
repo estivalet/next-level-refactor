@@ -105,6 +105,22 @@ describe('API pipeline (api-spec §1, architecture §5.2)', () => {
     expect(text).not.toContain('remoteAddress');
   });
 
+  it('NFR-OBS-1: every request is logged as structured JSON with the request id the response carries', async () => {
+    const lines: string[] = [];
+    const { app, close } = await createTestApp({
+      log: { ...logOptions('production'), stream: { write: (line: string) => lines.push(line) } },
+    });
+    closers.push(close);
+    const response = await app.inject({ method: 'GET', url: '/v1/health' });
+    const id = response.headers['x-request-id'];
+    expect(id).toMatch(/^[0-9a-f-]{36}$/);
+    const entries = lines.map((line) => JSON.parse(line) as { reqId?: string; msg?: string });
+    expect(entries.filter((entry) => entry.reqId === id).map((entry) => entry.msg)).toEqual([
+      'incoming request',
+      'request completed',
+    ]);
+  });
+
   it('architecture §7: an unexpected error is logged without its query parameters', async () => {
     const lines: string[] = [];
     const { app, close } = await createTestApp({

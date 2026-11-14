@@ -38,7 +38,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-LIB-5 | Multi-disc games (`.m3u`, `.cue` + `.bin`, `Disc 1/2`) appear as one game. | M |
 | FR-LIB-6 | Games carry metadata (title, year, developer, publisher, genre, players, description, region, filters) editable in-app. | M |
 | FR-LIB-7 | Users can favorite, hide, rate and mark games completed (D60); the launcher records play count and last played. | M |
-| FR-LIB-8 | Collections: create, rename, delete, add/remove games from any system, order manually or by field. | M |
+| FR-LIB-8 | Collections: create, rename, delete, add/remove games from any system, order manually or by field. Owner request (2026-11-14, D63): a scope view filter **Essentials only** shows the games in any collection named "Essentials" or "… Essentials". | M |
 | FR-LIB-9 | Smart filters: saved queries (e.g. "Favorites", "Recently played", "Genre = Shooter") usable as menu nodes. | S |
 | FR-LIB-10 | Global search across all systems by title, with results under 150 ms for 200k games. | M |
 | FR-LIB-11 | Import and export of game lists in EmulationStation `gamelist.xml` format. Export is built (owner decision 2026-11-01): a system, collection or smart filter to CSV, JSON or `gamelist.xml`, every game or the list as shown, with the fields the user picks; import is still open. | C |
@@ -115,7 +115,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-SET-2 | Settings are validated on save with field-level messages; invalid settings are never written. | M |
 | FR-SET-3 | Each save keeps a rotating backup (last 10). Settings → Backups can restore any of them. | M |
 | FR-SET-4 | Settings can be exported to and imported from a single file. | M |
-| FR-SET-5 | Optional cloud sync of settings, menus, collections and user game state across a subscriber's devices (not ROMs or media). | S |
+| FR-SET-5 | Optional cloud sync of settings, menus, collections and user game state across a subscriber's devices (not ROMs or media). D64 (2026-11-14): a portable folder copied to another PC gets its own device key, so play counts still add up. | S |
 | FR-SET-6 | Kiosk mode: hide the desktop and Settings; a PIN unlocks them. | S |
 | FR-SET-7 | Settings show where data lives on disk (data folder, library DB, logs) with "open folder" buttons. | M |
 | FR-SET-8 | Settings → General → UI scale (80–175 %, default 100 %) zooms the whole launcher window, text and layout together, so nothing overlaps; it is applied on save and at every start. (Owner request 2026-10-31.) | M |
@@ -139,7 +139,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 |---|---|---|
 | FR-ONB-1 | First-run wizard: sign in → choose systems → add ROM folders (or skip) → pick emulator executables for enabled systems (or skip) → pick a theme. Every step can be skipped and revisited in Settings. Built in M9 (D48; Settings → General → Run setup again; existing installs skip it). | M |
 | FR-ONB-2 | A user who skips everything lands in the catalog with a suggested starter set. | M |
-| FR-IMP-1 | Import a current NextLevelOS data folder: storage, systems, launchers (as emulator profiles where possible), menus, gamelists, collections, favorites/hidden/played, themes, ScreenScraper IDs. | M |
+| FR-IMP-1 | Import a current NextLevelOS data folder: storage, systems, launchers (as emulator profiles where possible), menus, gamelists, collections, favorites/hidden/played, themes, ScreenScraper IDs. Owner request (2026-11-14, D63): an **Essentials collections only** option imports just the "… Essentials" collections. | M |
 | FR-IMP-2 | The importer is a dry run first: it reports what maps, what doesn't, and why, before writing anything. | M |
 
 ## 11. Admin console (`FR-ADM`)
@@ -162,7 +162,7 @@ Screen: [S6 Desktop shell](../02-design/screen-specifications.md#s6-desktop-shel
 | NFR-PERF-3 | Global search ≤ 150 ms for 200k games (SQLite FTS). |
 | NFR-PERF-4 | Launcher idle memory ≤ 400 MB with a theme open. |
 | NFR-REL-1 | No write leaves a file or database half-written (atomic writes, transactions). |
-| NFR-REL-2 | A crash in a theme never loses library data and the shell can recover (error boundary + restart theme). |
+| NFR-REL-2 | A crash in a theme never loses library data and the shell can recover (error boundary + restart theme). Built in M10-1: Restart theme / Switch theme / Back to desktop; desktop windows and the whole shell have their own boundaries; crashes are logged. |
 | NFR-SEC-1 | See [security-and-privacy.md](../06-legal/security-and-privacy.md). Renderer has no Node access; all OS access goes through typed IPC with validated input. |
 | NFR-A11Y-1 | Shell and Settings: full keyboard navigation, visible focus, WCAG AA contrast, screen-reader labels. Themes: focus always visible, reduced-motion setting respected. |
 | NFR-I18N-1 | All UI strings go through a translation layer; v1 ships English, with Portuguese (pt-BR) as the second locale (confirmed by the owner 2026-10-21; pt-BR ships from M1). |
