@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { isLinkHost, normalizeLink } from './linkedFiles.ts';
 
-const DRIVE = 'https://drive.usercontent.google.com/download?id=ABC_123-x&export=download&confirm=t';
+const DRIVE =
+  'https://drive.usercontent.google.com/download?id=ABC_123-x&export=download&confirm=t';
 
 describe('linked catalog files (FR-CAT-9, D65)', () => {
   it('FR-CAT-9: Drive share links become the direct download link', () => {
