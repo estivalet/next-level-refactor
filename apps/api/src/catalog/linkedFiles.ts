@@ -1,4 +1,5 @@
 import {
+  isHostPage,
   isLinkHost,
   normalizeLink,
   type AddLink,
@@ -46,6 +47,14 @@ function checks(ctx: ApiContext): Checks {
   return found;
 }
 
+function signInPage(url: string): boolean {
+  try {
+    return new URL(url).hostname.toLowerCase() === 'accounts.google.com';
+  } catch {
+    return false;
+  }
+}
+
 /** Downloads the link through SHA-256, keeping nothing; any doubt is a failure. */
 async function verify(ctx: ApiContext, url: string): Promise<Verified> {
   let response: Response;
@@ -61,13 +70,13 @@ async function verify(ctx: ApiContext, url: string): Promise<Verified> {
     await response.body?.cancel().catch(() => undefined);
     return { ok: false, error };
   };
+  // A Drive file that isn't shared sends the API to Google's sign-in: the host refused it.
+  if (signInPage(response.url)) return fail('linkStatus');
   // After redirects: still Google or archive.org, over https.
   if (!isLinkHost(response.url || url)) return fail('linkHost');
   if (!response.ok) return fail('linkStatus');
   // Drive's virus-scan and quota pages are HTML with a 200.
-  if ((response.headers.get('content-type') ?? '').toLowerCase().startsWith('text/')) {
-    return fail('linkNotFile');
-  }
+  if (isHostPage(response.headers.get('content-type'))) return fail('linkNotFile');
   if (!response.body) return fail('linkNetwork');
   const hash = createHash('sha256');
   let size = 0;
@@ -174,6 +183,18 @@ function startCheck(ctx: ApiContext, actorId: string, fileId: string, url: strin
   const done = run();
   queue.active.add(done);
   void done.finally(() => queue.active.delete(done));
+}
+
+/**
+ * At API start no check is running: a link still `checking` was cut off by a restart (a deploy, a
+ * crash). It fails `linkNetwork`, so the console offers Retry instead of waiting forever.
+ */
+export function failInterruptedChecks(ctx: ApiContext): number {
+  return ctx.db
+    .update(catalogFiles)
+    .set({ linkState: 'failed', linkError: 'linkNetwork' })
+    .where(eq(catalogFiles.linkState, 'checking'))
+    .run().changes;
 }
 
 /** Resolves once no link check is running or waiting (tests). */

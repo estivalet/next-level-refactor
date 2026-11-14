@@ -23,6 +23,7 @@ import type { ApiDb } from './db/open.ts';
 import type { Env } from './env.ts';
 import type { ApiContext, UploadLimits } from './context.ts';
 import type { FileStore } from './storage/FileStore.ts';
+import { failInterruptedChecks } from './catalog/linkedFiles.ts';
 import { maintenanceFailure, runMaintenance } from './catalog/maintenance.ts';
 import { frameworkErrors, registerErrorHandling } from './errors.ts';
 import { installGuards, requireRouteRoles } from './plugins/roles.ts';
@@ -213,6 +214,7 @@ function scheduleMaintenance(app: FastifyInstance, ctx: ApiContext): void {
   };
   let timer: NodeJS.Timeout | undefined;
   app.addHook('onReady', () => {
+    failInterruptedChecks(ctx);
     void run(false);
     timer = setInterval(() => void run(true), MAINTENANCE_EVERY_MS);
     timer.unref();

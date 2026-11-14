@@ -118,6 +118,24 @@ describe('the maintenance job (D44, security §5)', () => {
     );
   });
 
+  it('FR-CAT-9: a link check cut off by a restart fails linkNetwork when the API starts, so it can be retried', async () => {
+    const test = await createTestApp();
+    closers.push(test.close);
+    seedItem(test.db);
+    test.db.$client
+      .prepare(
+        `insert into catalog_files (id, item_id, filename, storage_key, role, status, created_at,
+           link_url, link_state)
+         values ('l1', 'item-1', 'a.nes', '', 'rom', 'pending', '2026-10-25T00:00:00.000Z',
+           'https://archive.org/download/nl-demo/a.nes', 'checking')`,
+      )
+      .run();
+    await test.app.ready();
+    expect(
+      test.db.$client.prepare('select link_state, link_error from catalog_files').get(),
+    ).toEqual({ link_state: 'failed', link_error: 'linkNetwork' });
+  });
+
   it('orphan sweep deletes keys with no row older than 24 h, keeps newer ones', async () => {
     const t = await setup();
     const id = await t.createItem();

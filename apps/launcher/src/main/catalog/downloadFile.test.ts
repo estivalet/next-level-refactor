@@ -148,6 +148,27 @@ describe('one catalog file (FR-CAT-4, Review Focus 3)', () => {
     expect(await linked(t)).toBe('gone');
   });
 
+  it('FR-CAT-9: a linked text file (text/plain) downloads like any file', async () => {
+    const t = await setup();
+    const text: typeof fetch = async (url, init) => {
+      const real = await fetch(url, init);
+      return new Response(real.body, {
+        status: real.status,
+        headers: { 'content-type': 'text/plain; charset=utf-8' },
+      });
+    };
+    const result = await downloadFile({
+      url: t.server.url('t1'),
+      part: t.part,
+      expectedSize: BODY.length,
+      fetch: text,
+      signal: new AbortController().signal,
+      linked: true,
+    });
+    expect(result).toBe('done');
+    expect(await readFile(t.part)).toEqual(BODY);
+  });
+
   it('FR-CAT-9: an unlinked 403 is still expired', async () => {
     const t = await setup();
     t.server.refuse('t1', 403);

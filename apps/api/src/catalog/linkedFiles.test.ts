@@ -124,6 +124,30 @@ describe('linked catalog files in the API (FR-CAT-9, D65)', () => {
     ]);
   });
 
+  it('FR-CAT-9: a real text file (a readme sent as text/plain) is verified like any file', async () => {
+    const t = await setup();
+    const text = Buffer.from('NEXTLEVEL TEST FIXTURE readme\n');
+    t.answers.set(DRIVE_DIRECT, file(text, 'text/plain; charset=utf-8'));
+    addLink(t.ctx, t.actor, t.itemId, { filename: 'Readme.txt', role: 'extra', link: DRIVE_SHARE });
+    await linkChecksIdle(t.ctx);
+    expect(t.files()[0]).toMatchObject({ status: 'ready', sha256: sha(text), state: null });
+  });
+
+  it('FR-CAT-9: a Drive file that is not shared (sent to Google sign-in) is linkStatus, not linkHost', async () => {
+    const t = await setup();
+    t.answers.set(DRIVE_DIRECT, () => {
+      const response = new Response('<html>sign in</html>', {
+        headers: { 'content-type': 'text/html' },
+      });
+      Object.defineProperty(response, 'url', {
+        value: 'https://accounts.google.com/ServiceLogin?continue=x',
+      });
+      return response;
+    });
+    await t.add();
+    expect(t.files()[0]).toMatchObject({ status: 'pending', state: 'failed', error: 'linkStatus' });
+  });
+
   it('FR-CAT-9: a redirect off Google/archive.org is linkHost', async () => {
     const t = await setup();
     t.answers.set(DRIVE_DIRECT, () => {

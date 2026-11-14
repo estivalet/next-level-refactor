@@ -74,6 +74,15 @@ export function normalizeLink(input: string): NormalizedLink {
   return { ok: false, reason: 'linkHost' };
 }
 
+/**
+ * A host's web page instead of the file (Drive's virus-scan or quota page). Only HTML: a real
+ * text file (`.cue`, `.m3u`, a readme) comes as `text/plain` and is a file like any other.
+ */
+export function isHostPage(contentType: string | null): boolean {
+  const type = (contentType ?? '').toLowerCase().trim();
+  return type.startsWith('text/html') || type.startsWith('application/xhtml+xml');
+}
+
 const within = (host: string, domain: string) => host === domain || host.endsWith(`.${domain}`);
 
 /** A host a linked file may be served from after redirects (https only). */

@@ -1,3 +1,4 @@
+import { isHostPage } from '@nextlevel/shared';
 import { open, stat, truncate } from 'node:fs/promises';
 import type { ReadableStreamDefaultReader, ReadableStreamReadResult } from 'node:stream/web';
 
@@ -42,7 +43,7 @@ export async function downloadFile(o: {
   onRestart?: (dropped: number) => void;
   /**
    * FR-CAT-9: `url` is a Drive / archive.org link. Its host's refusals mean something else: 403,
-   * 429 or a text page (Drive's limit or warning) is `hostLimit`, 404/410 is `gone`.
+   * 429 or an HTML page (Drive's limit or warning) is `hostLimit`, 404/410 is `gone`.
    */
   linked?: boolean;
 }): Promise<'done' | 'expired' | 'network' | 'hostLimit' | 'gone'> {
@@ -64,7 +65,7 @@ export async function downloadFile(o: {
     return 'network';
   }
   if (o.linked) {
-    const page = (response.headers.get('content-type') ?? '').toLowerCase().startsWith('text/');
+    const page = isHostPage(response.headers.get('content-type'));
     if (response.status === 403 || response.status === 429 || (response.ok && page)) {
       await response.body?.cancel().catch(() => undefined);
       return 'hostLimit';
