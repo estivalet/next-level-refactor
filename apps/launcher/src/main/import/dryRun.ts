@@ -1,7 +1,6 @@
 import {
   defaultProfileFor,
   IMPORT_MAPPED_REASONS,
-  isEssentialsName,
   type DetectedEmulator,
   type EmulatorPreset,
   type ImportItem,
@@ -18,6 +17,7 @@ import type { FoundGame } from '../library/LibraryRepository.ts';
 import { planScan } from '../scan/plan.ts';
 import type { Walker } from '../scan/walker.ts';
 import { addDetectedProfiles } from './detectedProfiles.ts';
+import { essentialsOnly } from './essentialsImport.ts';
 import { mapCollections, type CollectionImport } from './mapCollections.ts';
 import { mapGames, type GameImport } from './mapGames.ts';
 import { mapMenus, type MenuImport } from './mapMenus.ts';
@@ -259,19 +259,12 @@ export async function planImport(
     (id) => deps.catalog.find((s) => s.id === id)?.name ?? id,
   );
   const mappedCollections = mapCollections(files, match);
-  // D63: with Essentials only, the other collections are reported and never imported; their menu
-  // nodes are dropped when the menus are bound (bindCollections).
-  const notEssentials = options.essentialsOnly
-    ? mappedCollections.collections.filter((c) => !isEssentialsName(c.name))
-    : [];
-  const collections = {
-    ...mappedCollections,
-    collections: mappedCollections.collections.filter((c) => !notEssentials.includes(c)),
-  };
+  const essentials = essentialsOnly(mappedCollections, options.essentialsOnly);
+  const collections = essentials.kept;
   const names = new Set(mappedCollections.collections.map((c) => c.name.toLowerCase()));
   const menus = mapMenus(files, match, names, deps.newId);
   const used = menuCollections(menus.menus);
-  const dropped = new Set(notEssentials.map((c) => c.name));
+  const { dropped } = essentials;
   const inMenus = collections.collections.filter((c) => used.has(c.name.toLowerCase()));
   const notInMenus = collections.collections.filter((c) => !used.has(c.name.toLowerCase()));
   const skipped = new Set(notInMenus.map((c) => c.name));
@@ -286,12 +279,7 @@ export async function planImport(
     ...games.items,
     ...booted.items,
     ...collections.items.filter((item) => !skipped.has(item.key) && !dropped.has(item.key)),
-    ...notEssentials.map((c): ImportItem => ({
-      area: 'collection',
-      key: c.name,
-      reason: 'notEssentials',
-      ...(c.entries.length > 0 ? { count: c.entries.length } : {}),
-    })),
+    ...essentials.items,
     ...notInMenus.map((c): ImportItem => ({
       area: 'collection',
       key: c.name,

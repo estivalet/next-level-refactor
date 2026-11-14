@@ -131,6 +131,9 @@ export function FrontendLayer() {
         }}
         fallback={() => (
           <ThemeCrashScreen
+            enabled={
+              visible && preview === null && !menuOpen && !switcherOpen && session.failure === null
+            }
             input={settings.input}
             onRestart={() => {
               setRestarts((n) => n + 1);

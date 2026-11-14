@@ -1,7 +1,7 @@
 import { ok, type KioskState } from '@nextlevel/shared';
 import { resolveTheme } from '@nextlevel/themes';
 import { FIXTURE_MENU } from '@nextlevel/themes/testing';
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSyncExternalStore } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -135,5 +135,53 @@ describe('a theme that crashes (NFR-REL-2)', () => {
         .getAllByRole('button')
         .map((b) => b.textContent),
     ).toEqual(['Restart theme']);
+  });
+
+  it('Final: NFR-REL-2: a gamepad on the desktop never drives the hidden crash screen', async () => {
+    let aDown = false;
+    Object.defineProperty(navigator, 'getGamepads', {
+      configurable: true,
+      value: () => [
+        {
+          mapping: 'standard',
+          axes: [0, 0, 0, 0],
+          buttons: Array.from({ length: 17 }, (_, i) => ({ pressed: aDown && i === 0, value: 0 })),
+        },
+      ],
+    });
+    try {
+      const bridge = setup();
+      const u = await openFrontend();
+      await u.click(within(await crashScreen()).getByRole('button', { name: 'Back to desktop' }));
+      await waitFor(() => {
+        expect(layer()).not.toBeVisible();
+      });
+      const reports = () => bridge.channels().filter((c) => c === 'app.reportError').length;
+      const before = reports();
+      // A press of A on the desktop: the hidden crash screen's Restart theme must not run.
+      aDown = true;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      aDown = false;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(reports()).toBe(before);
+    } finally {
+      Reflect.deleteProperty(navigator, 'getGamepads');
+    }
+  });
+
+  it('Final: NFR-REL-2: after the switcher is cancelled, Enter on the keyboard still works on the crash screen', async () => {
+    setup();
+    const u = await openFrontend();
+    await u.click(within(await crashScreen()).getByRole('button', { name: 'Switch theme' }));
+    await screen.findByRole('dialog', { name: 'Switch theme' });
+    await u.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Switch theme' })).toBeNull();
+    });
+    mode = 'ok';
+    const target = document.activeElement ?? document.body;
+    fireEvent.keyDown(target, { code: 'Enter' });
+    fireEvent.keyUp(target, { code: 'Enter' });
+    expect(await within(layer()).findByText('theme works')).toBeVisible();
   });
 });

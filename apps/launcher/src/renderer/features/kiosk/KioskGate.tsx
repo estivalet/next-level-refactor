@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getApp } from '../../apps/registry.ts';
 import { useFrontend } from '../frontend/useFrontend.ts';
 import { useShell } from '../shell/ShellContext.tsx';
-import { useKioskHides, useKioskHidesApp, useKioskState } from './kioskApi.ts';
+import { useKioskHides, useKioskHidesApp, useKioskLocked } from './kioskApi.ts';
 import { PinPad } from './PinPad.tsx';
 import { useHoldToUnlock } from './useHoldToUnlock.ts';
 
@@ -13,7 +13,7 @@ import { useHoldToUnlock } from './useHoldToUnlock.ts';
  * owner had a window open) closes the windows of the apps it hides.
  */
 export function KioskGate() {
-  const locked = useKioskState().data?.locked ?? false;
+  const locked = useKioskLocked();
   const hides = useKioskHides();
   const frontend = useFrontend();
   const [padOpen, setPadOpen] = useState(false);

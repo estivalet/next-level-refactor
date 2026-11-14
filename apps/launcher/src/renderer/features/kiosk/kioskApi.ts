@@ -26,6 +26,18 @@ export function useKioskState() {
  * if reading it failed), the saved kiosk settings decide: a kiosk that is on starts locked, so the
  * desktop never flashes what a cabinet hides.
  */
+/**
+ * Whether the kiosk is locked; until main's state is known (or if reading it failed) a kiosk saved
+ * as on counts as locked (it locks at every start), so hold-to-unlock works whenever the saved
+ * settings hide something.
+ */
+export function useKioskLocked(): boolean {
+  const state = useKioskState().data;
+  const loaded = useSettings().data;
+  if (state) return state.locked;
+  return loaded?.kind === 'ok' && loaded.snapshot.settings.kiosk.enabled;
+}
+
 export function useKioskHides(): (part: KioskHide) => boolean {
   const state = useKioskState().data;
   const loaded = useSettings().data;

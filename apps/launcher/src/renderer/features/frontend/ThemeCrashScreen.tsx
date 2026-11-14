@@ -11,11 +11,14 @@ const BUTTON = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
  * up/down) pick a button, select runs it.
  */
 export function ThemeCrashScreen({
+  enabled,
   input,
   onRestart,
   onSwitchTheme,
   onDesktop,
 }: {
+  /** Off while the front-end is hidden or an overlay (switcher, menu) has the input. */
+  enabled: boolean;
   input: InputSettings;
   onRestart: () => void;
   onSwitchTheme?: (() => void) | undefined;
@@ -31,12 +34,22 @@ export function ThemeCrashScreen({
   const [index, setIndex] = useState(0);
   const current = Math.min(index, actions.length - 1);
 
+  // Keys are read from the dialog itself: take the focus back whenever it gets the input again
+  // (the switcher closed, back from the desktop) and when the window regains focus.
   useEffect(() => {
-    ref.current?.focus();
-  }, []);
+    if (!enabled) return;
+    const focus = () => {
+      ref.current?.focus();
+    };
+    focus();
+    window.addEventListener('focus', focus);
+    return () => {
+      window.removeEventListener('focus', focus);
+    };
+  }, [enabled]);
   useInputActions({
     targetRef: ref,
-    enabled: true,
+    enabled,
     input,
     onAction: (action) => {
       if (action === 'left' || action === 'up') setIndex(Math.max(0, current - 1));

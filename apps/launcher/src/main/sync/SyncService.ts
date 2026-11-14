@@ -18,6 +18,7 @@ import {
 import { readFile } from 'node:fs/promises';
 import type { ApiClient } from '../auth/ApiClient.ts';
 import { atomicWrite } from '../fs/atomicWrite.ts';
+import { claimedSection, enabledSection } from './deviceClaim.ts';
 import type { KindAdapter } from './documents.ts';
 import {
   changedKeys,
@@ -155,17 +156,9 @@ export class SyncService {
 
   async setEnabled(enabled: boolean): Promise<SyncState> {
     if (!enabled) await this.#settle();
-    const section = this.#deps.section();
-    const host = this.#deps.hostId();
-    // Created the first time sync is turned on on this PC: it names this PC's play counters. A
-    // key made on another PC (a copied portable folder, D64) is replaced.
-    const own = section.deviceHost === null || section.deviceHost === host;
-    const deviceKey = section.deviceKey !== null && own ? section.deviceKey : null;
-    await this.#deps.writeSection({
-      enabled,
-      deviceKey: deviceKey ?? (enabled ? this.#deps.newId() : null),
-      deviceHost: deviceKey !== null || enabled ? host : section.deviceHost,
-    });
+    await this.#deps.writeSection(
+      enabledSection(this.#deps.section(), enabled, this.#deps.hostId(), this.#deps.newId),
+    );
     this.#error = null;
     if (!enabled) {
       this.#cancelDebounce?.();
@@ -192,31 +185,17 @@ export class SyncService {
     return this.#announce();
   }
 
-  /** Waits for a running sync (and its follow-up) to finish. */
-  /**
-   * D64: the device key belongs to the PC it was made on. A section from before deviceHost
-   * existed adopts this host; one made on another host (a copied portable folder) gets a new key,
-   * so the old key's plays count as the other PC's and nothing is counted twice.
-   */
+  /** D64: claims the device key for this PC (deviceClaim.ts). */
   async #claimDevice(): Promise<void> {
-    const section = this.#deps.section();
-    const host = this.#deps.hostId();
-    if (section.deviceHost === host) return;
-    if (section.deviceHost !== null && section.deviceKey !== null) {
-      this.#deps.log.warn(
-        { from: section.deviceHost, to: host },
-        'sync: this folder was copied from another PC; it gets its own device key',
-      );
-      await this.#deps.writeSection({
-        ...section,
-        deviceKey: this.#deps.newId(),
-        deviceHost: host,
-      });
-      return;
+    const claimed = claimedSection(this.#deps.section(), this.#deps.hostId(), this.#deps.newId);
+    if (!claimed) return;
+    if (claimed.copied) {
+      this.#deps.log.warn({}, 'sync: this folder was copied from another PC; it gets its own key');
     }
-    await this.#deps.writeSection({ ...section, deviceHost: host });
+    await this.#deps.writeSection(claimed.section);
   }
 
+  /** Waits for a running sync (and its follow-up) to finish. */
   async #settle(): Promise<void> {
     this.#cancelDebounce?.();
     while (this.#running) await this.#running.catch(() => undefined);
