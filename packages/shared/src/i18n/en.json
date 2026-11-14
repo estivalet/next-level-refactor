@@ -306,7 +306,8 @@
       },
       "managed": "Catalog games",
       "managedHelp": "New catalog installs go here. Changing the folder affects new installs only: games already installed stay where they are.",
-      "changeFolder": "Change folder…"
+      "changeFolder": "Change folder…",
+      "catalogOverlap": "The Catalog folder overlaps {{list}}. Catalog installs and uninstalls would mix with your own games — pick a separate folder."
     },
     "systems": {
       "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",
