@@ -7,7 +7,7 @@ import {
   type MenuSummary,
   walkMenuNodes,
 } from '@nextlevel/shared';
-import { notFound } from '../library/GameRepository.ts';
+import { notFound } from '../library/libraryErrors.ts';
 import type { LibraryDb } from '../library/openLibrary.ts';
 
 interface RawMenu {

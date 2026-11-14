@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import type { Result } from '../result.ts';
 import { EmulatorPresetSchema, SystemDefinitionSchema } from '../catalog/schema.ts';
-import { ImportReportSchema, ImportSummarySchema } from '../import/report.ts';
 import {
   LaunchLogPageSchema,
   LaunchOverrideSchema,
@@ -49,12 +48,7 @@ import {
   SmartFilterQuerySchema,
   SmartFilterSummarySchema,
 } from '../library/smartFilters.ts';
-import {
-  MenuDocumentSchema,
-  MenuDraftSchema,
-  MenuSummarySchema,
-  MenuTitleSchema,
-} from '../menus/schema.ts';
+import { MenuDraftSchema } from '../menus/schema.ts';
 import { EmulatorProfileSchema, EmulatorSchema } from '../settings/emulators.ts';
 import { SettingsSchema } from '../settings/schema.ts';
 import { authContract } from './authContract.ts';
@@ -62,7 +56,9 @@ import { catalogContract } from './catalogContract.ts';
 import { geminiContract } from './geminiContract.ts';
 import { launchboxContract } from './launchboxContract.ts';
 import { updateContract } from './updateContract.ts';
+import { importContract } from './importContract.ts';
 import { kioskContract } from './kioskContract.ts';
+import { menuContract } from './menuContract.ts';
 import { syncContract } from './syncContract.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
@@ -88,7 +84,6 @@ export const BackupInfoSchema = z.object({
 const gameId = z.number().int().positive();
 const collectionId = z.number().int().positive();
 const smartFilterId = z.number().int().positive();
-const menuId = z.uuid();
 
 /** A profile from Settings, saved or not, for Preview and Test launch (FR-EMU-5). */
 function launchDraft<G extends z.ZodType>(game: G) {
@@ -121,6 +116,8 @@ export const ipcContract = {
   ...updateContract,
   ...kioskContract,
   ...syncContract,
+  ...importContract,
+  ...menuContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
   /** NFR-REL-2: a renderer error boundary caught a crash; main writes it to the log. */
@@ -219,31 +216,6 @@ export const ipcContract = {
   },
   'launch.running': { input: z.void(), output: LaunchStartedSchema.nullable() },
   'emulators.presets': { input: z.void(), output: z.array(EmulatorPresetSchema) },
-  /** D14: the emulators folder to suggest for a NextLevelOS data folder (null: none found). */
-  'import.inspect': {
-    input: z.strictObject({ folder: z.string().trim().min(3).max(500) }),
-    output: z.object({ emulatorsFolder: z.string().nullable() }),
-  },
-  /** FR-IMP-2: what importing the folder would do; writes nothing. */
-  'import.dryRun': {
-    input: z.strictObject({
-      folder: z.string().trim().min(3).max(500),
-      emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
-      /** D63: import only the Essentials collections. */
-      essentialsOnly: z.boolean().optional(),
-    }),
-    output: ImportReportSchema,
-  },
-  /** FR-IMP-1, US-B3: imports the folder; `reportToken` is the dry run's (CONFLICT if changed). */
-  'import.apply': {
-    input: z.strictObject({
-      folder: z.string().trim().min(3).max(500),
-      emulatorsFolder: z.string().trim().min(3).max(500).nullable(),
-      reportToken: z.string().min(1).max(200),
-      essentialsOnly: z.boolean().optional(),
-    }),
-    output: ImportSummarySchema,
-  },
   'emulators.detect': {
     input: z.strictObject({ folder: z.string().trim().min(3).max(500) }),
     output: z.array(DetectedEmulatorSchema),
@@ -304,22 +276,6 @@ export const ipcContract = {
     output: SmartFilterSummarySchema,
   },
   'smartFilters.delete': { input: z.strictObject({ id: smartFilterId }), output: z.void() },
-  'menus.list': { input: z.void(), output: z.array(MenuSummarySchema) },
-  'menus.get': { input: z.strictObject({ id: menuId }), output: MenuDocumentSchema },
-  /** FR-MENU-3: the active menu, or the generated one (revision 0, not stored) when none exists. */
-  'menus.draft': { input: z.void(), output: MenuDocumentSchema },
-  /** A generated menu of the enabled systems with games, as of now. */
-  'menus.generated': { input: z.void(), output: MenuDraftSchema },
-  'menus.save': {
-    input: MenuDraftSchema.extend({ id: menuId, baseRevision: z.number().int().min(0) }).strict(),
-    output: MenuDocumentSchema,
-  },
-  'menus.create': {
-    input: z.strictObject({ title: MenuTitleSchema, nodes: MenuDraftSchema.shape.nodes }),
-    output: MenuDocumentSchema,
-  },
-  'menus.delete': { input: z.strictObject({ id: menuId }), output: z.void() },
-  'menus.setActive': { input: z.strictObject({ id: menuId }), output: z.void() },
   'frontend.menu': { input: z.void(), output: MenuTreeSchema },
   /** The Menu Editor's live preview: an unsaved menu resolved like the active one. */
   'frontend.resolveMenu': {

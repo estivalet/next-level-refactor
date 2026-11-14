@@ -5,7 +5,7 @@ import {
   type CollectionSummary,
 } from '@nextlevel/shared';
 import Database from 'better-sqlite3';
-import { notFound } from './GameRepository.ts';
+import { notFound } from './libraryErrors.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
 const SUMMARY = `select c.id as id, c.name as name, c.sort as sort,

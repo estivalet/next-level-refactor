@@ -4,7 +4,7 @@ import {
   type LaunchLogPage,
   type LaunchOverride,
 } from '@nextlevel/shared';
-import { notFound } from './GameRepository.ts';
+import { notFound } from './libraryErrors.ts';
 import type { LibraryDb } from './openLibrary.ts';
 
 /** Launch log rows kept (data model §4). */
