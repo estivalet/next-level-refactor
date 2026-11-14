@@ -13,11 +13,17 @@ afterEach(async () => {
 const BODY = Buffer.from('NEXTLEVEL TEST FIXTURE star hopper\n'.repeat(30));
 
 async function setup() {
-  const server = await fakeFilesServer();
   const temp = await tempDir('nextlevel-download-');
+  const part = join(temp.dir, 'f1.part');
+  const server = await fakeFilesServer({
+    kept: () =>
+      stat(part).then(
+        (s) => s.size,
+        () => 0,
+      ),
+  });
   closers.push(server.close, temp.cleanup);
   server.serve('t1', BODY);
-  const part = join(temp.dir, 'f1.part');
   const run = (token = 't1', signal = new AbortController().signal) =>
     downloadFile({ url: server.url(token), part, expectedSize: BODY.length, fetch, signal });
   return { server, part, run };
@@ -48,6 +54,26 @@ describe('one catalog file (FR-CAT-4, Review Focus 3)', () => {
     expect(kept).toBeLessThan(BODY.length);
     expect(await t.run()).toBe('done');
     expect(await readFile(t.part)).toEqual(BODY);
+  });
+
+  it('FR-CAT-4: a cut is only made once the client has the bytes, however late it reads', async () => {
+    // A slow runner: the body is read well after the response arrived (CI run 43626030496).
+    const t = await setup();
+    t.server.cutAfter('t1', 200);
+    const late: typeof fetch = async (url, init) => {
+      const response = await fetch(url, init);
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      return response;
+    };
+    const result = await downloadFile({
+      url: t.server.url('t1'),
+      part: t.part,
+      expectedSize: BODY.length,
+      fetch: late,
+      signal: new AbortController().signal,
+    });
+    expect(result).toBe('network');
+    expect((await stat(t.part)).size).toBe(200);
   });
 
   it.each([401, 403, 410, 404])('a %i from the files route is an expired URL', async (status) => {

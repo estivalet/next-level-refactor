@@ -7,7 +7,8 @@ import {
   type IpcEventPayload,
 } from '@nextlevel/shared';
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { DownloadRepository } from '../library/DownloadRepository.ts';
 import { tempDir, tempLibrary } from '../library/testing.ts';
 import { DownloadService } from './DownloadService.ts';
@@ -21,9 +22,10 @@ import type { VerifiedFile } from './types.ts';
  * a recording installer. `add` publishes an item whose files are dummy bytes.
  */
 export async function downloadWorld(closers: Array<() => Promise<void>>) {
-  const server = await fakeFilesServer();
   const library = await tempLibrary();
   const temp = await tempDir('nextlevel-downloads-');
+  // A cut waits until a download's .part holds the bytes sent before it.
+  const server = await fakeFilesServer({ kept: () => largestPart(temp.dir) });
   closers.push(server.close, library.cleanup, temp.cleanup);
   const repo = new DownloadRepository(library.db);
   const items = new Map<string, CatalogItem>();
@@ -194,6 +196,22 @@ export async function downloadWorld(closers: Array<() => Promise<void>>) {
     state,
     token: (itemId: string, fileId = 'f1') => `${itemId}-${fileId}`,
   };
+}
+
+/** The size of the biggest `.part` under `dir` (0 when there is none). */
+async function largestPart(dir: string): Promise<number> {
+  const entries = await readdir(dir, { recursive: true }).catch(() => []);
+  const sizes = await Promise.all(
+    entries
+      .filter((entry) => entry.endsWith('.part'))
+      .map((entry) =>
+        stat(join(dir, entry)).then(
+          (s) => s.size,
+          () => 0,
+        ),
+      ),
+  );
+  return Math.max(0, ...sizes);
 }
 
 export const body = (label: string, repeat = 40) =>
