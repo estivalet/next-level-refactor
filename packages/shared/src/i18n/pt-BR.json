@@ -86,7 +86,9 @@
       "close": "Fechar",
       "minimize": "Minimizar",
       "maximize": "Maximizar",
-      "restore": "Restaurar"
+      "restore": "Restaurar",
+      "crash": "Esta janela encontrou um problema.",
+      "reload": "Recarregar janela"
     },
     "desktop": {
       "label": "Área de trabalho",
@@ -106,6 +108,10 @@
     },
     "tray": {
       "clock": "Relógio"
+    },
+    "crash": {
+      "title": "O NextLevel encontrou um problema",
+      "reload": "Recarregar o NextLevel"
     }
   },
   "apps": {
@@ -1379,7 +1385,14 @@
     "open": "Front-end",
     "label": "Front-end",
     "playing": "Jogando",
-    "playingHint": "Jogando… O front-end volta quando o jogo fechar."
+    "playingHint": "Jogando… O front-end volta quando o jogo fechar.",
+    "crash": {
+      "title": "O tema parou de funcionar",
+      "body": "O tema encontrou um problema. Sua biblioteca e suas configurações estão seguras.",
+      "restart": "Reiniciar tema",
+      "switch": "Trocar tema",
+      "desktop": "Voltar à área de trabalho"
+    }
   },
   "themes": {
     "intents": {

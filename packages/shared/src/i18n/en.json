@@ -86,7 +86,9 @@
       "close": "Close",
       "minimize": "Minimize",
       "maximize": "Maximize",
-      "restore": "Restore"
+      "restore": "Restore",
+      "crash": "This window ran into a problem.",
+      "reload": "Reload window"
     },
     "desktop": {
       "label": "Desktop",
@@ -106,6 +108,10 @@
     },
     "tray": {
       "clock": "Clock"
+    },
+    "crash": {
+      "title": "NextLevel ran into a problem",
+      "reload": "Reload NextLevel"
     }
   },
   "apps": {
@@ -1379,7 +1385,14 @@
     "open": "Front-end",
     "label": "Front-end",
     "playing": "Playing",
-    "playingHint": "Playing… The front-end comes back when the game closes."
+    "playingHint": "Playing… The front-end comes back when the game closes.",
+    "crash": {
+      "title": "Theme stopped working",
+      "body": "The theme ran into a problem. Your library and settings are safe.",
+      "restart": "Restart theme",
+      "switch": "Switch theme",
+      "desktop": "Back to desktop"
+    }
   },
   "themes": {
     "intents": {

@@ -42,6 +42,7 @@ import {
 import { createScrapeHandlers } from './scraper/scrapeHandlers.ts';
 import { createLaunchBoxHandlers } from './launchbox/launchboxHandlers.ts';
 import { createUpdateHandlers } from './update/updateHandlers.ts';
+import { createRendererErrorHandler } from './rendererErrorHandler.ts';
 import { createKioskHandlers } from './kiosk/kioskHandlers.ts';
 import { createSyncHandlers } from './sync/syncHandlers.ts';
 import type { SyncService } from './sync/SyncService.ts';
@@ -73,7 +74,11 @@ export interface MainDeps {
   setOpenAtLogin: (enabled: boolean) => void;
   /** Sets the launcher window's zoom factor (FR-SET-8). */
   setUiScale: (factor: number) => void;
-  log: { warn(context: object, msg: string): void };
+  log: {
+    warn(context: object, msg: string): void;
+    /** Renderer crash reports (NFR-REL-2); falls back to warn. */
+    error?(context: Record<string, unknown>, msg: string): void;
+  };
   catalog: () => readonly SystemDefinition[];
   /** Native folder dialog; null when cancelled. */
   pickFolder: (title?: string) => Promise<string | null>;
@@ -175,6 +180,12 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
   };
 
   const all: IpcHandlers = {
+    ...createRendererErrorHandler({
+      error: (context, msg) => {
+        if (deps.log.error) deps.log.error(context, msg);
+        else deps.log.warn(context, msg);
+      },
+    }),
     ...createLibraryHandlers(deps),
     ...createSmartFilterHandlers({ smartFilters: () => library().smartFilters, emit: deps.emit }),
     ...createMenuHandlers({
