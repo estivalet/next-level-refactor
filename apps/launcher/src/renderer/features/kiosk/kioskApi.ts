@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import type { AppId } from '../../apps/registry.ts';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
-import { unwrap } from '../settings/settingsApi.ts';
+import { unwrap, useSettings } from '../settings/settingsApi.ts';
 
 const KIOSK_KEY = ['kiosk.state'] as const;
 
@@ -21,12 +21,21 @@ export function useKioskState() {
   });
 }
 
-/** Whether a part is hidden right now (kiosk on and locked). Unknown state hides nothing. */
+/**
+ * Whether a part is hidden right now (kiosk on and locked). Until main's kiosk state is known (or
+ * if reading it failed), the saved kiosk settings decide: a kiosk that is on starts locked, so the
+ * desktop never flashes what a cabinet hides.
+ */
 export function useKioskHides(): (part: KioskHide) => boolean {
   const state = useKioskState().data;
+  const loaded = useSettings().data;
+  const saved = loaded?.kind === 'ok' ? loaded.snapshot.settings.kiosk : null;
   return useCallback(
-    (part: KioskHide) => Boolean(state?.locked && state.hide.includes(part)),
-    [state],
+    (part: KioskHide) =>
+      state
+        ? state.locked && state.hide.includes(part)
+        : Boolean(saved?.enabled && saved.hide.includes(part)),
+    [state, saved],
   );
 }
 
