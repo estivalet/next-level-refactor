@@ -103,4 +103,19 @@ describe('download URLs (FR-CAT-6, security §2)', () => {
     expect((await hashes({ TRUST_PROXY: 'true' })).size).toBe(2);
     expect((await hashes({})).size).toBe(1);
   });
+
+  it("FR-CAT-9: a grant hands a linked file's link with linked: true and still logs the download", async () => {
+    const t = await setup();
+    const link = 'https://archive.org/download/nl-demo/Star%20Hopper.nes';
+    t.db.$client.prepare("update catalog_files set link_url = ?, storage_key = ''").run(link);
+    const grant = (await t.issue()).json<DownloadGrant>();
+    expect(grant.files).toEqual([expect.objectContaining({ url: link, linked: true })]);
+    expect(t.db.$client.prepare('select count(*) from downloads').pluck().get()).toBe(1);
+  });
+
+  it('FR-CAT-9: an uploaded file has no linked flag', async () => {
+    const t = await setup();
+    const grant = (await t.issue()).json<DownloadGrant>();
+    expect(grant.files[0]).not.toHaveProperty('linked');
+  });
 });

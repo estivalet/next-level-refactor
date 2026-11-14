@@ -86,13 +86,17 @@ export function issueDownloads(
         filename: file.filename,
         size: file.size,
         sha256: file.sha256,
-        // A store with its own URLs (R2) is downloaded from directly; else the API serves it.
+        // A linked file (FR-CAT-9) comes from its host; a store with its own URLs (R2) is
+        // downloaded from directly; else the API serves it.
         url:
+          file.linkUrl ??
           ctx.files.downloadUrl(file.storageKey, {
             expiresInSeconds: FILE_URL_MS / 1000,
             filename: file.filename,
-          }) ?? `${ctx.env.publicUrl}/v1/files/${token}`,
+          }) ??
+          `${ctx.env.publicUrl}/v1/files/${token}`,
         expiresAt,
+        ...(file.linkUrl ? { linked: true } : {}),
       });
     }
   });

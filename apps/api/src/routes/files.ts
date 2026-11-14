@@ -39,7 +39,8 @@ function resolve(
 ): (Stored & { itemId: string }) | undefined {
   if (token.kind === 'file') {
     const row = ctx.db.select().from(catalogFiles).where(eq(catalogFiles.id, token.id)).get();
-    return row?.status === 'ready'
+    // A linked file (FR-CAT-9) has no bytes here: it comes from its host.
+    return row?.status === 'ready' && row.linkUrl === null
       ? { itemId: row.itemId, key: row.storageKey, size: row.size, sha256: row.sha256 }
       : undefined;
   }
