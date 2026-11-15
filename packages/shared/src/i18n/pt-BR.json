@@ -1551,6 +1551,32 @@
     "help": {
       "title": "Controles"
     },
+    "museum": {
+      "title": "Museu do sistema",
+      "loading": "Carregando…",
+      "empty": "Ainda não há verbete no museu para este sistema.",
+      "hardware": "Hardware",
+      "models": "Modelos",
+      "topGames": "Melhores jogos",
+      "topGameOwned": "Na sua biblioteca",
+      "sources": "Fontes",
+      "modelImageMissing": "Sem imagem",
+      "launchPrice": "Preço de lançamento: {{price}}",
+      "field": {
+        "cpu": "CPU",
+        "ram": "RAM",
+        "graphics": "Gráficos",
+        "sound": "Som",
+        "media": "Mídia",
+        "display": "Tela",
+        "generation": "Geração",
+        "unitsSold": "Unidades vendidas",
+        "discontinuedYear": "Descontinuado",
+        "predecessor": "Antecessor",
+        "successor": "Sucessor",
+        "peripherals": "Periféricos"
+      }
+    },
     "bigBox": {
       "name": "Big Box",
       "description": "Carrossel em tela cheia de logos e capas",

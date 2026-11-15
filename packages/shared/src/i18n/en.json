@@ -1551,6 +1551,32 @@
     "help": {
       "title": "Controls"
     },
+    "museum": {
+      "title": "System museum",
+      "loading": "Loading…",
+      "empty": "No museum entry for this system yet.",
+      "hardware": "Hardware",
+      "models": "Models",
+      "topGames": "Top games",
+      "topGameOwned": "In your library",
+      "sources": "Sources",
+      "modelImageMissing": "No image",
+      "launchPrice": "Launch price: {{price}}",
+      "field": {
+        "cpu": "CPU",
+        "ram": "RAM",
+        "graphics": "Graphics",
+        "sound": "Sound",
+        "media": "Media",
+        "display": "Display",
+        "generation": "Generation",
+        "unitsSold": "Units sold",
+        "discontinuedYear": "Discontinued",
+        "predecessor": "Predecessor",
+        "successor": "Successor",
+        "peripherals": "Peripherals"
+      }
+    },
     "bigBox": {
       "name": "Big Box",
       "description": "Fullscreen carousel of menu logos and box art",
