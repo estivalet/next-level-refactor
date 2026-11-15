@@ -1,5 +1,5 @@
 import type { GameListPage, GameListQuery, GameRow } from '@nextlevel/shared';
-import { useQueries, useQueryClient } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { unwrap } from '../settings/settingsApi.ts';
 import { PAGE_SIZE, pagesForRange } from './pages.ts';
@@ -91,4 +91,17 @@ export function usePagedGames(
     isError: failed !== undefined,
     error: failed?.error ?? null,
   };
+}
+
+/**
+ * How many games a list has (page 0's total, shared with the list's own cache), or null while it
+ * loads or when there is no list. FR-LIB-10: the "n of total" count of a searched list.
+ */
+export function useListTotal(params: GameListParams | null): number | null {
+  const page = useQuery({
+    enabled: params !== null,
+    queryKey: [GAMES_KEY, params, 0] as const,
+    queryFn: fetchPage(params as GameListParams, 0),
+  });
+  return params === null ? null : (page.data?.total ?? null);
 }

@@ -136,4 +136,17 @@ describe('GameExportReader', () => {
     const games = reader.read(N64, { tab: 'all', essentials: true });
     expect(games.map((g) => g.title)).toEqual(['Mario 64']);
   });
+
+  it('FR-LIB-10: an export of a searched list has only the matching games', async () => {
+    const { db, reader } = await setup();
+    seedGames(db, 'nintendo-64', ['Mario', 'Zelda', 'Metroid']);
+    const games = reader.read(N64, { tab: 'all', text: 'zel' });
+    expect(games.map((g) => g.title)).toEqual(['Zelda']);
+  });
+
+  it('FR-LIB-10: search text with quotes and stars exports without an error', async () => {
+    const { db, reader } = await setup();
+    seedGames(db, 'nintendo-64', ['Mario', 'Zelda']);
+    expect(() => reader.read(N64, { tab: 'all', text: '"zel* (' })).not.toThrow();
+  });
 });

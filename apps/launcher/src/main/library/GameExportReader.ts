@@ -1,6 +1,7 @@
 import type { ExportView, GameScope } from '@nextlevel/shared';
 import type { ExportGame } from '../export/formats.ts';
 import type { ResolvePath } from './GameRepository.ts';
+import { ftsQuery } from './ftsQuery.ts';
 import { ROW_COLUMNS, listShape, type RawRow } from './gameSql.ts';
 import type { LibraryDb } from './openLibrary.ts';
 import { resolveScope } from './scopeQuery.ts';
@@ -46,10 +47,12 @@ export class GameExportReader {
       scope,
       this.clock(),
     );
+    // FR-LIB-10: a searched list exports its matches, as the list shows them.
+    const match = view?.text === undefined ? null : ftsQuery(view.text);
     const shape = listShape(
       { scope, tab: view?.tab ?? null, ...(view?.sort ? { sort: view.sort } : {}) },
       collectionSort,
-      false,
+      match !== null,
       smart?.sql ?? null,
       {
         filter: view?.filter !== undefined,
@@ -61,6 +64,7 @@ export class GameExportReader {
       .prepare(`select ${EXPORT_COLUMNS} ${shape.from} order by ${shape.order}`)
       .all({
         ...params,
+        ...(match === null ? {} : { match }),
         ...(view?.filter === undefined ? {} : { filter: view.filter }),
         ...(view?.genre === undefined ? {} : { genre: view.genre }),
       }) as RawExportRow[];
