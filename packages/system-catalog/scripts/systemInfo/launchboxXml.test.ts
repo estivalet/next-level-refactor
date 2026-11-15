@@ -40,7 +40,9 @@ describe('launchboxXml', () => {
     expect(filled.cpu).toBe('Fake CPU');
     expect(filled.releaseYear).toBe(1993);
     expect(filled.description).toBe('Fake notes & more');
-    expect(filled.sources).toEqual([{ name: 'LaunchBox Games Database' }]);
+    expect(filled.sources).toEqual([
+      { name: 'LaunchBox Games Database', url: 'https://gamesdb.launchbox-app.com/' },
+    ]);
 
     const kept = fillFromLaunchBox({ ...base, description: 'Own' }, lb);
     expect(kept.description).toBe('Own');

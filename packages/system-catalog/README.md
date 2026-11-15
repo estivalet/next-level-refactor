@@ -75,5 +75,10 @@ npm run --silent import:system-info -w packages/system-catalog -- "<system-info 
 ```
 
 The report lists `unmatched` source names (no catalog system, or a duplicate), `unparseable` files
-and `dropped` keys the normalizer ignored. Descriptive text comes from Wikipedia (CC BY-SA 4.0);
-entries record it in `sources` so the Museum can credit it (FR-MUS-5).
+and `dropped` keys the normalizer ignored, plus `<field> (truncated)` for text cut at a word to the
+schema limit (ending in "…") and `imageUrl (not an image link)` for model images dropped because
+the host is `example.com`/`example.org` or the path is not an image file (`upload.wikimedia.org` is
+always kept). Descriptive text comes from Wikipedia (CC BY-SA 4.0); entries record it in `sources`
+as `Wikipedia (CC BY-SA 4.0)` with the licence URL, after a `Wikipedia` article link when the
+scraped file's `references` name one. Text filled from LaunchBox credits `LaunchBox Games
+Database` with its site URL (FR-MUS-5).

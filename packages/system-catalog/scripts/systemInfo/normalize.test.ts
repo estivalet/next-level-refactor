@@ -29,6 +29,7 @@ describe('normalizeScraped', () => {
     expect(entry.media).toBe('Cartridge');
     expect(entry.unitsSold).toBe('1200000');
     expect(entry.description).toHaveLength(20000);
+    expect(entry.description?.endsWith('…')).toBe(true);
     expect(entry.peripherals).toEqual(['Pad', 'Stick']);
     expect(entry.successor).toBe('Fake Two');
   });
@@ -44,7 +45,7 @@ describe('normalizeScraped', () => {
           description: 'Fake notes',
           image_example: 'ftp://x',
         },
-        { name: 'Fake Mk2', image: 'https://example.com/a.png', price_uk: '£199' },
+        { name: 'Fake Mk2', image: 'https://upload.wikimedia.org/a.png', price_uk: '£199' },
         { price_at_launch: 'no name, skipped' },
       ],
     });
@@ -56,7 +57,7 @@ describe('normalizeScraped', () => {
         ram: '16 KB',
         notes: 'Fake notes',
       },
-      { name: 'Fake Mk2', imageUrl: 'https://example.com/a.png', launchPrice: '£199' },
+      { name: 'Fake Mk2', imageUrl: 'https://upload.wikimedia.org/a.png', launchPrice: '£199' },
     ]);
   });
 
@@ -84,12 +85,74 @@ describe('normalizeScraped', () => {
     expect(result.entry.sources).toEqual([]);
   });
 
-  it('FR-MUS-5: Wikipedia source only when story text exists', () => {
+  it('FR-MUS-5: Wikipedia source, with its licence link, only when story text exists', () => {
     expect(normalizeScraped({ cpu: 'Z80' }).entry.sources).toEqual([]);
     expect(normalizeScraped({ legado: 'Fake legacy' }).entry.sources).toEqual([
-      { name: 'Wikipedia' },
+      { name: 'Wikipedia (CC BY-SA 4.0)', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
     ]);
     expect(normalizeScraped({ impact: 'Fake impact' }).entry.history).toBe('Fake impact');
+  });
+
+  it('FR-MUS-5: a Wikipedia article in references becomes the first source, licence second', () => {
+    const result = normalizeScraped({
+      description: 'Fake text',
+      references: [
+        'https://old-computers.example/fake',
+        'https://en.wikipedia.org/wiki/Fake_Console',
+        'https://en.wikipedia.org/wiki/Fake_Other',
+      ],
+    });
+    expect(result.entry.sources).toEqual([
+      { name: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Fake_Console' },
+      { name: 'Wikipedia (CC BY-SA 4.0)', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+    ]);
+    expect(result.dropped).not.toContain('references');
+  });
+
+  it('FR-MUS-1: over-long text is cut at a word boundary with an ellipsis and reported', () => {
+    const generationText = 'Third generation '.repeat(20);
+    const priceText = 'US$199 bundled with a pad '.repeat(20);
+    const result = normalizeScraped({
+      generation: generationText,
+      models: [{ model_name: 'Rev A', price_at_launch: priceText }],
+    });
+    // Cut ends a whole word: the kept text is a prefix followed by a space in the original.
+    const endsOnWord = (cut: string | undefined, full: string): boolean =>
+      cut !== undefined &&
+      cut.endsWith('…') &&
+      full.startsWith(cut.slice(0, -1)) &&
+      full.charAt(cut.length - 1) === ' ';
+    const { generation } = result.entry;
+    const price = result.entry.models[0]?.launchPrice;
+    expect(generation?.length).toBeLessThanOrEqual(120);
+    expect(endsOnWord(generation, generationText)).toBe(true);
+    expect(price?.length).toBeLessThanOrEqual(200);
+    expect(endsOnWord(price, priceText)).toBe(true);
+    expect(result.dropped).toEqual(
+      expect.arrayContaining(['generation (truncated)', 'models.launchPrice (truncated)']),
+    );
+    expect(normalizeScraped({ generation: 'Third' }).dropped).toEqual([]);
+  });
+
+  it('FR-MUS-1: placeholder and non-image model image links are dropped and reported', () => {
+    const images = [
+      'https://example.com/a.png',
+      'https://cdn.example.org/a.jpg',
+      'https://fake.test/page.html',
+      'https://fake.test/photo.JPG?size=large',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/fake',
+    ];
+    const result = normalizeScraped({
+      models: images.map((image, i) => ({ model_name: `M${String(i)}`, image })),
+    });
+    expect(result.entry.models.map((model) => model.imageUrl)).toEqual([
+      undefined,
+      undefined,
+      undefined,
+      'https://fake.test/photo.JPG?size=large',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/fake',
+    ]);
+    expect(result.dropped).toEqual(['imageUrl (not an image link)']);
   });
   it('FR-MUS-1: an empty list key does not hide a populated alias, and a non-array list is dropped', () => {
     const picked = normalizeScraped({ models: [], modelos: [{ model_name: 'Rev A' }] });
@@ -108,7 +171,7 @@ describe('normalizeScraped', () => {
       description: 'A console.',
       cpu: ['Z80', '3 MHz'],
       sales: 1200000,
-      models: [{ model_name: 'Rev A', release_year: 1981, image: 'https://example.com/a.png' }],
+      models: [{ model_name: 'Rev A', release_year: 1981, image: 'https://fake.test/a.png' }],
       peripherals: ['Pad', 42, ''],
       notable_games: [{ title: 'Game', year: 1982 }, 'Other'],
     });

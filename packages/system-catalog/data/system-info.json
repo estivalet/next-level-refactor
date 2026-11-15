@@ -8,7 +8,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "manufacturer": "Technosys Research Labs Ltd.",
@@ -70,7 +71,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "manufacturer": "Acorn Computers Ltd.",
@@ -108,7 +110,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "manufacturer": "Acorn Computers Ltd.",
@@ -162,7 +165,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Acorn Computers Ltd.",
@@ -194,7 +198,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Acorn Computers Ltd.",
@@ -233,7 +238,7 @@
         {
           "name": "Amstrad CPC 6128",
           "releaseYear": 1985,
-          "launchPrice": "£299 (with green monitor), £399 (with color monitor) - UK; U",
+          "launchPrice": "£299 (with green monitor), £399 (with color monitor) - UK; US$699 (green), US$799 (color) - US launch",
           "cpu": "Zilog Z80A at 4 MHz",
           "ram": "128 KB (with bank switching)",
           "notes": "The most advanced and commercially successful model in the original CPC line, offering 128KB RAM and built-in floppy drive, making it more suitable for productivity software like CP/M.",
@@ -260,7 +265,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Amstrad Consumer Electronics plc",
@@ -299,7 +305,7 @@
         {
           "name": "Amstrad GX4000",
           "releaseYear": 1990,
-          "launchPrice": "£99 (console only), £199 (bundle with monitor and Burnin' Ru",
+          "launchPrice": "£99 (console only), £199 (bundle with monitor and Burnin' Rubber)",
           "cpu": "Zilog Z80A at 4 MHz (integrated into ASIC)",
           "ram": "64 KB",
           "notes": "Amstrad's attempt to enter the dedicated video game console market using the Plus hardware. It was essentially a CPC 464 Plus motherboard without the keyboard and cassette deck, packaged into a compact console case. It struggled due to a limited software library and competition from 16-bit consoles.",
@@ -310,7 +316,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Amstrad Consumer Electronics plc",
@@ -326,7 +333,7 @@
         {
           "name": "Amstrad GX4000",
           "releaseYear": 1990,
-          "launchPrice": "£99 (console only), £199 (bundle with CM14 monitor, joypad,",
+          "launchPrice": "£99 (console only), £199 (bundle with CM14 monitor, joypad, and 'Burnin' Rubber' cartridge)",
           "cpu": "Zilog Z80A at 4 MHz (functionality integrated into a custom ASIC chip)",
           "ram": "64 KB",
           "notes": "The GX4000's hardware was almost identical to the Amstrad CPC Plus computers, primarily differing in its lack of a keyboard and integrated storage drives. Its primary selling point was the enhanced graphics and sound over the original CPCs, aimed at providing a more competitive gaming experience. However, the limited number of games that fully utilized these new features hampered its success.",
@@ -337,7 +344,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Amstrad Consumer Electronics plc",
@@ -404,7 +412,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "fullName": "Amstrad Personal Computer Wordprocessor",
@@ -430,7 +439,7 @@
         {
           "name": "APF Imagination Machine (Full System)",
           "releaseYear": 1979,
-          "launchPrice": "US$599 - US$700 (equivalent to approx. US$2,600 - US$3,000 i",
+          "launchPrice": "US$599 - US$700 (equivalent to approx. US$2,600 - US$3,000 in 2024)",
           "cpu": "Motorola 6800 (8-bit) at 0.89 MHz",
           "ram": "9 KB (expandable to 17 KB with RAM cartridges)",
           "notes": "The complete Imagination Machine combined the M1000 console (which docked into the IM-1 module) with the keyboard, cassette drive, expanded RAM/ROM, and BASIC interpreter. It was an early pioneer in the hybrid console/computer market.",
@@ -441,7 +450,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "APF Electronics Inc.",
@@ -473,7 +483,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "APF Electronics Inc.",
@@ -489,7 +500,7 @@
         {
           "name": "Apogee BK-01",
           "releaseYear": 1988,
-          "launchPrice": "Information not readily available in Western sources, but li",
+          "launchPrice": "Information not readily available in Western sources, but likely priced for the Soviet domestic market.",
           "cpu": "KR580VM80A (Soviet clone of Intel 8080) at 1.78 MHz",
           "ram": "56.25 KB (some sources state 64 KB, with a portion used for video)",
           "notes": "Being based on the 'Radio 86RK', the Apogee BK-01 shared its fundamental architecture, which focused on simplicity and low-cost production. Its text-based nature made it more suited for programming and educational tasks than sophisticated graphics-intensive games, though many text-based and character-graphic games were popular.",
@@ -509,7 +520,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Various factories in the Soviet Union (e.g., Zavod BRA - Завод БРА)",
@@ -577,7 +589,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Apple Computer, Inc.",
@@ -618,7 +631,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Apple Computer, Inc.",
@@ -668,7 +682,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Apple Computer, Inc.",
@@ -695,7 +710,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Apple Computer, Inc.",
@@ -741,8 +757,7 @@
           "launchPrice": "N/A",
           "cpu": "Zilog Z80A (speed may vary, possibly up to 4MHz)",
           "ram": "256 KB RAM",
-          "notes": "A high-end model for the MicroBee line, incorporating larger RAM, standard twin floppy drives, and more advanced communication features, aiming for a 'telecomputing' workstation. This model likely included CP/M support more prominently.",
-          "imageUrl": "https://collections.museumsvictoria.com.au/items/397463"
+          "notes": "A high-end model for the MicroBee line, incorporating larger RAM, standard twin floppy drives, and more advanced communication features, aiming for a 'telecomputing' workstation. This model likely included CP/M support more prominently."
         },
         {
           "name": "MicroBee Matilda (640TC)",
@@ -758,7 +773,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Applied Technology (later MicroBee Systems Limited)",
@@ -788,11 +804,12 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Apricot Computers Ltd.",
-      "generation": "8-bit / Early 16-bit Era (IBM PC Compati",
+      "generation": "8-bit / Early 16-bit Era (IBM PC Compatible)",
       "description": "The Apricot PC, launched in 1983 by Apricot Computers Ltd., was a UK-designed personal computer aimed primarily at business and professional users. It featured an Intel 8086 CPU and offered a choice of MS-DOS or CP/M-86 operating systems, making it compatible with popular business software of the time. With graphics and display options comparable to IBM PC standards, as well as support for floppy disks and optional hard drives, the Apricot PC provided a reliable and relatively compact computing solution. It gained popularity in Europe as an alternative to IBM PCs and laid the groundwork for later Apricot models such as the Xi series.",
       "cpu": "Intel 8086 @ 8 MHz (later models varied)",
       "ram": "256 KB to 640 KB",
@@ -808,7 +825,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1971,
@@ -840,7 +858,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Arduboy, Inc.",
@@ -898,7 +917,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari, Inc.",
@@ -939,7 +959,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari, Inc.",
@@ -971,7 +992,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari Corporation",
@@ -992,7 +1014,7 @@
         {
           "name": "Atari 800",
           "releaseYear": 1979,
-          "launchPrice": "US$999.99 (with 16KB RAM, equivalent to approx. US$4,200 in",
+          "launchPrice": "US$999.99 (with 16KB RAM, equivalent to approx. US$4,200 in 2025)",
           "cpu": "MOS Technology 6502A (8-bit) at 1.79 MHz (NTSC) / 1.77 MHz (PAL)",
           "ram": "16 KB (standard, expandable to 48 KB via internal memory modules)",
           "notes": "Known for its robust, 'tank-like' construction and extensive RF shielding to meet strict FCC regulations. The internal RAM and OS ROM were housed in protected, easy-to-swap modules. It was designed to be easily expandable, though most peripherals connected via the unique SIO bus.",
@@ -1003,14 +1025,15 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari, Inc.",
       "country": "United States",
       "description": "The Atari 800 was a high-end 8-bit home computer released alongside its more affordable sibling, the Atari 400. Designed with a focus on advanced multimedia capabilities through its custom chipset (ANTIC, GTIA, POKEY), it featured superior graphics and sound compared to many contemporaries. It was marketed as a complete home computer system, suitable for gaming, education, and general computing, and was notable for its robust construction and user-friendly modular expansion.",
       "legacy": "The Atari 800, along with the Atari 400, played a crucial role in the early home computer revolution. While initially overshadowed by the Apple II in some markets, its superior graphics and sound capabilities made it a favorite among gamers and programmers who pushed its multimedia limits. It fostered a vibrant community and a rich library of software, particularly games. Despite its eventual decline due to competition from more affordable and later, more powerful machines (like the Commodore 64 and IBM PC), the Atari 8-bit line left an indelible mark on computing, influencing later systems and maintaining a passionate retrocomputing following. It is recognized for its innovative hardware architecture.",
-      "media": "ROM Cartridges (for OS, BASIC, games, applications); Compact Cassette Tape (via Atari 410 Program Recorder, 600 bit/s); 5.25-inch Floppy Disks (via Atari 810 Disk Drive, 90 KB single-sided/single-density, or later drives like 1050 and XF551 with higher capacities); Hard Drives (rare, third-party opt",
+      "media": "ROM Cartridges (for OS, BASIC, games, applications); Compact Cassette Tape (via Atari 410 Program Recorder, 600 bit/s); 5.25-inch Floppy Disks (via Atari 810 Disk Drive, 90 KB single-sided/single-density, or later drives like 1050 and XF551 with higher capacities); Hard Drives (rare, third-party options)",
       "releaseYear": 1979,
       "cpu": "MOS Technology 6502B, @ 1.79 MHz (NTSC), @ 1.77 MHz (PAL)",
       "ram": "8K base, 48K max",
@@ -1035,7 +1058,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari Corporation",
@@ -1067,7 +1091,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari Corporation",
@@ -1103,7 +1128,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari Corporation",
@@ -1124,7 +1150,7 @@
         {
           "name": "Atari 520ST",
           "releaseYear": 1985,
-          "launchPrice": "US$799.99 (monochrome system, no internal floppy) / US$999.9",
+          "launchPrice": "US$799.99 (monochrome system, no internal floppy) / US$999.99 (color system, no internal floppy) (equivalent to approx. US$2,200 - US$2,750 in 2025)",
           "cpu": "Motorola 68000 (16/32-bit) at 8 MHz",
           "ram": "512 KB",
           "notes": "The original model. Early versions required TOS to be loaded from a floppy disk, reducing available RAM. Later versions (520ST+, 520STM, 520STFM) integrated a floppy drive and/or RF modulator. The initial lack of an internal floppy drive was a point of frustration.",
@@ -1160,7 +1186,7 @@
         {
           "name": "Atari STE (520STE / 1040STE)",
           "releaseYear": 1989,
-          "launchPrice": "US$399.99 (520STE) / US$699.99 (1040STE) (approx. US$870 / U",
+          "launchPrice": "US$399.99 (520STE) / US$699.99 (1040STE) (approx. US$870 / US$1,500 in 2025)",
           "cpu": "Motorola 68000 at 8 MHz",
           "ram": "512 KB (520STE), 1 MB (1040STE), expandable up to 4 MB (later to 14MB with hacks)",
           "notes": "The 'E' stands for 'Enhanced'. This model offered significant improvements in graphics (4096 color palette, blitter) and sound (DMA-driven stereo sound). It was compatible with most ST software and widely popular.",
@@ -1178,7 +1204,7 @@
         {
           "name": "Atari ST Book",
           "releaseYear": 1991,
-          "launchPrice": "US$799 (estimated, very limited release, approx. US$1,700 in",
+          "launchPrice": "US$799 (estimated, very limited release, approx. US$1,700 in 2025)",
           "cpu": "Motorola 68000 at 8 MHz",
           "ram": "1 MB or 4 MB DRAM",
           "notes": "An extremely rare, highly portable notebook computer version of the ST, resembling modern laptops. It was very expensive to produce and had a very limited release, primarily in Europe. A true collector's item.",
@@ -1189,7 +1215,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari Corporation",
@@ -1210,7 +1237,7 @@
         {
           "name": "Atari XE Game System",
           "releaseYear": 1987,
-          "launchPrice": "US$159 (basic set with console and joystick) / US$199.99 (de",
+          "launchPrice": "US$159 (basic set with console and joystick) / US$199.99 (deluxe set with console, keyboard, joystick, and light gun) (equivalent to approx. US$440 / US$550 in 2025 dollars)",
           "cpu": "MOS Technology 6502C (8-bit) at 1.79 MHz (NTSC) / 1.77 MHz (PAL)",
           "ram": "64 KB RAM",
           "notes": "The XEGS was sold in two configurations: a basic console-only package and a deluxe package that included the detachable keyboard, an XG-1 light gun, and additional games (Flight Simulator II, Bug Hunt). Without the keyboard, it booted directly into 'Missile Command'. With the keyboard attached, it booted into Atari BASIC, functioning as a full computer.",
@@ -1221,7 +1248,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Atari Corporation",
@@ -1242,7 +1270,7 @@
         {
           "name": "Bally Home Library Computer",
           "releaseYear": 1977,
-          "launchPrice": "US$299 (mail-order only, equivalent to approx. US$1,500 in 2",
+          "launchPrice": "US$299 (mail-order only, equivalent to approx. US$1,500 in 2025)",
           "cpu": "Zilog Z80 (8-bit) at 1.789 MHz",
           "ram": "4 KB DRAM",
           "notes": "Initially sold via mail-order. It was often plagued by production delays. Its powerful graphics chip was a direct descendant of Midway's arcade hardware. The integrated keypad and unique controllers were notable features.",
@@ -1271,7 +1299,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Midway (Bally Manufacturing), later Astrovision",
@@ -1292,7 +1321,7 @@
         {
           "name": "Bandai Datach",
           "releaseYear": 1994,
-          "launchPrice": "¥4,800 (Japanese Yen, approximately US$48 at 1994 exchange r",
+          "launchPrice": "¥4,800 (Japanese Yen, approximately US$48 at 1994 exchange rates, equivalent to approx. US$100 in 2025)",
           "cpu": "Unknown 8-bit or 16-bit custom microcontroller (likely similar to other low-cost Bandai handhelds)",
           "ram": "Unknown (minimal, likely internal to custom chip)",
           "notes": "The device itself was relatively simple, with the core innovation being the barcode scanner. Games were cartridges that utilized the scanned data. Its primary draw was the novelty of scanning everyday items to influence gameplay. It was often sold in bundles with a game and a set of custom barcodes.",
@@ -1303,7 +1332,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai",
@@ -1319,7 +1349,7 @@
         {
           "name": "Bandai RX-78",
           "releaseYear": 1983,
-          "launchPrice": "¥59,800 (Japanese Yen, approximately US$250 at 1983 exchange",
+          "launchPrice": "¥59,800 (Japanese Yen, approximately US$250 at 1983 exchange rates, equivalent to approx. US$770 in 2025)",
           "cpu": "Sharp LH0080A (Zilog Z80A clone) at 4.1 MHz",
           "ram": "30 KB RAM",
           "notes": "The system was sold with a dozen games and software titles, including a BASIC interpreter cartridge. Despite its gaming focus, its timing against the Famicom proved challenging. Its joystick ports were unique and required specific Bandai joysticks.",
@@ -1330,7 +1360,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai",
@@ -1346,7 +1377,7 @@
         {
           "name": "Bandai Let's TV Play Classic: Pac-Man",
           "releaseYear": 2004,
-          "launchPrice": "¥3,980 (Japanese Yen, approximately US$35 at 2004 exchange r",
+          "launchPrice": "¥3,980 (Japanese Yen, approximately US$35 at 2004 exchange rates, equivalent to approx. US$58 in 2025)",
           "cpu": "Custom ASIC (likely a low-power, integrated microcontroller, common in plug-and-play devices)",
           "ram": "Minimal, embedded within the ASIC",
           "notes": "Designed to look like a small arcade cabinet control panel. This model focused on Namco arcade classics. Often battery-powered, but could use an AC adapter. The 'joystick' was a small, integrated digital stick.",
@@ -1375,7 +1406,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai Co., Ltd.",
@@ -1391,7 +1423,7 @@
         {
           "name": "Bandai Sufami Turbo (SFT-0100JP)",
           "releaseYear": 1996,
-          "launchPrice": "¥3,980 (Japanese Yen, approximately US$46 at 1996 exchange r",
+          "launchPrice": "¥3,980 (Japanese Yen, approximately US$46 at 1996 exchange rates, equivalent to approx. US$92 in 2025)",
           "cpu": "Relies on the Super Famicom's Ricoh 5A22 (16-bit) at 3.58 MHz (or 2.68 MHz / 1.79 MHz). The Sufami Turbo unit itself contains minimal additional processing for cartridge communication.",
           "ram": "Uses the Super Famicom's main RAM (128 KB DRAM). Sufami Turbo cartridges contained their own ROM and sometimes a small amount of SRAM for saves.",
           "notes": "The unit itself did not contain significant processing power but acted as an adapter and a dual-cartridge reader. It allowed for a more affordable cartridge manufacturing process for Bandai. It often came bundled with a game.",
@@ -1402,7 +1434,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai",
@@ -1447,7 +1480,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai",
@@ -1463,7 +1497,7 @@
         {
           "name": "Bandai Super Vision 8000",
           "releaseYear": 1979,
-          "launchPrice": "¥59,800 (Japanese Yen, equivalent to approx. US$250 in 1979",
+          "launchPrice": "¥59,800 (Japanese Yen, equivalent to approx. US$250 in 1979 or approx. US$1,300 in 2025)",
           "cpu": "NEC µPD780C (Zilog Z80A clone) at 3.58 MHz",
           "ram": "Unknown (likely minimal, system RAM integrated with video RAM)",
           "notes": "The console featured two non-detachable controllers, each with a 16-way directional disc, a 12-button keypad, and a side-mounted fire button. Its design was somewhat reminiscent of the Intellivision controllers, though developed independently. The system came bundled with the game 'Missile Vader'.",
@@ -1474,7 +1508,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai Co., Ltd.",
@@ -1495,7 +1530,7 @@
         {
           "name": "WonderSwan (Original / Monochrome)",
           "releaseYear": 1999,
-          "launchPrice": "¥4,800 (Japanese Yen, approximately US$39 at 1999 exchange r",
+          "launchPrice": "¥4,800 (Japanese Yen, approximately US$39 at 1999 exchange rates, equivalent to approx. US$72 in 2025)",
           "cpu": "NEC V30 MZ (16-bit) at 3.072 MHz (compatible with Intel 8086 instruction set)",
           "ram": "16 KB shared VRAM/WRAM",
           "notes": "Known for its excellent battery life (up to 30 hours on a single AA battery) and ergonomic design, particularly its dual D-pads allowing for both horizontal and vertical gameplay. It had an internal RTC (real-time clock) and could store user data (name, birthday, blood type) for use in games.",
@@ -1504,7 +1539,7 @@
         {
           "name": "WonderSwan Color",
           "releaseYear": 2000,
-          "launchPrice": "¥6,800 (Japanese Yen, approximately US$60 at 2000 exchange r",
+          "launchPrice": "¥6,800 (Japanese Yen, approximately US$60 at 2000 exchange rates, equivalent to approx. US$100 in 2025)",
           "cpu": "NEC V30 MZ at 3.072 MHz",
           "ram": "64 KB shared VRAM/WRAM (quadruple the original WonderSwan)",
           "notes": "The WonderSwan Color brought color to the line, a crucial upgrade to compete with the Game Boy Color. It retained the ergonomic design and dual-orientation play. Notable for attracting Square Enix to port several Final Fantasy titles to the platform.",
@@ -1513,7 +1548,7 @@
         {
           "name": "SwanCrystal",
           "releaseYear": 2002,
-          "launchPrice": "¥7,800 (Japanese Yen, approximately US$65 at 2002 exchange r",
+          "launchPrice": "¥7,800 (Japanese Yen, approximately US$65 at 2002 exchange rates, equivalent to approx. US$107 in 2025)",
           "cpu": "NEC V30 MZ at 3.072 MHz",
           "ram": "64 KB shared VRAM/WRAM",
           "notes": "The final iteration of the WonderSwan line, primarily featuring a superior screen. It was released just as the Game Boy Advance was solidifying its dominance, leading to low sales.",
@@ -1524,7 +1559,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai Co., Ltd.",
@@ -1545,7 +1581,7 @@
         {
           "name": "WonderSwan Color (WSC-001)",
           "releaseYear": 2000,
-          "launchPrice": "¥6,800 (Japanese Yen, approximately US$60 at 2000 exchange r",
+          "launchPrice": "¥6,800 (Japanese Yen, approximately US$60 at 2000 exchange rates, equivalent to approx. US$100 in 2025)",
           "cpu": "NEC V30 MZ (16-bit) at 3.072 MHz (compatible with Intel 8086 instruction set)",
           "ram": "64 KB shared VRAM/WRAM (quadruple the original WonderSwan's 16KB)",
           "notes": "The WonderSwan Color significantly improved upon the original with its color display and increased RAM, making more visually complex games possible. It was backward compatible with monochrome WonderSwan games. It came in various vibrant casing colors, including transparent 'Crystal' versions. Battery life was still impressive at around 20 hours on a single AA battery.",
@@ -1556,7 +1592,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bandai Co., Ltd.",
@@ -1577,7 +1614,7 @@
         {
           "name": "Pocket Challenge V2",
           "releaseYear": 2002,
-          "launchPrice": "Not sold retail; included as part of Benesse's Shinkenzemi c",
+          "launchPrice": "Not sold retail; included as part of Benesse's Shinkenzemi course subscription. Equivalent value would be difficult to ascertain, but the cost was absorbed into tuition.",
           "cpu": "NEC V30 MZ (16-bit) at 3.072 MHz (the same CPU as the WonderSwan Color/SwanCrystal)",
           "ram": "Likely 64 KB shared VRAM/WRAM (matching WonderSwan Color specifications)",
           "notes": "The device's hardware is extremely similar to the WonderSwan Color/SwanCrystal, indicating a shared design lineage, likely from Koto Laboratory. Its cartridges are physically similar to WonderSwan cartridges but are not directly interchangeable due to a different keying on the slot and possibly different electrical pinouts, though some users have found ways to mod systems/carts for compatibility. The V2 designation refers to 'Version 2' within Benesse's Pocket Challenge line, succeeding earlier monochrome versions.",
@@ -1588,7 +1625,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Benesse Corporation",
@@ -1621,7 +1659,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Benesse Corporation",
@@ -1640,7 +1679,7 @@
         {
           "name": "BIT 90",
           "releaseYear": 1983,
-          "launchPrice": "Information on its original price is scarce due to its prima",
+          "launchPrice": "Information on its original price is scarce due to its primary distribution in Asian markets and its clone nature. Likely competitive with similar home computers of the era, potentially around…",
           "cpu": "Zilog Z80A at 3.6 MHz",
           "ram": "18 KB (expandable to 64 KB)",
           "notes": "The BIT 90's design featured a compact, all-in-one unit with a keyboard. Its use of the Z80 CPU and TMS9918A VDC made it technically similar to MSX computers and the ColecoVision, enabling its partial compatibility with ColecoVision games. This compatibility, however, was not 100% reliable due to variations in BIOS and specific game coding.",
@@ -1651,7 +1690,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bit Corporation (普澤 / Pu Ze)",
@@ -1667,7 +1707,7 @@
         {
           "name": "Cambridge Z88",
           "releaseYear": 1987,
-          "launchPrice": "£249.95 GBP (approximately US$400 at 1987 exchange rates, eq",
+          "launchPrice": "£249.95 GBP (approximately US$400 at 1987 exchange rates, equivalent to approx. US$1,100 in 2025)",
           "cpu": "CMOS Zilog Z80A at 3.2768 MHz",
           "ram": "32 KB internal pseudo-static RAM (expandable up to 3.5 MB via card slots)",
           "notes": "The Z88 was groundbreaking for its portability, instant-on functionality (no boot-up time), and long battery life (around 20 hours on AA batteries). Its silent keyboard was also a distinct feature. The OZ operating system supported basic multitasking and a 'notebook' metaphor for file management.",
@@ -1678,14 +1718,15 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Cambridge Computer Ltd. (founded by Sir Clive Sinclair)",
       "country": "United Kingdom",
       "description": "The Cambridge Z88 was a pioneering portable Zilog Z80-based notebook computer. Designed by Sir Clive Sinclair, it was notable for its extremely lightweight (under 1 kg), silent membrane keyboard, multi-tasking operating system (OZ), and impressive battery life on standard AA batteries. It was conceived as a 'personal electronic notebook' for professionals and students, offering built-in applications like a word processor, spreadsheet, and diary, along with expandability via solid-state memory cards. While not a dedicated gaming machine, its open architecture allowed for simple games and programming.",
       "legacy": "The Cambridge Z88, while not a commercial blockbuster, is highly regarded as a visionary product and a precursor to modern notebook and netbook computers. It was ahead of its time in terms of portability, instant-on capability, and battery endurance. Its design philosophy influenced later portable devices. It cemented Sir Clive Sinclair's reputation as an innovator, even after the sale of Sinclair Research. Today, the Z88 enjoys a dedicated cult following among retro computing enthusiasts, who appreciate its unique design, robust build quality, and the ability to still be productive with it using modern connectivity solutions (like SD card interfaces). It stands as a significant milestone in the evolution of portable computing, demonstrating what could be achieved with efficient hardware and clever software design in the 8-bit era.",
-      "media": "RAM (internal and expansion cards, acting as a volatile 'RAM disk'); EPROM Cards (for permanent storage, required an external programmer or the Z88's slot 3 could program some types); Flash Cards (later introduced, offered more convenient non-volatile storage); Cassette Tapes (via serial port adapte",
+      "media": "RAM (internal and expansion cards, acting as a volatile 'RAM disk'); EPROM Cards (for permanent storage, required an external programmer or the Z88's slot 3 could program some types); Flash Cards (later introduced, offered more convenient non-volatile storage); Cassette Tapes (via serial port adapter, not common); PC Link (via serial port for data transfer to/from PCs)",
       "releaseYear": 1987
     },
     {
@@ -1694,7 +1735,7 @@
         {
           "name": "Lynx 48K",
           "releaseYear": 1983,
-          "launchPrice": "£225 GBP (approximately US$360 at 1983 exchange rates, equiv",
+          "launchPrice": "£225 GBP (approximately US$360 at 1983 exchange rates, equivalent to approx. US$1,100 in 2025)",
           "cpu": "Zilog Z80A at 4 MHz",
           "ram": "48 KB (32 KB dedicated to video memory, significant portion not available for BASIC programs)",
           "notes": "The initial model. While graphically capable for its time, the unusual memory banking system (32KB for video) and limited RAM availability for BASIC programs made programming challenging. The cassette interface was notoriously finicky.",
@@ -1703,7 +1744,7 @@
         {
           "name": "Lynx 96K",
           "releaseYear": 1983,
-          "launchPrice": "£299 GBP (approximately US$480 at 1983 exchange rates, equiv",
+          "launchPrice": "£299 GBP (approximately US$480 at 1983 exchange rates, equivalent to approx. US$1,450 in 2025)",
           "cpu": "Zilog Z80A at 4 MHz",
           "ram": "96 KB (more user-addressable RAM than the 48K model)",
           "notes": "An upgrade to the original, offering more RAM and an enhanced BASIC. Existing 48K models could be upgraded to 96K by returning them to Camputers.",
@@ -1712,7 +1753,7 @@
         {
           "name": "Lynx 128K (Leisure / Laureate)",
           "releaseYear": 1983,
-          "launchPrice": "£345 GBP (approximately US$550 at 1983 exchange rates, equiv",
+          "launchPrice": "£345 GBP (approximately US$550 at 1983 exchange rates, equivalent to approx. US$1,670 in 2025)",
           "cpu": "Zilog Z80B at 6 MHz (faster than previous models)",
           "ram": "128 KB (expandable to 192KB with daughterboard)",
           "notes": "The most powerful version, featuring a faster CPU and true 80-column text mode, plus the ability to run CP/M with an optional disk drive. Marketed as 'Leisure' or 'Laureate' in some instances. Software from earlier Lynx models was often incompatible due to architecture changes.",
@@ -1723,7 +1764,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Camputers Ltd.",
@@ -1744,7 +1786,7 @@
         {
           "name": "X-07",
           "releaseYear": 1983,
-          "launchPrice": "Approx. 2200 French Francs in September 1983 (equivalent to",
+          "launchPrice": "Approx. 2200 French Francs in September 1983 (equivalent to approx. US$280 in 1983, or approx. US$800 in 2025). Price dropped quickly.",
           "cpu": "National Semiconductor NSC800 (Z80-compatible CMOS) at 3.84 MHz",
           "ram": "8 KB (expandable to 16 KB with an optional chip)",
           "notes": "The X-07 featured a low-power CMOS Z80-compatible CPU, enabling decent battery life. Its proprietary ports were a common frustration for users trying to connect standard peripherals. The small internal LCD was supplemented by external video output options.",
@@ -1755,7 +1797,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Canon Inc.",
@@ -1771,7 +1814,7 @@
         {
           "name": "SV-100 (Standard)",
           "releaseYear": 1995,
-          "launchPrice": "¥25,000 JPY (approximately US$260 in 1995, equivalent to abo",
+          "launchPrice": "¥25,000 JPY (approximately US$260 in 1995, equivalent to about US$500 in 2025)",
           "cpu": "Hitachi SH7021 (SuperH SH-1 RISC) 32-bit CPU at 16 MHz",
           "ram": "1 MB (Main RAM)",
           "notes": "The console's plastic body is a cool, slightly purplish-gray color. Promotional materials often depicted it as bright pink or purple, leading to a common misconception about its color variants. The single controller port limited it to single-player experiences, aligning with its target demographic's assumed play patterns.",
@@ -1782,7 +1825,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Casio Computer Co., Ltd.",
@@ -1800,7 +1844,7 @@
         {
           "name": "PV-1000 (Standard)",
           "releaseYear": 1983,
-          "launchPrice": "¥14,800 JPY (approximately US$60 in 1983, equivalent to arou",
+          "launchPrice": "¥14,800 JPY (approximately US$60 in 1983, equivalent to around US$180 in 2025)",
           "cpu": "Zilog Z80A at 3.579 MHz",
           "ram": "2 KB RAM (1 KB video RAM, 1 KB character generator)",
           "notes": "The console featured a compact dark-teal plastic casing. The joystick ports were shared with the Casio PV-2000 computer (released later), but the game cartridges were incompatible, leading to consumer confusion.",
@@ -1811,7 +1855,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Casio Computer Co., Ltd.",
@@ -1832,7 +1877,7 @@
         {
           "name": "PV-2000 (Standard)",
           "releaseYear": 1983,
-          "launchPrice": "¥29,800 JPY (Japanese Yen, approximately US$120 at 1983 exch",
+          "launchPrice": "¥29,800 JPY (Japanese Yen, approximately US$120 at 1983 exchange rates, equivalent to approx. US$360 in 2025)",
           "cpu": "NEC PD-780C (Zilog Z80-compatible) at 3.579 MHz",
           "ram": "4 KB (expandable via RAM cartridges) + 16 KB VRAM",
           "notes": "Despite sharing joystick ports with the PV-1000, the PV-2000's cartridges were completely different due to its distinct architecture and purpose as a computer. Its 'Rakugaki' (Doodle) subtitle referenced its graphical capabilities and potential for creative use.",
@@ -1843,7 +1888,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Casio Computer Co., Ltd.",
@@ -1859,7 +1905,7 @@
         {
           "name": "MC-1000 (Standard)",
           "releaseYear": 1985,
-          "launchPrice": "Cr$ 700,000 (Cruzeiros, approximately US$175 at 1985 exchang",
+          "launchPrice": "Cr$ 700,000 (Cruzeiros, approximately US$175 at 1985 exchange rates, equivalent to approx. US$500 in 2025). Some sources cite Cr$ 1.1 million.",
           "cpu": "Zilog Z80A at 3.57 MHz",
           "ram": "16 KB (expandable to 64 KB)",
           "notes": "The MC-1000's BASIC, similar to Applesoft BASIC, provided familiar commands for users accustomed to the Apple II. The keyboard was a common point of criticism due to its 'chiclet' style. Its video output was primarily designed for PAL-M, the Brazilian TV standard.",
@@ -1870,7 +1916,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "CCE (Comércio de Componentes Eletrônicos S.A.)",
@@ -1886,7 +1933,7 @@
         {
           "name": "CEC-I (中华学习机 CEC-I)",
           "releaseYear": 1986,
-          "launchPrice": "Initially around ¥2,000 - ¥3,000 RMB (Renminbi, depending on",
+          "launchPrice": "Initially around ¥2,000 - ¥3,000 RMB (Renminbi, depending on configuration, approx. US$540 - US$810 at 1986 exchange rates, equivalent to approx. US$1,500 - US$2,200 in 2025). Prices varied and…",
           "cpu": "6502A at 1 MHz (compatible with MOS 6502)",
           "ram": "64 KB (standard, with expansion capabilities)",
           "notes": "The CEC-I was designed to be compatible with the Apple IIe's architecture, allowing it to leverage a vast existing software library. It was produced in various colors (beige, red) and was widely distributed in Chinese schools.",
@@ -1906,7 +1953,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Shaanxi Province Computer Factory / Huaming Computer Co. (and others)",
@@ -1922,7 +1970,7 @@
         {
           "name": "Chip-8 (Virtual Machine)",
           "releaseYear": 1977,
-          "launchPrice": "Not applicable; it was a software specification, not a physi",
+          "launchPrice": "Not applicable; it was a software specification, not a physical product.",
           "cpu": "Virtual 8-bit CPU with 16 8-bit general-purpose registers (V0-VF)",
           "ram": "4 KB (4096 bytes) total memory, of which the first 512 bytes (0x000-0x1FF) are reserved for the interpreter and font set. User programs typically start at 0x200.",
           "notes": "The standard Chip-8 interpreter occupied the first 512 bytes of memory. Games were loaded into memory starting at address 0x200. Its simplicity was key to its popularity on very limited hardware. Super-Chip (SCHIP), a later extension, introduced higher resolution and other features.",
@@ -1933,7 +1981,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Not a physical manufacturer; it's a virtual machine/language.",
@@ -1949,7 +1998,7 @@
         {
           "name": "Adam (Integrated System)",
           "releaseYear": 1983,
-          "launchPrice": "US$700 (originally announced at US$525, but price increased",
+          "launchPrice": "US$700 (originally announced at US$525, but price increased before widespread shipment; equivalent to approx. US$2,100 in 2025)",
           "cpu": "Zilog Z80A at 3.58 MHz (main CPU)",
           "ram": "80 KB (64 KB main RAM, 16 KB dedicated to video memory, not directly addressable by Z80)",
           "notes": "The printer doubling as the power supply was a unique, and often problematic, design choice. The 'AdamNet' system with microcontrollers in each peripheral was advanced for its time but added complexity. The infamous EMP issue could degauss media left in the drives during power cycling.",
@@ -1958,7 +2007,7 @@
         {
           "name": "Adam Expansion Module #3 (for ColecoVision)",
           "releaseYear": 1983,
-          "launchPrice": "US$600 (for ColecoVision owners, equivalent to approx. US$1,",
+          "launchPrice": "US$600 (for ColecoVision owners, equivalent to approx. US$1,800 in 2025)",
           "cpu": "Utilized the ColecoVision's Z80A CPU; the module itself contained additional RAM, ROM, and I/O chips.",
           "ram": "Added 64 KB RAM (to ColecoVision's 1 KB, effectively 65 KB accessible) + 16 KB VRAM",
           "notes": "This module transformed a ColecoVision into a full Adam computer system, providing all the functionalities of the integrated model.",
@@ -1969,7 +2018,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -1990,7 +2040,7 @@
         {
           "name": "ColecoVision (Standard)",
           "releaseYear": 1982,
-          "launchPrice": "US$175 - US$199 (approximately US$530 - US$600 in 2025, adju",
+          "launchPrice": "US$175 - US$199 (approximately US$530 - US$600 in 2025, adjusted for inflation)",
           "cpu": "Zilog Z80A at 3.58 MHz",
           "ram": "1 KB (main RAM) + 16 KB (Video RAM, dedicated to TMS9928A VDP)",
           "notes": "The ColecoVision's VDP and sound chip were relatively advanced for a home console at the time, enabling its superior arcade ports. The short joystick and keypad combination was unique but sometimes criticized.",
@@ -2010,7 +2060,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2031,7 +2082,7 @@
         {
           "name": "Coleco Telstar Alpha (Model No. 6030)",
           "releaseYear": 1977,
-          "launchPrice": "Approximately US$50 (similar to the original Telstar, equiva",
+          "launchPrice": "Approximately US$50 (similar to the original Telstar, equivalent to approx. US$240 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (integrated game chip)",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The Telstar Alpha was designed to be a straightforward, affordable Pong console. Its compact black and white plastic case made it distinct from the wood-grain Classic models. It was also released in Europe as the 'Telstar Alpha Europa'.",
@@ -2042,7 +2093,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2058,7 +2110,7 @@
         {
           "name": "Coleco Telstar Classic (Model No. 6045)",
           "releaseYear": 1976,
-          "launchPrice": "Approximately US$60 (slightly higher than the base Telstar,",
+          "launchPrice": "Approximately US$60 (slightly higher than the base Telstar, equivalent to approx. US$325 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (integrated game chip)",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "Its key differentiator was the wood-grain console casing, making it blend more readily with home decor than the plainer plastic models. Functionally, it was very similar to the original Coleco Telstar.",
@@ -2069,7 +2121,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2085,7 +2138,7 @@
         {
           "name": "Coleco Telstar Colormatic (Model No. 6130)",
           "releaseYear": 1977,
-          "launchPrice": "Approximately US$70 - US$75 (higher than basic Telstar model",
+          "launchPrice": "Approximately US$70 - US$75 (higher than basic Telstar models due to color, equivalent to approx. US$340 - US$365 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (integrated game chip for logic), accompanied by color generation circuitry (e.g., Texas Instruments SN76499N or similar).",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The Colormatic featured a more modern, compact plastic casing, usually in beige or off-white. The detached controllers offered more comfortable play than fixed paddles.",
@@ -2096,7 +2149,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2112,7 +2166,7 @@
         {
           "name": "Coleco Telstar Colortron (Model No. 6135)",
           "releaseYear": 1978,
-          "launchPrice": "Approximately US$50 - US$60 (similar to earlier color models",
+          "launchPrice": "Approximately US$50 - US$60 (similar to earlier color models, equivalent to approx. US$220 - US$260 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8510 (integrated game and color chip)",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The Colortron offered a more 'polished' visual experience and a slightly less 'odd' sound compared to some earlier Telstar models. It featured a digital pushbutton game selector for ease of use. Some variations of the console existed with minor internal differences (e.g., solid vs. dashed central line in Tennis game).",
@@ -2123,7 +2177,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2139,7 +2194,7 @@
         {
           "name": "Coleco Telstar Deluxe / Telstar Regent (Model No. 6036)",
           "releaseYear": 1977,
-          "launchPrice": "Approximately US$60 (slightly higher than basic fixed-paddle",
+          "launchPrice": "Approximately US$60 (slightly higher than basic fixed-paddle models, equivalent to approx. US$290 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (integrated game chip)",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The console featured a more angular plastic case, typically in beige or off-white, distinguishing it from the rounder designs of some other Telstar models. The detachable controllers were a significant ergonomic improvement.",
@@ -2150,7 +2205,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2166,7 +2222,7 @@
         {
           "name": "Coleco Telstar Marksman (Model No. 6095)",
           "releaseYear": 1978,
-          "launchPrice": "Approximately US$60 - US$70 (higher than basic models due to",
+          "launchPrice": "Approximately US$60 - US$70 (higher than basic models due to light rifle, equivalent to approx. US$260 - US$305 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (for ball-and-paddle games) and General Instrument AY-3-8600 (or similar, for shooting games)",
           "ram": "Not applicable (games and logic are hardwired within the GI chips)",
           "notes": "The Marksman featured a beige/brown plastic casing. It was part of Coleco's strategy to keep the Telstar series fresh by offering new gameplay experiences, even as the market began to shift away from dedicated consoles.",
@@ -2177,7 +2233,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2193,8 +2250,8 @@
         {
           "name": "Coleco Telstar Ranger (Model No. 6046)",
           "releaseYear": 1977,
-          "launchPrice": "Approximately US$59.95 - US$65 (higher than basic models due",
-          "cpu": "General Instrument AY-3-8500 (integrated game chip for ball-and-paddle games) and additional light gun detection circuitry (part of the console's logic, not a separate GI chip like AY-3-8600 in later",
+          "launchPrice": "Approximately US$59.95 - US$65 (higher than basic models due to light gun, equivalent to approx. US$290 - US$315 in 2025, adjusted for inflation)",
+          "cpu": "General Instrument AY-3-8500 (integrated game chip for ball-and-paddle games) and additional light gun detection circuitry (part of the console's logic, not a separate GI chip like AY-3-8600 in later models).",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The Telstar Ranger featured a beige/brown plastic case with a wood-grain panel. The light gun was a significant draw, offering a more interactive experience beyond traditional paddle games. This model was quite popular due to its versatility.",
           "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Coleco-Telstar-Ranger.jpg/300px-Coleco-Telstar-Ranger.jpg"
@@ -2204,7 +2261,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2220,7 +2278,7 @@
         {
           "name": "Coleco Telstar Regent (Model No. 6036)",
           "releaseYear": 1977,
-          "launchPrice": "Approximately US$60 (slightly higher than basic fixed-paddle",
+          "launchPrice": "Approximately US$60 (slightly higher than basic fixed-paddle models, equivalent to approximately US$290 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (integrated game chip)",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The console featured a more angular plastic case, typically in beige or off-white, distinguishing it from the rounder designs of some other Telstar models. The detachable controllers were a significant ergonomic improvement, allowing players to sit further from the TV and position themselves more comfortably.",
@@ -2231,7 +2289,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2247,7 +2306,7 @@
         {
           "name": "Coleco Telstar Sportsman (Model No. 6047)",
           "releaseYear": 1976,
-          "launchPrice": "Approximately US$60 - US$70 (higher than basic Telstar model",
+          "launchPrice": "Approximately US$60 - US$70 (higher than basic Telstar models due to light gun, equivalent to approx. US$325 - US$380 in 2025, adjusted for inflation)",
           "cpu": "General Instrument AY-3-8500 (integrated game chip for ball-and-paddle games) and additional light gun detection circuitry.",
           "ram": "Not applicable (games and logic are hardwired within the GI chip)",
           "notes": "The Sportsman featured a somewhat angular plastic casing, typically in a dark brown with wood-grain accents. Its inclusion of both paddle and light gun games made it a versatile option for families looking for varied entertainment from a single console.",
@@ -2258,7 +2317,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Coleco Industries, Inc.",
@@ -2276,15 +2336,15 @@
           "releaseYear": 2023,
           "launchPrice": "$349.99 USD (Developer Edition) — base configuration",
           "cpu": "WDC 65C02S @ 8 MHz (40-pin DIP) :contentReference[oaicite:0]{index=0}",
-          "notes": "Developer Edition is the “gen-1” model intended for tinkering, expansion, debugging, and hardware development. It is mATX compatible and allows many expansion options. :contentReference[oaicite:27]{index=27}",
-          "imageUrl": "https://example.com/commander_x16.jpg"
+          "notes": "Developer Edition is the “gen-1” model intended for tinkering, expansion, debugging, and hardware development. It is mATX compatible and allows many expansion options. :contentReference[oaicite:27]{index=27}"
         }
       ],
       "peripherals": [],
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "The 8-Bit Guy / X16 Project",
@@ -2300,7 +2360,7 @@
         {
           "name": "Commodore 128 (C128)",
           "releaseYear": 1985,
-          "launchPrice": "US$300 (equivalent to approximately US$850 in 2025, adjusted",
+          "launchPrice": "US$300 (equivalent to approximately US$850 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 8502 (custom 6502-compatible) at 2.04 MHz (C128 mode, with fast clock) or 1.02 MHz (C64 mode). Zilog Z80A at 4.0 MHz (for CP/M mode).",
           "ram": "128 KB (expandable to 256 KB, or up to 1 MB with external REU units)",
           "notes": "The C128 featured a sleek, low-profile case with a numeric keypad and dedicated help/40/80 column keys. It had an improved DOS in the 1571 drive for faster disk access.",
@@ -2320,14 +2380,15 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
       "country": "United States (designed)",
       "description": "The Commodore 128 (C128) was an 8-bit home computer that offered significant advancements over its predecessor, the Commodore 64, while maintaining near-perfect backward compatibility. It featured a dual-CPU design (a MOS Technology 8502 for native C128 mode and C64 mode, and a Zilog Z80 for CP/M mode), 128 KB of RAM, and a more advanced BASIC interpreter (BASIC 7.0). The C128 was designed to address the C64's limitations and provide a more 'serious' computing experience, with faster disk I/O and an 80-column text display. Its sleek, wedge-shaped case and integrated numeric keypad made it distinct from the C64 'breadbin'.",
       "legacy": "The Commodore 128 was technically impressive and a well-designed machine, effectively addressing many of the C64's limitations. However, its market performance was hampered by the overwhelming dominance of the C64's installed base and the rising popularity of 16-bit computers like the Amiga and Atari ST. Many users saw little reason to upgrade from their C64, and the CP/M market was already shrinking. Despite this, the C128 carved out a niche among power users, hobbyists, and those who appreciated its versatility and robust features. It is often regarded as one of the best 8-bit computers due to its advanced capabilities and backward compatibility. It remains a popular system among retro computing enthusiasts who appreciate its unique multi-mode architecture.",
-      "media": "Commodore 1571 disk drive (5.25\" floppy disk, double-sided, 340 KB capacity, faster than 1541); Commodore 1581 disk drive (3.5\" floppy disk, 800 KB, faster and more reliable); Commodore 1530 Datasette (cassette tape drive, compatible with C64 datasette); Cartridges (ROM-based software); Commodore RE",
+      "media": "Commodore 1571 disk drive (5.25\" floppy disk, double-sided, 340 KB capacity, faster than 1541); Commodore 1581 disk drive (3.5\" floppy disk, 800 KB, faster and more reliable); Commodore 1530 Datasette (cassette tape drive, compatible with C64 datasette); Cartridges (ROM-based software); Commodore REU (RAM Expansion Unit - 1700, 1750, 1764 for 128 KB, 256 KB, 512 KB, or 1 MB RAM expansion)",
       "releaseYear": 1985,
       "cpu": "MOS Technology 8502, 2 MHz, Zilog Z80, 4 MHz, and MOS Technology 6502",
       "ram": "128 KB RAM",
@@ -2341,7 +2402,7 @@
         {
           "name": "Commodore 16",
           "releaseYear": 1984,
-          "launchPrice": "Approximately US$99 (equivalent to approx. US$290 in 2025, a",
+          "launchPrice": "Approximately US$99 (equivalent to approx. US$290 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 8501 (a customized MOS 6502-compatible processor with built-in I/O capabilities), running at 1.76 MHz (PAL) or 1.79 MHz (NTSC).",
           "ram": "16 KB (12 KB available to BASIC). It could be unofficially upgraded to 64 KB, often allowing it to run software designed for the Plus/4.",
           "notes": "The C16 was part of Commodore's attempt to unify its chip architecture but ended up creating compatibility issues with its more popular predecessors. Its power supply often ran hot, and the 8501 CPU was prone to failure if not adequately cooled.",
@@ -2352,14 +2413,15 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
       "country": "United States (designed)",
       "description": "The Commodore 16 (C16) was an 8-bit home computer designed as a replacement for the VIC-20 and an entry-level machine in Commodore's '264 series'. It featured a new MOS Technology TED (Text Edit Device) chip, which combined video, sound, and I/O functions into a single chip, aimed at reducing manufacturing costs. Despite its improved BASIC interpreter (BASIC 3.5) and a larger color palette compared to the C64, its limited RAM (16 KB) and lack of direct compatibility with the vast C64 software library hindered its commercial success, especially outside of Europe. It was identifiable by its black case and light-grey mechanical keyboard.",
       "legacy": "The Commodore 16's legacy is mixed. While technologically more advanced than the VIC-20 it was meant to replace, its limited RAM and crucial incompatibility with the C64's vast software and peripheral ecosystem severely hampered its success in North America. It found a stronger, though still modest, foothold in some European countries, particularly Hungary and Germany, where it was often cheaper. Its primary impact was as a commercial misstep for Commodore, demonstrating the danger of fragmenting a successful product line and ignoring backward compatibility. Despite its commercial struggles, the TED chip and BASIC 3.5 offered some interesting capabilities, and it fostered a small but dedicated community of users and programmers who continue to explore its unique features.",
-      "media": "Commodore 1531 Datasette (cassette drive, proprietary Mini-DIN connector); Commodore 1551 disk drive (proprietary parallel interface, faster than Datasette); Commodore 1541-II disk drive (via serial port, slower than 1551 but more common); Cartridges (ROM-based software, plugged into the cartridge p",
+      "media": "Commodore 1531 Datasette (cassette drive, proprietary Mini-DIN connector); Commodore 1551 disk drive (proprietary parallel interface, faster than Datasette); Commodore 1541-II disk drive (via serial port, slower than 1551 but more common); Cartridges (ROM-based software, plugged into the cartridge port)",
       "releaseYear": 1984
     },
     {
@@ -2368,7 +2430,7 @@
         {
           "name": "Commodore 64 (breadbin)",
           "releaseYear": 1982,
-          "launchPrice": "US$595 (equivalent to approximately US$1,900 in 2025, adjust",
+          "launchPrice": "US$595 (equivalent to approximately US$1,900 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 6510 (a customized MOS 6502) at 1.02 MHz (NTSC) / 0.985 MHz (PAL)",
           "ram": "64 KB (38 KB available to BASIC upon startup)",
           "notes": "The iconic 'breadbin' case design. Highly robust and versatile. Later revisions of the SID chip (8580) had a different sound profile from the original 6581.",
@@ -2377,7 +2439,7 @@
         {
           "name": "Commodore 64C",
           "releaseYear": 1986,
-          "launchPrice": "Reduced price from original C64, often bundled with software",
+          "launchPrice": "Reduced price from original C64, often bundled with software.",
           "cpu": "MOS Technology 6510 (similar to breadbin)",
           "ram": "64 KB",
           "notes": "A redesigned, sleeker case (often referred to as 'wedge' or 'new style') that mimicked the Commodore 128. Internally, it used more integrated chips (HMOS versions) to reduce cost and power consumption. Often bundled with the slimline 1541-II disk drive.",
@@ -2397,14 +2459,15 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
       "country": "United States (designed)",
       "description": "The Commodore 64 (C64) is an 8-bit home computer best known for its superior graphics and sound capabilities compared to most competitors of its era. It featured a MOS Technology 6510 CPU and two custom chips: the VIC-II (Video Interface Chip) for graphics and the SID (Sound Interface Device) for sound, which gave it a significant edge in gaming and multimedia. Marketed aggressively and sold through various retail channels (including department stores), it became the best-selling single-model computer of all time, with estimates ranging from 12.5 to 17 million units sold. The C64 had a vast software library, especially games, making it a cultural phenomenon in the 1980s.",
       "legacy": "The Commodore 64 is a true computing icon. Its unprecedented sales made it a pivotal machine in democratizing computing and gaming. It fostered an entire generation of programmers, musicians, and artists. Its SID chip's unique sound remains highly recognizable and has influenced modern electronic music. Despite Commodore's eventual bankruptcy, the C64 retains a massive and passionate following today, with active communities developing new hardware, software, and emulators. It stands as a testament to its robust design, the creativity of its developers, and its enduring cultural impact on both the home computer and video game industries.",
-      "media": "Commodore 1541 disk drive (5.25\" floppy disk, single-sided, 170 KB capacity); Commodore 1530 Datasette (cassette tape drive); Commodore 1571 disk drive (double-sided, 340 KB, compatible with C128); Commodore 1581 disk drive (3.5\" floppy disk, 800 KB, compatible with C128); Cartridges (ROM-based soft",
+      "media": "Commodore 1541 disk drive (5.25\" floppy disk, single-sided, 170 KB capacity); Commodore 1530 Datasette (cassette tape drive); Commodore 1571 disk drive (double-sided, 340 KB, compatible with C128); Commodore 1581 disk drive (3.5\" floppy disk, 800 KB, compatible with C128); Cartridges (ROM-based software, plugged into the cartridge port)",
       "releaseYear": 1982,
       "cpu": "MOS Technology 6510",
       "ram": "64 KB RAM and 20 KB ROM",
@@ -2419,7 +2482,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1985,
@@ -2438,7 +2502,7 @@
         {
           "name": "Amiga 1200 (A1200)",
           "releaseYear": 1992,
-          "launchPrice": "US$599 / £399 (equivalent to approximately US$1,300 in 2025,",
+          "launchPrice": "US$599 / £399 (equivalent to approximately US$1,300 in 2025, adjusted for inflation)",
           "cpu": "Motorola 68EC020 at 14.19 MHz (NTSC) / 14.32 MHz (PAL) (Note: 'EC' variant lacks a Memory Management Unit - MMU)",
           "ram": "2 MB Chip RAM (standard, soldered on motherboard). Expandable via trapdoor slot (up to 8MB Fast RAM typically, or hundreds of MB with accelerator cards) and PCMCIA slot (up to 4MB).",
           "notes": "The A1200 was designed to bring the Amiga into the 32-bit era for the mass market. Its AGA chipset was a significant leap, particularly for games. The inclusion of an internal IDE port and PCMCIA slot provided excellent expandability for the price. It quickly became the most popular AGA Amiga model.",
@@ -2449,14 +2513,15 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
       "country": "United States (designed)",
       "description": "The Commodore Amiga 1200 (A1200) was a 32-bit home computer designed to be the successor to the Amiga 500 and Amiga 600. It featured the significantly improved Advanced Graphics Architecture (AGA) chipset, offering a much larger color palette and higher resolutions. Coupled with a faster Motorola 68EC020 CPU, an internal IDE interface for hard drives, and a PCMCIA slot, the A1200 provided a powerful and expandable platform for gaming, multimedia, and general computing, making it very popular among enthusiasts and casual users alike. It retained the all-in-one 'wedge' form factor but re-introduced the numeric keypad missing from the A600.",
       "legacy": "The Amiga 1200 is widely considered one of the most beloved and significant models in the Amiga family, especially among gamers and hobbyists. It successfully revitalized the Amiga brand for the home market by offering a compelling upgrade over the Amiga 500. Its AGA chipset provided graphics that could compete with (and often surpass) contemporary PCs and game consoles, while its expandability ensured its longevity. Despite Commodore's bankruptcy in 1994, the A1200's strong user base and community support led to its brief re-release by Escom in 1995. Even after its official demise, the A1200 became a cornerstone of the vibrant Amiga demoscene and retro computing community. Today, it remains highly sought after, with a thriving ecosystem of new hardware (accelerators, RTG graphics cards, USB/Ethernet adapters, modern storage solutions) and software development (AmigaOS 3.2, 3.2.1, 3.2.2, 3.9, 4.x on accelerated machines), cementing its place as a truly iconic and enduring platform.",
-      "media": "3.5-inch floppy disks (880 KB double-density); 2.5-inch IDE Hard Disk Drives (internal, typically up to 4 GB with standard AmigaOS, larger with patches); PCMCIA Memory Cards (SRAM, Flash RAM, CompactFlash/SD cards via adapters); PCMCIA Network Cards (Ethernet, Wi-Fi via modern adapters); CD-ROM driv",
+      "media": "3.5-inch floppy disks (880 KB double-density); 2.5-inch IDE Hard Disk Drives (internal, typically up to 4 GB with standard AmigaOS, larger with patches); PCMCIA Memory Cards (SRAM, Flash RAM, CompactFlash/SD cards via adapters); PCMCIA Network Cards (Ethernet, Wi-Fi via modern adapters); CD-ROM drives (via IDE/SCSI adapters or external enclosures)",
       "releaseYear": 1992
     },
     {
@@ -2465,7 +2530,7 @@
         {
           "name": "Amiga CD32",
           "releaseYear": 1993,
-          "launchPrice": "£299 (UK) / US$399 (intended US price, but release was limit",
+          "launchPrice": "£299 (UK) / US$399 (intended US price, but release was limited before bankruptcy) (equivalent to approximately US$790 in 2025, adjusted for inflation)",
           "cpu": "Motorola 68EC020 at 14.19 MHz (NTSC) / 14.32 MHz (PAL) (Note: 'EC' variant lacks a Memory Management Unit - MMU)",
           "ram": "2 MB Chip RAM (soldered on motherboard)",
           "notes": "The CD32 was Commodore's last major product before bankruptcy. It could be converted into a full Amiga 1200-like computer with third-party expansion units.",
@@ -2476,7 +2541,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
@@ -2508,7 +2574,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
@@ -2529,7 +2596,7 @@
         {
           "name": "Commodore Max Machine (UltiMax, VIC-10)",
           "releaseYear": 1982,
-          "launchPrice": "¥34,800 JPY (approximately US$150 at 1982 exchange rates, eq",
+          "launchPrice": "¥34,800 JPY (approximately US$150 at 1982 exchange rates, equivalent to approx. US$470 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 6510 (a customized MOS 6502) at 1.02 MHz",
           "ram": "2 KB (2048 bytes)",
           "notes": "The Max Machine's design was a hybrid – console-like appearance with limited keyboard. It used a large cartridge slot that was physically incompatible with C64 cartridges, despite sharing core chips. Its extremely limited RAM made it difficult to develop complex software.",
@@ -2540,7 +2607,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
@@ -2561,7 +2629,7 @@
         {
           "name": "PET 2001 (Original 'Chiclet' keyboard)",
           "releaseYear": 1977,
-          "launchPrice": "US$795 (for 4KB RAM model, equivalent to approximately US$4,",
+          "launchPrice": "US$795 (for 4KB RAM model, equivalent to approximately US$4,100 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 6502 at 1 MHz",
           "ram": "4 KB or 8 KB (expandable by adding chips)",
           "notes": "The original PET. Its calculator-style keyboard was a major criticism, quickly leading to revised versions. The built-in monitor and cassette drive were innovative for an all-in-one system.",
@@ -2599,7 +2667,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
@@ -2620,7 +2689,7 @@
         {
           "name": "Plus/4",
           "releaseYear": 1984,
-          "launchPrice": "US$299 (equivalent to approximately US$900 in 2025, adjusted",
+          "launchPrice": "US$299 (equivalent to approximately US$900 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 7501 or 8501 at 1.76 MHz (NTSC) / 1.77 MHz (PAL) (6502-compatible with I/O)",
           "ram": "64 KB RAM",
           "notes": "The Plus/4 was designed to be an all-in-one productivity machine. Its integrated software was a key selling point. The new port configurations and lack of C64 compatibility were major detriments.",
@@ -2631,7 +2700,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
@@ -2652,7 +2722,7 @@
         {
           "name": "VIC-20 (VIC-1001 in Japan)",
           "releaseYear": 1980,
-          "launchPrice": "US$299.95 (equivalent to approximately US$900 in 2025, adjus",
+          "launchPrice": "US$299.95 (equivalent to approximately US$900 in 2025, adjusted for inflation)",
           "cpu": "MOS Technology 6502 at 1.02 MHz (NTSC) / 1.11 MHz (PAL)",
           "ram": "5 KB (3.5 KB user-available initially, expandable to 32 KB with cartridges)",
           "notes": "The VIC-20 was known for its aggressive marketing, particularly with endorsements from William Shatner. It became the first computer to sell over 1 million units.",
@@ -2663,7 +2733,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Commodore International",
@@ -2684,7 +2755,7 @@
         {
           "name": "Compucolor II (Model 3, 4, 5)",
           "releaseYear": 1978,
-          "launchPrice": "US$1,495 (8KB RAM Model 3), US$1,795 (16KB RAM Model 4), US$",
+          "launchPrice": "US$1,495 (8KB RAM Model 3), US$1,795 (16KB RAM Model 4), US$2,395 (32KB RAM Model 5) (equivalent to approximately US$6,900 - US$11,000 in 2025, adjusted for inflation)",
           "cpu": "Intel 8080A at 1.99 MHz",
           "ram": "8 KB, 16 KB, or 32 KB (user RAM)",
           "notes": "The Compucolor II was known for its sleek design and was one of the first systems to include a color monitor and floppy drive as standard. Its disk format was proprietary and treated disks much like continuous tapes, which could lead to fragmentation issues.",
@@ -2695,7 +2766,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Compucolor Corporation (a division of Intelligent Systems Corporation)",
@@ -2711,7 +2783,7 @@
         {
           "name": "Mega Duck WG-108 (also Creatronic Mega Duck, Videojet Mega Duck, Hartung Mega Duck, Cougar Boy)",
           "releaseYear": 1993,
-          "launchPrice": "Approximately fl 129 (Dutch Guilders) in the Netherlands (eq",
+          "launchPrice": "Approximately fl 129 (Dutch Guilders) in the Netherlands (equivalent to approx. US$70-80 at the time, or US$150-170 in 2025, adjusted for inflation)",
           "cpu": "Sharp LR35902 (Z80-like, embedded in main VLSI chip) at 4.194304 MHz",
           "ram": "16 KB (in two 8KB Goldstar GM76C88LFW chips)",
           "notes": "The console body came in white or black plastic. It had a relatively good battery life of about 15 hours on four AA batteries. An educational laptop variant, the 'Mega Duck Super Junior Computer' (JC-500), was also released in Germany by Hartung in 1995, incorporating the Mega Duck game system.",
@@ -2722,7 +2794,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Welback Holdings (through Timlex International division)",
@@ -2753,7 +2826,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Digital Equipment Corporation (DEC)",
@@ -2784,7 +2858,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Dick Smith Electronics",
@@ -2814,7 +2889,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Video Technology Ltd. (VTech) / Distributed by Dick Smith Electronics",
@@ -2834,7 +2910,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1982,
@@ -2854,7 +2931,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Electronics Australia",
@@ -2887,7 +2965,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "EACA Computers Ltd.",
@@ -2942,7 +3021,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "NIISI (Scientific Research Institute of Precision Instruments), USSR",
@@ -2988,7 +3068,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Elektronska Industrija Niš (EI Niš)",
@@ -3030,7 +3111,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Emerson Radio Corporation",
@@ -3091,7 +3173,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Enterprise Computers Ltd",
@@ -3140,7 +3223,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Enterprise Computers Ltd",
@@ -3182,7 +3266,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Entex Industries",
@@ -3224,7 +3309,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Epoch Co.",
@@ -3266,7 +3352,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Epoch Co.",
@@ -3299,7 +3386,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Educational Training International (ETI), UK",
@@ -3342,7 +3430,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Exelvision",
@@ -3388,7 +3477,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Exidy Inc.",
@@ -3430,7 +3520,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Fairchild Camera and Instrument",
@@ -3453,7 +3544,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fujitsu_FM-7"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Fujitsu Limited",
@@ -3497,7 +3593,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/FM_Towns"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Fujitsu Limited",
@@ -3535,7 +3636,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Fujitsu",
@@ -3569,7 +3671,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fujitsu_FM-7#FM-77AV_series"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Fujitsu Limited",
@@ -3607,7 +3714,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Funtech",
@@ -3630,7 +3738,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "description": "Pinball is a type of arcade game, in which points are scored by a player manipulating one or more steel balls on a play field inside a glass-covered cabinet called a pinball machine (or \"pinball table\"). The primary objective of the game is to score as many points as possible. Many modern pinball machines include a story line where the player must complete certain objectives in a certain fashion to complete the story, usually earning high scores for different methods of completing the game. Points are earned when the ball strikes different targets on the play field. A drain is situated at the bottom of the play field, partially protected by player-controlled plastic bats called flippers. A game ends after all the balls fall into the drain a certain number of times. Secondary objectives are to maximize the time spent playing (by earning \"extra balls\" and keeping the ball in play as long as possible) and to earn bonus games (known as \"replays\")."
@@ -3658,7 +3767,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Gakken",
@@ -3701,7 +3811,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Voja Antonić / YU Electronics",
@@ -3736,7 +3847,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Bit Corporation",
@@ -3804,7 +3916,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -3851,7 +3964,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Game Park",
@@ -3884,7 +3998,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "General Consumer Electronics (GCE), later Milton Bradley (MB)",
@@ -3916,7 +4031,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Dynacom",
@@ -3974,7 +4090,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Hartung",
@@ -4014,7 +4131,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Micronique / Thomson",
@@ -4066,7 +4184,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Hitachi Ltd.",
@@ -4102,7 +4221,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/IBM_Personal_Computer"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "International Business Machines Corporation (IBM)",
@@ -4132,7 +4256,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/IBM_PCjr"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "International Business Machines Corporation (IBM)",
@@ -4152,15 +4281,15 @@
           "releaseYear": 2000,
           "launchPrice": "Varies by retailer",
           "cpu": "VT168",
-          "ram": "Not specified",
-          "imageUrl": "https://villagranlara.com/items/623561210"
+          "ram": "Not specified"
         }
       ],
       "peripherals": [],
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Intec / Macro Winners (MiWi)",
@@ -4193,7 +4322,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Interact Electronics Inc.",
@@ -4223,7 +4353,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Interton",
@@ -4268,7 +4399,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "iQue Ltd.",
@@ -4305,7 +4437,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Jupiter Cantab Ltd.",
@@ -4368,7 +4501,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Koei Ltd.",
@@ -4388,7 +4522,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "description": "MAME LCD Games"
@@ -4401,15 +4536,15 @@
           "releaseYear": 1987,
           "launchPrice": "Approximately $129.99 USD",
           "cpu": "Thomson EF6805R2P (Motorola 6800-based microcontroller)",
-          "ram": "Not specified",
-          "imageUrl": "https://www.ebay.com/itm/256349628263"
+          "ram": "Not specified"
         }
       ],
       "peripherals": [],
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "LJN Toys Ltd.",
@@ -4449,7 +4584,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Lucas Industries / NASCOM",
@@ -4492,7 +4628,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Luxor Electronics",
@@ -4529,7 +4666,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Lviv Electronics / Soviet Union",
@@ -4559,7 +4697,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Magnavox (subsidiary of North American Philips)",
@@ -4604,7 +4743,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Matra / Hachette",
@@ -4642,7 +4782,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Mattel Electronics",
@@ -4665,7 +4806,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Mattel",
@@ -4696,7 +4838,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Mattel Electronics",
@@ -4741,7 +4884,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Memotech Ltd.",
@@ -4787,7 +4931,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Microdigital Ltd. (MGT)",
@@ -4827,7 +4972,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Microkey",
@@ -4847,7 +4993,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1981,
@@ -4877,12 +5024,17 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/MSX"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Microsoft and ASCII Corporation (standard designers); hardware by various manufacturers including Sony, Panasonic, Yamaha, Philips, Sanyo, Canon, Toshiba, and others",
       "country": "Japan",
-      "unitsSold": "Estimated several million units worldwide (strongest in Japan, Spain, Netherland",
+      "unitsSold": "Estimated several million units worldwide (strongest in Japan, Spain, Netherlands, and Brazil)",
       "description": "The MSX1 was the first generation of the MSX home computer standard, jointly developed by Microsoft Japan and ASCII Corporation. It aimed to create a unified hardware and software platform across multiple manufacturers, similar to how VHS standardized video recorders. The MSX1 combined the popular Z80 CPU with a Texas Instruments video chip and a Yamaha sound generator, offering strong gaming and educational capabilities. Widely popular in Japan, Europe, and South America, it became a key platform for 8-bit gaming and productivity software.",
       "legacy": "The MSX1 established a successful cross-manufacturer home computer ecosystem, inspiring later generations (MSX2, MSX2+, and Turbo R). It played a major role in Japan’s 8-bit gaming boom and introduced iconic franchises like Metal Gear and Castlevania. Its modular, standardized design remains celebrated in the retrocomputing community and emulated worldwide.",
       "ram": "8 KB to 64 KB (varies by manufacturer; 32 KB common)",
@@ -4911,7 +5063,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/MSX_Turbo_R"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "ASCII Corporation and Panasonic (primary hardware vendor)",
@@ -4946,12 +5103,17 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/MSX2%2B"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "ASCII Corporation and Microsoft (standard designers); hardware by Panasonic, Sony, Sanyo, and others",
       "country": "Japan",
-      "unitsSold": "Estimated several hundred thousand units (mainly in Japan; limited export to Kor",
+      "unitsSold": "Estimated several hundred thousand units (mainly in Japan; limited export to Korea and Europe via gray imports)",
       "description": "The MSX2+ was the third-generation MSX computer standard, introduced in 1988 as an incremental but significant enhancement over the MSX2. It introduced smooth hardware scrolling, improved sprite handling, new video modes with up to 19,268 colors (YJK mode), built-in FM sound (MSX-MUSIC), and expanded memory capabilities. Primarily released in Japan, the MSX2+ became a powerful home computer and gaming platform that pushed the 8-bit Z80 architecture to its limits.",
       "legacy": "The MSX2+ represented the final refinement of the 8-bit MSX architecture, showcasing impressive multimedia performance for its era. Its advanced graphics and FM sound capabilities made it one of the most technically sophisticated 8-bit home computers ever produced. While it was primarily limited to Japan, the MSX2+ left a deep legacy among enthusiasts and paved the way for the ultimate MSX evolution: the MSX Turbo R.",
       "ram": "64 KB to 256 KB (typical), expandable via cartridges",
@@ -4969,7 +5131,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1990,
@@ -4990,7 +5153,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Microsoft",
@@ -5012,10 +5176,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         },
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "manufacturer": "Microsoft",
@@ -5048,7 +5214,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Millennium",
@@ -5114,7 +5281,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Milton Bradley Company",
@@ -5151,7 +5319,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Mindset Corporation",
@@ -5190,7 +5359,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "M&D",
@@ -5210,7 +5380,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1999,
@@ -5241,7 +5412,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/NEC_PC-6001"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nippon Electric Company (NEC)",
@@ -5270,7 +5446,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/NEC_PC-6001#PC-6001mkII"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nippon Electric Company (NEC)",
@@ -5303,7 +5484,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PC-8000_series"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nippon Electric Company (NEC)",
@@ -5344,7 +5530,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PC-8800_series"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nippon Electric Company (NEC)",
@@ -5384,7 +5575,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PC-9800_series"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nippon Electric Company (NEC)",
@@ -5417,7 +5613,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "NEC / Hudson Soft",
@@ -5434,7 +5631,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1994,
@@ -5454,7 +5652,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1989,
@@ -5474,7 +5673,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1989,
@@ -5494,7 +5694,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1989,
@@ -5514,7 +5715,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nichibutsu (Nihon Bussan Co. Ltd.)",
@@ -5569,7 +5771,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5633,7 +5836,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5688,7 +5892,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5745,7 +5950,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5804,7 +6010,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5860,7 +6067,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5896,7 +6104,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -5948,7 +6157,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6003,7 +6213,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6048,7 +6259,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6113,7 +6325,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6175,7 +6388,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6216,7 +6430,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "byuu / higan",
@@ -6253,7 +6468,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6274,7 +6490,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1995,
@@ -6335,7 +6552,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6397,7 +6615,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6458,7 +6677,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6500,7 +6720,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6564,7 +6785,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6628,7 +6850,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6670,7 +6893,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nintendo",
@@ -6708,7 +6932,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Nokia",
@@ -6753,7 +6978,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "North Star Computers",
@@ -6773,7 +6999,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2004,
@@ -6803,7 +7030,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Zelenograd Research Institute of Microdevices (Soviet Union)",
@@ -6823,7 +7051,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tsukuda Original",
@@ -6864,7 +7093,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Palm, Inc. (later Access Co.)",
@@ -6882,7 +7112,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Palson (Electrónica Ripollés)",
@@ -6930,7 +7161,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Panasonic (licensed by The 3DO Company)",
@@ -6970,7 +7202,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Mera-Elzab / Polish Electronics Industry",
@@ -7018,7 +7251,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Performance Designed Products (PDP)",
@@ -7055,7 +7289,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "PEL Varaždin",
@@ -7100,7 +7335,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Philips",
@@ -7133,7 +7369,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Philips Austria",
@@ -7160,7 +7397,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Philips",
@@ -7191,7 +7429,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Philips",
@@ -7213,7 +7452,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2015,
@@ -7253,7 +7493,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Pioneer Corporation",
@@ -7289,7 +7530,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Pokitto Ltd.",
@@ -7326,7 +7568,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Soviet Union (DIY/homebuilt kits)",
@@ -7363,7 +7606,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Soviet Union (DIY/homebuilt kits, variant by Mikrosha)",
@@ -7393,7 +7637,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "RCA",
@@ -7439,7 +7684,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Research Machines (UK)",
@@ -7473,7 +7719,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Rowtron Electronics",
@@ -7493,7 +7740,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2003,
@@ -7523,7 +7771,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Samsung Electronics",
@@ -7550,7 +7799,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Samsung Electronics",
@@ -7577,7 +7827,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sanyo Electric Co., Ltd.",
@@ -7604,7 +7855,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sanyo Electric Co., Ltd.",
@@ -7621,7 +7873,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2001,
@@ -7659,12 +7912,13 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
       "country": "Japan",
-      "generation": "Fourth Generation (Mega Drive / Genesis",
+      "generation": "Fourth Generation (Mega Drive / Genesis era)",
       "description": "The Sega 32X is an add-on for the Sega Genesis/Mega Drive that upgrades the console to 32-bit processing, enhancing graphics and sound capabilities. Released in 1994, it aimed to extend the lifespan of the Genesis while Sega prepared for the next-generation Saturn. Despite technical improvements, it suffered from limited software support and poor timing.",
       "legacy": "The 32X was commercially unsuccessful, largely due to poor timing, a high cost, and confusion among consumers. Its limited game library and the impending release of the Sega Saturn made it largely obsolete upon launch. However, it remains an interesting piece of hardware for collectors and retro enthusiasts, showcasing Sega's attempt to extend the Genesis' life while transitioning to next-generation consoles.",
       "cpu": "Dual 32-bit SuperH-2 (SH2) RISC processors @ 23 MHz each",
@@ -7682,7 +7936,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1994,
@@ -7712,7 +7967,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega Toys",
@@ -7760,12 +8016,13 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
       "country": "Japan",
-      "generation": "Fourth Generation (Mega Drive / Genesis",
+      "generation": "Fourth Generation (Mega Drive / Genesis era)",
       "description": "The Sega CD, released in 1991 in Japan (Mega-CD) and later internationally, is an add-on for the Sega Genesis / Mega Drive that uses CD-ROM media to deliver larger games, enhanced audio, and full-motion video. It also expanded the capabilities of Genesis games through add-on cartridges that worked with the CD system.",
       "legacy": "The Sega CD was innovative for its time, offering CD-based gaming with high-quality audio and FMV experiences. While it sold modestly and had a mixed library of titles, it paved the way for CD-based gaming add-ons and remains an important part of Sega’s hardware history.",
       "cpu": "Motorola 68000 @ 12.5 MHz (main CD processor), Zilog Z80 for sound (via Genesis)",
@@ -7813,7 +8070,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -7858,7 +8116,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -7916,7 +8175,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -7939,7 +8199,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1999,
@@ -7984,7 +8245,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8034,7 +8296,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8092,7 +8355,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8112,7 +8376,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1993,
@@ -8132,7 +8397,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1996,
@@ -8152,7 +8418,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1998,
@@ -8172,7 +8439,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2000,
@@ -8202,7 +8470,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega Toys",
@@ -8255,7 +8524,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8301,7 +8571,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8351,7 +8622,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8384,7 +8656,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8402,7 +8675,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1994,
@@ -8421,7 +8695,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "manufacturer": "SEGA/Namco/Nintendo",
@@ -8459,7 +8734,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -8497,7 +8773,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sharp Corporation",
@@ -8547,7 +8824,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sharp Corporation",
@@ -8577,7 +8855,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sharp Corporation",
@@ -8614,7 +8893,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sharp Corporation",
@@ -8652,7 +8932,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sharp Corporation",
@@ -8701,7 +8982,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/ZX_Spectrum"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sinclair Research Ltd.",
@@ -8724,7 +9010,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/ZX81"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sinclair Research Ltd.",
@@ -8769,7 +9060,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "SNK",
@@ -8819,7 +9111,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "SNK",
@@ -8842,7 +9135,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 1990,
@@ -8878,7 +9172,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "SNK",
@@ -8923,7 +9218,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "SNK",
@@ -8981,7 +9277,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony Computer Entertainment",
@@ -9034,7 +9331,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony Computer Entertainment",
@@ -9092,7 +9390,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony Computer Entertainment",
@@ -9128,7 +9427,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony Computer Entertainment",
@@ -9177,7 +9477,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony Computer Entertainment",
@@ -9242,7 +9543,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony Computer Entertainment",
@@ -9282,7 +9584,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sony",
@@ -9319,7 +9622,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sord Computer Corporation",
@@ -9358,7 +9662,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Mikro-80 / Soviet Union",
@@ -9401,7 +9706,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Spectravideo International",
@@ -9441,7 +9747,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Spectravideo International",
@@ -9475,12 +9782,13 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "University of Manchester",
       "country": "United Kingdom",
-      "generation": "First Generation / Early Stored-Program",
+      "generation": "First Generation / Early Stored-Program Computer",
       "description": "The SSEM, also known as the Manchester Baby, was the world’s first stored-program computer, running its first program in June 1948. It was built at the University of Manchester to test the concept of storing programs electronically in memory. The machine used Williams-Kilburn tube memory and could perform basic arithmetic and logic operations. It was an experimental platform that laid the foundation for modern computers.",
       "legacy": "The SSEM (Manchester Baby) proved that stored-program computing was feasible, marking the beginning of modern computing. It directly influenced the development of the Manchester Mark 1 and subsequent commercial computers such as the Ferranti Mark 1. Its successful demonstration established the foundation for all future computers.",
       "cpu": "Single-bit Williams-Kilburn tube memory based",
@@ -9509,7 +9817,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Sega",
@@ -9529,7 +9838,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2005,
@@ -9558,7 +9868,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tandy Corporation",
@@ -9592,7 +9903,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tandy Corporation (Radio Shack)",
@@ -9629,7 +9941,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tandy Corporation (Radio Shack)",
@@ -9659,7 +9972,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tandy Corporation (Radio Shack)",
@@ -9686,7 +10000,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tangerine Computer Systems",
@@ -9723,7 +10038,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tangerine Computer Systems",
@@ -9759,7 +10075,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tangerine Computer Systems",
@@ -9799,7 +10116,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tatung",
@@ -9833,7 +10151,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tesla Liberec",
@@ -9894,7 +10213,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tesla Piešťany & Tesla Bratislava",
@@ -9914,7 +10234,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Texas Instruments",
@@ -9950,7 +10271,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Thomson SA",
@@ -9983,7 +10305,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Thomson SA",
@@ -10016,7 +10339,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Thomson SA",
@@ -10049,7 +10373,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Thomson SA",
@@ -10088,7 +10413,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tiger Electronics",
@@ -10124,7 +10450,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tiger Electronics",
@@ -10163,7 +10490,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tiger Electronics",
@@ -10199,7 +10527,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Timetop",
@@ -10235,7 +10564,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Timetop",
@@ -10261,7 +10591,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Timex Computer Corporation",
@@ -10281,7 +10612,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tomy",
@@ -10312,7 +10644,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Toshiba",
@@ -10346,7 +10679,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Tronica",
@@ -10376,7 +10710,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Unisonic Products Corporation",
@@ -10404,7 +10739,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Belogic Software",
@@ -10439,7 +10775,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VEB Mikroelektronik Erfurt",
@@ -10469,7 +10806,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Soviet Union",
@@ -10492,7 +10830,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Soundic",
@@ -10515,7 +10854,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Umtech Incorporated (United Microelectronics Corporation)",
@@ -10551,7 +10891,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VideoJet",
@@ -10587,7 +10928,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Videoton",
@@ -10642,7 +10984,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VM Labs",
@@ -10675,7 +11018,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Voltmace Ltd.",
@@ -10711,7 +11055,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VTech",
@@ -10747,7 +11092,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Video Technology Ltd. (VTech)",
@@ -10777,7 +11123,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Video Technology Ltd. (VTech)",
@@ -10807,7 +11154,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Video Technology Ltd. (VTech)",
@@ -10837,7 +11185,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Video Technology Ltd. (VTech)",
@@ -10876,7 +11225,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VTech",
@@ -10923,12 +11273,13 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VTech",
       "country": "Hong Kong",
-      "generation": "Sixth Generation / 8-bit educational sys",
+      "generation": "Sixth Generation / 8-bit educational system",
       "description": "The VTech V.Smile, released in 2004, is an educational gaming console aimed at children. It uses cartridges to teach basic skills such as math, reading, spelling, and problem-solving through interactive games and activities.",
       "legacy": "The V.Smile series became one of VTech’s most successful educational consoles, combining play with learning. Its approachable design and educational content helped it gain popularity in homes and classrooms worldwide, influencing later educational gaming systems.",
       "cpu": "Custom VTech 8-bit processor @ 20 MHz",
@@ -10959,7 +11310,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VTech",
@@ -10995,12 +11347,13 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "VTech",
       "country": "Hong Kong",
-      "generation": "Sixth Generation / 8-bit educational sys",
+      "generation": "Sixth Generation / 8-bit educational system",
       "description": "The VTech V.Smile Motion, released in 2007, is an educational gaming console for children that added motion-sensing controllers to the V.Smile system. It enables interactive learning through physical movements, enhancing engagement and educational gameplay.",
       "legacy": "The V.Smile Motion built on the success of the V.Smile system by introducing motion-controlled gameplay. It is remembered as a fun and engaging way to combine learning with physical activity, influencing later motion-based educational systems.",
       "cpu": "Custom VTech 8-bit processor @ 20 MHz",
@@ -11015,7 +11368,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "LaunchBox Games Database"
+          "name": "LaunchBox Games Database",
+          "url": "https://gamesdb.launchbox-app.com/"
         }
       ],
       "releaseYear": 2021,
@@ -11054,7 +11408,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Watara",
@@ -11098,7 +11453,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Worlds of Wonder",
@@ -11137,7 +11493,8 @@
       ],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Yamaha Corporation",
@@ -11168,7 +11525,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Unknown / Various Clone Manufacturers",
@@ -11204,7 +11562,12 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zemmix"
+        },
+        {
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Daewoo Electronics (South Korea)",
@@ -11223,7 +11586,8 @@
       "topGames": [],
       "sources": [
         {
-          "name": "Wikipedia"
+          "name": "Wikipedia (CC BY-SA 4.0)",
+          "url": "https://creativecommons.org/licenses/by-sa/4.0/"
         }
       ],
       "manufacturer": "Team MSX / Retroworks (South Korea, Spain, and International Hobbyist Collaboration)",

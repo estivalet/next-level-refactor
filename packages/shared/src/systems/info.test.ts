@@ -14,6 +14,22 @@ describe('system info', () => {
     expect(SystemInfoSchema.safeParse({ systemId: 'nes', manufacturer: '  ' }).success).toBe(false);
   });
 
+  it('FR-MUS-1: text limits fit real launch prices, generations and hardware text', () => {
+    const ok = SystemInfoSchema.safeParse({
+      systemId: 'x',
+      generation: 'g'.repeat(120),
+      unitsSold: 'u'.repeat(120),
+      media: 'm'.repeat(600),
+      models: [{ name: 'M', launchPrice: 'p'.repeat(200), cpu: 'c'.repeat(400) }],
+    });
+    expect(ok.success).toBe(true);
+    const tooLong = SystemInfoSchema.safeParse({
+      systemId: 'x',
+      models: [{ name: 'M', launchPrice: 'p'.repeat(201) }],
+    });
+    expect(tooLong.success).toBe(false);
+  });
+
   it('FR-MUS-5: a source url must be http(s)', () => {
     expect(
       SystemInfoSourceSchema.safeParse({ name: 'X', url: 'javascript:alert(1)' }).success,

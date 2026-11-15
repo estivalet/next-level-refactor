@@ -5,14 +5,46 @@ const text = (max: number) => z.string().trim().min(1).max(max).optional();
 const year = () => z.number().int().min(1900).max(2100).optional();
 const httpUrl = () => z.url({ protocol: /^https?$/ }).optional();
 
+/** Max lengths of a museum entry's text fields; the seed importer cuts to the same limits. */
+export const SYSTEM_INFO_TEXT_LIMITS = {
+  fullName: 200,
+  manufacturer: 200,
+  country: 80,
+  generation: 120,
+  unitsSold: 120,
+  description: 20000,
+  history: 20000,
+  legacy: 20000,
+  cpu: 600,
+  ram: 600,
+  graphics: 600,
+  sound: 600,
+  media: 600,
+  display: 600,
+  predecessor: 200,
+  successor: 200,
+} as const;
+
+/** Max lengths of a hardware model's text fields. */
+export const SYSTEM_INFO_MODEL_LIMITS = {
+  name: 120,
+  launchPrice: 200,
+  cpu: 400,
+  ram: 400,
+  notes: 4000,
+} as const;
+
+const L = SYSTEM_INFO_TEXT_LIMITS;
+const M = SYSTEM_INFO_MODEL_LIMITS;
+
 /** A hardware model or revision of a system (FR-MUS-1). */
 export const SystemInfoModelSchema = z.object({
-  name: z.string().trim().min(1).max(120),
+  name: z.string().trim().min(1).max(M.name),
   releaseYear: year(),
-  launchPrice: text(60),
-  cpu: text(200),
-  ram: text(200),
-  notes: text(4000),
+  launchPrice: text(M.launchPrice),
+  cpu: text(M.cpu),
+  ram: text(M.ram),
+  notes: text(M.notes),
   imageUrl: httpUrl(),
 });
 
@@ -32,25 +64,25 @@ export const SystemInfoSourceSchema = z.object({
 /** A system's museum entry (FR-MUS-1). */
 export const SystemInfoSchema = z.object({
   systemId: z.string().min(1).max(100),
-  fullName: text(200),
-  manufacturer: text(200),
-  country: text(80),
+  fullName: text(L.fullName),
+  manufacturer: text(L.manufacturer),
+  country: text(L.country),
   releaseYear: year(),
   discontinuedYear: year(),
-  generation: text(40),
-  unitsSold: text(80),
-  description: text(20000),
-  history: text(20000),
-  legacy: text(20000),
-  cpu: text(300),
-  ram: text(300),
-  graphics: text(300),
-  sound: text(300),
-  media: text(300),
-  display: text(300),
+  generation: text(L.generation),
+  unitsSold: text(L.unitsSold),
+  description: text(L.description),
+  history: text(L.history),
+  legacy: text(L.legacy),
+  cpu: text(L.cpu),
+  ram: text(L.ram),
+  graphics: text(L.graphics),
+  sound: text(L.sound),
+  media: text(L.media),
+  display: text(L.display),
   models: z.array(SystemInfoModelSchema).max(100).default([]),
-  predecessor: text(200),
-  successor: text(200),
+  predecessor: text(L.predecessor),
+  successor: text(L.successor),
   peripherals: z.array(z.string().trim().min(1).max(200)).max(100).default([]),
   topGames: z.array(SystemInfoTopGameSchema).max(100).default([]),
   sources: z.array(SystemInfoSourceSchema).max(20).default([]),

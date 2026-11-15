@@ -268,7 +268,10 @@ it. `SystemInfo` (`packages/shared/src/systems/info.ts`): `systemId` plus option
 `sound`, `media`, `display`), `models` (`name`, `releaseYear`, `launchPrice`, `cpu`, `ram`,
 `notes`, `imageUrl`), related (`predecessor`, `successor`, `peripherals`), `topGames`
 (`title`, `year?`, `gameId?`) and `sources` (`name`, `url?`). Seed text that came from Wikipedia is
-CC BY-SA 4.0 and says so in `sources`; see the
+CC BY-SA 4.0: `sources` holds `Wikipedia (CC BY-SA 4.0)` with the licence URL, preceded by a
+`Wikipedia` source with the article URL when the scraped file named one; text filled from LaunchBox
+adds `LaunchBox Games Database` with its site URL. Text fields have limits (`SYSTEM_INFO_TEXT_LIMITS`,
+`SYSTEM_INFO_MODEL_LIMITS`); the import cuts longer text at a word with "…". See the
 [system-catalog README](../../packages/system-catalog/README.md#system-museum-seed) for the import
 and the licence note. Edits live in `library.db` (§4, `system_info`).
 

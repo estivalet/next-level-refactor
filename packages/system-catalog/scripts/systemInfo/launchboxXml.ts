@@ -1,3 +1,4 @@
+import { SYSTEM_INFO_TEXT_LIMITS as LIMITS, type SystemInfoSource } from '@nextlevel/shared';
 import { XMLParser } from 'fast-xml-parser';
 import { cleanText, cleanYear, type SystemInfoEntry } from './normalize.ts';
 
@@ -22,7 +23,10 @@ interface LaunchBoxFile {
   LaunchBox?: { Platform?: XmlRow[]; PlatformAlternateName?: XmlRow[] };
 }
 
-const LAUNCHBOX_SOURCE = 'LaunchBox Games Database';
+const LAUNCHBOX_SOURCE: SystemInfoSource = {
+  name: 'LaunchBox Games Database',
+  url: 'https://gamesdb.launchbox-app.com/',
+};
 
 export function parseLaunchBoxPlatforms(xml: string): LaunchBoxPlatformInfo[] {
   // parseTagValue: false keeps every value as text.
@@ -45,14 +49,14 @@ export function parseLaunchBoxPlatforms(xml: string): LaunchBoxPlatformInfo[] {
     const releaseYear = cleanYear(row.ReleaseDate);
     if (releaseYear !== undefined) info.releaseYear = releaseYear;
     const texts = {
-      manufacturer: cleanText(row.Manufacturer, 200),
-      cpu: cleanText(row.Cpu, 300),
-      ram: cleanText(row.Memory, 300),
-      graphics: cleanText(row.Graphics, 300),
-      sound: cleanText(row.Sound, 300),
-      display: cleanText(row.Display, 300),
-      media: cleanText(row.Media, 300),
-      notes: cleanText(row.Notes, 20000),
+      manufacturer: cleanText(row.Manufacturer, LIMITS.manufacturer),
+      cpu: cleanText(row.Cpu, LIMITS.cpu),
+      ram: cleanText(row.Memory, LIMITS.ram),
+      graphics: cleanText(row.Graphics, LIMITS.graphics),
+      sound: cleanText(row.Sound, LIMITS.sound),
+      display: cleanText(row.Display, LIMITS.display),
+      media: cleanText(row.Media, LIMITS.media),
+      notes: cleanText(row.Notes, LIMITS.description),
     };
     for (const [key, value] of Object.entries(texts)) {
       if (value !== undefined) Object.assign(info, { [key]: value });
@@ -79,8 +83,8 @@ export function fillFromLaunchBox(
   }
   if (result.description === undefined && lb.notes !== undefined) {
     result.description = lb.notes;
-    if (!result.sources.some((source) => source.name === LAUNCHBOX_SOURCE)) {
-      result.sources = [...result.sources, { name: LAUNCHBOX_SOURCE }];
+    if (!result.sources.some((source) => source.name === LAUNCHBOX_SOURCE.name)) {
+      result.sources = [...result.sources, LAUNCHBOX_SOURCE];
     }
   }
   return result;
