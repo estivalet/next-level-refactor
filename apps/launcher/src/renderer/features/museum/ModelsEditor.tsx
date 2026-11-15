@@ -5,6 +5,9 @@ import { TextField, YearField } from './FormFields.tsx';
 import { ListEditor } from './ListEditor.tsx';
 import { ModelImage } from './ModelImage.tsx';
 
+/** How long typing must pause before the image link is previewed (no request per keystroke). */
+const PREVIEW_SETTLE_MS = 600;
+
 /** Hardware models and revisions (FR-MUS-1, FR-MUS-2). */
 export function ModelsEditor({
   models,
@@ -27,7 +30,7 @@ export function ModelsEditor({
         const error = (key: string) => errors[`models.${String(index)}.${key}`];
         return (
           <div className="flex gap-3">
-            <ModelImage url={model.imageUrl} name={model.name} />
+            <ModelImage url={model.imageUrl} name={model.name} settleMs={PREVIEW_SETTLE_MS} />
             <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
               <TextField
                 label={t('apps.museum.field.name')}

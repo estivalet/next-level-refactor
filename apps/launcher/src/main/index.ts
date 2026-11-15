@@ -15,6 +15,7 @@ import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
 import { ArtIndexService } from './frontend/ArtIndexService.ts';
 import { createMenuWatch } from './menus/menuWatch.ts';
 import { createNextlevelHandler, NEXTLEVEL_SCHEME } from './protocol/register.ts';
+import { RemoteImageCache } from './remoteImages/RemoteImageCache.ts';
 import { accountOf, createScraperClient } from './scraper/runtime.ts';
 import { SCREENSCRAPER_URL } from './scraper/screenscraper/client.ts';
 import { SecretStore } from './secrets/SecretStore.ts';
@@ -289,6 +290,11 @@ async function start(): Promise<void> {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
     return { assetsPath, themesPath };
   };
+  const remoteImages = new RemoteImageCache({
+    dir: join(dataDir, 'cache', 'remote-images'),
+    fetcher: fetch,
+    now: Date.now,
+  });
   protocol.handle(
     'nextlevel',
     createNextlevelHandler({
@@ -297,6 +303,7 @@ async function start(): Promise<void> {
       launchboxThumb: (id) => library?.launchboxScrape.thumbnail(id) ?? Promise.resolve(null),
       // The catalog starts after sign-in is set up (below); until then there is no art.
       catalogArt: (itemId, kind) => catalogRef.current?.art(itemId, kind) ?? Promise.resolve(null),
+      remoteImage: (url) => remoteImages.get(url),
       paths: artPaths,
     }),
   );

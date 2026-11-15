@@ -35,6 +35,8 @@ export interface NextlevelHandlerDeps {
   launchboxThumb?: (databaseId: number) => Promise<{ bytes: Buffer; mime: string } | null>;
   /** A catalog item's art, fetched by main from its signed URL (S8); null = 404. */
   catalogArt?: (itemId: string, kind: string) => Promise<{ bytes: Buffer; mime: string } | null>;
+  /** FR-MUS-4: a museum model image, fetched once and cached by main; null = 404. */
+  remoteImage?: (url: string) => Promise<{ bytes: Buffer; mime: string } | null>;
 }
 
 /** The `protocol.handle('nextlevel', …)` handler; 404 for anything it can't resolve. */
@@ -59,6 +61,11 @@ export function createNextlevelHandler(deps: NextlevelHandlerDeps) {
       const art = await deps.catalogArt?.(parsed.itemId, parsed.artKind);
       if (!art) return new Response(null, { status: 404 });
       return new Response(new Uint8Array(art.bytes), { headers: { 'content-type': art.mime } });
+    }
+    if (parsed.kind === 'remote-image') {
+      const image = await deps.remoteImage?.(parsed.url);
+      if (!image) return new Response(null, { status: 404 });
+      return new Response(new Uint8Array(image.bytes), { headers: { 'content-type': image.mime } });
     }
     const path = await resolveNextlevelPath(parsed, { mediaPath: deps.mediaPath, ...deps.paths() });
     if (!path) return new Response(null, { status: 404 });

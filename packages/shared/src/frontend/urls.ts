@@ -10,7 +10,8 @@ export type ParsedNextlevelUrl =
   | { kind: 'art'; root: ArtRoot; rel: string }
   | { kind: 'scrape-thumb'; providerGameId: number }
   | { kind: 'launchbox-thumb'; databaseId: number }
-  | { kind: 'catalog-art'; itemId: string; artKind: string };
+  | { kind: 'catalog-art'; itemId: string; artKind: string }
+  | { kind: 'remote-image'; url: string };
 
 /** `version` (the file's mtime) changes the URL when a file is replaced, so no cached image stays. */
 export function mediaUrl(gameId: number, kind: string, version?: number): string {
@@ -31,6 +32,38 @@ export function launchboxThumbUrl(databaseId: number): string {
 /** A catalog item's art (S8), fetched by main: the signed API URL never reaches the renderer. */
 export function catalogArtUrl(itemId: string, kind: string): string {
   return `nextlevel://catalog-art/${itemId}/${kind}`;
+}
+
+const REMOTE_IMAGE_MAX_URL = 2048;
+
+const isRemoteImageSource = (url: string) =>
+  url.startsWith('https://') && url.length <= REMOTE_IMAGE_MAX_URL;
+
+// Base64url of the UTF-8 bytes; `btoa`/`atob` exist in Node and the browser (no `Buffer` here).
+function toBase64Url(text: string): string {
+  let binary = '';
+  for (const byte of new TextEncoder().encode(text)) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(encoded: string): string | null {
+  if (!/^[A-Za-z0-9_-]+$/.test(encoded)) return null;
+  try {
+    const binary = atob(encoded.replace(/-/g, '+').replace(/_/g, '/'));
+    return new TextDecoder('utf-8', { fatal: true }).decode(
+      Uint8Array.from(binary, (char) => char.charCodeAt(0)),
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * A museum model image (FR-MUS-4), fetched and cached by main so the renderer CSP can stay strict.
+ * Null unless the source is `https://` and at most 2048 characters.
+ */
+export function remoteImageUrl(url: string): string | null {
+  return isRemoteImageSource(url) ? `nextlevel://remote-image/${toBase64Url(url)}` : null;
 }
 
 export function artUrl(root: ArtRoot, rel: string): string {
@@ -57,11 +90,16 @@ function decodeSegments(raw: string[]): string[] | null {
 
 /** Parses a `nextlevel://` URL; null for anything that is not a well-formed, in-root reference. */
 export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
-  const match = /^nextlevel:\/\/(media|art|scrape-thumb|launchbox-thumb|catalog-art)\/(.*)$/.exec(
-    url,
-  );
+  const match =
+    /^nextlevel:\/\/(media|art|scrape-thumb|launchbox-thumb|catalog-art|remote-image)\/(.*)$/.exec(
+      url,
+    );
   if (!match) return null;
   const parts = (match[2] ?? '').split('/');
+  if (match[1] === 'remote-image') {
+    const url = fromBase64Url(match[2] ?? '');
+    return url !== null && isRemoteImageSource(url) ? { kind: 'remote-image', url } : null;
+  }
   if (match[1] === 'catalog-art') {
     const [itemId, artKind, ...rest] = parts;
     const known = (GAME_ART_KINDS as readonly string[]).includes(artKind ?? '');

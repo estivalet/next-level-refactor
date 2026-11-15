@@ -1,5 +1,5 @@
 // The sections of the museum page (FR-MUS-4, FR-MUS-5), split out of MuseumPage.tsx.
-import type { ThemeSystemInfo } from '@nextlevel/shared';
+import { remoteImageUrl, type ThemeSystemInfo } from '@nextlevel/shared';
 import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -63,11 +63,13 @@ export function Hardware({ info }: { info: Entry }) {
 function ModelImage({ name, url }: { name: string; url: string | undefined }) {
   const { t } = useTranslation();
   const [broken, setBroken] = useState(false);
+  // Main fetches and caches the image (FR-MUS-4); the strict CSP only allows nextlevel: images.
+  const src = url === undefined ? null : remoteImageUrl(url);
   return (
     <div className="museum-model-image">
-      {isHttps(url) && !broken ? (
+      {src !== null && !broken ? (
         <img
-          src={url}
+          src={src}
           alt={name}
           onError={() => {
             setBroken(true);

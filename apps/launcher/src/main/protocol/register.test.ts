@@ -55,6 +55,32 @@ describe('nextlevel:// handler', () => {
     expect((await art(new Request('nextlevel://catalog-art/i2/box-front'))).status).toBe(404);
   });
 
+  it('FR-MUS-4: nextlevel://remote-image serves the cached bytes with the image type; malformed is 404', async () => {
+    const seen: string[] = [];
+    const images = createNextlevelHandler({
+      mediaPath: () => null,
+      paths: () => ({ assetsPath: null, themesPath: null }),
+      remoteImage: (url) => {
+        seen.push(url);
+        return Promise.resolve(
+          url === 'https://example.com/a.png'
+            ? { bytes: Buffer.from('png'), mime: 'image/png' }
+            : null,
+        );
+      },
+    });
+    const encode = (url: string) =>
+      `nextlevel://remote-image/${Buffer.from(url).toString('base64url')}`;
+    const res = await images(new Request(encode('https://example.com/a.png')));
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('image/png');
+    expect(await res.text()).toBe('png');
+    expect((await images(new Request(encode('https://example.com/b.png')))).status).toBe(404);
+    expect((await images(new Request(encode('http://example.com/a.png')))).status).toBe(404);
+    expect((await images(new Request('nextlevel://remote-image/%%%'))).status).toBe(404);
+    expect(seen).toEqual(['https://example.com/a.png', 'https://example.com/b.png']);
+  });
+
   it('FR-SCR-5: a versioned media URL serves the indexed file', async () => {
     const media = createNextlevelHandler({
       mediaPath: (id, kind) => (id === 3 && kind === 'box-front' ? join(root, 'win.ini') : null),

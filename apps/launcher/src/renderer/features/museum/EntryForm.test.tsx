@@ -1,4 +1,4 @@
-import { ok, type SystemInfo } from '@nextlevel/shared';
+import { ok, remoteImageUrl, type SystemInfo } from '@nextlevel/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -148,15 +148,40 @@ describe('EntryForm', () => {
     expect(within(form).queryByRole('button', { name: 'Reset to original' })).toBeNull();
   });
 
-  it('FR-MUS-2: a broken model image shows the placeholder in the same box', async () => {
+  it('FR-MUS-4: model images load through nextlevel://remote-image; a broken one shows the placeholder in the same box', async () => {
     setup();
     const view = await screen.findByRole('article', { name: 'Super Nintendo' });
     const img = await within(view).findByRole('img', { name: 'SNS-101' });
+    expect(img).toHaveAttribute('src', remoteImageUrl('https://example.com/snes.png'));
     const box = img.parentElement;
     fireEvent.error(img);
     expect(within(view).queryByRole('img', { name: 'SNS-101' })).toBeNull();
     const placeholder = within(view).getByTestId('model-image-placeholder');
     expect(placeholder.parentElement).toBe(box);
+  });
+
+  it('FR-MUS-2: typing an image link does not request an image per keystroke', async () => {
+    const { user } = setup();
+    const form = await openForm(user);
+    const models = within(form).getByRole('region', { name: 'Models' });
+    const field = within(models).getByLabelText('Image link');
+    const sources = () =>
+      within(models)
+        .queryAllByRole('img', { name: 'SNS-101' })
+        .map((img) => img.getAttribute('src'));
+    const original = remoteImageUrl('https://example.com/snes.png');
+    expect(sources()).toEqual([original]);
+
+    await user.clear(field);
+    await user.type(field, 'https://example.com/new.png');
+    // While typing, the preview still shows the settled value: no request for the partial links.
+    expect(sources()).toEqual([original]);
+    await waitFor(
+      () => {
+        expect(sources()).toEqual([remoteImageUrl('https://example.com/new.png')]);
+      },
+      { timeout: 2000 },
+    );
   });
 
   it('FR-MUS-2: a model without an image shows the placeholder', async () => {

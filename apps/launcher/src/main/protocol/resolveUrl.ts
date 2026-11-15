@@ -28,7 +28,8 @@ export async function resolveNextlevelPath(
   if (
     parsed.kind === 'scrape-thumb' ||
     parsed.kind === 'launchbox-thumb' ||
-    parsed.kind === 'catalog-art'
+    parsed.kind === 'catalog-art' ||
+    parsed.kind === 'remote-image'
   ) {
     return null;
   }

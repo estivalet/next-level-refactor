@@ -6,6 +6,7 @@ import {
   parseNextlevelUrl,
   scrapeThumbUrl,
   launchboxThumbUrl,
+  remoteImageUrl,
 } from './urls.ts';
 
 describe('nextlevel URLs', () => {
@@ -109,6 +110,32 @@ describe('nextlevel URLs', () => {
       'nextlevel://media/1/box-front/x',
       'https://art/assets/x.png',
       'not a url',
+    ]) {
+      expect(parseNextlevelUrl(bad), bad).toBeNull();
+    }
+  });
+
+  it('FR-MUS-4: remoteImageUrl round-trips an https URL and refuses http, javascript and over-long URLs', () => {
+    const source = 'https://example.com/img/Süper Nes.png?a=1&b=2';
+    const url = remoteImageUrl(source);
+    expect(url).toMatch(/^nextlevel:\/\/remote-image\/[A-Za-z0-9_-]+$/);
+    expect(parseNextlevelUrl(url ?? '')).toEqual({ kind: 'remote-image', url: source });
+    expect(remoteImageUrl('http://example.com/a.png')).toBeNull();
+    expect(remoteImageUrl('javascript:alert(1)')).toBeNull();
+    expect(remoteImageUrl(`https://example.com/${'a'.repeat(2040)}`)).toBeNull();
+    const limit = `https://e.com/${'a'.repeat(2048 - 14)}`;
+    expect(remoteImageUrl(limit)).not.toBeNull();
+  });
+
+  it('FR-MUS-4: a remote-image URL that does not decode to https is rejected', () => {
+    const enc = (text: string) => Buffer.from(text).toString('base64url');
+    for (const bad of [
+      `nextlevel://remote-image/${enc('http://example.com/a.png')}`,
+      `nextlevel://remote-image/${enc('javascript:alert(1)')}`,
+      `nextlevel://remote-image/${enc(`https://e.com/${'a'.repeat(2100)}`)}`,
+      'nextlevel://remote-image/',
+      'nextlevel://remote-image/!!!',
+      `nextlevel://remote-image/${enc('https://e.com/a.png')}/x`,
     ]) {
       expect(parseNextlevelUrl(bad), bad).toBeNull();
     }

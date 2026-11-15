@@ -1,5 +1,5 @@
 // FR-MUS-4, FR-MUS-5: the museum page a theme opens for a system, driven by controller input.
-import { defaultSettings, type ThemeSystemInfo } from '@nextlevel/shared';
+import { defaultSettings, remoteImageUrl, type ThemeSystemInfo } from '@nextlevel/shared';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ThemeEngineProvider } from '../engine/ThemeEngineProvider.tsx';
@@ -115,7 +115,7 @@ describe('MuseumPage', () => {
     expect(screen.getByText('Book')).toBeInTheDocument();
   });
 
-  it('FR-MUS-4: a broken model image becomes a placeholder', async () => {
+  it('FR-MUS-4: model images load through nextlevel://remote-image; a broken one becomes a placeholder', async () => {
     setup(
       entry({
         models: [
@@ -130,6 +130,8 @@ describe('MuseumPage', () => {
       }),
     );
     const img = await screen.findByRole('img', { name: 'Famicom' }, { timeout: 2000 });
+    expect(img).toHaveAttribute('src', remoteImageUrl('https://example.com/f.png'));
+    expect(img.getAttribute('src')).toMatch(/^nextlevel:\/\/remote-image\//);
     fireEvent.error(img);
     expect(screen.queryByRole('img', { name: 'Famicom' })).toBeNull();
     expect(screen.getAllByText('No image')).toHaveLength(2);
