@@ -82,6 +82,7 @@ export const ThemeSystemInfoSchema = SystemInfoSchema.omit({ topGames: true }).e
   topGames: z.array(ResolvedTopGameSchema),
 });
 
+export type SystemInfoSeedFile = z.output<typeof SystemInfoSeedFileSchema>;
 export type SystemInfo = z.output<typeof SystemInfoSchema>;
 export type SystemInfoModel = z.output<typeof SystemInfoModelSchema>;
 export type SystemInfoTopGame = z.output<typeof SystemInfoTopGameSchema>;

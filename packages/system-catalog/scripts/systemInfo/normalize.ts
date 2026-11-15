@@ -118,6 +118,7 @@ const DISCONTINUED_KEYS = ['discontinued_year', 'ano_de_descontinuação', 'disc
 const MODEL_KEYS = ['models', 'modelos', 'modelsAndVariants'];
 const PERIPHERAL_KEYS = ['peripherals', 'input_devices'];
 const GAME_KEYS = ['notable_games', 'games_library', 'notable_software'];
+const LIST_KEYS = [...MODEL_KEYS, ...PERIPHERAL_KEYS, ...GAME_KEYS];
 const IGNORED_KEYS = ['name', 'id', 'systemId'];
 
 const KNOWN_KEYS = new Set<string>([
@@ -167,7 +168,11 @@ function normalizeGame(raw: unknown): SystemInfoTopGame | null {
 }
 
 function listOf<T>(raw: Raw, keys: readonly string[], map: (item: unknown) => T | null): T[] {
-  const key = keys.find((k) => Array.isArray(raw[k]));
+  const isFilled = (k: string): boolean => {
+    const value = raw[k];
+    return Array.isArray(value) && value.length > 0;
+  };
+  const key = keys.find(isFilled);
   if (key === undefined) return [];
   return (raw[key] as unknown[])
     .map(map)
@@ -200,5 +205,9 @@ export function normalizeScraped(raw: unknown): NormalizeResult {
   ) {
     entry.sources = [{ name: 'Wikipedia' }];
   }
-  return { entry, dropped: Object.keys(raw).filter((key) => !KNOWN_KEYS.has(key)) };
+  const dropped = Object.keys(raw).filter((key) => !KNOWN_KEYS.has(key));
+  for (const key of LIST_KEYS) {
+    if (key in raw && !Array.isArray(raw[key])) dropped.push(key);
+  }
+  return { entry, dropped };
 }

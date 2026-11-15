@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SystemInfoSchema } from '@nextlevel/shared';
 import { normalizeScraped } from './normalize.ts';
 
 describe('normalizeScraped', () => {
@@ -89,5 +90,28 @@ describe('normalizeScraped', () => {
       { name: 'Wikipedia' },
     ]);
     expect(normalizeScraped({ impact: 'Fake impact' }).entry.history).toBe('Fake impact');
+  });
+  it('FR-MUS-1: an empty list key does not hide a populated alias, and a non-array list is dropped', () => {
+    const picked = normalizeScraped({ models: [], modelos: [{ model_name: 'Rev A' }] });
+    expect(picked.entry.models.map((m) => m.name)).toEqual(['Rev A']);
+    const bad = normalizeScraped({ peripherals: 'Pad, Stick', notable_games: { a: 1 } });
+    expect(bad.entry.peripherals).toEqual([]);
+    expect(bad.dropped).toEqual(expect.arrayContaining(['peripherals', 'notable_games']));
+  });
+
+  it('FR-MUS-1: a rich normalized entry validates against SystemInfoSchema', () => {
+    const { entry } = normalizeScraped({
+      full_name: 'Fake Console One',
+      brand: 'Acme',
+      release_year: '1981-06-01',
+      discontinued_year: 1985,
+      description: 'A console.',
+      cpu: ['Z80', '3 MHz'],
+      sales: 1200000,
+      models: [{ model_name: 'Rev A', release_year: 1981, image: 'https://example.com/a.png' }],
+      peripherals: ['Pad', 42, ''],
+      notable_games: [{ title: 'Game', year: 1982 }, 'Other'],
+    });
+    expect(SystemInfoSchema.parse({ systemId: 'x', ...entry }).models).toHaveLength(1);
   });
 });

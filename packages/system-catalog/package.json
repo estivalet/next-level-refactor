@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./data/systems.json": "./data/systems.json"
+    "./data/systems.json": "./data/systems.json",
+    "./data/system-info.json": "./data/system-info.json"
   },
   "devDependencies": {
     "fast-xml-parser": "^5.11.2"
@@ -15,6 +16,7 @@
     "zod": "^4.6.7"
   },
   "scripts": {
-    "seed": "node --experimental-strip-types scripts/seed.ts"
+    "seed": "node --experimental-strip-types scripts/seed.ts",
+    "import:system-info": "node --experimental-strip-types scripts/importSystemInfo.ts"
   }
 }

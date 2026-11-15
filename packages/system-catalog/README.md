@@ -63,3 +63,17 @@ Third-party notices: [NOTICE.md](NOTICE.md).
 `data/released-ids.json` lists every id ever released. The seed fails if one would disappear
 (a rename in NextLevelOS or a change to `slugify`) and appends new ids; a test checks that every
 listed id is still in the catalog. To retire a system, keep its entry (ADR-011).
+
+## System museum seed
+
+`data/system-info.json` holds the Systems Museum entries (FR-MUS-1), built from the owner's scraped
+per-system JSON files plus LaunchBox's `Platforms.xml` (`00_lb_metadata.xml`, gaps only). To
+regenerate it (the folder is only read; keep the report outside the repo):
+
+```bash
+npm run --silent import:system-info -w packages/system-catalog -- "<system-info folder>" > <report.json>
+```
+
+The report lists `unmatched` source names (no catalog system, or a duplicate), `unparseable` files
+and `dropped` keys the normalizer ignored. Descriptive text comes from Wikipedia (CC BY-SA 4.0);
+entries record it in `sources` so the Museum can credit it (FR-MUS-5).
