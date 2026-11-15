@@ -290,6 +290,8 @@ async function start(): Promise<void> {
     const { assetsPath, themesPath } = currentSettings(settings).storage;
     return { assetsPath, themesPath };
   };
+  // Node's global `fetch` on purpose: no cookie jar. Electron's `net.fetch` would send Chromium
+  // session cookies and use its proxy settings.
   const remoteImages = new RemoteImageCache({
     dir: join(dataDir, 'cache', 'remote-images'),
     fetcher: fetch,

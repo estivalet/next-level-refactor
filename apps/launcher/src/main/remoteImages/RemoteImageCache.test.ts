@@ -36,7 +36,7 @@ describe('RemoteImageCache', () => {
     expect(await readdir(dir)).toEqual([expect.stringMatching(/^[0-9a-f]{64}\.png$/)]);
   });
 
-  it('FR-MUS-4: requests carry no credentials', async () => {
+  it('FR-MUS-4: requests ask for no credentials (records intent; Node fetch has no cookie jar)', async () => {
     const fetcher = vi.fn(() => Promise.resolve(png()));
     await make(fetcher).get(URL1);
     const init = fetcher.mock.calls[0] as unknown as [string, RequestInit];
@@ -85,11 +85,81 @@ describe('RemoteImageCache', () => {
     },
   );
 
-  it('FR-MUS-4: a redirect to http is refused', async () => {
-    const response = png();
-    Object.defineProperty(response, 'url', { value: 'http://example.com/a.png' });
-    const cache = make(mockFetch(() => Promise.resolve(response)));
-    expect(await cache.get(URL1)).toBeNull();
+  it('FR-MUS-4: loopback, private and .local hosts are refused without a request', async () => {
+    const fetcher = mockFetch(() => Promise.resolve(png()));
+    const cache = make(fetcher);
+    for (const url of [
+      'https://127.0.0.1:8443/a.png',
+      'https://192.168.1.5/a.png',
+      'https://localhost/a.png',
+      'https://nas.local/a.png',
+      'https://[::1]/a.png',
+      'https://user:pw@example.com/a.png',
+      'http://example.com/a.png',
+    ]) {
+      expect(await cache.get(url), url).toBeNull();
+    }
+    expect(fetcher).not.toHaveBeenCalled();
     expect(await readdir(dir)).toEqual([]);
+  });
+
+  it('FR-MUS-4: a redirect to a private host or to http is refused', async () => {
+    for (const location of [
+      'http://example.com/a.png',
+      'https://192.168.0.1/a.png',
+      'https://127.0.0.1/a.png',
+    ]) {
+      const fetcher = vi.fn(() =>
+        Promise.resolve(new Response(null, { status: 302, headers: { location } })),
+      );
+      const cache = make(fetcher);
+      expect(await cache.get(URL1), location).toBeNull();
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it('FR-MUS-4: a public https redirect is followed, but only five hops', async () => {
+    const hops = vi.fn((url: string) => {
+      const n = Number(/hop(\d+)/.exec(url)?.[1] ?? 0);
+      return Promise.resolve(
+        n < 3
+          ? new Response(null, { status: 301, headers: { location: `/hop${String(n + 1)}` } })
+          : png(),
+      );
+    });
+    expect((await make(hops as unknown as typeof fetch).get(URL1))?.mime).toBe('image/png');
+    expect(hops).toHaveBeenCalledTimes(4);
+
+    const loop = vi.fn(() =>
+      Promise.resolve(new Response(null, { status: 302, headers: { location: '/again' } })),
+    );
+    expect(await make(loop as unknown as typeof fetch).get('https://example.com/x')).toBeNull();
+    expect(loop).toHaveBeenCalledTimes(6);
+  });
+
+  it('FR-MUS-4: the cache stays under its size cap (oldest evicted)', async () => {
+    const size = PNG.length;
+    const cache = new RemoteImageCache({
+      dir,
+      fetcher: mockFetch(() => Promise.resolve(png())),
+      now: () => clock,
+      maxCacheBytes: size * 2,
+    });
+    for (const name of ['a', 'b', 'c']) {
+      await cache.get(`https://example.com/${name}.png`);
+      await new Promise((resolve) => setTimeout(resolve, 15));
+    }
+    expect(await readdir(dir)).toHaveLength(2);
+    const throwing = mockFetch(() => Promise.reject(new Error('offline')));
+    const again = make(throwing, {});
+    expect(await again.get('https://example.com/c.png')).not.toBeNull();
+    expect(await again.get('https://example.com/a.png')).toBeNull(); // evicted, offline
+  });
+
+  it('FR-MUS-4: the failure memory is capped', async () => {
+    const fetcher = vi.fn(() => Promise.reject(new Error('down')));
+    const cache = make(fetcher);
+    for (let i = 0; i < 1005; i++) await cache.get(`https://example.com/${String(i)}.png`);
+    expect((cache as unknown as { failedUntil: Map<string, number> }).failedUntil.size).toBe(1000);
   });
 });
