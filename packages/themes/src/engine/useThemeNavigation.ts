@@ -17,7 +17,8 @@ export interface ThemeNavigation {
   back: () => void;
   setFocus: (index: number) => void;
   home: () => void;
-  launch: (game: ThemeGame) => Promise<LaunchOutcome>;
+  /** Takes a game, or just its id (a museum page's owned top game). */
+  launch: (game: Pick<ThemeGame, 'id'>) => Promise<LaunchOutcome>;
   /** Sets favorite/hidden at once, saves through the host, rolls back when that fails. */
   updateGameFlags: (game: ThemeGame, patch: GameFlagsPatch) => Promise<boolean>;
   retry: () => void;

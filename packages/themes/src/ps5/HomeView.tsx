@@ -10,6 +10,7 @@ import { ShelfRow } from '../components/ShelfRow.tsx';
 import { countLabel, useGameCount } from '../components/useGameCount.ts';
 import { nodeLabel } from '../engine/levelModel.ts';
 import { useThemeArt } from '../engine/useThemeArt.ts';
+import type { HeroButton } from './useHomeZones.ts';
 
 const keepFocus = (event: { preventDefault: () => void }) => {
   // A click must not move focus off the theme root.
@@ -26,6 +27,8 @@ export function HomeView({
   focusIndex,
   onFocusChange,
   onActivate,
+  heroFocus,
+  onInfo,
 }: {
   categories: readonly MenuNode[];
   activeCategory: number;
@@ -36,6 +39,10 @@ export function HomeView({
   focusIndex: number;
   onFocusChange: (index: number) => void;
   onActivate: (index: number) => void;
+  /** The focused hero button; null while focus is on the shelf (FR-MUS-4). */
+  heroFocus: HeroButton | null;
+  /** Opens the focused system's museum page. */
+  onInfo: () => void;
 }) {
   const { t } = useTranslation();
   const art = useThemeArt();
@@ -124,16 +131,29 @@ export function HomeView({
             className="ps5-hero-logo"
           />
           {countText && <div className="ps5-hero-count">{countText}</div>}
-          <button
-            type="button"
-            className="ps5-explore"
-            onMouseDown={keepFocus}
-            onClick={() => {
-              onActivate(focusIndex);
-            }}
-          >
-            {t('themes.ps5.explore')}
-          </button>
+          <div className="ps5-hero-actions">
+            <button
+              type="button"
+              className={cn('ps5-explore', heroFocus === 'explore' && 'ps5-hero-btn--focused')}
+              onMouseDown={keepFocus}
+              onClick={() => {
+                onActivate(focusIndex);
+              }}
+            >
+              {t('themes.ps5.explore')}
+            </button>
+            {focused.systemId && (
+              <button
+                type="button"
+                aria-label={t('themes.ps5.moreInfo')}
+                className={cn('ps5-more', heroFocus === 'info' && 'ps5-hero-btn--focused')}
+                onMouseDown={keepFocus}
+                onClick={onInfo}
+              >
+                …
+              </button>
+            )}
+          </div>
         </section>
       )}
     </>

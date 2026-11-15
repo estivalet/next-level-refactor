@@ -1,6 +1,6 @@
 // Cases ported from NextLevelOS src/themes/ps5/Ps5Theme.test.tsx @ 3d530b7 on a FakeThemeHost
 // (categories Nintendo · Sega · Collections), driven by input actions (US-C1).
-import type { MenuNode, MenuTree } from '@nextlevel/shared';
+import type { MenuNode, MenuTree, ThemeSystemInfo } from '@nextlevel/shared';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import i18n from 'i18next';
 import { useState } from 'react';
@@ -58,8 +58,8 @@ function mount(menu?: MenuTree) {
   });
 }
 
-async function ready(menu?: MenuTree, first = 'Nintendo') {
-  const ctx = mount(menu);
+async function ready(menu?: MenuTree, first = 'Nintendo', host?: FakeThemeHost) {
+  const ctx = host ? renderTheme(ps5Theme, { host }) : mount(menu);
   await waitFor(() => {
     expect(activeCategory()).toBe(first);
   });
@@ -273,5 +273,81 @@ describe('PS5 Style (FR-THM-1)', () => {
     await waitFor(() => {
       expect(lastSound()?.muted).toBe(true);
     });
+  });
+});
+
+const SNES_INFO: ThemeSystemInfo = {
+  systemId: 'snes',
+  description: 'A 16-bit console.',
+  models: [],
+  peripherals: [],
+  topGames: [{ title: 'Snes B', owned: { gameId: 2 } }],
+  sources: [],
+};
+
+const museumHost = (menu?: MenuTree) =>
+  new FakeThemeHost({
+    art: NO_ART_FILES,
+    systemInfo: { snes: SNES_INFO },
+    ...(menu ? { menu } : {}),
+  });
+const heroButton = (name: RegExp) => screen.getByRole('button', { name });
+const isHeroFocused = (name: RegExp) =>
+  heroButton(name).classList.contains('ps5-hero-btn--focused');
+
+describe('PS5 museum page (FR-MUS-4)', () => {
+  it('FR-MUS-4: I opens the museum page for a focused system and Back closes it', async () => {
+    const { onExit } = await ready(undefined, 'Nintendo', museumHost());
+    press('KeyI');
+    expect(await screen.findByRole('dialog', { name: 'Super Nintendo' })).toBeInTheDocument();
+    expect(await screen.findByText('A 16-bit console.')).toBeInTheDocument();
+    press('ArrowRight'); // the theme's input is paused while the page is open
+    press('Escape');
+    expect(screen.queryByRole('dialog', { name: 'Super Nintendo' })).toBeNull();
+    expect(onExit).not.toHaveBeenCalled();
+    expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Super Nintendo');
+  });
+
+  it('FR-MUS-4: Down then Right then Select reaches the museum page', async () => {
+    const { host } = await ready(undefined, 'Nintendo', museumHost());
+    press('ArrowDown');
+    expect(isHeroFocused(/Explore/)).toBe(true);
+    press('ArrowRight');
+    expect(isHeroFocused(/Explore/)).toBe(false);
+    expect(isHeroFocused(/More information/)).toBe(true);
+    press('Enter');
+    expect(await screen.findByRole('dialog', { name: 'Super Nintendo' })).toBeInTheDocument();
+    const game = await screen.findByRole('button', { name: /Snes B/ });
+    press('ArrowDown');
+    expect(document.activeElement).toBe(game);
+    press('Enter');
+    await waitFor(() => {
+      expect(host.calls.filter((call) => call.method === 'launch').at(-1)?.args).toEqual([2]);
+    });
+  });
+
+  it('FR-MUS-4: Up from the hero returns to the shelf with the same focus', async () => {
+    await ready(undefined, 'Nintendo', museumHost());
+    press('ArrowRight'); // Nintendo 64
+    press('ArrowDown');
+    press('ArrowRight'); // in the hero: Explore → …, the shelf stays put
+    press('ArrowUp');
+    expect(document.querySelector('.ps5-hero-btn--focused')).toBeNull();
+    expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Nintendo 64');
+    press('ArrowDown');
+    expect(isHeroFocused(/Explore/)).toBe(true);
+    press('Enter'); // Explore activates the focused system
+    await screen.findByRole('tab', { name: /All/ });
+  });
+
+  it('FR-MUS-4: open-info on a category does nothing', async () => {
+    const menu: MenuTree = {
+      title: 'NextLevel',
+      items: [category('One', [category('Inner', [systemNode('snes', 'Super Nintendo')])])],
+    };
+    await ready(menu, 'One', museumHost(menu));
+    press('KeyI');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByRole('button', { name: /More information/ })).toBeNull();
   });
 });

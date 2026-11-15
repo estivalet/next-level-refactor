@@ -6,7 +6,7 @@ import type { NavAction } from './types.ts';
 
 /** Launch and favorite/hidden through the host; flags change at once and roll back on failure. */
 export function useGameActions(host: ThemeHost, dispatch: Dispatch<NavAction>) {
-  const launch = useCallback((game: ThemeGame) => host.launch(game.id), [host]);
+  const launch = useCallback((game: Pick<ThemeGame, 'id'>) => host.launch(game.id), [host]);
 
   const updateGameFlags = useCallback(
     async (game: ThemeGame, patch: GameFlagsPatch) => {

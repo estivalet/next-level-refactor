@@ -90,6 +90,7 @@ export type NavIntent =
   | { kind: 'toggle-hidden' }
   | { kind: 'show-help' }
   | { kind: 'open-menu' }
+  | { kind: 'open-info' }
   | { kind: 'jump-prev' }
   | { kind: 'jump-next' }
   | { kind: 'page-prev' }

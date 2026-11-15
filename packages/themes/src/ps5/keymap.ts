@@ -19,6 +19,7 @@ export const PS5_KEYMAP: KeyMap = {
   search: 'toggle-search',
   help: 'show-help',
   menu: 'open-menu',
+  info: 'open-info',
 };
 
 export const HOME_HELP_INTENTS: readonly NavIntentKind[] = [
@@ -30,6 +31,7 @@ export const HOME_HELP_INTENTS: readonly NavIntentKind[] = [
   'tab-prev',
   'tab-next',
   'open-menu',
+  'open-info',
   'show-help',
 ];
 

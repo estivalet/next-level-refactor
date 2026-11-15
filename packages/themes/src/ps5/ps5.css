@@ -159,9 +159,45 @@
   backdrop-filter: blur(8px);
   font-size: 16px;
   font-weight: 600;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
 }
-.ps5-explore:hover {
+.ps5-hero-actions {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ps5-more {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+.ps5-explore:hover,
+.ps5-more:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+/* FR-MUS-4: the hero button focus, the same white ring as a focused shelf icon. */
+.ps5-hero-btn--focused {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 24px rgba(255, 255, 255, 0.35);
+}
+.ps5-museum {
+  --museum-bg: #0d1330;
+  --museum-fg: var(--ps5-ink);
+  --museum-muted: var(--ps5-muted);
+  --museum-accent: #ffffff;
 }
 
 .ps5-footer {

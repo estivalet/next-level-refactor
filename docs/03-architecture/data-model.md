@@ -145,7 +145,8 @@ type InputSettings = {
   repeatRateHz: number;                      // default 10
 };
 type InputAction = 'up'|'down'|'left'|'right'|'select'|'back'|'home'|'menu'|'help'|'search'
-                 | 'favorite'|'hide'|'random'|'tabPrev'|'tabNext'|'pageUp'|'pageDown'|'toDesktop'|'switchTheme';
+                 | 'favorite'|'hide'|'random'|'tabPrev'|'tabNext'|'pageUp'|'pageDown'|'toDesktop'|'switchTheme'
+                 | 'info';                                 // FR-MUS-4: open a system's museum page
 // GamepadButton: 'a'|'b'|'x'|'y'|'lb'|'rb'|'lt'|'rt'|'view'|'start'|'ls'|'rs'|'dpadUp'|… |'guide'
 // plus 'lsUp'|'lsDown'|'lsLeft'|'lsRight' (left stick past 0.5). A gamepad binding is one button
 // or a two-button chord ('view+start'). The same binding on two actions is `duplicateBinding`.

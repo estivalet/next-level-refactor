@@ -1,12 +1,14 @@
 // Ported from NextLevelOS src/themes/ps5/Ps5Theme.tsx @ 3d530b7: input arrives as actions (US-C1),
 // categories are the root MenuNodes, hints show the user's own keys and buttons, strings via i18n.
 import './ps5.css';
+import type { MenuNode } from '@nextlevel/shared';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Background } from '../components/Background.tsx';
 import { KeyHelpOverlay } from '../components/KeyHelpOverlay.tsx';
 import { MENU_STATUS_ROOT, MenuStatusContent } from '../components/MenuStatusContent.tsx';
+import { MuseumPage } from '../components/MuseumPage.tsx';
 import { StatusBar } from '../components/StatusBar.tsx';
 import { useFocusBackground } from '../components/useFocusBackground.ts';
 import { useGamesLevelController } from '../components/useGamesLevelController.ts';
@@ -16,12 +18,14 @@ import { nodeLabel } from '../engine/levelModel.ts';
 import { levelPush } from '../engine/transitions.ts';
 import type { Level, NavIntentKind, ThemeComponentProps } from '../engine/types.ts';
 import { useFilterLayout } from '../engine/useFilterLayout.ts';
+import { useThemeArt } from '../engine/useThemeArt.ts';
 import { useHostInput, useThemeInput } from '../engine/useThemeInput.ts';
 import { useThemeHost, useThemeNavigation } from '../engine/useThemeNavigation.ts';
 import { Footer } from './Footer.tsx';
 import { GamesView, PS5_GRID_COLUMNS, PS5_PAGE_ROWS } from './GamesView.tsx';
 import { HomeView } from './HomeView.tsx';
 import { GAMES_HELP_INTENTS, HOME_HELP_INTENTS, PS5_KEYMAP } from './keymap.ts';
+import { useHomeZones } from './useHomeZones.ts';
 
 export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeComponentProps) {
   const { t } = useTranslation();
@@ -32,8 +36,11 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
   const level = nav.currentLevel;
   const status = nav.state.status;
   const stackDepth = nav.state.stack.length;
+  const art = useThemeArt();
   const [helpOpen, setHelpOpen] = useState(false);
-  const listening = inputEnabled && !helpOpen;
+  // FR-MUS-4: the system whose museum page is open; the theme takes no input meanwhile.
+  const [museum, setMuseum] = useState<MenuNode | null>(null);
+  const listening = inputEnabled && !helpOpen && !museum;
   useThemeRootFocus(rootRef, { status, stackDepth, enabled: listening });
   const games = useGamesLevelController({
     rootRef,
@@ -57,6 +64,18 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
   const menuItems = level?.kind === 'menu' ? level.items : [];
   const menuFocus = menuItems.length ? Math.min(nav.state.focusIndex, menuItems.length - 1) : 0;
   const focusedMenuItem = level?.kind === 'menu' ? (menuItems[menuFocus] ?? null) : null;
+  const openMuseum = () => {
+    if (focusedMenuItem?.systemId) setMuseum(focusedMenuItem);
+  };
+  const zones = useHomeZones({
+    resetKey: `${String(stackDepth)}:${String(activeCategory)}:${levelIdentity(level)}:${String(menuFocus)}`,
+    enabled: focusedMenuItem !== null,
+    hasInfo: Boolean(focusedMenuItem?.systemId),
+    onExplore: () => {
+      nav.enter(menuFocus);
+    },
+    onInfo: openMuseum,
+  });
 
   useThemeInput({
     targetRef: rootRef,
@@ -76,6 +95,11 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
         return true;
       }
       if (games.handleIntent(intent)) return true;
+      if (intent === 'open-info') {
+        if (!isGames) openMuseum();
+        return true;
+      }
+      if (zones.handleIntent(intent)) return true;
       if (!isGames && (intent === 'tab-prev' || intent === 'tab-next')) {
         const n = categories.length;
         if (n > 0) selectRoot((activeCategory + (intent === 'tab-next' ? 1 : -1) + n) % n);
@@ -94,10 +118,14 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
   });
 
   useNavigationSound({
-    focusKey: isGames ? games.tabbed.displayFocus : menuFocus,
+    focusKey: isGames
+      ? games.tabbed.displayFocus
+      : zones.heroFocus
+        ? `hero:${zones.heroFocus}`
+        : menuFocus,
     levelKey: `${String(stackDepth)}:${String(activeCategory)}:${levelIdentity(level)}:${games.tabbed.activeTabId}`,
     levelKind: level?.kind,
-    muted: games.tabbed.search.isOpen || helpOpen || !active,
+    muted: games.tabbed.search.isOpen || helpOpen || museum !== null || !active,
   });
 
   // At the bare root (before the effect above selects a category) show the loading state instead
@@ -150,6 +178,8 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
               focusIndex={menuFocus}
               onFocusChange={nav.setFocus}
               onActivate={nav.enter}
+              heroFocus={zones.heroFocus}
+              onInfo={openMuseum}
             />
           ) : (
             <GamesView title={label(level)} level={level} controller={games} />
@@ -183,6 +213,21 @@ export function Ps5Theme({ onExit, inputEnabled = true, active = true }: ThemeCo
         className="ps5-help"
         panelClassName="ps5-help-panel"
         keyClassName="ps5-kbd"
+      />
+
+      <MuseumPage
+        open={museum !== null}
+        enabled={inputEnabled}
+        systemId={museum?.systemId ?? null}
+        title={museum ? nodeLabel(museum, t) : ''}
+        logoCandidates={museum ? art.nodeLogo(museum) : []}
+        input={input}
+        onClose={() => {
+          setMuseum(null);
+          rootRef.current?.focus();
+        }}
+        onLaunch={(gameId) => void games.play({ id: gameId })}
+        className="ps5-museum"
       />
 
       {games.toast && (

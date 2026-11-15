@@ -612,7 +612,8 @@
         "pageUp": "Page up",
         "pageDown": "Page down",
         "toDesktop": "Go to desktop",
-        "switchTheme": "Switch theme"
+        "switchTheme": "Switch theme",
+        "info": "System museum"
       }
     },
     "general": {
@@ -1505,6 +1506,7 @@
       "toggle-hidden": "Toggle hidden",
       "show-help": "Show all keys",
       "open-menu": "Theme menu",
+      "open-info": "System museum",
       "jump-prev": "Previous letter",
       "jump-next": "Next letter",
       "page-prev": "Page up",
@@ -1599,6 +1601,7 @@
       "name": "PS5 Style",
       "description": "Category tabs, icon shelf and a dark game library",
       "explore": "Explore",
+      "moreInfo": "More information",
       "tabCount": "{{label}}: {{count, number}}"
     },
     "hyperspin": {

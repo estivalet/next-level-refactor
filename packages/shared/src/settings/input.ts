@@ -23,6 +23,7 @@ export const INPUT_ACTIONS = [
   'pageDown',
   'toDesktop',
   'switchTheme',
+  'info',
 ] as const;
 
 export type InputAction = (typeof INPUT_ACTIONS)[number];
@@ -87,6 +88,7 @@ const KEYBOARD_DEFAULTS: Record<InputAction, string[]> = {
   pageDown: ['PageDown'],
   toDesktop: ['KeyM'],
   switchTheme: ['KeyT'],
+  info: ['KeyI'],
 };
 
 const GAMEPAD_DEFAULTS: Record<InputAction, string[]> = {
@@ -109,6 +111,7 @@ const GAMEPAD_DEFAULTS: Record<InputAction, string[]> = {
   pageDown: ['rt'],
   toDesktop: ['view+start'],
   switchTheme: [],
+  info: [],
 };
 
 /** The buttons of a gamepad binding (`'view+start'`) in GAMEPAD_BUTTONS order. */

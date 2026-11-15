@@ -612,7 +612,8 @@
         "pageUp": "Página acima",
         "pageDown": "Página abaixo",
         "toDesktop": "Ir para a área de trabalho",
-        "switchTheme": "Trocar tema"
+        "switchTheme": "Trocar tema",
+        "info": "Museu do sistema"
       }
     },
     "general": {
@@ -1505,6 +1506,7 @@
       "toggle-hidden": "Ocultar / mostrar",
       "show-help": "Mostrar todos os controles",
       "open-menu": "Menu do tema",
+      "open-info": "Museu do sistema",
       "jump-prev": "Letra anterior",
       "jump-next": "Próxima letra",
       "page-prev": "Página anterior",
@@ -1599,6 +1601,7 @@
       "name": "Estilo PS5",
       "description": "Abas de categoria, prateleira de ícones e biblioteca escura",
       "explore": "Explorar",
+      "moreInfo": "Mais informações",
       "tabCount": "{{label}}: {{count, number}}"
     },
     "hyperspin": {

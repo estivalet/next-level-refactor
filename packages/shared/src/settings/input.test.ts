@@ -25,6 +25,23 @@ describe('input settings', () => {
     expect(Object.keys(input.keyboard)).toEqual([...INPUT_ACTIONS]);
   });
 
+  it('FR-MUS-4: info defaults to I and no gamepad button; settings without it still parse', () => {
+    const { input } = defaultSettings();
+    expect(input.keyboard.info).toEqual(['KeyI']);
+    expect(input.gamepad.info).toEqual([]);
+    const withoutInfo = (map: Record<string, string[]>) =>
+      Object.fromEntries(Object.entries(map).filter(([action]) => action !== 'info'));
+    const keyboard = withoutInfo(input.keyboard);
+    const gamepad = withoutInfo(input.gamepad);
+    expect(Object.keys(keyboard)).not.toContain('info');
+    const parsed = SettingsSchema.parse({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      input: { ...input, keyboard, gamepad },
+    });
+    expect(parsed.input.keyboard.info).toEqual(['KeyI']);
+    expect(parsed.input.gamepad.info).toEqual([]);
+  });
+
   it('FR-THM-3: a partial map keeps the user bindings and fills the other actions', () => {
     const parsed = SettingsSchema.parse({
       schemaVersion: CURRENT_SCHEMA_VERSION,

@@ -69,7 +69,10 @@ describe('theme registry (FR-THM-1)', () => {
     expect(pad.back.length).toBeGreaterThan(0);
     for (const theme of THEMES) {
       // Home has no default button (Guide stays unbound); back walks up to the root instead.
-      const intents = new Set(Object.values(theme.keymap).filter((i) => i !== 'home'));
+      // open-info has none either (FR-MUS-4): a pad reaches the museum page through the theme's
+      // own "…" button.
+      const unbound = new Set(['home', 'open-info']);
+      const intents = new Set(Object.values(theme.keymap).filter((i) => !unbound.has(i)));
       for (const intent of intents) {
         const actions = Object.entries(theme.keymap)
           .filter(([, mapped]) => mapped === intent)
