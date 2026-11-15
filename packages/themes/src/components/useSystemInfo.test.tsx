@@ -144,6 +144,25 @@ describe('useThemeSystemInfo (FR-MUS-4)', () => {
     });
   });
 
+  it('FR-MUS-4: settings-changed drops cached entries (custom systems come from settings)', async () => {
+    const h = host({ nes: entry('nes', 'old') });
+    render(
+      <ThemeEngineProvider host={h} onExit={vi.fn()}>
+        <ThemeProbe systemId="nes" />
+      </ThemeEngineProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('info').textContent).toBe('old');
+    });
+    vi.spyOn(h, 'getSystemInfo').mockResolvedValue(entry('nes', 'new'));
+    act(() => {
+      h.emit({ type: 'settings-changed' });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('info').textContent).toBe('new');
+    });
+  });
+
   it('FR-MUS-4: unmount, event, remount shows the new text', async () => {
     const h = host({ nes: entry('nes', 'old') });
     const tree = (

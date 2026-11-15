@@ -10,7 +10,8 @@ import type { ThemeHost } from '../host/ThemeHost.ts';
 /**
  * Museum entries per host and system id. The cache listens to its host from the moment it is
  * created, so an entry changed while no theme is mounted is still dropped: `system-info-changed`
- * drops that system, `library-changed` drops all (owned top games depend on the library).
+ * drops that system, `library-changed` drops all (owned top games depend on the library) and so does
+ * `settings-changed` (custom systems' base entries come from settings).
  */
 const entries = new WeakMap<ThemeHost, Map<string, ThemeSystemInfo | null>>();
 
@@ -22,7 +23,9 @@ function cacheFor(host: ThemeHost): Map<string, ThemeSystemInfo | null> {
     entries.set(host, created);
     host.onEvent((event) => {
       if (event.type === 'system-info-changed') created.delete(event.systemId);
-      else if (event.type === 'library-changed') created.clear();
+      else if (event.type === 'library-changed' || event.type === 'settings-changed') {
+        created.clear();
+      }
     });
   }
   return byId;
@@ -46,7 +49,11 @@ export function useThemeSystemInfo(
   useEffect(
     () =>
       host.onEvent((event) => {
-        if (event.type === 'library-changed' || event.type === 'system-info-changed') {
+        if (
+          event.type === 'library-changed' ||
+          event.type === 'settings-changed' ||
+          event.type === 'system-info-changed'
+        ) {
           setRevision((n) => n + 1);
         }
       }),

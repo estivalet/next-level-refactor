@@ -96,7 +96,7 @@ describe('MuseumPage', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('FR-MUS-5: shows the sources line; only https sources are links', async () => {
+  it('FR-MUS-5, FR-SET-6: shows source names as plain text, never links that leave kiosk', async () => {
     setup(
       entry({
         description: 'x',
@@ -107,10 +107,9 @@ describe('MuseumPage', () => {
         ],
       }),
     );
-    expect(
-      await screen.findByRole('link', { name: 'Wikipedia' }, { timeout: 2000 }),
-    ).toHaveAttribute('href', 'https://en.wikipedia.org/wiki/NES');
-    expect(screen.queryByRole('link', { name: 'Old page' })).toBeNull();
+    expect(await screen.findByText('Wikipedia', {}, { timeout: 2000 })).toBeInTheDocument();
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(document.querySelector('.museum-sources a')).toBeNull();
     expect(screen.getByText('Old page')).toBeInTheDocument();
     expect(screen.getByText('Book')).toBeInTheDocument();
   });

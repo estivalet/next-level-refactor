@@ -19,8 +19,6 @@ const HARDWARE_FIELDS = [
   'successor',
 ] as const;
 
-const isHttps = (url: string | undefined): url is string => !!url && url.startsWith('https://');
-
 /** True when the entry carries nothing beyond its system id. */
 export function isEmptyEntry(info: Entry): boolean {
   return Object.entries(info).every(([key, value]) =>
@@ -139,6 +137,7 @@ export function TopGames({ info, onLaunch }: { info: Entry; onLaunch: (gameId: n
   );
 }
 
+/** Source names only: a link would open a browser and leave kiosk mode (FR-SET-6). */
 export function Sources({ info }: { info: Entry }) {
   const { t } = useTranslation();
   if (info.sources.length === 0) return null;
@@ -148,13 +147,7 @@ export function Sources({ info }: { info: Entry }) {
       {info.sources.map((source, index) => (
         <Fragment key={`${source.name}-${String(index)}`}>
           {index > 0 && ', '}
-          {isHttps(source.url) ? (
-            <a href={source.url} target="_blank" rel="noreferrer noopener">
-              {source.name}
-            </a>
-          ) : (
-            <span>{source.name}</span>
-          )}
+          <span>{source.name}</span>
         </Fragment>
       ))}
     </p>
