@@ -21,15 +21,27 @@ interface CountEntry {
   favorites: number | null;
 }
 
-/** Visible-game counts per host and node id; dropped when the host reports a library change. */
+/**
+ * Visible-game counts per host and node id. The cache listens to its host from the moment it is
+ * created, so a `library-changed` while no theme view is mounted still drops it.
+ */
 const counts = new WeakMap<ThemeHost, Map<string, CountEntry>>();
 
-function loadCount(host: ThemeHost, nodeId: string): CountEntry {
+function cacheFor(host: ThemeHost): Map<string, CountEntry> {
   let byNode = counts.get(host);
   if (!byNode) {
-    byNode = new Map();
-    counts.set(host, byNode);
+    const created = new Map<string, CountEntry>();
+    byNode = created;
+    counts.set(host, created);
+    host.onEvent((event) => {
+      if (event.type === 'library-changed') created.clear();
+    });
   }
+  return byNode;
+}
+
+function loadCount(host: ThemeHost, nodeId: string): CountEntry {
+  const byNode = cacheFor(host);
   const existing = byNode.get(nodeId);
   if (existing) return existing;
   const entry: CountEntry = {
@@ -86,8 +98,8 @@ export function useGameCount(
   useEffect(
     () =>
       host.onEvent((event) => {
+        // The cache drops stale entries itself (it subscribed first); this only re-reads it.
         if (event.type !== 'library-changed') return;
-        counts.delete(host);
         setRevision((n) => n + 1);
       }),
     [host],

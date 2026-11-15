@@ -99,6 +99,31 @@ describe('useGameCount (FR-THM-1, FR-THM-6)', () => {
     });
   });
 
+  it('FR-THM-1: a library change while no count hook is mounted refreshes the count on remount', async () => {
+    const host = new FakeThemeHost();
+    host.setGames([
+      makeGame(1, { systemId: 'n64', favorite: true }),
+      makeGame(2, { systemId: 'n64' }),
+    ]);
+    const first = renderHook(() => useGameCount(n64, 0), { wrapper: withHost(host) });
+    await waitFor(() => {
+      expect(first.result.current).toMatchObject({ count: 2, favorites: 1, loading: false });
+    });
+    first.unmount();
+    host.setGames([
+      makeGame(1, { systemId: 'n64', favorite: true }),
+      makeGame(2, { systemId: 'n64', favorite: true }),
+      makeGame(3, { systemId: 'n64' }),
+    ]);
+    act(() => {
+      host.emit({ type: 'library-changed', systems: ['n64'] });
+    });
+    const second = renderHook(() => useGameCount(n64, 0), { wrapper: withHost(host) });
+    await waitFor(() => {
+      expect(second.result.current).toMatchObject({ count: 3, favorites: 2, loading: false });
+    });
+  });
+
   it('returns null without a node', () => {
     const { result } = renderHook(() => useGameCount(null, 0), {
       wrapper: withHost(new FakeThemeHost()),
