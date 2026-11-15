@@ -238,7 +238,7 @@ fetched and cached (`remoteImageUrl(url)` builds it; the decoded URL must be `ht
 2048 characters, else the URL is refused or 404). Main fetches only public hosts (loopback, private,
 link-local, CGNAT and `.local` names are refused), follows up to 5 redirects by hand and re-checks
 each hop, sends no cookies, times out after 15 s and accepts only png/jpeg/gif/webp up to 5 MiB. Files
-are kept in `<data>\cacheemote-images` (200 MiB in all, oldest evicted); a failed URL is not retried
+are kept in `<data>\cache\remote-images` (200 MiB in all, oldest evicted); a failed URL is not retried
 for 24 h. The renderer CSP is unchanged.
 
 **System museum (FR-MUS-1..5):** `systems.info.list` (→ `SystemInfoSummary[]`, one per catalog and
