@@ -7,8 +7,26 @@ import { useThemeArt } from '../engine/useThemeArt.ts';
 import { useThemeHost } from '../engine/useThemeNavigation.ts';
 import type { ThemeHost } from '../host/ThemeHost.ts';
 
-/** Museum entries per host and system id; a system's entry is dropped when it changes. */
+/**
+ * Museum entries per host and system id. The cache listens to its host from the moment it is
+ * created, so an entry changed while no theme is mounted is still dropped: `system-info-changed`
+ * drops that system, `library-changed` drops all (owned top games depend on the library).
+ */
 const entries = new WeakMap<ThemeHost, Map<string, ThemeSystemInfo | null>>();
+
+function cacheFor(host: ThemeHost): Map<string, ThemeSystemInfo | null> {
+  let byId = entries.get(host);
+  if (!byId) {
+    const created = new Map<string, ThemeSystemInfo | null>();
+    byId = created;
+    entries.set(host, created);
+    host.onEvent((event) => {
+      if (event.type === 'system-info-changed') created.delete(event.systemId);
+      else if (event.type === 'library-changed') created.clear();
+    });
+  }
+  return byId;
+}
 
 /**
  * FR-MUS-4: the museum entry for a system, loaded once `systemId` has stayed put for `settleMs`
@@ -22,18 +40,20 @@ export function useThemeSystemInfo(
   // Bumped when a load settles or the entry changes, to re-read the cache.
   const [revision, setRevision] = useState(0);
 
+  const known = cacheFor(host);
+
+  // The cache drops stale entries itself (it subscribed first); this only re-reads it.
   useEffect(
     () =>
       host.onEvent((event) => {
-        if (event.type !== 'system-info-changed') return;
-        entries.get(host)?.delete(event.systemId);
-        setRevision((n) => n + 1);
+        if (event.type === 'library-changed' || event.type === 'system-info-changed') {
+          setRevision((n) => n + 1);
+        }
       }),
     [host],
   );
 
-  const known = systemId ? entries.get(host) : undefined;
-  const loaded = !!systemId && !!known?.has(systemId);
+  const loaded = !!systemId && known.has(systemId);
 
   useEffect(() => {
     if (!systemId || loaded) return;
@@ -42,12 +62,7 @@ export function useThemeSystemInfo(
       void host.getSystemInfo(systemId).then(
         (info) => {
           if (cancelled) return;
-          let byId = entries.get(host);
-          if (!byId) {
-            byId = new Map();
-            entries.set(host, byId);
-          }
-          byId.set(systemId, info);
+          known.set(systemId, info);
           setRevision((n) => n + 1);
         },
         () => undefined,
@@ -57,9 +72,9 @@ export function useThemeSystemInfo(
       cancelled = true;
       window.clearTimeout(id);
     };
-  }, [host, systemId, loaded, revision, settleMs]);
+  }, [host, known, systemId, loaded, revision, settleMs]);
 
-  return (systemId && known?.get(systemId)) || null;
+  return (systemId && known.get(systemId)) || null;
 }
 
 /**

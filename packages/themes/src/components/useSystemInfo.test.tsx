@@ -143,4 +143,24 @@ describe('useThemeSystemInfo (FR-MUS-4)', () => {
       expect(screen.getByTestId('info').textContent).toBe('new');
     });
   });
+
+  it('FR-MUS-4: unmount, event, remount shows the new text', async () => {
+    const h = host({ nes: entry('nes', 'old') });
+    const tree = (
+      <ThemeEngineProvider host={h} onExit={vi.fn()}>
+        <ThemeProbe systemId="nes" />
+      </ThemeEngineProvider>
+    );
+    const first = render(tree);
+    await waitFor(() => {
+      expect(screen.getByTestId('info').textContent).toBe('old');
+    });
+    first.unmount();
+    vi.spyOn(h, 'getSystemInfo').mockResolvedValue(entry('nes', 'new'));
+    h.emit({ type: 'system-info-changed', systemId: 'nes' });
+    render(tree);
+    await waitFor(() => {
+      expect(screen.getByTestId('info').textContent).toBe('new');
+    });
+  });
 });
