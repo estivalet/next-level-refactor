@@ -181,7 +181,9 @@ Scope view (D62)
     only** (M10-1, D63), above Filters when the scope has any, narrows to games in a collection
     named "Essentials" or "… Essentials" (also when an import renamed it, "… Essentials
     (NextLevelOS)"); counts use the app's language; an export of the list keeps it. The header
-    has the scope's name, **Export…** and a grid/list toggle remembered per scope (grid by
+    has the scope's name, a **Search <scope>…** box (FR-LIB-10, D66: narrows this list like global
+    search, with the tab and narrowing; "n of total games" while searching; cleared when another
+    scope opens; Export… keeps it), **Export…** and a grid/list toggle remembered per scope (grid by
     default, collections included); in a manual-order collection rows drag only in the list,
     and Move up / Move down work in both.
   - **Export… (FR-LIB-11):** a dialog with the format (Spreadsheet (CSV), JSON, EmulationStation

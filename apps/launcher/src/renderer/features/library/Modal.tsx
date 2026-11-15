@@ -72,4 +72,4 @@ export const PRIMARY_BUTTON =
 export const SECONDARY_BUTTON =
   'rounded-lg bg-white/5 px-4 py-1.5 text-xs text-slate-300 hover:bg-white/10 hover:text-white';
 export const INPUT =
-  'w-full rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:border-emerald-500/50 focus:outline-none aria-[invalid=true]:border-red-400/60';
+  'w-full rounded-lg border border-white/25 bg-black/40 px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none aria-[invalid=true]:border-red-400/60';
