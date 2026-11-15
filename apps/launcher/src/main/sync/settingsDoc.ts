@@ -4,6 +4,7 @@ import {
   type Settings,
   type SyncEntries,
 } from '@nextlevel/shared';
+import { withInfoBinding } from '../settings/migrate.ts';
 import type { KindAdapter } from './documents.ts';
 import { liveValue } from './merge.ts';
 
@@ -59,8 +60,10 @@ export function settingsDoc(deps: SettingsDocDeps): KindAdapter {
       await deps.update((current) => {
         let next = current;
         for (const key of allowed) {
-          const value = liveValue(merged[key]);
-          if (value === undefined) continue;
+          const live = liveValue(merged[key]);
+          if (live === undefined) continue;
+          // An `input` synced by a pre-v3 launcher has no `info`; migrate it like a v2 file.
+          const value = key === 'input' ? withInfoBinding(live) : live;
           const candidate = SettingsSchema.safeParse(setPath(next, key, value));
           if (candidate.success) next = candidate.data;
           else deps.log.warn({ key }, 'a synced setting was not applied');

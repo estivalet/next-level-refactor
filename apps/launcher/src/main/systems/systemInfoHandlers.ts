@@ -27,6 +27,7 @@ export function createSystemInfoHandlers(deps: {
   /** null when the library is unavailable. */
   repo: () => SystemInfoRepository | null;
   emit: EmitEvent;
+  log: { warn(context: object, msg: string): void };
 }): Pick<IpcHandlers, SystemInfoChannel> {
   const system = (systemId: string): SystemDefinition => {
     const found = deps.systems().find((candidate) => candidate.id === systemId);
@@ -43,9 +44,18 @@ export function createSystemInfoHandlers(deps: {
     if (!repo) throw appError('LIBRARY_UNAVAILABLE');
     return repo;
   };
-  const merged = (definition: SystemDefinition) => {
-    const edit = deps.repo()?.get(definition.id) ?? null;
-    return { entry: edit ?? base(definition), edited: edit !== null };
+  /**
+   * `edited` follows the row's existence, so Reset stays available for a row that no longer
+   * validates; such a row serves the base entry and logs a warning (never the entry's content).
+   */
+  const merged = (definition: SystemDefinition, editedIds?: ReadonlySet<string>) => {
+    const repo = deps.repo();
+    const edited = (editedIds ?? repo?.editedIds())?.has(definition.id) ?? false;
+    const edit = edited ? (repo?.get(definition.id) ?? null) : null;
+    if (edited && edit === null) {
+      deps.log.warn({ systemId: definition.id }, 'unreadable museum edit; showing the original');
+    }
+    return { entry: edit ?? base(definition), edited };
   };
 
   return {
@@ -54,7 +64,7 @@ export function createSystemInfoHandlers(deps: {
       return [...deps.systems()]
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
         .map((definition) => {
-          const { entry } = merged(definition);
+          const { entry } = merged(definition, edited);
           return {
             systemId: definition.id,
             name: definition.name,

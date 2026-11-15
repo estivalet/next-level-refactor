@@ -57,4 +57,32 @@ describe('settings document (FR-SET-5, D55)', () => {
     expect(current().general.language).toBe('en');
     expect(current().themes.sound).toEqual({ enabled: false, volume: 20 });
   });
+
+  it('FR-MUS-4: a synced input from a pre-v3 launcher (no info) with I bound elsewhere still applies', async () => {
+    const { doc, current } = setup();
+    const oldKeyboard: Partial<Settings['input']['keyboard']> = {
+      ...defaultSettings().input.keyboard,
+    };
+    delete oldKeyboard.info;
+    const keyboard = { ...oldKeyboard, menu: ['KeyI'] };
+    const merged: SyncEntries = {
+      input: { value: { ...defaultSettings().input, keyboard }, updatedAt: at },
+    };
+    await doc.apply(merged, ['input'], doc.read({}, merged));
+    expect(current().input.keyboard.menu).toEqual(['KeyI']);
+    expect(current().input.keyboard.info).toEqual([]);
+  });
+
+  it('FR-MUS-4: a synced pre-v3 input with I free gets the default info binding', async () => {
+    const { doc, current } = setup();
+    const oldKeyboard: Partial<Settings['input']['keyboard']> = {
+      ...defaultSettings().input.keyboard,
+    };
+    delete oldKeyboard.info;
+    const merged: SyncEntries = {
+      input: { value: { ...defaultSettings().input, keyboard: oldKeyboard }, updatedAt: at },
+    };
+    await doc.apply(merged, ['input'], doc.read({}, merged));
+    expect(current().input.keyboard.info).toEqual(['KeyI']);
+  });
 });

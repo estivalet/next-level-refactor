@@ -157,4 +157,71 @@ describe('MuseumApp', () => {
     expect(await screen.findByText('Could not load the systems.')).toBeInTheDocument();
     expect(screen.queryByText('No systems match.')).toBeNull();
   });
+
+  it('FR-MUS-2: a failed background refresh keeps the app and shows the error inline', async () => {
+    let fail = false;
+    const { emit } = installFakeBridge({
+      'systems.info.list': () =>
+        fail
+          ? { ok: false, error: { code: 'INTERNAL', message: 'errors.internal' } }
+          : ok(summaries),
+    });
+    renderInShell(<MuseumApp />);
+    const list = await screen.findByRole('list', { name: 'Systems' });
+    expect(await within(list).findByText('Mega Drive')).toBeInTheDocument();
+    fail = true;
+    emit('systems.infoChanged', { systemId: 'snes' });
+    expect(await screen.findByText('Could not load the systems.')).toBeInTheDocument();
+    expect(screen.getByRole('list', { name: 'Systems' })).toBeInTheDocument();
+    expect(within(list).getByText('Mega Drive')).toBeInTheDocument();
+  });
+});
+
+describe('MuseumApp unsaved edits (FR-MUS-2)', () => {
+  async function dirtySnes(user: ReturnType<typeof userEvent.setup>) {
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form');
+    const cpu = within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText(
+      'CPU',
+    );
+    await user.type(cpu, 'x');
+    return cpu;
+  }
+
+  it('FR-MUS-2: switching system with a dirty draft asks first; cancel keeps the draft', async () => {
+    const { user } = setup();
+    const cpu = await dirtySnes(user);
+    await user.click(screen.getByRole('button', { name: /Mega Drive/ }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Discard your changes?')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('article', { name: 'Super Nintendo' })).toBeInTheDocument();
+    expect(cpu).toHaveValue('Ricoh 5A22x');
+  });
+
+  it('FR-MUS-2: confirming the discard switches to the other system', async () => {
+    const { user } = setup();
+    await dirtySnes(user);
+    await user.click(screen.getByRole('button', { name: /Mega Drive/ }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Discard changes' }));
+    expect(await screen.findByRole('article', { name: 'Mega Drive' })).toBeInTheDocument();
+    expect(screen.queryByRole('form')).toBeNull();
+  });
+
+  it('FR-MUS-2: a clean form switches without asking', async () => {
+    const { user } = setup();
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    await screen.findByRole('form');
+    await user.click(screen.getByRole('button', { name: /Mega Drive/ }));
+    expect(await screen.findByRole('article', { name: 'Mega Drive' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
 });

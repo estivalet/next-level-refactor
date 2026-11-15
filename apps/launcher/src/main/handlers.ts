@@ -205,6 +205,7 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       },
       repo: () => deps.library?.systemInfo ?? null,
       emit: deps.emit,
+      log: deps.log,
     }),
     ...createImportHandlers({
       importer: () => library().importer,

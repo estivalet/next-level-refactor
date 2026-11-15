@@ -1,5 +1,5 @@
 import { SystemInfoSchema, type SystemInfo } from '@nextlevel/shared';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '../menus/ConfirmDialog.tsx';
 import { PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
@@ -56,11 +56,14 @@ export function EntryForm({
   entry,
   edited,
   onDone,
+  onDirtyChange,
 }: {
   name: string;
   entry: SystemInfo;
   edited: boolean;
   onDone: () => void;
+  /** Told whether the draft has unsaved changes; false again when the form closes. */
+  onDirtyChange?: ((dirty: boolean) => void) | undefined;
 }) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<SystemInfo>(entry);
@@ -69,6 +72,10 @@ export function EntryForm({
   const save = useSaveSystemInfo();
   const reset = useResetSystemInfo();
   const dirty = JSON.stringify(draft) !== JSON.stringify(entry);
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+    return () => onDirtyChange?.(false);
+  }, [dirty, onDirtyChange]);
   const title = (key: string) => t(`apps.museum.sections.${key}`);
   const patch = (changes: Partial<SystemInfo>) => {
     setDraft((current) => ({ ...current, ...changes }));

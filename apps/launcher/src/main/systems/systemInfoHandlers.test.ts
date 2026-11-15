@@ -1,6 +1,6 @@
 import type { CustomSystem, SystemDefinition, SystemInfo } from '@nextlevel/shared';
 import { systemInfoSeed } from '@nextlevel/system-catalog';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SystemInfoRepository } from '../library/SystemInfoRepository.ts';
 import { appErrorOfAsync, seedGames, tempLibrary } from '../library/testing.ts';
 import { createSystemInfoHandlers } from './systemInfoHandlers.ts';
@@ -43,6 +43,7 @@ const entryOf = (systemId: string, extra: Partial<SystemInfo> = {}): SystemInfo 
 let lib: Awaited<ReturnType<typeof tempLibrary>>;
 let repo: SystemInfoRepository | null;
 let events: Array<[string, unknown]>;
+let warn: ReturnType<typeof vi.fn<(context: object, msg: string) => void>>;
 const handlers = () =>
   createSystemInfoHandlers({
     systems: () => systems,
@@ -51,12 +52,14 @@ const handlers = () =>
     emit: (event, payload) => {
       events.push([event, payload]);
     },
+    log: { warn },
   });
 
 beforeEach(async () => {
   lib = await tempLibrary();
   repo = new SystemInfoRepository(lib.db, () => new Date(Date.UTC(2026, 10, 15)));
   events = [];
+  warn = vi.fn();
 });
 afterEach(() => lib.cleanup());
 
@@ -97,6 +100,21 @@ describe('systems.info handlers', () => {
       ['systems.infoChanged', { systemId: 'aamber-pegasus' }],
       ['systems.infoChanged', { systemId: 'aamber-pegasus' }],
     ]);
+  });
+
+  it('FR-MUS-2: a corrupt edited row serves the seed, stays edited (Reset shows) and logs a warning', async () => {
+    lib.db.$client
+      .prepare("insert into system_info (system_id, entry, updated_at) values (?, ?, 'now')")
+      .run('aamber-pegasus', '{"systemId":"aamber-pegasus","fullName":"SECRET-TEXT"');
+    const h = handlers();
+    expect(await h['systems.info.get']({ systemId: 'aamber-pegasus' })).toEqual({
+      entry: systemInfoSeed('aamber-pegasus'),
+      edited: true,
+    });
+    const listed = await h['systems.info.list']();
+    expect(listed.find((row) => row.systemId === 'aamber-pegasus')?.edited).toBe(true);
+    expect(warn).toHaveBeenCalledWith({ systemId: 'aamber-pegasus' }, expect.any(String));
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('SECRET-TEXT');
   });
 
   it('FR-MUS-2: unknown system is NOT_FOUND; mismatched entry.systemId is VALIDATION_FAILED', async () => {

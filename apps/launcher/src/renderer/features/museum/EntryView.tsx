@@ -191,8 +191,17 @@ function SourcesSection({ title, entry }: { title: string; entry: SystemInfo }) 
   );
 }
 
-/** A system's museum entry: read it, or edit it in place (FR-MUS-2, FR-MUS-5). */
-export function EntryView({ system }: { system: SystemInfoSummary }) {
+/**
+ * A system's museum entry: read it, or edit it in place (FR-MUS-2, FR-MUS-5). `onDirtyChange`
+ * reports unsaved edits so the app can ask before switching system.
+ */
+export function EntryView({
+  system,
+  onDirtyChange,
+}: {
+  system: SystemInfoSummary;
+  onDirtyChange?: (dirty: boolean) => void;
+}) {
   const { t } = useTranslation();
   const query = useSystemInfo(system.systemId);
   const [editing, setEditing] = useState(false);
@@ -227,6 +236,7 @@ export function EntryView({ system }: { system: SystemInfoSummary }) {
           onDone={() => {
             setEditing(false);
           }}
+          onDirtyChange={onDirtyChange}
         />
       )}
       {entry && !editing && (

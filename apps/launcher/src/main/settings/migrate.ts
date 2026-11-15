@@ -51,18 +51,25 @@ function toV2(record: Json): Json {
 }
 
 /**
- * v2 → v3 (FR-MUS-4): the new `info` action defaults to I. A file that already binds I to another
- * action gets `info: []`, so the default does not collide with it (a `duplicateBinding` would
- * reject the whole file).
+ * FR-MUS-4: the `info` action (new in v3) defaults to I. An `input` section from before it (no
+ * `keyboard.info`) that already binds I to another action gets `info: []`, so the default does
+ * not collide with it (a `duplicateBinding` would reject it). Anything else is returned as is.
+ * Used by the v2 → v3 migration and for a synced `input` from an older launcher.
  */
-function toV3(record: Json): Json {
-  const input = record['input'];
+export function withInfoBinding(input: unknown): unknown {
   const keyboard = isObject(input) ? input['keyboard'] : undefined;
-  if (!isObject(input) || !isObject(keyboard) || 'info' in keyboard) return record;
+  if (!isObject(input) || !isObject(keyboard) || 'info' in keyboard) return input;
   const taken = Object.values(keyboard).some(
     (codes) => Array.isArray(codes) && codes.includes('KeyI'),
   );
-  return taken ? { ...record, input: { ...input, keyboard: { ...keyboard, info: [] } } } : record;
+  return taken ? { ...input, keyboard: { ...keyboard, info: [] } } : input;
+}
+
+/** v2 → v3 (FR-MUS-4): see `withInfoBinding`. */
+function toV3(record: Json): Json {
+  const input = record['input'];
+  const next = withInfoBinding(input);
+  return next === input ? record : { ...record, input: next };
 }
 
 /**
