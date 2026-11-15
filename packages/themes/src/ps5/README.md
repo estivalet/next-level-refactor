@@ -34,6 +34,10 @@ bindings.
 | favorite / hide | X / H | Y / L3 | — | toggle favorite / hidden |
 | help | F1, / | View | show every key and button | show every key and button |
 | menu | Tab | Start | theme menu | theme menu |
+| info | I | (unbound) | museum page of the focused system | — |
+
+On the home, Down from the shelf focuses **Explore**, Left/Right switch between Explore and **…**
+(the museum page, FR-MUS-4), Select activates and Up returns to the shelf.
 
 Mouse: a click on a category tab selects it; a click focuses an icon or game, a double-click
 explores or plays it, the wheel moves along the shelf or a row in the grid.

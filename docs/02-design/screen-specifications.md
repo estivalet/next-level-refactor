@@ -93,6 +93,11 @@ requirements:
   The new theme opens on the same level with the same game focused and becomes the last-used
   theme. LT/RT (PageUp/PageDown) jump a page in game lists: 7 tiles in Big Box, 10 rows in Big
   Box List, 3 rows in Console Home, 2 rows in PS5 Style; HyperSpin keeps letter jumps (M4d).
+- As built (FR-MUS-4, US-G1): the **info** action (key I) or the PS5 home's **…** button opens a
+  system's museum page (logo, overview, story, hardware, models, related, top games, Sources);
+  Back closes it. On the PS5 home, Down from the shelf focuses Explore, Left/Right switch between
+  Explore and **…**, Up returns to the shelf; any change of level, category or shelf focus resets
+  to the shelf. An owned top game launches with Enter.
 - As built (M10-1, NFR-REL-2): a theme that crashes shows **Theme stopped working** ("Your
   library and settings are safe") with **Restart theme**, **Switch theme** and **Back to
   desktop** (the last two only when a locked kiosk doesn't hide them), driven by the same input
@@ -118,6 +123,14 @@ requirements:
   wireframe above shows contents, not style. Requirements: FR-SHELL-1..5.
 - Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock; a downloaded update shows a **Restart to update to <version>** button (M10a).
 - Start menu: apps, Front-end, Account, Sign out, Quit.
+- Museum app (FR-MUS-1..5, US-G2): a single-instance window. Left, a searchable list of every
+  system (name, manufacturer, year, a dot when the entry is edited) with a kind filter. Right, the
+  entry in sections (Overview, Story, Hardware, Models, Related, Top games, Sources), editable in
+  place with **Save**, **Discard** and **Reset to original** (confirm; only when edited). Models and
+  top games are lists you can add to, remove from and reorder; a top game can be pinned to a library
+  game of that system through a picker and an owned one shows a badge. Model photos show a
+  placeholder when the link is broken or offline. Seed text from Wikipedia is credited in Sources
+  (CC BY-SA 4.0).
 
 ## S7 Library
 

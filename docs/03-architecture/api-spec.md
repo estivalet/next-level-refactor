@@ -231,3 +231,21 @@ real path must stay inside its root, so links and junctions can't escape. Ranged
 206/416 with `Accept-Ranges: bytes`; anything else that doesn't resolve is 404, non-GET is 405. The
 protocol never accepts raw file paths (`packages/shared/src/frontend/urls.ts` builds and parses
 the URLs).
+
+**Remote images (FR-MUS-4, D67, [ADR-016](adr/ADR-016-remote-image-cache.md)):**
+`nextlevel://remote-image/<base64url(https URL)>` serves a Systems museum model photo that main
+fetched and cached (`remoteImageUrl(url)` builds it; the decoded URL must be `https://` and at most
+2048 characters, else the URL is refused or 404). Main fetches only public hosts (loopback, private,
+link-local, CGNAT and `.local` names are refused), follows up to 5 redirects by hand and re-checks
+each hop, sends no cookies, times out after 15 s and accepts only png/jpeg/gif/webp up to 5 MiB. Files
+are kept in `<data>\cacheemote-images` (200 MiB in all, oldest evicted); a failed URL is not retried
+for 24 h. The renderer CSP is unchanged.
+
+**System museum (FR-MUS-1..5):** `systems.info.list` (→ `SystemInfoSummary[]`, one per catalog and
+custom system), `systems.info.get` (`{ systemId }` → `{ entry, edited }`: the saved entry if any, else
+the shipped seed, else one built from the system definition; NOT_FOUND for an unknown system), `systems.info.save` (`{ systemId, entry }` → the saved entry;
+replaces the shipped one), `systems.info.reset` (`{ systemId }` → the shipped entry; deletes the local
+edit) and `systems.info.forTheme` (`{ systemId }` → `ThemeSystemInfo | null`: the merged entry with
+`topGames` resolved to owned games; null for an unknown system). Schemas:
+`packages/shared/src/systems/info.ts`, `ipc/systemInfoContract.ts`. Save and reset emit
+`systems.infoChanged` (`{ systemId }`), which themes use to refresh their cached entry.

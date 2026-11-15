@@ -90,7 +90,7 @@ The same layout is used in the art folder and in every pack:
   background/photo/<name>.jpg|png          photo of the hardware
   video/<name>.mp4                         menu video
   art/hardware/<name>.png                  hardware cutout (Showcase)
-  system-info/<name>.json                  { "description": "…" } (Showcase)
+  system-info/<name>.json                  { "description": "…" } (Showcase fallback, see below)
   pointer/<name>.png, pointer/_default.png wheel pointer (HyperSpin)
   sound/move-menu.wav|ogg|mp3              blip when moving in menus
   sound/move-games.wav|ogg|mp3             blip when moving in game lists
@@ -119,7 +119,7 @@ in and out unless **Background zoom** is off (and never when Windows animations 
 | Console Home | home tiles: backgrounds; tile logo |
 | PS5 Style | shelf icons: backgrounds; hero logo |
 | HyperSpin Classic | wheel: logos (`logo/steel`); stage frame: video, then backgrounds; pointer |
-| Showcase | tiles: backgrounds (square art fits best); hero: `system-info` description, `art/hardware`, logo |
+| Showcase | tiles: backgrounds (square art fits best); hero: the system's museum description (Museum app), else the `system-info` art file's, `art/hardware`, logo |
 
 ### Game art
 
@@ -132,6 +132,19 @@ after adding media.
 Game tiles try, by default, box front → title screenshot → gameplay screenshot → clear logo. A
 theme's **Game art** option sets another order for all systems or for one system (carts for
 Nintendo 64, say); a game without that art still falls through the list.
+
+## System museum page (FR-MUS-4)
+
+The **info** action (key I; no default gamepad button, bind one in Settings → Input) sends the
+`open-info` intent. On a focused system it opens the museum page: logo, manufacturer, year and
+country, the description, hardware, models (with photo and launch price), related systems, top
+games and a Sources line. Up and down scroll; an owned top game is focusable and Enter launches
+it; Back closes the page. PS5 Style is wired so far: on the home, Down from the shelf focuses
+**Explore**, Right moves to the **…** button (the museum page), Select activates it and Up returns
+to the shelf. The text comes from the Museum app (edited entry, else the shipped one); the
+`system-info/<name>.json` art files are only a fallback for Showcase nodes with no museum
+description (categories, collections) and keep working. Model photos load through
+`nextlevel://remote-image` (D67); a broken link shows a placeholder.
 
 ## Options
 

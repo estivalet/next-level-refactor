@@ -258,6 +258,20 @@ settings. User-added systems (`settings.customSystems`, §2) are placed by name 
 
 ---
 
+### 3.1 System museum seed (FR-MUS-1, FR-MUS-5)
+
+`packages/system-catalog/data/system-info.json` (`{ source, entries: SystemInfo[] }`, sorted by
+system id) holds one museum entry per system the import matched; `systemInfoSeed(systemId)` reads
+it. `SystemInfo` (`packages/shared/src/systems/info.ts`): `systemId` plus optional overview
+(`fullName`, `manufacturer`, `country`, `releaseYear`, `discontinuedYear`, `generation`,
+`unitsSold`), story (`description`, `history`, `legacy`), hardware (`cpu`, `ram`, `graphics`,
+`sound`, `media`, `display`), `models` (`name`, `releaseYear`, `launchPrice`, `cpu`, `ram`,
+`notes`, `imageUrl`), related (`predecessor`, `successor`, `peripherals`), `topGames`
+(`title`, `year?`, `gameId?`) and `sources` (`name`, `url?`). Seed text that came from Wikipedia is
+CC BY-SA 4.0 and says so in `sources`; see the
+[system-catalog README](../../packages/system-catalog/README.md#system-museum-seed) for the import
+and the licence note. Edits live in `library.db` (§4, `system_info`).
+
 ## 4. Library (`library.db`)
 
 SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_version`.
@@ -266,7 +280,7 @@ SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_versi
 since M2b; `game_user_state`, `game_filters`, `collections`, `collection_games` and `games_fts`
 since M2c; `game_launch_override` and `launch_log` since M3; `game_media` since M4a; `smart_filters`,
 `menus`, `menu_nodes` and `collections.source` since M5a (migration `0005`); `arcade_info` since
-M5d (migration `0006`, filled by the importer); the other tables arrive
+M5d (migration `0006`, filled by the importer); `system_info` since the Systems museum (FR-MUS-2, migration `0018`: `system_id` primary key, `entry` JSON text of a `SystemInfo`, `updated_at`; a row replaces the shipped entry as a whole and Reset deletes it); the other tables arrive
 with the milestones that use them, each as a new migration.
 - `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
 - `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the

@@ -51,6 +51,11 @@ reads it as empty (sign in again, re-enter ScreenScraper credentials) and logs t
 - Strict CSP: `default-src 'self'; img-src 'self' nextlevel: data:; media-src 'self' nextlevel:; connect-src 'self' <api origin>`.
 - No remote content loaded in app windows; external links open in the system browser after a URL allow-list check.
 - IPC: every channel validates input with Zod; no generic "run command" or "read file" channel.
+- `nextlevel://remote-image` (FR-MUS-4, D67, ADR-016) is the one place main fetches a URL on a
+  theme's behalf, so it is narrow: https only, public hosts only (loopback, private, link-local,
+  CGNAT and `.local` refused), redirects followed by hand and re-checked at every hop, no cookies,
+  15 s timeout, images only (png/jpeg/gif/webp, sniffed) up to 5 MiB, cache capped at 200 MiB, and
+  the URL is never logged. The CSP above stays as is; this is why it is not loosened to `https:`.
 - `nextlevel://` serves only paths resolved from the library or settings; requests carry IDs, not
   paths (prevents traversal by construction — critical scenario C12).
 - Emulator launch: `spawn` with argv arrays, `shell: false`. Executables are chosen by the user via

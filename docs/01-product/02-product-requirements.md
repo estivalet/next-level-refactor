@@ -94,8 +94,8 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-MUS-1 | Every catalog and custom system has a museum entry: overview, story, hardware, models, related, top games, sources; seeded from the shipped data. *2026-11-15, owner request.* | M |
 | FR-MUS-2 | The Museum app lists every system and edits every field of its entry; edits are saved locally and replace the shipped entry; Reset restores it. *2026-11-15, owner request.* | M |
 | FR-MUS-3 | Top games are a curated, ordered list of titles; a title is "owned" when pinned to a library game or when its normalized title matches a present game of that system. *2026-11-15, owner request.* | M |
-| FR-MUS-4 | Themes read an entry through `ThemeHost.getSystemInfo`; a museum page opens from a focused system (`open-info`), shows the entry, and launches owned top games. *2026-11-15, owner request.* | M |
-| FR-MUS-5 | Entries credit their sources; the page and the app show a Sources line. *2026-11-15, owner request.* | M |
+| FR-MUS-4 | Themes read an entry through `ThemeHost.getSystemInfo`; a museum page opens from a focused system (`open-info`: key I, or the PS5 home's "…" button), shows the entry, and launches owned top games. Model photos are fetched by the launcher, cached on disk and shown through `nextlevel://remote-image` (D67, [ADR-016](../03-architecture/adr/ADR-016-remote-image-cache.md)). *2026-11-15, owner request.* | M |
+| FR-MUS-5 | Entries credit their sources; the page and the app show a Sources line. Seed text taken from Wikipedia is CC BY-SA 4.0 and says so in `sources` ([system-catalog README](../../packages/system-catalog/README.md)). *2026-11-15, owner request.* | M |
 
 ## 7. Menus (`FR-MENU`)
 

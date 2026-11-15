@@ -20,6 +20,7 @@ to change **Status** to `Superseded by ADR-XXX`; write a new ADR instead.
 | [013](ADR-013-single-runtime.md) | One runtime: drop Python, port the scraper to TypeScript | Accepted |
 | [014](ADR-014-bundled-7zip.md) | Bundle 7-Zip for archive extraction at launch | Accepted |
 | [015](ADR-015-linked-catalog-files.md) | Catalog files can be links to Google Drive or archive.org | Accepted |
+| [016](ADR-016-remote-image-cache.md) | Museum model images are fetched and cached by main, served as `nextlevel://remote-image` | Accepted |
 
 ## Template
 

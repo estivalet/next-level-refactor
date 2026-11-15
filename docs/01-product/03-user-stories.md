@@ -167,7 +167,8 @@ As an admin, I want to add a game whose author gave permission.
 
 ### US-G1 Browse a system's history from the couch · FR-MUS-1, FR-MUS-4, FR-MUS-5
 As a collector, I want to read about a console while I browse it.
-- When I open the info page of a focused system, then I see its overview, story, hardware, models, related systems and top games, and a Sources line crediting where the facts came from.
+- When I press I on a focused system, or choose the "…" button next to Explore on the PS5 home (Down from the shelf, then Right), then the info page opens;
+  when I open the info page of a focused system, then I see its overview, story, hardware, models, related systems and top games, and a Sources line crediting where the facts came from.
 - When I pick a top game I own, then it launches; a top game I don't own is shown but not launchable.
 
 ### US-G2 Curate a system's museum entry · FR-MUS-2, FR-MUS-3
