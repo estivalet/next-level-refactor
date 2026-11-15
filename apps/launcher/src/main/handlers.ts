@@ -27,6 +27,7 @@ import type { LaunchRepository } from './library/LaunchRepository.ts';
 import type { LibraryRepository } from './library/LibraryRepository.ts';
 import type { MediaRepository } from './library/MediaRepository.ts';
 import type { SmartFilterRepository } from './library/SmartFilterRepository.ts';
+import type { SystemInfoRepository } from './library/SystemInfoRepository.ts';
 import type { MenuRepository } from './menus/MenuRepository.ts';
 import { createLibraryHandlers } from './libraryHandlers.ts';
 import { createSmartFilterHandlers } from './library/smartFilterHandlers.ts';
@@ -101,6 +102,7 @@ export interface MainDeps {
     launch: LaunchService;
     menus: MenuRepository;
     smartFilters: SmartFilterRepository;
+    systemInfo: SystemInfoRepository;
     importer: ImportService;
     scrape: Pick<ScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
     batch: Pick<BatchScrapeService, 'begin' | 'pause' | 'resume' | 'cancel' | 'status'>;

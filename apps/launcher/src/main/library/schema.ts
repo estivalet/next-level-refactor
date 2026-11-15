@@ -265,6 +265,13 @@ export const smartFilters = sqliteTable('smart_filters', {
   syncId: text('sync_id').unique(),
 });
 
+/** Museum entries the user edited (FR-MUS-2); `entry` is a SystemInfo as JSON. Replaces the seed. */
+export const systemInfo = sqliteTable('system_info', {
+  systemId: text('system_id').primaryKey(),
+  entry: text('entry').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 /** Menus (FR-MENU-3): at most one active; `source` marks imported ones (D12). */
 export const menus = sqliteTable(
   'menus',
