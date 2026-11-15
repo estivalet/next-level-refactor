@@ -65,9 +65,12 @@ export function HomeView({
   }, [activeCategory, trail]);
 
   const focused = items[focusIndex] ?? null;
-  const count = useGameCount(focused);
+  // A system whose children are filters (official, favorite…) still counts its games.
+  const count = useGameCount(focused, 250, { filtersAsGames: true });
   // FR-THM-1: the museum entry names the system and its maker; the label stands in while it loads.
-  const info = useThemeSystemInfo(focused?.systemId ?? null);
+  // Filter tiles carry their system's id; only a system node takes the museum's name and maker.
+  const systemFocused = focused?.type === 'system';
+  const info = useThemeSystemInfo(systemFocused ? (focused.systemId ?? null) : null);
 
   return (
     <>
@@ -122,7 +125,7 @@ export function HomeView({
               {isFocused && (
                 <ShelfTitle
                   shortName={item.shortName}
-                  name={info?.fullName ?? label(item)}
+                  name={(item.type === 'system' && info?.fullName) || label(item)}
                   measureKey={`${String(focusIndex)}/${String(items.length)}`}
                 />
               )}
@@ -138,7 +141,7 @@ export function HomeView({
             fallbackText={label(focused)}
             className="ps5-hero-logo"
           />
-          {focused.systemId && <HeroMeta info={info} />}
+          {systemFocused && <HeroMeta info={info} />}
           <div className="ps5-hero-actions">
             <button
               type="button"

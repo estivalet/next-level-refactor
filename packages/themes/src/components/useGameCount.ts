@@ -94,6 +94,8 @@ export function useGameCount(
   const key = isGames ? node.id : '';
   // Bumped when a load settles or the library changes, to re-read the cache.
   const [revision, setRevision] = useState(0);
+  // Create the host's cache now so it subscribes before this hook's listener below.
+  cacheFor(host);
 
   useEffect(
     () =>

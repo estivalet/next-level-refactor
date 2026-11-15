@@ -174,6 +174,35 @@ describe('PS5 home hero (FR-THM-1)', () => {
     expect(text('.ps5-stat--favorites .ps5-stat-value')).toBe('None');
   });
 
+  it('FR-THM-1: filter tiles inside a system keep their own names, without maker or year', async () => {
+    const snes: ThemeSystemInfo = {
+      ...N64_INFO,
+      systemId: 'snes',
+      fullName: 'Super Nintendo Entertainment System',
+    };
+    await ready(new FakeThemeHost({ art: NO_ART_FILES, systemInfo: { snes } }), 'Nintendo');
+    await waitFor(() => {
+      expect(text('.ps5-title-name')).toBe('Super Nintendo Entertainment System');
+    });
+    press('Enter'); // Super Nintendo's filters
+    await waitFor(() => {
+      expect(text('.ps5-title-name')).toBe('Official');
+    });
+    // Past the museum lookup's settle delay: a filter still never takes the system's name.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(text('.ps5-title-name')).toBe('Official');
+    expect(q('.ps5-hero-meta')).toBeNull();
+  });
+
+  it('FR-THM-1: a system with filter children shows Games and Favorites, not Items', async () => {
+    await ready(new FakeThemeHost({ art: NO_ART_FILES }), 'Nintendo'); // Super Nintendo: 2 filters
+    await waitFor(() => {
+      expect(text('.ps5-stat--games .ps5-stat-value')).toBe('10');
+    });
+    expect(text('.ps5-stat--favorites .ps5-stat-value')).toBe('None');
+    expect(q('.ps5-stat--items')).toBeNull();
+  });
+
   describe('title placement', () => {
     afterEach(() => {
       vi.restoreAllMocks();
