@@ -12,8 +12,15 @@ export function MuseumApp() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const systems = list.data ?? [];
   const selected = systems.find((system) => system.systemId === selectedId);
+  if (list.isError) {
+    return (
+      <p role="alert" className="p-5 text-sm text-[#ff8a80]">
+        {t('apps.museum.listError')}
+      </p>
+    );
+  }
   return (
-    <div className="flex h-full text-slate-200">
+    <div className="relative flex h-full text-slate-200">
       <SystemList
         systems={systems}
         filter={filter}

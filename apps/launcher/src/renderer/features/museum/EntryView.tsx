@@ -1,6 +1,9 @@
 import type { SystemInfo, SystemInfoSummary } from '@nextlevel/shared';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SECONDARY_BUTTON } from '../library/Modal.tsx';
+import { EntryForm } from './EntryForm.tsx';
+import { ModelImage } from './ModelImage.tsx';
 import { useSystemInfo } from './museumApi.ts';
 
 type TextField = {
@@ -94,21 +97,24 @@ function ModelsSection({ title, entry }: { title: string; entry: SystemInfo }) {
     <Section title={title} empty={entry.models.length === 0}>
       <ul className="flex flex-col gap-3">
         {entry.models.map((model, index) => (
-          <li key={`${model.name}-${String(index)}`} className="text-sm text-slate-200">
-            <p className="font-medium">
-              {model.name}
-              {model.releaseYear !== undefined && (
-                <span className="ml-2 text-xs text-slate-500">{model.releaseYear}</span>
+          <li key={`${model.name}-${String(index)}`} className="flex gap-3 text-sm text-slate-200">
+            <ModelImage url={model.imageUrl} name={model.name} />
+            <div className="min-w-0">
+              <p className="font-medium">
+                {model.name}
+                {model.releaseYear !== undefined && (
+                  <span className="ml-2 text-xs text-slate-500">{model.releaseYear}</span>
+                )}
+              </p>
+              {MODEL_FIELDS.map(
+                (key) =>
+                  model[key] !== undefined && (
+                    <p key={key} className="text-xs text-slate-400">
+                      {t(`apps.museum.field.${key}`)}: {model[key]}
+                    </p>
+                  ),
               )}
-            </p>
-            {MODEL_FIELDS.map(
-              (key) =>
-                model[key] !== undefined && (
-                  <p key={key} className="text-xs text-slate-400">
-                    {t(`apps.museum.field.${key}`)}: {model[key]}
-                  </p>
-                ),
-            )}
+            </div>
           </li>
         ))}
       </ul>
@@ -155,7 +161,10 @@ function TopGamesSection({ title, entry }: { title: string; entry: SystemInfo })
   );
 }
 
-/** Source names, each a link when it has a URL; the main process opens links in the browser. */
+/**
+ * Source names; one is a link only when its URL is https (main drops other external links, so
+ * anything else would be a dead link). Main opens the link in the browser.
+ */
 function SourcesSection({ title, entry }: { title: string; entry: SystemInfo }) {
   return (
     <Section title={title} empty={entry.sources.length === 0}>
@@ -163,7 +172,7 @@ function SourcesSection({ title, entry }: { title: string; entry: SystemInfo }) 
         {entry.sources.map((source, index) => (
           <span key={`${source.name}-${String(index)}`}>
             {index > 0 && ', '}
-            {source.url ? (
+            {source.url?.startsWith('https://') ? (
               <a
                 href={source.url}
                 target="_blank"
@@ -182,22 +191,45 @@ function SourcesSection({ title, entry }: { title: string; entry: SystemInfo }) 
   );
 }
 
-/** A system's read-only museum entry (FR-MUS-2, FR-MUS-5). */
+/** A system's museum entry: read it, or edit it in place (FR-MUS-2, FR-MUS-5). */
 export function EntryView({ system }: { system: SystemInfoSummary }) {
   const { t } = useTranslation();
   const query = useSystemInfo(system.systemId);
-  const entry = query.data?.entry;
+  const [editing, setEditing] = useState(false);
+  const data = query.data;
+  const entry = data?.entry;
   const title = (key: string) => t(`apps.museum.sections.${key}`);
   return (
     <article className="min-w-0 flex-1 overflow-y-auto p-5" aria-label={system.name}>
-      <header className="mb-5">
-        <h2 className="text-lg font-semibold text-slate-100">{system.name}</h2>
+      <header className="mb-5 flex items-center gap-3">
+        <h2 className="flex-1 text-lg font-semibold text-slate-100">{system.name}</h2>
+        {entry && !editing && (
+          <button
+            type="button"
+            className={SECONDARY_BUTTON}
+            onClick={() => {
+              setEditing(true);
+            }}
+          >
+            {t('apps.museum.edit')}
+          </button>
+        )}
       </header>
       {query.isError && <p className="text-xs text-red-400">{t('apps.museum.loadError')}</p>}
       {!entry && !query.isError && (
         <p className="text-xs text-slate-500">{t('apps.museum.loading')}</p>
       )}
-      {entry && (
+      {data && editing && (
+        <EntryForm
+          name={system.name}
+          entry={data.entry}
+          edited={data.edited}
+          onDone={() => {
+            setEditing(false);
+          }}
+        />
+      )}
+      {entry && !editing && (
         <>
           <FactSection title={title('overview')} entry={entry} fields={OVERVIEW} />
           <StorySection title={title('story')} entry={entry} />

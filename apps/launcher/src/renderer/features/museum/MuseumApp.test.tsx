@@ -145,4 +145,16 @@ describe('MuseumApp', () => {
     renderInShell(<Component />);
     expect(await screen.findByText('Super Nintendo')).toBeInTheDocument();
   });
+
+  it('FR-MUS-2: a failed list load shows an error, not the empty list', async () => {
+    installFakeBridge({
+      'systems.info.list': () => ({
+        ok: false,
+        error: { code: 'INTERNAL', message: 'errors.internal' },
+      }),
+    });
+    renderInShell(<MuseumApp />);
+    expect(await screen.findByText('Could not load the systems.')).toBeInTheDocument();
+    expect(screen.queryByText('No systems match.')).toBeNull();
+  });
 });
