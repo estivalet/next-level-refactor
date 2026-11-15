@@ -1,13 +1,22 @@
-import { Library, ListTree, Settings, Store, UserRound, type LucideIcon } from 'lucide-react';
+import {
+  Landmark,
+  Library,
+  ListTree,
+  Settings,
+  Store,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react';
 import type { ComponentType } from 'react';
 import { AccountApp } from '../features/account/AccountApp.tsx';
 import { CatalogApp } from '../features/catalog/CatalogApp.tsx';
 import { LibraryApp } from '../features/library/LibraryApp.tsx';
 import { MenuEditorApp } from '../features/menus/MenuEditorApp.tsx';
+import { MuseumApp } from '../features/museum/MuseumApp.tsx';
 import { SettingsApp } from '../features/settings/SettingsApp.tsx';
 import type { AppParams } from '../features/shell/windowManager.ts';
 
-export type AppId = 'library' | 'catalog' | 'menu-editor' | 'settings' | 'account';
+export type AppId = 'library' | 'catalog' | 'menu-editor' | 'museum' | 'settings' | 'account';
 
 export interface AppDefinition {
   id: AppId;
@@ -44,6 +53,14 @@ export const apps: readonly AppDefinition[] = [
     defaultSize: { width: 900, height: 640 },
     singleInstance: true,
     Component: MenuEditorApp,
+  },
+  {
+    id: 'museum',
+    titleKey: 'apps.museum.title',
+    icon: Landmark,
+    defaultSize: { width: 1200, height: 760 },
+    singleInstance: true,
+    Component: MuseumApp,
   },
   {
     id: 'settings',

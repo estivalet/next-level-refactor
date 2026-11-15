@@ -129,6 +129,51 @@
     },
     "catalog": {
       "title": "Catalog"
+    },
+    "museum": {
+      "title": "Systems Museum",
+      "search": "Search systems",
+      "kindAll": "All types",
+      "kind": "Type",
+      "listLabel": "Systems",
+      "edited": "Edited",
+      "pick": "Pick a system to read its entry.",
+      "loading": "Loading…",
+      "loadError": "Could not load this entry.",
+      "empty": "Nothing recorded yet.",
+      "noMatches": "No systems match.",
+      "sections": {
+        "overview": "Overview",
+        "story": "Story",
+        "hardware": "Hardware",
+        "models": "Models",
+        "related": "Related",
+        "topGames": "Top games",
+        "sources": "Sources"
+      },
+      "field": {
+        "fullName": "Full name",
+        "manufacturer": "Manufacturer",
+        "country": "Country",
+        "releaseYear": "Released",
+        "discontinuedYear": "Discontinued",
+        "generation": "Generation",
+        "unitsSold": "Units sold",
+        "description": "Description",
+        "history": "History",
+        "legacy": "Legacy",
+        "cpu": "CPU",
+        "ram": "RAM",
+        "graphics": "Graphics",
+        "sound": "Sound",
+        "media": "Media",
+        "display": "Display",
+        "launchPrice": "Launch price",
+        "notes": "Notes",
+        "predecessor": "Predecessor",
+        "successor": "Successor",
+        "peripherals": "Peripherals"
+      }
     }
   },
   "settings": {

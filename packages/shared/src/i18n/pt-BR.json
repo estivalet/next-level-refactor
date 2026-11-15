@@ -129,6 +129,51 @@
     },
     "catalog": {
       "title": "Catálogo"
+    },
+    "museum": {
+      "title": "Museu de sistemas",
+      "search": "Buscar sistemas",
+      "kindAll": "Todos os tipos",
+      "kind": "Tipo",
+      "listLabel": "Sistemas",
+      "edited": "Editado",
+      "pick": "Escolha um sistema para ler o verbete.",
+      "loading": "Carregando…",
+      "loadError": "Não foi possível carregar este verbete.",
+      "empty": "Nada registrado ainda.",
+      "noMatches": "Nenhum sistema encontrado.",
+      "sections": {
+        "overview": "Visão geral",
+        "story": "História",
+        "hardware": "Hardware",
+        "models": "Modelos",
+        "related": "Relacionados",
+        "topGames": "Melhores jogos",
+        "sources": "Fontes"
+      },
+      "field": {
+        "fullName": "Nome completo",
+        "manufacturer": "Fabricante",
+        "country": "País",
+        "releaseYear": "Lançamento",
+        "discontinuedYear": "Descontinuado",
+        "generation": "Geração",
+        "unitsSold": "Unidades vendidas",
+        "description": "Descrição",
+        "history": "Histórico",
+        "legacy": "Legado",
+        "cpu": "CPU",
+        "ram": "RAM",
+        "graphics": "Gráficos",
+        "sound": "Som",
+        "media": "Mídia",
+        "display": "Tela",
+        "launchPrice": "Preço de lançamento",
+        "notes": "Notas",
+        "predecessor": "Antecessor",
+        "successor": "Sucessor",
+        "peripherals": "Periféricos"
+      }
     }
   },
   "settings": {
