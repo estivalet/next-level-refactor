@@ -59,7 +59,7 @@ import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
-import { createSystemInfoHandlers } from './systemInfoHandlers.ts';
+import { createSystemInfoHandlers } from './systems/systemInfoHandlers.ts';
 import { createImportHandlers } from './import/importHandlers.ts';
 import type { ImportService } from './import/ImportService.ts';
 import type { ScanService } from './scan/ScanService.ts';
@@ -197,7 +197,15 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       newId: deps.newId,
       emit: deps.emit,
     }),
-    ...createSystemInfoHandlers(),
+    ...createSystemInfoHandlers({
+      systems: allSystems,
+      customSystems: () => {
+        const loaded = settings.get();
+        return loaded.kind === 'ok' ? loaded.snapshot.settings.customSystems : [];
+      },
+      repo: () => deps.library?.systemInfo ?? null,
+      emit: deps.emit,
+    }),
     ...createImportHandlers({
       importer: () => library().importer,
       folderExists: (dir) => Promise.resolve(deps.pathExists(dir)),
