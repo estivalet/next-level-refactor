@@ -98,6 +98,15 @@ requirements:
   Back closes it. On the PS5 home, Down from the shelf focuses Explore, Left/Right switch between
   Explore and **…**, Up returns to the shelf; any change of level, category or shelf focus resets
   to the shelf. An owned top game launches with Enter.
+- As built (FR-THM-1): the PS5 Style home names the selected shelf item beside its tile, below the
+  smaller tiles: a badge with the node's short name in capitals (none without one), then the full
+  name — the museum entry's `fullName`, else the menu label (shown while the entry loads) — on one
+  line with an ellipsis. The hero sits about 140 px from the left; under its logo a muted
+  *Manufacturer · Year* line from the museum entry leaves out a missing part and is omitted for a
+  node without a system or an entry with neither. At the bottom right, above the hint row, a
+  trophy with **Games** over the visible-game count and **Favorites** over the visible favorites
+  ("None" at 0); a menu node (category) shows only **Items** over its child count. Both show "…"
+  while loading and are hidden when the games cannot be listed.
 - As built (M10-1, NFR-REL-2): a theme that crashes shows **Theme stopped working** ("Your
   library and settings are safe") with **Restart theme**, **Switch theme** and **Back to
   desktop** (the last two only when a locked kiosk doesn't hide them), driven by the same input

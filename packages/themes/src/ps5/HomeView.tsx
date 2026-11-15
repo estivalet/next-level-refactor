@@ -7,9 +7,11 @@ import { ArtTile } from '../components/ArtTile.tsx';
 import { cn } from '../components/cn.ts';
 import { LevelLogo } from '../components/LevelLogo.tsx';
 import { ShelfRow } from '../components/ShelfRow.tsx';
-import { countLabel, useGameCount } from '../components/useGameCount.ts';
+import { useGameCount } from '../components/useGameCount.ts';
+import { useThemeSystemInfo } from '../components/useSystemInfo.ts';
 import { nodeLabel } from '../engine/levelModel.ts';
 import { useThemeArt } from '../engine/useThemeArt.ts';
+import { HeroMeta, HomeStats, ShelfTitle } from './HomeParts.tsx';
 import type { HeroButton } from './useHomeZones.ts';
 
 const keepFocus = (event: { preventDefault: () => void }) => {
@@ -62,7 +64,9 @@ export function HomeView({
   }, [activeCategory, trail]);
 
   const focused = items[focusIndex] ?? null;
-  const countText = countLabel(useGameCount(focused), t);
+  const count = useGameCount(focused);
+  // FR-THM-1: the museum entry names the system and its maker; the label stands in while it loads.
+  const info = useThemeSystemInfo(focused?.systemId ?? null);
 
   return (
     <>
@@ -117,7 +121,12 @@ export function HomeView({
                 logoClassName="ps5-icon-logo"
                 fallbackClassName="ps5-icon-fallback"
               />
-              {isFocused && <div className="ps5-icon-label">{label(item)}</div>}
+              {isFocused && (
+                <ShelfTitle
+                  shortName={item.shortName}
+                  name={(item === focused && info?.fullName) || label(item)}
+                />
+              )}
             </div>
           )}
         />
@@ -130,7 +139,7 @@ export function HomeView({
             fallbackText={label(focused)}
             className="ps5-hero-logo"
           />
-          {countText && <div className="ps5-hero-count">{countText}</div>}
+          {focused.systemId && <HeroMeta info={info} />}
           <div className="ps5-hero-actions">
             <button
               type="button"
@@ -156,6 +165,7 @@ export function HomeView({
           </div>
         </section>
       )}
+      {focused && <HomeStats count={count} />}
     </>
   );
 }

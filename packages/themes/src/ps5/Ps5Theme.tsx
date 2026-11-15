@@ -1,6 +1,7 @@
 // Ported from NextLevelOS src/themes/ps5/Ps5Theme.tsx @ 3d530b7: input arrives as actions (US-C1),
 // categories are the root MenuNodes, hints show the user's own keys and buttons, strings via i18n.
 import './ps5.css';
+import './hero.css';
 import type { MenuNode } from '@nextlevel/shared';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';

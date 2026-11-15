@@ -8,8 +8,10 @@ Ported from NextLevelOS `src/themes/ps5` @ 3d530b7.
 
 - **Home:** the categories (the generated menu's manufacturers, then Collections) as tabs, with
   the breadcrumb right after the active one, and the clock. Below, a shelf of item icons whose
-  focus stays on the third slot while the shelf slides; a hero with the focused item's logo (its
-  name without art), its game or item count and **Explore**.
+  focus stays on the third slot while the shelf slides, the focused item's short-name badge and
+  full name beside its tile; a hero with the focused item's logo (its name without art),
+  *Manufacturer · Year* from the museum entry, **Explore** and **…**; and **Games** / **Favorites**
+  (or **Items** for a category) at the bottom right.
 - **Game levels:** the system icon and title, the tabs **All · Favorites · Hidden** with counts,
   the count of the active tab, and a grid of game art with favorite and hidden badges, on a dark
   backdrop with a light wave.

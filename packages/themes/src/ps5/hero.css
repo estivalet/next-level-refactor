@@ -1,0 +1,69 @@
+/* FR-THM-1: the PS5 home's selected-system title, hero meta line and bottom-right stats. */
+
+/* Beside the focused tile (150 px) and below the smaller tiles (14 px inset + 104 px), so the
+   later slots never cover it; z-index keeps it above them anyway. */
+.ps5-title {
+  position: absolute;
+  left: calc(100% + 18px);
+  top: 124px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: min(640px, 46vw);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.ps5-title-badge {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0b1020;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.ps5-title-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 22px;
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.ps5-hero-meta {
+  font-size: 18px;
+  color: var(--ps5-muted);
+}
+
+/* Above the hint row (.ps5-footer: bottom 24 px, ~22 px tall). */
+.ps5-stats {
+  position: absolute;
+  right: 48px;
+  bottom: 72px;
+  display: flex;
+  align-items: flex-end;
+  gap: 48px;
+}
+.ps5-stat {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.ps5-stat-icon {
+  display: grid;
+  place-items: center;
+  padding-bottom: 6px;
+}
+.ps5-stat-label {
+  font-size: 14px;
+  color: var(--ps5-muted);
+}
+.ps5-stat-value {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+}

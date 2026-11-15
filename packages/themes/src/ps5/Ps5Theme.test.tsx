@@ -90,10 +90,12 @@ describe('PS5 Style (FR-THM-1)', () => {
     expect(screen.getAllByText('Party picks').length).toBeGreaterThan(0);
   });
 
-  it('shows the game count of the focused system', async () => {
+  it('FR-THM-1: shows the game count of the focused system in the stats', async () => {
     await ready();
     press('ArrowRight'); // Nintendo 64
-    await shows('8 games');
+    await waitFor(() => {
+      expect(document.querySelector('.ps5-stat--games .ps5-stat-value')?.textContent).toBe('8');
+    });
   });
 
   it('select on a system with filters drills in; a system opens a 5-column grid', async () => {
@@ -305,7 +307,7 @@ describe('PS5 museum page (FR-MUS-4)', () => {
     press('Escape');
     expect(screen.queryByRole('dialog', { name: 'Super Nintendo' })).toBeNull();
     expect(onExit).not.toHaveBeenCalled();
-    expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Super Nintendo');
+    expect(document.querySelector('.ps5-title-name')?.textContent).toBe('Super Nintendo');
   });
 
   it('FR-MUS-4: Down then Right then Select reaches the museum page', async () => {
@@ -333,7 +335,7 @@ describe('PS5 museum page (FR-MUS-4)', () => {
     press('ArrowRight'); // in the hero: Explore → …, the shelf stays put
     press('ArrowUp');
     expect(document.querySelector('.ps5-hero-btn--focused')).toBeNull();
-    expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Nintendo 64');
+    expect(document.querySelector('.ps5-title-name')?.textContent).toBe('Nintendo 64');
     press('ArrowDown');
     expect(isHeroFocused(/Explore/)).toBe(true);
     press('Enter'); // Explore activates the focused system
@@ -347,11 +349,11 @@ describe('PS5 museum page (FR-MUS-4)', () => {
     await shows('Homebrew');
     press('Escape');
     await waitFor(() => {
-      expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Super Nintendo');
+      expect(document.querySelector('.ps5-title-name')?.textContent).toBe('Super Nintendo');
     });
     expect(document.querySelector('.ps5-hero-btn--focused')).toBeNull();
     press('ArrowRight'); // the shelf moves, not the hero
-    expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Nintendo 64');
+    expect(document.querySelector('.ps5-title-name')?.textContent).toBe('Nintendo 64');
   });
 
   it('FR-MUS-4: a category switch and back leaves the hero', async () => {

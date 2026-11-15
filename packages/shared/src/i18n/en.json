@@ -1602,7 +1602,11 @@
       "description": "Category tabs, icon shelf and a dark game library",
       "explore": "Explore",
       "moreInfo": "More information",
-      "tabCount": "{{label}}: {{count, number}}"
+      "tabCount": "{{label}}: {{count, number}}",
+      "games": "Games",
+      "favorites": "Favorites",
+      "items": "Items",
+      "none": "None"
     },
     "hyperspin": {
       "name": "HyperSpin Classic",

@@ -1602,7 +1602,11 @@
       "description": "Abas de categoria, prateleira de ícones e biblioteca escura",
       "explore": "Explorar",
       "moreInfo": "Mais informações",
-      "tabCount": "{{label}}: {{count, number}}"
+      "tabCount": "{{label}}: {{count, number}}",
+      "games": "Jogos",
+      "favorites": "Favoritos",
+      "items": "Itens",
+      "none": "Nenhum"
     },
     "hyperspin": {
       "name": "HyperSpin Clássico",

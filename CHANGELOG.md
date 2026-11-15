@@ -65,6 +65,14 @@ M10-1 — polish before 1.0.
 - The daily API backup fails on a read error instead of hanging; `.dockerignore` keeps every
   `.env*` file and `.nextlevel-dev` out of images.
 
+### Changed
+
+- **PS5 Style home** (FR-THM-1): the selected system is named beside its tile — a badge with its
+  short name, then its full name from the museum entry (the menu name until it loads). The hero
+  moves right and shows *Manufacturer · Year* under the logo instead of the game count, and
+  **Games** (with a trophy) and **Favorites** ("None" at 0) sit at the bottom right; a category
+  shows **Items**.
+
 ## [1.0.0-beta.1] - 2026-11-13
 
 M10 — Release 1.0, first beta: a Windows installer and zip that never touch your `data` and

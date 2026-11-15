@@ -82,6 +82,7 @@
   height: 210px;
 }
 .ps5-shelf-slot {
+  position: relative;
   display: flex;
   box-sizing: border-box;
   padding-top: 14px;
@@ -117,18 +118,10 @@
 .ps5-icon-fallback {
   background: linear-gradient(160deg, #2a3561, #141a33);
 }
-.ps5-icon-label {
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
 
 .ps5-hero {
   position: absolute;
-  left: 64px;
+  left: 140px;
   top: 300px;
   bottom: 96px;
   max-width: 46%;
@@ -146,10 +139,6 @@
   font-size: 56px;
   font-weight: 800;
   line-height: 1.05;
-}
-.ps5-hero-count {
-  font-size: 16px;
-  color: var(--ps5-muted);
 }
 .ps5-explore {
   align-self: flex-start;
