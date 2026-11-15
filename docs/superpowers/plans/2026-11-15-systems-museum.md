@@ -452,3 +452,41 @@ Behavior (PS5 home only): `open-info` on a focused node with a `systemId` opens 
 - [ ] **Step 4: Run** `npm test` — Expected: all pass, none skipped.
 - [ ] **Step 5: Run** `npm run test:e2e` if any Playwright spec covers the PS5 home or the shell app list (check `apps/launcher/e2e`); Expected: pass.
 - [ ] **Step 6: Commit** — `docs: systems museum requirements, screens, data model and D67 (FR-MUS-1..5)`
+
+---
+
+### Task 10b: Remote model images through a main-process cache (owner decision 2026-11-15: option B)
+
+The renderer CSP (`img-src 'self' nextlevel: data:`) blocks remote images. Instead of loosening it,
+main fetches each model image once, caches it on disk, and serves it as `nextlevel://remote-image/…`.
+
+**Files:**
+- Modify: `packages/shared/src/frontend/urls.ts` (+ test): `remoteImageUrl(url: string): string | null` → `nextlevel://remote-image/<base64url(url)>`, null unless `https://` and ≤ 2048 chars; `ParsedNextlevelUrl` gains `{ kind: 'remote-image'; url: string }`; `parseNextlevelUrl` accepts it only if the decoded URL is `https://` and ≤ 2048 chars.
+- Create: `apps/launcher/src/main/remoteImages/RemoteImageCache.ts` (+ test)
+- Modify: `apps/launcher/src/main/protocol/register.ts` (+ test): dep `remoteImage?: (url: string) => Promise<{ bytes: Buffer; mime: string } | null>`; `apps/launcher/src/main/protocol/resolveUrl.ts` returns null for the new kind; `apps/launcher/src/main/index.ts` wires it (cache dir `<data>/cache/remote-images`).
+- Modify: `apps/launcher/src/renderer/features/museum/ModelImage.tsx` and the themes `ModelImage` in `packages/themes/src/components/museumSections.tsx`: `src={remoteImageUrl(imageUrl)}`; placeholder when null or on error.
+- Modify: the Museum editor's image preview shows the saved value (or a value debounced ≥ 600 ms), never one request per keystroke.
+
+**Interfaces — Produces:**
+```ts
+export class RemoteImageCache {
+  constructor(deps: { dir: string; fetcher: typeof fetch; now: () => number; maxBytes?: number /* 5 MiB */; timeoutMs?: number /* 15000 */ });
+  /** Cached bytes, else one fetch (deduped per URL), sniffed as png/jpeg/gif/webp via scraper/sniff.ts imageType, written with the atomic-write helper as `<sha256(url)>.<ext>`. A failure (non-OK, too big, not an image, timeout, network) is remembered for 24 h per URL (in memory) and returns null. */
+  get(url: string): Promise<{ bytes: Buffer; mime: string } | null>;
+}
+```
+Requests send no cookies or credentials (plain `fetch`, `redirect: 'follow'` but the final URL must still be https), and the URL is never logged.
+
+- [ ] **Step 1: Write failing tests**:
+  - `FR-MUS-4: remoteImageUrl round-trips an https URL and refuses http, javascript and over-long URLs`.
+  - `FR-MUS-4: the cache fetches once, then serves from disk` (second `get` with a fetcher that throws still returns bytes; also after a new instance on the same dir).
+  - `FR-MUS-4: concurrent gets share one fetch`.
+  - `FR-MUS-4: non-image, oversize, non-OK and timed-out responses return null and are not retried within 24 h`.
+  - `FR-MUS-4: a redirect to http is refused`.
+  - Protocol: `FR-MUS-4: nextlevel://remote-image serves the cached bytes with the image type; malformed → 404`.
+  - Launcher `ModelImage` and themes museum page: `FR-MUS-4: model images load through nextlevel://remote-image`.
+  - Editor: `FR-MUS-2: typing an image link does not request an image per keystroke`.
+- [ ] **Step 2: Run** them — Expected: FAIL.
+- [ ] **Step 3: Implement.**
+- [ ] **Step 4: Run** them, plus `npx vitest run apps/launcher/src/main/protocol packages/shared/src/frontend` and (from `apps/launcher`) `npx vitest run src/renderer/features/museum` — Expected: PASS.
+- [ ] **Step 5: Commit** — `feat(launcher): museum model images through a cached nextlevel://remote-image (FR-MUS-4)`
