@@ -895,7 +895,8 @@
       "missing_one": "{{count}} ausente",
       "missing_other": "{{count}} ausentes",
       "review_one": "{{count}} precisa de revisão",
-      "review_other": "{{count}} precisam de revisão"
+      "review_other": "{{count}} precisam de revisão",
+      "gamesOf": "{{count}} de {{total}} jogos"
     },
     "tabs": {
       "label": "Filtro",
@@ -1371,6 +1372,10 @@
       "webSetup": "Configure antes a ferramenta do site em Configurações → Scraper.",
       "start": "Começar",
       "close": "Fechar"
+    },
+    "scopeSearch": {
+      "placeholder": "Buscar em {{scope}}…",
+      "clear": "Limpar busca"
     }
   },
   "frontend": {

@@ -50,6 +50,7 @@ export function ExportDialog({ scope, title, view, counts, onClose }: ExportDial
     ...(view.filter ? [view.filter] : []),
     ...(view.genre ? [view.genre] : []),
     ...(view.essentials ? [t('library.sidebar.essentials')] : []),
+    ...(view.text ? [`“${view.text}”`] : []),
   ].join(' · ');
   const saved = exporting.data?.status === 'saved' ? exporting.data.count : null;
 

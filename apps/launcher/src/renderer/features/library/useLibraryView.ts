@@ -2,7 +2,7 @@ import type { GameScope, GameSort, GameTab, HealthGap } from '@nextlevel/shared'
 import { useState } from 'react';
 import { useSystemCatalog } from '../settings/settingsApi.ts';
 import { useCollections } from './collectionsApi.ts';
-import { useSystemSummaries } from './libraryApi.ts';
+import { SEARCH_DELAY_MS, useDebounced, useSystemSummaries } from './libraryApi.ts';
 import { useSmartFilters } from './smartFiltersApi.ts';
 import { EMPTY_SELECTION, select, type SelectMode } from './selection.ts';
 import { usePagedGames, type GameListParams } from './usePagedGames.ts';
@@ -16,6 +16,8 @@ interface Narrowing {
   lacking?: HealthGap;
   /** D63: only games in an Essentials collection. */
   essentials?: true;
+  /** FR-LIB-10, D66: the list header's search, as typed. */
+  text?: string;
 }
 
 /**
@@ -36,6 +38,13 @@ export function useLibraryView(initialScope: GameScope | null = null) {
   const [narrowing, setNarrowing] = useState<Narrowing>({ key: scopeKey });
   const narrow = narrowing.key === scopeKey ? narrowing : { key: scopeKey };
   const [sort, setSort] = useState<GameSort>('title');
+  // The search is sent after a pause in typing, like global search (one query, not one per key).
+  // Keyed by scope, so another scope's last search never reaches this one's first query.
+  const typed = (narrow.text ?? '').trim();
+  const [searchedKey, searched] = JSON.parse(
+    useDebounced(JSON.stringify([scopeKey, typed]), SEARCH_DELAY_MS),
+  ) as [string, string];
+  const text = typed === '' || searchedKey !== scopeKey ? '' : searched;
   const params: GameListParams | null = scope
     ? {
         scope,
@@ -45,6 +54,7 @@ export function useLibraryView(initialScope: GameScope | null = null) {
         ...(narrow.genre === undefined ? {} : { genre: narrow.genre }),
         ...(narrow.lacking === undefined ? {} : { lacking: narrow.lacking }),
         ...(narrow.essentials ? { essentials: true as const } : {}),
+        ...(text === '' ? {} : { text }),
       }
     : null;
   const viewKey = JSON.stringify(params);
@@ -101,18 +111,22 @@ export function useLibraryView(initialScope: GameScope | null = null) {
     },
     setTab,
     setSort,
-    /** The filter, genre (D62) and lacking (System health) narrowing the list. */
+    /** The filter, genre (D62), lacking (System health) and search (D66) narrowing the list. */
     narrow: {
       filter: narrow.filter,
       genre: narrow.genre,
       lacking: narrow.lacking,
       essentials: narrow.essentials,
+      text: narrow.text,
     },
+    /** The search text sent with the list (debounced, trimmed), or '' when none. */
+    searchText: text,
     setNarrow: (next: {
       filter?: string | undefined;
       genre?: string | undefined;
       lacking?: HealthGap | undefined;
       essentials?: true | undefined;
+      text?: string | undefined;
     }) => {
       setNarrowing({
         key: scopeKey,
@@ -120,6 +134,7 @@ export function useLibraryView(initialScope: GameScope | null = null) {
         ...(next.genre === undefined ? {} : { genre: next.genre }),
         ...(next.lacking === undefined ? {} : { lacking: next.lacking }),
         ...(next.essentials ? { essentials: true as const } : {}),
+        ...(next.text ? { text: next.text } : {}),
       });
     },
     setRange: (first: number, last: number) => {

@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { errorCode } from '../settings/settingsApi.ts';
 import { ExportDialog } from './ExportDialog.tsx';
+import { ScopeSearch } from './ScopeSearch.tsx';
 import { GameDetails } from './GameDetails.tsx';
 import { GameList } from './GameList.tsx';
 import { GlobalSearch } from './GlobalSearch.tsx';
@@ -231,10 +232,22 @@ export function LibraryApp({
                     <span className="truncate">{scopeName}</span>
                     {view.games.total !== null && (
                       <span className="shrink-0 text-xs font-normal text-slate-500">
-                        {t('library.status.games', { count: view.games.total })}
+                        {view.searchText !== '' && facets.data
+                          ? t('library.status.gamesOf', {
+                              count: view.games.total,
+                              total: facets.data.tabs[view.tab],
+                            })
+                          : t('library.status.games', { count: view.games.total })}
                       </span>
                     )}
                   </h2>
+                  <ScopeSearch
+                    scopeName={scopeName}
+                    text={view.narrow.text ?? ''}
+                    onText={(text) => {
+                      view.setNarrow({ ...view.narrow, text });
+                    }}
+                  />
                   <button
                     type="button"
                     className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-white/5 hover:text-white"
@@ -343,6 +356,7 @@ export function LibraryApp({
             ...(view.narrow.filter === undefined ? {} : { filter: view.narrow.filter }),
             ...(view.narrow.genre === undefined ? {} : { genre: view.narrow.genre }),
             ...(view.narrow.essentials ? { essentials: true as const } : {}),
+            ...(view.searchText === '' ? {} : { text: view.searchText }),
           }}
           counts={{
             every: facets.data ? facets.data.tabs.all + facets.data.tabs.hidden : null,

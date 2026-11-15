@@ -23,7 +23,7 @@ export const SEARCH_KEY = 'library.search';
 export const SYSTEMS_KEY = ['systems.list'] as const;
 export const COLLECTIONS_KEY = ['collections.list'] as const;
 export const SMART_FILTERS_KEY = ['smartFilters.list'] as const;
-const SEARCH_DELAY_MS = 120;
+export const SEARCH_DELAY_MS = 120;
 
 /**
  * Everything a game change can make stale: lists, details, search, filter and genre counts, system
@@ -85,7 +85,7 @@ export function useGameDetails(gameId: number | null, options: { keepPrevious?: 
 }
 
 /** The text after the user paused typing for a moment. */
-function useDebounced(text: string, delay: number): string {
+export function useDebounced(text: string, delay: number): string {
   const [value, setValue] = useState(text);
   useEffect(() => {
     const timer = setTimeout(() => {

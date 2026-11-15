@@ -284,3 +284,88 @@ describe('the scope view (D62)', () => {
     expect(screen.queryByRole('group', { name: 'Filters' })).not.toBeInTheDocument();
   });
 });
+
+describe('search within the open list (FR-LIB-10, D66)', () => {
+  function searchSetup(matches: (text: string) => number[] = () => [1]) {
+    const base = libraryResponses(GAMES, SYSTEMS);
+    const list = base['library.games.list'];
+    if (!list) throw new Error('no list response');
+    const exports: unknown[] = [];
+    const bridge = installFakeBridge({
+      ...base,
+      'library.games.facets': () =>
+        ok({ filters: [], genres: [], tabs: TAB_COUNTS, essentials: 0 }),
+      'library.games.list': (query) => {
+        if (query.text === undefined) return list(query);
+        const rows = GAMES.filter((game) => matches(query.text ?? '').includes(game.id));
+        return ok({ total: rows.length, offset: query.offset, games: rows });
+      },
+      'library.export': (input) => {
+        exports.push(input);
+        return ok({ status: 'saved' as const, count: 1 });
+      },
+    });
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    const listCalls = () =>
+      bridge.calls
+        .filter((c) => c.channel === 'library.games.list')
+        .map((c) => c.input as GameListQuery);
+    return { user: userEvent.setup(), listCalls, exports };
+  }
+
+  it('FR-LIB-10: typing in Search Nintendo 64 narrows the list to the scope', async () => {
+    const { user, listCalls } = searchSetup();
+    await user.type(await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' }), 'alpha');
+    await waitFor(() => {
+      expect(listCalls().at(-1)).toMatchObject({ scope: N64_SCOPE, text: 'alpha' });
+    });
+  });
+
+  it('FR-LIB-10: typing fast sends one query after the pause', async () => {
+    const { user, listCalls } = searchSetup();
+    await user.type(await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' }), 'alpha');
+    await waitFor(() => {
+      expect(
+        listCalls()
+          .filter((q) => q.text !== undefined)
+          .map((q) => q.text),
+      ).toEqual(['alpha']);
+    });
+  });
+
+  it('FR-LIB-10: the header shows "n of total games" while searching; no match shows 0 of total', async () => {
+    const { user } = searchSetup((text) => (text === 'alpha' ? [1] : []));
+    const box = await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' });
+    await user.type(box, 'alpha');
+    expect(await screen.findByText('1 of 5 games')).toBeVisible();
+    await user.clear(box);
+    await user.type(box, 'zzz');
+    expect(await screen.findByText('0 of 5 games')).toBeVisible();
+  });
+
+  it('FR-LIB-10: opening another scope or Back clears the search', async () => {
+    const { user, listCalls } = searchSetup();
+    await user.type(await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' }), 'alpha');
+    await waitFor(() => {
+      expect(listCalls().at(-1)?.text).toBe('alpha');
+    });
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(await screen.findByRole('button', { name: /Not in menu/ }));
+    await user.click(await screen.findByRole('button', { name: /^Nintendo 64/ }));
+    expect(await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' })).toHaveValue('');
+    expect(listCalls().at(-1)?.text).toBeUndefined();
+  });
+
+  it('FR-LIB-10: Export… keeps the search text', async () => {
+    const { user, exports } = searchSetup();
+    await user.type(await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' }), 'alpha');
+    expect(await screen.findByText('1 of 5 games')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Export…' }));
+    const dialog = await screen.findByRole('dialog', { name: /Export/ });
+    await user.click(within(dialog).getByRole('radio', { name: /Only the games shown/ }));
+    await user.click(within(dialog).getByRole('button', { name: 'Export…' }));
+    await waitFor(() => {
+      expect(exports[0]).toMatchObject({ view: { text: 'alpha' } });
+    });
+  });
+});
