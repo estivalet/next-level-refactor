@@ -30,13 +30,14 @@ M10-1 — polish before 1.0.
 - **Systems museum** (FR-MUS-1..5, D67, ADR-016): every system has a museum entry (overview,
   story, hardware, models, related systems, top games, sources), seeded from shipped data. The new
   **Museum** app lists every system and edits each field; edits replace the shipped entry and
-  **Reset** brings it back; top games can be pinned to a library game. Press **I** (new *info*
-  input action, bindable in Settings → Input) on a focused system, or choose **…** next to Explore
-  on the PS5 home (Down from the shelf, then Right), to open its museum page and launch owned top
+  **Reset** brings it back; top games can be pinned to a library game. In the PS5 Style theme, press
+  **I** (new *info* input action, bindable in Settings → Input) on a focused system, or choose
+  **…** next to Explore on the home (Down from the shelf, then Right), to open its museum page and launch owned top
   games. Showcase now prefers the museum description over `system-info` art files. Model photos
   are fetched and cached by the launcher (public https hosts only, 5 MiB each, 200 MiB in all);
   the content security policy is unchanged. Seed text from Wikipedia is CC BY-SA 4.0 and credited
-  in Sources. Settings move to schema v3; a file that already binds I to another action keeps its
+  in Sources with a link to the licence (and to the article when known); LaunchBox text links the
+  LaunchBox Games Database. Settings move to schema v3; a file that already binds I to another action keeps its
   binding and leaves *info* unbound.
 
 ### Fixed

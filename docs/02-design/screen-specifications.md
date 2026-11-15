@@ -94,7 +94,7 @@ requirements:
   theme. LT/RT (PageUp/PageDown) jump a page in game lists: 7 tiles in Big Box, 10 rows in Big
   Box List, 3 rows in Console Home, 2 rows in PS5 Style; HyperSpin keeps letter jumps (M4d).
 - As built (FR-MUS-4, US-G1): the **info** action (key I) or the PS5 home's **…** button opens a
-  system's museum page (logo, overview, story, hardware, models, related, top games, Sources);
+  system's museum page (logo, overview, story, hardware, models, related, top games, Sources as text);
   Back closes it. On the PS5 home, Down from the shelf focuses Explore, Left/Right switch between
   Explore and **…**, Up returns to the shelf; any change of level, category or shelf focus resets
   to the shelf. An owned top game launches with Enter.
@@ -130,7 +130,8 @@ requirements:
   top games are lists you can add to, remove from and reorder; a top game can be pinned to a library
   game of that system through a picker and an owned one shows a badge. Model photos show a
   placeholder when the link is broken or offline. Seed text from Wikipedia is credited in Sources
-  (CC BY-SA 4.0).
+  as "Wikipedia (CC BY-SA 4.0)" linking the licence (and the article when known); source names are
+  links here, while the theme's museum page shows names only (kiosk mode, FR-SET-6).
 
 ## S7 Library
 

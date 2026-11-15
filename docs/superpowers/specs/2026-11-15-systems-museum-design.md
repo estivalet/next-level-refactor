@@ -95,10 +95,14 @@ Schema `SystemInfoSchema` in `packages/shared/src/systems/info.ts`. Every field 
 The descriptions are kept and shipped. Most come from Wikipedia (CC BY-SA, which requires credit
 and a link to the source), the rest from the LaunchBox Games Database. So:
 
-- The import sets `sources` per entry: `Wikipedia` when the story text came from the scraped
-  JSON, `LaunchBox Games Database` when it came from the XML, both when both were used.
-- The museum page and the Museum app show a "Sources" line at the end of the entry, with links
-  when a `url` is set. The owner can edit sources like any other field.
+- The import sets `sources` per entry: `Wikipedia (CC BY-SA 4.0)` (licence URL) when the story
+  text came from the scraped JSON, preceded by `Wikipedia` (article URL) when the file's
+  `references` name one; `LaunchBox Games Database` (site URL) when it came from the XML; both when
+  both were used.
+- The museum page and the Museum app show a "Sources" line at the end of the entry. The Museum
+  app links a source when its `url` is https; the theme's museum page shows names only, since a
+  link would open a browser and leave kiosk mode (FR-SET-6). The owner can edit sources like any
+  other field.
 - `docs/` gets a short note that seed text is CC BY-SA where it came from Wikipedia.
 
 ### Seed import (one-off)
