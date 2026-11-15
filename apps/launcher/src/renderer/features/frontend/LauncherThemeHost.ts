@@ -43,8 +43,8 @@ export function createLauncherThemeHost(
   };
 
   return {
-    // FR-MUS-4: wired to systems.info.forTheme when the museum lands.
-    getSystemInfo: () => Promise.resolve(null),
+    getSystemInfo: async (systemId) =>
+      value(await bridge.invoke('systems.info.forTheme', { systemId })),
     getMenu: async () =>
       value(
         await (deps.previewDraft
@@ -101,6 +101,9 @@ export function createLauncherThemeHost(
         }),
         bridge.on('menus.changed', () => {
           listener({ type: 'menu-changed' });
+        }),
+        bridge.on('systems.infoChanged', ({ systemId }) => {
+          listener({ type: 'system-info-changed', systemId });
         }),
         // A scan can add or empty systems, which shows or hides their menu nodes.
         bridge.on('scan.finished', () => {

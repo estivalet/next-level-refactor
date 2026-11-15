@@ -79,7 +79,7 @@ export function ShowcaseTheme({ onExit, inputEnabled = true, active = true }: Th
   const menuFocus = menuItems.length ? Math.min(nav.state.focusIndex, menuItems.length - 1) : 0;
   const focusedMenuItem = level?.kind === 'menu' ? (menuItems[menuFocus] ?? null) : null;
   const count = useGameCount(focusedMenuItem, 250, { filtersAsGames: filters.filtersAsGames });
-  const info = useSystemInfo(focusedMenuItem?.name ?? null);
+  const info = useSystemInfo(focusedMenuItem);
 
   useThemeInput({
     targetRef: rootRef,

@@ -191,4 +191,19 @@ describe('LauncherThemeHost (FR-THM-6)', () => {
     fake.emit('menus.changed', {});
     expect(events).toEqual([{ type: 'menu-changed' }, { type: 'menu-changed' }]);
   });
+
+  it('FR-MUS-4: getSystemInfo calls systems.info.forTheme', async () => {
+    const { fake, host } = setup({ 'systems.info.forTheme': () => ok(null) });
+    expect(await host.getSystemInfo('nes')).toBeNull();
+    expect(fake.calls).toEqual([{ channel: 'systems.info.forTheme', input: { systemId: 'nes' } }]);
+  });
+
+  it('FR-MUS-4: systems.infoChanged becomes system-info-changed', () => {
+    const { fake, host } = setup();
+    const events: HostEvent[] = [];
+    const off = host.onEvent((event) => events.push(event));
+    fake.emit('systems.infoChanged', { systemId: 'nes' });
+    off();
+    expect(events).toEqual([{ type: 'system-info-changed', systemId: 'nes' }]);
+  });
 });

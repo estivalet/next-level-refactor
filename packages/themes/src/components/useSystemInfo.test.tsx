@@ -1,21 +1,32 @@
 // Cases ported from NextLevelOS src/themes/components/useSystemInfo.test.tsx @ 3d530b7: the file
 // is found through the art index (FakeThemeHost) and read with fetch.
-import { render, screen, waitFor } from '@testing-library/react';
+import type { ThemeSystemInfo } from '@nextlevel/shared';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ThemeArtProvider } from '../engine/ThemeArtProvider.tsx';
 import { ThemeEngineProvider } from '../engine/ThemeEngineProvider.tsx';
 import { resetSystemInfoCache } from '../engine/systemInfo.ts';
 import { DEFAULT_ART_CONFIG } from '../engine/useThemeArt.ts';
 import { FakeThemeHost } from '../host/FakeThemeHost.ts';
-import { useSystemInfo } from './useSystemInfo.ts';
+import { useSystemInfo, useThemeSystemInfo } from './useSystemInfo.ts';
 
-function Probe({ name }: { name: string | null }) {
-  const { description } = useSystemInfo(name, 0);
+const entry = (systemId: string, description?: string): ThemeSystemInfo => ({
+  systemId,
+  models: [],
+  peripherals: [],
+  topGames: [],
+  sources: [],
+  ...(description ? { description } : {}),
+});
+
+function Probe({ name, systemId = null }: { name: string | null; systemId?: string | null }) {
+  const { description } = useSystemInfo(name ? { name, systemId } : null, 0);
   return <span data-testid="desc">{description ?? '-'}</span>;
 }
 
-const host = () =>
+const host = (systemInfo: Record<string, ThemeSystemInfo> = {}) =>
   new FakeThemeHost({
+    systemInfo,
     art: {
       packFiles: [],
       assetsFiles: ['system-info/NES.json', 'system-info/SNES.json'],
@@ -24,11 +35,11 @@ const host = () =>
     },
   });
 
-function mount(name: string | null, h = host()) {
+function mount(name: string | null, h = host(), systemId: string | null = null) {
   const tree = (n: string | null) => (
     <ThemeEngineProvider host={h} onExit={vi.fn()}>
       <ThemeArtProvider host={h} themeId="showcase" moduleArt={DEFAULT_ART_CONFIG}>
-        <Probe name={n} />
+        <Probe name={n} systemId={systemId} />
       </ThemeArtProvider>
     </ThemeEngineProvider>
   );
@@ -87,5 +98,49 @@ describe('useSystemInfo (FR-THM-1, FR-THM-2)', () => {
   it('a null name has no description', () => {
     mount(null);
     expect(desc()).toBe('-');
+  });
+
+  it('FR-MUS-4: useSystemInfo prefers the museum description for a system node', async () => {
+    mount('NES', host({ nes: entry('nes', 'Museum text') }), 'nes');
+    await waitFor(() => {
+      expect(desc()).toBe('Museum text');
+    });
+  });
+
+  it('FR-MUS-4: falls back to system-info/<name>.json when the entry has no description', async () => {
+    mount('NES', host({ nes: entry('nes') }), 'nes');
+    await waitFor(() => {
+      expect(desc()).toBe('NES text');
+    });
+  });
+});
+
+function ThemeProbe({ systemId }: { systemId: string | null }) {
+  const info = useThemeSystemInfo(systemId, 0);
+  return <span data-testid="info">{info?.description ?? '-'}</span>;
+}
+
+describe('useThemeSystemInfo (FR-MUS-4)', () => {
+  it('FR-MUS-4: useThemeSystemInfo reloads on system-info-changed for that system', async () => {
+    const h = host({ nes: entry('nes', 'old') });
+    render(
+      <ThemeEngineProvider host={h} onExit={vi.fn()}>
+        <ThemeProbe systemId="nes" />
+      </ThemeEngineProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('info').textContent).toBe('old');
+    });
+    vi.spyOn(h, 'getSystemInfo').mockResolvedValue(entry('nes', 'new'));
+    act(() => {
+      h.emit({ type: 'system-info-changed', systemId: 'snes' });
+    });
+    expect(screen.getByTestId('info').textContent).toBe('old');
+    act(() => {
+      h.emit({ type: 'system-info-changed', systemId: 'nes' });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('info').textContent).toBe('new');
+    });
   });
 });
