@@ -6,6 +6,7 @@ import type {
   ThemeGame,
   ThemeOptions,
   ThemeSound,
+  ThemeSystemInfo,
 } from '@nextlevel/shared';
 
 /** Something outside the theme changed (FR-THM-6). */
@@ -15,7 +16,9 @@ export type HostEvent =
   | { type: 'launch-finished'; gameId: number; ok: boolean }
   | { type: 'settings-changed' }
   /** The menu may look different: a menu was saved, or something a menu shows changed. */
-  | { type: 'menu-changed' };
+  | { type: 'menu-changed' }
+  /** A museum entry was saved or reset (FR-MUS-4). */
+  | { type: 'system-info-changed'; systemId: string };
 
 /** `reported`: the host already showed the failure to the user, so the theme stays quiet. */
 export type LaunchOutcome =
@@ -31,6 +34,8 @@ export interface ThemeHost {
   /** A whole level: every present game of a system, a system filter or a collection. */
   getGames(nodeId: string): Promise<ThemeGame[]>;
   getGameDetails(gameId: number): Promise<{ description: string | null }>;
+  /** FR-MUS-4: a system's museum entry, owned top games resolved; null when unknown. */
+  getSystemInfo(systemId: string): Promise<ThemeSystemInfo | null>;
   /** The pack and shared art files a theme may use, plus its pack manifest; `refresh` re-reads
    * the folders instead of using the host's cache. */
   loadArtIndex(themeId: string, opts?: { refresh?: boolean }): Promise<ArtIndex>;

@@ -60,6 +60,7 @@ import { importContract } from './importContract.ts';
 import { kioskContract } from './kioskContract.ts';
 import { menuContract } from './menuContract.ts';
 import { syncContract } from './syncContract.ts';
+import { systemInfoContract } from './systemInfoContract.ts';
 import type { IpcEvent, IpcEventPayload } from './events.ts';
 import { SettingsSnapshotSchema, type SettingsSnapshot } from './snapshot.ts';
 
@@ -118,6 +119,7 @@ export const ipcContract = {
   ...syncContract,
   ...importContract,
   ...menuContract,
+  ...systemInfoContract,
   'app.version': { input: z.void(), output: z.string() },
   'app.quit': { input: z.void(), output: z.void() },
   /** NFR-REL-2: a renderer error boundary caught a crash; main writes it to the log. */

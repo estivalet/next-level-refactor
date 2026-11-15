@@ -109,3 +109,15 @@ describe('catalog and folder channels', () => {
     expect(ipcContract['systems.catalog'].output.safeParse([]).success).toBe(true);
   });
 });
+
+describe('systems museum channels', () => {
+  it('FR-MUS-2: systems.info.save validates the entry', () => {
+    const input = ipcContract['systems.info.save'].input;
+    expect(
+      input.safeParse({ systemId: 'nes', entry: { systemId: 'nes', releaseYear: 1700 } }).success,
+    ).toBe(false);
+    expect(
+      input.safeParse({ systemId: 'nes', entry: { systemId: 'nes', releaseYear: 1983 } }).success,
+    ).toBe(true);
+  });
+});

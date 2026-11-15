@@ -160,3 +160,16 @@ As an admin, I want to add a game whose author gave permission.
 
 ### US-F4 Manage plans · FR-SUB-1, FR-ADM-2
 - When I change a plan's catalog scopes, then subscribers on that plan see the change within 1 minute; archived plans stay valid for existing subscribers but can't be chosen by new ones.
+
+---
+
+## Epic G — Systems museum
+
+### US-G1 Browse a system's history from the couch · FR-MUS-1, FR-MUS-4, FR-MUS-5
+As a collector, I want to read about a console while I browse it.
+- When I open the info page of a focused system, then I see its overview, story, hardware, models, related systems and top games, and a Sources line crediting where the facts came from.
+- When I pick a top game I own, then it launches; a top game I don't own is shown but not launchable.
+
+### US-G2 Curate a system's museum entry · FR-MUS-2, FR-MUS-3
+- When I edit a system's entry in the Museum app and save, then themes show my version, and **Reset** brings back the shipped one.
+- When I add a top game by title, then it is marked owned if a present game of that system has the same normalized title, or if I pinned it to a library game.

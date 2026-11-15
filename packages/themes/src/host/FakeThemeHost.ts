@@ -9,6 +9,7 @@ import {
   type ThemeGame,
   type ThemeOptions,
   type ThemeSound,
+  type ThemeSystemInfo,
 } from '@nextlevel/shared';
 import { hasFilter } from '../engine/gameFlags.ts';
 import { FIXTURE_ART, FIXTURE_COLLECTION, FIXTURE_GAMES, FIXTURE_MENU } from './fixtures.ts';
@@ -23,6 +24,8 @@ export interface HostFixture {
   sound?: ThemeSound;
   /** Input settings; defaults to the US-C1 bindings. */
   input?: InputSettings;
+  /** Museum entries by system id (FR-MUS-4). */
+  systemInfo?: Record<string, ThemeSystemInfo>;
   /** setGameFlags resolves false. */
   failFlags?: boolean;
   /** launch resolves `{ ok: false, message }`. */
@@ -82,6 +85,10 @@ export class FakeThemeHost implements ThemeHost {
 
   getGameDetails(gameId: number): Promise<{ description: string | null }> {
     return Promise.resolve({ description: `About game ${String(gameId)}` });
+  }
+
+  getSystemInfo(systemId: string): Promise<ThemeSystemInfo | null> {
+    return Promise.resolve(this.fixture.systemInfo?.[systemId] ?? null);
   }
 
   loadArtIndex(themeId: string, opts?: { refresh?: boolean }): Promise<ArtIndex> {

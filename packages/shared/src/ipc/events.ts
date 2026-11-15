@@ -24,6 +24,8 @@ export const ipcEvents = {
   }),
   /** A menu, or a collection / smart filter a menu can show, changed (FR-MENU-1). */
   'menus.changed': z.object({}),
+  /** A museum entry was saved or reset (FR-MUS-2, FR-MUS-4). */
+  'systems.infoChanged': z.object({ systemId: z.string() }),
   'launch.started': LaunchStartedSchema,
   /** Stage progress of a NextLevelOS dry run or import (FR-IMP-2). */
   'import.progress': ImportProgressSchema,

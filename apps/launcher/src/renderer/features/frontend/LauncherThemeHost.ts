@@ -43,6 +43,8 @@ export function createLauncherThemeHost(
   };
 
   return {
+    // FR-MUS-4: wired to systems.info.forTheme when the museum lands.
+    getSystemInfo: () => Promise.resolve(null),
     getMenu: async () =>
       value(
         await (deps.previewDraft

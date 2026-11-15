@@ -38,4 +38,18 @@ describe('FakeThemeHost (FR-THM-6)', () => {
     expect(seen).toEqual([{ type: 'launch-finished', gameId: 1, ok: true }]);
     expect(host.calls.map((call) => call.method)).toEqual(['setGameFlags', 'launch']);
   });
+
+  it('FR-MUS-4: getSystemInfo returns the fixture entry, or null for an unknown system', async () => {
+    const entry = {
+      systemId: 'nes',
+      manufacturer: 'Nintendo',
+      models: [],
+      peripherals: [],
+      sources: [],
+      topGames: [],
+    };
+    const host = new FakeThemeHost({ systemInfo: { nes: entry } });
+    expect(await host.getSystemInfo('nes')).toEqual(entry);
+    expect(await host.getSystemInfo('snes')).toBeNull();
+  });
 });
