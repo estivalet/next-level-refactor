@@ -13,3 +13,12 @@ export function countGames(games: readonly ThemeGame[], filter?: string): number
   }
   return count;
 }
+
+/** Visible games carrying `favorite`. */
+export function countFavorites(games: readonly ThemeGame[]): number {
+  let count = 0;
+  for (const game of games) {
+    if (!game.hidden && game.favorite) count += 1;
+  }
+  return count;
+}

@@ -2,13 +2,13 @@
 // host's game lists (cached per node until the library changes) instead of gamelist JSON.
 import type { MenuNode } from '@nextlevel/shared';
 import { useEffect, useState } from 'react';
-import { countGames } from '../engine/gameCount.ts';
+import { countFavorites, countGames } from '../engine/gameCount.ts';
 import { hasOnlyFilterChildren, levelKind } from '../engine/levelModel.ts';
 import { useThemeHost } from '../engine/useThemeNavigation.ts';
 import type { ThemeHost } from '../host/ThemeHost.ts';
 
 export type GameCountState =
-  | { kind: 'games'; count: number | null; loading: boolean }
+  | { kind: 'games'; count: number | null; favorites: number | null; loading: boolean }
   | { kind: 'items'; count: number }
   | null;
 
@@ -17,6 +17,8 @@ interface CountEntry {
   settled: boolean;
   /** Null when the host could not list the node. */
   value: number | null;
+  /** Visible favorites; null when the host could not list the node. */
+  favorites: number | null;
 }
 
 /** Visible-game counts per host and node id; dropped when the host reports a library change. */
@@ -30,10 +32,16 @@ function loadCount(host: ThemeHost, nodeId: string): CountEntry {
   }
   const existing = byNode.get(nodeId);
   if (existing) return existing;
-  const entry: CountEntry = { promise: Promise.resolve(), settled: false, value: null };
+  const entry: CountEntry = {
+    promise: Promise.resolve(),
+    settled: false,
+    value: null,
+    favorites: null,
+  };
   entry.promise = host.getGames(nodeId).then(
     (games) => {
       entry.value = countGames(games);
+      entry.favorites = countFavorites(games);
       entry.settled = true;
     },
     () => {
@@ -102,6 +110,7 @@ export function useGameCount(
   if (!node) return null;
   if (!isGames) return { kind: 'items', count: node.children.length };
   const known = counts.get(host)?.get(key);
-  if (known?.settled) return { kind: 'games', count: known.value, loading: false };
-  return { kind: 'games', count: null, loading: true };
+  if (known?.settled)
+    return { kind: 'games', count: known.value, favorites: known.favorites, loading: false };
+  return { kind: 'games', count: null, favorites: null, loading: true };
 }

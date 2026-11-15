@@ -1,6 +1,6 @@
 // Cases ported from NextLevelOS src/themes/engine/gameCount.test.ts @ 3d530b7.
 import { describe, expect, it } from 'vitest';
-import { countGames } from './gameCount.ts';
+import { countFavorites, countGames } from './gameCount.ts';
 import { game } from './testNodes.ts';
 
 describe('countGames (FR-THM-1)', () => {
@@ -17,5 +17,18 @@ describe('countGames (FR-THM-1)', () => {
   it('counts the favorite filter from the favorite flag', () => {
     const games = [game(1, { favorite: true }), game(2), game(3, { favorite: true, hidden: true })];
     expect(countGames(games, 'favorite')).toBe(1);
+  });
+});
+
+describe('countFavorites (FR-THM-1)', () => {
+  it('FR-THM-1: countFavorites counts visible favorites only', () => {
+    const games = [
+      game(1, { favorite: true }),
+      game(2),
+      game(3, { favorite: true, hidden: true }),
+      game(4, { favorite: true }),
+    ];
+    expect(countFavorites(games)).toBe(2);
+    expect(countFavorites([game(5), game(6, { hidden: true })])).toBe(0);
   });
 });

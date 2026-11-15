@@ -4,6 +4,7 @@ import type { MenuNode, ThemeGame } from '@nextlevel/shared';
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { game as makeGame } from '../engine/testNodes.ts';
 import { ThemeHostContext } from '../engine/useThemeNavigation.ts';
 import { FakeThemeHost } from '../host/FakeThemeHost.ts';
 import { FIXTURE_GAMES, FIXTURE_MENU } from '../host/fixtures.ts';
@@ -36,9 +37,9 @@ describe('useGameCount (FR-THM-1, FR-THM-6)', () => {
   it('loads the visible game count of a games node once the focus settles', async () => {
     const host = new FakeThemeHost();
     const { result } = renderHook(() => useGameCount(n64, 0), { wrapper: withHost(host) });
-    expect(result.current).toEqual({ kind: 'games', count: null, loading: true });
+    expect(result.current).toEqual({ kind: 'games', count: null, favorites: null, loading: true });
     await waitFor(() => {
-      expect(result.current).toEqual({ kind: 'games', count: 8, loading: false });
+      expect(result.current).toEqual({ kind: 'games', count: 8, favorites: 0, loading: false });
     });
   });
 
@@ -50,7 +51,7 @@ describe('useGameCount (FR-THM-1, FR-THM-6)', () => {
     });
     rerender({ node: genesis });
     await waitFor(() => {
-      expect(result.current).toEqual({ kind: 'games', count: 8, loading: false });
+      expect(result.current).toEqual({ kind: 'games', count: 8, favorites: 0, loading: false });
     });
     expect(getGamesCalls(host)).toEqual(['s:genesis']);
   });
@@ -80,7 +81,21 @@ describe('useGameCount (FR-THM-1, FR-THM-6)', () => {
       wrapper: withHost(host),
     });
     await waitFor(() => {
-      expect(result.current).toEqual({ kind: 'games', count: 10, loading: false });
+      expect(result.current).toEqual({ kind: 'games', count: 10, favorites: 0, loading: false });
+    });
+  });
+
+  it('FR-THM-1: useGameCount reports favorites for a system', async () => {
+    const host = new FakeThemeHost();
+    host.setGames([
+      makeGame(1, { systemId: 'n64', favorite: true }),
+      makeGame(2, { systemId: 'n64', favorite: true }),
+      makeGame(3, { systemId: 'n64', favorite: true, hidden: true }),
+      makeGame(4, { systemId: 'n64' }),
+    ]);
+    const { result } = renderHook(() => useGameCount(n64, 0), { wrapper: withHost(host) });
+    await waitFor(() => {
+      expect(result.current).toEqual({ kind: 'games', count: 3, favorites: 2, loading: false });
     });
   });
 
@@ -94,8 +109,10 @@ describe('useGameCount (FR-THM-1, FR-THM-6)', () => {
   it('countLabel words the count through i18n', () => {
     expect(countLabel(null, t)).toBe('');
     expect(countLabel({ kind: 'items', count: 2 }, t)).toBe('themes.count.items:2');
-    expect(countLabel({ kind: 'games', count: null, loading: true }, t)).toBe('…');
-    expect(countLabel({ kind: 'games', count: 1, loading: false }, t)).toBe('themes.count.games:1');
+    expect(countLabel({ kind: 'games', count: null, favorites: null, loading: true }, t)).toBe('…');
+    expect(countLabel({ kind: 'games', count: 1, favorites: 0, loading: false }, t)).toBe(
+      'themes.count.games:1',
+    );
   });
 });
 
