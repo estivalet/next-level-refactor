@@ -343,6 +343,32 @@ describe('search within the open list (FR-LIB-10, D66)', () => {
     expect(await screen.findByText('0 of 5 games')).toBeVisible();
   });
 
+  it('FR-LIB-10: with a genre picked, the total is the narrowed list, not the whole tab', async () => {
+    const base = libraryResponses(GAMES, SYSTEMS);
+    installFakeBridge({
+      ...base,
+      'library.games.facets': () =>
+        ok({
+          filters: [],
+          genres: [{ value: 'Shooter', count: 3 }],
+          tabs: TAB_COUNTS,
+          essentials: 0,
+        }),
+      'library.games.list': (query) => {
+        const pool = query.genre === 'Shooter' ? GAMES.slice(0, 3) : GAMES;
+        const rows = query.text === undefined ? pool : pool.slice(0, 1);
+        return ok({ total: rows.length, offset: query.offset, games: rows });
+      },
+    });
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    const user = userEvent.setup();
+    const genres = await screen.findByRole('group', { name: 'Genres' });
+    await user.click(await within(genres).findByRole('button', { name: /Shooter/ }));
+    expect(await screen.findByText('3 games')).toBeVisible();
+    await user.type(screen.getByRole('searchbox', { name: 'Search Nintendo 64…' }), 'alpha');
+    expect(await screen.findByText('1 of 3 games')).toBeVisible();
+  });
+
   it('FR-LIB-10: opening another scope or Back clears the search', async () => {
     const { user, listCalls } = searchSetup();
     await user.type(await screen.findByRole('searchbox', { name: 'Search Nintendo 64…' }), 'alpha');

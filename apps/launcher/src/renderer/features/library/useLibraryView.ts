@@ -5,7 +5,7 @@ import { useCollections } from './collectionsApi.ts';
 import { SEARCH_DELAY_MS, useDebounced, useSystemSummaries } from './libraryApi.ts';
 import { useSmartFilters } from './smartFiltersApi.ts';
 import { EMPTY_SELECTION, select, type SelectMode } from './selection.ts';
-import { usePagedGames, type GameListParams } from './usePagedGames.ts';
+import { useListTotal, usePagedGames, type GameListParams } from './usePagedGames.ts';
 
 const NOTHING_VISIBLE = { first: 0, last: -1 };
 
@@ -45,7 +45,8 @@ export function useLibraryView(initialScope: GameScope | null = null) {
     useDebounced(JSON.stringify([scopeKey, typed]), SEARCH_DELAY_MS),
   ) as [string, string];
   const text = typed === '' || searchedKey !== scopeKey ? '' : searched;
-  const params: GameListParams | null = scope
+  // The list without its search: the search (D66) narrows it further.
+  const unsearched: GameListParams | null = scope
     ? {
         scope,
         tab,
@@ -54,10 +55,12 @@ export function useLibraryView(initialScope: GameScope | null = null) {
         ...(narrow.genre === undefined ? {} : { genre: narrow.genre }),
         ...(narrow.lacking === undefined ? {} : { lacking: narrow.lacking }),
         ...(narrow.essentials ? { essentials: true as const } : {}),
-        ...(text === '' ? {} : { text }),
       }
     : null;
+  const params = unsearched && text !== '' ? { ...unsearched, text } : unsearched;
   const viewKey = JSON.stringify(params);
+  // FR-LIB-10: "n of total", where total is this list without the search (narrowing included).
+  const unsearchedTotal = useListTotal(text === '' ? null : unsearched);
 
   const [range, setRange] = useState({ key: viewKey, ...NOTHING_VISIBLE });
   const games = usePagedGames(params, range.key === viewKey ? range : NOTHING_VISIBLE);
@@ -121,6 +124,8 @@ export function useLibraryView(initialScope: GameScope | null = null) {
     },
     /** The search text sent with the list (debounced, trimmed), or '' when none. */
     searchText: text,
+    /** While searching: how many games the list has without the search (null while loading). */
+    unsearchedTotal,
     setNarrow: (next: {
       filter?: string | undefined;
       genre?: string | undefined;

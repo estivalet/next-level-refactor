@@ -232,10 +232,10 @@ export function LibraryApp({
                     <span className="truncate">{scopeName}</span>
                     {view.games.total !== null && (
                       <span className="shrink-0 text-xs font-normal text-slate-500">
-                        {view.searchText !== '' && facets.data
+                        {view.searchText !== '' && view.unsearchedTotal !== null
                           ? t('library.status.gamesOf', {
                               count: view.games.total,
-                              total: facets.data.tabs[view.tab],
+                              total: view.unsearchedTotal,
                             })
                           : t('library.status.games', { count: view.games.total })}
                       </span>
