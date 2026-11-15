@@ -47,6 +47,10 @@ export function GamePicker({
         onChange={(event) => {
           setText(event.target.value);
         }}
+        // The picker renders inside the entry form; Enter must not submit (save) it.
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') event.preventDefault();
+        }}
       />
       {games.isError && (
         <p className="mt-2 text-xs text-[#ff8a80]">{t('apps.museum.gamesError')}</p>

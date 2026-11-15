@@ -95,4 +95,27 @@ describe('TopGamesEditor', () => {
     await user.click(screen.getAllByRole('button', { name: 'Remove' })[0] as HTMLElement);
     expect(latest.map((game) => game.title)).toEqual(['Super Metroid']);
   });
+
+  it('FR-MUS-3: Enter in the picker search does not submit the surrounding form', async () => {
+    installFakeBridge({
+      'library.games.list': () => ok({ total: 0, offset: 0, games: [] }),
+    });
+    const user = userEvent.setup();
+    let submitted = false;
+    renderInShell(
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitted = true;
+        }}
+      >
+        <Harness onChange={() => undefined} />
+        <button type="submit">Save</button>
+      </form>,
+    );
+    await user.click(screen.getByRole('button', { name: 'Link to library game' }));
+    const picker = await screen.findByRole('dialog');
+    await user.type(within(picker).getByRole('searchbox'), 'metroid{Enter}');
+    expect(submitted).toBe(false);
+  });
 });

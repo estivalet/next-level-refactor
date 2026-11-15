@@ -86,100 +86,101 @@ export function EntryForm({
   };
 
   return (
-    <form
-      aria-label={t('apps.museum.editing', { name })}
-      noValidate
-      onSubmit={(event) => {
-        event.preventDefault();
-        submit();
-      }}
-    >
-      <FormSection title={title('overview')}>
-        <FieldGroup fields={OVERVIEW} draft={draft} errors={errors} onChange={patch} />
-      </FormSection>
-      <FormSection title={title('story')}>
-        <FieldGroup fields={STORY} draft={draft} errors={errors} onChange={patch} />
-      </FormSection>
-      <FormSection title={title('hardware')}>
-        <FieldGroup fields={HARDWARE} draft={draft} errors={errors} onChange={patch} />
-      </FormSection>
-      <FormSection title={title('models')}>
-        <ModelsEditor
-          models={draft.models}
-          errors={errors}
-          onChange={(models) => {
-            patch({ models });
-          }}
-        />
-      </FormSection>
-      <FormSection title={title('related')}>
-        <FieldGroup fields={RELATED} draft={draft} errors={errors} onChange={patch} />
-        <h4 className="mt-3 mb-1 text-xs text-slate-400">{t('apps.museum.field.peripherals')}</h4>
-        <PeripheralsEditor
-          peripherals={draft.peripherals}
-          errors={errors}
-          onChange={(peripherals) => {
-            patch({ peripherals });
-          }}
-        />
-      </FormSection>
-      <FormSection title={title('topGames')}>
-        <TopGamesEditor
-          systemId={entry.systemId}
-          games={draft.topGames}
-          errors={errors}
-          onChange={(topGames) => {
-            patch({ topGames });
-          }}
-        />
-      </FormSection>
-      <FormSection title={title('sources')}>
-        <SourcesEditor
-          sources={draft.sources}
-          errors={errors}
-          onChange={(sources) => {
-            patch({ sources });
-          }}
-        />
-      </FormSection>
+    <>
+      <form
+        aria-label={t('apps.museum.editing', { name })}
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          submit();
+        }}
+      >
+        <FormSection title={title('overview')}>
+          <FieldGroup fields={OVERVIEW} draft={draft} errors={errors} onChange={patch} />
+        </FormSection>
+        <FormSection title={title('story')}>
+          <FieldGroup fields={STORY} draft={draft} errors={errors} onChange={patch} />
+        </FormSection>
+        <FormSection title={title('hardware')}>
+          <FieldGroup fields={HARDWARE} draft={draft} errors={errors} onChange={patch} />
+        </FormSection>
+        <FormSection title={title('models')}>
+          <ModelsEditor
+            models={draft.models}
+            errors={errors}
+            onChange={(models) => {
+              patch({ models });
+            }}
+          />
+        </FormSection>
+        <FormSection title={title('related')}>
+          <FieldGroup fields={RELATED} draft={draft} errors={errors} onChange={patch} />
+          <h4 className="mt-3 mb-1 text-xs text-slate-400">{t('apps.museum.field.peripherals')}</h4>
+          <PeripheralsEditor
+            peripherals={draft.peripherals}
+            errors={errors}
+            onChange={(peripherals) => {
+              patch({ peripherals });
+            }}
+          />
+        </FormSection>
+        <FormSection title={title('topGames')}>
+          <TopGamesEditor
+            systemId={entry.systemId}
+            games={draft.topGames}
+            errors={errors}
+            onChange={(topGames) => {
+              patch({ topGames });
+            }}
+          />
+        </FormSection>
+        <FormSection title={title('sources')}>
+          <SourcesEditor
+            sources={draft.sources}
+            errors={errors}
+            onChange={(sources) => {
+              patch({ sources });
+            }}
+          />
+        </FormSection>
 
-      {Object.keys(errors).length > 0 && (
-        <p role="alert" className="mb-2 text-xs text-[#ff8a80]">
-          {t('apps.museum.fixErrors')}
-        </p>
-      )}
-      {failure && (
-        <p role="alert" className="mb-2 text-xs text-[#ff8a80]">
-          {t(errorMessageKey(failure))}
-        </p>
-      )}
-      <div className="sticky bottom-0 flex items-center gap-2 border-t border-white/10 bg-[#14141c] py-3">
-        <button type="submit" className={PRIMARY_BUTTON} disabled={save.isPending}>
-          {t('apps.museum.save')}
-        </button>
-        <button
-          type="button"
-          className={SECONDARY_BUTTON}
-          onClick={() => {
-            if (dirty) setConfirming('discard');
-            else onDone();
-          }}
-        >
-          {t('apps.museum.discard')}
-        </button>
-        {edited && (
+        {Object.keys(errors).length > 0 && (
+          <p role="alert" className="mb-2 text-xs text-[#ff8a80]">
+            {t('apps.museum.fixErrors')}
+          </p>
+        )}
+        {failure && (
+          <p role="alert" className="mb-2 text-xs text-[#ff8a80]">
+            {t(errorMessageKey(failure))}
+          </p>
+        )}
+        <div className="sticky bottom-0 flex items-center gap-2 border-t border-white/10 bg-[#14141c] py-3">
+          <button type="submit" className={PRIMARY_BUTTON} disabled={save.isPending}>
+            {t('apps.museum.save')}
+          </button>
           <button
             type="button"
-            className={`${SECONDARY_BUTTON} ml-auto`}
+            className={SECONDARY_BUTTON}
             onClick={() => {
-              setConfirming('reset');
+              if (dirty) setConfirming('discard');
+              else onDone();
             }}
           >
-            {t('apps.museum.reset')}
+            {t('apps.museum.discard')}
           </button>
-        )}
-      </div>
-
+          {edited && (
+            <button
+              type="button"
+              className={`${SECONDARY_BUTTON} ml-auto`}
+              onClick={() => {
+                setConfirming('reset');
+              }}
+            >
+              {t('apps.museum.reset')}
+            </button>
+          )}
+        </div>
+      </form>
       {confirming === 'discard' && (
         <ConfirmDialog
           title={t('apps.museum.discardTitle')}
@@ -205,6 +206,6 @@ export function EntryForm({
           }}
         />
       )}
-    </form>
+    </>
   );
 }
