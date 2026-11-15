@@ -10,7 +10,7 @@ const FUSE = '01900000-0000-7000-8000-0000000000f3';
 
 function settings() {
   return SettingsSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     systems: {
       'acorn-atom': { enabled: true, defaultProfileId: ATOM },
       arcade: { enabled: true, defaultProfileId: ARCADE },

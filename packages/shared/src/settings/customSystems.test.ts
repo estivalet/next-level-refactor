@@ -45,12 +45,12 @@ describe('custom systems (FR-EMU-11)', () => {
   });
 
   it('FR-EMU-11: settings default to no custom systems', () => {
-    expect(SettingsSchema.parse({ schemaVersion: 2 }).customSystems).toEqual([]);
+    expect(SettingsSchema.parse({ schemaVersion: 3 }).customSystems).toEqual([]);
   });
 
   it('FR-EMU-11: duplicate ids and names are reported on the later entry', () => {
     const result = SettingsSchema.safeParse({
-      schemaVersion: 2,
+      schemaVersion: 3,
       customSystems: [SWITCH_2, { ...SWITCH_2, name: 'nintendo switch 2 ' }],
     });
     expect(result.success).toBe(false);

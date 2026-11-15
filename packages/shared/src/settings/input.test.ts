@@ -54,27 +54,27 @@ describe('input settings', () => {
 
   it('FR-THM-3: the same key on two actions is a duplicateBinding on the later one', () => {
     const input = { keyboard: { favorite: ['KeyX'], hide: ['KeyH', 'KeyX'] } };
-    expect(issuesOf({ schemaVersion: 2, input })).toEqual([
+    expect(issuesOf({ schemaVersion: 3, input })).toEqual([
       ['input.keyboard.hide.1', 'duplicateBinding'],
     ]);
   });
 
   it('FR-THM-3: chords are compared regardless of button order', () => {
     const input = { gamepad: { switchTheme: ['start+view'] } };
-    expect(issuesOf({ schemaVersion: 2, input })).toEqual([
+    expect(issuesOf({ schemaVersion: 3, input })).toEqual([
       ['input.gamepad.switchTheme.0', 'duplicateBinding'],
     ]);
     expect(normalizePadBinding('start+view')).toBe('view+start');
   });
 
   it('FR-THM-3: bad buttons, three-button chords and out-of-range timing fail', () => {
-    expect(issuesOf({ schemaVersion: 2, input: { gamepad: { random: ['z'] } } })).not.toEqual([]);
-    expect(issuesOf({ schemaVersion: 2, input: { gamepad: { random: ['a+b+x'] } } })).not.toEqual(
+    expect(issuesOf({ schemaVersion: 3, input: { gamepad: { random: ['z'] } } })).not.toEqual([]);
+    expect(issuesOf({ schemaVersion: 3, input: { gamepad: { random: ['a+b+x'] } } })).not.toEqual(
       [],
     );
-    expect(issuesOf({ schemaVersion: 2, input: { gamepad: { random: ['a+a'] } } })).not.toEqual([]);
-    expect(issuesOf({ schemaVersion: 2, input: { repeatRateHz: 0 } })).not.toEqual([]);
-    expect(issuesOf({ schemaVersion: 2, input: { repeatDelayMs: 2000 } })).not.toEqual([]);
+    expect(issuesOf({ schemaVersion: 3, input: { gamepad: { random: ['a+a'] } } })).not.toEqual([]);
+    expect(issuesOf({ schemaVersion: 3, input: { repeatRateHz: 0 } })).not.toEqual([]);
+    expect(issuesOf({ schemaVersion: 3, input: { repeatDelayMs: 2000 } })).not.toEqual([]);
   });
 });
 
@@ -82,7 +82,7 @@ describe('art folders', () => {
   it('FR-THM-2: art and theme pack folders default to null and must be absolute', () => {
     expect(defaultSettings().storage).toMatchObject({ assetsPath: null, themesPath: null });
     const storage = { assetsPath: 'art', themesPath: 'E:\\NextLevel\\themes' };
-    expect(issuesOf({ schemaVersion: 2, storage })).toEqual([
+    expect(issuesOf({ schemaVersion: 3, storage })).toEqual([
       ['storage.assetsPath', 'notAbsolute'],
     ]);
   });

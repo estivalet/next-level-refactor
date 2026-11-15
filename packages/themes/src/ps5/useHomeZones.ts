@@ -23,6 +23,9 @@ export function useHomeZones({
   onInfo: () => void;
 }) {
   const [hero, setHero] = useState<{ key: string; button: HeroButton } | null>(null);
+  // Forget the hero as soon as the key changes, so coming back to the same key (Explore then
+  // Back, RB then LB) starts on the shelf. Render-time reset: React re-renders before committing.
+  if (hero && hero.key !== resetKey) setHero(null);
   const button = enabled && hero?.key === resetKey ? hero.button : null;
   const heroFocus: HeroButton | null = button === 'info' && !hasInfo ? 'explore' : button;
 

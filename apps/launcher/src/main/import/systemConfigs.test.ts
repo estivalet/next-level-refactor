@@ -11,7 +11,7 @@ const MAME_PROFILE = '01900000-0000-7000-8000-0000000000f2';
 
 function settings() {
   return SettingsSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     systems: {
       'sinclair-zx-spectrum': { enabled: true, defaultProfileId: FUSE },
       'acorn-atom': { enabled: true },

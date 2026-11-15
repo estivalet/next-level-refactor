@@ -12,7 +12,7 @@ import { KIOSK_HIDE } from '../ipc/kioskContract.ts';
 // unknown keys (a typo is dropped, not fatal); wrong types fail with the field's path.
 // Older files are brought up to date by main's `migrate()` before they are parsed.
 
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 
 export const LANGUAGES = ['en', 'pt-BR'] as const;
 export type Language = (typeof LANGUAGES)[number];

@@ -23,7 +23,7 @@ describe('LaunchBox contracts (FR-SCR-6)', () => {
 
   it('FR-SCR-6: a system may name its LaunchBox platform', () => {
     const parse = (launchboxPlatform: unknown) =>
-      SettingsSchema.safeParse({ schemaVersion: 2, systems: { snes: { launchboxPlatform } } });
+      SettingsSchema.safeParse({ schemaVersion: 3, systems: { snes: { launchboxPlatform } } });
     expect(parse('Super Nintendo Entertainment System').success).toBe(true);
     expect(parse('').success).toBe(false);
   });

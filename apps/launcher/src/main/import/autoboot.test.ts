@@ -23,7 +23,7 @@ const APPLE = '01900000-0000-7000-8000-0000000000f2';
 
 function settings() {
   return SettingsSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     systems: {
       'acorn-atom': { enabled: true, defaultProfileId: ATOM },
       'apple-ii': { enabled: true, defaultProfileId: APPLE },

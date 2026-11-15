@@ -340,6 +340,46 @@ describe('PS5 museum page (FR-MUS-4)', () => {
     await screen.findByRole('tab', { name: /All/ });
   });
 
+  it('FR-MUS-4: after Explore and Back the shelf has focus', async () => {
+    await ready(undefined, 'Nintendo', museumHost());
+    press('ArrowDown');
+    press('Enter'); // Explore Super Nintendo: its filters
+    await shows('Homebrew');
+    press('Escape');
+    await waitFor(() => {
+      expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Super Nintendo');
+    });
+    expect(document.querySelector('.ps5-hero-btn--focused')).toBeNull();
+    press('ArrowRight'); // the shelf moves, not the hero
+    expect(document.querySelector('.ps5-icon-label')?.textContent).toBe('Nintendo 64');
+  });
+
+  it('FR-MUS-4: a category switch and back leaves the hero', async () => {
+    await ready(undefined, 'Nintendo', museumHost());
+    press('ArrowDown');
+    expect(isHeroFocused(/Explore/)).toBe(true);
+    press('KeyE');
+    await waitFor(() => {
+      expect(activeCategory()).toBe('Sega');
+    });
+    press('KeyQ');
+    await waitFor(() => {
+      expect(activeCategory()).toBe('Nintendo');
+    });
+    expect(document.querySelector('.ps5-hero-btn--focused')).toBeNull();
+  });
+
+  it('FR-MUS-4: "…" keeps the focus after the museum page closes', async () => {
+    await ready(undefined, 'Nintendo', museumHost());
+    press('ArrowDown');
+    press('ArrowRight');
+    press('Enter');
+    await screen.findByRole('dialog', { name: 'Super Nintendo' });
+    press('Escape');
+    expect(screen.queryByRole('dialog', { name: 'Super Nintendo' })).toBeNull();
+    expect(isHeroFocused(/More information/)).toBe(true);
+  });
+
   it('FR-MUS-4: open-info on a category does nothing', async () => {
     const menu: MenuTree = {
       title: 'NextLevel',

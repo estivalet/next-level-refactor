@@ -173,6 +173,6 @@ describe('SettingsService export and import', () => {
     const saved = JSON.parse(await readFile(join(fixture.dir, 'settings.json'), 'utf8')) as {
       schemaVersion: number;
     };
-    expect(saved.schemaVersion).toBe(2);
+    expect(saved.schemaVersion).toBe(3);
   });
 });

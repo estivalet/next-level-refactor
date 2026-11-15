@@ -14,7 +14,7 @@ import { ScrapeProviderSchema } from './schema.ts';
 
 describe('Gemini fill contracts (FR-SCR-7)', () => {
   it('FR-SCR-7: Gemini settings default to the free model, grounding on, no web tool paths', () => {
-    const settings = SettingsSchema.parse({ schemaVersion: 2 });
+    const settings = SettingsSchema.parse({ schemaVersion: 3 });
     expect(settings.scraper.gemini).toEqual({
       model: GEMINI_DEFAULT_MODEL,
       grounding: true,

@@ -41,10 +41,12 @@ new one after a settings backup.
 
 ## 2. Settings (`settings.json`)
 
-Only the app writes this file. Every field has a default, so an empty file `{ "schemaVersion": 2 }`
+Only the app writes this file. Every field has a default, so an empty file `{ "schemaVersion": 3 }`
 is valid and the app fills the rest. Older files are migrated on load (`main/settings/migrate.ts`);
 the next save backs up the old file first. v1 → v2 (M6) renames `screenshot-title` to
-`screenshot-game-title` and drops `screenshot-select` in `themes.entries[*].art.gameArt` (D16).
+`screenshot-game-title` and drops `screenshot-select` in `themes.entries[*].art.gameArt` (D16). v2 → v3
+(FR-MUS-4, 2026-11-15) adds the `info` input action (default key I): a file that already binds I
+to another action gets `input.keyboard.info: []` so the new default does not collide with it.
 
 **Implemented so far** (`packages/shared/src/settings/schema.ts`): `schemaVersion`, `general`
 (`language`, `startWithWindows`, `setupCompletedAt`) and `experimental` since M1; `general.uiScale` (FR-SET-8, default `'100'`);
@@ -57,7 +59,7 @@ file invalid.
 
 ```ts
 type Settings = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   general: {
     language: 'en' | 'pt-BR';
     bootTarget: { kind: 'lastTheme' } | { kind: 'theme'; themeId: string } | { kind: 'desktop' };

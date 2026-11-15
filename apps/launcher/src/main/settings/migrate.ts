@@ -51,6 +51,21 @@ function toV2(record: Json): Json {
 }
 
 /**
+ * v2 → v3 (FR-MUS-4): the new `info` action defaults to I. A file that already binds I to another
+ * action gets `info: []`, so the default does not collide with it (a `duplicateBinding` would
+ * reject the whole file).
+ */
+function toV3(record: Json): Json {
+  const input = record['input'];
+  const keyboard = isObject(input) ? input['keyboard'] : undefined;
+  if (!isObject(input) || !isObject(keyboard) || 'info' in keyboard) return record;
+  const taken = Object.values(keyboard).some(
+    (codes) => Array.isArray(codes) && codes.includes('KeyI'),
+  );
+  return taken ? { ...record, input: { ...input, keyboard: { ...keyboard, info: [] } } } : record;
+}
+
+/**
  * Brings a parsed settings file up to the current schema version. Pure: the file on disk changes
  * at the next save, which backs up the old file first (data model §2.2).
  */
@@ -59,6 +74,15 @@ export function migrate(raw: unknown): MigrateResult {
   const version = raw['schemaVersion'] ?? 1;
   if (typeof version === 'number' && version > CURRENT_SCHEMA_VERSION)
     return { kind: 'newerVersion' };
-  const value = version === 1 ? toV2(raw) : raw;
-  return { kind: 'ok', value: { ...value, schemaVersion: version === 1 ? 2 : version } };
+  let value = raw;
+  let at: unknown = version;
+  if (at === 1) {
+    value = toV2(value);
+    at = 2;
+  }
+  if (at === 2) {
+    value = toV3(value);
+    at = 3;
+  }
+  return { kind: 'ok', value: { ...value, schemaVersion: at } };
 }

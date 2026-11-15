@@ -12,7 +12,7 @@ import {
 
 describe('SettingsSchema', () => {
   it('FR-SET-2: an empty file with schemaVersion 2 is valid and gets defaults', () => {
-    expect(SettingsSchema.parse({ schemaVersion: 2 })).toEqual(defaultSettings());
+    expect(SettingsSchema.parse({ schemaVersion: 3 })).toEqual(defaultSettings());
     expect(defaultSettings().general).toEqual({
       language: 'en',
       bootTarget: { kind: 'lastTheme' },
@@ -25,25 +25,25 @@ describe('SettingsSchema', () => {
   });
 
   it('NFR-UPD-1: a file without updates gets the stable channel with automatic checks (D53)', () => {
-    expect(SettingsSchema.parse({ schemaVersion: 2 }).updates).toEqual({
+    expect(SettingsSchema.parse({ schemaVersion: 3 }).updates).toEqual({
       channel: 'stable',
       auto: true,
     });
-    const beta = { schemaVersion: 2, updates: { channel: 'beta', auto: false } };
+    const beta = { schemaVersion: 3, updates: { channel: 'beta', auto: false } };
     expect(SettingsSchema.parse(beta).updates).toEqual({ channel: 'beta', auto: false });
-    const wrong = SettingsSchema.safeParse({ schemaVersion: 2, updates: { channel: 'nightly' } });
+    const wrong = SettingsSchema.safeParse({ schemaVersion: 3, updates: { channel: 'nightly' } });
     expect(wrong.error?.issues[0]?.path).toEqual(['updates', 'channel']);
   });
 
   it('FR-SET-2: wrong types fail with the field path', () => {
-    const result = SettingsSchema.safeParse({ schemaVersion: 2, general: { language: 'xx' } });
+    const result = SettingsSchema.safeParse({ schemaVersion: 3, general: { language: 'xx' } });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.path).toEqual(['general', 'language']);
   });
 
   it('FR-SET-8: the UI scale is one of the listed steps and maps to a zoom factor', () => {
     const parse = (uiScale: unknown) =>
-      SettingsSchema.safeParse({ schemaVersion: 2, general: { uiScale } }).success;
+      SettingsSchema.safeParse({ schemaVersion: 3, general: { uiScale } }).success;
     expect(parse('125')).toBe(true);
     expect(parse('130')).toBe(false);
     expect(parse(125)).toBe(false);
@@ -53,7 +53,7 @@ describe('SettingsSchema', () => {
   });
 
   it('unknown keys are stripped', () => {
-    const parsed = SettingsSchema.parse({ schemaVersion: 2, general: { langauge: 'pt-BR' }, x: 1 });
+    const parsed = SettingsSchema.parse({ schemaVersion: 3, general: { langauge: 'pt-BR' }, x: 1 });
     expect(parsed).toEqual(defaultSettings());
   });
 
@@ -98,7 +98,7 @@ describe('storage and systems settings', () => {
 
   it('FR-LIB-1: a duplicate path differing only by case or trailing slash is rejected', () => {
     const paths = issuePaths({
-      schemaVersion: 2,
+      schemaVersion: 3,
       storage: {
         locations: [
           location(),
@@ -111,7 +111,7 @@ describe('storage and systems settings', () => {
 
   it('FR-LIB-1: duplicate names are rejected', () => {
     const paths = issuePaths({
-      schemaVersion: 2,
+      schemaVersion: 3,
       storage: { locations: [location(), location({ id: OTHER_ID, path: 'F:\\', priority: 2 })] },
     });
     expect(paths).toEqual(['storage.locations.1.name']);
@@ -119,14 +119,14 @@ describe('storage and systems settings', () => {
 
   it('FR-LIB-1: relative paths are rejected', () => {
     expect(
-      issuePaths({ schemaVersion: 2, storage: { locations: [location({ path: 'roms' })] } }),
+      issuePaths({ schemaVersion: 3, storage: { locations: [location({ path: 'roms' })] } }),
     ).toEqual(['storage.locations.0.path']);
   });
 
   it('FR-LIB-1: UNC paths are accepted', () => {
     expect(
       issuePaths({
-        schemaVersion: 2,
+        schemaVersion: 3,
         storage: { locations: [location({ path: '\\\\nas\\roms' })] },
       }),
     ).toEqual([]);
@@ -134,19 +134,19 @@ describe('storage and systems settings', () => {
 
   it('FR-LIB-2: a folder name with : is rejected', () => {
     expect(
-      issuePaths({ schemaVersion: 2, systems: { 'nintendo-64': { folderName: 'N64: carts' } } }),
+      issuePaths({ schemaVersion: 3, systems: { 'nintendo-64': { folderName: 'N64: carts' } } }),
     ).toEqual(['systems.nintendo-64.folderName']);
   });
 
   it('FR-LIB-2: extension overrides must be lowercase without dots', () => {
     expect(
-      issuePaths({ schemaVersion: 2, systems: { 'nintendo-64': { extensions: ['.Z64'] } } }),
+      issuePaths({ schemaVersion: 3, systems: { 'nintendo-64': { extensions: ['.Z64'] } } }),
     ).toEqual(['systems.nintendo-64.extensions.0']);
   });
 
   it('unknown system ids are kept', () => {
     const parsed = SettingsSchema.parse({
-      schemaVersion: 2,
+      schemaVersion: 3,
       systems: { 'future-console': { enabled: true } },
     });
     expect(parsed.systems['future-console']).toEqual({ enabled: true });
@@ -185,7 +185,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
       { kind: 'desktop' },
     ]) {
       expect(
-        SettingsSchema.parse({ schemaVersion: 2, general: { bootTarget } }).general.bootTarget,
+        SettingsSchema.parse({ schemaVersion: 3, general: { bootTarget } }).general.bootTarget,
       ).toEqual(bootTarget);
     }
   });
@@ -193,7 +193,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
   it('a chosen theme needs a valid theme id', () => {
     expect(
       issuePaths({
-        schemaVersion: 2,
+        schemaVersion: 3,
         general: { bootTarget: { kind: 'theme', themeId: 'Bad Id' } },
       }),
     ).toEqual(['general.bootTarget.themeId']);
@@ -201,7 +201,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
 
   it('an unknown but well-formed theme id is kept (it falls back to Big Box at use)', () => {
     const parsed = SettingsSchema.parse({
-      schemaVersion: 2,
+      schemaVersion: 3,
       themes: {
         lastUsed: 'future-theme',
         entries: { 'future-theme': { art: { logoVariant: 'x' } } },
@@ -214,9 +214,9 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
   it('D7: theme sounds default on at volume 50, volume 0–100', () => {
     expect(defaultSettings().themes.sound).toEqual({ enabled: true, volume: 50 });
     expect(
-      issuePaths({ schemaVersion: 2, themes: { sound: { enabled: false, volume: 101 } } }),
+      issuePaths({ schemaVersion: 3, themes: { sound: { enabled: false, volume: 101 } } }),
     ).toEqual(['themes.sound.volume']);
-    expect(issuePaths({ schemaVersion: 2, themes: { sound: { volume: 2.5 } } })).toEqual([
+    expect(issuePaths({ schemaVersion: 3, themes: { sound: { volume: 2.5 } } })).toEqual([
       'themes.sound.volume',
     ]);
   });
@@ -224,7 +224,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
   it('FR-THM-4: a theme’s settings are checked against its own schema', () => {
     expect(
       issuePaths({
-        schemaVersion: 2,
+        schemaVersion: 3,
         themes: {
           entries: {
             hyperspin: { settings: { filtersInMenu: 'no', wheel: { itemHeight: 9000 } } },
@@ -242,7 +242,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
   it('theme option overrides are validated like a pack theme.json', () => {
     expect(
       issuePaths({
-        schemaVersion: 2,
+        schemaVersion: 3,
         themes: { entries: { 'big-box': { art: { useVideoBackground: 'yes' } } } },
       }),
     ).toEqual(['themes.entries.big-box.art.useVideoBackground']);
@@ -250,7 +250,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
 
   it('FR-IMP-1: a system may override its ScreenScraper id with a positive integer', () => {
     const parse = (screenscraperId: unknown) =>
-      SettingsSchema.safeParse({ schemaVersion: 2, systems: { snes: { screenscraperId } } });
+      SettingsSchema.safeParse({ schemaVersion: 3, systems: { snes: { screenscraperId } } });
     expect(parse(4).success).toBe(true);
     expect(parse(0).success).toBe(false);
     expect(parse(1.5).success).toBe(false);
@@ -260,7 +260,7 @@ describe('themes and boot target settings (FR-THM-5, FR-THM-4)', () => {
 describe('scraper and media settings (FR-SCR-3, FR-SCR-4)', () => {
   it('defaults the scraper block and per-ROM media', () => {
     const settings = defaultSettings();
-    expect(settings.schemaVersion).toBe(2);
+    expect(settings.schemaVersion).toBe(3);
     expect(settings.scraper).toEqual({
       regionPriority: ['us', 'eu', 'wor', 'jp'],
       languagePriority: [],
@@ -277,14 +277,14 @@ describe('scraper and media settings (FR-SCR-3, FR-SCR-4)', () => {
 
   it('accepts a central media folder only as an absolute path', () => {
     const central = (path: string) =>
-      SettingsSchema.safeParse({ schemaVersion: 2, storage: { media: { mode: 'central', path } } });
+      SettingsSchema.safeParse({ schemaVersion: 3, storage: { media: { mode: 'central', path } } });
     expect(central('D:/media').success).toBe(true);
     expect(central('media').success).toBe(false);
   });
 
   it('D16: rejects art kinds outside the list', () => {
     const result = SettingsSchema.safeParse({
-      schemaVersion: 2,
+      schemaVersion: 3,
       scraper: { artKinds: ['screenshot-select'] },
     });
     expect(result.success).toBe(false);
@@ -292,10 +292,10 @@ describe('scraper and media settings (FR-SCR-3, FR-SCR-4)', () => {
 
   it('rejects malformed region and language codes', () => {
     expect(
-      SettingsSchema.safeParse({ schemaVersion: 2, scraper: { regionPriority: ['USA!'] } }).success,
+      SettingsSchema.safeParse({ schemaVersion: 3, scraper: { regionPriority: ['USA!'] } }).success,
     ).toBe(false);
     expect(
-      SettingsSchema.safeParse({ schemaVersion: 2, scraper: { languagePriority: ['english'] } })
+      SettingsSchema.safeParse({ schemaVersion: 3, scraper: { languagePriority: ['english'] } })
         .success,
     ).toBe(false);
   });
