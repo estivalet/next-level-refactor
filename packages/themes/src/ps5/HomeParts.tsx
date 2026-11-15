@@ -5,16 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { TrophyIcon } from '../components/icons.tsx';
 import type { GameCountState } from '../components/useGameCount.ts';
 
-/** The short-name badge and full name beside the focused shelf tile. */
-export function ShelfTitle({ shortName, name }: { shortName?: string | undefined; name: string }) {
-  return (
-    <div className="ps5-title">
-      {shortName && <span className="ps5-title-badge">{shortName.toUpperCase()}</span>}
-      <span className="ps5-title-name">{name}</span>
-    </div>
-  );
-}
-
 /** "Manufacturer · Year" under the hero logo; nothing when both are missing. */
 export function HeroMeta({ info }: { info: ThemeSystemInfo | null }) {
   const meta = [info?.manufacturer, info?.releaseYear].filter(Boolean).join(' · ');

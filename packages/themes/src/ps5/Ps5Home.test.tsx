@@ -2,7 +2,7 @@
 // "Manufacturer · Year" under the hero logo, and Games/Favorites stats at the bottom right.
 import type { MenuNode, MenuTree, ThemeSystemInfo } from '@nextlevel/shared';
 import { screen, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FakeThemeHost } from '../host/FakeThemeHost.ts';
 import { FIXTURE_GAMES } from '../host/fixtures.ts';
 import { NO_ART_FILES, press, renderTheme } from '../themeTestUtils.tsx';
@@ -161,5 +161,51 @@ describe('PS5 home hero (FR-THM-1)', () => {
     expect(q('.ps5-stat--favorites')).toBeNull();
     expect(q('.ps5-hero-meta')).toBeNull();
     expect(text('.ps5-title-name')).toBe('Inner');
+  });
+  it('FR-THM-1: a system with no games shows Games 0 and Favorites None', async () => {
+    const menu: MenuTree = {
+      title: 'NextLevel',
+      items: [category('Home', [systemNode('empty', 'Empty')])],
+    };
+    await ready(new FakeThemeHost({ art: NO_ART_FILES, menu }));
+    await waitFor(() => {
+      expect(text('.ps5-stat--games .ps5-stat-value')).toBe('0');
+    });
+    expect(text('.ps5-stat--favorites .ps5-stat-value')).toBe('None');
+  });
+
+  describe('title placement', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('FR-THM-1: near the right edge the title flips beside the tile instead of clipping', async () => {
+      // A 1280 px shelf fits 9 slots, so 9 items do not loop and the last one sits at the edge.
+      vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (
+        this: HTMLElement,
+      ) {
+        return this.hasAttribute('data-window-start') ? 1280 : 0;
+      });
+      const nine = Array.from({ length: 9 }, (_, i) =>
+        systemNode(`s${String(i)}`, `System ${String(i)}`),
+      );
+      await ready(
+        new FakeThemeHost({
+          art: NO_ART_FILES,
+          menu: { title: 'NextLevel', items: [category('Home', nine)] },
+        }),
+      );
+      const title = () => q('.ps5-title') as HTMLElement;
+      await waitFor(() => {
+        expect(title().style.maxWidth).toBe('640px');
+      });
+      expect(title().classList.contains('ps5-title--left')).toBe(false);
+      for (let i = 0; i < 8; i++) press('ArrowRight');
+      expect(text('.ps5-title-name')).toBe('System 8');
+      await waitFor(() => {
+        expect(title().classList.contains('ps5-title--left')).toBe(true);
+      });
+      expect(title().style.maxWidth).toBe('640px');
+    });
   });
 });

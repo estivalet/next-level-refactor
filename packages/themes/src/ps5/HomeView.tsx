@@ -11,7 +11,8 @@ import { useGameCount } from '../components/useGameCount.ts';
 import { useThemeSystemInfo } from '../components/useSystemInfo.ts';
 import { nodeLabel } from '../engine/levelModel.ts';
 import { useThemeArt } from '../engine/useThemeArt.ts';
-import { HeroMeta, HomeStats, ShelfTitle } from './HomeParts.tsx';
+import { HeroMeta, HomeStats } from './HomeParts.tsx';
+import { PS5_SHELF, ShelfTitle } from './ShelfTitle.tsx';
 import type { HeroButton } from './useHomeZones.ts';
 
 const keepFocus = (event: { preventDefault: () => void }) => {
@@ -104,10 +105,7 @@ export function HomeView({
           focusIndex={focusIndex}
           onFocusChange={onFocusChange}
           onActivate={onActivate}
-          itemWidth={104}
-          focusedWidth={150}
-          gap={16}
-          leadingInset={64}
+          {...PS5_SHELF}
           focusSlot={2}
           className="ps5-shelf"
           renderItem={({ item, focused: isFocused }) => (
@@ -124,7 +122,8 @@ export function HomeView({
               {isFocused && (
                 <ShelfTitle
                   shortName={item.shortName}
-                  name={(item === focused && info?.fullName) || label(item)}
+                  name={info?.fullName ?? label(item)}
+                  measureKey={`${String(focusIndex)}/${String(items.length)}`}
                 />
               )}
             </div>

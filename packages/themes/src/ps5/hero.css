@@ -15,6 +15,12 @@
   white-space: nowrap;
   pointer-events: none;
 }
+/* Near the shelf's right edge (ShelfTitle measures): on the tile's left, right-aligned. */
+.ps5-title--left {
+  left: auto;
+  right: calc(100% + 18px);
+  justify-content: flex-end;
+}
 .ps5-title-badge {
   flex-shrink: 0;
   padding: 3px 9px;
