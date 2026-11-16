@@ -42,6 +42,9 @@ M10-1 — polish before 1.0.
 
 ### Fixed
 
+- Library home (D61): Back from a system, collection or smart filter returns to where you had
+  scrolled instead of the top, and each menu level keeps its own place (a deeper level opens at
+  the top).
 - Theme tiles and icons (FR-THM-2) — the PS5 Style shelf and game-list icon, and the Console Home
   tiles — use the theme's **Backgrounds** order and never `background/wallpaper`, as the themes
   guide says, so a system's tile and its full-screen wallpaper can be different pictures.

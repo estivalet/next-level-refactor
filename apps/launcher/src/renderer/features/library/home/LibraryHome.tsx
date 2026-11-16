@@ -9,7 +9,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
-import type { KeyboardEvent, ReactNode } from 'react';
+import { useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ViewMode } from '../useViewMode.ts';
 import { ViewToggle } from '../ViewToggle.tsx';
@@ -53,6 +53,11 @@ interface LibraryHomeProps {
   onHealth?: () => void;
   /** Jumps to the Collections level; the button hides while it is shown. */
   onCollections?: () => void;
+  /**
+   * Scroll offsets by level path, kept by the caller so they outlive the home while a scope's
+   * games are shown: Back returns each level to where it was left.
+   */
+  scrollMemory?: Map<string, number>;
 }
 
 /** The Library home (D61): the active menu one level at a time, as cards or a list. */
@@ -66,8 +71,15 @@ export function LibraryHome({
   actions,
   onHealth,
   onCollections,
+  scrollMemory,
 }: LibraryHomeProps) {
   const { t } = useTranslation();
+  const scroller = useRef<HTMLDivElement>(null);
+  const levelKey = level.path.join('\u0000');
+  // Before paint, so a level never flashes at another level's offset.
+  useLayoutEffect(() => {
+    if (scroller.current) scroller.current.scrollTop = scrollMemory?.get(levelKey) ?? 0;
+  }, [levelKey, scrollMemory]);
   const atRoot = level.path.length === 0;
   const atCollections = level.path[0] === COLLECTIONS_LEVEL;
   const back = () => {
@@ -147,7 +159,13 @@ export function LibraryHome({
         )}
         <ViewToggle view={view} onView={onView} />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <div
+        ref={scroller}
+        className="min-h-0 flex-1 overflow-y-auto p-4"
+        onScroll={(event) => {
+          scrollMemory?.set(levelKey, event.currentTarget.scrollTop);
+        }}
+      >
         {level.cards.length === 0 ? (
           <p className="p-6 text-center text-sm text-slate-500">{t('library.home.empty')}</p>
         ) : (
