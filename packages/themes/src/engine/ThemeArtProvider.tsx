@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ThemeHost } from '../host/ThemeHost.ts';
 import { logoNames } from './levelModel.ts';
 import {
+  backgroundImagePaths,
   buildGameBackgroundLayers,
   buildMenuBackgroundLayers,
   createArtResolver,
@@ -99,6 +100,7 @@ export function ThemeArtProvider({
       nodeLogo: (node: MenuNode) =>
         logoNames(node).flatMap((name) => urls(logoPaths(name, config))),
       menuBackgroundLayers: (name) => buildMenuBackgroundLayers(name, config, urls),
+      menuTile: (name) => urls(backgroundImagePaths(name, config)),
       gameBackgroundLayers: (game, systemName) =>
         buildGameBackgroundLayers(game, config, gameMedia, urls(wallpaperPaths(systemName))),
       gameMedia,

@@ -38,9 +38,7 @@ export function MenuView({
         renderItem={({ item, focused }) => (
           <div className="flex h-full items-center justify-center">
             <ArtTile
-              imageCandidates={art
-                .menuBackgroundLayers(item.name)
-                .flatMap((layer) => (layer.kind === 'image' ? layer.candidates : []))}
+              imageCandidates={art.menuTile(item.name)}
               logoCandidates={art.nodeLogo(item)}
               label={nodeLabel(item, t)}
               focused={focused}

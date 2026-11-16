@@ -123,6 +123,24 @@ describe('ThemeArtProvider (FR-THM-2, FR-THM-4)', () => {
     expect(ctx.art().logo('SNES')).toEqual(['nextlevel://art/assets/logo/steel/SNES.png']);
   });
 
+  it('FR-THM-2: menu tiles use the Backgrounds order and never the wallpaper', async () => {
+    const host = new FakeThemeHost({
+      art: index({
+        packFiles: ['background/wallpaper/SNES.jpg', 'background/artwork/SNES.png'],
+        assetsFiles: [],
+      }),
+    });
+    const ctx = setup(host);
+    await ctx.ready();
+    expect(ctx.art().menuTile('SNES')).toEqual([
+      'nextlevel://art/pack/big-box/background/artwork/SNES.png',
+    ]);
+    const background = ctx.art().menuBackgroundLayers('SNES');
+    expect(background[0]?.candidates).toEqual([
+      'nextlevel://art/pack/big-box/background/wallpaper/SNES.jpg',
+    ]);
+  });
+
   it('game media comes only from indexed kinds; tile art follows gameArt per system', async () => {
     const host = new FakeThemeHost({
       art: index(),

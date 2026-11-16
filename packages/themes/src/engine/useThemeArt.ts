@@ -16,6 +16,8 @@ export interface ThemeArtApi {
   /** A menu node's logo: a filter's own, then its system's (see `logoNames`). */
   nodeLogo: (node: MenuNode) => string[];
   menuBackgroundLayers: (name: string) => BackgroundLayer[];
+  /** A menu tile or icon: the Backgrounds order only, never the wallpaper. */
+  menuTile: (name: string) => string[];
   /** The focused game's background; `systemName` picks the system wallpaper fallback. */
   gameBackgroundLayers: (game: ThemeGame, systemName: string) => BackgroundLayer[];
   gameMedia: (game: ThemeGame, kind: string) => string | null;
@@ -53,6 +55,7 @@ export const NO_ART: ThemeArtApi = {
   logo: none,
   nodeLogo: none,
   menuBackgroundLayers: none,
+  menuTile: none,
   gameBackgroundLayers: none,
   gameMedia: () => null,
   gameTile: none,

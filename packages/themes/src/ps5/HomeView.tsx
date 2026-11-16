@@ -50,10 +50,6 @@ export function HomeView({
   const { t } = useTranslation();
   const art = useThemeArt();
   const label = (node: MenuNode) => nodeLabel(node, t);
-  const images = (node: MenuNode) =>
-    art
-      .menuBackgroundLayers(node.name)
-      .flatMap((layer) => (layer.kind === 'image' ? layer.candidates : []));
 
   const catsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -114,7 +110,7 @@ export function HomeView({
           renderItem={({ item, focused: isFocused }) => (
             <div className="ps5-shelf-slot">
               <ArtTile
-                imageCandidates={images(item)}
+                imageCandidates={art.menuTile(item.name)}
                 logoCandidates={art.nodeLogo(item)}
                 label={label(item)}
                 focused={isFocused}

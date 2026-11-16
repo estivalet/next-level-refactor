@@ -39,9 +39,7 @@ export function GamesView({
     count: tabbed.counts[tab.id] ?? 0,
   }));
   const activeLabel = tabs.find((tab) => tab.id === tabbed.activeTabId)?.label ?? '';
-  const iconImages = art
-    .menuBackgroundLayers(level.node.name)
-    .flatMap((layer) => (layer.kind === 'image' ? layer.candidates : []));
+  const iconImages = art.menuTile(level.node.name);
 
   return (
     <div className="ps5-games">
