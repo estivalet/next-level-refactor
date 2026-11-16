@@ -45,6 +45,8 @@ M10-1 — polish before 1.0.
 - Theme tiles and icons (FR-THM-2) — the PS5 Style shelf and game-list icon, and the Console Home
   tiles — use the theme's **Backgrounds** order and never `background/wallpaper`, as the themes
   guide says, so a system's tile and its full-screen wallpaper can be different pictures.
+- Theme navigation sounds (FR-THM-1) play on the first move after a few seconds of idling,
+  instead of being swallowed while the audio output wakes up. Affects every theme.
 - Library dialogs (Edit details and the others) show their fields' borders before you click
   them.
 - A portable NextLevel folder copied to another PC gets its own sync device key (D64), so play
