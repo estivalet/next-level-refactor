@@ -16,7 +16,7 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "typecheck": "tsc -b",
-    "test": "vitest run",
+    "test": "node scripts/vitest.mjs run",
     "test:e2e": "npm run test:e2e --workspaces --if-present"
   },
   "devDependencies": {
