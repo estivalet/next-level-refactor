@@ -42,6 +42,8 @@ M10-1 — polish before 1.0.
 
 ### Fixed
 
+- Theme navigation sounds (FR-THM-1) play on the first move after a few seconds of idling,
+  instead of being swallowed while the audio output wakes up. Affects every theme.
 - Library dialogs (Edit details and the others) show their fields' borders before you click
   them.
 - A portable NextLevel folder copied to another PC gets its own sync device key (D64), so play

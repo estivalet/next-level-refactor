@@ -2,11 +2,32 @@
 
 /**
  * Web Audio playback for short UI sounds. One AudioContext for the whole app stays running once
- * created: its continuous (silent) output keeps Bluetooth headphones and other power-saving
- * outputs awake, so a lone 50 ms blip is not swallowed while the device wakes up (as happens
+ * created, with a continuous keep-alive signal so Bluetooth headphones and other power-saving
+ * outputs stay awake and a lone 50 ms blip is not swallowed while the device wakes up (as happens
  * with plain <audio>). Decoded files are cached by URL. Without Web Audio everything is a silent
  * no-op.
  */
+
+/**
+ * Keep-alive tone: a 20 Hz sine at -52 dBFS. Wireless/USB headsets and Bluetooth/HDMI outputs
+ * power down after a few seconds of quiet and swallow (or fade in) the next 50 ms blip while they
+ * wake up. Measured on a wireless USB headset: -66 dB let it sleep, -58 and -52 kept it awake
+ * without being heard, -40 was an audible rumble. -52 leaves margin on both sides.
+ */
+const KEEP_ALIVE_HZ = 20;
+const KEEP_ALIVE_LEVEL = 10 ** (-52 / 20);
+
+function startKeepAlive(ctx: AudioContext): void {
+  if (typeof ctx.createOscillator !== 'function' || typeof ctx.createGain !== 'function') return;
+  const tone = ctx.createOscillator();
+  tone.type = 'sine';
+  tone.frequency.value = KEEP_ALIVE_HZ;
+  const level = ctx.createGain();
+  level.gain.value = KEEP_ALIVE_LEVEL;
+  tone.connect(level);
+  level.connect(ctx.destination);
+  tone.start();
+}
 
 let context: AudioContext | null = null;
 const decoded = new Map<string, Promise<AudioBuffer | null>>();
@@ -26,6 +47,7 @@ export function getAudioContext(): AudioContext | null {
       : undefined;
   if (!Ctor) return null;
   context = new Ctor();
+  startKeepAlive(context);
   return context;
 }
 
