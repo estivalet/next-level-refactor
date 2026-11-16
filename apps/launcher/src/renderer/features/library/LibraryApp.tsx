@@ -53,6 +53,8 @@ export function LibraryApp({
   const overlays = useOverlays();
   const menu = useActiveMenuTree();
   const [path, setPath] = useState<string[]>([]);
+  // Each home level's scroll offset, kept here because the home unmounts while games are shown.
+  const [homeScroll] = useState(() => new Map<string, number>());
   const [homeView, setHomeView] = useViewMode('home');
   const [scopeView, setScopeView] = useViewMode(JSON.stringify(view.scope));
   const facets = useGameFacets(view.scope, view.tab);
@@ -168,6 +170,7 @@ export function LibraryApp({
           view={homeView}
           onView={setHomeView}
           onPath={setPath}
+          scrollMemory={homeScroll}
           onHealth={() => {
             setShowHealth(true);
           }}

@@ -1,5 +1,5 @@
 import { err, ok, type GameListQuery, type MenuTree } from '@nextlevel/shared';
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
@@ -142,6 +142,43 @@ describe('LibraryApp', () => {
     expect(screen.getByText('4 games · 1 missing')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(await screen.findByRole('list', { name: 'Nintendo' })).toBeVisible();
+  });
+
+  it('D61: Back returns each home level to where it was scrolled', async () => {
+    const user = userEvent.setup();
+    installFakeBridge({ ...libraryResponses(GAMES, SYSTEMS), 'frontend.menu': () => ok(MENU) });
+    renderInShell(<LibraryApp />);
+    const scroller = (name: string) => {
+      const box = screen.getByRole('list', { name }).parentElement;
+      if (!box) throw new Error('no scroll box');
+      return box;
+    };
+    const scrollTo = (name: string, top: number) => {
+      const box = scroller(name);
+      box.scrollTop = top;
+      fireEvent.scroll(box);
+    };
+    await screen.findByRole('list', { name: 'Next Level' });
+    scrollTo('Next Level', 300);
+
+    // A deeper level starts at the top; Back returns to the offset the level was left at.
+    await user.click(screen.getByRole('button', { name: /Consoles/ }));
+    await screen.findByRole('list', { name: 'Consoles' });
+    expect(scroller('Consoles').scrollTop).toBe(0);
+    await user.click(screen.getByRole('button', { name: /^Nintendo/ }));
+    await screen.findByRole('list', { name: 'Nintendo' });
+    scrollTo('Nintendo', 120);
+
+    // Opening a system's games and coming Back keeps the level's place too.
+    await user.click(screen.getByRole('button', { name: /^N64/ }));
+    await screen.findByRole('listbox', { name: 'Games' });
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await screen.findByRole('list', { name: 'Nintendo' });
+    expect(scroller('Nintendo').scrollTop).toBe(120);
+
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    await screen.findByRole('list', { name: 'Next Level' });
+    expect(scroller('Next Level').scrollTop).toBe(300);
   });
 
   it('D61: without a readable menu, systems sit in Not in menu', async () => {
