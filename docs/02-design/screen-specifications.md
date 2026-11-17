@@ -152,6 +152,7 @@ requirements:
   placeholder when the link is broken or offline. Seed text from Wikipedia is credited in Sources
   as "Wikipedia (CC BY-SA 4.0)" linking the licence (and the article when known); source names are
   links here, while the theme's museum page shows names only (kiosk mode, FR-SET-6).
+
 ## S7 Library
 
 ```
