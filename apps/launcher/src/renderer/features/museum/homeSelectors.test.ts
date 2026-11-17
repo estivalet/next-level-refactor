@@ -18,7 +18,7 @@ const make = (
   ...extra,
 });
 
-describe('museumHome selectors', () => {
+describe('homeSelectors', () => {
   it('FR-MUS-9: featuredSystem prefers the latest changedAt, falls back to the first system, null when empty', () => {
     const a = make('a');
     const b = make('b', '2026-01-02T00:00:00.000Z');
