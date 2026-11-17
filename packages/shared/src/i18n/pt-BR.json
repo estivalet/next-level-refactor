@@ -141,12 +141,17 @@
       "loading": "Carregando…",
       "loadError": "Não foi possível carregar este verbete.",
       "empty": "Nada registrado ainda.",
+      "emulatorsEmpty": "Nenhum emulador configurado para este sistema ainda. Adicione um em Configurações → Emuladores.",
+      "emulatorsError": "Não foi possível ler as configurações de emuladores.",
       "noMatches": "Nenhum sistema encontrado.",
       "sections": {
+        "notes": "Notas",
+        "emulators": "Emuladores",
         "overview": "Visão geral",
         "story": "História",
         "hardware": "Hardware",
         "models": "Modelos",
+        "gallery": "Galeria",
         "related": "Relacionados",
         "topGames": "Melhores jogos",
         "sources": "Fontes"
@@ -188,7 +193,7 @@
       "discardConfirm": "Descartar alterações",
       "reset": "Restaurar original",
       "resetTitle": "Restaurar este verbete?",
-      "resetMessage": "Suas edições neste verbete serão removidas e o verbete original volta.",
+      "resetMessage": "Suas edições neste verbete serão removidas e o verbete original volta. Suas notas e imagens são mantidas.",
       "fixErrors": "Corrija os campos destacados para salvar.",
       "listError": "Não foi possível carregar os sistemas.",
       "moveUp": "Mover para cima",
@@ -206,6 +211,21 @@
       "noGames": "Nenhum jogo encontrado.",
       "gamesError": "Não foi possível carregar os jogos.",
       "noImage": "Sem imagem",
+      "home": "Início",
+      "recentlyChanged": "Alterados recentemente",
+      "hasNotes": "Com suas anotações",
+      "welcome": {
+        "title": "Bem-vindo ao Museu",
+        "intro": "Percorra a história de cada sistema da sua coleção: sua trajetória, o hardware e os melhores jogos, com suas próprias anotações e imagens. Escolha um sistema à esquerda para começar."
+      },
+      "counts": {
+        "systems_one": "{{count}} sistema",
+        "systems_other": "{{count}} sistemas",
+        "edited_one": "{{count}} editado",
+        "edited_other": "{{count}} editados",
+        "notes_one": "{{count}} com anotações",
+        "notes_other": "{{count}} com anotações"
+      },
       "error": {
         "required": "Este campo não pode ficar vazio.",
         "tooLong": "Texto longo demais.",
@@ -213,7 +233,26 @@
         "year": "Informe um ano entre 1900 e 2100.",
         "url": "Informe um link começando com http:// ou https://.",
         "invalid": "Valor inválido."
-      }
+      },
+      "addImages": "Adicionar imagens",
+      "caption": "Legenda",
+      "galleryEmpty": "Nenhuma imagem ainda.",
+      "galleryFull": "A galeria comporta até 50 imagens. Remova algumas para adicionar mais.",
+      "imageAlt": "Imagem {{number}}",
+      "imagesRejected": "Imagens não adicionadas",
+      "imageRejected": {
+        "type": "{{name}} não é um tipo de imagem compatível.",
+        "size": "{{name}} tem mais de 20 MB.",
+        "unreadable": "Não foi possível ler {{name}}.",
+        "copy": "Não foi possível copiar {{name}} para a pasta do museu."
+      },
+      "viewer": {
+        "prev": "Imagem anterior",
+        "next": "Próxima imagem",
+        "close": "Fechar",
+        "position": "{{index}} / {{count}}"
+      },
+      "personalError": "Não foi possível carregar suas notas e imagens."
     }
   },
   "settings": {

@@ -37,6 +37,8 @@ export interface NextlevelHandlerDeps {
   catalogArt?: (itemId: string, kind: string) => Promise<{ bytes: Buffer; mime: string } | null>;
   /** FR-MUS-4: a museum model image, fetched once and cached by main; null = 404. */
   remoteImage?: (url: string) => Promise<{ bytes: Buffer; mime: string } | null>;
+  /** FR-MUS-8: a stored gallery image's path (already confined to the system's folder); null = 404. */
+  museumImage?: (systemId: string, file: string) => Promise<string | null>;
 }
 
 /** The `protocol.handle('nextlevel', …)` handler; 404 for anything it can't resolve. */
@@ -66,6 +68,11 @@ export function createNextlevelHandler(deps: NextlevelHandlerDeps) {
       const image = await deps.remoteImage?.(parsed.url);
       if (!image) return new Response(null, { status: 404 });
       return new Response(new Uint8Array(image.bytes), { headers: { 'content-type': image.mime } });
+    }
+    if (parsed.kind === 'museum-image') {
+      const stored = await deps.museumImage?.(parsed.systemId, parsed.file);
+      if (!stored) return new Response(null, { status: 404 });
+      return serveFile(stored, request.headers.get('range'));
     }
     const path = await resolveNextlevelPath(parsed, { mediaPath: deps.mediaPath, ...deps.paths() });
     if (!path) return new Response(null, { status: 404 });

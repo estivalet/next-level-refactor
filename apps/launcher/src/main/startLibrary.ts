@@ -15,6 +15,7 @@ import { v7 as uuidv7 } from 'uuid';
 import { seedBuiltInSmartFilters } from './library/builtInSmartFilters.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import { SystemInfoRepository } from './library/SystemInfoRepository.ts';
+import { SystemPersonalRepository } from './library/SystemPersonalRepository.ts';
 import { MenuRepository } from './menus/MenuRepository.ts';
 import { ImportService } from './import/ImportService.ts';
 import { detectEmulators } from './launch/detect.ts';
@@ -246,6 +247,7 @@ export function startLibrary(
   const menus = new MenuRepository(db, () => new Date(), uuidv7);
   const smartFilters = new SmartFilterRepository(db, () => new Date());
   const systemInfo = new SystemInfoRepository(db, () => new Date());
+  const systemPersonal = new SystemPersonalRepository(db, () => new Date());
   try {
     seedBuiltInSmartFilters(smartFilters, currentSettings(settings).general.language);
   } catch (error) {
@@ -467,6 +469,7 @@ export function startLibrary(
     menus,
     smartFilters,
     systemInfo,
+    systemPersonal,
     importer,
   };
 }

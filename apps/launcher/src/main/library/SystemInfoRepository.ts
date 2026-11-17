@@ -38,6 +38,14 @@ export class SystemInfoRepository {
     return new Set(ids);
   }
 
+  /** When each edited entry was last saved (FR-MUS-9). */
+  updatedAtById(): Map<string, string> {
+    const rows = this.client
+      .prepare('select system_id as id, updated_at as at from system_info')
+      .all() as Array<{ id: string; at: string }>;
+    return new Map(rows.map((row) => [row.id, row.at]));
+  }
+
   /** Stores the entry, replacing any earlier edit of that system. */
   save(entry: SystemInfo): SystemInfo {
     const parsed = SystemInfoSchema.parse(entry);

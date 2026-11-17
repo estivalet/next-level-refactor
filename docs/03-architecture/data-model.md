@@ -275,6 +275,8 @@ adds `LaunchBox Games Database` with its site URL. Text fields have limits (`SYS
 [system-catalog README](../../packages/system-catalog/README.md#system-museum-seed) for the import
 and the licence note. Edits live in `library.db` (§4, `system_info`).
 
+**Personal notes and gallery (FR-MUS-6, FR-MUS-8):** `SystemPersonal` (`packages/shared/src/systems/personal.ts`) is `{ systemId, notes?, gallery[] }`: notes are trimmed, 1 to 20000 characters; the gallery holds up to 50 `{ file, caption? }` items in display order (caption 1 to 200 characters, files unique). Files are named `<uuid>.<ext>` with ext png, jpg, jpeg, webp or gif, up to 20 MiB each, and live in `<dataDir>/museum/<systemId>/`, outside the library database. Adding an image copies it (through a `.tmp` file renamed into place); the original is never referenced afterwards. Saving the record deletes stored files it no longer lists, and `systems.personal.cleanup` does the same for a discarded edit; neither touches `*.tmp` files, and neither deletes anything when the library is unavailable or the stored row no longer validates (the files it may reference are kept).
+
 ## 4. Library (`library.db`)
 
 SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_version`.
@@ -283,7 +285,7 @@ SQLite with WAL, foreign keys on. Migrations via Drizzle Kit; `meta.schema_versi
 since M2b; `game_user_state`, `game_filters`, `collections`, `collection_games` and `games_fts`
 since M2c; `game_launch_override` and `launch_log` since M3; `game_media` since M4a; `smart_filters`,
 `menus`, `menu_nodes` and `collections.source` since M5a (migration `0005`); `arcade_info` since
-M5d (migration `0006`, filled by the importer); `system_info` since the Systems museum (FR-MUS-2, migration `0018`: `system_id` primary key, `entry` JSON text of a `SystemInfo`, `updated_at`; a row replaces the shipped entry as a whole and Reset deletes it); the other tables arrive
+M5d (migration `0006`, filled by the importer); `system_info` since the Systems museum (FR-MUS-2, migration `0018`: `system_id` primary key, `entry` JSON text of a `SystemInfo`, `updated_at`; a row replaces the shipped entry as a whole and Reset deletes it); `system_personal` since the museum redesign (FR-MUS-6, FR-MUS-8, migration `0019`: `system_id` primary key, `data` JSON text of a `SystemPersonal`, `updated_at`; an empty record (no notes, no images) deletes the row, and Reset never touches it); the other tables arrive
 with the milestones that use them, each as a new migration.
 - `better-sqlite3` 13 (N-API prebuilds, so one binary serves Node and Electron), `busy_timeout` 5 s.
 - `games.rel_path` is `COLLATE NOCASE` and uses `/` (`! Brazil/Game (Brazil).zip`), so the

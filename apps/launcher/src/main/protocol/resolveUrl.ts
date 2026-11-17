@@ -29,7 +29,8 @@ export async function resolveNextlevelPath(
     parsed.kind === 'scrape-thumb' ||
     parsed.kind === 'launchbox-thumb' ||
     parsed.kind === 'catalog-art' ||
-    parsed.kind === 'remote-image'
+    parsed.kind === 'remote-image' ||
+    parsed.kind === 'museum-image'
   ) {
     return null;
   }

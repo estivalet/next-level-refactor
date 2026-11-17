@@ -2,7 +2,12 @@ import { app, BrowserWindow, dialog, ipcMain, protocol, safeStorage, shell } fro
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { AppErrorException, uiScaleFactor, type ExportFormat } from '@nextlevel/shared';
+import {
+  AppErrorException,
+  MUSEUM_IMAGE_EXTENSIONS,
+  uiScaleFactor,
+  type ExportFormat,
+} from '@nextlevel/shared';
 import { emulatorPresets, systemCatalog } from '@nextlevel/system-catalog';
 import { v7 as uuidv7 } from 'uuid';
 import { createAuth } from './auth/startAuth.ts';
@@ -10,6 +15,7 @@ import { createHandlers } from './handlers.ts';
 import { createEventSink, type EmitEvent } from './ipc/events.ts';
 import { registerIpcRouter } from './ipc/register.ts';
 import { createIpcRouter } from './ipc/router.ts';
+import { MuseumImageStore } from './systems/MuseumImageStore.ts';
 import { initLogger, logger as log } from './log.ts';
 import { externalUrlAllowed, isAllowedNavigation } from './navigation.ts';
 import { ArtIndexService } from './frontend/ArtIndexService.ts';
@@ -297,6 +303,11 @@ async function start(): Promise<void> {
     fetcher: fetch,
     now: Date.now,
   });
+  const museumImages = new MuseumImageStore({
+    root: join(dataDir, 'museum'),
+    newId: uuidv7,
+    log,
+  });
   protocol.handle(
     'nextlevel',
     createNextlevelHandler({
@@ -306,6 +317,7 @@ async function start(): Promise<void> {
       // The catalog starts after sign-in is set up (below); until then there is no art.
       catalogArt: (itemId, kind) => catalogRef.current?.art(itemId, kind) ?? Promise.resolve(null),
       remoteImage: (url) => remoteImages.get(url),
+      museumImage: (systemId, file) => museumImages.path(systemId, file),
       paths: artPaths,
     }),
   );
@@ -425,6 +437,22 @@ async function start(): Promise<void> {
         ? dialog.showOpenDialog(window, options)
         : dialog.showOpenDialog(options));
       return result.canceled ? null : (result.filePaths[0] ?? null);
+    },
+    museumImages,
+    pickImages: async (title) => {
+      // End-to-end tests can't drive the native dialog; development builds only.
+      const e2eImages = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_IMAGES'];
+      if (e2eImages) return e2eImages.split(';').filter((path) => path.length > 0);
+      const window = BrowserWindow.getFocusedWindow();
+      const options = {
+        properties: ['openFile' as const, 'multiSelections' as const],
+        filters: [{ name: 'Images', extensions: [...MUSEUM_IMAGE_EXTENSIONS] }],
+        ...(title ? { title } : {}),
+      };
+      const result = await (window
+        ? dialog.showOpenDialog(window, options)
+        : dialog.showOpenDialog(options));
+      return result.canceled ? [] : result.filePaths;
     },
     pickExportPath,
     pickFolder: async (title) => {

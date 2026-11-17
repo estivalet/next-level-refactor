@@ -141,12 +141,17 @@
       "loading": "Loading…",
       "loadError": "Could not load this entry.",
       "empty": "Nothing recorded yet.",
+      "emulatorsEmpty": "No emulator is set up for this system yet. Add one in Settings → Emulators.",
+      "emulatorsError": "Could not read the emulator settings.",
       "noMatches": "No systems match.",
       "sections": {
+        "notes": "Notes",
+        "emulators": "Emulators",
         "overview": "Overview",
         "story": "Story",
         "hardware": "Hardware",
         "models": "Models",
+        "gallery": "Gallery",
         "related": "Related",
         "topGames": "Top games",
         "sources": "Sources"
@@ -188,7 +193,7 @@
       "discardConfirm": "Discard changes",
       "reset": "Reset to original",
       "resetTitle": "Reset this entry?",
-      "resetMessage": "Your edits to this entry are removed and the shipped entry comes back.",
+      "resetMessage": "Your edits to this entry are removed and the shipped entry comes back. Your notes and images are kept.",
       "fixErrors": "Fix the highlighted fields to save.",
       "listError": "Could not load the systems.",
       "moveUp": "Move up",
@@ -206,6 +211,21 @@
       "noGames": "No games found.",
       "gamesError": "Could not load the games.",
       "noImage": "No image",
+      "home": "Home",
+      "recentlyChanged": "Recently changed",
+      "hasNotes": "With your notes",
+      "welcome": {
+        "title": "Welcome to the Museum",
+        "intro": "Walk through the history of every system in your collection: its story, hardware and best games, with your own notes and pictures. Pick a system on the left to start."
+      },
+      "counts": {
+        "systems_one": "{{count}} system",
+        "systems_other": "{{count}} systems",
+        "edited_one": "{{count}} edited",
+        "edited_other": "{{count}} edited",
+        "notes_one": "{{count}} with notes",
+        "notes_other": "{{count}} with notes"
+      },
       "error": {
         "required": "This field cannot be empty.",
         "tooLong": "This is too long.",
@@ -213,7 +233,26 @@
         "year": "Enter a year between 1900 and 2100.",
         "url": "Enter a link starting with http:// or https://.",
         "invalid": "This value is not valid."
-      }
+      },
+      "addImages": "Add images",
+      "caption": "Caption",
+      "galleryEmpty": "No images yet.",
+      "galleryFull": "The gallery holds up to 50 images. Remove some to add more.",
+      "imageAlt": "Image {{number}}",
+      "imagesRejected": "Images not added",
+      "imageRejected": {
+        "type": "{{name}} is not a supported image type.",
+        "size": "{{name}} is larger than 20 MB.",
+        "unreadable": "{{name}} could not be read.",
+        "copy": "{{name}} could not be copied into the museum folder."
+      },
+      "viewer": {
+        "prev": "Previous image",
+        "next": "Next image",
+        "close": "Close",
+        "position": "{{index}} / {{count}}"
+      },
+      "personalError": "Could not load your notes and images."
     }
   },
   "settings": {

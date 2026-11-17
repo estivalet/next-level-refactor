@@ -134,6 +134,13 @@
       "when": 1794762041557,
       "tag": "0018_striped_betty_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1794875081418,
+      "tag": "0019_reflective_ultimates",
+      "breakpoints": true
     }
   ]
 }

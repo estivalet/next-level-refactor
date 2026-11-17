@@ -7,6 +7,7 @@ import {
   scrapeThumbUrl,
   launchboxThumbUrl,
   remoteImageUrl,
+  museumImageUrl,
 } from './urls.ts';
 
 describe('nextlevel URLs', () => {
@@ -136,6 +137,29 @@ describe('nextlevel URLs', () => {
       'nextlevel://remote-image/',
       'nextlevel://remote-image/!!!',
       `nextlevel://remote-image/${enc('https://e.com/a.png')}/x`,
+    ]) {
+      expect(parseNextlevelUrl(bad), bad).toBeNull();
+    }
+  });
+
+  it('FR-MUS-8: museumImageUrl round-trips through parseNextlevelUrl', () => {
+    const file = '123e4567-e89b-42d3-a456-426614174000.png';
+    expect(museumImageUrl('snes', file)).toBe(`nextlevel://museum-image/snes/${file}`);
+    expect(parseNextlevelUrl(museumImageUrl('snes', file))).toEqual({
+      kind: 'museum-image',
+      systemId: 'snes',
+      file,
+    });
+  });
+
+  it('FR-MUS-8: malformed museum-image URLs are rejected', () => {
+    const uuid = '123e4567-e89b-42d3-a456-426614174000';
+    for (const bad of [
+      'nextlevel://museum-image/snes/..%2Fx.png',
+      'nextlevel://museum-image/snes/notauuid.png',
+      `nextlevel://museum-image/snes/${uuid}.png/extra`,
+      `nextlevel://museum-image/SNES!/${uuid}.png`,
+      `nextlevel://museum-image/${uuid}.png`,
     ]) {
       expect(parseNextlevelUrl(bad), bad).toBeNull();
     }

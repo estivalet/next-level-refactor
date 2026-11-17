@@ -272,6 +272,13 @@ export const systemInfo = sqliteTable('system_info', {
   updatedAt: text('updated_at').notNull(),
 });
 
+/** The owner's museum notes and gallery per system (FR-MUS-6); `data` is a SystemPersonal as JSON. Reset never touches it. */
+export const systemPersonal = sqliteTable('system_personal', {
+  systemId: text('system_id').primaryKey(),
+  data: text('data').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
 /** Menus (FR-MENU-3): at most one active; `source` marks imported ones (D12). */
 export const menus = sqliteTable(
   'menus',

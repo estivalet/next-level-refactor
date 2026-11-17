@@ -134,11 +134,20 @@ requirements:
   wireframe above shows contents, not style. Requirements: FR-SHELL-1..5.
 - Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock; a downloaded update shows a **Restart to update to <version>** button (M10a).
 - Start menu: apps, Front-end, Account, Sign out, Quit.
-- Museum app (FR-MUS-1..5, US-G2): a single-instance window. Left, a searchable list of every
-  system (name, manufacturer, year, a dot when the entry is edited) with a kind filter. Right, the
-  entry in sections (Overview, Story, Hardware, Models, Related, Top games, Sources), editable in
-  place with **Save**, **Discard** and **Reset to original** (confirm; only when edited). Models and
-  top games are lists you can add to, remove from and reorder; a top game can be pinned to a library
+- Museum app (FR-MUS-1..9, US-G2, US-G3): a single-instance window. Left, a menu with **Home** first, then a searchable list of every
+  system (name, manufacturer, year, a dot when the entry is edited) with a kind filter. Right, **Home** or a system's page.
+  Home: a welcome banner (title and intro over the owner's picture `system-info\museum.jpg` in the shared art folder; text only when it is missing), a counts line
+  (systems, edited, with notes), and rows of cards, *Recently changed* and *With your notes*; empty rows are hidden and only a row scrolls sideways.
+  A system page opens with a hero (its hardware image from the menu art folder, name, manufacturer and year), then the sections Overview,
+  Story, Hardware, Models, Gallery, Related, Top games, Sources, Emulators and, last, Notes. Notes and Gallery are the owner's own and are
+  kept apart from the entry; Emulators lists the emulator profiles set up for the system, grouped by emulator, read-only. The gallery shows
+  the added images with captions; in edit mode you add images (a picker, up to 50; ones of the wrong type, over 20 MiB, unreadable or that could not be copied in are
+  named in a message), caption, reorder and remove them. If the personal record cannot be read, the entry still shows with Notes and Gallery
+  disabled. Editing happens in place; **Save**, **Discard** and **Reset to original** (confirm; only when edited) sit in a bar pinned to the bottom of the
+  window while the page scrolls. Reset restores only the entry: with unsaved notes or gallery changes the form stays open with the shipped entry and
+  those changes kept. Discard (or leaving the page) removes images added in that edit, even ones already removed again; saving notes or a gallery
+  does not mark the entry as edited (no dot). In the image viewer, when Previous or Next disables at the first or last image, focus moves to Close.
+  Models and top games are lists you can add to, remove from and reorder; a top game can be pinned to a library
   game of that system through a picker and an owned one shows a badge. Model photos show a
   placeholder when the link is broken or offline. Seed text from Wikipedia is credited in Sources
   as "Wikipedia (CC BY-SA 4.0)" linking the licence (and the article when known); source names are

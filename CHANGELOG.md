@@ -26,7 +26,13 @@ M10-1 — polish before 1.0.
   size and SHA-256 (nothing is kept); players download it straight from the host, checked as
   usual. **Check again** picks up a file changed at its host as an update. If the host refuses
   (Drive's daily limit), the download pauses until the player resumes it.
-
+- **Museum redesign** (FR-MUS-6..9, US-G3): the Museum app has a left menu with **Home** first, a hero header per system,
+  and **Save**/**Discard** in a bar pinned to the bottom of the window. Home opens on a welcome over your own museum picture (`system-info\museum.jpg` in the art folder), then the systems you changed
+  recently and the ones with your notes. Each system gains your own **Notes**, the last section on the page (kept apart from the entry; Reset never clears them, not even unsaved ones),
+  a read-only **Emulators** list just before them (the profiles set up for it, by emulator) and a **Gallery** of your own images, copied into
+  `data\museum` and captioned, ordered and removed here; discarding an edit removes images you had just added. Stored images are never
+  deleted while the library is unavailable or your saved record cannot be read (a damaged record shows notes and gallery as unavailable and is never saved over), and adding images is refused while kiosk mode is locked.
+  The hardware picture comes from the menu art folder.
 - **Systems museum** (FR-MUS-1..5, D67, ADR-016): every system has a museum entry (overview,
   story, hardware, models, related systems, top games, sources), seeded from shipped data. The new
   **Museum** app lists every system and edits each field; edits replace the shipped entry and
