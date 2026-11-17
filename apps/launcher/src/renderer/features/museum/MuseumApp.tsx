@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '../menus/ConfirmDialog.tsx';
 import { EntryView } from './EntryView.tsx';
+import { MuseumHome } from './MuseumHome.tsx';
 import { useSystemInfoList } from './museumApi.ts';
 import { SystemList, type SystemFilter } from './SystemList.tsx';
 
@@ -63,11 +64,12 @@ export function MuseumApp() {
         {selected ? (
           <EntryView key={selected.systemId} system={selected} onDirtyChange={setDirty} />
         ) : (
-          // Placeholder until the Home page lands (FR-MUS-9).
-          <section className="min-w-0 flex-1 p-5">
-            <h2 className="text-lg font-semibold text-slate-100">{t('apps.museum.title')}</h2>
-            <p className="mt-1 text-sm text-slate-500">{t('apps.museum.pick')}</p>
-          </section>
+          <MuseumHome
+            systems={systems}
+            onOpen={(systemId) => {
+              go({ kind: 'system', systemId });
+            }}
+          />
         )}
       </div>
       {pending !== null && (

@@ -212,6 +212,18 @@
       "gamesError": "Não foi possível carregar os jogos.",
       "noImage": "Sem imagem",
       "home": "Início",
+      "recentlyChanged": "Alterados recentemente",
+      "hasNotes": "Com suas anotações",
+      "featured": "Destaque",
+      "openEntry": "Abrir verbete",
+      "counts": {
+        "systems_one": "{{count}} sistema",
+        "systems_other": "{{count}} sistemas",
+        "edited_one": "{{count}} editado",
+        "edited_other": "{{count}} editados",
+        "notes_one": "{{count}} com anotações",
+        "notes_other": "{{count}} com anotações"
+      },
       "error": {
         "required": "Este campo não pode ficar vazio.",
         "tooLong": "Texto longo demais.",

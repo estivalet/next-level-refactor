@@ -212,6 +212,18 @@
       "gamesError": "Could not load the games.",
       "noImage": "No image",
       "home": "Home",
+      "recentlyChanged": "Recently changed",
+      "hasNotes": "With your notes",
+      "featured": "Featured",
+      "openEntry": "Open entry",
+      "counts": {
+        "systems_one": "{{count}} system",
+        "systems_other": "{{count}} systems",
+        "edited_one": "{{count}} edited",
+        "edited_other": "{{count}} edited",
+        "notes_one": "{{count}} with notes",
+        "notes_other": "{{count}} with notes"
+      },
       "error": {
         "required": "This field cannot be empty.",
         "tooLong": "This is too long.",

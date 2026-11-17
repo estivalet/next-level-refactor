@@ -151,7 +151,8 @@ describe('MuseumApp', () => {
     if (!app) throw new Error('museum app is not registered');
     const { Component } = app;
     renderInShell(<Component />);
-    expect(await screen.findByText('Super Nintendo')).toBeInTheDocument();
+    const list = await screen.findByRole('list', { name: 'Systems' });
+    expect(await within(list).findByText('Super Nintendo')).toBeInTheDocument();
   });
 
   it('FR-MUS-2: a failed list load shows an error, not the empty list', async () => {
