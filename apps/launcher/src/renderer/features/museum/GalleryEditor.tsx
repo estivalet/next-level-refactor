@@ -59,10 +59,13 @@ export function GalleryEditor({
   systemId,
   gallery,
   onChange,
+  onImagesAdded,
 }: {
   systemId: string;
   gallery: readonly SystemGalleryImage[];
   onChange: (gallery: SystemGalleryImage[]) => void;
+  /** Told when main copied images in, even ones that did not fit, so a discard can clean up. */
+  onImagesAdded?: (() => void) | undefined;
 }) {
   const { t } = useTranslation();
   const alt = useImageAlt();
@@ -70,10 +73,10 @@ export function GalleryEditor({
   const [rejected, setRejected] = useState<RejectedImage[]>([]);
   const [overflow, setOverflow] = useState(false);
   // The picker resolves later; append to the gallery as it is then, not as it was on click.
-  const latest = useRef({ gallery, onChange });
+  const latest = useRef({ gallery, onChange, onImagesAdded });
   useEffect(() => {
-    latest.current = { gallery, onChange };
-  }, [gallery, onChange]);
+    latest.current = { gallery, onChange, onImagesAdded };
+  }, [gallery, onChange, onImagesAdded]);
   const full = gallery.length >= MUSEUM_GALLERY_MAX;
 
   const add = () => {
@@ -88,6 +91,7 @@ export function GalleryEditor({
           const kept = result.added.slice(0, room);
           setRejected(result.rejected);
           setOverflow(result.added.length > room);
+          if (result.added.length > 0) latest.current.onImagesAdded?.();
           if (kept.length > 0) latest.current.onChange([...current, ...kept]);
         },
       },
@@ -125,6 +129,7 @@ export function GalleryEditor({
                   onChange(moveItem(gallery, index, delta));
                 }}
                 onRemove={() => {
+                  setOverflow(false);
                   onChange(removeAt(gallery, index));
                 }}
               />

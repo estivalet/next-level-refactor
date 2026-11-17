@@ -102,6 +102,20 @@ describe('GalleryEditor', () => {
     expect(screen.getByRole('button', { name: 'Add images' })).toBeDisabled();
   });
 
+  it('FR-MUS-8: the gallery-full note goes away once images are removed', async () => {
+    installFakeBridge({
+      'systems.personal.addImages': () => ok({ added: images(3, 100), rejected: [] }),
+    });
+    const { user } = renderEditor(images(MUSEUM_GALLERY_MAX - 2));
+    await user.click(screen.getByRole('button', { name: 'Add images' }));
+    expect(await screen.findByText(/The gallery holds up to 50 images/)).toBeInTheDocument();
+
+    await user.click(within(rows()[0] as HTMLElement).getByRole('button', { name: 'Remove' }));
+    expect(rows()).toHaveLength(MUSEUM_GALLERY_MAX - 1);
+    expect(screen.queryByText(/The gallery holds up to 50 images/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Add images' })).toBeEnabled();
+  });
+
   it('FR-MUS-8: captions edit and rows reorder/remove via RowControls', async () => {
     installFakeBridge();
     const { latest, user } = renderEditor([{ file: file(1), caption: 'Front' }, { file: file(2) }]);
@@ -174,5 +188,32 @@ describe('GallerySection', () => {
     fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(second).toHaveFocus();
+  });
+
+  it('FR-MUS-8: when Prev/Next disables under focus, focus moves to Close so Esc and arrows keep working', async () => {
+    installFakeBridge();
+    const user = userEvent.setup();
+    renderInShell(
+      <GallerySection
+        title="Gallery"
+        systemId="snes"
+        gallery={[{ file: file(1) }, { file: file(2) }, { file: file(3) }]}
+      />,
+    );
+    const thumbs = within(screen.getByRole('region', { name: 'Gallery' })).getAllByRole('button');
+    await user.click(thumbs[1] as HTMLElement);
+    const dialog = await screen.findByRole('dialog');
+    const close = within(dialog).getByRole('button', { name: 'Close' });
+
+    await user.click(within(dialog).getByRole('button', { name: 'Next image' }));
+    expect(within(dialog).getByRole('button', { name: 'Next image' })).toBeDisabled();
+    expect(close).toHaveFocus();
+
+    within(dialog).getByRole('button', { name: 'Previous image' }).focus();
+    await user.keyboard('{ArrowLeft}{ArrowLeft}');
+    expect(within(dialog).getByText('1 / 3')).toBeInTheDocument();
+    expect(close).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

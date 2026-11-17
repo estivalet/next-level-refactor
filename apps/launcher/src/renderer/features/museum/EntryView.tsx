@@ -1,4 +1,4 @@
-import type { SystemInfoSummary } from '@nextlevel/shared';
+import type { SystemInfo, SystemInfoSummary } from '@nextlevel/shared';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
@@ -19,8 +19,10 @@ const CLEAN: DraftDirty = { entry: false, personal: false };
 /**
  * A system's museum page (FR-MUS-2, FR-MUS-6, FR-MUS-9): the hero, the page in a scrolling region,
  * and in edit mode a pinned action bar below that region. `onDirtyChange` reports unsaved edits so
- * the app can ask before leaving the page. Discarding a changed personal record (here, or by
- * leaving the page) asks main to delete the images it added (FR-MUS-8).
+ * the app can ask before leaving the page. Discarding a changed personal record, or an edit in
+ * which images were added (here, or by leaving the page), asks main to delete the images it added
+ * (FR-MUS-8). Reset restores only the entry: with unsaved notes or images the form stays open with
+ * the shipped entry and the personal draft kept (FR-MUS-6).
  */
 export function EntryView({
   system,
@@ -40,8 +42,15 @@ export function EntryView({
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState<DraftDirty>(CLEAN);
   const [confirming, setConfirming] = useState<Confirming>(null);
+  const [resetEntry, setResetEntry] = useState<SystemInfo | undefined>(undefined);
   // Read on unmount: leaving the page with a changed personal draft discards it.
   const personalDirty = useRef(false);
+  // Images copied in during this edit; they need a cleanup even if the draft no longer lists them.
+  const imagesAdded = useRef(false);
+  const needsCleanup = () => personalDirty.current || imagesAdded.current;
+  const onImagesAdded = useCallback(() => {
+    imagesAdded.current = true;
+  }, []);
   const data = query.data;
   const personal = personalQuery.data;
   const entry = data?.entry;
@@ -66,18 +75,20 @@ export function EntryView({
   // Leaving the page (switching system, going Home) drops the draft: clean up as Discard would.
   useEffect(
     () => () => {
-      if (personalDirty.current) void cleanupImages(systemId);
+      if (personalDirty.current || imagesAdded.current) void cleanupImages(systemId);
       latestOnDirtyChange.current?.(false);
     },
     [systemId],
   );
   const close = () => {
     reportDirty(CLEAN);
+    imagesAdded.current = false;
+    setResetEntry(undefined);
     setConfirming(null);
     setEditing(false);
   };
   const discard = () => {
-    if (personalDirty.current) void cleanupImages(systemId);
+    if (needsCleanup()) void cleanupImages(systemId);
     close();
   };
   const submit = async (changes: DraftChanges) => {
@@ -88,6 +99,8 @@ export function EntryView({
     } catch {
       return; // The mutation's error shows in the action bar.
     }
+    // A personal save prunes in main; without one, images added and removed again are orphans.
+    if (imagesAdded.current && !changes.personal) void cleanupImages(systemId);
     close();
   };
   const edit = (
@@ -124,6 +137,8 @@ export function EntryView({
             personal={personal}
             onSubmit={(changes) => void submit(changes)}
             onDirtyChange={reportDirty}
+            onImagesAdded={onImagesAdded}
+            resetEntryTo={resetEntry}
           />
         )}
         {entry && personalSettled && !editing && (
@@ -145,7 +160,7 @@ export function EntryView({
             className={SECONDARY_BUTTON}
             onClick={() => {
               if (dirty.entry || dirty.personal) setConfirming('discard');
-              else close();
+              else discard();
             }}
           >
             {t('apps.museum.discard')}
@@ -189,7 +204,16 @@ export function EntryView({
           }}
           onConfirm={() => {
             setConfirming(null);
-            reset.mutate({ systemId }, { onSuccess: discard });
+            reset.mutate(
+              { systemId },
+              {
+                onSuccess: (shipped) => {
+                  // Unsaved notes and images are kept, as the dialog says: only the entry resets.
+                  if (personalDirty.current) setResetEntry(shipped);
+                  else discard();
+                },
+              },
+            );
           }}
         />
       )}

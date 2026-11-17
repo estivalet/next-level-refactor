@@ -331,4 +331,37 @@ describe('EntryForm', () => {
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText(/Your notes and images are kept\./)).toBeInTheDocument();
   });
+
+  it('FR-MUS-6: reset keeps unsaved notes: the form stays open with the shipped entry and the typed notes', async () => {
+    const { bridge, user } = setup();
+    const form = await openForm(user);
+    const notes = within(within(form).getByRole('region', { name: 'Notes' })).getByLabelText(
+      'Notes',
+    );
+    await user.type(notes, 'Unsaved');
+    await user.click(screen.getByRole('button', { name: 'Reset to original' }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Reset to original' }),
+    );
+
+    const cpu = within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText(
+      'CPU',
+    );
+    await waitFor(() => {
+      expect(cpu).toHaveValue('Shipped CPU');
+    });
+    expect(screen.getByRole('form', { name: 'Edit Super Nintendo' })).toBe(form);
+    expect(notes).toHaveValue('Unsaved');
+    expect(bridge.channels()).not.toContain('systems.personal.cleanup');
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('form')).toBeNull();
+    });
+    expect(bridge.channels()).not.toContain('systems.info.save');
+    expect(bridge.calls.find((call) => call.channel === 'systems.personal.save')?.input).toEqual({
+      systemId: 'snes',
+      personal: { systemId: 'snes', notes: 'Unsaved', gallery: [] },
+    });
+  });
 });

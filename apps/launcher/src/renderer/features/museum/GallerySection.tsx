@@ -15,7 +15,8 @@ export function useImageAlt() {
 
 /**
  * One gallery image at a time over the app (FR-MUS-8), after the `Modal` pattern: ←/→ move, Esc
- * closes, the close button takes focus on open and focus returns to the opener on close.
+ * closes, the close button takes focus on open and focus returns to the opener on close. A Prev or
+ * Next button that disables while focused hands focus to the close button, so keys keep working.
  */
 function ImageViewer({
   systemId,
@@ -32,6 +33,8 @@ function ImageViewer({
   const alt = useImageAlt();
   const titleId = useId();
   const closeButton = useRef<HTMLButtonElement>(null);
+  const prevButton = useRef<HTMLButtonElement>(null);
+  const nextButton = useRef<HTMLButtonElement>(null);
   const [index, setIndex] = useState(start);
   const image = gallery[index];
   useEffect(() => {
@@ -43,7 +46,12 @@ function ImageViewer({
   }, []);
   if (!image) return null;
   const move = (delta: -1 | 1) => {
-    setIndex((current) => Math.min(gallery.length - 1, Math.max(0, current + delta)));
+    const next = Math.min(gallery.length - 1, Math.max(0, index + delta));
+    const edge = delta < 0 ? next === 0 : next === gallery.length - 1;
+    const button = delta < 0 ? prevButton.current : nextButton.current;
+    // A disabled button drops focus to <body>, where the dialog's keys no longer arrive.
+    if (edge && button !== null && document.activeElement === button) closeButton.current?.focus();
+    setIndex(next);
   };
   return (
     <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/80 p-6">
@@ -80,6 +88,7 @@ function ImageViewer({
         </div>
         <div className="flex min-h-0 flex-1 items-center gap-2">
           <button
+            ref={prevButton}
             type="button"
             className={ICON_BUTTON}
             aria-label={t('apps.museum.viewer.prev')}
@@ -96,6 +105,7 @@ function ImageViewer({
             className="mx-auto max-h-[70vh] min-w-0 object-contain"
           />
           <button
+            ref={nextButton}
             type="button"
             className={ICON_BUTTON}
             aria-label={t('apps.museum.viewer.next')}

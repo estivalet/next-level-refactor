@@ -52,9 +52,9 @@ function setup({ personalFails = false }: { personalFails?: boolean } = {}) {
     'systems.personal.addImages': () => ok({ added: [{ file: file(2) }], rejected: [] }),
     'systems.personal.cleanup': () => ok(undefined),
   });
-  renderInShell(<EntryView system={summary} />);
+  const view = renderInShell(<EntryView system={summary} />);
   const sent = (channel: IpcChannel) => bridge.calls.find((call) => call.channel === channel);
-  return { bridge, sent, user: userEvent.setup() };
+  return { bridge, sent, view, user: userEvent.setup() };
 }
 
 async function openForm(user: ReturnType<typeof userEvent.setup>) {
@@ -147,5 +147,47 @@ describe('EntryView gallery (FR-MUS-8)', () => {
       'Ricoh 5A22x',
     );
     expect(sent('systems.personal.save')).toBeUndefined();
+  });
+
+  async function addThenRemove(user: ReturnType<typeof userEvent.setup>) {
+    const form = await openForm(user);
+    const gallery = within(form).getByRole('region', { name: 'Gallery' });
+    await user.click(within(gallery).getByRole('button', { name: 'Add images' }));
+    await within(gallery).findByRole('img', { name: 'Image 2' });
+    const added = within(gallery).getAllByRole('listitem')[1] as HTMLElement;
+    await user.click(within(added).getByRole('button', { name: 'Remove' }));
+    expect(within(gallery).getAllByRole('listitem')).toHaveLength(1);
+  }
+
+  it('FR-MUS-8: adding an image and removing it again still cleans up on Discard', async () => {
+    const { bridge, sent, user } = setup();
+    await addThenRemove(user);
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
+
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('systems.personal.cleanup');
+    });
+    expect(sent('systems.personal.cleanup')?.input).toEqual({ systemId: 'snes' });
+    expect(screen.queryByRole('form')).toBeNull();
+  });
+
+  it('FR-MUS-8: leaving the page after adding and removing an image cleans up', async () => {
+    const { bridge, user, view } = setup();
+    await addThenRemove(user);
+    view.unmount();
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('systems.personal.cleanup');
+    });
+  });
+
+  it('FR-MUS-8: saving an entry edit after adding and removing an image cleans up', async () => {
+    const { bridge, user } = setup();
+    await addThenRemove(user);
+    await user.type(screen.getByLabelText('CPU'), 'x');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('systems.personal.cleanup');
+    });
+    expect(bridge.channels()).not.toContain('systems.personal.save');
   });
 });

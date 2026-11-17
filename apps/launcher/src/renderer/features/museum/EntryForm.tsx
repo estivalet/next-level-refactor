@@ -72,7 +72,8 @@ function prefixed(errors: FieldErrors): FieldErrors {
  * every field of the museum entry (FR-MUS-2) and the owner's gallery (FR-MUS-8). It renders no
  * buttons: the page's action bar submits it through `form={formId}` (FR-MUS-9). Submitting
  * validates both the entry and the personal record and hands the changed, valid halves to
- * `onSubmit`. Without a personal record (it failed to load) only the entry can be edited.
+ * `onSubmit`. Without a personal record (it failed to load) only the entry can be edited. A new
+ * `resetEntryTo` replaces the entry half of the draft and leaves the personal half as it is.
  */
 export function EntryForm({
   formId,
@@ -81,6 +82,8 @@ export function EntryForm({
   personal,
   onSubmit,
   onDirtyChange,
+  onImagesAdded,
+  resetEntryTo,
 }: {
   formId: string;
   name: string;
@@ -89,11 +92,23 @@ export function EntryForm({
   onSubmit: (changes: DraftChanges) => void;
   /** Told which halves of the draft have unsaved changes. */
   onDirtyChange?: ((dirty: DraftDirty) => void) | undefined;
+  /** Told when main copied gallery images in during this edit. */
+  onImagesAdded?: (() => void) | undefined;
+  /** The entry after a Reset; each new value replaces the entry half of the draft. */
+  resetEntryTo?: SystemInfo | undefined;
 }) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<SystemInfo>(entry);
   const [personalDraft, setPersonalDraft] = useState<SystemPersonal | undefined>(personal);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [appliedReset, setAppliedReset] = useState(resetEntryTo);
+  if (resetEntryTo !== appliedReset) {
+    setAppliedReset(resetEntryTo);
+    if (resetEntryTo) {
+      setDraft(resetEntryTo);
+      setErrors({});
+    }
+  }
   const entryDirty = !same(draft, entry);
   const personalDirty = personalDraft !== undefined && !same(personalDraft, personal);
   useEffect(() => {
@@ -174,6 +189,7 @@ export function EntryForm({
             onChange={(gallery) => {
               patchPersonal({ gallery });
             }}
+            onImagesAdded={onImagesAdded}
           />
         </FormSection>
       ) : (
