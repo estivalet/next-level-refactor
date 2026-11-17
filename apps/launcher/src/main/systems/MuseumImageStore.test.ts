@@ -1,6 +1,6 @@
-import { copyFile, mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MUSEUM_IMAGE_MAX_BYTES } from '@nextlevel/shared';
 import { tempDir } from '../library/testing.ts';
 import { MuseumImageStore } from './MuseumImageStore.ts';
@@ -100,6 +100,39 @@ describe('MuseumImageStore', () => {
     const keep = added[0]?.file ?? '';
     await s.keepOnly('snes', [keep]);
     expect(await readdir(join(dir, 'museum', 'snes'))).toEqual([keep]);
+  });
+
+  it('FR-MUS-8: keepOnly keeps going when one file cannot be removed', async () => {
+    const a = join(dir, 'src', 'a.png');
+    const b = join(dir, 'src', 'b.png');
+    await writeFile(a, 'a');
+    await writeFile(b, 'b');
+    const warn = vi.fn();
+    const first = store();
+    const { added } = await first.add('snes', [a, b]);
+    const [locked, other] = [added[0]?.file ?? '', added[1]?.file ?? ''];
+    const s = store({
+      log: { warn },
+      fs: {
+        rm: (async (path: string, options?: object) => {
+          if (path.endsWith(locked)) throw Object.assign(new Error('busy'), { code: 'EBUSY' });
+          await rm(path, options);
+        }) as typeof rm,
+      },
+    });
+    await s.keepOnly('snes', []);
+    expect(await readdir(join(dir, 'museum', 'snes'))).toEqual([locked]);
+    expect(other).not.toBe(locked);
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+
+  it('FR-MUS-8: keepOnly leaves in-progress .tmp files alone', async () => {
+    const folder = join(dir, 'museum', 'snes');
+    await mkdir(folder, { recursive: true });
+    await writeFile(join(folder, '00000000-0000-4000-8000-000000000009.png.tmp'), 'x');
+    await writeFile(join(folder, '00000000-0000-4000-8000-000000000008.png'), 'x');
+    await store().keepOnly('snes', []);
+    expect(await readdir(folder)).toEqual(['00000000-0000-4000-8000-000000000009.png.tmp']);
   });
 
   it('FR-MUS-8: keepOnly on a system with no folder is a no-op', async () => {

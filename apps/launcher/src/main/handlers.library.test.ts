@@ -146,6 +146,10 @@ async function setup(withLibrary: boolean) {
     pickFolder: vi.fn(() => Promise.resolve(null)),
     pickFile: vi.fn(() => Promise.resolve(null)),
     pickImages: vi.fn(() => Promise.resolve([])),
+    museumImages: {
+      add: vi.fn(() => Promise.resolve({ added: [], rejected: [] })),
+      keepOnly: vi.fn(() => Promise.resolve()),
+    },
     pickExportPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library,

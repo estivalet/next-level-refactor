@@ -60,6 +60,7 @@ import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.
 import type { ScrapeService } from './scraper/ScrapeService.ts';
 import type { SecretsLike } from './secrets/SecretStore.ts';
 import { createMenuHandlers } from './menus/menuHandlers.ts';
+import type { MuseumImageStore } from './systems/MuseumImageStore.ts';
 import { createSystemInfoHandlers } from './systems/systemInfoHandlers.ts';
 import { createImportHandlers } from './import/importHandlers.ts';
 import type { ImportService } from './import/ImportService.ts';
@@ -89,6 +90,8 @@ export interface MainDeps {
   pickFile: (title?: string) => Promise<string | null>;
   /** Native multi-select image dialog (FR-MUS-8); empty when cancelled. */
   pickImages: (title?: string) => Promise<string[]>;
+  /** Stored museum gallery images (FR-MUS-8). */
+  museumImages: Pick<MuseumImageStore, 'add' | 'keepOnly'>;
   /** Native Save dialog for a game list export (FR-LIB-11); null when cancelled. */
   pickExportPath: (defaultName: string, format: ExportFormat) => Promise<string | null>;
   presets: () => readonly EmulatorPreset[];
@@ -208,6 +211,9 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
         return loaded.kind === 'ok' ? loaded.snapshot.settings.customSystems : [];
       },
       repo: () => deps.library?.systemInfo ?? null,
+      personal: () => deps.library?.systemPersonal ?? null,
+      images: deps.museumImages,
+      pickImages: () => deps.pickImages(),
       emit: deps.emit,
       log: deps.log,
     }),

@@ -97,14 +97,24 @@ export class MuseumImageStore {
   async keepOnly(systemId: string, files: readonly string[]): Promise<void> {
     const folder = this.folder(systemId);
     if (!folder) return;
+    let names: string[];
     try {
-      const keep = new Set(files);
-      for (const name of await this.fs.readdir(folder)) {
-        if (!keep.has(name)) await this.fs.rm(join(folder, name), { force: true });
-      }
+      names = await this.fs.readdir(folder);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
-      this.deps.log?.warn({ systemId, error }, 'museum gallery cleanup failed');
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        this.deps.log?.warn({ systemId, error }, 'museum gallery cleanup failed');
+      }
+      return;
+    }
+    const keep = new Set(files);
+    for (const name of names) {
+      // `.tmp` is an add in progress; it renames itself or removes itself on failure.
+      if (keep.has(name) || name.endsWith('.tmp')) continue;
+      try {
+        await this.fs.rm(join(folder, name), { force: true });
+      } catch (error) {
+        this.deps.log?.warn({ systemId, error }, 'museum gallery cleanup could not remove a file');
+      }
     }
   }
 

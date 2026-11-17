@@ -438,6 +438,7 @@ async function start(): Promise<void> {
         : dialog.showOpenDialog(options));
       return result.canceled ? null : (result.filePaths[0] ?? null);
     },
+    museumImages,
     pickImages: async (title) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eImages = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_IMAGES'];

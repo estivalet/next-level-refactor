@@ -1,5 +1,6 @@
 import {
   AppErrorException,
+  emptyPersonal,
   ERROR_CODES,
   type SystemDefinition,
   type SystemInfo,
@@ -9,17 +10,14 @@ import type { EmitEvent } from '../ipc/events.ts';
 import type { IpcHandlers } from '../ipc/router.ts';
 import { notFound } from '../library/libraryErrors.ts';
 import type { SystemInfoRepository } from '../library/SystemInfoRepository.ts';
+import type { SystemPersonalRepository } from '../library/SystemPersonalRepository.ts';
+import type { MuseumImageStore } from './MuseumImageStore.ts';
 import { baseSystemInfo } from './mergeSystemInfo.ts';
 
 type SystemInfoChannel = Extract<
   keyof IpcHandlers,
   `systems.info.${string}` | `systems.personal.${string}`
 >;
-
-// Stubs until the personal-record service lands.
-const notImplemented = (): never => {
-  throw new AppErrorException({ code: 'INTERNAL', message: ERROR_CODES.INTERNAL });
-};
 
 const appError = (code: 'VALIDATION_FAILED' | 'LIBRARY_UNAVAILABLE') =>
   new AppErrorException({ code, message: ERROR_CODES[code] });
@@ -34,6 +32,11 @@ export function createSystemInfoHandlers(deps: {
   customSystems: () => readonly CustomSystem[];
   /** null when the library is unavailable. */
   repo: () => SystemInfoRepository | null;
+  /** The owner's notes and gallery (FR-MUS-6); null when the library is unavailable. */
+  personal: () => SystemPersonalRepository | null;
+  images: Pick<MuseumImageStore, 'add' | 'keepOnly'>;
+  /** Native image dialog; empty when cancelled. */
+  pickImages: () => Promise<string[]>;
   emit: EmitEvent;
   log: { warn(context: object, msg: string): void };
 }): Pick<IpcHandlers, SystemInfoChannel> {
@@ -69,10 +72,16 @@ export function createSystemInfoHandlers(deps: {
   return {
     'systems.info.list': () => {
       const edited = deps.repo()?.editedIds() ?? new Set<string>();
+      const infoAt = deps.repo()?.updatedAtById() ?? new Map<string, string>();
+      const personalAt = deps.personal()?.summary() ?? new Map<string, never>();
       return [...deps.systems()]
         .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
         .map((definition) => {
           const { entry } = merged(definition, edited);
+          const personal = personalAt.get(definition.id);
+          const times = [infoAt.get(definition.id), personal?.updatedAt].filter(
+            (at): at is string => at !== undefined,
+          );
           return {
             systemId: definition.id,
             name: definition.name,
@@ -80,8 +89,8 @@ export function createSystemInfoHandlers(deps: {
             manufacturer: entry.manufacturer ?? null,
             releaseYear: entry.releaseYear ?? null,
             edited: edited.has(definition.id),
-            hasNotes: false,
-            changedAt: null,
+            hasNotes: personal?.hasNotes ?? false,
+            changedAt: times.length > 0 ? times.reduce((a, b) => (a > b ? a : b)) : null,
           };
         });
     },
@@ -109,9 +118,36 @@ export function createSystemInfoHandlers(deps: {
         : entry.topGames.map((game) => ({ ...game, owned: null }));
       return { ...entry, topGames };
     },
-    'systems.personal.get': notImplemented,
-    'systems.personal.save': notImplemented,
-    'systems.personal.addImages': notImplemented,
-    'systems.personal.cleanup': notImplemented,
+    'systems.personal.get': ({ systemId }) => {
+      system(systemId);
+      return deps.personal()?.get(systemId) ?? emptyPersonal(systemId);
+    },
+    'systems.personal.save': async ({ systemId, personal }) => {
+      system(systemId);
+      if (personal.systemId !== systemId) throw appError('VALIDATION_FAILED');
+      const repo = deps.personal();
+      if (!repo) throw appError('LIBRARY_UNAVAILABLE');
+      const saved = repo.save(personal);
+      await deps.images.keepOnly(
+        systemId,
+        saved.gallery.map((image) => image.file),
+      );
+      deps.emit('systems.infoChanged', { systemId });
+      return saved;
+    },
+    'systems.personal.addImages': async ({ systemId }) => {
+      system(systemId);
+      const sources = await deps.pickImages();
+      if (sources.length === 0) return { added: [], rejected: [] };
+      return deps.images.add(systemId, sources);
+    },
+    'systems.personal.cleanup': async ({ systemId }) => {
+      system(systemId);
+      const stored = deps.personal()?.get(systemId) ?? emptyPersonal(systemId);
+      await deps.images.keepOnly(
+        systemId,
+        stored.gallery.map((image) => image.file),
+      );
+    },
   };
 }
