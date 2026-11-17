@@ -5,7 +5,7 @@ import type { IpcHandlers } from '../ipc/router.ts';
  * The channels each hidden part refuses while kiosk is locked (FR-SET-6, Review Focus 3).
  * `settings`: what Settings (and the Menu Editor) change or open, including the OS file dialogs
  * and Explorer. `desktop`: what only the desktop apps do (library edits, collections, smart
- * filters, scraping, exports). `quit` also covers Restart to update; `account` the account's
+ * filters, scraping, exports, the museum gallery and its image dialog). `quit` also covers Restart to update; `account` the account's
  * own actions. The front-end's channels (frontend.*, launch.game, library.games.get/setFlags)
  * are never guarded. Opening the desktop and switching themes have no channel: the renderer
  * enforces those, and closes hidden apps' windows when kiosk locks.
@@ -58,6 +58,9 @@ export const KIOSK_GUARDED: Partial<Record<IpcChannel, KioskHide>> = {
   'smartFilters.create': 'desktop',
   'smartFilters.update': 'desktop',
   'smartFilters.delete': 'desktop',
+  'systems.personal.save': 'desktop',
+  'systems.personal.addImages': 'desktop',
+  'systems.personal.cleanup': 'desktop',
   'scraper.apply': 'desktop',
   'scraper.batch.start': 'desktop',
   'gemini.ask': 'desktop',

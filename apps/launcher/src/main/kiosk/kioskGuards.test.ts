@@ -54,6 +54,19 @@ describe('kiosk guards in main (FR-SET-6, Review Focus 3)', () => {
     expect(await r.handle('app.version', undefined)).toEqual(ok('1.0.0'));
   });
 
+  it('FR-SET-6, FR-MUS-8: the museum gallery channels (native image dialog, saves, cleanup) are desktop-guarded', async () => {
+    expect(KIOSK_GUARDED).toMatchObject({
+      'systems.personal.addImages': 'desktop',
+      'systems.personal.save': 'desktop',
+      'systems.personal.cleanup': 'desktop',
+    });
+    const { router: r } = router(['desktop']);
+    expect(await r.handle('systems.personal.addImages', { systemId: 'snes' })).toMatchObject({
+      ok: false,
+      error: { code: 'KIOSK_LOCKED' },
+    });
+  });
+
   it('Settings-page, desktop-app and OS-escape channels are guarded too; the front-end’s are not', () => {
     expect(KIOSK_GUARDED).toMatchObject({
       'scraper.credentials.set': 'settings',
