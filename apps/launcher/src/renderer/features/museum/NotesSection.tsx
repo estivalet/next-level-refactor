@@ -64,3 +64,17 @@ export function NotesEditor({
     </section>
   );
 }
+
+/**
+ * Stands in for the notes or the gallery when the owner's personal record failed to load: the
+ * museum entry still shows and edits, but notes and images stay out of reach (FR-MUS-6, FR-MUS-8).
+ */
+export function PersonalUnavailable({ title }: { title: string }) {
+  const { t } = useTranslation();
+  return (
+    <section className={SECTION} aria-label={title}>
+      <h3 className={HEADING}>{title}</h3>
+      <p className="text-xs text-red-400">{t('apps.museum.personalError')}</p>
+    </section>
+  );
+}

@@ -151,6 +151,7 @@
         "story": "Story",
         "hardware": "Hardware",
         "models": "Models",
+        "gallery": "Gallery",
         "related": "Related",
         "topGames": "Top games",
         "sources": "Sources"
@@ -218,7 +219,25 @@
         "year": "Enter a year between 1900 and 2100.",
         "url": "Enter a link starting with http:// or https://.",
         "invalid": "This value is not valid."
-      }
+      },
+      "addImages": "Add images",
+      "caption": "Caption",
+      "galleryEmpty": "No images yet.",
+      "galleryFull": "The gallery holds up to 50 images. Remove some to add more.",
+      "imageAlt": "Image {{number}}",
+      "imagesRejected": "Images not added",
+      "imageRejected": {
+        "type": "{{name}} is not a supported image type.",
+        "size": "{{name}} is larger than 20 MB.",
+        "unreadable": "{{name}} could not be read."
+      },
+      "viewer": {
+        "prev": "Previous image",
+        "next": "Next image",
+        "close": "Close",
+        "position": "{{index}} / {{count}}"
+      },
+      "personalError": "Could not load your notes and images."
     }
   },
   "settings": {

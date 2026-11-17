@@ -71,6 +71,7 @@ function setup() {
             : { systemId, models: [], peripherals: [], topGames: [], sources: [] },
         edited: systemId === 'snes',
       }),
+    'systems.personal.save': ({ personal }) => ok(personal),
     'systems.personal.cleanup': () => ok(undefined),
   });
   return { bridge, user: userEvent.setup() };
@@ -271,6 +272,29 @@ describe('MuseumApp unsaved notes (FR-MUS-6)', () => {
     await user.click(
       within(await screen.findByRole('dialog')).getByRole('button', { name: 'Discard changes' }),
     );
+    expect(screen.queryByRole('article')).toBeNull();
+    expect(bridge.channels()).not.toContain('systems.personal.cleanup');
+  });
+
+  it('FR-MUS-6: saving notes and then going Home does not clean up images', async () => {
+    const { bridge, user } = setup();
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form');
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Notes' })).getByLabelText('Notes'),
+      'saved',
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('form')).toBeNull();
+    });
+    expect(bridge.channels()).toContain('systems.personal.save');
+
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.queryByRole('article')).toBeNull();
     expect(bridge.channels()).not.toContain('systems.personal.cleanup');
   });

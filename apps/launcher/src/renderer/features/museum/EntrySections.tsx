@@ -2,8 +2,9 @@ import type { SystemInfo, SystemPersonal } from '@nextlevel/shared';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmulatorsSection } from './EmulatorsSection.tsx';
+import { GallerySection } from './GallerySection.tsx';
 import { ModelImage } from './ModelImage.tsx';
-import { NotesSection } from './NotesSection.tsx';
+import { NotesSection, PersonalUnavailable } from './NotesSection.tsx';
 
 type TextField = {
   [K in keyof SystemInfo]-?: SystemInfo[K] extends string | number | undefined ? K : never;
@@ -192,26 +193,39 @@ function SourcesSection({ title, entry }: { title: string; entry: SystemInfo }) 
 
 /**
  * Every read-only section of a system's page, in page order: the owner's notes and emulators first
- * (FR-MUS-6, FR-MUS-7), then the museum entry (FR-MUS-2, FR-MUS-5).
+ * (FR-MUS-6, FR-MUS-7), then the museum entry (FR-MUS-2, FR-MUS-5) with the owner's gallery
+ * (FR-MUS-8). `personal` is undefined when it failed to load: notes and gallery show an error.
  */
 export function EntrySections({
   entry,
   personal,
 }: {
   entry: SystemInfo;
-  personal: SystemPersonal;
+  personal: SystemPersonal | undefined;
 }) {
   const { t } = useTranslation();
   const title = (key: string) => t(`apps.museum.sections.${key}`);
   return (
     <>
-      <NotesSection title={title('notes')} notes={personal.notes} />
+      {personal ? (
+        <NotesSection title={title('notes')} notes={personal.notes} />
+      ) : (
+        <PersonalUnavailable title={title('notes')} />
+      )}
       <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
       <FactSection title={title('overview')} entry={entry} fields={OVERVIEW} />
       <StorySection title={title('story')} entry={entry} />
       <FactSection title={title('hardware')} entry={entry} fields={HARDWARE} />
       <ModelsSection title={title('models')} entry={entry} />
-      {/* The gallery goes here (FR-MUS-8). */}
+      {personal ? (
+        <GallerySection
+          title={title('gallery')}
+          systemId={entry.systemId}
+          gallery={personal.gallery}
+        />
+      ) : (
+        <PersonalUnavailable title={title('gallery')} />
+      )}
       <RelatedSection title={title('related')} entry={entry} />
       <TopGamesSection title={title('topGames')} entry={entry} />
       <SourcesSection title={title('sources')} entry={entry} />

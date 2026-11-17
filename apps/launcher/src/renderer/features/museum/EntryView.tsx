@@ -45,8 +45,11 @@ export function EntryView({
   const data = query.data;
   const personal = personalQuery.data;
   const entry = data?.entry;
-  const ready = data !== undefined && personal !== undefined;
-  const loadFailed = query.isError || personalQuery.isError;
+  // A personal record that failed to load does not hide the entry: notes and gallery show an
+  // error and only the entry can be edited (FR-MUS-6, FR-MUS-8).
+  const personalSettled = personal !== undefined || personalQuery.isError;
+  const ready = data !== undefined && personalSettled;
+  const loadFailed = query.isError;
   const failure = save.error ?? savePersonal.error ?? reset.error;
   const reportDirty = useCallback(
     (value: DraftDirty) => {
@@ -123,7 +126,9 @@ export function EntryView({
             onDirtyChange={reportDirty}
           />
         )}
-        {entry && personal && !editing && <EntrySections entry={entry} personal={personal} />}
+        {entry && personalSettled && !editing && (
+          <EntrySections entry={entry} personal={personal} />
+        )}
       </div>
       {ready && editing && (
         <ActionBar>

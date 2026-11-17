@@ -9,8 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { EmulatorsSection } from './EmulatorsSection.tsx';
 import { FieldGroup, type FieldSpec } from './FieldGroup.tsx';
 import { fieldErrors, type FieldErrors } from './formErrors.ts';
+import { GalleryEditor } from './GalleryEditor.tsx';
 import { ModelsEditor } from './ModelsEditor.tsx';
-import { NotesEditor } from './NotesSection.tsx';
+import { NotesEditor, PersonalUnavailable } from './NotesSection.tsx';
 import { PeripheralsEditor } from './PeripheralsEditor.tsx';
 import { SourcesEditor } from './SourcesEditor.tsx';
 import { TopGamesEditor } from './TopGamesEditor.tsx';
@@ -67,10 +68,11 @@ function prefixed(errors: FieldErrors): FieldErrors {
 }
 
 /**
- * A system's page in edit mode: the owner's notes (FR-MUS-6), the read-only emulators (FR-MUS-7)
- * and every field of the museum entry (FR-MUS-2). It renders no buttons: the page's action bar
- * submits it through `form={formId}` (FR-MUS-9). Submitting validates both the entry and the
- * personal record and hands the changed, valid halves to `onSubmit`.
+ * A system's page in edit mode: the owner's notes (FR-MUS-6), the read-only emulators (FR-MUS-7),
+ * every field of the museum entry (FR-MUS-2) and the owner's gallery (FR-MUS-8). It renders no
+ * buttons: the page's action bar submits it through `form={formId}` (FR-MUS-9). Submitting
+ * validates both the entry and the personal record and hands the changed, valid halves to
+ * `onSubmit`. Without a personal record (it failed to load) only the entry can be edited.
  */
 export function EntryForm({
   formId,
@@ -83,17 +85,17 @@ export function EntryForm({
   formId: string;
   name: string;
   entry: SystemInfo;
-  personal: SystemPersonal;
+  personal: SystemPersonal | undefined;
   onSubmit: (changes: DraftChanges) => void;
   /** Told which halves of the draft have unsaved changes. */
   onDirtyChange?: ((dirty: DraftDirty) => void) | undefined;
 }) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<SystemInfo>(entry);
-  const [personalDraft, setPersonalDraft] = useState<SystemPersonal>(personal);
+  const [personalDraft, setPersonalDraft] = useState<SystemPersonal | undefined>(personal);
   const [errors, setErrors] = useState<FieldErrors>({});
   const entryDirty = !same(draft, entry);
-  const personalDirty = !same(personalDraft, personal);
+  const personalDirty = personalDraft !== undefined && !same(personalDraft, personal);
   useEffect(() => {
     onDirtyChange?.({ entry: entryDirty, personal: personalDirty });
   }, [entryDirty, personalDirty, onDirtyChange]);
@@ -101,21 +103,25 @@ export function EntryForm({
   const patch = (changes: Partial<SystemInfo>) => {
     setDraft((current) => ({ ...current, ...changes }));
   };
+  const patchPersonal = (changes: Partial<SystemPersonal>) => {
+    setPersonalDraft((current) => current && { ...current, ...changes });
+  };
 
   const submit = () => {
     const parsed = SystemInfoSchema.safeParse(draft);
-    const parsedPersonal = SystemPersonalSchema.safeParse(personalDraft);
-    if (!parsed.success || !parsedPersonal.success) {
+    // No personal draft means it failed to load: there is nothing of it to check or save.
+    const parsedPersonal = personalDraft && SystemPersonalSchema.safeParse(personalDraft);
+    if (!parsed.success || parsedPersonal?.success === false) {
       setErrors({
         ...(parsed.success ? {} : fieldErrors(parsed.error.issues)),
-        ...(parsedPersonal.success ? {} : prefixed(fieldErrors(parsedPersonal.error.issues))),
+        ...(parsedPersonal?.error ? prefixed(fieldErrors(parsedPersonal.error.issues)) : {}),
       });
       return;
     }
     setErrors({});
     const changes: DraftChanges = {};
     if (entryDirty) changes.entry = parsed.data;
-    if (personalDirty) changes.personal = parsedPersonal.data;
+    if (personalDirty && parsedPersonal?.data) changes.personal = parsedPersonal.data;
     onSubmit(changes);
   };
 
@@ -129,14 +135,18 @@ export function EntryForm({
         submit();
       }}
     >
-      <NotesEditor
-        title={title('notes')}
-        notes={personal.notes}
-        error={errors['personal.notes']}
-        onChange={(notes) => {
-          setPersonalDraft((current) => ({ ...current, notes }));
-        }}
-      />
+      {personalDraft ? (
+        <NotesEditor
+          title={title('notes')}
+          notes={personalDraft.notes}
+          error={errors['personal.notes']}
+          onChange={(notes) => {
+            patchPersonal({ notes });
+          }}
+        />
+      ) : (
+        <PersonalUnavailable title={title('notes')} />
+      )}
       <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
       <FormSection title={title('overview')}>
         <FieldGroup fields={OVERVIEW} draft={draft} errors={errors} onChange={patch} />
@@ -156,7 +166,19 @@ export function EntryForm({
           }}
         />
       </FormSection>
-      {/* The gallery goes here (FR-MUS-8). */}
+      {personalDraft ? (
+        <FormSection title={title('gallery')}>
+          <GalleryEditor
+            systemId={entry.systemId}
+            gallery={personalDraft.gallery}
+            onChange={(gallery) => {
+              patchPersonal({ gallery });
+            }}
+          />
+        </FormSection>
+      ) : (
+        <PersonalUnavailable title={title('gallery')} />
+      )}
       <FormSection title={title('related')}>
         <FieldGroup fields={RELATED} draft={draft} errors={errors} onChange={patch} />
         <h4 className="mt-3 mb-1 text-xs text-slate-400">{t('apps.museum.field.peripherals')}</h4>

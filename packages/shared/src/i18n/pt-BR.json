@@ -151,6 +151,7 @@
         "story": "História",
         "hardware": "Hardware",
         "models": "Modelos",
+        "gallery": "Galeria",
         "related": "Relacionados",
         "topGames": "Melhores jogos",
         "sources": "Fontes"
@@ -218,7 +219,25 @@
         "year": "Informe um ano entre 1900 e 2100.",
         "url": "Informe um link começando com http:// ou https://.",
         "invalid": "Valor inválido."
-      }
+      },
+      "addImages": "Adicionar imagens",
+      "caption": "Legenda",
+      "galleryEmpty": "Nenhuma imagem ainda.",
+      "galleryFull": "A galeria comporta até 50 imagens. Remova algumas para adicionar mais.",
+      "imageAlt": "Imagem {{number}}",
+      "imagesRejected": "Imagens não adicionadas",
+      "imageRejected": {
+        "type": "{{name}} não é um tipo de imagem compatível.",
+        "size": "{{name}} tem mais de 20 MB.",
+        "unreadable": "Não foi possível ler {{name}}."
+      },
+      "viewer": {
+        "prev": "Imagem anterior",
+        "next": "Próxima imagem",
+        "close": "Fechar",
+        "position": "{{index}} / {{count}}"
+      },
+      "personalError": "Não foi possível carregar suas notas e imagens."
     }
   },
   "settings": {
