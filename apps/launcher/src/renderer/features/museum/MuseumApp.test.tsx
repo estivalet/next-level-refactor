@@ -42,6 +42,16 @@ const summaries: SystemInfoSummary[] = [
     hasNotes: false,
     changedAt: null,
   },
+  {
+    systemId: 'scummvm',
+    name: 'ScummVM',
+    kind: 'virtual',
+    manufacturer: null,
+    releaseYear: null,
+    edited: false,
+    hasNotes: false,
+    changedAt: null,
+  },
 ];
 
 const snesEntry: SystemInfo = {
@@ -83,7 +93,7 @@ describe('MuseumApp', () => {
     renderInShell(<MuseumApp />);
     const list = await screen.findByRole('list', { name: 'Systems' });
     expect(await within(list).findByText('Mega Drive')).toBeInTheDocument();
-    expect(within(list).getAllByRole('listitem')).toHaveLength(3);
+    expect(within(list).getAllByRole('listitem')).toHaveLength(4);
     expect(within(list).getByText('Nintendo · 1990')).toBeInTheDocument();
     expect(within(list).getAllByRole('img', { name: 'Edited' })).toHaveLength(1);
 
@@ -95,6 +105,23 @@ describe('MuseumApp', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Type' }), 'handheld');
     expect(within(list).getAllByRole('listitem')).toHaveLength(1);
     expect(within(list).getByText('Game Boy')).toBeInTheDocument();
+  });
+
+  it('FR-MUS-10: virtual systems carry a Virtual badge and the Type filter finds them', async () => {
+    const { user } = setup();
+    renderInShell(<MuseumApp />);
+    const list = await screen.findByRole('list', { name: 'Systems' });
+    const scumm = await within(list).findByRole('button', { name: /ScummVM/ });
+    expect(within(scumm).getByText('Virtual')).toBeInTheDocument();
+    expect(scumm).toHaveAccessibleName(/Virtual/);
+    expect(within(list).getAllByText('Virtual')).toHaveLength(1);
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Type' }), 'virtual');
+    expect(within(list).getAllByRole('listitem')).toHaveLength(1);
+    await user.click(within(list).getByRole('button', { name: /ScummVM/ }));
+    const selected = within(list).getByRole('button', { name: /ScummVM/ });
+    expect(selected).toHaveAttribute('aria-current', 'page');
+    expect(within(selected).getByText('Virtual')).toBeInTheDocument();
   });
 
   it('FR-MUS-2: selecting a system shows its sections and sources line (FR-MUS-5)', async () => {
