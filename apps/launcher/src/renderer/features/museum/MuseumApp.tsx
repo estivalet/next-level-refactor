@@ -7,19 +7,26 @@ import { SystemList, type SystemFilter } from './SystemList.tsx';
 
 const LIST_ERROR = 'text-sm text-[#ff8a80]';
 
+/** What the right side shows: the Home page or one system's page (FR-MUS-9). */
+export type MuseumView = { kind: 'home' } | { kind: 'system'; systemId: string };
+
+const sameView = (a: MuseumView, b: MuseumView) =>
+  a.kind === b.kind && (a.kind === 'home' || (b.kind === 'system' && a.systemId === b.systemId));
+
 /**
- * The Systems museum (FR-MUS-2): every system on the left, its entry on the right. Picking another
- * system while the open entry has unsaved edits asks before discarding them.
+ * The Systems museum (FR-MUS-2, FR-MUS-9): a left menu with Home and every system, the open page on
+ * the right. Leaving a page while its entry has unsaved edits asks before discarding them.
  */
 export function MuseumApp() {
   const { t } = useTranslation();
   const list = useSystemInfoList();
   const [filter, setFilter] = useState<SystemFilter>({ text: '', kind: '' });
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [view, setView] = useState<MuseumView>({ kind: 'home' });
   const [dirty, setDirty] = useState(false);
-  // The system the user picked while the open entry was dirty; set while the dialog shows.
-  const [pendingId, setPendingId] = useState<string | null>(null);
+  // The page the user asked for while the open entry was dirty; set while the dialog shows.
+  const [pending, setPending] = useState<MuseumView | null>(null);
   const systems = list.data ?? [];
+  const selectedId = view.kind === 'system' ? view.systemId : null;
   const selected = systems.find((system) => system.systemId === selectedId);
   if (list.isError && !list.data) {
     return (
@@ -28,10 +35,10 @@ export function MuseumApp() {
       </p>
     );
   }
-  const select = (systemId: string) => {
-    if (systemId === selectedId) return;
-    if (dirty) setPendingId(systemId);
-    else setSelectedId(systemId);
+  const go = (next: MuseumView) => {
+    if (sameView(next, view)) return;
+    if (dirty) setPending(next);
+    else setView(next);
   };
   return (
     <div className="relative flex h-full flex-col text-slate-200">
@@ -46,26 +53,35 @@ export function MuseumApp() {
           filter={filter}
           onFilter={setFilter}
           selectedId={selectedId}
-          onSelect={select}
+          onSelect={(systemId) => {
+            go({ kind: 'system', systemId });
+          }}
+          onHome={() => {
+            go({ kind: 'home' });
+          }}
         />
         {selected ? (
           <EntryView key={selected.systemId} system={selected} onDirtyChange={setDirty} />
         ) : (
-          <p className="p-5 text-sm text-slate-500">{t('apps.museum.pick')}</p>
+          // Placeholder until the Home page lands (FR-MUS-9).
+          <section className="min-w-0 flex-1 p-5">
+            <h2 className="text-lg font-semibold text-slate-100">{t('apps.museum.title')}</h2>
+            <p className="mt-1 text-sm text-slate-500">{t('apps.museum.pick')}</p>
+          </section>
         )}
       </div>
-      {pendingId !== null && (
+      {pending !== null && (
         <ConfirmDialog
           title={t('apps.museum.discardTitle')}
           message={t('apps.museum.discardMessage')}
           confirmLabel={t('apps.museum.discardConfirm')}
           onCancel={() => {
-            setPendingId(null);
+            setPending(null);
           }}
           onConfirm={() => {
             setDirty(false);
-            setSelectedId(pendingId);
-            setPendingId(null);
+            setView(pending);
+            setPending(null);
           }}
         />
       )}

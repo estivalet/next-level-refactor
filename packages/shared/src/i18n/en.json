@@ -206,6 +206,7 @@
       "noGames": "No games found.",
       "gamesError": "Could not load the games.",
       "noImage": "No image",
+      "home": "Home",
       "error": {
         "required": "This field cannot be empty.",
         "tooLong": "This is too long.",

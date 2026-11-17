@@ -68,7 +68,7 @@ describe('EntryForm', () => {
     );
     await user.clear(cpu);
     await user.type(cpu, 'Ricoh 5A22 rev 2');
-    await user.click(within(form).getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(bridge.channels()).toContain('systems.info.save');
@@ -91,7 +91,7 @@ describe('EntryForm', () => {
     );
     await user.clear(year);
     await user.type(year, '1800');
-    await user.click(within(form).getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(await within(form).findByText('Enter a year between 1900 and 2100.')).toBeVisible();
     expect(year).toHaveAttribute('aria-invalid', 'true');
@@ -104,7 +104,7 @@ describe('EntryForm', () => {
     await user.clear(
       within(within(form).getByRole('region', { name: 'Overview' })).getByLabelText('Released'),
     );
-    await user.click(within(form).getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => {
       expect(bridge.channels()).toContain('systems.info.save');
     });
@@ -120,7 +120,7 @@ describe('EntryForm', () => {
       within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText('CPU'),
       'x',
     );
-    await user.click(within(form).getByRole('button', { name: 'Discard' }));
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
     const dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: 'Discard changes' }));
     expect(screen.queryByRole('form')).toBeNull();
@@ -129,8 +129,8 @@ describe('EntryForm', () => {
 
   it('FR-MUS-2: reset asks to confirm, then restores the shipped entry', async () => {
     const { bridge, user } = setup();
-    const form = await openForm(user);
-    await user.click(within(form).getByRole('button', { name: 'Reset to original' }));
+    await openForm(user);
+    await user.click(screen.getByRole('button', { name: 'Reset to original' }));
     const dialog = await screen.findByRole('dialog');
     expect(bridge.channels()).not.toContain('systems.info.reset');
     await user.click(within(dialog).getByRole('button', { name: 'Reset to original' }));
@@ -146,8 +146,8 @@ describe('EntryForm', () => {
 
   it('FR-MUS-2: reset is hidden for an entry that was never edited', async () => {
     const { user } = setup(false);
-    const form = await openForm(user);
-    expect(within(form).queryByRole('button', { name: 'Reset to original' })).toBeNull();
+    await openForm(user);
+    expect(screen.queryByRole('button', { name: 'Reset to original' })).toBeNull();
   });
 
   it('FR-MUS-4: model images load through nextlevel://remote-image; a broken one shows the placeholder in the same box', async () => {

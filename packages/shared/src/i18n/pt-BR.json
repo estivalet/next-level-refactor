@@ -206,6 +206,7 @@
       "noGames": "Nenhum jogo encontrado.",
       "gamesError": "Não foi possível carregar os jogos.",
       "noImage": "Sem imagem",
+      "home": "Início",
       "error": {
         "required": "Este campo não pode ficar vazio.",
         "tooLong": "Texto longo demais.",

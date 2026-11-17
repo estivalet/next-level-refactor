@@ -231,3 +231,67 @@ describe('MuseumApp unsaved edits (FR-MUS-2)', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
+
+describe('MuseumApp layout (FR-MUS-9)', () => {
+  it('FR-MUS-9: the Museum opens on Home with the Home item current', async () => {
+    setup();
+    renderInShell(<MuseumApp />);
+    const home = await screen.findByRole('button', { name: 'Home' });
+    expect(home).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('article')).toBeNull();
+    const snes = await screen.findByRole('button', { name: /Super Nintendo/ });
+    expect(snes).not.toHaveAttribute('aria-current');
+  });
+
+  it('FR-MUS-9: picking a system shows its hero with name and "manufacturer · year"', async () => {
+    const { user } = setup();
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const hero = await screen.findByTestId('system-hero');
+    expect(within(hero).getByRole('heading', { name: 'Super Nintendo' })).toBeInTheDocument();
+    expect(within(hero).getByText('Nintendo · 1990')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Super Nintendo/ })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('button', { name: 'Home' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('FR-MUS-9: in edit mode Save/Discard are outside the scrolling region', async () => {
+    const { user } = setup();
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form');
+    const scroll = screen.getByTestId('museum-scroll');
+    expect(scroll).toContainElement(form);
+    expect(scroll).not.toContainElement(screen.getByRole('button', { name: 'Save' }));
+    expect(scroll).not.toContainElement(screen.getByRole('button', { name: 'Discard' }));
+    expect(entry).toContainElement(screen.getByRole('button', { name: 'Save' }));
+  });
+
+  it('FR-MUS-9: going Home with unsaved edits asks before discarding', async () => {
+    const { user } = setup();
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form');
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText('CPU'),
+      'x',
+    );
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.getByRole('form')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Discard changes' }),
+    );
+    expect(screen.queryByRole('article')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
+  });
+});
