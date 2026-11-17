@@ -14,8 +14,12 @@ export const SYSTEM_KINDS = [
   'computer',
   'pinball',
   'engine',
+  /** A platform that never existed as hardware: an emulator or a game engine (FR-MUS-10). */
+  'virtual',
   'other',
 ] as const;
+
+export type SystemKind = (typeof SYSTEM_KINDS)[number];
 
 export const SystemDefinitionSchema = z.object({
   id: z.string().regex(SYSTEM_ID),
