@@ -17,6 +17,7 @@ import { SourcesEditor } from './SourcesEditor.tsx';
 import { TopGamesEditor } from './TopGamesEditor.tsx';
 
 const OVERVIEW: readonly FieldSpec[] = [
+  { key: 'kind', kind: 'systemKind' },
   { key: 'fullName', kind: 'text' },
   { key: 'manufacturer', kind: 'text' },
   { key: 'country', kind: 'text' },

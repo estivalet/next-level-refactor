@@ -129,6 +129,18 @@ export function SystemList({ systems, filter, onFilter, selectedId, onSelect, on
                     </span>
                   )}
                 </span>
+                {system.kind === 'virtual' && (
+                  // Never existed as hardware (FR-MUS-10); muted outline stays legible when selected.
+                  <span
+                    className={`shrink-0 rounded-full border px-1.5 text-[10px] uppercase tracking-wide ${
+                      selected
+                        ? 'border-slate-400 text-slate-600'
+                        : 'border-slate-600 text-slate-400'
+                    }`}
+                  >
+                    {t('apps.museum.virtualBadge')}
+                  </span>
+                )}
                 {system.edited && (
                   <span
                     role="img"

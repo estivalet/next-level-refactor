@@ -134,8 +134,9 @@ requirements:
   wireframe above shows contents, not style. Requirements: FR-SHELL-1..5.
 - Taskbar tray: downloads count, online/offline/grace indicator, notifications, clock; a downloaded update shows a **Restart to update to <version>** button (M10a).
 - Start menu: apps, Front-end, Account, Sign out, Quit.
-- Museum app (FR-MUS-1..9, US-G2, US-G3): a single-instance window. Left, a menu with **Home** first, then a searchable list of every
-  system (name, manufacturer, year, a dot when the entry is edited) with a kind filter. Right, **Home** or a system's page.
+- Museum app (FR-MUS-1..10, US-G2, US-G3, US-G4): a single-instance window. Left, a menu with **Home** first, then a searchable list of every
+  system (name, manufacturer, year, a **Virtual** badge for a virtual system, a dot when the entry is edited) with a Type filter. A system's
+  Overview starts with its **Type** (editable in edit mode; Reset restores the shipped one). Right, **Home** or a system's page.
   Home: a welcome banner (title and intro over the owner's picture `system-info\museum.jpg` in the shared art folder; text only when it is missing), a counts line
   (systems, edited, with notes), and rows of cards, *Recently changed* and *With your notes*; empty rows are hidden and only a row scrolls sideways.
   A system page opens with a hero (its hardware image from the menu art folder, name, manufacturer and year), then the sections Overview,

@@ -11,6 +11,7 @@ type TextField = {
 }[keyof SystemInfo];
 
 const OVERVIEW: readonly TextField[] = [
+  'kind',
   'fullName',
   'manufacturer',
   'country',
@@ -68,7 +69,11 @@ function FactSection({
         {shown.map((key) => (
           <div key={key} className="contents">
             <dt className={LABEL}>{t(`apps.museum.field.${key}`)}</dt>
-            <dd className={VALUE}>{entry[key]}</dd>
+            <dd className={VALUE}>
+              {key === 'kind'
+                ? t(`settings.systems.custom.kinds.${String(entry.kind)}`)
+                : entry[key]}
+            </dd>
           </div>
         ))}
       </dl>

@@ -23,6 +23,7 @@ const summary = {
 
 const entry: SystemInfo = {
   systemId: 'snes',
+  kind: 'console',
   manufacturer: 'Nintendo',
   releaseYear: 1990,
   cpu: 'Ricoh 5A22',
@@ -71,6 +72,28 @@ async function openForm(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('EntryForm', () => {
+  it('FR-MUS-10: the editor sets the Type and saves it with the entry', async () => {
+    const { bridge, user } = setup();
+    const form = await openForm(user);
+    const type = within(form).getByRole('combobox', { name: 'Type' });
+    expect(type).toHaveValue('console');
+    await user.selectOptions(type, 'virtual');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(bridge.calls.find((c) => c.channel === 'systems.info.save')?.input).toMatchObject({
+        entry: { systemId: 'snes', kind: 'virtual' },
+      });
+    });
+  });
+
+  it('FR-MUS-10: the read-only Overview shows the Type label, not the id', async () => {
+    setup(true, { ...entry, kind: 'virtual' });
+    const view = await screen.findByRole('article', { name: 'Super Nintendo' });
+    const overview = await within(view).findByRole('region', { name: 'Overview' });
+    expect(within(overview).getByText('Type')).toBeInTheDocument();
+    expect(within(overview).getByText('Virtual system')).toBeInTheDocument();
+  });
+
   it('FR-MUS-2: editing a field and saving sends the whole entry', async () => {
     const { bridge, user } = setup();
     const form = await openForm(user);

@@ -144,6 +144,7 @@
       "emulatorsEmpty": "No emulator is set up for this system yet. Add one in Settings → Emulators.",
       "emulatorsError": "Could not read the emulator settings.",
       "noMatches": "No systems match.",
+      "virtualBadge": "Virtual",
       "sections": {
         "notes": "Notes",
         "emulators": "Emulators",
@@ -157,6 +158,7 @@
         "sources": "Sources"
       },
       "field": {
+        "kind": "Type",
         "fullName": "Full name",
         "manufacturer": "Manufacturer",
         "country": "Country",
@@ -482,6 +484,7 @@
           "computer": "Computer",
           "pinball": "Pinball",
           "engine": "Game engine",
+          "virtual": "Virtual system",
           "other": "Other"
         },
         "description": "Description",

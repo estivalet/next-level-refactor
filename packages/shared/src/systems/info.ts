@@ -64,6 +64,8 @@ export const SystemInfoSourceSchema = z.object({
 /** A system's museum entry (FR-MUS-1). */
 export const SystemInfoSchema = z.object({
   systemId: z.string().min(1).max(100),
+  /** The owner's Type for the system; absent means the shipped kind (FR-MUS-10). */
+  kind: z.enum(SYSTEM_KINDS).optional(),
   fullName: text(L.fullName),
   manufacturer: text(L.manufacturer),
   country: text(L.country),

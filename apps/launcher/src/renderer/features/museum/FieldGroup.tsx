@@ -1,16 +1,23 @@
-import type { SystemInfo } from '@nextlevel/shared';
+import { SYSTEM_KINDS, type SystemInfo } from '@nextlevel/shared';
 import { useTranslation } from 'react-i18next';
 import type { FieldErrors } from './formErrors.ts';
-import { TextField, YearField } from './FormFields.tsx';
+import { SelectField, TextField, YearField } from './FormFields.tsx';
 
-export type TextKey = {
-  [K in keyof SystemInfo]-?: SystemInfo[K] extends string | undefined ? K : never;
-}[keyof SystemInfo];
+/** Free-text fields; `kind` is a fixed choice, edited through its own select. */
+export type TextKey = Exclude<
+  {
+    [K in keyof SystemInfo]-?: SystemInfo[K] extends string | undefined ? K : never;
+  }[keyof SystemInfo],
+  'kind'
+>;
 export type YearKey = 'releaseYear' | 'discontinuedYear';
 
-export type FieldSpec = { key: TextKey; kind: 'text' | 'area' } | { key: YearKey; kind: 'year' };
+export type FieldSpec =
+  | { key: TextKey; kind: 'text' | 'area' }
+  | { key: YearKey; kind: 'year' }
+  | { key: 'kind'; kind: 'systemKind' };
 
-/** A run of the entry's scalar fields: single-line, multi-line and year inputs. */
+/** A run of the entry's scalar fields: single-line, multi-line, year and Type inputs. */
 export function FieldGroup({
   fields,
   draft,
@@ -27,6 +34,23 @@ export function FieldGroup({
     <div className="grid grid-cols-2 gap-3">
       {fields.map((field) => {
         const label = t(`apps.museum.field.${field.key}`);
+        if (field.kind === 'systemKind') {
+          // Served entries always carry a kind (FR-MUS-10); 'other' only guards a stray draft.
+          return (
+            <SelectField
+              key={field.key}
+              label={label}
+              value={draft.kind ?? 'other'}
+              options={SYSTEM_KINDS.map((kind) => ({
+                value: kind,
+                label: t(`settings.systems.custom.kinds.${kind}`),
+              }))}
+              onChange={(kind) => {
+                onChange({ kind });
+              }}
+            />
+          );
+        }
         if (field.kind === 'year') {
           return (
             <YearField

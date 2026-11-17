@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { SYSTEM_KINDS } from '../catalog/schema.ts';
 import { SystemInfoSchema, SystemInfoSourceSchema, normalizeTitle } from './info.ts';
 
 describe('system info', () => {
+  it('FR-MUS-10: an entry may carry a kind, including virtual', () => {
+    expect(SystemInfoSchema.parse({ systemId: 'aae', kind: 'virtual' }).kind).toBe('virtual');
+    expect(SystemInfoSchema.parse({ systemId: 'aae' }).kind).toBeUndefined();
+    expect(SystemInfoSchema.safeParse({ systemId: 'aae', kind: 'robot' }).success).toBe(false);
+  });
+
+  it('FR-MUS-10: virtual is a system kind, listed before other', () => {
+    expect(SYSTEM_KINDS).toContain('virtual');
+    expect(SYSTEM_KINDS.indexOf('virtual')).toBe(SYSTEM_KINDS.indexOf('other') - 1);
+  });
+
   it('FR-MUS-1: an entry with only systemId parses with empty lists', () => {
     const entry = SystemInfoSchema.parse({ systemId: 'nes' });
     expect(entry.models).toEqual([]);

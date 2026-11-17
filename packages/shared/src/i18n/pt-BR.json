@@ -144,6 +144,7 @@
       "emulatorsEmpty": "Nenhum emulador configurado para este sistema ainda. Adicione um em Configurações → Emuladores.",
       "emulatorsError": "Não foi possível ler as configurações de emuladores.",
       "noMatches": "Nenhum sistema encontrado.",
+      "virtualBadge": "Virtual",
       "sections": {
         "notes": "Notas",
         "emulators": "Emuladores",
@@ -157,6 +158,7 @@
         "sources": "Fontes"
       },
       "field": {
+        "kind": "Tipo",
         "fullName": "Nome completo",
         "manufacturer": "Fabricante",
         "country": "País",
@@ -482,6 +484,7 @@
           "computer": "Computador",
           "pinball": "Pinball",
           "engine": "Motor de jogo",
+          "virtual": "Sistema virtual",
           "other": "Outro"
         },
         "description": "Descrição",

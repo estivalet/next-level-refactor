@@ -73,6 +73,38 @@ export function TextField({
   );
 }
 
+/** A select over fixed options; `options` pairs each value with its (translated) label. */
+export function SelectField<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: BaseProps & {
+  value: T;
+  options: ReadonlyArray<{ value: T; label: string }>;
+  onChange: (value: T) => void;
+}) {
+  const id = useId();
+  return (
+    <Shell label={label} id={id}>
+      <select
+        id={id}
+        className={INPUT}
+        value={value}
+        onChange={(event) => {
+          onChange(event.target.value as T);
+        }}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </Shell>
+  );
+}
+
 /** Year input; an empty field is `undefined`, never 0. */
 export function YearField({
   label,
