@@ -17,6 +17,8 @@ const summary = {
   manufacturer: 'Nintendo',
   releaseYear: 1990,
   edited: true,
+  hasNotes: false,
+  changedAt: null,
 };
 
 const entry: SystemInfo = {

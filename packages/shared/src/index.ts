@@ -8,6 +8,7 @@ export * from './ipc/kioskContract.ts';
 export * from './ipc/syncContract.ts';
 export * from './ipc/systemInfoContract.ts';
 export * from './systems/info.ts';
+export * from './systems/personal.ts';
 export * from './semver.ts';
 export * from './sync.ts';
 export * from './library/schema.ts';

@@ -19,6 +19,8 @@ const summaries: SystemInfoSummary[] = [
     manufacturer: 'Nintendo',
     releaseYear: 1990,
     edited: true,
+    hasNotes: false,
+    changedAt: null,
   },
   {
     systemId: 'genesis',
@@ -27,6 +29,8 @@ const summaries: SystemInfoSummary[] = [
     manufacturer: 'Sega',
     releaseYear: 1988,
     edited: false,
+    hasNotes: false,
+    changedAt: null,
   },
   {
     systemId: 'gameboy',
@@ -35,6 +39,8 @@ const summaries: SystemInfoSummary[] = [
     manufacturer: 'Nintendo',
     releaseYear: 1989,
     edited: false,
+    hasNotes: false,
+    changedAt: null,
   },
 ];
 

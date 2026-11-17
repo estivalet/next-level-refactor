@@ -1,3 +1,5 @@
+import { SYSTEM_ID } from '../catalog/schema.ts';
+import { MUSEUM_IMAGE_FILE } from '../systems/personal.ts';
 import { GAME_ART_KINDS, MEDIA_KIND, THEME_ID } from './schema.ts';
 
 // `nextlevel://` URLs (FR-THM-6). They name a game's media by id and kind, or a menu-art file by
@@ -11,7 +13,8 @@ export type ParsedNextlevelUrl =
   | { kind: 'scrape-thumb'; providerGameId: number }
   | { kind: 'launchbox-thumb'; databaseId: number }
   | { kind: 'catalog-art'; itemId: string; artKind: string }
-  | { kind: 'remote-image'; url: string };
+  | { kind: 'remote-image'; url: string }
+  | { kind: 'museum-image'; systemId: string; file: string };
 
 /** `version` (the file's mtime) changes the URL when a file is replaced, so no cached image stays. */
 export function mediaUrl(gameId: number, kind: string, version?: number): string {
@@ -32,6 +35,11 @@ export function launchboxThumbUrl(databaseId: number): string {
 /** A catalog item's art (S8), fetched by main: the signed API URL never reaches the renderer. */
 export function catalogArtUrl(itemId: string, kind: string): string {
   return `nextlevel://catalog-art/${itemId}/${kind}`;
+}
+
+/** One of the owner's own museum gallery images (FR-MUS-8), served from the library folder by main. */
+export function museumImageUrl(systemId: string, file: string): string {
+  return `nextlevel://museum-image/${encodeURIComponent(systemId)}/${file}`;
 }
 
 const REMOTE_IMAGE_MAX_URL = 2048;
@@ -91,7 +99,7 @@ function decodeSegments(raw: string[]): string[] | null {
 /** Parses a `nextlevel://` URL; null for anything that is not a well-formed, in-root reference. */
 export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
   const match =
-    /^nextlevel:\/\/(media|art|scrape-thumb|launchbox-thumb|catalog-art|remote-image)\/(.*)$/.exec(
+    /^nextlevel:\/\/(media|art|scrape-thumb|launchbox-thumb|catalog-art|remote-image|museum-image)\/(.*)$/.exec(
       url,
     );
   if (!match) return null;
@@ -99,6 +107,13 @@ export function parseNextlevelUrl(url: string): ParsedNextlevelUrl | null {
   if (match[1] === 'remote-image') {
     const url = fromBase64Url(match[2] ?? '');
     return url !== null && isRemoteImageSource(url) ? { kind: 'remote-image', url } : null;
+  }
+  if (match[1] === 'museum-image') {
+    const [systemId, file, ...rest] = parts;
+    if (rest.length > 0 || !systemId || !file) return null;
+    return SYSTEM_ID.test(systemId) && MUSEUM_IMAGE_FILE.test(file)
+      ? { kind: 'museum-image', systemId, file }
+      : null;
   }
   if (match[1] === 'catalog-art') {
     const [itemId, artKind, ...rest] = parts;

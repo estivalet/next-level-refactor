@@ -102,6 +102,10 @@ export const SystemInfoSummarySchema = z.object({
   manufacturer: z.string().nullable(),
   releaseYear: z.number().int().nullable(),
   edited: z.boolean(),
+  /** The owner has written personal notes (FR-MUS-6). */
+  hasNotes: z.boolean(),
+  /** When the entry or the personal record last changed; null if neither has. */
+  changedAt: z.string().nullable(),
 });
 
 /** Top game as the theme page sees it. */

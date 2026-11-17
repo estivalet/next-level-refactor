@@ -120,4 +120,37 @@ describe('systems museum channels', () => {
       input.safeParse({ systemId: 'nes', entry: { systemId: 'nes', releaseYear: 1983 } }).success,
     ).toBe(true);
   });
+
+  it('FR-MUS-6: the personal channels are in the contract', () => {
+    for (const channel of [
+      'systems.personal.get',
+      'systems.personal.save',
+      'systems.personal.addImages',
+      'systems.personal.cleanup',
+    ] as const) {
+      expect(ipcContract[channel], channel).toBeDefined();
+    }
+    expect(
+      ipcContract['systems.personal.save'].input.safeParse({
+        systemId: 'nes',
+        personal: { systemId: 'nes', notes: 'x' },
+      }).success,
+    ).toBe(true);
+  });
+
+  it('FR-MUS-9: the summary carries hasNotes and changedAt', () => {
+    const output = ipcContract['systems.info.list'].output;
+    const row = {
+      systemId: 'nes',
+      name: 'NES',
+      kind: 'console',
+      manufacturer: null,
+      releaseYear: null,
+      edited: false,
+    };
+    expect(
+      output.safeParse([{ ...row, hasNotes: true, changedAt: '2026-01-01T00:00:00.000Z' }]).success,
+    ).toBe(true);
+    expect(output.safeParse([row]).success).toBe(false);
+  });
 });

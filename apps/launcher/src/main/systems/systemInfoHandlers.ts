@@ -11,7 +11,15 @@ import { notFound } from '../library/libraryErrors.ts';
 import type { SystemInfoRepository } from '../library/SystemInfoRepository.ts';
 import { baseSystemInfo } from './mergeSystemInfo.ts';
 
-type SystemInfoChannel = Extract<keyof IpcHandlers, `systems.info.${string}`>;
+type SystemInfoChannel = Extract<
+  keyof IpcHandlers,
+  `systems.info.${string}` | `systems.personal.${string}`
+>;
+
+// Stubs until the personal-record service lands.
+const notImplemented = (): never => {
+  throw new AppErrorException({ code: 'INTERNAL', message: ERROR_CODES.INTERNAL });
+};
 
 const appError = (code: 'VALIDATION_FAILED' | 'LIBRARY_UNAVAILABLE') =>
   new AppErrorException({ code, message: ERROR_CODES[code] });
@@ -72,6 +80,8 @@ export function createSystemInfoHandlers(deps: {
             manufacturer: entry.manufacturer ?? null,
             releaseYear: entry.releaseYear ?? null,
             edited: edited.has(definition.id),
+            hasNotes: false,
+            changedAt: null,
           };
         });
     },
@@ -99,5 +109,9 @@ export function createSystemInfoHandlers(deps: {
         : entry.topGames.map((game) => ({ ...game, owned: null }));
       return { ...entry, topGames };
     },
+    'systems.personal.get': notImplemented,
+    'systems.personal.save': notImplemented,
+    'systems.personal.addImages': notImplemented,
+    'systems.personal.cleanup': notImplemented,
   };
 }

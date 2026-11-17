@@ -4,6 +4,7 @@ import {
   SystemInfoSummarySchema,
   ThemeSystemInfoSchema,
 } from '../systems/info.ts';
+import { SystemGalleryImageSchema, SystemPersonalSchema } from '../systems/personal.ts';
 
 const systemId = z.string().min(1).max(100);
 
@@ -24,4 +25,22 @@ export const systemInfoContract = {
     input: z.strictObject({ systemId }),
     output: ThemeSystemInfoSchema.nullable(),
   },
+  /** FR-MUS-6, FR-MUS-8: the owner's notes and gallery, stored apart from the entry. */
+  'systems.personal.get': { input: z.strictObject({ systemId }), output: SystemPersonalSchema },
+  'systems.personal.save': {
+    input: z.strictObject({ systemId, personal: SystemPersonalSchema }),
+    output: SystemPersonalSchema,
+  },
+  /** Opens a picker in main and copies the chosen images in. */
+  'systems.personal.addImages': {
+    input: z.strictObject({ systemId }),
+    output: z.object({
+      added: z.array(SystemGalleryImageSchema),
+      rejected: z.array(
+        z.object({ name: z.string(), reason: z.enum(['type', 'size', 'unreadable']) }),
+      ),
+    }),
+  },
+  /** Deletes stored images the saved record no longer lists. */
+  'systems.personal.cleanup': { input: z.strictObject({ systemId }), output: z.void() },
 } as const;
