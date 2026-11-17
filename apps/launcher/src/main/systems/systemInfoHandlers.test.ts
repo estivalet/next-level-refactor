@@ -36,8 +36,13 @@ const systems = [
   definition('plain', 'Plain'),
   definition('aamber-pegasus', 'Aamber Pegasus'),
   definition('apricot-pc', 'Apricot PC'),
-  definition('custom-box', 'box'),
+  { ...definition('custom-box', 'box'), kind: 'handheld' as const },
 ];
+/** A seeded system's served entry: the shipped seed plus its catalog kind (FR-MUS-10). */
+const seedOf = (systemId: string): SystemInfo => ({
+  ...(systemInfoSeed(systemId) as SystemInfo),
+  kind: 'console',
+});
 const entryOf = (systemId: string, extra: Partial<SystemInfo> = {}): SystemInfo => ({
   systemId,
   models: [],
@@ -85,7 +90,7 @@ afterEach(() => lib.cleanup());
 describe('systems.info handlers', () => {
   it('FR-MUS-1: get on a system with no seed returns { entry: { systemId }, edited: false }', async () => {
     expect(await handlers()['systems.info.get']({ systemId: 'plain' })).toEqual({
-      entry: entryOf('plain'),
+      entry: entryOf('plain', { kind: 'console' }),
       edited: false,
     });
   });
@@ -97,7 +102,7 @@ describe('systems.info handlers', () => {
 
   it('FR-MUS-2: an edit replaces the seed and is flagged edited; reset restores the seed and emits systems.infoChanged', async () => {
     const h = handlers();
-    const seed = systemInfoSeed('aamber-pegasus');
+    const seed = seedOf('aamber-pegasus');
     expect(await h['systems.info.get']({ systemId: 'aamber-pegasus' })).toEqual({
       entry: seed,
       edited: false,
@@ -105,7 +110,7 @@ describe('systems.info handlers', () => {
     const mine = entryOf('aamber-pegasus', { fullName: 'Mine' });
     await h['systems.info.save']({ systemId: 'aamber-pegasus', entry: mine });
     expect(await h['systems.info.get']({ systemId: 'aamber-pegasus' })).toEqual({
-      entry: mine,
+      entry: { ...mine, kind: 'console' },
       edited: true,
     });
     const listed = await h['systems.info.list']();
@@ -127,7 +132,7 @@ describe('systems.info handlers', () => {
       .run('aamber-pegasus', '{"systemId":"aamber-pegasus","fullName":"SECRET-TEXT"');
     const h = handlers();
     expect(await h['systems.info.get']({ systemId: 'aamber-pegasus' })).toEqual({
-      entry: systemInfoSeed('aamber-pegasus'),
+      entry: seedOf('aamber-pegasus'),
       edited: true,
     });
     const listed = await h['systems.info.list']();
@@ -172,7 +177,7 @@ describe('systems.info handlers', () => {
     repo = null;
     const h = handlers();
     expect(await h['systems.info.get']({ systemId: 'aamber-pegasus' })).toEqual({
-      entry: systemInfoSeed('aamber-pegasus'),
+      entry: seedOf('aamber-pegasus'),
       edited: false,
     });
     expect(await h['systems.info.list']()).toHaveLength(4);
@@ -191,6 +196,36 @@ describe('systems.info handlers', () => {
     const themed = await h['systems.info.forTheme']({ systemId: 'apricot-pc' });
     expect(themed?.topGames[0]).toMatchObject({ title: 'Lotus 1-2-3', owned: { gameId } });
     expect(await h['systems.info.forTheme']({ systemId: 'nope' })).toBeNull();
+  });
+
+  it('FR-MUS-10: get, list and reset carry the shipped kind until the owner saves another', async () => {
+    const h = handlers();
+    expect((await h['systems.info.get']({ systemId: 'aamber-pegasus' })).entry.kind).toBe(
+      'console',
+    );
+    await h['systems.info.save']({
+      systemId: 'aamber-pegasus',
+      entry: entryOf('aamber-pegasus', { kind: 'virtual' }),
+    });
+    const row = async () =>
+      (await h['systems.info.list']()).find((r) => r.systemId === 'aamber-pegasus');
+    expect(await row()).toMatchObject({ kind: 'virtual', edited: true });
+    expect((await h['systems.info.reset']({ systemId: 'aamber-pegasus' })).kind).toBe('console');
+    expect(await row()).toMatchObject({ kind: 'console', edited: false });
+  });
+
+  it('FR-MUS-10: an entry saved without a kind serves the shipped kind', async () => {
+    await handlers()['systems.info.save']({ systemId: 'plain', entry: entryOf('plain') });
+    const h = handlers();
+    expect((await h['systems.info.get']({ systemId: 'plain' })).entry.kind).toBe('console');
+    expect((await h['systems.info.list']()).find((r) => r.systemId === 'plain')?.kind).toBe(
+      'console',
+    );
+  });
+
+  it("FR-MUS-10: a custom system's base entry carries its settings kind", async () => {
+    const { entry } = await handlers()['systems.info.get']({ systemId: 'custom-box' });
+    expect(entry.kind).toBe('handheld');
   });
 
   it('FR-MUS-4: forTheme without a library marks every top game as not owned', async () => {

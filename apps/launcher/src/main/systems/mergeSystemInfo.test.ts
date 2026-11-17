@@ -15,15 +15,18 @@ const definition = (id: string): SystemDefinition => ({
 });
 
 describe('baseSystemInfo', () => {
-  it('FR-MUS-1: a catalog system with a seed entry returns the seed', () => {
-    expect(baseSystemInfo(definition('aamber-pegasus'), undefined)).toBe(
-      systemInfoSeed('aamber-pegasus'),
-    );
+  it('FR-MUS-1, FR-MUS-10: a catalog system with a seed entry returns the seed with its kind, leaving the seed as shipped', () => {
+    expect(baseSystemInfo(definition('aamber-pegasus'), undefined)).toEqual({
+      ...systemInfoSeed('aamber-pegasus'),
+      kind: 'console',
+    });
+    expect(systemInfoSeed('aamber-pegasus')?.kind).toBeUndefined();
   });
 
-  it('FR-MUS-1: a system with no seed is just its id', () => {
+  it('FR-MUS-1, FR-MUS-10: a system with no seed is just its id and kind', () => {
     expect(baseSystemInfo(definition('no-such-seed'), undefined)).toEqual({
       systemId: 'no-such-seed',
+      kind: 'console',
       models: [],
       peripherals: [],
       topGames: [],

@@ -66,7 +66,9 @@ export function createSystemInfoHandlers(deps: {
     if (edited && edit === null) {
       deps.log.warn({ systemId: definition.id }, 'unreadable museum edit; showing the original');
     }
-    return { entry: edit ?? base(definition), edited };
+    // An edit saved without a Type keeps the shipped kind (FR-MUS-10).
+    const entry = edit ? { ...edit, kind: edit.kind ?? definition.kind } : base(definition);
+    return { entry, edited };
   };
   /**
    * The stored personal record. One that no longer validates fails INTERNAL rather than reading
@@ -95,7 +97,7 @@ export function createSystemInfoHandlers(deps: {
           return {
             systemId: definition.id,
             name: definition.name,
-            kind: definition.kind,
+            kind: entry.kind ?? definition.kind,
             manufacturer: entry.manufacturer ?? null,
             releaseYear: entry.releaseYear ?? null,
             edited: edited.has(definition.id),
