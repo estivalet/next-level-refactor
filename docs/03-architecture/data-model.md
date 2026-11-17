@@ -262,8 +262,9 @@ settings. User-added systems (`settings.customSystems`, §2) are placed by name 
 
 `packages/system-catalog/data/system-info.json` (`{ source, entries: SystemInfo[] }`, sorted by
 system id) holds one museum entry per system the import matched; `systemInfoSeed(systemId)` reads
-it. `SystemInfo` (`packages/shared/src/systems/info.ts`): `systemId` plus optional overview
-(`fullName`, `manufacturer`, `country`, `releaseYear`, `discontinuedYear`, `generation`,
+it. `SystemInfo` (`packages/shared/src/systems/info.ts`): `systemId`, an optional `kind`
+(the owner's Type, one of `SYSTEM_KINDS` incl. `virtual`; absent means the system's shipped kind,
+FR-MUS-10), plus optional overview (`fullName`, `manufacturer`, `country`, `releaseYear`, `discontinuedYear`, `generation`,
 `unitsSold`), story (`description`, `history`, `legacy`), hardware (`cpu`, `ram`, `graphics`,
 `sound`, `media`, `display`), `models` (`name`, `releaseYear`, `launchPrice`, `cpu`, `ram`,
 `notes`, `imageUrl`), related (`predecessor`, `successor`, `peripherals`), `topGames`
