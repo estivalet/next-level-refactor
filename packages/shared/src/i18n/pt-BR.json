@@ -240,7 +240,8 @@
       "imageRejected": {
         "type": "{{name}} não é um tipo de imagem compatível.",
         "size": "{{name}} tem mais de 20 MB.",
-        "unreadable": "Não foi possível ler {{name}}."
+        "unreadable": "Não foi possível ler {{name}}.",
+        "copy": "Não foi possível copiar {{name}} para a pasta do museu."
       },
       "viewer": {
         "prev": "Imagem anterior",

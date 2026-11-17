@@ -60,24 +60,34 @@ export class MuseumImageStore {
           rejected.push({ name, reason: 'size' });
           continue;
         }
-        if (!folder) throw new Error('invalid system id');
-        await this.fs.mkdir(folder, { recursive: true });
-        const file = `${this.deps.newId()}.${ext}`;
-        const target = join(folder, file);
-        const temp = `${target}.tmp`;
-        try {
-          await this.fs.copyFile(source, temp);
-          await this.fs.rename(temp, target);
-        } catch (error) {
-          await this.fs.rm(temp, { force: true }).catch(() => undefined);
-          throw error;
-        }
-        added.push({ file });
       } catch {
         rejected.push({ name, reason: 'unreadable' });
+        continue;
+      }
+      try {
+        added.push({ file: await this.copyIn(folder, source, ext) });
+      } catch {
+        rejected.push({ name, reason: 'copy' });
       }
     }
     return { added, rejected };
+  }
+
+  /** Copies one checked source in as `<uuid>.<ext>` through a `.tmp` file; throws on failure. */
+  private async copyIn(folder: string | null, source: string, ext: string): Promise<string> {
+    if (!folder) throw new Error('invalid system id');
+    await this.fs.mkdir(folder, { recursive: true });
+    const file = `${this.deps.newId()}.${ext}`;
+    const target = join(folder, file);
+    const temp = `${target}.tmp`;
+    try {
+      await this.fs.copyFile(source, temp);
+      await this.fs.rename(temp, target);
+    } catch (error) {
+      await this.fs.rm(temp, { force: true }).catch(() => undefined);
+      throw error;
+    }
+    return file;
   }
 
   /** The stored file's path, or null when the names are invalid or the file is missing. */

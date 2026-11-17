@@ -59,7 +59,7 @@ describe('MuseumImageStore', () => {
     expect(added[0]?.file.endsWith('.jpg')).toBe(true);
   });
 
-  it('FR-MUS-8: a failed copy leaves no file and no .tmp behind', async () => {
+  it("FR-MUS-8: a failed copy (a write-side error) is rejected as 'copy' and leaves no file and no .tmp behind", async () => {
     const source = join(dir, 'src', 'cart.png');
     await writeFile(source, 'x');
     const failing = store({
@@ -72,7 +72,7 @@ describe('MuseumImageStore', () => {
     });
     const { added, rejected } = await failing.add('snes', [source]);
     expect(added).toEqual([]);
-    expect(rejected).toEqual([{ name: 'cart.png', reason: 'unreadable' }]);
+    expect(rejected).toEqual([{ name: 'cart.png', reason: 'copy' }]);
     expect(await readdir(join(dir, 'museum', 'snes'))).toEqual([]);
   });
 

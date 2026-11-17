@@ -141,7 +141,7 @@ requirements:
   A system page opens with a hero (its hardware image from the menu art folder, name, manufacturer and year), then the sections Notes,
   Emulators, Overview, Story, Hardware, Models, Gallery, Related, Top games and Sources. Notes and Gallery are the owner's own and are
   kept apart from the entry; Emulators lists the emulator profiles set up for the system, grouped by emulator, read-only. The gallery shows
-  the added images with captions; in edit mode you add images (a picker, up to 50; ones of the wrong type, over 20 MiB or unreadable are
+  the added images with captions; in edit mode you add images (a picker, up to 50; ones of the wrong type, over 20 MiB, unreadable or that could not be copied in are
   named in a message), caption, reorder and remove them. If the personal record cannot be read, the entry still shows with Notes and Gallery
   disabled. Editing happens in place; **Save**, **Discard** and **Reset to original** (confirm; only when edited) sit in a bar pinned to the bottom of the
   window while the page scrolls. Discard removes images added in that edit; saving notes or a gallery does not mark the entry as edited (no dot).

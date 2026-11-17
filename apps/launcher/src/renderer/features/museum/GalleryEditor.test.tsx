@@ -62,6 +62,7 @@ describe('GalleryEditor', () => {
             { name: 'notes.txt', reason: 'type' },
             { name: 'huge.png', reason: 'size' },
             { name: 'broken.jpg', reason: 'unreadable' },
+            { name: 'locked.png', reason: 'copy' },
           ],
         }),
     });
@@ -83,6 +84,9 @@ describe('GalleryEditor', () => {
     expect(within(rejected).getByText('notes.txt is not a supported image type.')).toBeVisible();
     expect(within(rejected).getByText('huge.png is larger than 20 MB.')).toBeVisible();
     expect(within(rejected).getByText('broken.jpg could not be read.')).toBeVisible();
+    expect(
+      within(rejected).getByText('locked.png could not be copied into the museum folder.'),
+    ).toBeVisible();
   });
 
   it('FR-MUS-8: adding past 50 keeps the first ones up to 50 and says the gallery is full', async () => {

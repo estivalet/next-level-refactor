@@ -240,7 +240,8 @@
       "imageRejected": {
         "type": "{{name}} is not a supported image type.",
         "size": "{{name}} is larger than 20 MB.",
-        "unreadable": "{{name}} could not be read."
+        "unreadable": "{{name}} could not be read.",
+        "copy": "{{name}} could not be copied into the museum folder."
       },
       "viewer": {
         "prev": "Previous image",

@@ -1,4 +1,5 @@
 import {
+  MUSEUM_CAPTION_MAX,
   MUSEUM_GALLERY_MAX,
   museumImageUrl,
   type RejectedImage,
@@ -13,8 +14,6 @@ import { useImageAlt } from './GallerySection.tsx';
 import { moveItem, removeAt, replaceAt } from './listOps.ts';
 import { useAddImages } from './personalApi.ts';
 import { RowControls } from './RowControls.tsx';
-
-const CAPTION_MAX = 200;
 
 /**
  * A caption input. Blank or whitespace-only text reads as no caption (`undefined`), since the
@@ -39,7 +38,7 @@ function CaptionField({
         id={id}
         className={INPUT}
         value={text}
-        maxLength={CAPTION_MAX}
+        maxLength={MUSEUM_CAPTION_MAX}
         onChange={(event) => {
           const value = event.target.value;
           setText(value);

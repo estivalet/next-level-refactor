@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SystemPersonalSchema, emptyPersonal } from './personal.ts';
+import { MUSEUM_CAPTION_MAX, SystemPersonalSchema, emptyPersonal } from './personal.ts';
 
 const UUID = '123e4567-e89b-42d3-a456-426614174000';
 const UUID2 = '123e4567-e89b-42d3-a456-426614174001';
@@ -35,7 +35,8 @@ describe('system personal record', () => {
     expect(gallery([`${UUID}.png`, `${UUID2}.png`]).success).toBe(true);
   });
 
-  it('FR-MUS-8: caption is trimmed, ≤ 200', () => {
+  it('FR-MUS-8: caption is trimmed, ≤ MUSEUM_CAPTION_MAX (200)', () => {
+    expect(MUSEUM_CAPTION_MAX).toBe(200);
     const parse = (caption: string) =>
       SystemPersonalSchema.safeParse({
         systemId: 'snes',

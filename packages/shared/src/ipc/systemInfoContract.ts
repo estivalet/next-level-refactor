@@ -37,7 +37,7 @@ export const systemInfoContract = {
     output: z.object({
       added: z.array(SystemGalleryImageSchema),
       rejected: z.array(
-        z.object({ name: z.string(), reason: z.enum(['type', 'size', 'unreadable']) }),
+        z.object({ name: z.string(), reason: z.enum(['type', 'size', 'unreadable', 'copy']) }),
       ),
     }),
   },
