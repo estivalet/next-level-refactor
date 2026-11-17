@@ -193,8 +193,9 @@ New per-system "personal" record, separate from the museum entry:
   with the existing modal pattern: large image, caption, previous/next, Esc to close. **Edit
   mode:** "Add images" button, then rows with thumbnail, caption input, and the existing
   move-up/down/remove `RowControls`.
-- **Home:** the hero shows a featured system, the most recently changed one (`changedAt`); if
-  none, the first system alphabetically. Below it, a "Recently changed" card row (up to 12, by
+- **Home:** a welcome banner (title and intro over the owner's picture, `system-info/museum.jpg`
+  in the shared art folder; text only without it). *Owner review 2026-11-17: this replaced a
+  featured-system hero.* Below it, a "Recently changed" card row (up to 12, by
   `changedAt` desc) and a "Has notes" card row. Each
   card shows the hardware image + name, and clicking it opens that system. A line of counts:
   systems, edited, with notes. Rows with no items are hidden. Home is the default view when

@@ -99,7 +99,7 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-MUS-6 | Each system has personal notes, edited in the Museum app and stored apart from the museum entry (`system_personal`). Reset never clears them. *2026-11-16, owner request.* | M |
 | FR-MUS-7 | The Museum shows the emulators set up to launch a system: every emulator profile that lists it, grouped by emulator. Read-only. *2026-11-16, owner request.* | M |
 | FR-MUS-8 | A system page shows its hardware image from the menu art folder, and a gallery of images the owner adds. Added images are copied into the launcher's data folder (`<dataDir>/museum/<systemId>/`) and can be captioned, ordered and removed. *2026-11-16, owner request.* | M |
-| FR-MUS-9 | The Museum window has a left menu with Home first, a hero header per system, a Home page (featured system, recently changed, has notes), and edit actions in a bar pinned to the bottom of the window. *2026-11-16, owner request.* | M |
+| FR-MUS-9 | The Museum window has a left menu with Home first, a hero header per system, a Home page (welcome banner with the owner's museum picture, recently changed, has notes; *welcome replaced the featured system 2026-11-17, owner review*), and edit actions in a bar pinned to the bottom of the window. *2026-11-16, owner request.* | M |
 
 ## 7. Menus (`FR-MENU`)
 

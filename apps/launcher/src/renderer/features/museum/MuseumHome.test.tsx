@@ -1,5 +1,5 @@
 import type { SystemInfoSummary } from '@nextlevel/shared';
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderInShell } from '../../test-utils.tsx';
@@ -39,13 +39,35 @@ describe('MuseumHome', () => {
     await user.click(within(recent).getByRole('button', { name: /Super Nintendo/ }));
     expect(onOpen).toHaveBeenCalledWith('snes');
 
-    await user.click(screen.getByRole('button', { name: 'Open entry' }));
-    expect(onOpen).toHaveBeenLastCalledWith('snes');
-
     first.unmount();
     renderInShell(<MuseumHome systems={[make('genesis', 'Mega Drive')]} onOpen={onOpen} />);
     expect(screen.queryByRole('region', { name: 'Recently changed' })).toBeNull();
-    expect(screen.getByTestId('system-hero')).toHaveTextContent('Mega Drive');
+  });
+
+  it('FR-MUS-9: Home opens on a welcome banner with the museum picture, not on a system', () => {
+    renderInShell(<MuseumHome systems={[make('snes', 'Super Nintendo')]} onOpen={vi.fn()} />);
+    const welcome = screen.getByTestId('museum-welcome');
+    expect(
+      within(welcome).getByRole('heading', { name: 'Welcome to the Museum' }),
+    ).toBeInTheDocument();
+    expect(welcome.querySelector('img')).toHaveAttribute(
+      'src',
+      'nextlevel://art/assets/system-info/museum.jpg',
+    );
+    expect(screen.queryByTestId('system-hero')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Open entry' })).toBeNull();
+  });
+
+  it('FR-MUS-9: without the museum picture the welcome banner keeps its text', () => {
+    renderInShell(<MuseumHome systems={[]} onOpen={vi.fn()} />);
+    const welcome = screen.getByTestId('museum-welcome');
+    const img = welcome.querySelector('img');
+    expect(img).not.toBeNull();
+    fireEvent.error(img as HTMLImageElement);
+    expect(welcome.querySelector('img')).toBeNull();
+    expect(
+      within(welcome).getByRole('heading', { name: 'Welcome to the Museum' }),
+    ).toBeInTheDocument();
   });
 
   it('FR-MUS-9: counts show systems, edited and with-notes totals', () => {

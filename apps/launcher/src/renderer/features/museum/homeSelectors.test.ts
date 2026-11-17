@@ -1,6 +1,6 @@
 import type { SystemInfoSummary } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
-import { featuredSystem, homeCounts, recentlyChanged, withNotes } from './homeSelectors.ts';
+import { homeCounts, recentlyChanged, withNotes } from './homeSelectors.ts';
 
 const make = (
   systemId: string,
@@ -19,15 +19,6 @@ const make = (
 });
 
 describe('homeSelectors', () => {
-  it('FR-MUS-9: featuredSystem prefers the latest changedAt, falls back to the first system, null when empty', () => {
-    const a = make('a');
-    const b = make('b', '2026-01-02T00:00:00.000Z');
-    const c = make('c', '2026-03-01T00:00:00.000Z');
-    expect(featuredSystem([a, b, c])).toBe(c);
-    expect(featuredSystem([a, make('z')])).toBe(a);
-    expect(featuredSystem([])).toBeNull();
-  });
-
   it('FR-MUS-9: recentlyChanged sorts desc, caps at 12, skips never-changed', () => {
     const rows = [
       make('never'),

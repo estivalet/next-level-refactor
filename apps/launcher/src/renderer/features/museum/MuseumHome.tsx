@@ -2,9 +2,9 @@ import type { SystemInfoSummary } from '@nextlevel/shared';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HardwareImage } from './HardwareImage.tsx';
-import { featuredSystem, homeCounts, recentlyChanged, withNotes } from './homeSelectors.ts';
+import { homeCounts, recentlyChanged, withNotes } from './homeSelectors.ts';
+import { MuseumWelcome } from './MuseumWelcome.tsx';
 import { systemDetail } from './SystemList.tsx';
-import { SystemHero } from './SystemHero.tsx';
 
 interface Props {
   systems: readonly SystemInfoSummary[];
@@ -59,35 +59,18 @@ function CardRow({
 }
 
 /**
- * The Museum's Home page (FR-MUS-9): a hero for the featured system, the totals line, then rows of
- * cards for recently changed systems and systems with the owner's notes. Empty rows are hidden.
+ * The Museum's Home page (FR-MUS-9): a welcome banner, the totals line, then rows of cards for
+ * recently changed systems and systems with the owner's notes. Empty rows are hidden.
  */
 export function MuseumHome({ systems, onOpen }: Props) {
   const { t } = useTranslation();
-  const featured = featuredSystem(systems);
   const counts = homeCounts(systems);
   return (
     <section
       data-testid="museum-scroll"
       className="flex min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden"
     >
-      {featured && (
-        <SystemHero
-          name={featured.name}
-          subtitle={systemDetail(featured)}
-          action={
-            <button
-              type="button"
-              className="rounded-lg bg-white px-4 py-1.5 text-sm font-medium text-slate-900 hover:bg-slate-200"
-              onClick={() => {
-                onOpen(featured.systemId);
-              }}
-            >
-              {t('apps.museum.openEntry')}
-            </button>
-          }
-        />
-      )}
+      <MuseumWelcome />
       <div className="flex flex-col gap-6 p-6">
         <p data-testid="museum-counts" className="text-sm text-slate-400">
           {[

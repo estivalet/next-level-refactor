@@ -27,7 +27,7 @@ M10-1 — polish before 1.0.
   usual. **Check again** picks up a file changed at its host as an update. If the host refuses
   (Drive's daily limit), the download pauses until the player resumes it.
 - **Museum redesign** (FR-MUS-6..9, US-G3): the Museum app has a left menu with **Home** first, a hero header per system,
-  and **Save**/**Discard** in a bar pinned to the bottom of the window. Home shows a featured system, the systems you changed
+  and **Save**/**Discard** in a bar pinned to the bottom of the window. Home opens on a welcome over your own museum picture (`system-info\museum.jpg` in the art folder), then the systems you changed
   recently and the ones with your notes. Each system gains your own **Notes**, the last section on the page (kept apart from the entry; Reset never clears them, not even unsaved ones),
   a read-only **Emulators** list just before them (the profiles set up for it, by emulator) and a **Gallery** of your own images, copied into
   `data\museum` and captioned, ordered and removed here; discarding an edit removes images you had just added. Stored images are never

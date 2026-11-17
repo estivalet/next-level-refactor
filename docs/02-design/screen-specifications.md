@@ -136,7 +136,7 @@ requirements:
 - Start menu: apps, Front-end, Account, Sign out, Quit.
 - Museum app (FR-MUS-1..9, US-G2, US-G3): a single-instance window. Left, a menu with **Home** first, then a searchable list of every
   system (name, manufacturer, year, a dot when the entry is edited) with a kind filter. Right, **Home** or a system's page.
-  Home: a hero for the featured system (the most recently changed, else the first) with an **Open entry** button, a counts line
+  Home: a welcome banner (title and intro over the owner's picture `system-info\museum.jpg` in the shared art folder; text only when it is missing), a counts line
   (systems, edited, with notes), and rows of cards, *Recently changed* and *With your notes*; empty rows are hidden and only a row scrolls sideways.
   A system page opens with a hero (its hardware image from the menu art folder, name, manufacturer and year), then the sections Overview,
   Story, Hardware, Models, Gallery, Related, Top games, Sources, Emulators and, last, Notes. Notes and Gallery are the owner's own and are

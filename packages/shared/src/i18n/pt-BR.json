@@ -214,7 +214,10 @@
       "home": "Início",
       "recentlyChanged": "Alterados recentemente",
       "hasNotes": "Com suas anotações",
-      "openEntry": "Abrir verbete",
+      "welcome": {
+        "title": "Bem-vindo ao Museu",
+        "intro": "Percorra a história de cada sistema da sua coleção: sua trajetória, o hardware e os melhores jogos, com suas próprias anotações e imagens. Escolha um sistema à esquerda para começar."
+      },
       "counts": {
         "systems_one": "{{count}} sistema",
         "systems_other": "{{count}} sistemas",

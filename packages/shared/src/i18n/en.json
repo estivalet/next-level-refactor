@@ -214,7 +214,10 @@
       "home": "Home",
       "recentlyChanged": "Recently changed",
       "hasNotes": "With your notes",
-      "openEntry": "Open entry",
+      "welcome": {
+        "title": "Welcome to the Museum",
+        "intro": "Walk through the history of every system in your collection: its story, hardware and best games, with your own notes and pictures. Pick a system on the left to start."
+      },
       "counts": {
         "systems_one": "{{count}} system",
         "systems_other": "{{count}} systems",

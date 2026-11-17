@@ -4,12 +4,6 @@ import type { SystemInfoSummary } from '@nextlevel/shared';
 const byNewest = (a: SystemInfoSummary, b: SystemInfoSummary) =>
   (b.changedAt ?? '').localeCompare(a.changedAt ?? '');
 
-/** The system on the Home hero: the most recently changed, else the first, else none (FR-MUS-9). */
-export function featuredSystem(systems: readonly SystemInfoSummary[]): SystemInfoSummary | null {
-  const [latest] = systems.filter((system) => system.changedAt !== null).sort(byNewest);
-  return latest ?? systems[0] ?? null;
-}
-
 /** Systems changed by the owner, newest first (FR-MUS-9). */
 export function recentlyChanged(
   systems: readonly SystemInfoSummary[],
