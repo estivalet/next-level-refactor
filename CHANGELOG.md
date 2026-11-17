@@ -31,7 +31,7 @@ M10-1 — polish before 1.0.
   recently and the ones with your notes. Each system gains your own **Notes** (kept apart from the entry; Reset never clears them, not even unsaved ones),
   a read-only **Emulators** list (the profiles set up for it, by emulator) and a **Gallery** of your own images, copied into
   `data\museum` and captioned, ordered and removed here; discarding an edit removes images you had just added. Stored images are never
-  deleted while the library is unavailable or your saved record cannot be read, and adding images is refused while kiosk mode is locked.
+  deleted while the library is unavailable or your saved record cannot be read (a damaged record shows notes and gallery as unavailable and is never saved over), and adding images is refused while kiosk mode is locked.
   The hardware picture comes from the menu art folder.
 - **Systems museum** (FR-MUS-1..5, D67, ADR-016): every system has a museum entry (overview,
   story, hardware, models, related systems, top games, sources), seeded from shipped data. The new

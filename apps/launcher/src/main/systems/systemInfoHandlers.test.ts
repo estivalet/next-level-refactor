@@ -338,19 +338,46 @@ describe('systems.info handlers', () => {
     expect(images.keepOnly).not.toHaveBeenCalled();
   });
 
-  it('FR-MUS-8: an unreadable stored record is never used to prune images (cleanup or save)', async () => {
+  const damage = (systemId: string) =>
     lib.db.$client
       .prepare("insert into system_personal (system_id, data, updated_at) values (?, ?, 'x')")
-      .run('plain', 'not json');
-    const h = handlers();
-    await h['systems.personal.cleanup']({ systemId: 'plain' });
-    await h['systems.personal.save']({
-      systemId: 'plain',
-      personal: mine('plain', { notes: 'fresh' }),
-    });
+      .run(systemId, 'not json');
+  const storedData = (systemId: string) =>
+    lib.db.$client
+      .prepare('select data from system_personal where system_id = ?')
+      .pluck()
+      .get(systemId);
+
+  it('FR-MUS-8: cleanup never prunes images against an unreadable stored record', async () => {
+    damage('plain');
+    await handlers()['systems.personal.cleanup']({ systemId: 'plain' });
     expect(images.keepOnly).not.toHaveBeenCalled();
-    expect(await h['systems.personal.get']({ systemId: 'plain' })).toEqual(
-      mine('plain', { notes: 'fresh' }),
-    );
+  });
+
+  it('FR-MUS-6, FR-MUS-8: personal.get fails INTERNAL on an unreadable record instead of reading it as empty', async () => {
+    damage('plain');
+    const h = handlers();
+    expect(await code(() => h['systems.personal.get']({ systemId: 'plain' }))).toBe('INTERNAL');
+    expect(warn).toHaveBeenCalledWith({ systemId: 'plain' }, expect.any(String));
+  });
+
+  it('FR-MUS-6, FR-MUS-8: personal.save refuses to overwrite an unreadable record, so its images survive', async () => {
+    damage('plain');
+    const h = handlers();
+    expect(
+      await code(() =>
+        h['systems.personal.save']({
+          systemId: 'plain',
+          personal: mine('plain', { notes: 'fresh' }),
+        }),
+      ),
+    ).toBe('INTERNAL');
+    expect(storedData('plain')).toBe('not json');
+    // A second save would have pruned against the overwritten record; it is refused too.
+    expect(
+      await code(() => h['systems.personal.save']({ systemId: 'plain', personal: mine('plain') })),
+    ).toBe('INTERNAL');
+    expect(images.keepOnly).not.toHaveBeenCalled();
+    expect(events).toEqual([]);
   });
 });

@@ -19,7 +19,7 @@ type SystemInfoChannel = Extract<
   `systems.info.${string}` | `systems.personal.${string}`
 >;
 
-const appError = (code: 'VALIDATION_FAILED' | 'LIBRARY_UNAVAILABLE') =>
+const appError = (code: 'VALIDATION_FAILED' | 'LIBRARY_UNAVAILABLE' | 'INTERNAL') =>
   new AppErrorException({ code, message: ERROR_CODES[code] });
 
 /**
@@ -67,6 +67,16 @@ export function createSystemInfoHandlers(deps: {
       deps.log.warn({ systemId: definition.id }, 'unreadable museum edit; showing the original');
     }
     return { entry: edit ?? base(definition), edited };
+  };
+  /**
+   * The stored personal record. One that no longer validates fails INTERNAL rather than reading
+   * as empty: saving over it would orphan, and a later prune delete, its images (FR-MUS-8).
+   */
+  const readablePersonal = (repo: SystemPersonalRepository, systemId: string) => {
+    const stored = repo.readStored(systemId);
+    if (stored) return stored;
+    deps.log.warn({ systemId }, 'unreadable museum notes and gallery; left untouched');
+    throw appError('INTERNAL');
   };
 
   return {
@@ -120,22 +130,20 @@ export function createSystemInfoHandlers(deps: {
     },
     'systems.personal.get': ({ systemId }) => {
       system(systemId);
-      return deps.personal()?.get(systemId) ?? emptyPersonal(systemId);
+      const repo = deps.personal();
+      return repo ? readablePersonal(repo, systemId) : emptyPersonal(systemId);
     },
     'systems.personal.save': async ({ systemId, personal }) => {
       system(systemId);
       if (personal.systemId !== systemId) throw appError('VALIDATION_FAILED');
       const repo = deps.personal();
       if (!repo) throw appError('LIBRARY_UNAVAILABLE');
-      // An unreadable previous record may still reference files: keep them all.
-      const readable = repo.readStored(systemId) !== null;
+      readablePersonal(repo, systemId);
       const saved = repo.save(personal);
-      if (readable) {
-        await deps.images.keepOnly(
-          systemId,
-          saved.gallery.map((image) => image.file),
-        );
-      }
+      await deps.images.keepOnly(
+        systemId,
+        saved.gallery.map((image) => image.file),
+      );
       deps.emit('systems.infoChanged', { systemId });
       return saved;
     },
