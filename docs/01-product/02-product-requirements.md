@@ -96,6 +96,10 @@ reference these IDs. Schemas live in [data-model.md](../03-architecture/data-mod
 | FR-MUS-3 | Top games are a curated, ordered list of titles; a title is "owned" when pinned to a library game or when its normalized title matches a present game of that system. *2026-11-15, owner request.* | M |
 | FR-MUS-4 | Themes read an entry through `ThemeHost.getSystemInfo`; a museum page opens from a focused system (`open-info`: key I, or the PS5 home's "…" button), shows the entry, and launches owned top games. Model photos are fetched by the launcher, cached on disk and shown through `nextlevel://remote-image` (D67, [ADR-016](../03-architecture/adr/ADR-016-remote-image-cache.md)). *2026-11-15, owner request.* | M |
 | FR-MUS-5 | Entries credit their sources; the page and the app show a Sources line. Seed text taken from Wikipedia is CC BY-SA 4.0: its `sources` entry is `Wikipedia (CC BY-SA 4.0)` linking the licence, plus a `Wikipedia` link to the article when the scraped file names one; text from LaunchBox credits `LaunchBox Games Database` with its site link ([system-catalog README](../../packages/system-catalog/README.md)). *2026-11-15, owner request.* | M |
+| FR-MUS-6 | Each system has personal notes, edited in the Museum app and stored apart from the museum entry (`system_personal`). Reset never clears them. *2026-11-16, owner request.* | M |
+| FR-MUS-7 | The Museum shows the emulators set up to launch a system: every emulator profile that lists it, grouped by emulator. Read-only. *2026-11-16, owner request.* | M |
+| FR-MUS-8 | A system page shows its hardware image from the menu art folder, and a gallery of images the owner adds. Added images are copied into the launcher's data folder (`<dataDir>/museum/<systemId>/`) and can be captioned, ordered and removed. *2026-11-16, owner request.* | M |
+| FR-MUS-9 | The Museum window has a left menu with Home first, a hero header per system, a Home page (featured system, recently changed, has notes), and edit actions in a bar pinned to the bottom of the window. *2026-11-16, owner request.* | M |
 
 ## 7. Menus (`FR-MENU`)
 

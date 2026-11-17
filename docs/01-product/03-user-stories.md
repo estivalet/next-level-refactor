@@ -174,3 +174,9 @@ As a collector, I want to read about a console while I browse it.
 ### US-G2 Curate a system's museum entry · FR-MUS-2, FR-MUS-3
 - When I edit a system's entry in the Museum app and save, then themes show my version, and **Reset** brings back the shipped one.
 - When I add a top game by title, then it is marked owned if a present game of that system has the same normalized title, or if I pinned it to a library game.
+
+### US-G3 Keep my own emulation notes and pictures for a system · FR-MUS-6..9
+- When I write notes for a system in the Museum app and save, then they are kept apart from the museum entry, and **Reset to original** does not clear them.
+- When I open a system, then I see the emulators set up for it, grouped by emulator, and cannot change them there.
+- When I add images to a system's gallery, then they are copied into the launcher's data folder; I can caption, reorder and remove them, and discarding the edit removes the copies I had just added.
+- When I open the Museum, then Home is the first menu item, showing a featured system, the systems I changed recently and the ones with my notes; Save and Discard stay pinned to the bottom of the window while I edit.
