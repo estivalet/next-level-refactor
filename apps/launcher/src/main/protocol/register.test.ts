@@ -123,3 +123,39 @@ describe('nextlevel:// handler', () => {
     expect(res.status).toBe(405);
   });
 });
+
+describe('nextlevel://museum-image', () => {
+  it('FR-MUS-8: nextlevel://museum-image serves the stored file; traversal and unknown names 404', async () => {
+    const file = '00000000-0000-4000-8000-000000000001.png';
+    const seen: string[] = [];
+    const museum = createNextlevelHandler({
+      mediaPath: () => null,
+      paths: () => ({ assetsPath: null, themesPath: null }),
+      museumImage: (systemId, name) => {
+        seen.push(`${systemId}/${name}`);
+        return Promise.resolve(systemId === 'snes' && name === file ? join(root, 'win.ini') : null);
+      },
+    });
+    const ok = await museum(new Request(`nextlevel://museum-image/snes/${file}`));
+    expect(ok.status).toBe(200);
+    expect(await ok.text()).toBe('secret');
+    for (const url of [
+      `nextlevel://museum-image/nes/${file}`,
+      'nextlevel://museum-image/snes/11111111-1111-4111-8111-111111111111.png',
+      'nextlevel://museum-image/snes/..%2Fwin.ini',
+      'nextlevel://museum-image/%2e%2e/' + file,
+      `nextlevel://museum-image/snes/%2e%2e%2f${file}`,
+      `nextlevel://museum-image/snes%5C..%5Cx/${file}`,
+      `nextlevel://museum-image/snes/..%5C${file}`,
+      'nextlevel://museum-image/snes/notes.png',
+      `nextlevel://museum-image/snes/${file}/extra`,
+    ]) {
+      expect((await museum(new Request(url))).status, url).toBe(404);
+    }
+    expect(seen).toEqual([
+      'snes/' + file,
+      'nes/' + file,
+      'snes/11111111-1111-4111-8111-111111111111.png',
+    ]);
+  });
+});

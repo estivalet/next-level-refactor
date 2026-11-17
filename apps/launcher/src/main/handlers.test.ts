@@ -37,6 +37,7 @@ async function setup(extra: Partial<MainDeps> = {}) {
     catalog: () => [N64],
     pickFolder: vi.fn((title?: string) => Promise.resolve(title === 'cancel' ? null : 'E:/roms')),
     pickFile: vi.fn(() => Promise.resolve(null)),
+    pickImages: vi.fn(() => Promise.resolve([])),
     pickExportPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library: null,

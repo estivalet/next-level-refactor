@@ -145,6 +145,7 @@ async function setup(withLibrary: boolean) {
     catalog: () => CATALOG,
     pickFolder: vi.fn(() => Promise.resolve(null)),
     pickFile: vi.fn(() => Promise.resolve(null)),
+    pickImages: vi.fn(() => Promise.resolve([])),
     pickExportPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library,

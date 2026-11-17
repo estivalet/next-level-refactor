@@ -87,6 +87,8 @@ export interface MainDeps {
   pickFolder: (title?: string) => Promise<string | null>;
   /** Native file dialog for an emulator executable; null when cancelled. */
   pickFile: (title?: string) => Promise<string | null>;
+  /** Native multi-select image dialog (FR-MUS-8); empty when cancelled. */
+  pickImages: (title?: string) => Promise<string[]>;
   /** Native Save dialog for a game list export (FR-LIB-11); null when cancelled. */
   pickExportPath: (defaultName: string, format: ExportFormat) => Promise<string | null>;
   presets: () => readonly EmulatorPreset[];
