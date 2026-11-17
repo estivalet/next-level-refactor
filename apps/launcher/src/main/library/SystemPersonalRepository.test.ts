@@ -49,6 +49,18 @@ describe('SystemPersonalRepository', () => {
     expect(repo.get('snes')).toEqual(emptyPersonal('snes'));
   });
 
+  it('FR-MUS-8: readStored tells a missing row (empty record) from an unreadable one (null)', () => {
+    expect(repo.readStored('snes')).toEqual(emptyPersonal('snes'));
+    const saved = repo.save(personal());
+    expect(repo.readStored('snes')).toEqual(saved);
+    lib.db.$client.prepare('update system_personal set data = ?').run('not json');
+    expect(repo.readStored('snes')).toBeNull();
+    lib.db.$client
+      .prepare('update system_personal set data = ?')
+      .run('{"systemId":"snes","gallery":[{"file":"../evil.png"}]}');
+    expect(repo.readStored('snes')).toBeNull();
+  });
+
   it('FR-MUS-9: summary reports hasNotes and updatedAt', () => {
     repo.save(personal());
     repo.save(personal({ systemId: 'nes', notes: undefined }));

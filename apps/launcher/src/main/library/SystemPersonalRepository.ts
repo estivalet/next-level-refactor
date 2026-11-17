@@ -14,6 +14,14 @@ export class SystemPersonalRepository {
 
   /** The stored record, or the empty one when missing or no longer valid. */
   get(systemId: string): SystemPersonal {
+    return this.readStored(systemId) ?? emptyPersonal(systemId);
+  }
+
+  /**
+   * The stored record (the empty one when there is no row), or null when a row exists but no
+   * longer validates. Image pruning must not trust a record it could not read (FR-MUS-8).
+   */
+  readStored(systemId: string): SystemPersonal | null {
     const data = this.client
       .prepare('select data from system_personal where system_id = ?')
       .pluck()
@@ -21,9 +29,9 @@ export class SystemPersonalRepository {
     if (data === undefined) return emptyPersonal(systemId);
     try {
       const parsed = SystemPersonalSchema.safeParse(JSON.parse(data));
-      return parsed.success ? parsed.data : emptyPersonal(systemId);
+      return parsed.success ? parsed.data : null;
     } catch {
-      return emptyPersonal(systemId);
+      return null;
     }
   }
 

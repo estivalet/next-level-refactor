@@ -325,4 +325,32 @@ describe('systems.info handlers', () => {
     await h['systems.personal.cleanup']({ systemId: 'plain' });
     expect(images.keepOnly).toHaveBeenCalledWith('plain', [FILE]);
   });
+
+  it('FR-MUS-8: without a library, addImages fails LIBRARY_UNAVAILABLE and cleanup deletes nothing', async () => {
+    personalRepo = null;
+    picked = ['C:/x/a.png'];
+    const h = handlers();
+    expect(await code(() => h['systems.personal.addImages']({ systemId: 'plain' }))).toBe(
+      'LIBRARY_UNAVAILABLE',
+    );
+    expect(images.add).not.toHaveBeenCalled();
+    await h['systems.personal.cleanup']({ systemId: 'plain' });
+    expect(images.keepOnly).not.toHaveBeenCalled();
+  });
+
+  it('FR-MUS-8: an unreadable stored record is never used to prune images (cleanup or save)', async () => {
+    lib.db.$client
+      .prepare("insert into system_personal (system_id, data, updated_at) values (?, ?, 'x')")
+      .run('plain', 'not json');
+    const h = handlers();
+    await h['systems.personal.cleanup']({ systemId: 'plain' });
+    await h['systems.personal.save']({
+      systemId: 'plain',
+      personal: mine('plain', { notes: 'fresh' }),
+    });
+    expect(images.keepOnly).not.toHaveBeenCalled();
+    expect(await h['systems.personal.get']({ systemId: 'plain' })).toEqual(
+      mine('plain', { notes: 'fresh' }),
+    );
+  });
 });

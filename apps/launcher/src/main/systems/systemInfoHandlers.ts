@@ -127,23 +127,31 @@ export function createSystemInfoHandlers(deps: {
       if (personal.systemId !== systemId) throw appError('VALIDATION_FAILED');
       const repo = deps.personal();
       if (!repo) throw appError('LIBRARY_UNAVAILABLE');
+      // An unreadable previous record may still reference files: keep them all.
+      const readable = repo.readStored(systemId) !== null;
       const saved = repo.save(personal);
-      await deps.images.keepOnly(
-        systemId,
-        saved.gallery.map((image) => image.file),
-      );
+      if (readable) {
+        await deps.images.keepOnly(
+          systemId,
+          saved.gallery.map((image) => image.file),
+        );
+      }
       deps.emit('systems.infoChanged', { systemId });
       return saved;
     },
     'systems.personal.addImages': async ({ systemId }) => {
       system(systemId);
+      // Without a library the copies could never be saved, and cleanup would not prune them.
+      if (!deps.personal()) throw appError('LIBRARY_UNAVAILABLE');
       const sources = await deps.pickImages();
       if (sources.length === 0) return { added: [], rejected: [] };
       return deps.images.add(systemId, sources);
     },
     'systems.personal.cleanup': async ({ systemId }) => {
       system(systemId);
-      const stored = deps.personal()?.get(systemId) ?? emptyPersonal(systemId);
+      // Prune only against a record that was read and validated; never against a stand-in.
+      const stored = deps.personal()?.readStored(systemId) ?? null;
+      if (!stored) return;
       await deps.images.keepOnly(
         systemId,
         stored.gallery.map((image) => image.file),
