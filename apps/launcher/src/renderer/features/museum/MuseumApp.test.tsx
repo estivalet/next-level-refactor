@@ -1,5 +1,5 @@
 import { ok, type SystemInfo, type SystemInfoSummary } from '@nextlevel/shared';
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { getApp } from '../../apps/registry.ts';
@@ -71,6 +71,7 @@ function setup() {
             : { systemId, models: [], peripherals: [], topGames: [], sources: [] },
         edited: systemId === 'snes',
       }),
+    'systems.personal.cleanup': () => ok(undefined),
   });
   return { bridge, user: userEvent.setup() };
 }
@@ -230,6 +231,61 @@ describe('MuseumApp unsaved edits (FR-MUS-2)', () => {
     expect(await screen.findByRole('article', { name: 'Mega Drive' })).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+});
+
+describe('MuseumApp unsaved notes (FR-MUS-6)', () => {
+  it('FR-MUS-6: switching system with unsaved notes asks first', async () => {
+    const { bridge, user } = setup();
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form');
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Notes' })).getByLabelText('Notes'),
+      'draft',
+    );
+    await user.click(screen.getByRole('button', { name: /Mega Drive/ }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(bridge.channels()).not.toContain('systems.personal.cleanup');
+
+    await user.click(screen.getByRole('button', { name: /Mega Drive/ }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Discard changes' }),
+    );
+    expect(await screen.findByRole('article', { name: 'Mega Drive' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('systems.personal.cleanup');
+    });
+    expect(bridge.calls.find((call) => call.channel === 'systems.personal.cleanup')?.input).toEqual(
+      { systemId: 'snes' },
+    );
+    expect(bridge.channels()).not.toContain('systems.personal.save');
+  });
+
+  it('FR-MUS-6: leaving after an entry-only edit does not clean up images', async () => {
+    const { bridge, user } = setup();
+    await dirtySnesForCleanup(user);
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Discard changes' }),
+    );
+    expect(screen.queryByRole('article')).toBeNull();
+    expect(bridge.channels()).not.toContain('systems.personal.cleanup');
+  });
+
+  async function dirtySnesForCleanup(user: ReturnType<typeof userEvent.setup>) {
+    renderInShell(<MuseumApp />);
+    await user.click(await screen.findByRole('button', { name: /Super Nintendo/ }));
+    const entry = await screen.findByRole('article', { name: 'Super Nintendo' });
+    await user.click(await within(entry).findByRole('button', { name: 'Edit' }));
+    const form = await screen.findByRole('form');
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText('CPU'),
+      'x',
+    );
+  }
 });
 
 describe('MuseumApp layout (FR-MUS-9)', () => {

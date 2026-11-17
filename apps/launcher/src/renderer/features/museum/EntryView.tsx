@@ -1,22 +1,26 @@
-import type { SystemInfo, SystemInfoSummary } from '@nextlevel/shared';
-import { useCallback, useId, useState } from 'react';
+import type { SystemInfoSummary } from '@nextlevel/shared';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PRIMARY_BUTTON, SECONDARY_BUTTON } from '../library/Modal.tsx';
 import { ConfirmDialog } from '../menus/ConfirmDialog.tsx';
 import { errorMessageKey } from '../settings/settingsApi.ts';
 import { ActionBar } from './ActionBar.tsx';
-import { EntryForm } from './EntryForm.tsx';
+import { EntryForm, type DraftChanges, type DraftDirty } from './EntryForm.tsx';
 import { EntrySections } from './EntrySections.tsx';
 import { useResetSystemInfo, useSaveSystemInfo, useSystemInfo } from './museumApi.ts';
+import { cleanupImages, useSavePersonal, useSystemPersonal } from './personalApi.ts';
 import { SystemHero } from './SystemHero.tsx';
 import { systemDetail } from './SystemList.tsx';
 
 type Confirming = 'discard' | 'reset' | null;
 
+const CLEAN: DraftDirty = { entry: false, personal: false };
+
 /**
- * A system's museum page (FR-MUS-2, FR-MUS-9): the hero, the entry in a scrolling region, and in
- * edit mode a pinned action bar below that region. `onDirtyChange` reports unsaved edits so the app
- * can ask before leaving the page.
+ * A system's museum page (FR-MUS-2, FR-MUS-6, FR-MUS-9): the hero, the page in a scrolling region,
+ * and in edit mode a pinned action bar below that region. `onDirtyChange` reports unsaved edits so
+ * the app can ask before leaving the page. Discarding a changed personal record (here, or by
+ * leaving the page) asks main to delete the images it added (FR-MUS-8).
  */
 export function EntryView({
   system,
@@ -27,28 +31,61 @@ export function EntryView({
 }) {
   const { t } = useTranslation();
   const formId = useId();
-  const query = useSystemInfo(system.systemId);
+  const { systemId } = system;
+  const query = useSystemInfo(systemId);
+  const personalQuery = useSystemPersonal(systemId);
   const save = useSaveSystemInfo();
+  const savePersonal = useSavePersonal();
   const reset = useResetSystemInfo();
   const [editing, setEditing] = useState(false);
-  const [dirty, setDirty] = useState(false);
+  const [dirty, setDirty] = useState<DraftDirty>(CLEAN);
   const [confirming, setConfirming] = useState<Confirming>(null);
+  // Read on unmount: leaving the page with a changed personal draft discards it.
+  const personalDirty = useRef(false);
   const data = query.data;
+  const personal = personalQuery.data;
   const entry = data?.entry;
-  const failure = save.error ?? reset.error;
+  const ready = data !== undefined && personal !== undefined;
+  const loadFailed = query.isError || personalQuery.isError;
+  const failure = save.error ?? savePersonal.error ?? reset.error;
   const reportDirty = useCallback(
-    (value: boolean) => {
+    (value: DraftDirty) => {
+      personalDirty.current = value.personal;
       setDirty(value);
-      onDirtyChange?.(value);
+      onDirtyChange?.(value.entry || value.personal);
     },
     [onDirtyChange],
   );
+  const latestOnDirtyChange = useRef(onDirtyChange);
+  useEffect(() => {
+    latestOnDirtyChange.current = onDirtyChange;
+  }, [onDirtyChange]);
+  // Leaving the page (switching system, going Home) drops the draft: clean up as Discard would.
+  useEffect(
+    () => () => {
+      if (personalDirty.current) void cleanupImages(systemId);
+      latestOnDirtyChange.current?.(false);
+    },
+    [systemId],
+  );
   const close = () => {
+    reportDirty(CLEAN);
     setConfirming(null);
     setEditing(false);
   };
-  const submit = (next: SystemInfo) => {
-    save.mutate({ systemId: system.systemId, entry: next }, { onSuccess: close });
+  const discard = () => {
+    if (personalDirty.current) void cleanupImages(systemId);
+    close();
+  };
+  const submit = async (changes: DraftChanges) => {
+    try {
+      if (changes.entry) await save.mutateAsync({ systemId, entry: changes.entry });
+      if (changes.personal)
+        await savePersonal.mutateAsync({ systemId, personal: changes.personal });
+    } catch {
+      return; // The mutation's error shows in the action bar.
+    }
+    close();
   };
   const edit = (
     <button
@@ -56,6 +93,7 @@ export function EntryView({
       className={SECONDARY_BUTTON}
       onClick={() => {
         save.reset();
+        savePersonal.reset();
         reset.reset();
         setEditing(true);
       }}
@@ -68,41 +106,47 @@ export function EntryView({
       <SystemHero
         name={system.name}
         subtitle={systemDetail(system)}
-        action={entry && !editing ? edit : undefined}
+        action={ready && !editing ? edit : undefined}
       />
       <div data-testid="museum-scroll" className="min-h-0 flex-1 overflow-y-auto p-5">
-        {query.isError && <p className="text-xs text-red-400">{t('apps.museum.loadError')}</p>}
-        {!entry && !query.isError && (
+        {loadFailed && <p className="text-xs text-red-400">{t('apps.museum.loadError')}</p>}
+        {!ready && !loadFailed && (
           <p className="text-xs text-slate-500">{t('apps.museum.loading')}</p>
         )}
-        {data && editing && (
+        {ready && editing && (
           <EntryForm
             formId={formId}
             name={system.name}
             entry={data.entry}
-            onSubmit={submit}
+            personal={personal}
+            onSubmit={(changes) => void submit(changes)}
             onDirtyChange={reportDirty}
           />
         )}
-        {entry && !editing && <EntrySections entry={entry} />}
+        {entry && personal && !editing && <EntrySections entry={entry} personal={personal} />}
       </div>
-      {data && editing && (
+      {ready && editing && (
         <ActionBar>
-          <button type="submit" form={formId} className={PRIMARY_BUTTON} disabled={save.isPending}>
+          <button
+            type="submit"
+            form={formId}
+            className={PRIMARY_BUTTON}
+            disabled={save.isPending || savePersonal.isPending}
+          >
             {t('apps.museum.save')}
           </button>
           <button
             type="button"
             className={SECONDARY_BUTTON}
             onClick={() => {
-              if (dirty) setConfirming('discard');
+              if (dirty.entry || dirty.personal) setConfirming('discard');
               else close();
             }}
           >
             {t('apps.museum.discard')}
           </button>
           {failure && (
-            <p role="alert" className="min-w-0 truncate text-xs text-[#ff8a80]">
+            <p role="alert" className="min-w-0 flex-1 text-xs break-words text-[#ff8a80]">
               {t(errorMessageKey(failure))}
             </p>
           )}
@@ -127,7 +171,7 @@ export function EntryView({
           onCancel={() => {
             setConfirming(null);
           }}
-          onConfirm={close}
+          onConfirm={discard}
         />
       )}
       {confirming === 'reset' && (
@@ -140,7 +184,7 @@ export function EntryView({
           }}
           onConfirm={() => {
             setConfirming(null);
-            reset.mutate({ systemId: system.systemId }, { onSuccess: close });
+            reset.mutate({ systemId }, { onSuccess: discard });
           }}
         />
       )}

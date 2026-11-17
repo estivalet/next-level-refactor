@@ -1,5 +1,6 @@
 import {
   defaultSettings,
+  emptyPersonal,
   ok,
   type IpcChannel,
   type IpcEvent,
@@ -36,6 +37,7 @@ const DEFAULT_RESPONSES: FakeResponses = {
   'settings.get': () => ok({ kind: 'ok', snapshot: { settings: defaultSettings(), revision: 0 } }),
   'settings.backups.list': () => ok([]),
   'auth.state': () => ok({ kind: 'disabled' }),
+  'systems.personal.get': ({ systemId }) => ok(emptyPersonal(systemId)),
 };
 
 /**

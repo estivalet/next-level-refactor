@@ -1,4 +1,4 @@
-import { ok, remoteImageUrl, type SystemInfo } from '@nextlevel/shared';
+import { ok, remoteImageUrl, type SystemInfo, type SystemPersonal } from '@nextlevel/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -34,10 +34,21 @@ const entry: SystemInfo = {
 
 const shipped: SystemInfo = { ...entry, cpu: 'Shipped CPU' };
 
-function setup(edited = true, initial: SystemInfo = entry) {
+function setup(
+  edited = true,
+  initial: SystemInfo = entry,
+  personal: SystemPersonal = { systemId: 'snes', gallery: [] },
+) {
   let current = initial;
   let isEdited = edited;
+  let currentPersonal = personal;
   const bridge = installFakeBridge({
+    'systems.personal.get': () => ok(currentPersonal),
+    'systems.personal.save': ({ personal: saved }) => {
+      currentPersonal = saved;
+      return ok(saved);
+    },
+    'systems.personal.cleanup': () => ok(undefined),
     'systems.info.get': () => ok({ entry: current, edited: isEdited }),
     'systems.info.save': ({ entry: saved }) => {
       current = saved;
@@ -204,5 +215,120 @@ describe('EntryForm', () => {
     const sources = await within(view).findByRole('region', { name: 'Sources' });
     expect(within(sources).getByRole('link', { name: 'Secure' })).toBeInTheDocument();
     expect(within(sources).getByText('Plain').closest('a')).toBeNull();
+  });
+
+  it('FR-MUS-6: notes show first on the page', async () => {
+    setup(true, entry, {
+      systemId: 'snes',
+      notes: 'Use the 1CHIP model.\nAvoid HDMI mods.',
+      gallery: [],
+    });
+    const view = await screen.findByRole('article', { name: 'Super Nintendo' });
+    const notes = await within(view).findByRole('region', { name: 'Notes' });
+    const regions = within(view).getAllByRole('region');
+    expect(regions[0]).toBe(notes);
+    expect(regions[1]).toHaveAccessibleName('Emulators');
+    const text = within(notes).getByText(/Use the 1CHIP model\./);
+    expect(text.textContent).toBe('Use the 1CHIP model.\nAvoid HDMI mods.');
+    expect(text).toHaveClass('whitespace-pre-line');
+  });
+
+  it('FR-MUS-6: saving only notes calls systems.personal.save and never systems.info.save', async () => {
+    const { bridge, user } = setup();
+    const form = await openForm(user);
+    const regions = within(form).getAllByRole('region');
+    expect(regions[0]).toHaveAccessibleName('Notes');
+    const notes = within(regions[0] as HTMLElement).getByLabelText('Notes');
+    expect(notes).toHaveAttribute('rows', '10');
+    await user.type(notes, 'Runs best on bsnes.');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('form')).toBeNull();
+    });
+    expect(bridge.channels()).not.toContain('systems.info.save');
+    expect(bridge.calls.find((call) => call.channel === 'systems.personal.save')?.input).toEqual({
+      systemId: 'snes',
+      personal: { systemId: 'snes', notes: 'Runs best on bsnes.', gallery: [] },
+    });
+    expect(await screen.findByText('Runs best on bsnes.')).toBeInTheDocument();
+  });
+
+  it('FR-MUS-6: saving only the entry never calls systems.personal.save', async () => {
+    const { bridge, user } = setup();
+    const form = await openForm(user);
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText('CPU'),
+      'x',
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('form')).toBeNull();
+    });
+    expect(bridge.channels()).toContain('systems.info.save');
+    expect(bridge.channels()).not.toContain('systems.personal.save');
+  });
+
+  it('FR-MUS-6: clearing the notes saves a record without notes', async () => {
+    const { bridge, user } = setup(true, entry, { systemId: 'snes', notes: 'Old', gallery: [] });
+    const form = await openForm(user);
+    const notes = within(within(form).getByRole('region', { name: 'Notes' })).getByLabelText(
+      'Notes',
+    );
+    await user.clear(notes);
+    await user.type(notes, '   ');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('form')).toBeNull();
+    });
+    const saved = bridge.calls.find((call) => call.channel === 'systems.personal.save');
+    const sent = (saved?.input as { personal: SystemPersonal }).personal;
+    expect(sent.notes).toBeUndefined();
+    expect(sent).toEqual({ systemId: 'snes', gallery: [] });
+  });
+
+  it('FR-MUS-6: discarding after adding images calls systems.personal.cleanup', async () => {
+    const { bridge, user } = setup();
+    const form = await openForm(user);
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Notes' })).getByLabelText('Notes'),
+      'draft',
+    );
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Discard changes' }));
+
+    await waitFor(() => {
+      expect(bridge.channels()).toContain('systems.personal.cleanup');
+    });
+    expect(bridge.calls.find((call) => call.channel === 'systems.personal.cleanup')?.input).toEqual(
+      { systemId: 'snes' },
+    );
+    expect(bridge.channels()).not.toContain('systems.personal.save');
+    expect(screen.queryByRole('form')).toBeNull();
+  });
+
+  it('FR-MUS-6: discarding an entry-only edit does not clean up images', async () => {
+    const { bridge, user } = setup();
+    const form = await openForm(user);
+    await user.type(
+      within(within(form).getByRole('region', { name: 'Hardware' })).getByLabelText('CPU'),
+      'x',
+    );
+    await user.click(screen.getByRole('button', { name: 'Discard' }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Discard changes' }),
+    );
+    expect(screen.queryByRole('form')).toBeNull();
+    expect(bridge.channels()).not.toContain('systems.personal.cleanup');
+  });
+
+  it('FR-MUS-6: the reset confirm says notes and images are kept', async () => {
+    const { user } = setup();
+    await openForm(user);
+    await user.click(screen.getByRole('button', { name: 'Reset to original' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/Your notes and images are kept\./)).toBeInTheDocument();
   });
 });

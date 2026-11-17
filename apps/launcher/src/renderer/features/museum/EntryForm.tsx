@@ -1,9 +1,16 @@
-import { SystemInfoSchema, type SystemInfo } from '@nextlevel/shared';
+import {
+  SystemInfoSchema,
+  SystemPersonalSchema,
+  type SystemInfo,
+  type SystemPersonal,
+} from '@nextlevel/shared';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EmulatorsSection } from './EmulatorsSection.tsx';
 import { FieldGroup, type FieldSpec } from './FieldGroup.tsx';
 import { fieldErrors, type FieldErrors } from './formErrors.ts';
 import { ModelsEditor } from './ModelsEditor.tsx';
+import { NotesEditor } from './NotesSection.tsx';
 import { PeripheralsEditor } from './PeripheralsEditor.tsx';
 import { SourcesEditor } from './SourcesEditor.tsx';
 import { TopGamesEditor } from './TopGamesEditor.tsx';
@@ -44,33 +51,52 @@ function FormSection({ title, children }: { title: string; children: ReactNode }
   );
 }
 
+/** Which half of the draft differs from what was loaded. */
+export type DraftDirty = { entry: boolean; personal: boolean };
+
+/** The validated halves of a save; a half is present only when it changed. */
+export type DraftChanges = { entry?: SystemInfo; personal?: SystemPersonal };
+
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/** Personal-record errors share the error map, keyed under `personal.`. */
+function prefixed(errors: FieldErrors): FieldErrors {
+  return Object.fromEntries(
+    Object.entries(errors).map(([key, value]) => [`personal.${key}`, value]),
+  );
+}
+
 /**
- * Every field of a museum entry, editable (FR-MUS-2). It renders no buttons: the page's action bar
- * submits it through `form={formId}` (FR-MUS-9). Submitting validates with the shared schema and
- * hands a valid entry to `onSubmit`.
+ * A system's page in edit mode: the owner's notes (FR-MUS-6), the read-only emulators (FR-MUS-7)
+ * and every field of the museum entry (FR-MUS-2). It renders no buttons: the page's action bar
+ * submits it through `form={formId}` (FR-MUS-9). Submitting validates both the entry and the
+ * personal record and hands the changed, valid halves to `onSubmit`.
  */
 export function EntryForm({
   formId,
   name,
   entry,
+  personal,
   onSubmit,
   onDirtyChange,
 }: {
   formId: string;
   name: string;
   entry: SystemInfo;
-  onSubmit: (entry: SystemInfo) => void;
-  /** Told whether the draft has unsaved changes; false again when the form closes. */
-  onDirtyChange?: ((dirty: boolean) => void) | undefined;
+  personal: SystemPersonal;
+  onSubmit: (changes: DraftChanges) => void;
+  /** Told which halves of the draft have unsaved changes. */
+  onDirtyChange?: ((dirty: DraftDirty) => void) | undefined;
 }) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState<SystemInfo>(entry);
+  const [personalDraft, setPersonalDraft] = useState<SystemPersonal>(personal);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const dirty = JSON.stringify(draft) !== JSON.stringify(entry);
+  const entryDirty = !same(draft, entry);
+  const personalDirty = !same(personalDraft, personal);
   useEffect(() => {
-    onDirtyChange?.(dirty);
-    return () => onDirtyChange?.(false);
-  }, [dirty, onDirtyChange]);
+    onDirtyChange?.({ entry: entryDirty, personal: personalDirty });
+  }, [entryDirty, personalDirty, onDirtyChange]);
   const title = (key: string) => t(`apps.museum.sections.${key}`);
   const patch = (changes: Partial<SystemInfo>) => {
     setDraft((current) => ({ ...current, ...changes }));
@@ -78,12 +104,19 @@ export function EntryForm({
 
   const submit = () => {
     const parsed = SystemInfoSchema.safeParse(draft);
-    if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error.issues));
+    const parsedPersonal = SystemPersonalSchema.safeParse(personalDraft);
+    if (!parsed.success || !parsedPersonal.success) {
+      setErrors({
+        ...(parsed.success ? {} : fieldErrors(parsed.error.issues)),
+        ...(parsedPersonal.success ? {} : prefixed(fieldErrors(parsedPersonal.error.issues))),
+      });
       return;
     }
     setErrors({});
-    onSubmit(parsed.data);
+    const changes: DraftChanges = {};
+    if (entryDirty) changes.entry = parsed.data;
+    if (personalDirty) changes.personal = parsedPersonal.data;
+    onSubmit(changes);
   };
 
   return (
@@ -96,6 +129,15 @@ export function EntryForm({
         submit();
       }}
     >
+      <NotesEditor
+        title={title('notes')}
+        notes={personal.notes}
+        error={errors['personal.notes']}
+        onChange={(notes) => {
+          setPersonalDraft((current) => ({ ...current, notes }));
+        }}
+      />
+      <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
       <FormSection title={title('overview')}>
         <FieldGroup fields={OVERVIEW} draft={draft} errors={errors} onChange={patch} />
       </FormSection>
@@ -114,6 +156,7 @@ export function EntryForm({
           }}
         />
       </FormSection>
+      {/* The gallery goes here (FR-MUS-8). */}
       <FormSection title={title('related')}>
         <FieldGroup fields={RELATED} draft={draft} errors={errors} onChange={patch} />
         <h4 className="mt-3 mb-1 text-xs text-slate-400">{t('apps.museum.field.peripherals')}</h4>

@@ -30,7 +30,10 @@ export function useSystemInfo(systemId: string | null) {
   });
 }
 
-function useMuseumMutation<Input>(run: (input: Input) => Promise<SystemInfo>) {
+/** A museum write; on success every museum query reloads. */
+export function useMuseumMutation<Input, Output = SystemInfo>(
+  run: (input: Input) => Promise<Output>,
+) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: run,
