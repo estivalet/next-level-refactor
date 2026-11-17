@@ -108,11 +108,14 @@ export function createSystemInfoHandlers(deps: {
     },
     'systems.info.get': ({ systemId }) => merged(system(systemId)),
     'systems.info.save': ({ systemId, entry }) => {
-      system(systemId);
+      const definition = system(systemId);
       if (entry.systemId !== systemId) throw appError('VALIDATION_FAILED');
-      const saved = writable().save(entry);
+      // Store a Type only when the owner chose one other than the shipped kind, so a later change
+      // to a custom system's kind or to the catalog still shows (FR-MUS-10).
+      const { kind, ...rest } = entry;
+      const saved = writable().save(kind === definition.kind ? rest : entry);
       deps.emit('systems.infoChanged', { systemId });
-      return saved;
+      return { ...saved, kind: saved.kind ?? definition.kind };
     },
     'systems.info.reset': ({ systemId }) => {
       const definition = system(systemId);

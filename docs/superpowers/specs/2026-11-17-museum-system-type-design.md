@@ -68,8 +68,9 @@ The owner wants to review and classify every system personally, through the app.
   [img] Nintendo 64
         Nintendo · 1996
   ```
-- *Builder's call:* saving stores whatever Type is selected, even when it equals the shipped one.
-  A later catalog change is then hidden only for systems the owner already saved, and Reset clears it.
+- *Final review (2026-11-17):* saving stores a Type only when it differs from the shipped kind, so
+  a later change to a custom system's kind in Settings, or to the catalog, still shows for systems
+  the owner edited for other reasons. A Type the owner deliberately chose is kept until Reset.
 
 ## Docs
 

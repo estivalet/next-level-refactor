@@ -59,9 +59,9 @@ let images: { add: ReturnType<typeof vi.fn>; keepOnly: ReturnType<typeof vi.fn> 
 let picked: string[];
 let events: Array<[string, unknown]>;
 let warn: ReturnType<typeof vi.fn<(context: object, msg: string) => void>>;
-const handlers = () =>
+const handlers = (catalog: readonly SystemDefinition[] = systems) =>
   createSystemInfoHandlers({
-    systems: () => systems,
+    systems: () => catalog,
     customSystems: () => [custom],
     repo: () => repo,
     personal: () => personalRepo,
@@ -221,6 +221,31 @@ describe('systems.info handlers', () => {
     expect((await h['systems.info.list']()).find((r) => r.systemId === 'plain')?.kind).toBe(
       'console',
     );
+  });
+
+  it('FR-MUS-10: a save keeps a Type only when it differs from the shipped one, so later kind changes still show', async () => {
+    const h = handlers();
+    const saved = await h['systems.info.save']({
+      systemId: 'plain',
+      entry: entryOf('plain', { kind: 'console', fullName: 'Mine' }),
+    });
+    expect(saved.kind).toBe('console');
+    expect(repo?.get('plain')?.kind).toBeUndefined();
+    const reclassified = systems.map((s) =>
+      s.id === 'plain' ? { ...s, kind: 'handheld' as const } : s,
+    );
+    expect(
+      (await handlers(reclassified)['systems.info.get']({ systemId: 'plain' })).entry,
+    ).toMatchObject({ kind: 'handheld', fullName: 'Mine' });
+
+    await h['systems.info.save']({
+      systemId: 'plain',
+      entry: entryOf('plain', { kind: 'virtual' }),
+    });
+    expect(repo?.get('plain')?.kind).toBe('virtual');
+    expect(
+      (await handlers(reclassified)['systems.info.get']({ systemId: 'plain' })).entry.kind,
+    ).toBe('virtual');
   });
 
   it("FR-MUS-10: a custom system's base entry carries its settings kind", async () => {
