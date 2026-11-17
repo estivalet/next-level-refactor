@@ -185,8 +185,9 @@ New per-system "personal" record, separate from the museum entry:
   name (`SystemInfoSummary.name`). Checked against the owner's folder on 2026-11-16: 276 of 447
   catalog system names have a file. The rest (e.g. Arduboy, Chip8) have no image and show the
   placeholder. No menu-node fallback (my call: keeps the Museum independent of menus).
-- **Section order (my call):** Notes and Emulators first, because they're what the owner uses
-  while playing. Then Overview, Story, Hardware, Models, Gallery, Related, Top games, Sources.
+- **Section order (owner's call, 2026-11-17):** Overview, Story, Hardware, Models, Gallery,
+  Related, Top games, Sources, then Emulators and, last, Notes. (First draft had Notes and
+  Emulators first; the owner moved them to the end in review.)
   In read mode, empty Notes and Gallery show a one-line empty state.
 - **Gallery read mode:** a grid of thumbnails with captions. Clicking one opens a simple viewer
   with the existing modal pattern: large image, caption, previous/next, Esc to close. **Edit

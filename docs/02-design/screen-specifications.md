@@ -138,8 +138,8 @@ requirements:
   system (name, manufacturer, year, a dot when the entry is edited) with a kind filter. Right, **Home** or a system's page.
   Home: a hero for the featured system (the most recently changed, else the first) with an **Open entry** button, a counts line
   (systems, edited, with notes), and rows of cards, *Recently changed* and *With your notes*; empty rows are hidden and only a row scrolls sideways.
-  A system page opens with a hero (its hardware image from the menu art folder, name, manufacturer and year), then the sections Notes,
-  Emulators, Overview, Story, Hardware, Models, Gallery, Related, Top games and Sources. Notes and Gallery are the owner's own and are
+  A system page opens with a hero (its hardware image from the menu art folder, name, manufacturer and year), then the sections Overview,
+  Story, Hardware, Models, Gallery, Related, Top games, Sources, Emulators and, last, Notes. Notes and Gallery are the owner's own and are
   kept apart from the entry; Emulators lists the emulator profiles set up for the system, grouped by emulator, read-only. The gallery shows
   the added images with captions; in edit mode you add images (a picker, up to 50; ones of the wrong type, over 20 MiB, unreadable or that could not be copied in are
   named in a message), caption, reorder and remove them. If the personal record cannot be read, the entry still shows with Notes and Gallery

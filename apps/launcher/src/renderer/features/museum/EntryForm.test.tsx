@@ -217,7 +217,7 @@ describe('EntryForm', () => {
     expect(within(sources).getByText('Plain').closest('a')).toBeNull();
   });
 
-  it('FR-MUS-6: notes show first on the page', async () => {
+  it('FR-MUS-6, FR-MUS-7: notes show last on the page, right after emulators', async () => {
     setup(true, entry, {
       systemId: 'snes',
       notes: 'Use the 1CHIP model.\nAvoid HDMI mods.',
@@ -226,8 +226,9 @@ describe('EntryForm', () => {
     const view = await screen.findByRole('article', { name: 'Super Nintendo' });
     const notes = await within(view).findByRole('region', { name: 'Notes' });
     const regions = within(view).getAllByRole('region');
-    expect(regions[0]).toBe(notes);
-    expect(regions[1]).toHaveAccessibleName('Emulators');
+    expect(regions.at(-1)).toBe(notes);
+    expect(regions.at(-2)).toHaveAccessibleName('Emulators');
+    expect(regions.at(-3)).toHaveAccessibleName('Sources');
     const text = within(notes).getByText(/Use the 1CHIP model\./);
     expect(text.textContent).toBe('Use the 1CHIP model.\nAvoid HDMI mods.');
     expect(text).toHaveClass('whitespace-pre-line');
@@ -237,8 +238,10 @@ describe('EntryForm', () => {
     const { bridge, user } = setup();
     const form = await openForm(user);
     const regions = within(form).getAllByRole('region');
-    expect(regions[0]).toHaveAccessibleName('Notes');
-    const notes = within(regions[0] as HTMLElement).getByLabelText('Notes');
+    expect(regions.at(-1)).toHaveAccessibleName('Notes');
+    expect(regions.at(-2)).toHaveAccessibleName('Emulators');
+    expect(regions.at(-3)).toHaveAccessibleName('Sources');
+    const notes = within(regions.at(-1) as HTMLElement).getByLabelText('Notes');
     expect(notes).toHaveAttribute('rows', '10');
     await user.type(notes, 'Runs best on bsnes.');
     await user.click(screen.getByRole('button', { name: 'Save' }));

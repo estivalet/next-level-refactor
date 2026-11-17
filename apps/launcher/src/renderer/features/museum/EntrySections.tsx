@@ -192,9 +192,9 @@ function SourcesSection({ title, entry }: { title: string; entry: SystemInfo }) 
 }
 
 /**
- * Every read-only section of a system's page, in page order: the owner's notes and emulators first
- * (FR-MUS-6, FR-MUS-7), then the museum entry (FR-MUS-2, FR-MUS-5) with the owner's gallery
- * (FR-MUS-8). `personal` is undefined when it failed to load: notes and gallery show an error.
+ * Every read-only section of a system's page, in page order: the museum entry (FR-MUS-2, FR-MUS-5)
+ * with the owner's gallery (FR-MUS-8), then emulators (FR-MUS-7) and the owner's notes last
+ * (FR-MUS-6). `personal` is undefined when it failed to load: notes and gallery show an error.
  */
 export function EntrySections({
   entry,
@@ -207,12 +207,6 @@ export function EntrySections({
   const title = (key: string) => t(`apps.museum.sections.${key}`);
   return (
     <>
-      {personal ? (
-        <NotesSection title={title('notes')} notes={personal.notes} />
-      ) : (
-        <PersonalUnavailable title={title('notes')} />
-      )}
-      <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
       <FactSection title={title('overview')} entry={entry} fields={OVERVIEW} />
       <StorySection title={title('story')} entry={entry} />
       <FactSection title={title('hardware')} entry={entry} fields={HARDWARE} />
@@ -229,6 +223,12 @@ export function EntrySections({
       <RelatedSection title={title('related')} entry={entry} />
       <TopGamesSection title={title('topGames')} entry={entry} />
       <SourcesSection title={title('sources')} entry={entry} />
+      <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
+      {personal ? (
+        <NotesSection title={title('notes')} notes={personal.notes} />
+      ) : (
+        <PersonalUnavailable title={title('notes')} />
+      )}
     </>
   );
 }

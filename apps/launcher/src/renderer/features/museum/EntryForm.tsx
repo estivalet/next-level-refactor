@@ -150,19 +150,6 @@ export function EntryForm({
         submit();
       }}
     >
-      {personalDraft ? (
-        <NotesEditor
-          title={title('notes')}
-          notes={personalDraft.notes}
-          error={errors['personal.notes']}
-          onChange={(notes) => {
-            patchPersonal({ notes });
-          }}
-        />
-      ) : (
-        <PersonalUnavailable title={title('notes')} />
-      )}
-      <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
       <FormSection title={title('overview')}>
         <FieldGroup fields={OVERVIEW} draft={draft} errors={errors} onChange={patch} />
       </FormSection>
@@ -225,6 +212,19 @@ export function EntryForm({
           }}
         />
       </FormSection>
+      <EmulatorsSection title={title('emulators')} systemId={entry.systemId} />
+      {personalDraft ? (
+        <NotesEditor
+          title={title('notes')}
+          notes={personalDraft.notes}
+          error={errors['personal.notes']}
+          onChange={(notes) => {
+            patchPersonal({ notes });
+          }}
+        />
+      ) : (
+        <PersonalUnavailable title={title('notes')} />
+      )}
 
       {Object.keys(errors).length > 0 && (
         <p role="alert" className="mb-2 text-xs text-[#ff8a80]">
