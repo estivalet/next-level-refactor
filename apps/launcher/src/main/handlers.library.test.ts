@@ -8,6 +8,7 @@ import { createIpcRouter } from './ipc/router.ts';
 import { CollectionRepository } from './library/CollectionRepository.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import { SystemInfoRepository } from './library/SystemInfoRepository.ts';
+import { SystemPersonalRepository } from './library/SystemPersonalRepository.ts';
 import type { BatchScrapeService } from './scraper/batch/BatchScrapeService.ts';
 import type { LaunchBoxService } from './launchbox/LaunchBoxService.ts';
 import type { LaunchBoxScrapeService } from './launchbox/LaunchBoxScrapeService.ts';
@@ -114,6 +115,7 @@ async function setup(withLibrary: boolean) {
       menus,
       smartFilters,
       systemInfo: new SystemInfoRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21))),
+      systemPersonal: new SystemPersonalRepository(temp.db, () => new Date(Date.UTC(2026, 9, 21))),
       // These tests never reach the import channels.
       importer: {} as ImportService,
       scrape: {} as ScrapeService,
