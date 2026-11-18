@@ -114,6 +114,7 @@ describe('GameExportReader', () => {
     const { id } = collections.create('Picks');
     collections.update(id, { sort: 'manual' });
     collections.addGames(id, [b ?? 0, a ?? 0]);
+    collections.move(id, [b ?? 0], a ?? 0); // by hand: Beta before Alpha
 
     const games = reader.read({ kind: 'collection', collectionId: id }, null);
 

@@ -84,6 +84,9 @@ M10-1 — polish before 1.0.
 
 ### Changed
 
+- **Collections stay alphabetical** (FR-LIB-8): games you add to a collection go in their
+  alphabetical place instead of at the end (games you moved by hand stay where they are), and
+  imported "… Essentials" collections are sorted by Title.
 - **PS5 Style home** (FR-THM-1): the selected system is named beside its tile — a badge with its
   short name, then its full name from the museum entry (the menu name until it loads). The hero
   moves right and shows *Manufacturer · Year* under the logo instead of the game count, and

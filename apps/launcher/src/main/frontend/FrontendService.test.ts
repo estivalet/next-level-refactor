@@ -148,6 +148,8 @@ describe('FrontendService.games', () => {
     const [c] = seedGames(library.db, 'n64', ['Gamma']);
     const picks = collections.create('Picks');
     collections.addGames(picks.id, [c ?? 0, b ?? 0, a ?? 0]);
+    collections.move(picks.id, [c ?? 0, b ?? 0], a ?? 0); // by hand: Gamma, Beta, Alpha
+    collections.reorder(picks.id, c ?? 0, b ?? 0);
     expect(service.games(`c:${String(picks.id)}`).map((g) => g.title)).toEqual([
       'Gamma',
       'Beta',

@@ -12,6 +12,17 @@ const SUMMARY = `select c.id as id, c.name as name, c.sort as sort,
   (select count(*) from collection_games cg where cg.collection_id = c.id) as games
   from collections c`;
 
+interface TitledGame {
+  gameId: number;
+  sortTitle: string;
+}
+
+/** Title order as the list's Title sort has it (`m.sort_title, g.id`). */
+function byTitle(a: TitledGame, b: TitledGame): number {
+  if (a.sortTitle !== b.sortTitle) return a.sortTitle < b.sortTitle ? -1 : 1;
+  return a.gameId - b.gameId;
+}
+
 export function nameTaken(error: unknown, name: string): unknown {
   if (error instanceof Database.SqliteError && error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
     return new AppErrorException({
@@ -80,29 +91,39 @@ export class CollectionRepository {
     if (changes === 0) throw notFound({ collectionId: id });
   }
 
-  /** Appends games after the last one; games already in the collection keep their place. */
+  /**
+   * Adds games in alphabetical order (FR-LIB-8): each one goes right before the first member whose
+   * title sorts after it, so a list kept by title stays that way and hand moves elsewhere stay put.
+   * Games already in the collection keep their place.
+   */
   addGames(id: number, gameIds: readonly number[]): CollectionSummary {
     const ids = [...new Set(gameIds)];
     this.client.transaction(() => {
       this.summary(id);
-      const known = this.client
-        .prepare('select count(*) from games where id in (select value from json_each(?))')
-        .pluck()
-        .get(JSON.stringify(ids)) as number;
-      if (known !== ids.length) throw notFound({ gameIds: ids });
-      let next = this.client
+      const titled = this.client
         .prepare(
-          'select coalesce(max(position) + 1, 0) from collection_games where collection_id = ?',
+          `select g.id as gameId, coalesce(m.sort_title, '') as sortTitle from games g
+           left join game_metadata m on m.game_id = g.id
+           where g.id in (select value from json_each(?))`,
         )
-        .pluck()
-        .get(id) as number;
+        .all(JSON.stringify(ids)) as TitledGame[];
+      if (titled.length !== ids.length) throw notFound({ gameIds: ids });
+      const members = this.titledMembers(id);
+      const present = new Set(members.map((member) => member.gameId));
+      const added = titled.filter((game) => !present.has(game.gameId)).sort(byTitle);
+      if (added.length === 0) return;
       const insert = this.client.prepare(
-        `insert into collection_games (collection_id, game_id, position) values (?, ?, ?)
-         on conflict do nothing`,
+        'insert into collection_games (collection_id, game_id, position) values (?, ?, -1)',
       );
-      for (const gameId of ids) {
-        if (insert.run(id, gameId, next).changes > 0) next += 1;
+      for (const game of added) {
+        const at = members.findIndex((member) => byTitle(member, game) > 0);
+        members.splice(at === -1 ? members.length : at, 0, game);
+        insert.run(id, game.gameId);
       }
+      this.renumber(
+        id,
+        members.map((member) => member.gameId),
+      );
     })();
     return this.summary(id);
   }
@@ -185,6 +206,16 @@ export class CollectionRepository {
       )
       .pluck()
       .all(id) as number[];
+  }
+
+  private titledMembers(id: number): TitledGame[] {
+    return this.client
+      .prepare(
+        `select cg.game_id as gameId, coalesce(m.sort_title, '') as sortTitle
+         from collection_games cg left join game_metadata m on m.game_id = cg.game_id
+         where cg.collection_id = ? order by cg.position, cg.game_id`,
+      )
+      .all(id) as TitledGame[];
   }
 
   private renumber(id: number, members: readonly number[]): void {

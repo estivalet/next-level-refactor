@@ -1,3 +1,4 @@
+import { isEssentialsName } from '@nextlevel/shared';
 import type { ExistingImports } from '../import/dryRun.ts';
 import type { CollectionEntryImport } from '../import/mapCollections.ts';
 import type { GameImport } from '../import/mapGames.ts';
@@ -83,8 +84,8 @@ export class ImportRepository {
   }
 
   /**
-   * Creates or refills an imported collection (D12: contents and order replaced, sort manual; a
-   * name changed here is kept). Members without a game become missing, collection-only rows
+   * Creates or refills an imported collection (D12: contents and order replaced, sort manual —
+   * title for an Essentials collection (FR-LIB-8); a name changed here is kept). Members without a game become missing, collection-only rows
    * (D13): their system's lists leave them out, and they are not counted as games (the summary
    * counts system gamelist entries).
    */
@@ -97,12 +98,13 @@ export class ImportRepository {
     const uncounted: GameWriteCounts = { matched: 0, inserted: 0, missing: 0 };
     const at = now.toISOString();
     const s = this.statements;
+    const sort = isEssentialsName(name) ? 'title' : 'manual';
     return this.client.transaction(() => {
       let id = s.collectionBySource.get(source) as number | undefined;
       if (id === undefined) {
-        id = Number(s.insertCollection.run({ name, source, at }).lastInsertRowid);
+        id = Number(s.insertCollection.run({ name, sort, source, at }).lastInsertRowid);
       } else {
-        s.manualSort.run(id);
+        s.setSort.run(sort, id);
       }
       s.clearMembers.run(id);
       const seen = new Set<number>();
@@ -298,9 +300,9 @@ export class ImportRepository {
       collectionBySource: c.prepare('select id from collections where source = ?').pluck(),
       insertCollection: c.prepare(
         `insert into collections (name, sort, created_at, source)
-         values (@name, 'manual', @at, @source)`,
+         values (@name, @sort, @at, @source)`,
       ),
-      manualSort: c.prepare("update collections set sort = 'manual' where id = ?"),
+      setSort: c.prepare('update collections set sort = ? where id = ?'),
       clearMembers: c.prepare('delete from collection_games where collection_id = ?'),
       insertMember: c.prepare(
         `insert into collection_games (collection_id, game_id, position)

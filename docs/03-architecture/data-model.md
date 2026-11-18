@@ -349,7 +349,7 @@ with the milestones that use them, each as a new migration.
   locked), favorite and hidden take its values; `play_count` = max, `last_played_at` = later;
   the launch override's core/extra args and `arcade_info` are replaced when NextLevelOS has them
   (`profile_id` kept); absent values never clear data here. Imported collections (by `source`)
-  get contents, order and `manual` sort replaced and keep a name changed here; a name taken by
+  get contents, order and sort replaced (`manual`; `title` for an Essentials collection, FR-LIB-8) and keep a name changed here; a name taken by
   a collection made here gets ` (NextLevelOS)`. Imported menus are replaced in place by
   `source` and config.json's menu becomes active.
 

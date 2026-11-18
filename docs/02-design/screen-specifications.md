@@ -262,7 +262,8 @@ Scope view (D62)
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections under a **Find or create a collection…** box: typing narrows the
     list, and a name no collection has yet (in any case) offers **New collection “name”**
-    (also Enter), which creates it with the selected games in it and keeps the dialog open.
+    (also Enter), which creates it with the selected games in it and keeps the dialog open. Added games go in
+    alphabetical order (FR-LIB-8, owner request 2026-11-17), so a list kept by title stays that way.
   - **Edit details (FR-LIB-6, owner request 2026-11-02):** the game's title, **Info** and
     **Media** tabs, and **‹ n / total ›** for the shown list (stepping selects that row; off
     with unsaved changes; the tab is kept). Info = the editable fields. Media is look-only:

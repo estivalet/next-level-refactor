@@ -126,8 +126,8 @@ describe('SyncService (FR-SET-5, D55)', () => {
     await a.service.sync();
     await b.service.sync();
     await a.service.sync();
-    expect(a.collection('Best RPGs')?.titles).toEqual(['Mario', 'Zelda', 'Metroid']);
-    expect(b.collection('Best RPGs')?.titles).toEqual(['Mario', 'Zelda', 'Metroid']);
+    expect(a.collection('Best RPGs')?.titles).toEqual(['Mario', 'Metroid', 'Zelda']);
+    expect(b.collection('Best RPGs')?.titles).toEqual(['Mario', 'Metroid', 'Zelda']);
   });
 
   it('a collection made on both PCs with the same name becomes one', async () => {
