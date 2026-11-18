@@ -51,17 +51,39 @@ describe('CollectionRepository', () => {
     expect(appErrorOf(() => listed(picks.id)).code).toBe('NOT_FOUND');
   });
 
-  it('FR-LIB-8: games from any system are added in order and listed by position', () => {
+  it('FR-LIB-8: games from any system are added in alphabetical order and listed by position', () => {
     const [b = 0, a = 0] = seedGames(library.db, 'nintendo-64', ['Bravo', 'Alpha']);
     const [c = 0] = seedGames(library.db, 'snes', ['Charlie']);
     const { id } = collections.create('Picks');
     collections.addGames(id, [c, b]);
     const summary = collections.addGames(id, [b, a]);
     expect(summary.games).toBe(3);
-    expect(listed(id)).toEqual(['Charlie', 'Bravo', 'Alpha']);
+    expect(listed(id)).toEqual(['Alpha', 'Bravo', 'Charlie']);
     expect(collections.membership(a)).toEqual([id]);
     expect(appErrorOf(() => collections.addGames(id, [999])).code).toBe('NOT_FOUND');
     expect(collections.list()[0]?.games).toBe(3);
+  });
+
+  it('FR-LIB-8: an added game goes before the first member after it by title; hand moves stay', () => {
+    const [cave = 0, astral = 0, dave = 0, bayo = 0, zelda = 0] = seedGames(library.db, 'switch', [
+      'Cave Story',
+      'astral Chain',
+      'Dave the Diver',
+      'Bayonetta 2',
+      'Zelda',
+    ]);
+    const { id } = collections.create('Picks');
+    collections.addGames(id, [cave, astral]);
+    collections.move(id, [astral], null); // by hand: Cave Story, astral Chain
+    collections.addGames(id, [dave, bayo, zelda]);
+    expect(listed(id)).toEqual([
+      'Bayonetta 2',
+      'Cave Story',
+      'astral Chain',
+      'Dave the Diver',
+      'Zelda',
+    ]);
+    expect(collections.gameIds(id)).toEqual([bayo, cave, astral, dave, zelda]);
   });
 
   it('FR-LIB-8: a collection orders manually, by title or by year', () => {
@@ -73,17 +95,18 @@ describe('CollectionRepository', () => {
     const [charlie = 0, alpha = 0, bravo = 0] = ids;
     const { id } = collections.create('Picks');
     collections.addGames(id, ids);
+    expect(listed(id)).toEqual(['Alpha', 'Bravo', 'Charlie']);
     collections.reorder(id, bravo, alpha);
-    expect(listed(id)).toEqual(['Charlie', 'Bravo', 'Alpha']);
+    expect(listed(id)).toEqual(['Bravo', 'Alpha', 'Charlie']);
     collections.update(id, { sort: 'title' });
     expect(listed(id)).toEqual(['Alpha', 'Bravo', 'Charlie']);
     expect(collections.update(id, { sort: 'year' }).sort).toBe('year');
     expect(listed(id)).toEqual(['Charlie', 'Alpha', 'Bravo']);
     collections.removeGames(id, [alpha]);
     collections.update(id, { sort: 'manual' });
-    expect(listed(id)).toEqual(['Charlie', 'Bravo']);
-    collections.reorder(id, charlie, bravo);
     expect(listed(id)).toEqual(['Bravo', 'Charlie']);
+    collections.reorder(id, charlie, bravo);
+    expect(listed(id)).toEqual(['Charlie', 'Bravo']);
   });
 
   it('FR-LIB-8: moving swaps with the neighbour shown, even past hidden members', () => {
