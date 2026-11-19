@@ -109,6 +109,13 @@ export function LibraryApp({
   const scopeSystem =
     scope?.kind === 'system' ? { id: scope.systemId, name: systemName(scope.systemId) } : null;
   const searching = search.active;
+  const showReview = (systemIds: string[] | null) => {
+    const systemId = systemIds?.[0];
+    if (systemId && !(scope?.kind === 'system' && scope.systemId === systemId)) {
+      view.setScope({ kind: 'system', systemId });
+    }
+    view.setTab('needsReview');
+  };
   const onFlags = (flags: GameFlags) => {
     if (searching || !leavesTab(view.tab, flags)) return;
     // The next row moves up into place: keep the focus on the top of the selection.
@@ -140,13 +147,8 @@ export function LibraryApp({
             onGeminiRules={(batchScope) => {
               overlays.openGeminiBatch(batchScope, systemName);
             }}
-            onShowReview={(systemIds) => {
-              const systemId = systemIds?.[0];
-              if (systemId && !(scope?.kind === 'system' && scope.systemId === systemId)) {
-                view.setScope({ kind: 'system', systemId });
-              }
-              view.setTab('needsReview');
-            }}
+            onShowReview={showReview}
+            onOpenDetails={overlays.openBatchDetails}
           />
           <ScanMenu system={scopeSystem} />
         </div>
@@ -348,6 +350,12 @@ export function LibraryApp({
         onFlags={onFlags}
         {...(play.busy ? {} : { onPlay: play.play })}
         onMenuClosed={focusList}
+        onShowReview={showReview}
+        onOpenGame={(game) => {
+          // FR-SCR-8: the Library has no "go to game"; the global search finds it and shows it.
+          setSearchText(game.title);
+          setSearchPick(game.gameId);
+        }}
       />
       {scope && exporting && (
         <ExportDialog

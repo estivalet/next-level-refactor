@@ -1417,7 +1417,48 @@
       "openDetails": "Mostrar detalhes da busca",
       "scopeSystems_one": "{{count}} sistema",
       "scopeSystems_other": "{{count}} sistemas",
-      "scopeSelection": "jogos selecionados"
+      "scopeSelection": "jogos selecionados",
+      "details": {
+        "title": "Busca · {{scope}}",
+        "close": "Fechar detalhes",
+        "running": "Em andamento",
+        "paused": "Pausado",
+        "finished": "Concluído",
+        "started": "iniciado em {{date}}",
+        "resumedAt": "retomado em {{date}}",
+        "now": "Agora: {{title}}",
+        "applied": "Aplicados {{count}}",
+        "launchbox": " ({{count}} do LaunchBox)",
+        "review": "Revisão {{count}}",
+        "notFound": "Não encontrados {{count}}",
+        "failed": "Falhas {{count}}",
+        "skipped": "Nada a preencher {{count}}",
+        "progress": "Progresso da busca",
+        "rules": "Regras",
+        "allFields": "Substituir artes e campos",
+        "kinds": "Artes",
+        "fields": "Campos",
+        "regions": "Regiões",
+        "none": "nenhum",
+        "filters": "Mostrar jogos",
+        "list": "Jogos tratados nesta busca",
+        "outcome": {
+          "all": "Todos",
+          "applied": "Aplicados",
+          "review": "Revisão",
+          "notFound": "Não encontrados",
+          "failed": "Falhas",
+          "skipped": "Nada a preencher"
+        },
+        "source": {
+          "screenscraper": "ScreenScraper",
+          "launchbox": "LaunchBox"
+        },
+        "notListed": "Jogos tratados antes desta atualização não aparecem na lista.",
+        "empty": "Nenhum jogo aqui ainda.",
+        "more": "Carregando mais…",
+        "mediaWrite": "Não foi possível salvar a arte"
+      }
     },
     "export": {
       "open": "Exportar…",

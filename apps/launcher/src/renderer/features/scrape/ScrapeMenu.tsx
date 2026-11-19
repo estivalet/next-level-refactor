@@ -16,6 +16,8 @@ interface ScrapeMenuProps {
   onGeminiRules?: (scope: BatchScope) => void;
   /** Shows the Needs review filter (of the job's systems); without it the summary has no button. */
   onShowReview?: (systemIds: string[] | null) => void;
+  /** FR-SCR-8: the scrape strip opens the job's details. */
+  onOpenDetails?: () => void;
 }
 
 /** Scrape ▾ in the Library header (S7, FR-SCR-2, US-C6), next to Scan ▾, with the job's progress. */
@@ -25,6 +27,7 @@ export function ScrapeMenu({
   onRules,
   onGeminiRules,
   onShowReview,
+  onOpenDetails,
 }: ScrapeMenuProps) {
   const { t } = useTranslation();
   const status = useBatchStatus();
@@ -65,7 +68,7 @@ export function ScrapeMenu({
     armed.current = false;
     const active = document.activeElement;
     if (started && (active === null || active === document.body)) {
-      root.current?.querySelector<HTMLElement>('button')?.focus();
+      root.current?.querySelector<HTMLElement>('[data-batch-primary]')?.focus();
     }
   }, [state]);
 
@@ -114,7 +117,11 @@ export function ScrapeMenu({
   return (
     <div ref={root} className="relative flex items-center gap-3">
       {status.data && (
-        <BatchProgress status={status.data} {...(onShowReview ? { onShowReview } : {})} />
+        <BatchProgress
+          status={status.data}
+          {...(onShowReview ? { onShowReview } : {})}
+          {...(onOpenDetails ? { onOpenDetails } : {})}
+        />
       )}
       {onGeminiRules && gemini.data && (
         <BatchProgress

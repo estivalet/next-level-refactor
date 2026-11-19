@@ -14,6 +14,8 @@ export function useBatchOverlay() {
   const [batchRules, setBatchRules] = useState<{ scope: BatchScope; title: string } | null>(null);
   // FR-SCR-7: the Gemini batch rules, open independently of the scrape batch.
   const [geminiRules, setGeminiRules] = useState<{ scope: BatchScope; title: string } | null>(null);
+  // FR-SCR-8: the scrape job's details panel.
+  const [batchDetails, setBatchDetails] = useState(false);
   const titleOf = (scope: BatchScope, systemName: (id: string) => string) =>
     'systemIds' in scope
       ? scope.systemIds.map(systemName).join(', ')
@@ -27,6 +29,13 @@ export function useBatchOverlay() {
     openBatch,
     closeBatch: () => {
       setBatchRules(null);
+    },
+    batchDetails,
+    openBatchDetails: () => {
+      setBatchDetails(true);
+    },
+    closeBatchDetails: () => {
+      setBatchDetails(false);
     },
     geminiRules,
     openGeminiBatch: (scope: BatchScope, systemName: (id: string) => string = (id) => id) => {

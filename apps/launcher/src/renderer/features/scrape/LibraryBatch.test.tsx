@@ -216,4 +216,58 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
       ).toBe(true);
     });
   });
+
+  it('US-C8: the strip opens the details panel; a game in it opens that game in the Library', async () => {
+    const user = userEvent.setup();
+    const running = {
+      ...IDLE_BATCH,
+      jobId: 4,
+      state: 'running' as const,
+      total: 3,
+      done: 1,
+      applied: 1,
+      systemIds: ['nintendo-64'],
+      startedAt: '2026-11-17T21:04:00.000Z',
+    };
+    installFakeBridge({
+      ...libraryResponses([gameRow(1, 'Alpha'), gameRow(2, 'Bravo'), gameRow(3, 'Charlie')]),
+      'scraper.batch.status': () => ok(running),
+      'scraper.batch.details': () =>
+        ok({
+          status: running,
+          scope: { systemIds: ['nintendo-64'] },
+          rules: {
+            onlyMissing: true,
+            kinds: ['box-front'],
+            fields: [],
+            regions: ['us'],
+            launchbox: false,
+          },
+          startedAt: running.startedAt,
+          listed: 1,
+        }),
+      'scraper.batch.items': () =>
+        ok({
+          items: [
+            {
+              gameId: 2,
+              title: 'Bravo',
+              systemId: 'nintendo-64',
+              outcome: 'applied',
+              provider: 'screenscraper',
+              error: null,
+              handledAt: '2026-11-19T10:00:00.000Z',
+            },
+          ],
+          next: null,
+        }),
+    });
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(await screen.findByRole('button', { name: /Show scrape details$/ }));
+    const panel = await screen.findByRole('dialog', { name: 'Scrape · Nintendo 64' });
+    await user.click(await within(panel).findByRole('button', { name: /^Bravo/ }));
+    expect(screen.queryByRole('dialog', { name: 'Scrape · Nintendo 64' })).not.toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Search all games' })).toHaveValue('Bravo');
+  });
 });

@@ -1417,7 +1417,48 @@
       "openDetails": "Show scrape details",
       "scopeSystems_one": "{{count}} system",
       "scopeSystems_other": "{{count}} systems",
-      "scopeSelection": "selected games"
+      "scopeSelection": "selected games",
+      "details": {
+        "title": "Scrape · {{scope}}",
+        "close": "Close details",
+        "running": "Running",
+        "paused": "Paused",
+        "finished": "Finished",
+        "started": "started {{date}}",
+        "resumedAt": "resumed {{date}}",
+        "now": "Now: {{title}}",
+        "applied": "Applied {{count}}",
+        "launchbox": " ({{count}} LaunchBox)",
+        "review": "Review {{count}}",
+        "notFound": "Not found {{count}}",
+        "failed": "Failed {{count}}",
+        "skipped": "Nothing to fill {{count}}",
+        "progress": "Scrape progress",
+        "rules": "Rules",
+        "allFields": "Overwrite art and fields",
+        "kinds": "Art",
+        "fields": "Fields",
+        "regions": "Regions",
+        "none": "none",
+        "filters": "Show games",
+        "list": "Games this scrape handled",
+        "outcome": {
+          "all": "All",
+          "applied": "Applied",
+          "review": "Review",
+          "notFound": "Not found",
+          "failed": "Failed",
+          "skipped": "Nothing to fill"
+        },
+        "source": {
+          "screenscraper": "ScreenScraper",
+          "launchbox": "LaunchBox"
+        },
+        "notListed": "Games handled before this update aren't listed.",
+        "empty": "No games here yet.",
+        "more": "Loading more…",
+        "mediaWrite": "Art could not be saved"
+      }
     },
     "export": {
       "open": "Export…",

@@ -8,6 +8,7 @@ import { EditMetadataDialog } from './EditMetadataDialog.tsx';
 import { GameContextMenu, type MenuItem } from './GameContextMenu.tsx';
 import { LaunchOptionsDialog } from './LaunchOptionsDialog.tsx';
 import { BatchRulesDialog } from '../scrape/BatchRulesDialog.tsx';
+import { BatchDetailsPanel } from '../scrape/details/BatchDetailsPanel.tsx';
 import { useBatchOverlay } from '../scrape/useBatchOverlay.ts';
 import { GeminiBatchDialog } from '../scrape/GeminiBatchDialog.tsx';
 import { GeminiDialog } from '../scrape/GeminiDialog.tsx';
@@ -87,6 +88,9 @@ interface LibraryOverlaysProps {
   onPlay?: (gameId: number) => void;
   /** Where focus goes back when the context menu closes. */
   onMenuClosed: () => void;
+  /** FR-SCR-8: the batch details panel's Show Needs review and a game picked in it. */
+  onShowReview?: (systemIds: string[] | null) => void;
+  onOpenGame?: (game: { gameId: number; title: string }) => void;
 }
 
 /** The context menu and dialogs of the Library (S7). */
@@ -209,6 +213,13 @@ export function LibraryOverlays(props: LibraryOverlaysProps) {
       )}
       {overlays.removing && (
         <RemoveGamesDialog target={overlays.removing} onClose={overlays.closeRemove} />
+      )}
+      {overlays.batchDetails && (
+        <BatchDetailsPanel
+          onClose={overlays.closeBatchDetails}
+          onShowReview={props.onShowReview}
+          onOpenGame={props.onOpenGame ?? (() => undefined)}
+        />
       )}
       {overlays.batchRules && (
         <BatchRulesDialog {...overlays.batchRules} onClose={overlays.closeBatch} />
