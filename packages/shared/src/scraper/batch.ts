@@ -63,6 +63,10 @@ export const BatchStatusSchema = z.object({
   current: z.object({ gameId: z.number().int().positive(), title: z.string() }).nullable(),
   /** The systems a system-scope job covers (Show Needs review opens them); null for a selection. */
   systemIds: z.array(z.string()).nullable(),
+  /** FR-SCR-8: when the job was started (ISO time); absent for the Gemini batch. */
+  startedAt: z.string().optional(),
+  /** FR-SCR-8: when this launch picked the job up from the last session (ISO), else null. */
+  resumedAt: z.string().nullable().optional(),
 });
 
 export const IDLE_BATCH: BatchStatus = {
@@ -81,6 +85,53 @@ export const IDLE_BATCH: BatchStatus = {
   systemIds: null,
 };
 
+/** FR-SCR-8: what a batch did with one game; `skipped` = it needed nothing the rules fill. */
+export const BATCH_ITEM_OUTCOMES = ['applied', 'review', 'notFound', 'failed', 'skipped'] as const;
+const OutcomeSchema = z.enum(BATCH_ITEM_OUTCOMES);
+
+/** One game a batch job handled (FR-SCR-8, `scrape_job_items`). */
+export const BatchJobItemSchema = z.object({
+  gameId: z.number().int().positive(),
+  title: z.string(),
+  systemId: z.string(),
+  outcome: OutcomeSchema,
+  provider: z.enum(['screenscraper', 'launchbox']).nullable(),
+  /** Error code of a failed game. */
+  error: z.string().nullable(),
+  handledAt: z.string(),
+});
+
+const ItemsCursorSchema = z.strictObject({
+  handledAt: z.string().max(40),
+  gameId: z.number().int().positive(),
+});
+
+/** A page of the current job's games, newest first (FR-SCR-8). */
+export const BatchItemsInputSchema = z.strictObject({
+  outcome: OutcomeSchema.optional(),
+  cursor: ItemsCursorSchema.optional(),
+  limit: z.number().int().min(1).max(200).default(100),
+});
+
+export const BatchItemsPageSchema = z.object({
+  items: z.array(BatchJobItemSchema),
+  next: ItemsCursorSchema.nullable(),
+});
+
+/** The current job with what it was told to do (FR-SCR-8); `listed` = games in its item list. */
+export const BatchJobDetailsSchema = z.object({
+  status: BatchStatusSchema,
+  scope: BatchScopeSchema,
+  rules: BatchRulesSchema,
+  startedAt: z.string(),
+  listed: count,
+});
+
+export type BatchItemOutcome = (typeof BATCH_ITEM_OUTCOMES)[number];
+export type BatchJobItem = z.output<typeof BatchJobItemSchema>;
+export type BatchItemsInput = z.output<typeof BatchItemsInputSchema>;
+export type BatchItemsPage = z.output<typeof BatchItemsPageSchema>;
+export type BatchJobDetails = z.output<typeof BatchJobDetailsSchema>;
 export type BatchField = z.output<typeof BatchFieldSchema>;
 export type BatchRules = z.output<typeof BatchRulesSchema>;
 export type BatchScope = z.output<typeof BatchScopeSchema>;

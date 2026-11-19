@@ -36,7 +36,14 @@ import {
   ScrapeSearchInputSchema,
   ScraperSystemSchema,
 } from '../scraper/apply.ts';
-import { BatchRulesSchema, BatchScopeSchema, BatchStatusSchema } from '../scraper/batch.ts';
+import {
+  BatchItemsInputSchema,
+  BatchItemsPageSchema,
+  BatchJobDetailsSchema,
+  BatchRulesSchema,
+  BatchScopeSchema,
+  BatchStatusSchema,
+} from '../scraper/batch.ts';
 import {
   CredentialStatusSchema,
   ScrapePreviewSchema,
@@ -333,6 +340,10 @@ export const ipcContract = {
   /** A running job stops after the current game; a paused one at once. */
   'scraper.batch.cancel': { input: z.void(), output: BatchStatusSchema },
   'scraper.batch.status': { input: z.void(), output: BatchStatusSchema },
+  /** The current job with its rules and scope (FR-SCR-8); null when idle. */
+  'scraper.batch.details': { input: z.void(), output: BatchJobDetailsSchema.nullable() },
+  /** Games the current job handled, newest first, keyset-paged (FR-SCR-8). */
+  'scraper.batch.items': { input: BatchItemsInputSchema, output: BatchItemsPageSchema },
   /** Saves a system's ScreenScraper id (settings `systems[id].screenscraperId`). */
   'scraper.setSystemId': {
     input: z.strictObject({

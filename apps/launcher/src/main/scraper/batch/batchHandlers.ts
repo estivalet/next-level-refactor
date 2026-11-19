@@ -13,5 +13,8 @@ export function createBatchHandlers(deps: {
     'scraper.batch.resume': () => deps.batch().resume(),
     'scraper.batch.cancel': () => deps.batch().cancel(),
     'scraper.batch.status': () => deps.batch().status(),
+    // Task 3 routes these to the service (FR-SCR-8).
+    'scraper.batch.details': () => null,
+    'scraper.batch.items': () => ({ items: [], next: null }),
   };
 }
