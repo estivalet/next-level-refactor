@@ -93,6 +93,13 @@ As a collector, I want games whose files I deleted on purpose to leave the libra
 - When the selection has a present game, then the menu doesn't offer Remove (Hide is the way to keep a present game out of lists).
 - Removing never deletes or moves a file on disk.
 
+### US-C8 See what a batch scrape is doing · FR-SCR-8
+As a collector, I want to see exactly what a batch scrape is doing, also one that carried on from an earlier session.
+- While a batch runs or is paused, the strip in the Library header names what it scrapes ("Scraping Nintendo Switch 24/753 · …", "2 systems", "selected games").
+- When a batch carried on from the last session, the strip says "Resumed · started <date>" until I open its details.
+- When I click the strip, then a panel opens with the job's state, when it started (and resumed), a progress bar, counts (applied with LaunchBox share, review, not found, failed, nothing to fill), the game being scraped, Pause / Resume / Cancel / Show Needs review, and the rules it was started with.
+- The panel lists every game the job handled, newest first, with its outcome, source and error; chips filter by outcome; clicking a game opens it in the Library. Games handled before this feature existed aren't listed, and the panel says so.
+
 ---
 
 ## Epic D — Configuration without files

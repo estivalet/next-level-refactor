@@ -124,7 +124,16 @@ A batch never changes fields you edited.
   unplugged drive). Check the media folder, then **Resume**.
 
 The game being scraped when it paused is done again on resume. It is never counted as failed.
-Quitting the launcher mid-batch is fine: the batch carries on at the next start.
+Quitting the launcher mid-batch is fine: the batch carries on at the next start, and the strip
+says "Resumed · started <date>".
+
+### What a batch is doing
+
+Click the batch line in the Library header ("Scraping Nintendo Switch 24/753 · …") to open its
+details: when it started, its progress and counts, the game it's on, the rules you started it
+with, and every game it has handled with what happened (applied, review, not found, failed or
+nothing to fill) and where the art came from. Use the chips to show only failed games, for
+example, and click a game to open it in the Library.
 
 ### Needs review
 

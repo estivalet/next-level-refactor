@@ -9,6 +9,9 @@ M10-1 — polish before 1.0.
 
 ### Added
 
+- **Batch scrape details** (FR-SCR-8, US-C8): the batch line in the Library header names what it
+  scrapes and says when a batch carried on from your last session. Click it for a panel with the
+  job's progress, rules, current game and every game it handled, filterable by outcome.
 - **Theme crash screen** (NFR-REL-2): a theme that crashes shows *Theme stopped working* with
   Restart theme, Switch theme and Back to desktop (the last two only when a locked kiosk allows
   them); your library and settings are untouched. A crashed desktop app shows Reload window in its

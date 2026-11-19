@@ -323,6 +323,27 @@ Scope view (D62)
     **Cancel scraping**; finished: "Scraped N games · applied · review · not found · failed"
     and **Show Needs review**. The job lives in main: the header reads it when the Library
     opens and follows `scraper.batch.progress`.
+  - **Batch details (FR-SCR-8, US-C8):** the strip names the scope ("Scraping Nintendo Switch
+    24/753 · …", "2 systems", "selected games"); a job picked up from the last session shows
+    "Resumed · started <date>" until its details open. The strip's text is a button that opens a
+    right-side drawer over the Library (Esc or ✕ closes; it follows the job live):
+    ```
+    ┌ Scrape · Nintendo Switch ────────────────────── ✕ ┐
+    │ Running · started 17 Nov 21:04 · resumed 19 Nov   │
+    │ ██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░    │
+    │ Applied 15 (9 LaunchBox) · Review 6 · Not found 2 │
+    │ · Failed 0 · Nothing to fill 1                    │
+    │ Now: Mario Kart 8 Deluxe                          │
+    │ [Pause] [Cancel scraping] [Show Needs review]     │
+    │ ▸ Rules                                           │
+    │ [All] [Applied] [Review] [Not found] [Failed] …   │
+    │ Zelda: Tears of the Kingdom                       │
+    │   Applied · ScreenScraper                   21:40 │
+    └───────────────────────────────────────────────────┘
+    ```
+    Rows are newest first and load more on scroll; clicking one opens the game through the global
+    search and closes the drawer. A job from before migration 0020 notes that earlier games aren't
+    listed. No time estimate (owner decision).
   - **Needs review (M6d):** a fifth Filter entry lists games whose last scrape is `review`;
     the status bar adds "N needs review" for a system; scraping one from Scrape… takes it
     off the list.
