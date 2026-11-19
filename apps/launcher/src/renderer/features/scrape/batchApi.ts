@@ -1,5 +1,11 @@
-import type { BatchRules, BatchScope, BatchStatus, GeminiBatchRules } from '@nextlevel/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  BatchItemOutcome,
+  BatchRules,
+  BatchScope,
+  BatchStatus,
+  GeminiBatchRules,
+} from '@nextlevel/shared';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
 import { unwrap } from '../settings/settingsApi.ts';
@@ -18,6 +24,11 @@ export function useBatchStatus(kind: BatchKind = 'scrape') {
   const client = useQueryClient();
   useIpcEvent(kind === 'gemini' ? 'gemini.batch.progress' : 'scraper.batch.progress', (status) => {
     client.setQueryData<BatchStatus>(keyOf(kind), status);
+    // FR-SCR-8: an open details panel follows the job; closed, these queries are inactive.
+    if (kind === 'scrape') {
+      void client.invalidateQueries({ queryKey: ['scraper.batch.details'] });
+      void client.invalidateQueries({ queryKey: ['scraper.batch.items'] });
+    }
   });
   return useQuery({
     queryKey: keyOf(kind),
@@ -73,3 +84,30 @@ export const useCancelBatch = (kind: BatchKind = 'scrape') =>
         : getBridge().invoke('scraper.batch.cancel')),
     ),
   );
+
+/** The current scrape job with its scope and rules (FR-SCR-8). */
+export function useBatchDetails(jobId: number | null) {
+  return useQuery({
+    queryKey: ['scraper.batch.details', jobId],
+    queryFn: async () => unwrap(await getBridge().invoke('scraper.batch.details')),
+    enabled: jobId !== null,
+  });
+}
+
+/** The games the current scrape job handled, newest first, a page at a time (FR-SCR-8). */
+export function useBatchItems(jobId: number | null, outcome: BatchItemOutcome | undefined) {
+  return useInfiniteQuery({
+    queryKey: ['scraper.batch.items', jobId, outcome ?? 'all'],
+    queryFn: async ({ pageParam }) =>
+      unwrap(
+        await getBridge().invoke('scraper.batch.items', {
+          limit: 100,
+          ...(outcome ? { outcome } : {}),
+          ...(pageParam ? { cursor: pageParam } : {}),
+        }),
+      ),
+    initialPageParam: null as { handledAt: string; gameId: number } | null,
+    getNextPageParam: (page) => page.next ?? undefined,
+    enabled: jobId !== null,
+  });
+}

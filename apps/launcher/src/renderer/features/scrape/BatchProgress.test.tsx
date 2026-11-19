@@ -1,9 +1,11 @@
 import { IDLE_BATCH, ok, type BatchStatus } from '@nextlevel/shared';
+import { getSystem, systemCatalog } from '@nextlevel/system-catalog';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
+import { BatchProgress } from './BatchProgress.tsx';
 import { ScrapeMenu } from './ScrapeMenu.tsx';
 
 afterEach(() => {
@@ -18,12 +20,14 @@ const RUNNING: BatchStatus = {
   done: 3,
   applied: 2,
   review: 1,
-  systemIds: ['snes'],
+  systemIds: ['nintendo-snes'],
 };
+const SNES = getSystem('nintendo-snes')?.name ?? '';
 
 function setup(status: BatchStatus) {
   // Main pauses or cancels after the current game, so the control call still answers "running".
   const fake = installFakeBridge({
+    'systems.catalog': () => ok([...systemCatalog()]),
     'scraper.batch.status': () => ok(status),
     'scraper.batch.pause': () => ok(status),
     'scraper.batch.cancel': () => ok(status),
@@ -49,7 +53,7 @@ describe('BatchProgress (FR-SCR-2, US-C6)', () => {
 
   it('done never shows above total', async () => {
     setup({ ...RUNNING, total: 5, done: 7 });
-    expect(await screen.findByText('Scraping 5/5 · applied 2 · review 1')).toBeVisible();
+    expect(await screen.findByText(`Scraping ${SNES} 5/5 · applied 2 · review 1`)).toBeVisible();
   });
 
   it('Pause reads Pausing… and is disabled until the job has paused', async () => {
@@ -107,5 +111,48 @@ describe('BatchProgress (FR-SCR-2, US-C6)', () => {
       ),
     ).toBeVisible();
     expect(screen.getByRole('button', { name: 'Open Settings' })).toBeVisible();
+  });
+
+  it('US-C8: the strip names the system it scrapes', async () => {
+    setup(RUNNING);
+    expect(await screen.findByText(`Scraping ${SNES} 3/10 · applied 2 · review 1`)).toBeVisible();
+  });
+
+  it('US-C8: several systems are counted', async () => {
+    setup({ ...RUNNING, systemIds: ['nintendo-snes', 'nintendo-n64'] });
+    expect(await screen.findByText('Scraping 2 systems 3/10 · applied 2 · review 1')).toBeVisible();
+  });
+
+  it('US-C8: a selection job reads "selected games"', async () => {
+    setup({ ...RUNNING, systemIds: null });
+    expect(
+      await screen.findByText('Scraping selected games 3/10 · applied 2 · review 1'),
+    ).toBeVisible();
+  });
+
+  it('US-C8: a job resumed after a restart says so with its start date', async () => {
+    setup({
+      ...RUNNING,
+      jobId: 41,
+      startedAt: '2026-11-17T21:04:00.000Z',
+      resumedAt: '2026-11-19T09:00:00.000Z',
+    });
+    expect(await screen.findByText(/^Resumed · started /)).toBeVisible();
+  });
+
+  it('US-C8: clicking the status text opens the details', async () => {
+    const user = userEvent.setup();
+    let opened = 0;
+    installFakeBridge({ 'systems.catalog': () => ok([...systemCatalog()]) });
+    renderInShell(
+      <BatchProgress
+        status={RUNNING}
+        onOpenDetails={() => {
+          opened += 1;
+        }}
+      />,
+    );
+    await user.click(await screen.findByRole('button', { name: /Show scrape details$/ }));
+    expect(opened).toBe(1);
   });
 });

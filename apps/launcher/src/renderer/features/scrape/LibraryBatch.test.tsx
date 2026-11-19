@@ -23,7 +23,13 @@ function setup() {
     'scraper.batch.status': () => ok(IDLE_BATCH),
     'scraper.batch.start': ({ scope }) => {
       started.push(scope);
-      return ok({ ...IDLE_BATCH, jobId: 1, state: 'running', total: 3 });
+      return ok({
+        ...IDLE_BATCH,
+        jobId: 1,
+        state: 'running',
+        total: 3,
+        systemIds: ['nintendo-64'],
+      });
     },
   });
   renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
@@ -43,7 +49,9 @@ describe('batch scrape in the Library (FR-SCR-2, US-C6)', () => {
     await waitFor(() => {
       expect(started).toEqual([{ systemIds: ['nintendo-64'] }]);
     });
-    expect(await screen.findByText('Scraping 0/3 · applied 0 · review 0')).toBeVisible();
+    expect(
+      await screen.findByText('Scraping Nintendo 64 0/3 · applied 0 · review 0'),
+    ).toBeVisible();
   });
 
   it('US-C6: the context menu of a multi-selection offers Scrape selected games', async () => {

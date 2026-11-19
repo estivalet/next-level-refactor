@@ -77,7 +77,9 @@ describe('ScrapeMenu (FR-SCR-2, US-C6)', () => {
   it('the status is read on mount: a running job shows its progress with Pause and Cancel', async () => {
     const user = userEvent.setup();
     const { bridge } = setup(RUNNING);
-    expect(await screen.findByText('Scraping 3/10 · applied 2 · review 1')).toBeVisible();
+    expect(
+      await screen.findByText('Scraping selected games 3/10 · applied 2 · review 1'),
+    ).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Pause' }));
     expect(calls(bridge, 'scraper.batch.pause')).toBe(1);
     await user.click(screen.getByRole('button', { name: 'Cancel scraping' }));
@@ -86,11 +88,13 @@ describe('ScrapeMenu (FR-SCR-2, US-C6)', () => {
 
   it('progress events from main update the line', async () => {
     const { bridge } = setup(RUNNING);
-    await screen.findByText('Scraping 3/10 · applied 2 · review 1');
+    await screen.findByText('Scraping selected games 3/10 · applied 2 · review 1');
     act(() => {
       bridge.emit('scraper.batch.progress', { ...RUNNING, done: 4, applied: 3 });
     });
-    expect(await screen.findByText('Scraping 4/10 · applied 3 · review 1')).toBeVisible();
+    expect(
+      await screen.findByText('Scraping selected games 4/10 · applied 3 · review 1'),
+    ).toBeVisible();
   });
 
   it('a quota pause says when it resumes, with Resume', async () => {

@@ -1389,7 +1389,7 @@
       "rulesHelp": "A game is filled in only when ScreenScraper matches it exactly (by file) or finds one close match; the rest go to Needs review. Fields you edited are never changed.",
       "start": "Start",
       "close": "Close",
-      "running": "Scraping {{done}}/{{total}} · applied {{applied}} · review {{review}}",
+      "running": "Scraping {{scope}} {{done}}/{{total}} · applied {{applied}} · review {{review}}",
       "pause": "Pause",
       "pausing": "Pausing…",
       "resume": "Resume",
@@ -1412,7 +1412,12 @@
       "noSystem": "No ScreenScraper system is set for {{systems}}. Choose one in Settings → Systems (or scrape one game with Scrape…, which asks).",
       "launchbox": "Then fill from LaunchBox",
       "launchboxDownload": "Download the LaunchBox database first",
-      "fromLaunchBox": " · {{count}} from LaunchBox"
+      "fromLaunchBox": " · {{count}} from LaunchBox",
+      "resumed": "Resumed · started {{date}}",
+      "openDetails": "Show scrape details",
+      "scopeSystems_one": "{{count}} system",
+      "scopeSystems_other": "{{count}} systems",
+      "scopeSelection": "selected games"
     },
     "export": {
       "open": "Export…",

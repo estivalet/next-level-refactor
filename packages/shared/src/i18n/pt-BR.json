@@ -1389,7 +1389,7 @@
       "rulesHelp": "Um jogo só é preenchido quando o ScreenScraper o reconhece pelo arquivo ou encontra uma única opção próxima; os demais vão para Precisa de revisão. Campos que você editou nunca mudam.",
       "start": "Iniciar",
       "close": "Fechar",
-      "running": "Buscando {{done}}/{{total}} · aplicados {{applied}} · revisão {{review}}",
+      "running": "Buscando {{scope}} {{done}}/{{total}} · aplicados {{applied}} · revisão {{review}}",
       "pause": "Pausar",
       "pausing": "Pausando…",
       "resume": "Retomar",
@@ -1412,7 +1412,12 @@
       "noSystem": "Nenhum sistema do ScreenScraper definido para {{systems}}. Escolha um em Configurações → Sistemas (ou busque um jogo com Buscar dados…, que pergunta).",
       "launchbox": "Depois completar com o LaunchBox",
       "launchboxDownload": "Baixe antes o banco de dados do LaunchBox",
-      "fromLaunchBox": " · {{count}} do LaunchBox"
+      "fromLaunchBox": " · {{count}} do LaunchBox",
+      "resumed": "Retomado · iniciado em {{date}}",
+      "openDetails": "Mostrar detalhes da busca",
+      "scopeSystems_one": "{{count}} sistema",
+      "scopeSystems_other": "{{count}} sistemas",
+      "scopeSelection": "jogos selecionados"
     },
     "export": {
       "open": "Exportar…",
