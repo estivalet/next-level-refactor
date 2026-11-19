@@ -29,6 +29,8 @@ export interface Job<R = BatchRules> {
   launchbox: number;
   pausedReason: BatchPauseReason | null;
   resumeAt: string | null;
+  /** When the job was started (ISO), FR-SCR-8. */
+  createdAt: string;
 }
 
 interface Row extends Omit<Job<unknown>, 'scope' | 'rules'> {
@@ -38,7 +40,7 @@ interface Row extends Omit<Job<unknown>, 'scope' | 'rules'> {
 
 const COLUMNS = `id, scope, rules, status, cursor_game_id as cursorGameId, total, done, applied,
   review, not_found as notFound, failed, launchbox, paused_reason as pausedReason,
-  resume_at as resumeAt`;
+  resume_at as resumeAt, created_at as createdAt`;
 
 /**
  * Batch jobs in `scrape_jobs` (FR-SCR-2): one row per job, saved after every game. Each store

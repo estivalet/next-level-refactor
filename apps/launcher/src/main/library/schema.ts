@@ -244,6 +244,33 @@ export const scrapeJobs = sqliteTable('scrape_jobs', {
   updatedAt: text('updated_at').notNull(),
 });
 
+/**
+ * What a batch job did with each game it handled (FR-SCR-8), kept per job: `scrape_status` holds
+ * only a game's latest scrape and is overwritten by a manual scrape or a later job.
+ */
+export const scrapeJobItems = sqliteTable(
+  'scrape_job_items',
+  {
+    jobId: integer('job_id')
+      .notNull()
+      .references(() => scrapeJobs.id, { onDelete: 'cascade' }),
+    gameId: integer('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    outcome: text('outcome', {
+      enum: ['applied', 'review', 'notFound', 'failed', 'skipped'],
+    }).notNull(),
+    provider: text('provider', { enum: ['screenscraper', 'launchbox'] }),
+    /** Error code of a failed game. */
+    error: text('error'),
+    handledAt: text('handled_at').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.jobId, table.gameId] }),
+    index('scrape_job_items_list').on(table.jobId, table.outcome, table.handledAt),
+  ],
+);
+
 /** Arcade ROM facts NextLevelOS kept per game (data model §4); filled by the importer (D12). */
 export const arcadeInfo = sqliteTable('arcade_info', {
   gameId: integer('game_id')
