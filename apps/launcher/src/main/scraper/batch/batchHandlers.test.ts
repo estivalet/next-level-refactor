@@ -27,6 +27,8 @@ describe('batch scrape channels (FR-SCR-2, US-C6)', () => {
         resume: () => Promise.resolve(running),
         cancel: () => running,
         status: () => IDLE_BATCH,
+        details: () => null,
+        items: () => ({ items: [], next: null }),
       }),
     });
     expect(
@@ -41,5 +43,35 @@ describe('batch scrape channels (FR-SCR-2, US-C6)', () => {
     const start = ipcContract['scraper.batch.start'].input;
     expect(start.safeParse({ scope: { systemIds: ['snes'] }, rules: RULES }).success).toBe(true);
     expect(start.safeParse({ scope: { gameIds: [] }, rules: RULES }).success).toBe(false);
+  });
+
+  it('FR-SCR-8: details and items are routed to the service', () => {
+    const page = { items: [], next: { handledAt: '2026-11-19T10:00:00.000Z', gameId: 3 } };
+    const details = {
+      status: IDLE_BATCH,
+      scope: { systemIds: ['snes'] },
+      rules: RULES,
+      startedAt: '2026-11-19T09:00:00.000Z',
+      listed: 0,
+    };
+    const asked: unknown[] = [];
+    const idle = () => IDLE_BATCH;
+    const handlers = createBatchHandlers({
+      batch: () => ({
+        begin: () => Promise.resolve(IDLE_BATCH),
+        pause: idle,
+        resume: () => Promise.resolve(IDLE_BATCH),
+        cancel: idle,
+        status: idle,
+        details: () => details,
+        items: (input) => {
+          asked.push(input);
+          return page;
+        },
+      }),
+    });
+    expect(handlers['scraper.batch.details']()).toBe(details);
+    expect(handlers['scraper.batch.items']({ outcome: 'failed', limit: 50 })).toBe(page);
+    expect(asked).toEqual([{ outcome: 'failed', limit: 50 }]);
   });
 });

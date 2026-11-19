@@ -147,6 +147,25 @@ describe('batch scrape fills from LaunchBox after ScreenScraper (FR-SCR-6)', () 
     expect(service.status()).toMatchObject({ applied: 1, launchbox: 1 });
   });
 
+  it('FR-SCR-8: games LaunchBox applied or sent to review are listed with provider launchbox', async () => {
+    const [filled = 0, review = 0] = seedGames(library.db, 'snes', ['Filled', 'Review']);
+    const { service } = setup(
+      { Filled: { found: found() }, Review: { found: found() } },
+      { Filled: { found: found(95) }, Review: { found: found(80, 75) } },
+    );
+    await service.begin({ systemIds: ['snes'] }, RULES);
+    await service.idle();
+    const items = service.items({ limit: 100 }).items;
+    expect(items.find((item) => item.gameId === filled)).toMatchObject({
+      outcome: 'applied',
+      provider: 'launchbox',
+    });
+    expect(items.find((item) => item.gameId === review)).toMatchObject({
+      outcome: 'review',
+      provider: 'launchbox',
+    });
+  });
+
   it('several LaunchBox candidates → Needs review from LaunchBox, counted once', async () => {
     const [id = 0] = seedGames(library.db, 'snes', ['Racer']);
     const { service, applied, scrapes } = setup(

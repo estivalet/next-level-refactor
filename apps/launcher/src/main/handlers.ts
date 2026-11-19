@@ -112,7 +112,10 @@ export interface MainDeps {
     systemPersonal: SystemPersonalRepository;
     importer: ImportService;
     scrape: Pick<ScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
-    batch: Pick<BatchScrapeService, 'begin' | 'pause' | 'resume' | 'cancel' | 'status'>;
+    batch: Pick<
+      BatchScrapeService,
+      'begin' | 'pause' | 'resume' | 'cancel' | 'status' | 'details' | 'items'
+    >;
     launchbox: LaunchBoxService;
     launchboxScrape: Pick<LaunchBoxScrapeService, 'search' | 'preview' | 'apply' | 'thumbnail'>;
     gemini: Pick<GeminiService, 'ask' | 'stored' | 'apply' | 'dismiss'>;

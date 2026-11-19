@@ -2,6 +2,9 @@ import {
   AppErrorException,
   ERROR_CODES,
   IDLE_BATCH,
+  type BatchItemsInput,
+  type BatchItemsPage,
+  type BatchJobDetails,
   type BatchPauseReason,
   type BatchRules,
   type BatchScope,
@@ -15,6 +18,8 @@ import type { GameRepository } from '../../library/GameRepository.ts';
 import type { MediaRepository } from '../../library/MediaRepository.ts';
 import type { LibraryDb } from '../../library/openLibrary.ts';
 import type { ScrapeRepository } from '../../library/ScrapeRepository.ts';
+import { jobDetails } from './batchDetails.ts';
+import { JobItems, type JobItemRecord } from './jobItems.ts';
 import { JobStore, type Job, type Tally } from './jobStore.ts';
 import { countGames, nextGame } from './nextGame.ts';
 import { batchTargets, decide, fillTargets } from './rules.ts';
@@ -74,6 +79,10 @@ const busy = () =>
  */
 export class BatchScrapeService {
   private readonly store: JobStore;
+  /** FR-SCR-8: what the job did with each game. */
+  private readonly items_: JobItems;
+  /** FR-SCR-8: when restore() picked the job up from the last session. */
+  private resumedAt: string | null = null;
   private job: Job | null = null;
   private loop: Promise<void> = Promise.resolve();
   private stop: 'pause' | 'cancel' | null = null;
@@ -86,6 +95,7 @@ export class BatchScrapeService {
 
   constructor(private readonly deps: BatchDeps) {
     this.store = new JobStore(deps.db);
+    this.items_ = new JobItems(deps.db);
   }
 
   status(): BatchStatus {
@@ -106,7 +116,20 @@ export class BatchScrapeService {
       launchbox: job.launchbox,
       current: state === 'running' ? this.current : null,
       systemIds: 'systemIds' in job.scope ? [...new Set(job.scope.systemIds)] : null,
+      startedAt: job.createdAt,
+      resumedAt: this.resumedAt,
     };
+  }
+
+  /** The job with its scope, rules and listed games (FR-SCR-8); null when there is none. */
+  details(): BatchJobDetails | null {
+    const job = this.job;
+    return job ? jobDetails(job, this.status(), this.items_.count(job.id)) : null;
+  }
+
+  /** A page of the games the job handled, newest first (FR-SCR-8). */
+  items(input: BatchItemsInput): BatchItemsPage {
+    return this.job ? this.items_.page(this.job.id, input) : { items: [], next: null };
   }
 
   /** BUSY while a job runs or is paused, or a scan or import runs. */
@@ -122,6 +145,7 @@ export class BatchScrapeService {
     if (unmapped.length > 0) throw noSystem(unmapped);
     const total = countGames(this.deps.db, scope, rules);
     this.job = this.store.create(scope, rules, total, this.deps.clock());
+    this.resumedAt = null;
     this.stop = null;
     this.networkFails = 0;
     this.drive();
@@ -172,6 +196,7 @@ export class BatchScrapeService {
     const job = this.store.active();
     if (!job) return;
     this.job = job;
+    this.resumedAt = this.deps.clock().toISOString();
     if (job.status === 'running') this.drive();
     else if (job.pausedReason === 'quota' && job.resumeAt) this.resumeAt(job.resumeAt);
     else this.emitProgress();
@@ -275,6 +300,7 @@ export class BatchScrapeService {
       const outcome = decide(found);
       const fill = job.rules.launchbox && this.deps.launchbox !== undefined;
       let tally: Tally;
+      let provider: JobItemRecord['provider'] = 'screenscraper';
       if (outcome.kind === 'apply') {
         const result = await this.deps.scraper.apply(
           { gameId, providerGameId: outcome.providerGameId, ...targets },
@@ -286,7 +312,11 @@ export class BatchScrapeService {
         this.mediaFails = unsaved ? this.mediaFails + 1 : 0;
         const failed = unsaved || result.game.scrape?.status === 'failed';
         if (failed || !fill) {
-          this.advance(gameId, failed ? 'failed' : 'applied');
+          const error = unsaved ? 'MEDIA_WRITE' : (result.game.scrape?.error ?? null);
+          this.advance(gameId, failed ? 'failed' : 'applied', {
+            provider: 'screenscraper',
+            error: failed ? error : null,
+          });
           if (this.mediaFails >= MEDIA_TRIES) {
             this.mediaFails = 0;
             this.pauseFor('media', null);
@@ -304,12 +334,14 @@ export class BatchScrapeService {
         if (filled === 'paused') return;
         if (filled === 'applied') {
           tally = 'applied';
+          provider = 'launchbox';
           job.launchbox += 1;
         } else if (filled === 'review' && tally === 'notFound') {
           tally = 'review';
+          provider = 'launchbox';
         }
       }
-      this.advance(gameId, tally);
+      this.advance(gameId, tally, { provider, error: null });
     } catch (error) {
       await this.onError(gameId, game.systemId, error);
     } finally {
@@ -383,7 +415,7 @@ export class BatchScrapeService {
       await this.deps.sleep(BUSY_WAIT_MS);
     } else {
       this.mark(gameId, systemId, 'failed', 0, code);
-      this.advance(gameId, 'failed');
+      this.advance(gameId, 'failed', { provider: 'screenscraper', error: code });
     }
   }
 
@@ -406,14 +438,31 @@ export class BatchScrapeService {
     this.deps.emit('library.changed', { systems: [systemId], gameIds: [gameId] });
   }
 
-  /** `null`: the game needed nothing; it still counts as done. */
-  private advance(gameId: number, tally: Tally | null): void {
+  /**
+   * `null`: the game needed nothing; it still counts as done (FR-SCR-8: listed as skipped). The
+   * game's item and the job's counters are written together.
+   */
+  private advance(
+    gameId: number,
+    tally: Tally | null,
+    source: Pick<JobItemRecord, 'provider' | 'error'> = { provider: null, error: null },
+  ): void {
     const job = this.job;
     if (!job) return;
     job.cursorGameId = gameId;
     job.done += 1;
     if (tally) job[tally] += 1;
-    this.save();
+    const now = this.deps.clock();
+    this.deps.db.$client.transaction(() => {
+      this.items_.record(job.id, {
+        gameId,
+        outcome: tally ?? 'skipped',
+        ...source,
+        handledAt: now.toISOString(),
+      });
+      this.store.save(job, now);
+    })();
+    this.emitProgress();
   }
 
   private pauseFor(reason: BatchPauseReason, resumeAt: string | null): void {

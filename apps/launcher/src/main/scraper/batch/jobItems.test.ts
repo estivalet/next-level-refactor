@@ -101,7 +101,12 @@ describe('JobItems (FR-SCR-8)', () => {
   it('FR-SCR-8: items of another job are not listed', () => {
     const { items, jobId, gameIds } = setup(['A']);
     const other = new JobStore(library.db).create({ systemIds: ['n64'] }, RULES, 1, new Date());
-    items.record(other.id, { ...base, gameId: gameIds[0] ?? 0, outcome: 'applied', handledAt: at(1) });
+    items.record(other.id, {
+      ...base,
+      gameId: gameIds[0] ?? 0,
+      outcome: 'applied',
+      handledAt: at(1),
+    });
     expect(items.count(jobId)).toBe(0);
     expect(items.page(jobId, { limit: 100 }).items).toEqual([]);
   });
