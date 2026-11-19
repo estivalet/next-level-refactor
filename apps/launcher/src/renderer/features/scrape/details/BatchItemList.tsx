@@ -14,6 +14,9 @@ const OUTCOME_CLASS: Record<BatchItemOutcome, string> = {
   skipped: 'text-slate-500',
 };
 
+/** Art failures a scrape records for a game (`ScrapeApplyResult.failed[].code`). */
+const MEDIA_FAILURES = new Set(['notAvailable', 'download', 'write']);
+
 const CHIP =
   'rounded-full px-2 py-0.5 text-[11px] text-slate-300 hover:bg-white/10 aria-pressed:bg-white/15 aria-pressed:text-white';
 
@@ -54,7 +57,9 @@ export function BatchItemList({
       ? t(ERROR_CODES[code as keyof typeof ERROR_CODES])
       : code === 'MEDIA_WRITE'
         ? t('library.batch.details.mediaWrite')
-        : code;
+        : MEDIA_FAILURES.has(code)
+          ? t(`library.scrape.failure.${code}`)
+          : code;
   const rows: BatchJobItem[] = items.data?.pages.flatMap((page) => page.items) ?? [];
 
   return (

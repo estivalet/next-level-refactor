@@ -1454,7 +1454,7 @@
           "screenscraper": "ScreenScraper",
           "launchbox": "LaunchBox"
         },
-        "notListed": "Jogos tratados antes desta atualização não aparecem na lista.",
+        "notListed": "Alguns jogos tratados nesta busca não aparecem na lista (tratados antes desta atualização ou removidos da biblioteca).",
         "empty": "Nenhum jogo aqui ainda.",
         "more": "Carregando mais…",
         "mediaWrite": "Não foi possível salvar a arte"

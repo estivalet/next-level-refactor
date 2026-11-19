@@ -59,6 +59,7 @@ const item = (gameId: number, title: string, extra: Partial<BatchJobItem> = {}):
   ...extra,
 });
 const ITEMS = [
+  item(4, 'Delta', { outcome: 'failed', error: 'download' }),
   item(3, 'Gamma', { outcome: 'failed', error: 'NOT_FOUND' }),
   item(2, 'Beta', { outcome: 'review', provider: 'launchbox' }),
   item(1, 'Alpha'),
@@ -113,6 +114,7 @@ describe('BatchDetailsPanel (FR-SCR-8, US-C8)', () => {
     const list = await screen.findByRole('list', { name: 'Games this scrape handled' });
     const rows = await within(list).findAllByRole('listitem');
     expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringMatching(/^Delta.*Failed/),
       expect.stringMatching(/^Gamma.*Failed/),
       expect.stringMatching(/^Beta.*Review.*LaunchBox/),
       expect.stringMatching(/^Alpha.*Applied.*ScreenScraper/),
@@ -128,16 +130,43 @@ describe('BatchDetailsPanel (FR-SCR-8, US-C8)', () => {
     });
     const list = screen.getByRole('list', { name: 'Games this scrape handled' });
     await waitFor(() => {
-      expect(within(list).getAllByRole('listitem')).toHaveLength(1);
+      expect(within(list).getAllByRole('listitem')).toHaveLength(2);
     });
     expect(within(list).getByText('That item no longer exists.')).toBeVisible();
+    // A media failure code from the apply reads as text, never the raw code.
+    expect(within(list).getByText('the download failed')).toBeVisible();
   });
 
-  it('US-C8: a job older than this update says earlier games are not listed', async () => {
+  it('US-C8: a job older than this update says some games are not listed', async () => {
     setup({ ...DETAILS, listed: 0 });
-    expect(
-      await screen.findByText("Games handled before this update aren't listed."),
-    ).toBeVisible();
+    expect(await screen.findByText(/^Some games this scrape handled aren't listed/)).toBeVisible();
+  });
+
+  it('US-C8: no note while the list holds every game of the details snapshot', async () => {
+    // The live status is a game ahead of the details (they refresh at different times).
+    setup({ ...DETAILS, listed: 24 }, { ...RUNNING, done: 25 });
+    await screen.findByRole('list', { name: 'Games this scrape handled' });
+    await screen.findByText('Rules');
+    expect(screen.queryByText(/aren't listed/)).not.toBeInTheDocument();
+  });
+
+  it('FR-SCR-8: a burst of progress refreshes the list once, not once per event', async () => {
+    const { fake, asked } = setup();
+    await screen.findByRole('list', { name: 'Games this scrape handled' });
+    await waitFor(() => {
+      expect(asked).toHaveLength(1);
+    });
+    for (const done of [25, 26, 26, 27]) {
+      fake.emit('scraper.batch.progress', { ...RUNNING, done });
+    }
+    await waitFor(
+      () => {
+        expect(asked).toHaveLength(2);
+      },
+      { timeout: 2500 },
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    expect(asked).toHaveLength(2);
   });
 
   it('US-C8: rules summary lists art kinds, fields, regions and then LaunchBox', async () => {

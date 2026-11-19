@@ -119,4 +119,14 @@ describe('JobItems (FR-SCR-8)', () => {
     expect(items.count(jobId)).toBe(0);
     expect(items.page(jobId, { limit: 100 }).items).toEqual([]);
   });
+
+  it('FR-SCR-8: recording a game that no longer exists is skipped, not an error', () => {
+    const { items, jobId, gameIds } = setup(['A']);
+    const gameId = gameIds[0] ?? 0;
+    library.db.$client.prepare('delete from games where id = ?').run(gameId);
+    expect(() => {
+      items.record(jobId, { ...base, gameId, outcome: 'applied', handledAt: at(1) });
+    }).not.toThrow();
+    expect(items.count(jobId)).toBe(0);
+  });
 });

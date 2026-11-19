@@ -24,8 +24,10 @@ export class JobItems {
   record(jobId: number, item: JobItemRecord): void {
     this.db.$client
       .prepare(
+        // A game removed from the library meanwhile is left out instead of failing the job.
         `insert into scrape_job_items (job_id, game_id, outcome, provider, error, handled_at)
-         values (@jobId, @gameId, @outcome, @provider, @error, @handledAt)
+         select @jobId, @gameId, @outcome, @provider, @error, @handledAt
+         where exists (select 1 from games where id = @gameId)
          on conflict (job_id, game_id) do update set outcome = excluded.outcome,
            provider = excluded.provider, error = excluded.error, handled_at = excluded.handled_at`,
       )
@@ -40,6 +42,12 @@ export class JobItems {
   }
 
   page(jobId: number, input: BatchItemsInput): BatchItemsPage {
+    // Spelled out per case (no `@x is null or …`) so the indexes serve the order and the limit.
+    const where = [
+      'i.job_id = @jobId',
+      ...(input.outcome ? ['i.outcome = @outcome'] : []),
+      ...(input.cursor ? ['(i.handled_at, i.game_id) < (@handledAt, @gameId)'] : []),
+    ].join(' and ');
     const rows = this.db.$client
       .prepare(
         `select i.game_id as gameId, m.title as title, g.system_id as systemId,
@@ -47,18 +55,15 @@ export class JobItems {
            i.handled_at as handledAt
          from scrape_job_items i join games g on g.id = i.game_id
            join game_metadata m on m.game_id = g.id
-         where i.job_id = @jobId
-           and (@outcome is null or i.outcome = @outcome)
-           and (@handledAt is null or (i.handled_at, i.game_id) < (@handledAt, @gameId))
+         where ${where}
          order by i.handled_at desc, i.game_id desc
          limit @take`,
       )
       .all({
         jobId,
-        outcome: input.outcome ?? null,
-        handledAt: input.cursor?.handledAt ?? null,
-        gameId: input.cursor?.gameId ?? null,
         take: input.limit + 1,
+        ...(input.outcome ? { outcome: input.outcome } : {}),
+        ...(input.cursor ? input.cursor : {}),
       }) as BatchJobItem[];
     const items = rows.slice(0, input.limit);
     const last = items.at(-1);

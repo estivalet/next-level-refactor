@@ -1,5 +1,6 @@
 import { IDLE_BATCH } from '@nextlevel/shared';
 import { X } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBatchDetails, useBatchStatus } from '../batchApi.ts';
@@ -7,6 +8,8 @@ import { BATCH_BUTTON, BatchControls } from '../BatchControls.tsx';
 import { shortDateTime, useBatchLine } from '../batchText.ts';
 import { BatchItemList } from './BatchItemList.tsx';
 import { BatchRulesSummary } from './BatchRulesSummary.tsx';
+
+const REFRESH_MS = 1000;
 
 /**
  * The scrape job's details (FR-SCR-8, US-C8): a drawer on the right of the Library with its scope,
@@ -30,6 +33,25 @@ export function BatchDetailsPanel({
   useEffect(() => {
     close.current?.focus();
   }, []);
+  // FR-SCR-8: follow the job, at most once a second, only when a game was handled, so an open
+  // panel never floods main while it scrapes (spec anti-goal).
+  const client = useQueryClient();
+  const refresh = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const done = status?.done;
+  useEffect(() => {
+    if (done === undefined || refresh.current) return;
+    refresh.current = setTimeout(() => {
+      refresh.current = null;
+      void client.invalidateQueries({ queryKey: ['scraper.batch.details'] });
+      void client.invalidateQueries({ queryKey: ['scraper.batch.items'] });
+    }, REFRESH_MS);
+  }, [done, client]);
+  useEffect(
+    () => () => {
+      if (refresh.current) clearTimeout(refresh.current);
+    },
+    [],
+  );
   const { line, scope } = useBatchLine(status ?? IDLE_BATCH);
   if (!status || status.state === 'idle' || status.jobId === null) return null;
 
@@ -60,7 +82,8 @@ export function BatchDetailsPanel({
         onClose();
       }
     : undefined;
-  const listed = details.data?.listed;
+  // Both from the same snapshot: the live status runs ahead of the details between refreshes.
+  const unlisted = details.data ? details.data.listed < details.data.status.done : false;
 
   return (
     <div
@@ -118,7 +141,7 @@ export function BatchDetailsPanel({
         )}
       </div>
       {details.data && <BatchRulesSummary rules={details.data.rules} />}
-      {listed !== undefined && listed < status.done && (
+      {unlisted && (
         <p className="text-[11px] text-slate-500">{t('library.batch.details.notListed')}</p>
       )}
       <BatchItemList

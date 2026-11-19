@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a1c6a5f6-a3b8-48f8-806a-4ee89e4c5fc4",
+  "id": "dde5e104-6ea8-4523-8aab-95fc9a68451c",
   "prevId": "b77a07c4-ef58-4079-aece-ccffc08dc6d8",
   "tables": {
     "arcade_info": {
@@ -1283,7 +1283,12 @@
       "indexes": {
         "scrape_job_items_list": {
           "name": "scrape_job_items_list",
-          "columns": ["job_id", "outcome", "handled_at"],
+          "columns": ["job_id", "handled_at", "game_id"],
+          "isUnique": false
+        },
+        "scrape_job_items_outcome": {
+          "name": "scrape_job_items_outcome",
+          "columns": ["job_id", "outcome", "handled_at", "game_id"],
           "isUnique": false
         }
       },

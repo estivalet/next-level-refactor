@@ -449,9 +449,10 @@ export class BatchScrapeService {
   ): void {
     const job = this.job;
     if (!job) return;
-    job.cursorGameId = gameId;
-    job.done += 1;
-    if (tally) job[tally] += 1;
+    // The job in memory changes only once both rows are written: a failed write can't count the
+    // game twice when the error path advances it again.
+    const next: Job = { ...job, cursorGameId: gameId, done: job.done + 1 };
+    if (tally) next[tally] += 1;
     const now = this.deps.clock();
     this.deps.db.$client.transaction(() => {
       this.items_.record(job.id, {
@@ -460,8 +461,9 @@ export class BatchScrapeService {
         ...source,
         handledAt: now.toISOString(),
       });
-      this.store.save(job, now);
+      this.store.save(next, now);
     })();
+    Object.assign(job, next);
     this.emitProgress();
   }
 

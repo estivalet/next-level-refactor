@@ -10,4 +10,5 @@ CREATE TABLE `scrape_job_items` (
 	FOREIGN KEY (`game_id`) REFERENCES `games`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX `scrape_job_items_list` ON `scrape_job_items` (`job_id`,`outcome`,`handled_at`);
+CREATE INDEX `scrape_job_items_list` ON `scrape_job_items` (`job_id`,`handled_at`,`game_id`);--> statement-breakpoint
+CREATE INDEX `scrape_job_items_outcome` ON `scrape_job_items` (`job_id`,`outcome`,`handled_at`,`game_id`);

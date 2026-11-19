@@ -267,7 +267,8 @@ export const scrapeJobItems = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.jobId, table.gameId] }),
-    index('scrape_job_items_list').on(table.jobId, table.outcome, table.handledAt),
+    index('scrape_job_items_list').on(table.jobId, table.handledAt, table.gameId),
+    index('scrape_job_items_outcome').on(table.jobId, table.outcome, table.handledAt, table.gameId),
   ],
 );
 

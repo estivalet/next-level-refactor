@@ -24,11 +24,6 @@ export function useBatchStatus(kind: BatchKind = 'scrape') {
   const client = useQueryClient();
   useIpcEvent(kind === 'gemini' ? 'gemini.batch.progress' : 'scraper.batch.progress', (status) => {
     client.setQueryData<BatchStatus>(keyOf(kind), status);
-    // FR-SCR-8: an open details panel follows the job; closed, these queries are inactive.
-    if (kind === 'scrape') {
-      void client.invalidateQueries({ queryKey: ['scraper.batch.details'] });
-      void client.invalidateQueries({ queryKey: ['scraper.batch.items'] });
-    }
   });
   return useQuery({
     queryKey: keyOf(kind),

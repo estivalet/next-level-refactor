@@ -1454,7 +1454,7 @@
           "screenscraper": "ScreenScraper",
           "launchbox": "LaunchBox"
         },
-        "notListed": "Games handled before this update aren't listed.",
+        "notListed": "Some games this scrape handled aren't listed (handled before this update, or removed from the library).",
         "empty": "No games here yet.",
         "more": "Loading more…",
         "mediaWrite": "Art could not be saved"
