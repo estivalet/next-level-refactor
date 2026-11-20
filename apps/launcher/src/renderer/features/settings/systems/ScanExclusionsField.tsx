@@ -61,20 +61,25 @@ export function ScanExclusionsField({
     setFolderProblem(null);
   };
   const addFolder = () => {
-    pickFolder.mutate(t('settings.systems.exclusions.pickTitle'), {
-      onSuccess: (picked) => {
-        if (!picked) return;
-        const path = exclusionFolderOf(picked, systemDirs);
-        if (path === null) {
-          setFolderProblem('settings.systems.exclusions.outside');
-        } else if (hasExclusion(list, { kind: 'folder', path })) {
-          setFolderProblem('settings.systems.exclusions.duplicate');
-        } else {
-          setFolderProblem(null);
-          save([...list, { kind: 'folder', path }]);
-        }
+    // Opens in the system's ROM folder: the first storage location that has it.
+    const title = t('settings.systems.exclusions.pickTitle');
+    pickFolder.mutate(
+      { title, startIn: systemDirs },
+      {
+        onSuccess: (picked) => {
+          if (!picked) return;
+          const path = exclusionFolderOf(picked, systemDirs);
+          if (path === null) {
+            setFolderProblem('settings.systems.exclusions.outside');
+          } else if (hasExclusion(list, { kind: 'folder', path })) {
+            setFolderProblem('settings.systems.exclusions.duplicate');
+          } else {
+            setFolderProblem(null);
+            save([...list, { kind: 'folder', path }]);
+          }
+        },
       },
-    });
+    );
   };
 
   return (

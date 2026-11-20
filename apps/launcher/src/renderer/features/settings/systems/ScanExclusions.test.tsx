@@ -41,7 +41,9 @@ function setup(options: { systems?: Settings['systems']; picks?: Array<string | 
       bridge.calls.find((c) => c.channel === 'settings.save')?.input as
         { settings: Settings } | undefined
     )?.settings.systems;
-  return { saved };
+  const picked = () =>
+    bridge.calls.filter((c) => c.channel === 'app.pickFolder').map((c) => c.input);
+  return { saved, picked };
 }
 
 async function openSwitch(user: ReturnType<typeof userEvent.setup>) {
@@ -105,7 +107,7 @@ describe('Ignore when scanning (FR-LIB-15, US-D8)', () => {
 
   it('US-D8: a picked folder inside the system folder is kept relative; outside is refused', async () => {
     const user = userEvent.setup();
-    const { saved } = setup({
+    const { saved, picked } = setup({
       picks: [
         'C:\\Elsewhere',
         'E:\\More\\Nintendo Switch\\_review_updates_dlcs',
@@ -115,6 +117,13 @@ describe('Ignore when scanning (FR-LIB-15, US-D8)', () => {
     const field = await openSwitch(user);
     await user.click(field.getByRole('button', { name: 'Add folder…' }));
     expect(await field.findByText("Pick a folder inside this system's ROM folder.")).toBeVisible();
+    // The dialog opens in the system's ROM folder (the first location that has it).
+    expect(picked()).toEqual([
+      {
+        title: 'Choose a folder to ignore',
+        startIn: ['D:\\Roms\\Nintendo Switch', 'E:\\More\\Nintendo Switch'],
+      },
+    ]);
 
     await user.click(field.getByRole('button', { name: 'Add folder…' }));
     expect(await field.findByText('_review_updates_dlcs')).toBeVisible();

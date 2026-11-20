@@ -474,7 +474,8 @@ Left navigation of sections (see IA §1), right form pane.
   and custom systems' editors, above Scan: a help line, the list (each entry marked Name or
   Folder, with **Remove <entry>**; "Nothing is ignored." when empty, the default for every
   system), a **Name pattern** box with **Add** (also Enter; off while empty, repeated or holding
-  a path character, with the reason under it) and **Add folder…** (native folder dialog; a
+  a path character, with the reason under it) and **Add folder…** (native folder dialog, opening in the system's ROM folder in the first storage
+  location that has it; a
   folder inside the system's ROM folder in any storage location is kept relative to it, one
   outside says "Pick a folder inside this system's ROM folder.", a repeat says so; off without
   a storage location). Changes go through the Save bar and apply from the next scan; Reset to

@@ -97,10 +97,13 @@ describe('settings channels', () => {
 });
 
 describe('catalog and folder channels', () => {
-  it('FR-LIB-1: app.pickFolder takes an optional title only', () => {
+  it('FR-LIB-1, FR-LIB-15: app.pickFolder takes an optional title and folders to start in', () => {
     const input = ipcContract['app.pickFolder'].input;
     expect(input.safeParse({}).success).toBe(true);
     expect(input.safeParse({ title: 'Pick' }).success).toBe(true);
+    expect(input.safeParse({ startIn: ['D:\\Roms\\Nintendo Switch'] }).success).toBe(true);
+    expect(input.safeParse({ startIn: [''] }).success).toBe(false);
+    expect(input.safeParse({ startIn: Array<string>(21).fill('D:\\x') }).success).toBe(false);
     expect(input.safeParse({ path: 'C:/' }).success).toBe(false);
     expect(ipcContract['app.pickFolder'].output.safeParse(null).success).toBe(true);
   });

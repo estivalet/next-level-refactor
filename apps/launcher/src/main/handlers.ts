@@ -85,7 +85,8 @@ export interface MainDeps {
   };
   catalog: () => readonly SystemDefinition[];
   /** Native folder dialog; null when cancelled. */
-  pickFolder: (title?: string) => Promise<string | null>;
+  /** `defaultPath`: where the dialog opens (an existing folder), else where Windows last left it. */
+  pickFolder: (title?: string, defaultPath?: string) => Promise<string | null>;
   /** Native file dialog for an emulator executable; null when cancelled. */
   pickFile: (title?: string) => Promise<string | null>;
   /** Native multi-select image dialog (FR-MUS-8); empty when cancelled. */
@@ -284,7 +285,11 @@ export function createHandlers(deps: MainDeps): IpcHandlers {
       const failure = await deps.openPath(path);
       if (failure) deps.log.warn({ key, path, failure }, 'could not open folder');
     },
-    'app.pickFolder': ({ title }) => deps.pickFolder(title),
+    'app.pickFolder': ({ title, startIn }) =>
+      deps.pickFolder(
+        title,
+        startIn?.find((path) => deps.pathExists(path)),
+      ),
     'systems.catalog': () => [...deps.catalog()],
     'systems.list': () => {
       const counts = new Map(

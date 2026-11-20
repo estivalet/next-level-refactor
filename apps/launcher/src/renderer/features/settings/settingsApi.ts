@@ -145,11 +145,21 @@ export function useSystemCatalog(): { data: readonly SystemDefinition[] | undefi
   return { data };
 }
 
-/** Native folder picker in main; resolves null when cancelled. */
+/**
+ * Native folder picker in main; resolves null when cancelled. `startIn`: the dialog opens in the
+ * first of these folders that exists.
+ */
 export function usePickFolder() {
   return useMutation({
-    mutationFn: async (title: string) =>
-      unwrap(await getBridge().invoke('app.pickFolder', { title })),
+    mutationFn: async (input: string | { title: string; startIn: readonly string[] }) =>
+      unwrap(
+        await getBridge().invoke(
+          'app.pickFolder',
+          typeof input === 'string'
+            ? { title: input }
+            : { title: input.title, startIn: [...input.startIn] },
+        ),
+      ),
   });
 }
 

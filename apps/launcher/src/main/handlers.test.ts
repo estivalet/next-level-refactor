@@ -192,11 +192,22 @@ describe('createHandlers', () => {
       ok: true,
       value: 'E:/roms',
     });
-    expect(deps.pickFolder).toHaveBeenCalledWith('Add');
+    expect(deps.pickFolder).toHaveBeenCalledWith('Add', undefined);
     expect(await router.handle('app.pickFolder', { title: 'cancel' })).toEqual({
       ok: true,
       value: null,
     });
+  });
+
+  it('FR-LIB-15: app.pickFolder opens in the first start folder that exists', async () => {
+    const { router, deps } = await setup({ pathExists: (path) => path.startsWith('E:') });
+    await router.handle('app.pickFolder', {
+      title: 'Ignore',
+      startIn: ['D:\\Roms\\Nintendo Switch', 'E:\\More\\Nintendo Switch', 'E:\\Other'],
+    });
+    expect(deps.pickFolder).toHaveBeenLastCalledWith('Ignore', 'E:\\More\\Nintendo Switch');
+    await router.handle('app.pickFolder', { title: 'Ignore', startIn: ['D:\\Gone'] });
+    expect(deps.pickFolder).toHaveBeenLastCalledWith('Ignore', undefined);
   });
 
   it('saving startWithWindows applies it to the login items', async () => {

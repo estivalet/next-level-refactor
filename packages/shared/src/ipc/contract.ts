@@ -150,7 +150,11 @@ export const ipcContract = {
   },
   'app.openPath': { input: z.strictObject({ key: z.enum(APP_PATH_KEYS) }), output: z.void() },
   'app.pickFolder': {
-    input: z.strictObject({ title: z.string().max(200).optional() }),
+    input: z.strictObject({
+      title: z.string().max(200).optional(),
+      /** The dialog opens in the first of these that exists (FR-LIB-15: the system's folders). */
+      startIn: z.array(z.string().min(1).max(1000)).max(20).optional(),
+    }),
     output: z.string().nullable(),
   },
   'app.pickFile': {

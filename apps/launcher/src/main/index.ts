@@ -455,12 +455,16 @@ async function start(): Promise<void> {
       return result.canceled ? [] : result.filePaths;
     },
     pickExportPath,
-    pickFolder: async (title) => {
+    pickFolder: async (title, defaultPath) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];
       if (e2eFolder) return e2eFolder;
       const window = BrowserWindow.getFocusedWindow();
-      const options = { properties: ['openDirectory' as const], ...(title ? { title } : {}) };
+      const options = {
+        properties: ['openDirectory' as const],
+        ...(title ? { title } : {}),
+        ...(defaultPath ? { defaultPath } : {}),
+      };
       const result = await (window
         ? dialog.showOpenDialog(window, options)
         : dialog.showOpenDialog(options));
