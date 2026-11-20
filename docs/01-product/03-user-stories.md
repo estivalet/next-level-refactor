@@ -93,6 +93,14 @@ As a collector, I want games whose files I deleted on purpose to leave the libra
 - When the selection has a present game, then the menu doesn't offer Remove (Hide is the way to keep a present game out of lists).
 - Removing never deletes or moves a file on disk.
 
+### US-C9 See where a game's file is · FR-LIB-16
+As a collector, I want to see where a game's file lives so I can find it on disk.
+- When I open a game's details or **Edit details**, then I see the full path of its file (e.g. `D:\Roms\Nintendo Switch\Afterimage.xci`) and can select it.
+- When I click **Copy path**, then the full path is on the clipboard.
+- When I click **Show in folder**, then Explorer opens with the file selected.
+- Given the game is missing, then the path it was expected at is shown and Show in folder is disabled.
+- Neither action changes, moves or deletes anything on disk.
+
 ### US-C8 See what a batch scrape is doing · FR-SCR-8
 As a collector, I want to see exactly what a batch scrape is doing, also one that carried on from an earlier session.
 - While a batch runs or is paused, the strip in the Library header names what it scrapes ("Scraping Nintendo Switch 24/753 · …", "2 systems", "selected games").
@@ -118,6 +126,16 @@ As a collector, I want to set up Dolphin for GameCube without reading docs.
 - Given a name already in use (catalog or custom), then Add says "A system with this name already exists."
 - When I then choose **Scan Nintendo Switch 2** in its editor, only that system is scanned.
 - When I delete it, it disappears from Settings, the library and the menu pickers; adding it again with the same name brings its games back.
+
+### US-D8 Keep updates and DLC out of a scan · FR-LIB-15
+As a collector, I want to tell a scan which files and folders of a system are not games, so updates and DLC don't show up as games.
+- Given no exclusions were added, then a system scans exactly as before (no system has a default exclusion).
+- When I add the pattern `*updates_dlcs` to Nintendo Switch and rescan it, then nothing in the `_review_updates_dlcs` or `updates_dlcs` folders is listed as a game, and other systems are not affected.
+- When I add the pattern `*[v*` to Nintendo Switch, then `Afterimage [010095E01A12A800][v589824][US].nsp` is skipped and `Afterimage.xci` is still found.
+- When I choose **Add folder…** and pick `D:\Roms\Nintendo Switch\updates_dlcs`, then the entry shows `updates_dlcs` and that folder is skipped in every storage location; picking a folder outside the system's ROM folder says "Pick a folder inside this system's ROM folder."
+- Given an empty or repeated entry, then it can't be added.
+- Given games already in the library are now excluded, when I rescan, then they are flagged missing and I can remove them with **Remove from library…** (US-C7); no file on disk is changed.
+- When I remove an exclusion and rescan, then those files are found again.
 
 ### US-D3 Undo a bad change · FR-SET-3
 - Given I saved settings 3 times, when I open Settings → Backups, then I see 3 backups with timestamps and can restore any of them; restoring creates a new backup of the current state first.
