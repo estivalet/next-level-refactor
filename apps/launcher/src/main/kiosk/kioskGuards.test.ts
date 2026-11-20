@@ -79,6 +79,7 @@ describe('kiosk guards in main (FR-SET-6, Review Focus 3)', () => {
       'app.pickFolder': 'settings',
       'settings.export': 'settings',
       'library.games.remove': 'desktop',
+      'library.games.removeAllMissing': 'desktop',
       'library.games.updateMetadata': 'desktop',
       'library.games.setLaunchOverride': 'desktop',
       'library.games.setPlayability': 'desktop',

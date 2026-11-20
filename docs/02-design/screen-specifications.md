@@ -261,6 +261,9 @@ Scope view (D62)
     collection), Launch options… (M3), Open folder, Show missing reason… (opens Relink), Remove
     from library… (FR-LIB-14: only when every selected game is missing; asks "Remove <title> /
     N games from the library?" with Cancel / Remove, and says the files on disk aren't touched).
+    On a Missing tab with games, a bar above the list reads "N games whose files are missing"
+    with **Remove all missing…** (FR-LIB-14, US-C7, 2026-11-19), which asks "Remove N missing
+    games from the library?" the same way and removes every game that tab lists.
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections under a **Find or create a collection…** box: typing narrows the
     list, and a name no collection has yet (in any case) offers **New collection “name”**

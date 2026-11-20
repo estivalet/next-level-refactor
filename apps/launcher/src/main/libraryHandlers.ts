@@ -46,6 +46,16 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
     announceMenus();
     return value;
   };
+  /** Removes the missing games among `gameIds` from the library only (FR-LIB-14). */
+  const removeMissing = (gameIds: readonly number[]) => {
+    const { removed, systems } = library().games.removeMissing(gameIds);
+    if (removed.length > 0) {
+      // The systems were read before the delete. A collection may have emptied (FR-MENU-2).
+      deps.emit('library.changed', { systems, gameIds: removed });
+      announceMenus();
+    }
+    return { removed: removed.length };
+  };
 
   return {
     'library.games.list': (query) => library().games.list(query),
@@ -70,15 +80,10 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
       changed([missingGameId]);
       return details;
     },
-    'library.games.remove': ({ gameIds }) => {
-      const { removed, systems } = library().games.removeMissing(gameIds);
-      if (removed.length > 0) {
-        // The systems were read before the delete. A collection may have emptied (FR-MENU-2).
-        deps.emit('library.changed', { systems, gameIds: removed });
-        announceMenus();
-      }
-      return { removed: removed.length };
-    },
+    'library.games.remove': ({ gameIds }) => removeMissing(gameIds),
+    // Main reads the ids, so only what the Missing tab lists can go (FR-LIB-14, US-C7).
+    'library.games.removeAllMissing': ({ scope }) =>
+      removeMissing(library().games.missingIds(scope)),
     'library.games.reveal': ({ gameId }) => {
       const { path, missing } = library().games.filePath(gameId);
       // A missing file can't be selected; show the closest folder that still exists.

@@ -327,6 +327,18 @@ export class GameRepository {
     return removeMissingGames(this.db.$client, gameIds);
   }
 
+  /**
+   * The games a scope's Missing tab lists (FR-LIB-14, US-C7: Remove all missing): missing and not
+   * hidden. NOT_FOUND for a gone collection or smart filter.
+   */
+  missingIds(scope: GameScope): number[] {
+    const { collectionSort, smart, params } = this.scope(scope);
+    const shape = listShape({ scope, tab: 'missing' }, collectionSort, false, smart?.sql ?? null);
+    return this.statement(`select g.id ${shape.from} order by g.id`)
+      .pluck()
+      .all(params) as number[];
+  }
+
   /** The file of a game, resolved from the library only (never from renderer input). */
   filePath(gameId: number): { path: string; missing: boolean } {
     const row = this.statement(

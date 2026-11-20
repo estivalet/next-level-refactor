@@ -299,6 +299,23 @@ describe('GameRepository.removeMissing', () => {
     expect(games.removeMissing([present])).toEqual({ removed: [], systems: [] });
   });
 
+  it('FR-LIB-14, US-C7: missingIds lists what the Missing tab of a scope lists', () => {
+    const [gone = 0, , hiddenGone = 0] = seedGames(library.db, 'nintendo-64', [
+      { title: 'Gone', missing: true },
+      'Here',
+      { title: 'Hidden Gone', missing: true, hidden: true },
+    ]);
+    const [snesGone = 0] = seedGames(library.db, 'snes', [{ title: 'Snes Gone', missing: true }]);
+    expect(games.missingIds({ kind: 'system', systemId: 'nintendo-64' })).toEqual([gone]);
+    const collections = new CollectionRepository(library.db, () => NOW);
+    const { id: picks } = collections.create('Picks');
+    collections.addGames(picks, [hiddenGone, snesGone]);
+    expect(games.missingIds({ kind: 'collection', collectionId: picks })).toEqual([snesGone]);
+    expect(appErrorOf(() => games.missingIds({ kind: 'collection', collectionId: 999 })).code).toBe(
+      'NOT_FOUND',
+    );
+  });
+
   it('FR-LIB-14: a removed game stays gone after a rescan without its file', () => {
     const [gone = 0] = seedGames(library.db, 'nintendo-64', [
       { title: 'Gone', relPath: 'Gone.zip', missing: true },

@@ -82,3 +82,65 @@ describe('remove from library (FR-LIB-14, US-C7)', () => {
     expect(screen.queryByRole('menuitem', { name: 'Remove from library…' })).toBeNull();
   });
 });
+
+describe('remove all missing (FR-LIB-14, US-C7)', () => {
+  function setupAll(missing: number) {
+    const games: GameRow[] = [
+      gameRow(1, 'Alpha', { missing: true }),
+      gameRow(2, 'Bravo', { missing: true }),
+      gameRow(3, 'Charlie'),
+    ];
+    const scopes: unknown[] = [];
+    installFakeBridge({
+      ...libraryResponses(games),
+      'library.games.facets': () =>
+        ok({
+          filters: [],
+          genres: [],
+          tabs: {
+            all: 3,
+            favorites: 0,
+            recent: 0,
+            completed: 0,
+            hidden: 0,
+            missing,
+            needsReview: 0,
+          },
+          essentials: 0,
+        }),
+      'library.games.removeAllMissing': ({ scope }) => {
+        scopes.push(scope);
+        return ok({ removed: missing });
+      },
+    });
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    return { scopes };
+  }
+
+  it('the Missing tab offers Remove all missing…, which asks first and removes the scope’s', async () => {
+    const user = userEvent.setup();
+    const { scopes } = setupAll(2);
+    await screen.findByRole('option', { name: /Alpha/ });
+    expect(screen.queryByRole('button', { name: 'Remove all missing…' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Missing' }));
+    await user.click(await screen.findByRole('button', { name: 'Remove all missing…' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Remove 2 missing games from the library?' });
+    expect(within(dialog).getByText(/files on disk aren't touched/)).toBeVisible();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(scopes).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'Remove all missing…' }));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }));
+    expect(scopes).toEqual([{ kind: 'system', systemId: 'nintendo-64' }]);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('is not offered when nothing is missing', async () => {
+    const user = userEvent.setup();
+    setupAll(0);
+    await screen.findByRole('option', { name: /Alpha/ });
+    await user.click(screen.getByRole('button', { name: 'Missing' }));
+    expect(screen.queryByRole('button', { name: 'Remove all missing…' })).toBeNull();
+  });
+});

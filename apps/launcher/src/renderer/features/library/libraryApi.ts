@@ -1,5 +1,6 @@
 import type {
   GameFlags,
+  GameScope,
   LaunchOverride,
   MetadataChanges,
   PlayabilityChange,
@@ -147,6 +148,13 @@ export function useRelink() {
 export function useRemoveGames() {
   return useGameMutation(async (gameIds: number[]) =>
     unwrap(await getBridge().invoke('library.games.remove', { gameIds })),
+  );
+}
+
+/** Remove all missing (FR-LIB-14, US-C7): main removes what the scope's Missing tab lists. */
+export function useRemoveAllMissing() {
+  return useGameMutation(async (scope: GameScope) =>
+    unwrap(await getBridge().invoke('library.games.removeAllMissing', { scope })),
   );
 }
 

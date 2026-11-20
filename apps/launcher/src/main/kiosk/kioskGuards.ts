@@ -46,6 +46,7 @@ export const KIOSK_GUARDED: Partial<Record<IpcChannel, KioskHide>> = {
   'library.games.setLaunchOverride': 'desktop',
   'library.games.relink': 'desktop',
   'library.games.remove': 'desktop',
+  'library.games.removeAllMissing': 'desktop',
   'library.games.reveal': 'desktop',
   'library.export': 'desktop',
   'collections.create': 'desktop',

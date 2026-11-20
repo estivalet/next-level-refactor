@@ -282,7 +282,7 @@ export function LibraryApp({
                     </button>
                   </div>
                 )}
-                <ScopeToolbar view={view} overlays={overlays} />
+                <ScopeToolbar view={view} overlays={overlays} missing={facets.data?.tabs.missing} />
                 {scopeView === 'grid' ? (
                   <GameGrid
                     games={view.games}

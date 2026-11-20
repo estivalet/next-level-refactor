@@ -9,6 +9,9 @@ M10-1 — polish before 1.0.
 
 ### Added
 
+- **Remove all missing** (FR-LIB-14, US-C7): the Missing tab of a system, collection or smart
+  filter has **Remove all missing…**, which removes every game listed there from the library
+  after asking. Only library entries go; files on disk are never touched.
 - **Ignore when scanning** (FR-LIB-15, US-D8): each system in Settings → Systems has its own
   list of names (with `*` wildcards, such as `*[v*` or `*updates_dlcs`) and folders (picked with
   **Add folder…**) that a scan skips, so updates and DLC don't show up as games. No system has

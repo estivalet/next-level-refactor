@@ -91,6 +91,7 @@ As a collector, I want art for a whole system without clicking every game.
 As a collector, I want games whose files I deleted on purpose to leave the library.
 - Given one or more selected games are all missing, when I choose **Remove from library…** and confirm, then they disappear from every list, search, collection and count, and stay gone after a rescan.
 - When the selection has a present game, then the menu doesn't offer Remove (Hide is the way to keep a present game out of lists).
+- Given the Missing tab of a system shows N games, when I choose **Remove all missing…** and confirm "Remove N missing games from the library?", then all of them are removed, and the button is gone until a game goes missing again.
 - Removing never deletes or moves a file on disk.
 
 ### US-C9 See where a game's file is · FR-LIB-16

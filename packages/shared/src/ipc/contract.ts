@@ -22,6 +22,7 @@ import {
   GameIdsSchema,
   GameListPageSchema,
   GameListQuerySchema,
+  GameScopeSchema,
   MetadataChangesSchema,
   SearchResultSchema,
 } from '../library/games.ts';
@@ -194,6 +195,11 @@ export const ipcContract = {
   /** FR-LIB-14: removes the missing games among `gameIds`; present ones are skipped. */
   'library.games.remove': {
     input: z.strictObject({ gameIds: GameIdsSchema }),
+    output: z.strictObject({ removed: z.number().int().min(0) }),
+  },
+  /** FR-LIB-14, US-C7: removes every game the scope's Missing tab lists (Remove all missing). */
+  'library.games.removeAllMissing': {
+    input: z.strictObject({ scope: GameScopeSchema }),
     output: z.strictObject({ removed: z.number().int().min(0) }),
   },
   'library.games.reveal': { input: z.strictObject({ gameId }), output: z.void() },

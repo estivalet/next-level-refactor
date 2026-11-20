@@ -1173,6 +1173,11 @@
       "titleOne": "Remove {{title}} from the library?",
       "titleMany_one": "Remove {{count}} game from the library?",
       "titleMany_other": "Remove {{count}} games from the library?",
+      "titleAll_one": "Remove {{count}} missing game from the library?",
+      "titleAll_other": "Remove {{count}} missing games from the library?",
+      "missingCount_one": "{{count}} game whose file is missing",
+      "missingCount_other": "{{count}} games whose files are missing",
+      "all": "Remove all missing…",
       "body": "Their files are missing. Their details, favorites, play history, playability and collection places are removed too. The files on disk aren't touched; if a file comes back, the next scan adds it as a new game.",
       "confirm": "Remove",
       "cancel": "Cancel"
