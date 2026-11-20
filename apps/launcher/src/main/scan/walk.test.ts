@@ -286,4 +286,22 @@ describe('walkSystem', () => {
     });
     expect(result.files.map((file) => file.relPath).sort()).toEqual(['cpower1.txt']);
   });
+
+  it('FR-LIB-15, US-D8: a pattern skips matching folders with their contents and update files', async () => {
+    await write('Example Game.xci');
+    await write('Example Game [0100000000AB0800][v65536][US].nsp');
+    await write('_review_updates_dlcs/Other Game [0100000000CD0800][v131072].nsp');
+    await write('updates_dlcs/Other Game DLC.nsp');
+    await write('Group/Third Game.xci');
+    const result = await walkSystem({
+      systemId: 'x',
+      dirs: [{ locationId: 'a', dir: root }],
+      extensions: ['nsp', 'xci'],
+      scan: { ignore: ['*updates_dlcs', '*[v*'] },
+    });
+    expect(result.files.map((file) => file.relPath).sort()).toEqual([
+      'Example Game.xci',
+      'Group/Third Game.xci',
+    ]);
+  });
 });
