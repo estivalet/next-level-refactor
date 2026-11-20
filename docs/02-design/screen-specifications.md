@@ -248,7 +248,9 @@ Scope view (D62)
     Completed (D60), 1–5 stars (choosing the same star clears), **Playability** (Works / Minor
     issues / Broken; pressing the chosen one clears it) with its note and "Set on <date>"
     (FR-LIB-13), **File** (FR-LIB-16: the full path, selectable, with **Copy path** ("Copied" for 2 s)
-    and **Open folder**; a missing game's reads **Expected at**), Edit details; a missing game
+    and **Open folder**; a missing game's reads **Expected at**), **Collections** (FR-LIB-8,
+    US-C10: a chip per collection the game is in, by name, with **Remove from <name>**; "In no
+    collection" when none; **Add to collection…** opens the add dialog for the game), Edit details; a missing game
     shows since when and **Relink…**.
     The scrape status line reads "Scraped <date>", "Needs review", "Not found on
     ScreenScraper" or "Last scrape failed"; a game never scraped shows none.

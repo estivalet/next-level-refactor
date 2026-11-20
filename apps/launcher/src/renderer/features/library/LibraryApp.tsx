@@ -331,6 +331,7 @@ export function LibraryApp({
               onPlay={play.play}
               playBusy={play.busy}
               onLaunchOptions={overlays.openLaunchOptions}
+              onAddToCollection={overlays.addToCollection}
             />
           </aside>
         </div>

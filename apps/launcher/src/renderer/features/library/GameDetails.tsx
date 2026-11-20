@@ -2,6 +2,7 @@ import type { GameFlags } from '@nextlevel/shared';
 import { Link2, Pencil, Play, SlidersHorizontal, Star, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DetailsArt, ScrapeStatusLine } from './DetailsArt.tsx';
+import { GameCollections } from './GameCollections.tsx';
 import { GameFileLocation } from './GameFileLocation.tsx';
 import { useGameDetails, useSetFlags, useSetPlayability } from './libraryApi.ts';
 import { PRIMARY_BUTTON } from './Modal.tsx';
@@ -20,6 +21,8 @@ interface GameDetailsProps {
   onFlags: (flags: GameFlags) => void;
   onPlay: (gameId: number) => void;
   onLaunchOptions: (gameId: number) => void;
+  /** Opens Add to collection for this game (FR-LIB-8, US-C10). */
+  onAddToCollection: (gameId: number) => void;
   /** A game is starting or running (D4: one at a time). */
   playBusy: boolean;
 }
@@ -169,6 +172,7 @@ export function GameDetails(props: GameDetailsProps) {
           ))}
         </ul>
       )}
+      <GameCollections game={game} onAdd={props.onAddToCollection} />
       {game.description && (
         <p className="text-xs leading-relaxed whitespace-pre-line text-slate-400">
           {game.description}

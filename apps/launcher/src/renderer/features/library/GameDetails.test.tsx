@@ -134,6 +134,51 @@ describe('GameDetails', () => {
     expect(bridge.calls).toContainEqual({ channel: 'library.games.reveal', input: { gameId: 2 } });
   });
 
+  it('FR-LIB-8, US-C10: details list the game’s collections; remove and add from there', async () => {
+    const user = userEvent.setup();
+    const games: GameRow[] = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo')];
+    const member: Record<number, number[]> = { 1: [10, 11], 2: [] };
+    const removed: unknown[] = [];
+    installFakeBridge({
+      ...libraryResponses(games),
+      'collections.list': () =>
+        ok([
+          { id: 10, name: 'Essentials', sort: 'title', games: 1 },
+          { id: 11, name: 'Party', sort: 'title', games: 1 },
+        ]),
+      'library.games.get': ({ gameId }) =>
+        ok(
+          gameDetails(games.find((g) => g.id === gameId) ?? gameRow(gameId, 'X'), {
+            collectionIds: member[gameId] ?? [],
+          }),
+        ),
+      'collections.removeGames': (input) => {
+        removed.push(input);
+        member[1] = (member[1] ?? []).filter((id) => id !== input.id);
+        return ok({ id: input.id, name: 'Party', sort: 'title' as const, games: 0 });
+      },
+    });
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    await user.click(await screen.findByRole('option', { name: /Alpha/ }));
+    const group = await within(details()).findByRole('list', { name: 'Collections' });
+    expect(
+      within(group)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Essentials', 'Party']);
+
+    await user.click(within(group).getByRole('button', { name: 'Remove from Party' }));
+    expect(removed).toEqual([{ id: 11, gameIds: [1] }]);
+    await waitFor(() => {
+      expect(within(group).queryByText('Party')).toBeNull();
+    });
+
+    await user.click(screen.getByRole('option', { name: /Bravo/ }));
+    expect(await within(details()).findByText('In no collection')).toBeVisible();
+    await user.click(within(details()).getByRole('button', { name: 'Add to collection…' }));
+    expect(await screen.findByRole('dialog', { name: 'Add 1 game to a collection' })).toBeVisible();
+  });
+
   it('FR-LIB-16: a missing game shows where its file was expected', async () => {
     const user = userEvent.setup();
     installFakeBridge(

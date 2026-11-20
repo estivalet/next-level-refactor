@@ -9,6 +9,8 @@ M10-1 — polish before 1.0.
 
 ### Added
 
+- **Collections in game details** (FR-LIB-8, US-C10): the details panel lists the collections a
+  game is in; remove it from one with its ×, or add it to more with **Add to collection…**.
 - **Remove all missing** (FR-LIB-14, US-C7): the Missing tab of a system, collection or smart
   filter has **Remove all missing…**, which removes every game listed there from the library
   after asking. Only library entries go; files on disk are never touched.

@@ -75,6 +75,11 @@ As a subscriber, I want Play to just work.
 - When I favorite a game, then it appears in "Favorites" immediately and survives a restart.
 - When I hide a game, then it disappears from lists except the "Hidden" tab, where I can unhide it.
 
+### US-C10 See and change a game's collections · FR-LIB-8
+- When I select a game, then its details list the collections it is in ("In no collection" when none).
+- When I click a collection's remove button, then the game leaves that collection and the chip goes; the game itself stays in the library.
+- When I click **Add to collection…**, then the add dialog opens for that game, and the chips follow what I tick.
+
 ### US-C5 Scrape one game · FR-SCR-1, FR-SCR-5
 As a collector, I want to fix one game's art and details without leaving the launcher.
 - When I choose **Scrape…** on a game, then ScreenScraper candidates appear (an exact file match first) with the best one chosen, and a preview shows each art kind and field: what I have and what ScreenScraper has.

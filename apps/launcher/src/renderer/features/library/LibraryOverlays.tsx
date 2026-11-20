@@ -49,6 +49,9 @@ export function useOverlays() {
       setScraping({ gameId, provider });
     },
     openCollection: setCollection,
+    addToCollection: (gameId: number) => {
+      setCollection({ kind: 'add', gameIds: [gameId] });
+    },
     openSmartFilter: setSmartFilter,
     closeMenu: () => {
       setMenu(null);
