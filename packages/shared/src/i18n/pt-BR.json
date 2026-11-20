@@ -1081,6 +1081,7 @@
       "edit": "Editar detalhes",
       "openFolder": "Abrir pasta",
       "missingSince": "Ausente desde {{date}}",
+      "expectedAt": "Esperado em {{path}}",
       "expectedFile": "Esperado em",
       "copyPath": "Copiar caminho",
       "pathCopied": "Copiado",

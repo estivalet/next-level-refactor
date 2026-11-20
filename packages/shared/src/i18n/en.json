@@ -1081,6 +1081,7 @@
       "edit": "Edit details",
       "openFolder": "Open folder",
       "missingSince": "Missing since {{date}}",
+      "expectedAt": "Expected at {{path}}",
       "expectedFile": "Expected at",
       "copyPath": "Copy path",
       "pathCopied": "Copied",

@@ -181,9 +181,6 @@ function EditForm(props: {
       }
     >
       <p className="mb-2 truncate text-sm font-semibold text-white">{game.title}</p>
-      <div className="mb-3">
-        <GameFileLocation game={game} />
-      </div>
       <div className="mb-3 flex items-center gap-4 border-b border-white/5">
         <div role="tablist" className="flex flex-1 gap-4">
           {(['info', 'media'] as const).map((name) => (
@@ -263,6 +260,10 @@ function EditForm(props: {
                 }}
                 className={`${INPUT} disabled:opacity-50`}
               />
+            </div>
+            {/* Where the file is: the last field of Info (FR-LIB-16, US-C9). */}
+            <div className="col-span-2">
+              <GameFileLocation game={game} />
             </div>
           </div>
         ) : (

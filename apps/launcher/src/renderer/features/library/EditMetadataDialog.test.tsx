@@ -70,8 +70,17 @@ describe('EditMetadataDialog', () => {
     const dialog = await screen.findByRole('dialog', { name: 'Edit details' });
     const file = within(dialog).getByRole('group', { name: 'File' });
     expect(within(file).getByText('E:\\roms\\Nintendo 64\\Racer.z64')).toBeVisible();
+    // The last field of the Info tab, after the playability note.
+    const panel = within(dialog).getByRole('tabpanel');
+    expect(panel).toContainElement(file);
+    const note = within(dialog).getByRole('textbox', { name: 'Playability note' });
+    expect(note.compareDocumentPosition(file) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(file).getByRole('button', { name: 'Open folder' })).toBeVisible();
     await user.click(within(file).getByRole('button', { name: 'Copy path' }));
     expect(await navigator.clipboard.readText()).toBe('E:\\roms\\Nintendo 64\\Racer.z64');
+
+    await user.click(within(dialog).getByRole('tab', { name: 'Media' }));
+    expect(within(dialog).queryByRole('group', { name: 'File' })).toBeNull();
   });
 
   it('FR-LIB-6: an invalid year disables Save with the inline error', async () => {

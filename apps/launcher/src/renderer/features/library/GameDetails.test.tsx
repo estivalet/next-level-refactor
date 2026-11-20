@@ -119,18 +119,15 @@ describe('GameDetails', () => {
     expect(screen.getByRole('listbox', { name: 'Games' })).toHaveFocus();
   });
 
-  it('FR-LIB-16, US-C9: details show the file path, copy it and open its folder', async () => {
+  it('FR-LIB-16: the details panel keeps Open folder but not the File block', async () => {
     const user = userEvent.setup();
     const { bridge } = setup();
     await user.click(await screen.findByRole('option', { name: /Bravo/ }));
-    const file = await within(details()).findByRole('group', { name: 'File' });
-    expect(within(file).getByText('E:\\roms\\Nintendo 64\\Bravo.z64')).toBeVisible();
+    await within(details()).findByRole('heading', { name: 'Bravo' });
+    expect(within(details()).queryByRole('group', { name: 'File' })).toBeNull();
+    expect(within(details()).queryByText('E:\\roms\\Nintendo 64\\Bravo.z64')).toBeNull();
 
-    await user.click(within(file).getByRole('button', { name: 'Copy path' }));
-    expect(await navigator.clipboard.readText()).toBe('E:\\roms\\Nintendo 64\\Bravo.z64');
-    expect(within(file).getByRole('button', { name: 'Copied' })).toBeVisible();
-
-    await user.click(within(file).getByRole('button', { name: 'Open folder' }));
+    await user.click(within(details()).getByRole('button', { name: 'Open folder' }));
     expect(bridge.calls).toContainEqual({ channel: 'library.games.reveal', input: { gameId: 2 } });
   });
 
@@ -179,7 +176,7 @@ describe('GameDetails', () => {
     expect(await screen.findByRole('dialog', { name: 'Add 1 game to a collection' })).toBeVisible();
   });
 
-  it('FR-LIB-16: a missing game shows where its file was expected', async () => {
+  it('FR-LIB-4: a missing game shows where its file was expected', async () => {
     const user = userEvent.setup();
     installFakeBridge(
       libraryResponses([
@@ -188,9 +185,11 @@ describe('GameDetails', () => {
     );
     renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
     await user.click(await screen.findByRole('option', { name: /Lost/ }));
-    const file = await within(details()).findByRole('group', { name: 'Expected at' });
-    expect(within(file).getByText('E:\\roms\\Nintendo 64\\Lost.z64')).toBeVisible();
-    expect(within(file).getByRole('button', { name: 'Open folder' })).toBeEnabled();
+    expect(
+      await within(details()).findByText('Expected at E:\\roms\\Nintendo 64\\Lost.z64'),
+    ).toBeVisible();
+    expect(within(details()).queryByRole('group', { name: 'Expected at' })).toBeNull();
+    expect(within(details()).getByRole('button', { name: 'Open folder' })).toBeEnabled();
   });
 
   it('FR-LIB-6: the focused game stays focused when a change re-sorts the list', async () => {

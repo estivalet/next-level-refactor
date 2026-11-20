@@ -101,7 +101,7 @@ As a collector, I want games whose files I deleted on purpose to leave the libra
 
 ### US-C9 See where a game's file is · FR-LIB-16
 As a collector, I want to see where a game's file lives so I can find it on disk.
-- When I open a game's details or **Edit details**, then I see the full path of its file (e.g. `D:\Roms\Nintendo Switch\Example Game.xci`) and can select it.
+- When I open **Edit details**, then the last field of the Info tab shows the full path of its file (e.g. `D:\Roms\Nintendo Switch\Example Game.xci`) and I can select it. The details panel doesn't show it.
 - When I click **Copy path**, then the full path is on the clipboard.
 - When I click **Open folder**, then Explorer opens with the file selected.
 - Given the game is missing, then the path it was expected at is shown, and Open folder opens the nearest folder that still exists.
