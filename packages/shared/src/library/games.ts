@@ -91,6 +91,8 @@ export const GameListPageSchema = z.object({
 
 export const GameDetailsSchema = GameRowSchema.extend({
   relPath: z.string(),
+  /** Full path of the game's file (FR-LIB-16); for a missing game, where it was expected. */
+  filePath: z.string(),
   discGroup: z.string().nullable(),
   missingSince: z.string().nullable(),
   addedAt: z.string(),

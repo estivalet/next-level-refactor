@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changesOf, draftOf, type EditDraft } from './editForm.ts';
+import { GameFileLocation } from './GameFileLocation.tsx';
 import { GameMediaTab } from './GameMediaTab.tsx';
 import { useGameDetails, useSetPlayability, useUpdateMetadata } from './libraryApi.ts';
 import { INPUT, Modal, PRIMARY_BUTTON, SECONDARY_BUTTON } from './Modal.tsx';
@@ -180,6 +181,9 @@ function EditForm(props: {
       }
     >
       <p className="mb-2 truncate text-sm font-semibold text-white">{game.title}</p>
+      <div className="mb-3">
+        <GameFileLocation game={game} />
+      </div>
       <div className="mb-3 flex items-center gap-4 border-b border-white/5">
         <div role="tablist" className="flex flex-1 gap-4">
           {(['info', 'media'] as const).map((name) => (

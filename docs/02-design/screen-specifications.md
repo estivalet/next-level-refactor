@@ -247,7 +247,9 @@ Scope view (D62)
     the box art (D62); title, system, scrape status, facts, filters, description), Favorite,
     Completed (D60), 1–5 stars (choosing the same star clears), **Playability** (Works / Minor
     issues / Broken; pressing the chosen one clears it) with its note and "Set on <date>"
-    (FR-LIB-13), Edit details, Open folder; a missing game shows since when, the expected path and **Relink…**.
+    (FR-LIB-13), **File** (FR-LIB-16: the full path, selectable, with **Copy path** ("Copied" for 2 s)
+    and **Open folder**; a missing game's reads **Expected at**), Edit details; a missing game
+    shows since when and **Relink…**.
     The scrape status line reads "Scraped <date>", "Needs review", "Not found on
     ScreenScraper" or "Last scrape failed"; a game never scraped shows none.
   - Status bar: "N games · N missing", Sort (title, year, rating, recently added) for systems,
@@ -266,7 +268,7 @@ Scope view (D62)
     alphabetical order (FR-LIB-8, owner request 2026-11-17), so a list kept by title stays that way.
   - **Edit details (FR-LIB-6, owner request 2026-11-02):** the game's title, **Info** and
     **Media** tabs, and **‹ n / total ›** for the shown list (stepping selects that row; off
-    with unsaved changes; the tab is kept). Info = the editable fields. Media is look-only:
+    with unsaved changes; the tab is kept). Under the title, the same **File** block as the details (FR-LIB-16). Info = the editable fields. Media is look-only:
     a tile per standard art kind (found = image from the media index, missing = "Not
     found") plus any other indexed kind of the game, "N of M found", **Show found only**;
     a found tile opens full size over the Library (Esc or ✕ closes just that view).

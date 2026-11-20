@@ -294,6 +294,15 @@ describe('GameRepository.get', () => {
     expect(games.get(id).media).toEqual({ 'box-front': 42 });
   });
 
+  it('FR-LIB-16: details carry the full path of a present and a missing game', () => {
+    const [here = 0, gone = 0] = seedGames(library.db, 'nintendo-64', [
+      { title: 'Here', relPath: 'Here.z64' },
+      { title: 'Gone', missing: true, relPath: 'USA/Gone.z64' },
+    ]);
+    expect(games.get(here).filePath).toBe('X:/nintendo-64/Here.z64');
+    expect(games.get(gone).filePath).toBe('X:/nintendo-64/USA/Gone.z64');
+  });
+
   it('FR-LIB-6: an unknown game is NOT_FOUND', () => {
     expect(appErrorOf(() => games.get(999)).code).toBe('NOT_FOUND');
   });

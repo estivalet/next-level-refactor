@@ -9,6 +9,9 @@ M10-1 — polish before 1.0.
 
 ### Added
 
+- **Game file location** (FR-LIB-16, US-C9): game details and Edit details show the full path
+  of the game's file with **Copy path** and **Open folder**; a missing game shows where it was
+  expected.
 - **Batch scrape details** (FR-SCR-8, US-C8): the batch line in the Library header names what it
   scrapes and says when a batch carried on from your last session. Click it for a panel with the
   job's progress, rules, current game and every game it handled, filterable by outcome.

@@ -1,8 +1,9 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderOpen, Link2, Pencil, Play, SlidersHorizontal, Star, Trophy } from 'lucide-react';
+import { Link2, Pencil, Play, SlidersHorizontal, Star, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DetailsArt, ScrapeStatusLine } from './DetailsArt.tsx';
-import { useGameDetails, useRevealGame, useSetFlags, useSetPlayability } from './libraryApi.ts';
+import { GameFileLocation } from './GameFileLocation.tsx';
+import { useGameDetails, useSetFlags, useSetPlayability } from './libraryApi.ts';
 import { PRIMARY_BUTTON } from './Modal.tsx';
 import { PlayabilityPicker } from './PlayabilityPicker.tsx';
 import { RatingStars } from './RatingStars.tsx';
@@ -33,7 +34,6 @@ export function GameDetails(props: GameDetailsProps) {
   const details = useGameDetails(gameId);
   const setFlags = useSetFlags();
   const setPlayability = useSetPlayability();
-  const reveal = useRevealGame();
   const game = details.data;
   if (gameId === null || !game) {
     return <p className="p-4 text-xs text-slate-500">{t('library.details.none')}</p>;
@@ -76,9 +76,6 @@ export function GameDetails(props: GameDetailsProps) {
             {t('library.details.missingSince', {
               date: new Date(game.missingSince ?? game.addedAt).toLocaleDateString(i18n.language),
             })}
-          </p>
-          <p className="mt-1 break-all text-amber-200/70">
-            {t('library.details.expectedAt', { path: game.expectedPath ?? game.relPath })}
           </p>
           <button
             type="button"
@@ -177,6 +174,7 @@ export function GameDetails(props: GameDetailsProps) {
           {game.description}
         </p>
       )}
+      <GameFileLocation game={game} />
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
@@ -187,16 +185,6 @@ export function GameDetails(props: GameDetailsProps) {
         >
           <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
           {t('library.details.edit')}
-        </button>
-        <button
-          type="button"
-          className={ACTION}
-          onClick={() => {
-            reveal.mutate(game.id);
-          }}
-        >
-          <FolderOpen aria-hidden="true" className="h-3.5 w-3.5" />
-          {t('library.details.openFolder')}
         </button>
         <button
           type="button"

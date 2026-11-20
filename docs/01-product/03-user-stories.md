@@ -95,10 +95,10 @@ As a collector, I want games whose files I deleted on purpose to leave the libra
 
 ### US-C9 See where a game's file is · FR-LIB-16
 As a collector, I want to see where a game's file lives so I can find it on disk.
-- When I open a game's details or **Edit details**, then I see the full path of its file (e.g. `D:\Roms\Nintendo Switch\Afterimage.xci`) and can select it.
+- When I open a game's details or **Edit details**, then I see the full path of its file (e.g. `D:\Roms\Nintendo Switch\Example Game.xci`) and can select it.
 - When I click **Copy path**, then the full path is on the clipboard.
-- When I click **Show in folder**, then Explorer opens with the file selected.
-- Given the game is missing, then the path it was expected at is shown and Show in folder is disabled.
+- When I click **Open folder**, then Explorer opens with the file selected.
+- Given the game is missing, then the path it was expected at is shown, and Open folder opens the nearest folder that still exists.
 - Neither action changes, moves or deletes anything on disk.
 
 ### US-C8 See what a batch scrape is doing · FR-SCR-8
@@ -131,7 +131,7 @@ As a collector, I want to set up Dolphin for GameCube without reading docs.
 As a collector, I want to tell a scan which files and folders of a system are not games, so updates and DLC don't show up as games.
 - Given no exclusions were added, then a system scans exactly as before (no system has a default exclusion).
 - When I add the pattern `*updates_dlcs` to Nintendo Switch and rescan it, then nothing in the `_review_updates_dlcs` or `updates_dlcs` folders is listed as a game, and other systems are not affected.
-- When I add the pattern `*[v*` to Nintendo Switch, then `Afterimage [010095E01A12A800][v589824][US].nsp` is skipped and `Afterimage.xci` is still found.
+- When I add the pattern `*[v*` to Nintendo Switch, then `Example Game [0100000000AB0800][v65536][US].nsp` is skipped and `Example Game.xci` is still found.
 - When I choose **Add folder…** and pick `D:\Roms\Nintendo Switch\updates_dlcs`, then the entry shows `updates_dlcs` and that folder is skipped in every storage location; picking a folder outside the system's ROM folder says "Pick a folder inside this system's ROM folder."
 - Given an empty or repeated entry, then it can't be added.
 - Given games already in the library are now excluded, when I rescan, then they are flagged missing and I can remove them with **Remove from library…** (US-C7); no file on disk is changed.

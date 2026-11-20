@@ -181,6 +181,7 @@ export class GameRepository {
     return {
       ...toRow(raw, this.resolvePath),
       relPath: raw.relPath,
+      filePath: this.resolvePath(raw),
       discGroup: raw.discGroup,
       missingSince: raw.missingSince,
       addedAt: raw.addedAt,

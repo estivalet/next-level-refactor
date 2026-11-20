@@ -64,6 +64,16 @@ describe('EditMetadataDialog', () => {
     expect(isClosed()).toBe(true);
   });
 
+  it('FR-LIB-16, US-C9: Edit details shows the file path with Copy path', async () => {
+    const user = userEvent.setup();
+    setup();
+    const dialog = await screen.findByRole('dialog', { name: 'Edit details' });
+    const file = within(dialog).getByRole('group', { name: 'File' });
+    expect(within(file).getByText('E:\\roms\\Nintendo 64\\Racer.z64')).toBeVisible();
+    await user.click(within(file).getByRole('button', { name: 'Copy path' }));
+    expect(await navigator.clipboard.readText()).toBe('E:\\roms\\Nintendo 64\\Racer.z64');
+  });
+
   it('FR-LIB-6: an invalid year disables Save with the inline error', async () => {
     const user = userEvent.setup();
     setup();

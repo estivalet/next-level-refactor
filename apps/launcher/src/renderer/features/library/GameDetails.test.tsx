@@ -119,6 +119,35 @@ describe('GameDetails', () => {
     expect(screen.getByRole('listbox', { name: 'Games' })).toHaveFocus();
   });
 
+  it('FR-LIB-16, US-C9: details show the file path, copy it and open its folder', async () => {
+    const user = userEvent.setup();
+    const { bridge } = setup();
+    await user.click(await screen.findByRole('option', { name: /Bravo/ }));
+    const file = await within(details()).findByRole('group', { name: 'File' });
+    expect(within(file).getByText('E:\\roms\\Nintendo 64\\Bravo.z64')).toBeVisible();
+
+    await user.click(within(file).getByRole('button', { name: 'Copy path' }));
+    expect(await navigator.clipboard.readText()).toBe('E:\\roms\\Nintendo 64\\Bravo.z64');
+    expect(within(file).getByRole('button', { name: 'Copied' })).toBeVisible();
+
+    await user.click(within(file).getByRole('button', { name: 'Open folder' }));
+    expect(bridge.calls).toContainEqual({ channel: 'library.games.reveal', input: { gameId: 2 } });
+  });
+
+  it('FR-LIB-16: a missing game shows where its file was expected', async () => {
+    const user = userEvent.setup();
+    installFakeBridge(
+      libraryResponses([
+        gameRow(1, 'Lost', { missing: true, expectedPath: 'E:\\roms\\Nintendo 64\\Lost.z64' }),
+      ]),
+    );
+    renderInShell(<LibraryApp initialScope={N64_SCOPE} />);
+    await user.click(await screen.findByRole('option', { name: /Lost/ }));
+    const file = await within(details()).findByRole('group', { name: 'Expected at' });
+    expect(within(file).getByText('E:\\roms\\Nintendo 64\\Lost.z64')).toBeVisible();
+    expect(within(file).getByRole('button', { name: 'Open folder' })).toBeEnabled();
+  });
+
   it('FR-LIB-6: the focused game stays focused when a change re-sorts the list', async () => {
     const user = userEvent.setup();
     const games: GameRow[] = [gameRow(1, 'Alpha'), gameRow(2, 'Bravo'), gameRow(3, 'Charlie')];
