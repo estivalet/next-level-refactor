@@ -14,6 +14,7 @@ export function SystemEditor({
   profiles,
   errors,
   scan,
+  exclusions,
   onChange,
   onReset,
   onClose,
@@ -25,6 +26,8 @@ export function SystemEditor({
   errors: Record<string, string>;
   /** Scan this system (FR-LIB-3). */
   scan: ReactNode;
+  /** Ignore when scanning (FR-LIB-15). */
+  exclusions: ReactNode;
   onChange: (
     patch: Partial<
       Pick<
@@ -184,6 +187,7 @@ export function SystemEditor({
           ))}
         </select>
       </label>
+      {exclusions}
       {scan}
       <button
         type="button"

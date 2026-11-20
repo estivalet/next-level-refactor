@@ -9,6 +9,11 @@ M10-1 — polish before 1.0.
 
 ### Added
 
+- **Ignore when scanning** (FR-LIB-15, US-D8): each system in Settings → Systems has its own
+  list of names (with `*` wildcards, such as `*[v*` or `*updates_dlcs`) and folders (picked with
+  **Add folder…**) that a scan skips, so updates and DLC don't show up as games. No system has
+  one by default. Games already found are marked missing at the next scan; remove them with
+  **Remove from library…**. Nothing on disk changes.
 - **Game file location** (FR-LIB-16, US-C9): game details and Edit details show the full path
   of the game's file with **Copy path** and **Open folder**; a missing game shows where it was
   expected.

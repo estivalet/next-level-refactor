@@ -24,6 +24,8 @@ const CUSTOM_ISSUES = new Set([
   'duplicateBinding',
   'duplicateSystemId',
   'duplicateSystemName',
+  'duplicateExclusion',
+  'notInSystemFolder',
 ]);
 
 function messageKey(issue: z.core.$ZodIssue): string {

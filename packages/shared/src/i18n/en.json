@@ -46,7 +46,9 @@
       "notExecutable": "Choose the emulator program (.exe).",
       "duplicateBinding": "This key or button is already used by another action.",
       "duplicateSystemId": "Another system already has this id.",
-      "duplicateSystemName": "Another system already has this name."
+      "duplicateSystemName": "Another system already has this name.",
+      "duplicateExclusion": "This entry is already in the list.",
+      "notInSystemFolder": "Use a folder inside this system's ROM folder."
     },
     "busy": "A scan or an import is running. Try again when it finishes.",
     "scraperCredentials": "ScreenScraper rejected the credentials. Check them in Settings → Scraper.",
@@ -460,6 +462,24 @@
       "launchboxPlatform": "LaunchBox platform",
       "launchboxHelp": "Leave empty to use the catalog's platform ({{default}}).",
       "launchboxHelpNone": "The catalog has no LaunchBox platform for this system.",
+      "exclusions": {
+        "label": "Ignore when scanning",
+        "help": "Files and folders the scan skips for this system, such as updates and DLC. In a name, * stands for any characters (*[v* or *updates_dlcs); case is ignored. Games already found are marked missing at the next scan.",
+        "list": "Ignored when scanning",
+        "none": "Nothing is ignored.",
+        "pattern": "Name pattern",
+        "patternPlaceholder": "*updates_dlcs",
+        "addPattern": "Add",
+        "addFolder": "Add folder…",
+        "pickTitle": "Choose a folder to ignore",
+        "patternKind": "Name",
+        "folderKind": "Folder",
+        "remove": "Remove {{entry}}",
+        "duplicate": "This entry is already in the list.",
+        "invalidPattern": "Type one name, without \\ / : < > \" | or ?.",
+        "outside": "Pick a folder inside this system's ROM folder.",
+        "noLocations": "Add a storage location in Settings → Storage to pick folders."
+      },
       "custom": {
         "addButton": "Add system",
         "addTitle": "New system",

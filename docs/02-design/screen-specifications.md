@@ -470,6 +470,15 @@ Left navigation of sections (see IA §1), right form pane.
   ScreenScraper id, LaunchBox platform and emulator profile (with a hint to add one in Emulators
   when none covers it), and **Delete system** asks inline before removing it. All through the
   Save bar.
+- **Systems → system editor → Ignore when scanning** (FR-LIB-15, US-D8, 2026-11-19), in shipped
+  and custom systems' editors, above Scan: a help line, the list (each entry marked Name or
+  Folder, with **Remove <entry>**; "Nothing is ignored." when empty, the default for every
+  system), a **Name pattern** box with **Add** (also Enter; off while empty, repeated or holding
+  a path character, with the reason under it) and **Add folder…** (native folder dialog; a
+  folder inside the system's ROM folder in any storage location is kept relative to it, one
+  outside says "Pick a folder inside this system's ROM folder.", a repeat says so; off without
+  a storage location). Changes go through the Save bar and apply from the next scan; Reset to
+  defaults leaves the list alone.
 - **Systems → system editor → Scan <system>** (FR-LIB-3, 2026-11-09), in shipped and custom
   systems' editors: scans just that system (even when it is switched off), with its progress and
   then the summary line of that scan. Off while the page has unsaved changes ("Save your changes

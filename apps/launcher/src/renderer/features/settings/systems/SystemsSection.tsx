@@ -1,4 +1,4 @@
-import { customSystemId } from '@nextlevel/shared';
+import { customSystemId, systemFolders } from '@nextlevel/shared';
 import { withCustomSystems } from '@nextlevel/system-catalog';
 import { Plus } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -16,6 +16,7 @@ import {
 import { filterSystems, withSystem } from './filterSystems.ts';
 import { SystemEditor } from './SystemEditor.tsx';
 import { NewSystemForm } from './NewSystemForm.tsx';
+import { ScanExclusionsField } from './ScanExclusionsField.tsx';
 import { ScanSystemButton } from './ScanSystemButton.tsx';
 import { SystemList } from './SystemList.tsx';
 
@@ -65,6 +66,20 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
             name={system.name}
             unsaved={dirty}
             hasLocations={draft.storage.locations.length > 0}
+          />
+        );
+        const exclusionsField = (systemId: string, folderName: string) => (
+          <ScanExclusionsField
+            exclusions={draft.systems[systemId]?.scanExclusions}
+            systemDirs={systemFolders(draft.storage.locations, folderName)}
+            error={
+              Object.entries(errors).find(([path]) =>
+                path.startsWith(`systems.${systemId}.scanExclusions`),
+              )?.[1]
+            }
+            onChange={(scanExclusions) => {
+              update((current) => withSystem(current, systemId, { scanExclusions }));
+            }}
           />
         );
         const addSystem = (input: { name: string; extensions: string[] }) => {
@@ -145,6 +160,7 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
                 profiles={draft.profiles.filter((p) => p.systems.includes(custom.id))}
                 errors={errors}
                 scan={scanButton(custom)}
+                exclusions={exclusionsField(custom.id, custom.folderName)}
                 onChange={(patch) => {
                   update((current) => withCustomSystemPatch(current, custom.id, patch));
                 }}
@@ -166,6 +182,10 @@ export function SystemsSection({ focus }: { focus?: FocusRequest }) {
                 profiles={draft.profiles.filter((p) => p.systems.includes(editing.id))}
                 errors={errors}
                 scan={scanButton(editing)}
+                exclusions={exclusionsField(
+                  editing.id,
+                  draft.systems[editing.id]?.folderName ?? editing.defaultFolderName,
+                )}
                 onChange={(patch) => {
                   update((current) => withSystem(current, editing.id, patch));
                 }}

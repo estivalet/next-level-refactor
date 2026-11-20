@@ -2,15 +2,26 @@ import {
   AppErrorException,
   ERROR_CODES,
   orderedLocations,
+  type ScanExclusion,
   type Settings,
   type SystemDefinition,
 } from '@nextlevel/shared';
 import { join } from 'node:path';
 import type { WalkJob } from './types.ts';
 
+/** The system's own exclusions (FR-LIB-15), or none. */
+function excludeOf(exclusions: readonly ScanExclusion[] | undefined): WalkJob['exclude'] {
+  if (!exclusions?.length) return undefined;
+  return {
+    patterns: exclusions.flatMap((entry) => (entry.kind === 'pattern' ? [entry.pattern] : [])),
+    folders: exclusions.flatMap((entry) => (entry.kind === 'folder' ? [entry.path] : [])),
+  };
+}
+
 function jobFor(settings: Settings, system: SystemDefinition): WalkJob {
   const own = settings.systems[system.id];
   const folder = own?.folderName ?? system.defaultFolderName;
+  const exclude = excludeOf(own?.scanExclusions);
   return {
     systemId: system.id,
     dirs: orderedLocations(settings.storage.locations).map((location) => ({
@@ -19,6 +30,7 @@ function jobFor(settings: Settings, system: SystemDefinition): WalkJob {
     })),
     extensions: own?.extensions ?? system.extensions,
     ...(system.scan ? { scan: system.scan } : {}),
+    ...(exclude ? { exclude } : {}),
     ...(settings.storage.media.mode === 'central'
       ? { centralMediaDir: join(settings.storage.media.path, system.id) }
       : {}),

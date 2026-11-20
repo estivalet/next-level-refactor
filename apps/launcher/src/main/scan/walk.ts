@@ -24,6 +24,8 @@ interface WalkRules {
   ignore: RegExp[];
   /** Lower-case file name: the games are exactly the folders holding it. */
   gameFolderFile: string | null;
+  /** Lower-case paths relative to the system folder, `/`-separated, skipped (FR-LIB-15). */
+  excludedFolders: ReadonlySet<string>;
 }
 
 function namePattern(glob: string): RegExp {
@@ -35,8 +37,9 @@ function walkRules(job: WalkJob): WalkRules {
   return {
     accepted: new Set(job.extensions),
     topLevelOnly: job.scan?.topLevelOnly ?? false,
-    ignore: (job.scan?.ignore ?? []).map(namePattern),
+    ignore: [...(job.scan?.ignore ?? []), ...(job.exclude?.patterns ?? [])].map(namePattern),
     gameFolderFile: job.scan?.gameFolderFile?.toLowerCase() ?? null,
+    excludedFolders: new Set((job.exclude?.folders ?? []).map((path) => path.toLowerCase())),
   };
 }
 const pathKey = (path: string) => resolve(path).toLowerCase();
@@ -90,6 +93,7 @@ async function listFolder(dir: string, rules: WalkRules): Promise<Candidate[] | 
       const fullPath = join(folder, entry.name);
       const relPath = prefix ? `${prefix}/${entry.name}` : entry.name;
       if (rules.ignore.some((pattern) => pattern.test(entry.name))) continue;
+      if (rules.excludedFolders.has(relPath.toLowerCase())) continue;
       if (entry.isDirectory() && rules.gameFolderFile) {
         const inside = await entries(fullPath);
         const file = rules.gameFolderFile;

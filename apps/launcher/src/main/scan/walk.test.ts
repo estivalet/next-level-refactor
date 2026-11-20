@@ -304,4 +304,31 @@ describe('walkSystem', () => {
       'Group/Third Game.xci',
     ]);
   });
+
+  it('FR-LIB-15, US-D8: own exclusions add to catalog rules; a folder is skipped in every location', async () => {
+    const other = join(root, 'second');
+    const first = join(root, 'first');
+    for (const base of [first, other]) {
+      await mkdir(join(base, 'Updates', 'Old'), { recursive: true });
+      await writeFile(join(base, 'Updates', 'Old', 'Patch.nsp'), '');
+      await writeFile(join(base, 'Updates', 'Kept.nsp'), '');
+    }
+    await writeFile(join(first, '_notes.nsp'), '');
+    await writeFile(join(first, 'Game [v1].nsp'), '');
+    await writeFile(join(other, 'Game.xci'), '');
+    const result = await walkSystem({
+      systemId: 'x',
+      dirs: [
+        { locationId: 'a', dir: first },
+        { locationId: 'b', dir: other },
+      ],
+      extensions: ['nsp', 'xci'],
+      scan: { ignore: ['_*'] },
+      exclude: { patterns: ['*[v*'], folders: ['updates/OLD'] },
+    });
+    expect(result.files.map((file) => file.relPath).sort()).toEqual([
+      'Game.xci',
+      'Updates/Kept.nsp',
+    ]);
+  });
 });

@@ -21,6 +21,7 @@ export * from './library/playability.ts';
 export * from './menus/schema.ts';
 export * from './settings/schema.ts';
 export * from './settings/customSystems.ts';
+export * from './settings/scanExclusions.ts';
 export * from './scraper/apply.ts';
 export * from './scraper/batch.ts';
 export * from './scraper/schema.ts';

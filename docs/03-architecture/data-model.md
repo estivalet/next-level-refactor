@@ -110,7 +110,19 @@ type SystemSettings = {
   defaultProfileId?: string;
   screenscraperId?: number;       // default: catalog value
   themeId?: string;               // per-system theme override
+  // FR-LIB-15 (2026-11-19; no default, no schema version change): names and folders the scan
+  // skips, added to the catalog's own walk rules. ≤ 100 entries; a repeat (same kind, case
+  // ignored) fails with `duplicateExclusion` on the later one.
+  scanExclusions?: ScanExclusion[];
 };
+
+type ScanExclusion =
+  | { kind: 'pattern'; pattern: string }  // one file or folder name, `*` = any characters, case
+                                          // ignored; no \ / : < > " | ?; a matching folder is
+                                          // skipped with everything in it
+  | { kind: 'folder'; path: string };     // relative to the system's ROM folder, `/`-separated,
+                                          // applies in every storage location; not absolute, no
+                                          // `.`/`..` (`notInSystemFolder`)
 
 type Emulator = { id: string; name: string; presetId?: string; executable: string; version?: string };
 

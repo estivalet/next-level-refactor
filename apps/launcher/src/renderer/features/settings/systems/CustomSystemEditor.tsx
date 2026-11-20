@@ -26,6 +26,7 @@ export function CustomSystemEditor({
   profiles,
   errors,
   scan,
+  exclusions,
   onChange,
   onProfileChange,
   onDelete,
@@ -39,6 +40,8 @@ export function CustomSystemEditor({
   errors: Record<string, string>;
   /** Scan this system (FR-LIB-3). */
   scan: ReactNode;
+  /** Ignore when scanning (FR-LIB-15). */
+  exclusions: ReactNode;
   onChange: (patch: CustomSystemPatch) => void;
   onProfileChange: (profileId: string | undefined) => void;
   onDelete: () => void;
@@ -231,6 +234,7 @@ export function CustomSystemEditor({
         </select>,
         profiles.length === 0 ? t('settings.systems.custom.noProfiles') : undefined,
       )}
+      {exclusions}
       {scan}
       {confirmingDelete ? (
         <div

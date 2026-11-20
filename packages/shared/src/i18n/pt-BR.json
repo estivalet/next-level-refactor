@@ -46,7 +46,9 @@
       "notExecutable": "Escolha o programa do emulador (.exe).",
       "duplicateBinding": "Esta tecla ou botão já é usado por outra ação.",
       "duplicateSystemId": "Outro sistema já tem este id.",
-      "duplicateSystemName": "Outro sistema já tem este nome."
+      "duplicateSystemName": "Outro sistema já tem este nome.",
+      "duplicateExclusion": "Este item já está na lista.",
+      "notInSystemFolder": "Use uma pasta dentro da pasta de ROMs deste sistema."
     },
     "busy": "Uma varredura ou importação está em andamento. Tente de novo quando terminar.",
     "scraperCredentials": "O ScreenScraper recusou as credenciais. Confira em Configurações → Scraper.",
@@ -460,6 +462,24 @@
       "launchboxPlatform": "Plataforma do LaunchBox",
       "launchboxHelp": "Deixe vazio para usar a plataforma do catálogo ({{default}}).",
       "launchboxHelpNone": "O catálogo não tem plataforma do LaunchBox para este sistema.",
+      "exclusions": {
+        "label": "Ignorar ao escanear",
+        "help": "Arquivos e pastas que o escaneamento pula neste sistema, como atualizações e DLC. Num nome, * vale por quaisquer caracteres (*[v* ou *updates_dlcs); maiúsculas e minúsculas são iguais. Jogos já encontrados ficam ausentes no próximo escaneamento.",
+        "list": "Ignorados ao escanear",
+        "none": "Nada é ignorado.",
+        "pattern": "Padrão de nome",
+        "patternPlaceholder": "*updates_dlcs",
+        "addPattern": "Adicionar",
+        "addFolder": "Adicionar pasta…",
+        "pickTitle": "Escolha uma pasta para ignorar",
+        "patternKind": "Nome",
+        "folderKind": "Pasta",
+        "remove": "Remover {{entry}}",
+        "duplicate": "Este item já está na lista.",
+        "invalidPattern": "Digite um nome só, sem \\ / : < > \" | ou ?.",
+        "outside": "Escolha uma pasta dentro da pasta de ROMs deste sistema.",
+        "noLocations": "Adicione um local de armazenamento em Configurações → Armazenamento para escolher pastas."
+      },
       "custom": {
         "addButton": "Adicionar sistema",
         "addTitle": "Novo sistema",

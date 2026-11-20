@@ -14,6 +14,11 @@ export interface WalkJob {
         gameFolderFile?: string | undefined;
       }
     | undefined;
+  /**
+   * The user's own exclusions (FR-LIB-15), added to `scan`: name patterns, and folders relative
+   * to the system folder with `/` separators.
+   */
+  exclude?: { patterns: string[]; folders: string[] };
   /** Central mode (FR-SCR-4): `<central>/<systemId>`, holding `<kind>/` folders; indexed first. */
   centralMediaDir?: string;
 }

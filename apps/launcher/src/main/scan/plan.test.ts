@@ -94,4 +94,25 @@ describe('planScan media location (FR-SCR-4)', () => {
     const jobs = await planScan(settings({}), withRules, ['sega-video-driver'], folderExists);
     expect(jobs[0]?.scan).toEqual(rules);
   });
+
+  it('FR-LIB-15: a system’s own exclusions go into its walk job; none means none', async () => {
+    const withRules = [system('svd', { defaultFolderName: 'SVD', scan: { ignore: ['_*'] } })];
+    const jobs = await planScan(
+      settings({
+        svd: {
+          enabled: true,
+          scanExclusions: [
+            { kind: 'pattern', pattern: '*[v*' },
+            { kind: 'folder', path: 'updates_dlcs/old' },
+          ],
+        },
+      }),
+      [...withRules, ...catalog],
+      ['svd', 'enabled-one'],
+      folderExists,
+    );
+    expect(jobs[0]?.scan).toEqual({ ignore: ['_*'] });
+    expect(jobs[0]?.exclude).toEqual({ patterns: ['*[v*'], folders: ['updates_dlcs/old'] });
+    expect(jobs[1]?.exclude).toBeUndefined();
+  });
 });

@@ -5,6 +5,7 @@ import { checkInput, InputSettingsSchema } from './input.ts';
 import { checkThemeSettings } from '../frontend/themeSettings.ts';
 import { ScraperSettingsSchema } from '../scraper/schema.ts';
 import { checkCustomSystems, CustomSystemSchema } from './customSystems.ts';
+import { ScanExclusionsSchema } from './scanExclusions.ts';
 import { KIOSK_HIDE } from '../ipc/kioskContract.ts';
 
 // Launcher settings (data model §2). Sections arrive with the milestones that use them; every
@@ -170,6 +171,8 @@ export const SystemSettingsSchema = z.object({
   screenscraperId: z.number().int().positive().optional(),
   /** Overrides the catalog's LaunchBox platform name (FR-SCR-6). */
   launchboxPlatform: z.string().min(1).max(120).optional(),
+  /** Names and folders the scan skips (FR-LIB-15); added to the catalog's rules, no default. */
+  scanExclusions: ScanExclusionsSchema.optional(),
 });
 
 export type SystemSettings = z.output<typeof SystemSettingsSchema>;
