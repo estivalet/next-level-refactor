@@ -1017,6 +1017,11 @@
       "trail": "Where you are",
       "items_one": "{{count}} item",
       "items_other": "{{count}} items",
+      "games_one": "{{count, number}} game",
+      "games_other": "{{count, number}} games",
+      "totals": "{{games}} · {{items}}",
+      "lists_one": "{{count}} collection",
+      "lists_other": "{{count}} collections",
       "empty": "Nothing here yet.",
       "notInMenu": "Not in menu",
       "collections": "Collections"

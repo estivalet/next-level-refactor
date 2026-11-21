@@ -186,7 +186,7 @@ describe('collections in the Library', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
     expect(bridge.channels()).toContain('collections.delete');
     const collections = await screen.findByRole('button', { name: /^Collections\d/ });
-    expect(collections).toHaveTextContent('0 items');
+    expect(collections).toHaveTextContent('0 collections');
   });
 
   it('FR-LIB-8: a library change (e.g. a relink) refreshes collection counts', async () => {

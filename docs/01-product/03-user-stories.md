@@ -107,6 +107,13 @@ As a collector, I want to see where a game's file lives so I can find it on disk
 - Given the game is missing, then the path it was expected at is shown, and Open folder opens the nearest folder that still exists.
 - Neither action changes, moves or deletes anything on disk.
 
+### US-C11 See how many games a category holds · FR-LIB-17
+As a collector, I want each Library home category to show how many games it holds so I can see the size of each part of my library.
+- Given a category whose systems (at any depth) have 3,800 and 12 games, then its card reads "3,812 games · N items", where N is the cards it opens to.
+- Given the same system sits twice under one category, then its games count once.
+- Given a collection or smart filter sits inside a category, then its games don't add to the category's total.
+- The **Not in menu** card shows its systems' games the same way; the fixed **Collections** card reads "N collections".
+
 ### US-C8 See what a batch scrape is doing · FR-SCR-8
 As a collector, I want to see exactly what a batch scrape is doing, also one that carried on from an earlier session.
 - While a batch runs or is paused, the strip in the Library header names what it scrapes ("Scraping Nintendo Switch 24/753 · …", "2 systems", "selected games").

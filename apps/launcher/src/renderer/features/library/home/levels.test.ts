@@ -137,6 +137,52 @@ describe('levelAt', () => {
     expect(levelAt(TREE, [NOT_IN_MENU_LEVEL], ctx).path).toEqual([]);
   });
 
+  it('FR-LIB-17, US-C11: category and Not in menu cards total the games of their systems', () => {
+    const level = levelAt(TREE, [], CTX);
+    expect(level.cards.map((card) => [card.label, card.count, card.games])).toEqual([
+      ['Sega', 1, 3],
+      // SNES 5 + Nintendo 64 2, one level deeper.
+      ['Nintendo', 2, 7],
+      ['Not in menu', 1, 4],
+      // Collections overlap: no game total.
+      ['Collections', 2, undefined],
+    ]);
+    // Scope cards keep their games in `count` only.
+    expect(levelAt(TREE, ['m:sega'], CTX).cards[0]?.games).toBeUndefined();
+  });
+
+  it('FR-LIB-17, US-C11: a system counts once and collections add nothing to a category total', () => {
+    const tree: MenuTree = {
+      title: 'Main',
+      items: [
+        category('m:mix', 'Mix', [
+          system('snes', 'SNES'),
+          category('m:again', 'Again', [system('snes', 'SNES'), system('genesis', 'Genesis')]),
+          {
+            id: 'c:1',
+            name: 'Picks',
+            display: 'Picks',
+            type: 'collection',
+            collectionId: 1,
+            children: [],
+          },
+          {
+            id: 'sf:2',
+            name: 'Favorites',
+            display: 'Favorites',
+            type: 'smartFilter',
+            smartFilterId: 2,
+            children: [],
+          },
+        ]),
+        category('m:none', 'None', []),
+      ],
+    };
+    const [mix, none] = levelAt(tree, [], CTX).cards;
+    expect(mix?.games).toBe(8);
+    expect(none?.games).toBe(0);
+  });
+
   it('D61: menu collections and smart filters open their games', () => {
     const tree: MenuTree = {
       title: 'Main',

@@ -21,6 +21,11 @@ export interface HomeCard {
   label: string;
   /** Items in a level, games in a scope. */
   count: number;
+  /**
+   * Games under a level (FR-LIB-17): each system once, at any depth. Collections and smart
+   * filters add nothing (their games overlap the systems'); the Collections level has none.
+   */
+  games?: number;
   kind: HomeCardKind;
   scope?: GameScope;
 }
@@ -42,11 +47,30 @@ export interface HomeLevel {
   cards: HomeCard[];
 }
 
+function* systemIds(nodes: readonly MenuNode[]): Generator<string> {
+  for (const node of nodes) {
+    if (node.type === 'system' && node.systemId) yield node.systemId;
+    if (node.type === 'category') yield* systemIds(node.children);
+  }
+}
+
+/** The games of these systems, each counted once (FR-LIB-17). */
+function gamesOf(ids: Iterable<string>, ctx: HomeContext): number {
+  let total = 0;
+  for (const id of new Set(ids)) total += ctx.systems.find((s) => s.id === id)?.games ?? 0;
+  return total;
+}
+
 function nodeCard(node: MenuNode, ctx: HomeContext): HomeCard | null {
   const base = { key: node.id, label: node.display };
   switch (node.type) {
     case 'category':
-      return { ...base, count: node.children.length, kind: 'category' };
+      return {
+        ...base,
+        count: node.children.length,
+        games: gamesOf(systemIds(node.children), ctx),
+        kind: 'category',
+      };
     case 'system': {
       const systemId = node.systemId ?? '';
       const games = ctx.systems.find((s) => s.id === systemId)?.games ?? 0;
@@ -74,13 +98,6 @@ function nodeCard(node: MenuNode, ctx: HomeContext): HomeCard | null {
     }
     case 'filter':
       return null;
-  }
-}
-
-function* systemIds(nodes: readonly MenuNode[]): Generator<string> {
-  for (const node of nodes) {
-    if (node.type === 'system' && node.systemId) yield node.systemId;
-    if (node.type === 'category') yield* systemIds(node.children);
   }
 }
 
@@ -150,6 +167,7 @@ export function levelAt(tree: MenuTree, path: readonly string[], ctx: HomeContex
         key: NOT_IN_MENU_LEVEL,
         label: ctx.labels.notInMenu,
         count: notInMenu.length,
+        games: notInMenu.reduce((sum, card) => sum + card.count, 0),
         kind: 'notInMenu',
       });
     }

@@ -92,10 +92,17 @@ export function LibraryHome({
       if (!atRoot) back();
     }
   };
-  const count = (card: HomeCard) =>
-    card.scope
-      ? t('library.status.games', { count: card.count })
-      : t('library.home.items', { count: card.count });
+  const count = (card: HomeCard) => {
+    if (card.scope) return t('library.status.games', { count: card.count });
+    if (card.kind === 'collections') return t('library.home.lists', { count: card.count });
+    const items = t('library.home.items', { count: card.count });
+    if (card.games === undefined) return items;
+    // FR-LIB-17: a level's games first, then the cards it opens to.
+    return t('library.home.totals', {
+      games: t('library.home.games', { count: card.games }),
+      items,
+    });
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col" onKeyDown={onKeyDown}>

@@ -59,7 +59,7 @@ describe('LibraryApp', () => {
     ],
   };
 
-  it('D61: the Library opens on the menu; cards drill down, Back and Home return', async () => {
+  it('D61, FR-LIB-17: the Library opens on the menu; cards drill down, Back and Home return', async () => {
     const user = userEvent.setup();
     let menu = MENU;
     const bridge = installFakeBridge({
@@ -72,7 +72,7 @@ describe('LibraryApp', () => {
       within(root)
         .getAllByRole('button')
         .map((b) => b.textContent),
-    ).toEqual(['Consoles1 item', 'Collections0 items']);
+    ).toEqual(['Consoles4 games · 1 item', 'Collections0 collections']);
     expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
     await user.click(within(root).getByRole('button', { name: /Consoles/ }));
     await user.click(await screen.findByRole('button', { name: /^Nintendo/ }));

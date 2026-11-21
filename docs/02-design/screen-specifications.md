@@ -161,10 +161,11 @@ Home (D61)
 ┌ Library ───────────────────────────────────────────────────────┐
 │ [Search all games…]                       [Scrape ▾] [Scan ▾]  │
 │ [Home] [Back]  Next Level › Consoles              [▦] [≡]      │
-│ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐            │
-│ │ Nintendo │ │ Sega     │ │ Sony     │ │ Not in   │ …          │
-│ │ 12 items │ │ 9 items  │ │ 6 items  │ │ menu     │            │
-│ └──────────┘ └──────────┘ └──────────┘ └──────────┘            │
+│ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐       │
+│ │ Nintendo       │ │ Sega           │ │ Not in menu    │ …     │
+│ │ 3,812 games ·  │ │ 1,204 games ·  │ │ 75 games ·     │       │
+│ │ 12 items       │ │ 9 items        │ │ 4 items        │       │
+│ └────────────────┘ └────────────────┘ └────────────────┘       │
 └─────────────────────────────────────────────────────────────────┘
 Scope view (D62)
 ┌──────────────┬────────────────────────────────┬────────────────┐
@@ -205,7 +206,11 @@ Scope view (D62)
     cards: **Not in menu** (systems with games the menu doesn't show — left out, hidden or
     disabled — only when there are any) and **Collections** (every collection and smart filter,
     with **New collection** (folder icon) and **New smart filter** (sparkles icon), each
-    labelled like Health, matching the icons on their cards). A level that leaves the menu (an
+    labelled like Health, matching the icons on their cards). Counts (FR-LIB-17): a category
+    and Not in menu read "3,812 games · 12 items" — the games of the systems under it, each
+    system once at any depth (collections and smart filters inside add nothing, their games
+    overlap) — the fixed Collections card reads "N collections", and a system, collection or
+    smart filter card reads "N games". A level that leaves the menu (an
     edit, another active menu, a scan) falls back to the deepest one left; the home follows menu
     changes live.
   - **Scope view (D62):** Back returns to the level it was opened from. Left column: tabs All,

@@ -22,6 +22,9 @@ M10-1 — polish before 1.0.
 - **Game file location** (FR-LIB-16, US-C9): Edit details shows the full path of the game's file
   as the last field of its Info tab, with **Copy path** and **Open folder**; a missing game shows
   where it was expected.
+- **Game totals on the Library home** (FR-LIB-17, US-C11): category and *Not in menu* cards
+  show how many games they hold ("3,812 games · 41 items"), counting each system once; the
+  fixed *Collections* card now reads "N collections".
 - **Batch scrape details** (FR-SCR-8, US-C8): the batch line in the Library header names what it
   scrapes and says when a batch carried on from your last session. Click it for a panel with the
   job's progress, rules, current game and every game it handled, filterable by outcome.
