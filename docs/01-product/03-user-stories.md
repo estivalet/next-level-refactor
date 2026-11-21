@@ -110,8 +110,8 @@ As a collector, I want to see where a game's file lives so I can find it on disk
 ### US-C11 See how many games a category holds · FR-LIB-17
 As a collector, I want each Library home category to show how many games it holds so I can see the size of each part of my library.
 - Given a category whose systems (at any depth) have 3,800 and 12 games, then its card reads "3,812 games · N items", where N is the cards it opens to.
-- Given the same system sits twice under one category, then its games count once.
-- Given a collection or smart filter sits inside a category, then its games don't add to the category's total.
+- Given a category holds only collections (e.g. Essentials, with "Atari 2600 Essentials" of 82 games and "Atari 5200 Essentials" of 19), then its card counts their games (101).
+- Given a game is reached twice under one category (the same system twice, a system and a collection holding its games, two collections), then it counts once.
 - The **Not in menu** card shows its systems' games the same way; the fixed **Collections** card reads "N collections".
 
 ### US-C8 See what a batch scrape is doing · FR-SCR-8

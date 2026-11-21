@@ -93,6 +93,15 @@ export function libraryResponses(
     'systems.list': () => ok(systems),
     'collections.list': () => ok([]),
     'scan.status': () => ok(IDLE),
+    // FR-LIB-17: each group's systems' games (no collections in these fixtures).
+    'library.homeTotals': ({ groups }) =>
+      ok(
+        groups.map((group) =>
+          systems
+            .filter((system) => group.systemIds.includes(system.id))
+            .reduce((sum, system) => sum + system.games, 0),
+        ),
+      ),
     'library.games.list': (query) => {
       const rows = games.filter(
         (game) =>

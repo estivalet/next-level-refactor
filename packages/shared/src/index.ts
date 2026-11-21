@@ -17,6 +17,7 @@ export * from './library/collections.ts';
 export * from './library/export.ts';
 export * from './library/smartFilters.ts';
 export * from './library/health.ts';
+export * from './library/homeTotals.ts';
 export * from './library/playability.ts';
 export * from './menus/schema.ts';
 export * from './settings/schema.ts';

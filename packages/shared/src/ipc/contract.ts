@@ -28,6 +28,7 @@ import {
 } from '../library/games.ts';
 import { ArtIndexSchema, MenuTreeSchema, THEME_ID, ThemeGamesSchema } from '../frontend/schema.ts';
 import { SystemHealthSchema } from '../library/health.ts';
+import { HomeTotalsRequestSchema, HomeTotalsSchema } from '../library/homeTotals.ts';
 import { PlayabilityChangeSchema } from '../library/playability.ts';
 import { ScanStatusSchema, SystemSummarySchema } from '../library/schema.ts';
 import {
@@ -166,6 +167,8 @@ export const ipcContract = {
   'systems.list': { input: z.void(), output: z.array(SystemSummarySchema) },
   /** System health: each system with shown games and how many lack a ROM, art kind or detail. */
   'library.health': { input: z.void(), output: z.array(SystemHealthSchema) },
+  /** FR-LIB-17: the distinct games each Library home card reaches (one count per group). */
+  'library.homeTotals': { input: HomeTotalsRequestSchema, output: HomeTotalsSchema },
   'scan.start': {
     input: z.strictObject({ systemIds: z.array(z.string()).min(1).optional() }),
     output: ScanStatusSchema,

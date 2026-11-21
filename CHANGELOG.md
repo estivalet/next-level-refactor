@@ -23,7 +23,8 @@ M10-1 — polish before 1.0.
   as the last field of its Info tab, with **Copy path** and **Open folder**; a missing game shows
   where it was expected.
 - **Game totals on the Library home** (FR-LIB-17, US-C11): category and *Not in menu* cards
-  show how many games they hold ("3,812 games · 41 items"), counting each system once; the
+  show how many games they hold ("3,812 games · 41 items"), through their systems, collections
+  and smart filters, each game once; the
   fixed *Collections* card now reads "N collections".
 - **Batch scrape details** (FR-SCR-8, US-C8): the batch line in the Library header names what it
   scrapes and says when a batch carried on from your last session. Click it for a panel with the

@@ -20,6 +20,7 @@ import { NewCollectionButton } from './CollectionToolbar.tsx';
 import { LibraryHome } from './home/LibraryHome.tsx';
 import { COLLECTIONS_LEVEL, levelAt } from './home/levels.ts';
 import { useActiveMenuTree } from './home/useActiveMenuTree.ts';
+import { useHomeTotals } from './home/useHomeTotals.ts';
 import { NewSmartFilterButton } from './SmartFilterToolbar.tsx';
 import { useViewMode } from './useViewMode.ts';
 import { useGameFacets } from './facetsApi.ts';
@@ -53,6 +54,7 @@ export function LibraryApp({
   const overlays = useOverlays();
   const menu = useActiveMenuTree();
   const [path, setPath] = useState<string[]>([]);
+  const categoryGames = useHomeTotals(menu.data, path);
   // Each home level's scroll offset, kept here because the home unmounts while games are shown.
   const [homeScroll] = useState(() => new Map<string, number>());
   const [homeView, setHomeView] = useViewMode('home');
@@ -105,6 +107,7 @@ export function LibraryApp({
     collections: view.collections.data ?? [],
     smartFilters: view.smartFilters.data ?? [],
     labels: { notInMenu: t('library.home.notInMenu'), collections: t('library.home.collections') },
+    categoryGames,
   });
   const scopeSystem =
     scope?.kind === 'system' ? { id: scope.systemId, name: systemName(scope.systemId) } : null;

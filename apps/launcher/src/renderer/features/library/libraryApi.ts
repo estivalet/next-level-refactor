@@ -17,6 +17,7 @@ import { getBridge } from '../../bridge.ts';
 import { useIpcEvent } from '../../events.ts';
 import { unwrap } from '../settings/settingsApi.ts';
 import { FACETS_KEY } from './facetsApi.ts';
+import { HOME_TOTALS_KEY } from './home/useHomeTotals.ts';
 import { GAMES_KEY } from './usePagedGames.ts';
 
 export const GAME_KEY = 'library.game';
@@ -28,7 +29,8 @@ export const SEARCH_DELAY_MS = 120;
 
 /**
  * Everything a game change can make stale: lists, details, search, filter and genre counts, system
- * counts and collection counts (a relink deletes the other game and its memberships).
+ * counts, collection counts (a relink deletes the other game and its memberships) and the Library
+ * home's totals.
  */
 export function invalidateGames(client: QueryClient) {
   return Promise.all([
@@ -38,6 +40,7 @@ export function invalidateGames(client: QueryClient) {
     client.invalidateQueries({ queryKey: [SEARCH_KEY] }),
     client.invalidateQueries({ queryKey: SYSTEMS_KEY }),
     client.invalidateQueries({ queryKey: COLLECTIONS_KEY }),
+    client.invalidateQueries({ queryKey: [HOME_TOTALS_KEY] }),
     client.invalidateQueries({ queryKey: HEALTH_KEY }),
   ]);
 }

@@ -272,6 +272,23 @@ describe('library handlers', () => {
     });
   });
 
+  it('FR-LIB-17: library.homeTotals answers the distinct games of each group', async () => {
+    const { router, seed } = await setup(true);
+    seed('nintendo-64', ['Racer', 'Kart']);
+    const groups = [
+      { systemIds: ['nintendo-64', 'nintendo-64'], collectionIds: [], smartFilterIds: [] },
+      { systemIds: [], collectionIds: [], smartFilterIds: [] },
+    ];
+    expect(await router.handle('library.homeTotals', { groups })).toEqual({
+      ok: true,
+      value: [2, 0],
+    });
+    expect(await router.handle('library.homeTotals', { groups: [{}] })).toMatchObject({
+      ok: false,
+      error: { code: 'VALIDATION_FAILED' },
+    });
+  });
+
   it('FR-LIB-3: scan.start runs a scan and scan.status reports it', async () => {
     const { router, library } = await setup(true);
     expect(await router.handle('scan.start', { systemIds: ['nintendo-64'] })).toMatchObject({

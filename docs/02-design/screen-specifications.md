@@ -207,9 +207,9 @@ Scope view (D62)
     disabled — only when there are any) and **Collections** (every collection and smart filter,
     with **New collection** (folder icon) and **New smart filter** (sparkles icon), each
     labelled like Health, matching the icons on their cards). Counts (FR-LIB-17): a category
-    and Not in menu read "3,812 games · 12 items" — the games of the systems under it, each
-    system once at any depth (collections and smart filters inside add nothing, their games
-    overlap) — the fixed Collections card reads "N collections", and a system, collection or
+    and Not in menu read "3,812 games · 12 items" — the distinct games its systems, collections
+    and smart filters reach at any depth, counted by main (a category shows only its items
+    until they arrive) — the fixed Collections card reads "N collections", and a system, collection or
     smart filter card reads "N games". A level that leaves the menu (an
     edit, another active menu, a scan) falls back to the deepest one left; the home follows menu
     changes live.

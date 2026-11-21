@@ -6,7 +6,13 @@ import {
   type SystemSummary,
 } from '@nextlevel/shared';
 import { describe, expect, it } from 'vitest';
-import { COLLECTIONS_LEVEL, levelAt, NOT_IN_MENU_LEVEL, type HomeContext } from './levels.ts';
+import {
+  categoryGroups,
+  COLLECTIONS_LEVEL,
+  levelAt,
+  NOT_IN_MENU_LEVEL,
+  type HomeContext,
+} from './levels.ts';
 
 const system = (systemId: string, display: string): MenuNode => ({
   id: `s:${systemId}`,
@@ -137,11 +143,16 @@ describe('levelAt', () => {
     expect(levelAt(TREE, [NOT_IN_MENU_LEVEL], ctx).path).toEqual([]);
   });
 
-  it('FR-LIB-17, US-C11: category and Not in menu cards total the games of their systems', () => {
-    const level = levelAt(TREE, [], CTX);
+  it('FR-LIB-17, US-C11: category cards show the totals from main; Not in menu sums its systems', () => {
+    const loading = levelAt(TREE, [], CTX);
+    expect(loading.cards.map((card) => card.games)).toEqual([undefined, undefined, 4, undefined]);
+    const categoryGames = new Map([
+      ['m:sega', 3],
+      ['m:nintendo', 7],
+    ]);
+    const level = levelAt(TREE, [], { ...CTX, categoryGames });
     expect(level.cards.map((card) => [card.label, card.count, card.games])).toEqual([
       ['Sega', 1, 3],
-      // SNES 5 + Nintendo 64 2, one level deeper.
       ['Nintendo', 2, 7],
       ['Not in menu', 1, 4],
       // Collections overlap: no game total.
@@ -151,36 +162,54 @@ describe('levelAt', () => {
     expect(levelAt(TREE, ['m:sega'], CTX).cards[0]?.games).toBeUndefined();
   });
 
-  it('FR-LIB-17, US-C11: a system counts once and collections add nothing to a category total', () => {
+  it('FR-LIB-17, US-C11: a category reaches its systems, collections and smart filters at any depth, each once', () => {
     const tree: MenuTree = {
       title: 'Main',
       items: [
-        category('m:mix', 'Mix', [
-          system('snes', 'SNES'),
-          category('m:again', 'Again', [system('snes', 'SNES'), system('genesis', 'Genesis')]),
+        category('m:essentials', 'Essentials', [
           {
-            id: 'c:1',
-            name: 'Picks',
-            display: 'Picks',
+            id: 'c:4',
+            name: 'SNES Essentials',
+            display: 'SNES Essentials',
             type: 'collection',
-            collectionId: 1,
+            collectionId: 4,
             children: [],
           },
-          {
-            id: 'sf:2',
-            name: 'Favorites',
-            display: 'Favorites',
-            type: 'smartFilter',
-            smartFilterId: 2,
-            children: [],
-          },
+          category('m:more', 'More', [
+            system('snes', 'SNES'),
+            system('snes', 'SNES'),
+            {
+              id: 'c:1',
+              name: 'Picks',
+              display: 'Picks',
+              type: 'collection',
+              collectionId: 1,
+              children: [],
+            },
+            {
+              id: 'sf:2',
+              name: 'Favorites',
+              display: 'Favorites',
+              type: 'smartFilter',
+              smartFilterId: 2,
+              children: [],
+            },
+          ]),
         ]),
-        category('m:none', 'None', []),
+        system('genesis', 'Genesis'),
       ],
     };
-    const [mix, none] = levelAt(tree, [], CTX).cards;
-    expect(mix?.games).toBe(8);
-    expect(none?.games).toBe(0);
+    expect(categoryGroups(tree, [])).toEqual([
+      {
+        id: 'm:essentials',
+        group: { systemIds: ['snes'], collectionIds: [1, 4], smartFilterIds: [2] },
+      },
+    ]);
+    expect(categoryGroups(tree, ['m:essentials'])).toEqual([
+      { id: 'm:more', group: { systemIds: ['snes'], collectionIds: [1], smartFilterIds: [2] } },
+    ]);
+    expect(categoryGroups(tree, [COLLECTIONS_LEVEL])).toEqual([]);
+    expect(categoryGroups(tree, [NOT_IN_MENU_LEVEL])).toEqual([]);
   });
 
   it('D61: menu collections and smart filters open their games', () => {

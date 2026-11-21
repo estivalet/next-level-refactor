@@ -1,9 +1,17 @@
-import { GAME_ART_KINDS, HEALTH_GAPS, type HealthGap, type SystemHealth } from '@nextlevel/shared';
+import {
+  GAME_ART_KINDS,
+  HEALTH_GAPS,
+  type HealthGap,
+  type HomeTotalsGroup,
+  type SystemHealth,
+} from '@nextlevel/shared';
 import { asc, count, eq, sql } from 'drizzle-orm';
 import { titleFromRelPath } from '../scan/discs.ts';
 import { lackingSql } from './gameSql.ts';
+import { homeTotals } from './homeTotals.ts';
 import type { LibraryDb } from './openLibrary.ts';
 import { games } from './schema.ts';
+import type { SmartFilterRepository } from './SmartFilterRepository.ts';
 
 const baseName = (relPath: string) => (relPath.split('/').pop() ?? relPath).toLowerCase();
 
@@ -186,6 +194,14 @@ export class LibraryRepository {
       .orderBy(asc(games.systemId))
       .all()
       .map((row) => ({ ...row, review: review.get(row.systemId) ?? 0 }));
+  }
+
+  /** The distinct games each Library home card reaches (FR-LIB-17). */
+  homeTotals(
+    groups: readonly HomeTotalsGroup[],
+    smartFilters: Pick<SmartFilterRepository, 'gameIds'>,
+  ): number[] {
+    return homeTotals(this.db.$client, smartFilters, groups);
   }
 
   /**

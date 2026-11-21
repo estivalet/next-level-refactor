@@ -60,6 +60,7 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
   return {
     'library.games.list': (query) => library().games.list(query),
     'library.health': () => library().repo.systemHealth(),
+    'library.homeTotals': ({ groups }) => library().repo.homeTotals(groups, library().smartFilters),
     'library.games.facets': ({ scope, tab }) => library().games.facets(scope, tab),
     'library.games.get': ({ gameId }) => library().games.get(gameId),
     'library.games.updateMetadata': ({ gameId, changes }) => {

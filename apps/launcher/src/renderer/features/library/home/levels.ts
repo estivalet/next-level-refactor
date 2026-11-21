@@ -1,6 +1,7 @@
 import type {
   CollectionSummary,
   GameScope,
+  HomeTotalsGroup,
   MenuNode,
   MenuTree,
   SmartFilterSummary,
@@ -22,8 +23,8 @@ export interface HomeCard {
   /** Items in a level, games in a scope. */
   count: number;
   /**
-   * Games under a level (FR-LIB-17): each system once, at any depth. Collections and smart
-   * filters add nothing (their games overlap the systems'); the Collections level has none.
+   * Games under a level (FR-LIB-17): the distinct games its systems, collections and smart
+   * filters reach, at any depth. Unset while loading and on the Collections level.
    */
   games?: number;
   kind: HomeCardKind;
@@ -37,6 +38,8 @@ export interface HomeContext {
   smartFilters: readonly SmartFilterSummary[];
   /** The fixed levels' names, translated. */
   labels: { notInMenu: string; collections: string };
+  /** Each category card's distinct games by node id, from main (FR-LIB-17); absent while loading. */
+  categoryGames?: ReadonlyMap<string, number>;
 }
 
 export interface HomeLevel {
@@ -54,23 +57,39 @@ function* systemIds(nodes: readonly MenuNode[]): Generator<string> {
   }
 }
 
-/** The games of these systems, each counted once (FR-LIB-17). */
-function gamesOf(ids: Iterable<string>, ctx: HomeContext): number {
-  let total = 0;
-  for (const id of new Set(ids)) total += ctx.systems.find((s) => s.id === id)?.games ?? 0;
-  return total;
+/** What a category reaches at any depth, each reference once (FR-LIB-17). */
+function groupOf(nodes: readonly MenuNode[]): HomeTotalsGroup {
+  const systems = new Set<string>();
+  const collections = new Set<number>();
+  const smartFilters = new Set<number>();
+  const walk = (list: readonly MenuNode[]) => {
+    for (const node of list) {
+      if (node.type === 'system' && node.systemId) systems.add(node.systemId);
+      if (node.type === 'collection' && node.collectionId) collections.add(node.collectionId);
+      if (node.type === 'smartFilter' && node.smartFilterId) smartFilters.add(node.smartFilterId);
+      if (node.type === 'category') walk(node.children);
+    }
+  };
+  walk(nodes);
+  return {
+    systemIds: [...systems].sort(),
+    collectionIds: [...collections].sort((a, b) => a - b),
+    smartFilterIds: [...smartFilters].sort((a, b) => a - b),
+  };
 }
 
 function nodeCard(node: MenuNode, ctx: HomeContext): HomeCard | null {
   const base = { key: node.id, label: node.display };
   switch (node.type) {
-    case 'category':
+    case 'category': {
+      const games = ctx.categoryGames?.get(node.id);
       return {
         ...base,
         count: node.children.length,
-        games: gamesOf(systemIds(node.children), ctx),
+        ...(games === undefined ? {} : { games }),
         kind: 'category',
       };
+    }
     case 'system': {
       const systemId = node.systemId ?? '';
       const games = ctx.systems.find((s) => s.id === systemId)?.games ?? 0;
@@ -136,6 +155,33 @@ function collectionCards(ctx: HomeContext): HomeCard[] {
   ];
 }
 
+/** The menu items at `path` and the categories that lead there; an unknown id cuts it. */
+function menuLevel(tree: MenuTree, path: readonly string[]) {
+  let items = tree.items;
+  const trail: HomeLevel['trail'] = [];
+  for (const id of path) {
+    const node = items.find((item) => item.id === id && item.type === 'category');
+    if (!node) break;
+    trail.push({ id, label: node.display });
+    items = node.children;
+  }
+  return { items, trail };
+}
+
+/**
+ * What each category card at `path` reaches, for main to count (FR-LIB-17). The fixed levels
+ * have no categories.
+ */
+export function categoryGroups(
+  tree: MenuTree,
+  path: readonly string[],
+): Array<{ id: string; group: HomeTotalsGroup }> {
+  if (path[0] === NOT_IN_MENU_LEVEL || path[0] === COLLECTIONS_LEVEL) return [];
+  return menuLevel(tree, path)
+    .items.filter((node) => node.type === 'category')
+    .map((node) => ({ id: node.id, group: groupOf(node.children) }));
+}
+
 /**
  * The home level at `path` (D61): the active menu's items one level at a time, and at the root
  * two fixed levels: Not in menu (only when it has systems) and Collections. A path id that no
@@ -152,14 +198,7 @@ export function levelAt(tree: MenuTree, path: readonly string[], ctx: HomeContex
     const trail = [{ id: first, label: ctx.labels.collections }];
     return { path: [first], title: ctx.labels.collections, trail, cards: collectionCards(ctx) };
   }
-  let items = tree.items;
-  const trail: HomeLevel['trail'] = [];
-  for (const id of path) {
-    const node = items.find((item) => item.id === id && item.type === 'category');
-    if (!node) break;
-    trail.push({ id, label: node.display });
-    items = node.children;
-  }
+  const { items, trail } = menuLevel(tree, path);
   const cards = items.map((node) => nodeCard(node, ctx)).filter((card) => card !== null);
   if (trail.length === 0) {
     if (notInMenu.length > 0) {

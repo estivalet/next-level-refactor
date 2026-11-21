@@ -68,6 +68,8 @@ describe('LibraryApp', () => {
     });
     renderInShell(<LibraryApp />);
     const root = await screen.findByRole('list', { name: 'Next Level' });
+    // Category totals come from main (FR-LIB-17), after the cards.
+    await within(root).findByText('4 games · 1 item');
     expect(
       within(root)
         .getAllByRole('button')
