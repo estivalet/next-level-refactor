@@ -92,6 +92,7 @@ describe('storage and systems settings', () => {
       assetsPath: null,
       themesPath: null,
       media: { mode: 'perRomFolder' },
+      folderFilters: { prefixes: ['!', '+'], outside: 'Official', renames: [] },
     });
     expect(defaultSettings().systems).toEqual({});
   });

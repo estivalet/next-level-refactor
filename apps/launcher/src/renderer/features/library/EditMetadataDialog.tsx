@@ -152,6 +152,22 @@ function EditForm(props: {
         {name === 'filters' && (
           <p className="mt-1 text-[10px] text-slate-600">{t('library.edit.filtersHint')}</p>
         )}
+        {name === 'filters' && game.folderFilters.length > 0 && (
+          <ul
+            aria-label={t('library.edit.folderFilters')}
+            className="mt-1.5 flex flex-wrap items-center gap-1"
+          >
+            {game.folderFilters.map((filter) => (
+              <li
+                key={filter}
+                title={t('library.edit.folderFiltersHint')}
+                className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-slate-400"
+              >
+                {t('library.edit.fromFolder', { filter })}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     );
   };

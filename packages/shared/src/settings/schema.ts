@@ -5,6 +5,7 @@ import { checkInput, InputSettingsSchema } from './input.ts';
 import { checkThemeSettings } from '../frontend/themeSettings.ts';
 import { ScraperSettingsSchema } from '../scraper/schema.ts';
 import { checkCustomSystems, CustomSystemSchema } from './customSystems.ts';
+import { FolderFiltersSchema } from './folderFilters.ts';
 import { ScanExclusionsSchema } from './scanExclusions.ts';
 import { KIOSK_HIDE } from '../ipc/kioskContract.ts';
 
@@ -189,6 +190,8 @@ export const SettingsSchema = z
         /** Theme packs: `<themesPath>/<theme id>/` (FR-THM-2). */
         themesPath: OptionalFolderSchema,
         media: MediaLocationSchema.default({ mode: 'perRomFolder' }),
+        /** Filters a game's folders name (FR-LIB-18); applied from the library's paths. */
+        folderFilters: FolderFiltersSchema.prefault({}),
       })
       .prefault({}),
     // Keyed by system id. Unknown ids are kept so a newer catalog's settings survive a downgrade.

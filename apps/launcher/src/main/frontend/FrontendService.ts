@@ -49,7 +49,7 @@ const COLUMNS = `g.id as id, g.system_id as systemId, m.title as title, m.year a
   m.genre as genre, m.players as players, m.developer as developer, m.publisher as publisher,
   coalesce(u.favorite, 0) as favorite, coalesce(u.hidden, 0) as hidden,
   coalesce(u.play_count, 0) as playCount, u.last_played_at as lastPlayedAt,
-  (select group_concat(f.filter, char(31)) from (select filter from game_filters
+  (select group_concat(f.filter, char(31)) from (select distinct filter from game_filters
      where game_id = g.id order by filter) f) as filters,
   (select group_concat(k.kind || ':' || k.version, char(31)) from (select kind, version
      from game_media where game_id = g.id order by kind) k) as media`;

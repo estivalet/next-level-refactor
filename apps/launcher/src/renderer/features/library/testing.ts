@@ -51,6 +51,7 @@ export function gameDetails(row: GameRow, overrides: Partial<GameDetails> = {}):
     ...row,
     relPath: `${row.title}.z64`,
     filePath: row.expectedPath ?? `E:\\roms\\Nintendo 64\\${row.title}.z64`,
+    folderFilters: [],
     discGroup: null,
     missingSince: row.missing ? '2026-10-20T12:00:00.000Z' : null,
     addedAt: '2026-10-21T12:00:00.000Z',

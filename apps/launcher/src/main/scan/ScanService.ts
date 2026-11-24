@@ -148,7 +148,12 @@ export class ScanService {
         }
         const diff = diffSystem(this.deps.repo.listSystemGames(job.systemId), walked.files);
         if (!running.addNew) diff.added = [];
-        this.deps.repo.applySystemDiff(job.systemId, diff, this.deps.clock());
+        this.deps.repo.applySystemDiff(
+          job.systemId,
+          diff,
+          this.deps.clock(),
+          settings.storage.folderFilters,
+        );
         const mediaChanged = this.indexMedia(job.systemId, walked.media);
         const result = systemResult(job.systemId, diff);
         results.push(result);

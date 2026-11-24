@@ -152,4 +152,43 @@ describe('library migrations', () => {
       await temp.cleanup();
     }
   });
+
+  it("FR-LIB-18: filters a library had before folder filters stay, as the game's own", async () => {
+    const temp = await tempDir();
+    try {
+      const file = join(temp.dir, 'library.db');
+      const options = { backupsDir: join(temp.dir, 'backups'), clock: () => NOW };
+      const all = migrations();
+      const before = openLibrary(file, { ...options, migrations: all.slice(0, 20) });
+      before.$client
+        .prepare(
+          "insert into games (system_id, rel_path, size, mtime, added_at) values ('gamegear', 'a.zip', 1, 1, 'x')",
+        )
+        .run();
+      before.$client
+        .prepare("insert into game_filters (game_id, filter) values (1, 'translated'), (1, 'hack')")
+        .run();
+      before.$client.close();
+
+      const latest = openLibrary(file, options);
+      try {
+        expect(
+          latest.$client.prepare('select filter, source from game_filters order by filter').all(),
+        ).toEqual([
+          { filter: 'hack', source: 'own' },
+          { filter: 'translated', source: 'own' },
+        ]);
+        // The same filter can come from the folder too.
+        latest.$client
+          .prepare(
+            "insert into game_filters (game_id, filter, source) values (1, 'translated', 'folder')",
+          )
+          .run();
+      } finally {
+        latest.$client.close();
+      }
+    } finally {
+      await temp.cleanup();
+    }
+  });
 });

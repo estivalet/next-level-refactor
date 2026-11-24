@@ -22,7 +22,8 @@ function libraryCounts(h: ImportHarness) {
     menus: h.count('select count(*) from menus'),
     nodes: h.count('select count(*) from menu_nodes'),
     favorites: h.count('select count(*) from game_user_state where favorite = 1'),
-    filters: h.count('select count(*) from game_filters'),
+    // Imported filters are the games' own; the scan adds folder ones (FR-LIB-18).
+    filters: h.count("select count(*) from game_filters where source = 'own'"),
     overrides: h.count('select count(*) from game_launch_override'),
     arcade: h.count('select count(*) from arcade_info'),
   };

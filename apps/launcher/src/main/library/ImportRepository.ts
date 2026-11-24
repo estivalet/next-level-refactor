@@ -265,7 +265,7 @@ export class ImportRepository {
            description = coalesce(@description, description), updated_at = @at
          where game_id = @id`,
       ),
-      clearFilters: c.prepare('delete from game_filters where game_id = ?'),
+      clearFilters: c.prepare("delete from game_filters where game_id = ? and source = 'own'"),
       insertFilter: c.prepare('insert or ignore into game_filters (game_id, filter) values (?, ?)'),
       upsertUserState: c.prepare(
         `insert into game_user_state (game_id, favorite, hidden, completed, play_count,

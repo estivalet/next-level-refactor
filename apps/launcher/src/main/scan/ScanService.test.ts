@@ -70,6 +70,35 @@ describe('ScanService', () => {
     ]);
   });
 
+  it('US-C12: a scan gives games their folder filters and a move changes them', async () => {
+    const { write, run, roms, library } = await setup();
+    await write('Nintendo 64/! Prototypes/Demo.z64', 'demo');
+    await write('Nintendo 64/Other.z64');
+    await run();
+    const client = library.db.$client;
+    const filters = () =>
+      client
+        .prepare(
+          `select m.title || ':' || f.filter || ':' || f.source from game_filters f
+           join game_metadata m on m.game_id = f.game_id order by 1`,
+        )
+        .pluck()
+        .all();
+    expect(filters()).toEqual(['Demo:prototypes:folder', 'Other:official:folder']);
+
+    client
+      .prepare(
+        "insert into game_filters (game_id, filter) select game_id, 'rpg' from game_metadata where title = 'Demo'",
+      )
+      .run();
+    await rename(
+      join(roms, 'Nintendo 64/! Prototypes/Demo.z64'),
+      join(roms, 'Nintendo 64/Demo.z64'),
+    );
+    await run();
+    expect(filters()).toEqual(['Demo:official:folder', 'Demo:rpg:own', 'Other:official:folder']);
+  });
+
   it('FR-THM-2: a scan indexes game media and a rescan drops deleted files', async () => {
     const { write, run, roms, library, events } = await setup();
     await write('Nintendo 64/Demo.z64');

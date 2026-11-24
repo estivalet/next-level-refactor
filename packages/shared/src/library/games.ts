@@ -25,6 +25,19 @@ export const GAME_SORTS = ['title', 'year', 'rating', 'added'] as const;
 
 export const FILTER_SLUG = /^[a-z0-9-]{1,40}$/;
 
+/** `msxdev_2003` → `msxdev-2003`; null when nothing slug-like is left. */
+export function filterSlug(tag: string): string | null {
+  const slug = tag
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40);
+  return FILTER_SLUG.test(slug) ? slug : null;
+}
+
 export const GameScopeSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('system'), systemId: z.string().min(1) }),
   z.strictObject({ kind: z.literal('collection'), collectionId: id }),
@@ -102,7 +115,10 @@ export const GameDetailsSchema = GameRowSchema.extend({
   region: z.string().nullable(),
   /** Community rating from a scrape (0..5, one decimal); the user's own is `userRating`. */
   rating: z.number().nullable(),
+  /** The game's own filters: imported or set in Edit details. */
   filters: z.array(z.string()),
+  /** Filters its folders name (FR-LIB-18): read-only, recomputed from the path. */
+  folderFilters: z.array(z.string()),
   /** Fields the user edited; scrapes never overwrite them (FR-LIB-6). */
   lockedFields: z.array(z.string()),
   playCount: count,

@@ -16,6 +16,7 @@ function setup(options: { media?: Record<string, number>; pager?: EditPager } = 
   const game = gameDetails(gameRow(7, 'Racer', { year: 1999, genre: 'Racing' }), {
     developer: 'Homebrew Team',
     filters: ['homebrew'],
+    folderFilters: ['prototypes'],
     lockedFields: ['genre'],
     media: options.media ?? {},
   });
@@ -62,6 +63,15 @@ describe('EditMetadataDialog', () => {
       { title: 'Racer Deluxe', genre: 'Arcade', filters: ['homebrew', 'hack'] },
     ]);
     expect(isClosed()).toBe(true);
+  });
+
+  it('US-C12: folder filters show read-only next to the editable filters', async () => {
+    setup();
+    const dialog = await screen.findByRole('dialog', { name: 'Edit details' });
+    await within(dialog).findByRole('textbox', { name: 'Filters' });
+    const list = within(dialog).getByRole('list', { name: "Filters from the game's folders" });
+    expect(within(list).getByText('prototypes · from folder')).toBeVisible();
+    expect(within(dialog).getByRole('textbox', { name: 'Filters' })).toHaveValue('homebrew');
   });
 
   it('FR-LIB-16, US-C9: Edit details shows the file path with Copy path', async () => {

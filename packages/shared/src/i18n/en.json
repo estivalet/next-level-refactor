@@ -48,7 +48,9 @@
       "duplicateSystemId": "Another system already has this id.",
       "duplicateSystemName": "Another system already has this name.",
       "duplicateExclusion": "This entry is already in the list.",
-      "notInSystemFolder": "Use a folder inside this system's ROM folder."
+      "notInSystemFolder": "Use a folder inside this system's ROM folder.",
+      "notAFilterName": "Use letters or numbers in a filter name.",
+      "duplicateRename": "This folder is already renamed."
     },
     "busy": "A scan or an import is running. Try again when it finishes.",
     "scraperCredentials": "ScreenScraper rejected the credentials. Check them in Settings → Scraper.",
@@ -435,7 +437,22 @@
       "managed": "Catalog games",
       "managedHelp": "New catalog installs go here. Changing the folder affects new installs only: games already installed stay where they are.",
       "changeFolder": "Change folder…",
-      "catalogOverlap": "The Catalog folder overlaps {{list}}. Catalog installs and uninstalls would mix with your own games — pick a separate folder."
+      "catalogOverlap": "The Catalog folder overlaps {{list}}. Catalog installs and uninstalls would mix with your own games — pick a separate folder.",
+      "folderFilters": {
+        "title": "Folder filters",
+        "help": "Folders whose name starts with one of these characters become filters for the games inside them, e.g. “! Prototypes” → Prototypes. Applied from your library at once: no rescan needed.",
+        "prefixes": "Folder name starts with",
+        "outside": "Filter for games in no such folder",
+        "outsideHelp": "Leave empty for none.",
+        "renames": "Renames",
+        "renamesHelp": "Give a folder's games another filter, e.g. Homebrews → Homebrew.",
+        "folder": "Folder",
+        "filter": "Filter",
+        "folderLabel": "Folder of rename {{n}}",
+        "filterLabel": "Filter of rename {{n}}",
+        "add": "Add rename",
+        "remove": "Remove rename {{n}}"
+      }
     },
     "systems": {
       "intro": "Turn on the systems you play. Each one is looked up as a folder inside your storage locations.",
@@ -1133,6 +1150,9 @@
     "edit": {
       "title": "Edit details",
       "filtersHint": "Comma-separated, for example: homebrew, hack",
+      "folderFilters": "Filters from the game's folders",
+      "folderFiltersHint": "Set by the folder the game is in. Move the file to change it.",
+      "fromFolder": "{{filter}} · from folder",
       "locked": "Edited by you; a scrape keeps this value.",
       "invalid": "Check this value.",
       "save": "Save",
