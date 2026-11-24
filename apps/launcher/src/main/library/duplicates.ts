@@ -8,8 +8,9 @@ import type Database from 'better-sqlite3';
 export function nameKey(relPath: unknown): string | null {
   if (typeof relPath !== 'string') return null;
   const name = relPath.split('/').pop() ?? relPath;
-  const dot = name.lastIndexOf('.');
-  const key = (dot > 0 ? name.slice(0, dot) : name)
+  // Only a real extension goes: folder games have none, and "Dr. Mario" keeps its dot.
+  const key = name
+    .replace(/(.)\.[a-z0-9]{1,5}$/i, '$1')
     .replace(/\([^)]*\)|\[[^\]]*\]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()

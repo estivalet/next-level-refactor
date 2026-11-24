@@ -9,6 +9,14 @@ describe('nameKey', () => {
     expect(nameKey('README')).toBe('readme');
   });
 
+  it('US-C13: a dot inside a name is not an extension (folder games have none)', () => {
+    expect(nameKey('Dr. Mario')).toBe('dr. mario');
+    expect(nameKey('Dr. Robotnik')).toBe('dr. robotnik');
+    expect(nameKey('Super Mario Bros. 3 (USA)')).toBe('super mario bros. 3');
+    expect(nameKey('Dr. Mario (USA).nes')).toBe('dr. mario');
+    expect(nameKey('Game v1.1.7z')).toBe('game v1.1');
+  });
+
   it('FR-LIB-19: a name that is only tags, or not text, has no key', () => {
     expect(nameKey('(Japan).gg')).toBeNull();
     expect(nameKey('folder/[b1] (J).gg')).toBeNull();

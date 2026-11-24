@@ -1,11 +1,17 @@
-import { ok, type GameFlags, type GameRow } from '@nextlevel/shared';
+import { ok, type GameFlags, type GameListQuery, type GameRow } from '@nextlevel/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setBridgeForTests } from '../../bridge.ts';
 import { installFakeBridge, renderInShell } from '../../test-utils.tsx';
 import { LibraryApp } from './LibraryApp.tsx';
-import { gameRow, libraryResponses, N64_SCOPE, PICKS_SCOPE } from './testing.ts';
+import {
+  gameRow,
+  libraryResponses,
+  N64_SCOPE,
+  openCollectionsLevel,
+  PICKS_SCOPE,
+} from './testing.ts';
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(600);
@@ -38,7 +44,7 @@ function setup(scope: typeof N64_SCOPE | typeof PICKS_SCOPE = N64_SCOPE) {
     }),
   ];
   const flagCalls: Array<{ gameIds: number[]; flags: GameFlags }> = [];
-  installFakeBridge({
+  const bridge = installFakeBridge({
     ...libraryResponses(games),
     'collections.list': () => ok([{ id: 1, name: 'Picks', sort: 'title', games: 2 }]),
     'library.games.facets': () => ok({ filters: [], genres: [], tabs: TABS, essentials: 0 }),
@@ -55,7 +61,10 @@ function setup(scope: typeof N64_SCOPE | typeof PICKS_SCOPE = N64_SCOPE) {
     },
   });
   renderInShell(<LibraryApp initialScope={scope} />);
-  return { user: userEvent.setup(), flagCalls };
+  const lastTab = () =>
+    (bridge.calls.filter((c) => c.channel === 'library.games.list').at(-1)?.input as GameListQuery)
+      .tab;
+  return { user: userEvent.setup(), flagCalls, lastTab };
 }
 
 describe('library cleanup (FR-LIB-19, US-C13)', () => {
@@ -100,5 +109,20 @@ describe('library cleanup (FR-LIB-19, US-C13)', () => {
     await user.pointer({ keys: '[MouseRight]', target: options[0] as HTMLElement });
     await user.click(await screen.findByRole('menuitem', { name: 'Mark Delete later' }));
     expect(flagCalls).toEqual([{ gameIds: [1], flags: { deleteLater: true } }]);
+  });
+
+  it('US-C13: leaving a system on Duplicates opens a collection on All', async () => {
+    const { user, lastTab } = setup();
+    await user.click(await screen.findByRole('button', { name: 'Duplicates' }));
+    await waitFor(() => {
+      expect(lastTab()).toBe('duplicates');
+    });
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    const list = await openCollectionsLevel(user);
+    await user.click(await within(list).findByRole('button', { name: /^Picks/ }));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+    });
+    expect(lastTab()).toBe('all');
   });
 });
