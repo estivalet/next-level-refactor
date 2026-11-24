@@ -52,7 +52,8 @@ function countBy<T>(items: readonly T[], key: (item: T) => string): Map<string, 
  * Compares a system's library rows with the files a scan found (FR-LIB-3). Matches ignore case;
  * a file whose name and size match exactly one unmatched row on both sides is that row moved, and
  * then one whose extension, size and mtime do is that row renamed (owner decision 2026-10-21).
- * Rows that are not found go missing; nothing is ever deleted (FR-LIB-4).
+ * Rows that are not found go missing; nothing is ever deleted (FR-LIB-4). A collection-only row
+ * whose file is found is listed: the file is in the system folder, so it is a game of the system.
  */
 export function diffSystem(
   existing: readonly ExistingGame[],
@@ -65,6 +66,7 @@ export function diffSystem(
     moved: [],
     restored: [],
     missing: [],
+    listed: [],
     unchanged: 0,
   };
   const matched = new Set<number>();
@@ -108,6 +110,7 @@ export function diffSystem(
 
   for (const row of existing) {
     if (!matched.has(row.id) && !row.missing) diff.missing.push(row.id);
+    if (matched.has(row.id) && row.collectionOnly) diff.listed.push(row.id);
   }
   return diff;
 }

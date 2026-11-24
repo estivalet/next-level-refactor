@@ -26,6 +26,8 @@ export interface ExistingGame {
   locationId: string | null;
   mtime: number;
   discGroup: string | null;
+  /** Kept for a collection by the NextLevelOS import; left out of the system's lists. */
+  collectionOnly: boolean;
 }
 
 /** A game file found by a scan; rel_path is relative to the system folder, with `/`. */
@@ -40,7 +42,8 @@ export interface FoundGame {
 /**
  * What a scan changes in one system. `present` holds found games whose row needs an update;
  * `unchanged` counts found games stored exactly as found. Every restored id is also in
- * `present` or `moved`.
+ * `present` or `moved`. `listed` holds collection-only rows whose file was found: they join the
+ * system's lists (a scan that adds no new games empties it).
  */
 export interface SystemDiff {
   added: FoundGame[];
@@ -48,6 +51,7 @@ export interface SystemDiff {
   moved: Array<{ id: number; game: FoundGame }>;
   restored: number[];
   missing: number[];
+  listed: number[];
   unchanged: number;
 }
 
@@ -65,6 +69,7 @@ export class LibraryRepository {
         locationId: games.locationId,
         mtime: games.mtime,
         discGroup: games.discGroup,
+        collectionOnly: games.collectionOnly,
       })
       .from(games)
       .where(eq(games.systemId, systemId))
@@ -103,6 +108,7 @@ export class LibraryRepository {
       }
       for (const id of diff.restored) statements.restore.run(id);
       for (const id of diff.missing) statements.markMissing.run({ id, at });
+      for (const id of diff.listed) statements.list.run(id);
       if (folderFilters) refreshFolderFilters(this.db.$client, folderFilters, systemId);
     })();
   }
@@ -170,6 +176,7 @@ export class LibraryRepository {
       markMissing: client.prepare<{ id: number; at: string }>(
         'update games set missing = 1, missing_since = @at where id = @id',
       ),
+      list: client.prepare<[number]>('update games set collection_only = 0 where id = ?'),
     };
   }
 

@@ -6,7 +6,8 @@ export function systemResult(systemId: string, diff: SystemDiff): ScanSystemResu
   return {
     systemId,
     present: diff.added.length + diff.present.length + diff.moved.length + diff.unchanged,
-    added: diff.added.length,
+    // A collection-only game now listed is new to the system's lists.
+    added: diff.added.length + diff.listed.length,
     moved: diff.moved.length,
     restored: diff.restored.length,
     missing: diff.missing.length,

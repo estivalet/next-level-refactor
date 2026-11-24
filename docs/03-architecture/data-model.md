@@ -364,7 +364,8 @@ with the milestones that use them, each as a new migration.
   becomes a missing row (`size 0`, `mtime 0`, D13) that the scan revives by path. A collection
   member no system gamelist names becomes a `collection_only` row: it shows in its collections
   only (system lists, counts, search, smart filters and themes' system views leave it out); a
-  later import listing it clears the flag. Collection gamelists that no `menu*.json` opens (old
+  later import listing it, or a scan that adds new games (not the import's `addNew: false` scan)
+  finding its file, clears the flag (counted as `added`). Collection gamelists that no `menu*.json` opens (old
   copies) are reported (`notInMenu`) and not imported. Re-import (D12): unlocked metadata fields NextLevelOS has, filters (unless
   locked), favorite and hidden take its values; `play_count` = max, `last_played_at` = later;
   the launch override's core/extra args and `arcade_info` are replaced when NextLevelOS has them

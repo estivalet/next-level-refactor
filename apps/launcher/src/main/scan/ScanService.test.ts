@@ -43,6 +43,46 @@ describe('ScanService', () => {
     ]);
   });
 
+  type Library = Awaited<ReturnType<typeof setup>>['library'];
+  const collectionOnly = (library: Library) =>
+    library.db.$client
+      .prepare(
+        `insert into games (system_id, rel_path, size, mtime, missing, collection_only, added_at)
+         values ('nintendo-64', 'Demo One.z64', 0, 0, 1, 1, '2026-10-21T00:00:00.000Z')`,
+      )
+      .run();
+  const shown = (library: Library) =>
+    library.db.$client
+      .prepare("select collection_only from games where system_id = 'nintendo-64'")
+      .pluck()
+      .all();
+
+  it('FR-LIB-3: a scan brings a collection-only game it finds into the system as added', async () => {
+    const { write, run, library } = await setup();
+    await write('Nintendo 64/Demo One.z64');
+    collectionOnly(library);
+    const summary = await run(['nintendo-64']);
+    expect(summary.systems).toMatchObject([
+      { systemId: 'nintendo-64', present: 1, added: 1, restored: 1 },
+    ]);
+    expect(shown(library)).toEqual([0]);
+    expect(library.repo.systemCounts()).toEqual([
+      { systemId: 'nintendo-64', games: 1, missing: 0, review: 0 },
+    ]);
+  });
+
+  it('FR-IMP-1: a scan without addNew leaves a collection-only game in its collections only', async () => {
+    const { write, scan, library } = await setup();
+    await write('Nintendo 64/Demo One.z64');
+    collectionOnly(library);
+    await scan.start(['nintendo-64'], { addNew: false });
+    await scan.whenIdle();
+    expect(scan.status().last?.systems).toMatchObject([
+      { systemId: 'nintendo-64', added: 0, restored: 1 },
+    ]);
+    expect(shown(library)).toEqual([1]);
+  });
+
   it('FR-LIB-3: a scan adds the games of every enabled system and reports progress', async () => {
     const { write, run, events, library } = await setup();
     await write('Nintendo 64/Demo One.z64');

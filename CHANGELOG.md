@@ -79,6 +79,9 @@ M10-1 — polish before 1.0.
 
 ### Fixed
 
+- Scan (FR-LIB-3): a game the NextLevelOS import kept only for a collection now joins its system
+  when a scan finds its file, so it shows in the system's list, counts and the Relink list. Before,
+  such files (e.g. ones moved out of a `! Japan` folder) stayed hidden after every rescan.
 - Library home (D61): Back from a system, collection or smart filter returns to where you had
   scrolled instead of the top, and each menu level keeps its own place (a deeper level opens at
   the top).

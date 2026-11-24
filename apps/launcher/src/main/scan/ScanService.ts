@@ -147,7 +147,11 @@ export class ScanService {
           );
         }
         const diff = diffSystem(this.deps.repo.listSystemGames(job.systemId), walked.files);
-        if (!running.addNew) diff.added = [];
+        // The import's scan keeps the library to what the gamelists name (FR-IMP-1).
+        if (!running.addNew) {
+          diff.added = [];
+          diff.listed = [];
+        }
         this.deps.repo.applySystemDiff(
           job.systemId,
           diff,

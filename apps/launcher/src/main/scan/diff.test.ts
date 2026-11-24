@@ -17,6 +17,7 @@ const row = (id: number, relPath: string, size = 10, missing = false): ExistingG
   locationId: 'a',
   mtime: 1,
   discGroup: null,
+  collectionOnly: false,
 });
 
 const timed = (relPath: string, size: number, mtime: number): FoundGame => ({
@@ -79,6 +80,7 @@ describe('diffSystem', () => {
       moved: [],
       restored: [2],
       missing: [],
+      listed: [],
       unchanged: 0,
     });
   });
@@ -91,6 +93,7 @@ describe('diffSystem', () => {
       moved: [{ id: 1, game: found('Sub/game.zip') }],
       restored: [],
       missing: [],
+      listed: [],
       unchanged: 0,
     });
   });
@@ -122,8 +125,18 @@ describe('diffSystem', () => {
       moved: [],
       restored: [],
       missing: [],
+      listed: [],
       unchanged: 0,
     });
+  });
+
+  it('FR-LIB-3: a collection-only game found by path or move is listed', () => {
+    const only = (id: number, relPath: string) => ({ ...row(id, relPath), collectionOnly: true });
+    const diff = diffSystem(
+      [only(1, 'Kept.zip'), only(2, 'Moved.zip'), only(3, 'Gone.zip'), row(4, 'Plain.zip')],
+      [found('Kept.zip'), found('Sub/Moved.zip'), found('Plain.zip')],
+    );
+    expect(diff.listed).toEqual([1, 2]);
   });
 
   it('FR-LIB-4: a present game that is not found goes missing', () => {

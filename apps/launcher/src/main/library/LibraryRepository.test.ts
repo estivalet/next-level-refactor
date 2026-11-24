@@ -24,7 +24,15 @@ afterEach(async () => {
   await library.cleanup();
 });
 
-const empty = { added: [], present: [], moved: [], restored: [], missing: [], unchanged: 0 };
+const empty = {
+  added: [],
+  present: [],
+  moved: [],
+  restored: [],
+  missing: [],
+  listed: [],
+  unchanged: 0,
+};
 
 describe('LibraryRepository renames', () => {
   const titleOf = (id: number) =>
@@ -172,6 +180,7 @@ describe('LibraryRepository', () => {
         locationId: 'loc-2',
         mtime: 1000,
         discGroup: null,
+        collectionOnly: false,
       },
       {
         id: b.id,
@@ -181,6 +190,7 @@ describe('LibraryRepository', () => {
         locationId: 'loc-1',
         mtime: 1000,
         discGroup: null,
+        collectionOnly: false,
       },
       {
         id: c.id,
@@ -190,6 +200,7 @@ describe('LibraryRepository', () => {
         locationId: 'loc-1',
         mtime: 1000,
         discGroup: null,
+        collectionOnly: false,
       },
     ]);
     expect(

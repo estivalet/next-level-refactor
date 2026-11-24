@@ -108,6 +108,7 @@ describe('installing catalog games (FR-CAT-3, US-E2, D45)', () => {
         moved: [],
         restored: [],
         missing: [],
+        listed: [],
         unchanged: 0,
       },
       new Date('2026-10-29T11:00:00.000Z'),

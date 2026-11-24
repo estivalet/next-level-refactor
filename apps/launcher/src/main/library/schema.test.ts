@@ -14,7 +14,15 @@ const found = (relPath: string): FoundGame => ({
   mtime: 1000,
   discGroup: null,
 });
-const empty = { added: [], present: [], moved: [], restored: [], missing: [], unchanged: 0 };
+const empty = {
+  added: [],
+  present: [],
+  moved: [],
+  restored: [],
+  missing: [],
+  listed: [],
+  unchanged: 0,
+};
 
 let library: Awaited<ReturnType<typeof tempLibrary>>;
 beforeEach(async () => {
