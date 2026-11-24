@@ -25,6 +25,7 @@ export interface RawRow {
   favorite: number;
   hidden: number;
   completed: number;
+  deleteLater: number;
   userRating: number | null;
   boxArt: number | null;
 }
@@ -33,6 +34,7 @@ export const ROW_COLUMNS = `g.id as id, g.system_id as systemId, g.rel_path as r
   g.location_id as locationId, g.missing as missing, m.title as title, m.year as year,
   m.genre as genre, m.players as players, coalesce(u.favorite, 0) as favorite,
   coalesce(u.hidden, 0) as hidden, coalesce(u.completed, 0) as completed,
+  coalesce(u.delete_later, 0) as deleteLater,
   u.user_rating as userRating, (select gm.version from game_media gm
     where gm.game_id = g.id and gm.kind = 'box-front') as boxArt`;
 
@@ -48,6 +50,10 @@ const TABS: Record<GameTab, string> = {
   missing: 'g.missing = 1 and coalesce(u.hidden, 0) = 0',
   needsReview: `coalesce(u.hidden, 0) = 0 and exists (select 1 from scrape_status s
     where s.game_id = g.id and s.status = 'review')`,
+  // Placeholder until the Duplicates query lands (FR-LIB-19).
+  duplicates: '0 = 1',
+  // A to-do list: hidden games stay on it, a deleted (missing) file leaves it (FR-LIB-19).
+  deleteLater: 'coalesce(u.delete_later, 0) = 1 and g.missing = 0',
 };
 
 const ORDERS: Record<GameSort | CollectionSort, string> = {
@@ -152,6 +158,7 @@ export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRo
   return {
     id: raw.id,
     systemId: raw.systemId,
+    relPath: raw.relPath,
     title: raw.title,
     year: raw.year,
     genre: raw.genre,
@@ -159,6 +166,7 @@ export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRo
     favorite: raw.favorite === 1,
     hidden: raw.hidden === 1,
     completed: raw.completed === 1,
+    deleteLater: raw.deleteLater === 1,
     userRating: raw.userRating,
     missing,
     expectedPath: missing ? resolvePath(raw) : null,

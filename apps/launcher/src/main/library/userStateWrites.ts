@@ -6,6 +6,7 @@ const FLAG_COLUMNS = {
   favorite: 'favorite',
   hidden: 'hidden',
   completed: 'completed',
+  deleteLater: 'delete_later',
   userRating: 'user_rating',
 } as const;
 
@@ -57,7 +58,7 @@ export function setGamesPlayability(
   })();
 }
 
-/** Favorite, hidden and the user's rating for several games at once (FR-LIB-7). */
+/** Favorite, hidden, completed, Delete later and the user's rating for several games (FR-LIB-7, FR-LIB-19). */
 export function setGamesFlags(
   client: Database.Database,
   gameIds: readonly number[],
@@ -71,6 +72,7 @@ export function setGamesFlags(
     favorite: flags.favorite === undefined ? undefined : Number(flags.favorite),
     hidden: flags.hidden === undefined ? undefined : Number(flags.hidden),
     completed: flags.completed === undefined ? undefined : Number(flags.completed),
+    deleteLater: flags.deleteLater === undefined ? undefined : Number(flags.deleteLater),
     userRating: flags.userRating,
   };
   client.transaction(() => {

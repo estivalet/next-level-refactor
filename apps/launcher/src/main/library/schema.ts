@@ -83,6 +83,8 @@ export const gameUserState = sqliteTable(
     hidden: integer('hidden', { mode: 'boolean' }).notNull().default(false),
     /** The user finished the game (D60). */
     completed: integer('completed', { mode: 'boolean' }).notNull().default(false),
+    /** The user plans to delete this file by hand (FR-LIB-19); the launcher never deletes it. */
+    deleteLater: integer('delete_later', { mode: 'boolean' }).notNull().default(false),
     userRating: integer('user_rating'),
     playCount: integer('play_count').notNull().default(0),
     lastPlayedAt: text('last_played_at'),

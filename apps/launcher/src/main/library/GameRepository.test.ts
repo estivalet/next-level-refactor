@@ -209,6 +209,8 @@ describe('GameRepository narrowing and facets', () => {
         hidden: 1,
         missing: 0,
         needsReview: 0,
+        duplicates: 0,
+        deleteLater: 0,
       },
       essentials: 0,
     });
