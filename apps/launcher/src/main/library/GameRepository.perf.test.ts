@@ -55,6 +55,13 @@ describe('library performance', () => {
     expect(slowest(() => games.facets(scope, 'all'))).toBeLessThanOrEqual(perfBudget(300));
   });
 
+  it('FR-LIB-19: the Duplicates page of a 10k-game system stays in budget (NFR-PERF-2)', () => {
+    const scope = { kind: 'system', systemId: 'big-system' } as const;
+    const page = () => games.list({ scope, tab: 'duplicates', offset: 0, limit: 200 });
+    page();
+    expect(slowest(page)).toBeLessThanOrEqual(perfBudget(300));
+  });
+
   it('NFR-PERF-3: search over 200k games answers in ≤ 150 ms', () => {
     expect(games.search('zelda').more).toBe(true);
     for (const text of ['ze', 'dragon', 'super mega']) {

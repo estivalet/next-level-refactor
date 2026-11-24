@@ -10,6 +10,7 @@ import {
   type GameSort,
   type GameTab,
 } from '@nextlevel/shared';
+import { DUPLICATES_SQL } from './duplicates.ts';
 
 /** The columns of a game list row, before mapping. */
 export interface RawRow {
@@ -50,8 +51,7 @@ const TABS: Record<GameTab, string> = {
   missing: 'g.missing = 1 and coalesce(u.hidden, 0) = 0',
   needsReview: `coalesce(u.hidden, 0) = 0 and exists (select 1 from scrape_status s
     where s.game_id = g.id and s.status = 'review')`,
-  // Placeholder until the Duplicates query lands (FR-LIB-19).
-  duplicates: '0 = 1',
+  duplicates: DUPLICATES_SQL,
   // A to-do list: hidden games stay on it, a deleted (missing) file leaves it (FR-LIB-19).
   deleteLater: 'coalesce(u.delete_later, 0) = 1 and g.missing = 0',
 };
@@ -96,11 +96,16 @@ export const ESSENTIALS_SQL = `g.id in (select cg.game_id from collection_games 
   join collections c on c.id = cg.collection_id
   where ${ESSENTIALS_NAME('lower(trim(c.name))')})`;
 
+/** A tab's condition; Duplicates is a system tab, empty elsewhere (FR-LIB-19). */
+export function tabSql(tab: GameTab, scope: GameScope): string {
+  return tab === 'duplicates' && scope.kind !== 'system' ? '0 = 1' : TABS[tab];
+}
+
 /** One row with each tab's game count in a scope, columns named after the tabs. */
 export function tabCountsSql(scope: GameScope, smartIds: string | null = null): string {
   const parts = scopeParts(scope, smartIds);
   const columns = GAME_TABS.map(
-    (tab) => `coalesce(sum(case when ${TABS[tab]} then 1 else 0 end), 0) as "${tab}"`,
+    (tab) => `coalesce(sum(case when ${tabSql(tab, scope)} then 1 else 0 end), 0) as "${tab}"`,
   );
   return `select ${columns.join(', ')} from games g ${ROW_JOINS} ${parts.join}
     where ${parts.where}`;
@@ -129,7 +134,7 @@ export function listShape(
   },
 ) {
   const scope = scopeParts(query.scope, smartIds);
-  const where = [scope.where, query.tab === null ? '1 = 1' : TABS[query.tab]];
+  const where = [scope.where, query.tab === null ? '1 = 1' : tabSql(query.tab, query.scope)];
   if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
   if (narrow.filter) {
     where.push(
