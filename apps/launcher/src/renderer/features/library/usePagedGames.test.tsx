@@ -16,6 +16,7 @@ const TOTAL = 10_000;
 const row = (index: number): GameRow => ({
   id: index + 1,
   systemId: 'nintendo-64',
+  relPath: `Game ${String(index)}.z64`,
   title: `Game ${String(index)}`,
   year: null,
   genre: null,
@@ -23,6 +24,7 @@ const row = (index: number): GameRow => ({
   favorite: false,
   hidden: false,
   completed: false,
+  deleteLater: false,
   userRating: null,
   missing: false,
   expectedPath: null,
