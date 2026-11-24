@@ -73,6 +73,7 @@ export function GameContextMenu(props: GameContextMenuProps) {
   const allFavorite = allKnown && games.every((game) => game.favorite);
   const allHidden = allKnown && games.every((game) => game.hidden);
   const allCompleted = allKnown && games.every((game) => game.completed);
+  const allDeleteLater = allKnown && games.every((game) => game.deleteLater);
   const allMissing = allKnown && games.every((game) => game.missing);
 
   const flag = (flags: GameFlags) => {
@@ -125,6 +126,14 @@ export function GameContextMenu(props: GameContextMenuProps) {
       icon: allHidden ? Eye : EyeOff,
       run: () => {
         flag({ hidden: !allHidden });
+      },
+    },
+    {
+      key: 'deleteLater',
+      label: t(allDeleteLater ? 'library.menu.keep' : 'library.menu.deleteLater'),
+      icon: Trash2,
+      run: () => {
+        flag({ deleteLater: !allDeleteLater });
       },
     },
     {

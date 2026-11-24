@@ -1,12 +1,14 @@
-import type { GameFacets, GameTab } from '@nextlevel/shared';
+import type { GameFacets, GameScope, GameTab } from '@nextlevel/shared';
 import {
   AlertTriangle,
   Clock,
+  Copy,
   EyeOff,
   Heart,
   LayoutGrid,
   SearchCheck,
   Star,
+  Trash2,
   Trophy,
   type LucideIcon,
 } from 'lucide-react';
@@ -22,6 +24,8 @@ const MORE_TABS: Array<[GameTab, LucideIcon]> = [
   ['hidden', EyeOff],
   ['missing', AlertTriangle],
   ['needsReview', SearchCheck],
+  ['duplicates', Copy],
+  ['deleteLater', Trash2],
 ];
 
 const ITEM =
@@ -52,13 +56,22 @@ interface ScopeSidebarProps {
   facets: GameFacets | undefined;
   narrow: Narrow;
   onNarrow: (narrow: Narrow) => void;
+  /** Duplicates is a system tab (FR-LIB-19): collections and smart filters leave it out. */
+  scopeKind: GameScope['kind'];
 }
 
 /**
  * The scope view's left column (D62): the tabs with their game counts, then the scope's filter
  * tags and genres with their counts. A filter or genre narrows the list; picking it again clears it.
  */
-export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSidebarProps) {
+export function ScopeSidebar({
+  tab,
+  onTab,
+  facets,
+  narrow,
+  onNarrow,
+  scopeKind,
+}: ScopeSidebarProps) {
   const { t, i18n } = useTranslation();
   const filterLabel = useFilterLabel();
   const tabButton = ([value, Icon]: [GameTab, LucideIcon]) => (
@@ -130,7 +143,9 @@ export function ScopeSidebar({ tab, onTab, facets, narrow, onNarrow }: ScopeSide
         {MAIN_TABS.map(tabButton)}
       </div>
       <div className="space-y-0.5 border-t border-white/5 px-2 py-3">
-        {MORE_TABS.map(tabButton)}
+        {MORE_TABS.filter(([value]) => value !== 'duplicates' || scopeKind === 'system').map(
+          tabButton,
+        )}
       </div>
       {/* D63: only games in an Essentials collection; shown when the scope has some. */}
       {(Boolean(narrow.essentials) || (facets?.essentials ?? 0) > 0) && (

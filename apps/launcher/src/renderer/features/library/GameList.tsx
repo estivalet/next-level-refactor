@@ -6,7 +6,8 @@ import type { SelectMode, Selection } from './selection.ts';
 import type { PagedGames } from './usePagedGames.ts';
 import { useRowDrag, type RowReorder } from './useRowDrag.ts';
 
-const ROW_HEIGHT = 44;
+// Two lines: the title and the file (FR-LIB-19).
+const ROW_HEIGHT = 54;
 const PAGE_ROWS = 10;
 
 interface GameListProps {
