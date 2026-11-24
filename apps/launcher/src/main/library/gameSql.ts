@@ -10,6 +10,7 @@ import {
   type GameSort,
   type GameTab,
 } from '@nextlevel/shared';
+import { DUPLICATES_SQL } from './duplicates.ts';
 
 /** The columns of a game list row, before mapping. */
 export interface RawRow {
@@ -25,6 +26,7 @@ export interface RawRow {
   favorite: number;
   hidden: number;
   completed: number;
+  deleteLater: number;
   userRating: number | null;
   boxArt: number | null;
 }
@@ -33,6 +35,7 @@ export const ROW_COLUMNS = `g.id as id, g.system_id as systemId, g.rel_path as r
   g.location_id as locationId, g.missing as missing, m.title as title, m.year as year,
   m.genre as genre, m.players as players, coalesce(u.favorite, 0) as favorite,
   coalesce(u.hidden, 0) as hidden, coalesce(u.completed, 0) as completed,
+  coalesce(u.delete_later, 0) as deleteLater,
   u.user_rating as userRating, (select gm.version from game_media gm
     where gm.game_id = g.id and gm.kind = 'box-front') as boxArt`;
 
@@ -48,6 +51,9 @@ const TABS: Record<GameTab, string> = {
   missing: 'g.missing = 1 and coalesce(u.hidden, 0) = 0',
   needsReview: `coalesce(u.hidden, 0) = 0 and exists (select 1 from scrape_status s
     where s.game_id = g.id and s.status = 'review')`,
+  duplicates: DUPLICATES_SQL,
+  // A to-do list: hidden games stay on it, a deleted (missing) file leaves it (FR-LIB-19).
+  deleteLater: 'coalesce(u.delete_later, 0) = 1 and g.missing = 0',
 };
 
 const ORDERS: Record<GameSort | CollectionSort, string> = {
@@ -90,11 +96,16 @@ export const ESSENTIALS_SQL = `g.id in (select cg.game_id from collection_games 
   join collections c on c.id = cg.collection_id
   where ${ESSENTIALS_NAME('lower(trim(c.name))')})`;
 
+/** A tab's condition; Duplicates is a system tab, empty elsewhere (FR-LIB-19). */
+export function tabSql(tab: GameTab, scope: GameScope): string {
+  return tab === 'duplicates' && scope.kind !== 'system' ? '0 = 1' : TABS[tab];
+}
+
 /** One row with each tab's game count in a scope, columns named after the tabs. */
 export function tabCountsSql(scope: GameScope, smartIds: string | null = null): string {
   const parts = scopeParts(scope, smartIds);
   const columns = GAME_TABS.map(
-    (tab) => `coalesce(sum(case when ${TABS[tab]} then 1 else 0 end), 0) as "${tab}"`,
+    (tab) => `coalesce(sum(case when ${tabSql(tab, scope)} then 1 else 0 end), 0) as "${tab}"`,
   );
   return `select ${columns.join(', ')} from games g ${ROW_JOINS} ${parts.join}
     where ${parts.where}`;
@@ -123,7 +134,7 @@ export function listShape(
   },
 ) {
   const scope = scopeParts(query.scope, smartIds);
-  const where = [scope.where, query.tab === null ? '1 = 1' : TABS[query.tab]];
+  const where = [scope.where, query.tab === null ? '1 = 1' : tabSql(query.tab, query.scope)];
   if (hasText) where.push('g.id in (select rowid from games_fts where games_fts match @match)');
   if (narrow.filter) {
     where.push(
@@ -152,6 +163,7 @@ export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRo
   return {
     id: raw.id,
     systemId: raw.systemId,
+    relPath: raw.relPath,
     title: raw.title,
     year: raw.year,
     genre: raw.genre,
@@ -159,6 +171,7 @@ export function toRow(raw: RawRow, resolvePath: (raw: RawRow) => string): GameRo
     favorite: raw.favorite === 1,
     hidden: raw.hidden === 1,
     completed: raw.completed === 1,
+    deleteLater: raw.deleteLater === 1,
     userRating: raw.userRating,
     missing,
     expectedPath: missing ? resolvePath(raw) : null,

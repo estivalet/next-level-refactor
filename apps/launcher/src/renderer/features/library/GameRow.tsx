@@ -1,5 +1,5 @@
 import type { GameRow as Game } from '@nextlevel/shared';
-import { Gamepad2, Star } from 'lucide-react';
+import { Gamepad2, Star, Trash2 } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RowDragProps } from './useRowDrag.ts';
@@ -18,7 +18,10 @@ interface GameRowProps {
   drag?: RowDragProps | undefined;
 }
 
-/** One game line; missing games are greyed and name their expected path (FR-LIB-4). */
+/**
+ * One game line; missing games are greyed and name their expected path (FR-LIB-4). Under the
+ * title, the file inside the system folder tells versions apart (FR-LIB-19).
+ */
 export function GameRow({
   game,
   index,
@@ -51,10 +54,13 @@ export function GameRow({
       style={{ top, height: height - 4 }}
     >
       <Gamepad2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-slate-600" />
-      <span
-        className={`flex-1 truncate text-sm ${selected ? 'text-emerald-300' : 'text-slate-300'}`}
-      >
-        {game.title}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className={`truncate text-sm ${selected ? 'text-emerald-300' : 'text-slate-300'}`}>
+          {game.title}
+        </span>
+        <span className="truncate text-[11px] text-slate-500">
+          {game.relPath.replaceAll('/', '\\')}
+        </span>
       </span>
       {game.year !== null && (
         <span className="shrink-0 font-mono text-xs text-slate-600">{game.year}</span>
@@ -66,6 +72,12 @@ export function GameRow({
         <Star
           aria-label={t('library.tabs.favorites')}
           className="h-3 w-3 shrink-0 fill-amber-400 text-amber-400"
+        />
+      )}
+      {game.deleteLater && (
+        <Trash2
+          aria-label={t('library.deleteLaterMark')}
+          className="h-3 w-3 shrink-0 text-rose-400"
         />
       )}
     </div>

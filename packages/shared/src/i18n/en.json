@@ -1059,6 +1059,7 @@
       "empty": "No games here."
     },
     "missingAt": "Missing — expected at {{path}}",
+    "deleteLaterMark": "Marked Delete later",
     "status": {
       "games_one": "{{count}} game",
       "games_other": "{{count}} games",
@@ -1076,7 +1077,9 @@
       "completed": "Completed",
       "hidden": "Hidden",
       "missing": "Missing",
-      "needsReview": "Needs review"
+      "needsReview": "Needs review",
+      "duplicates": "Duplicates",
+      "deleteLater": "Delete later"
     },
     "sort": {
       "label": "Sort",
@@ -1097,6 +1100,7 @@
       "none": "Select a game to see its details.",
       "favorite": "Favorite",
       "completed": "Completed",
+      "deleteLater": "Delete later",
       "rating": "Your rating",
       "rate_one": "{{count}} star",
       "rate_other": "{{count}} stars",
@@ -1136,6 +1140,8 @@
       "unfavorite": "Remove from favorites",
       "complete": "Mark completed",
       "uncomplete": "Mark not completed",
+      "deleteLater": "Mark Delete later",
+      "keep": "Unmark Delete later",
       "hide": "Hide",
       "unhide": "Unhide",
       "openFolder": "Open folder",

@@ -1,0 +1,1 @@
+ALTER TABLE `game_user_state` ADD `delete_later` integer DEFAULT false NOT NULL;

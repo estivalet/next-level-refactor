@@ -215,7 +215,8 @@ Scope view (D62)
     changes live.
   - **Scope view (D62):** Back returns to the level it was opened from. Left column: tabs All,
     Favorites, Recently played (played games, newest first, whatever the sort), Completed
-    (D60), then Hidden, Missing, Needs review; then the scope's **Filters** and **Genres** with
+    (D60), then Hidden, Missing, Needs review, **Duplicates** (systems only) and **Delete later**
+    (FR-LIB-19); then the scope's **Filters** and **Genres** with
     their counts in the tab. One filter and one genre narrow the list (picking it again clears
     it); the narrowing stays across tabs and clears when a scope is opened or left. **Essentials
     only** (M10-1, D63), above Filters when the scope has any, narrows to games in a collection
@@ -245,12 +246,13 @@ Scope view (D62)
   - Middle: a virtualized box-art grid (D62: cards with the box art or a same-size placeholder;
     arrows move across and between rows, Shift extends; PageUp/PageDown move three rows) or the
     virtualized multi-select list (click, Ctrl/⌘-click, Shift-click, arrows, Home/End,
-    PageUp/PageDown); in both the ContextMenu key or Shift+F10 opens the menu and Enter plays. A collection adds a toolbar:
+    PageUp/PageDown; each row shows the game's file inside the system folder in small grey text
+    under the title, and a trash mark when it is marked Delete later, FR-LIB-19); in both the ContextMenu key or Shift+F10 opens the menu and Enter plays. A collection adds a toolbar:
     sort (manual / title / year), Move up / Move down (manual), Add games… (since M5c), Rename,
     Delete (asks first). In manual order rows also drag into a new place (see S11).
   - Right: details (the preview from the media index: video, else a gameplay screenshot, else
     the box art (D62); title, system, scrape status, facts, filters, description), Favorite,
-    Completed (D60), 1–5 stars (choosing the same star clears), **Playability** (Works / Minor
+    Completed (D60), **Delete later** (FR-LIB-19; also in the context menu for a selection), 1–5 stars (choosing the same star clears), **Playability** (Works / Minor
     issues / Broken; pressing the chosen one clears it) with its note and "Set on <date>"
     (FR-LIB-13), **Collections** (FR-LIB-8,
     US-C10: a chip per collection the game is in, by name, with **Remove from <name>**; "In no

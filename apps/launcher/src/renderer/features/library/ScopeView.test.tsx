@@ -34,6 +34,8 @@ const TAB_COUNTS = {
   hidden: 0,
   missing: 0,
   needsReview: 0,
+  duplicates: 0,
+  deleteLater: 0,
 };
 const SYSTEMS = [
   { id: 'nintendo-64', enabled: true, games: 5, missing: 0, review: 0 },

@@ -1,5 +1,14 @@
 import type { GameFlags } from '@nextlevel/shared';
-import { FolderOpen, Link2, Pencil, Play, SlidersHorizontal, Star, Trophy } from 'lucide-react';
+import {
+  FolderOpen,
+  Link2,
+  Pencil,
+  Play,
+  SlidersHorizontal,
+  Star,
+  Trash2,
+  Trophy,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DetailsArt, ScrapeStatusLine } from './DetailsArt.tsx';
 import { GameCollections } from './GameCollections.tsx';
@@ -129,6 +138,23 @@ export function GameDetails(props: GameDetailsProps) {
             className={`h-3.5 w-3.5 ${game.completed ? 'text-amber-400' : ''}`}
           />
           {t('library.details.completed')}
+        </button>
+        {/* A note to self for cleaning up (FR-LIB-19); the file is never deleted from here. */}
+        <button
+          type="button"
+          aria-pressed={game.deleteLater}
+          className={ACTION}
+          onClick={() => {
+            const flags = { deleteLater: !game.deleteLater };
+            setFlags.mutate({ gameIds: [game.id], flags });
+            onFlags(flags);
+          }}
+        >
+          <Trash2
+            aria-hidden="true"
+            className={`h-3.5 w-3.5 ${game.deleteLater ? 'text-rose-400' : ''}`}
+          />
+          {t('library.details.deleteLater')}
         </button>
         <RatingStars
           value={game.userRating}

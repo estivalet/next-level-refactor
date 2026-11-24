@@ -27,6 +27,18 @@ describe('game contracts', () => {
     expect(setFlags.safeParse({ gameIds: [1], flags: { favorite: true } }).success).toBe(true);
   });
 
+  it('FR-LIB-19: GameFlags accepts deleteLater', () => {
+    expect(GameFlagsSchema.parse({ deleteLater: true })).toEqual({ deleteLater: true });
+    expect(GameFlagsSchema.safeParse({ deleteLater: 'yes' }).success).toBe(false);
+  });
+
+  it('FR-LIB-19: GameListQuery accepts the duplicates and deleteLater tabs', () => {
+    const scope = { kind: 'system', systemId: 'gamegear' } as const;
+    for (const tab of ['duplicates', 'deleteLater']) {
+      expect(GameListQuerySchema.parse({ scope, tab, offset: 0, limit: 10 }).tab).toBe(tab);
+    }
+  });
+
   it('FR-LIB-6: a game list query defaults to the All tab and caps the page', () => {
     const scope = { kind: 'system', systemId: 'nintendo-64' } as const;
     expect(GameListQuerySchema.parse({ scope, offset: 0, limit: 200 }).tab).toBe('all');

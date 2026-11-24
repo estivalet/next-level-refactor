@@ -31,6 +31,7 @@ export function gameRow(id: number, title: string, overrides: Partial<GameRow> =
   return {
     id,
     systemId: 'nintendo-64',
+    relPath: `${title}.z64`,
     title,
     year: null,
     genre: null,
@@ -38,6 +39,7 @@ export function gameRow(id: number, title: string, overrides: Partial<GameRow> =
     favorite: false,
     hidden: false,
     completed: false,
+    deleteLater: false,
     userRating: null,
     missing: false,
     expectedPath: null,
@@ -49,7 +51,6 @@ export function gameRow(id: number, title: string, overrides: Partial<GameRow> =
 export function gameDetails(row: GameRow, overrides: Partial<GameDetails> = {}): GameDetails {
   return {
     ...row,
-    relPath: `${row.title}.z64`,
     filePath: row.expectedPath ?? `E:\\roms\\Nintendo 64\\${row.title}.z64`,
     folderFilters: [],
     discGroup: null,

@@ -9,6 +9,11 @@ M10-1 — polish before 1.0.
 
 ### Added
 
+- **Library cleanup** (FR-LIB-19, US-C13): the list view shows each game's file under its title;
+  a system's **Duplicates** tab lists games you have in more than one version (same title, or
+  the same file name without tags such as `(Japan)` or `[T-En by …]`); **Delete later** marks a
+  game (details panel or right-click) and lists the marks in its own tab. The launcher never
+  deletes files: delete them in Explorer, and the next scan moves them to Missing.
 - **Collections in game details** (FR-LIB-8, US-C10): the details panel lists the collections a
   game is in; remove it from one with its ×, or add it to more with **Add to collection…**.
 - **Remove all missing** (FR-LIB-14, US-C7): the Missing tab of a system, collection or smart

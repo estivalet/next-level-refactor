@@ -105,6 +105,8 @@ export function useLibraryView(initialScope: GameScope | null = null) {
     /** Opening a scope (again) starts without narrowing (D62), or with the given one. */
     setScope: (next: GameScope, narrowed: { lacking?: HealthGap } = {}) => {
       setScope(next);
+      // Duplicates is a system tab (FR-LIB-19): elsewhere it would show an empty list.
+      if (tab === 'duplicates' && next.kind !== 'system') setTab('all');
       setNarrowing({ key: JSON.stringify(next), ...narrowed });
     },
     /** Back to the home, e.g. after the shown collection was deleted. */

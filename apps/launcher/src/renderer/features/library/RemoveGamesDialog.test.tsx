@@ -105,6 +105,8 @@ describe('remove all missing (FR-LIB-14, US-C7)', () => {
             hidden: 0,
             missing,
             needsReview: 0,
+            duplicates: 0,
+            deleteLater: 0,
           },
           essentials: 0,
         }),

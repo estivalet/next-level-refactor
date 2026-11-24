@@ -212,6 +212,7 @@ export function LibraryApp({
               facets={facets.data}
               narrow={view.narrow}
               onNarrow={view.setNarrow}
+              scopeKind={scope.kind}
             />
           )}
           <main ref={list} className="flex min-w-0 flex-1 flex-col">

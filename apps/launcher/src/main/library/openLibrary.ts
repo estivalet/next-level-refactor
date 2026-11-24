@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { registerDuplicateFunctions } from './duplicates.ts';
 import { migrate, migrations as bundledMigrations, type Migration } from './migrate.ts';
 import * as schema from './schema.ts';
 import { registerSmartFilterFunctions } from './smartFilterSql.ts';
@@ -23,6 +24,7 @@ export function openLibrary(file: string, options: OpenLibraryOptions): LibraryD
     client.pragma('foreign_keys = ON');
     client.pragma('busy_timeout = 5000');
     registerSmartFilterFunctions(client);
+    registerDuplicateFunctions(client);
     migrate(client, options.migrations ?? bundledMigrations(), (fromVersion) => {
       mkdirSync(options.backupsDir, { recursive: true });
       const stamp = options.clock().toISOString().replace(/[:.]/g, '-');
