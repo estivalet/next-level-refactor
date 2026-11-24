@@ -128,7 +128,8 @@ export class GameRepository {
     const { smart, params } = this.scope(scope);
     const { from } = listShape({ scope, tab }, null, false, smart?.sql ?? null);
     const filters = this.statement(
-      `select f.filter as value, count(*) as count from game_filters f
+      // A game can have a filter from its folder and as its own (FR-LIB-18): it counts once.
+      `select f.filter as value, count(distinct f.game_id) as count from game_filters f
        where f.game_id in (select g.id ${from}) group by f.filter
        order by f.filter collate nocase`,
     ).all(params) as GameFacets['filters'];
@@ -160,11 +161,14 @@ export class GameRepository {
        from games g ${ROW_JOINS} where g.id = ?`,
     ).get(gameId) as RawDetails | undefined;
     if (!raw) throw notFound({ gameId });
-    const filters = this.statement(
-      'select filter from game_filters where game_id = ? order by filter',
-    )
-      .pluck()
-      .all(gameId) as string[];
+    const filtersFrom = (source: 'own' | 'folder') =>
+      this.statement(
+        'select filter from game_filters where game_id = ? and source = ? order by filter',
+      )
+        .pluck()
+        .all(gameId, source) as string[];
+    const filters = filtersFrom('own');
+    const folderFilters = filtersFrom('folder');
     const collectionIds = this.statement(
       'select collection_id from collection_games where game_id = ? order by collection_id',
     )
@@ -191,6 +195,7 @@ export class GameRepository {
       region: raw.region,
       rating: raw.rating,
       filters,
+      folderFilters,
       lockedFields: JSON.parse(raw.lockedFields) as string[],
       playCount: raw.playCount ?? 0,
       lastPlayedAt: raw.lastPlayedAt,
@@ -246,7 +251,8 @@ export class GameRepository {
         params.sortTitle = changes.title.toLowerCase();
       }
       if (changes.filters !== undefined) {
-        this.statement('delete from game_filters where game_id = ?').run(gameId);
+        // Folder filters (FR-LIB-18) follow the game's folders, not Edit details.
+        this.statement("delete from game_filters where game_id = ? and source = 'own'").run(gameId);
         const insert = this.statement('insert into game_filters (game_id, filter) values (?, ?)');
         for (const filter of new Set(changes.filters)) insert.run(gameId, filter);
       }

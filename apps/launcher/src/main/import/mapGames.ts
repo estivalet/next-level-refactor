@@ -1,4 +1,5 @@
 import {
+  filterSlug,
   LegacyGameSchema,
   PLAYABILITY_NOTE_MAX,
   type ImportItem,
@@ -9,7 +10,6 @@ import {
   discGroupOf,
   discOrder,
   fileStem,
-  filterSlug,
   isFolder,
   normalizeRelPath,
   parseLastPlayed,

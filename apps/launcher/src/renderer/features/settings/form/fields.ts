@@ -26,6 +26,8 @@ const CUSTOM_ISSUES = new Set([
   'duplicateSystemName',
   'duplicateExclusion',
   'notInSystemFolder',
+  'notAFilterName',
+  'duplicateRename',
 ]);
 
 function messageKey(issue: z.core.$ZodIssue): string {

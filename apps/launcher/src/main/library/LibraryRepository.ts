@@ -1,12 +1,14 @@
 import {
   GAME_ART_KINDS,
   HEALTH_GAPS,
+  type FolderFilters,
   type HealthGap,
   type HomeTotalsGroup,
   type SystemHealth,
 } from '@nextlevel/shared';
 import { asc, count, eq, sql } from 'drizzle-orm';
 import { titleFromRelPath } from '../scan/discs.ts';
+import { refreshFolderFilters } from './folderFilters.ts';
 import { lackingSql } from './gameSql.ts';
 import { homeTotals } from './homeTotals.ts';
 import type { LibraryDb } from './openLibrary.ts';
@@ -73,9 +75,15 @@ export class LibraryRepository {
   /**
    * Applies one system's scan result in a single transaction (NFR-REL-1). Uses statements
    * prepared once on the client: building a Drizzle query per row cost ~1.6 s per 20k games on
-   * the main thread.
+   * the main thread. With `folderFilters`, the system's folder filters (FR-LIB-18) are recomputed
+   * in the same transaction, so added and moved games never wait for another pass.
    */
-  applySystemDiff(systemId: string, diff: SystemDiff, now: Date): void {
+  applySystemDiff(
+    systemId: string,
+    diff: SystemDiff,
+    now: Date,
+    folderFilters?: FolderFilters,
+  ): void {
     const at = now.toISOString();
     const statements = this.statements();
     this.db.$client.transaction(() => {
@@ -95,6 +103,7 @@ export class LibraryRepository {
       }
       for (const id of diff.restored) statements.restore.run(id);
       for (const id of diff.missing) statements.markMissing.run({ id, at });
+      if (folderFilters) refreshFolderFilters(this.db.$client, folderFilters, systemId);
     })();
   }
 

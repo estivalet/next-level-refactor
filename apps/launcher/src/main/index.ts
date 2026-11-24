@@ -188,6 +188,8 @@ async function pickExportPath(defaultName: string, format: ExportFormat): Promis
 
 /** Set in start(); settings changes reach it once it exists. */
 let updates: UpdateService | undefined;
+/** Set in start() once the library is open: settings changes may change folder filters. */
+let applyFolderFilters: (() => void) | undefined;
 
 async function start(): Promise<void> {
   if (!(await preparePortable(portable))) return;
@@ -198,6 +200,7 @@ async function start(): Promise<void> {
     onChanged: (snapshot) => {
       emit('settings.changed', snapshot);
       updates?.applySettings();
+      applyFolderFilters?.();
     },
     dialogs: {
       pickExportPath: pickJsonSavePath,
@@ -288,6 +291,7 @@ async function start(): Promise<void> {
       libraryParts = parts;
     },
   });
+  applyFolderFilters = library?.syncFolderFilters;
   // Set once sign-in is set up (below); the protocol handler asks it for catalog art.
   const catalogRef: { current: ReturnType<typeof startCatalog> | undefined } = {
     current: undefined,

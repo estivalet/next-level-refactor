@@ -99,7 +99,11 @@ export const gameUserState = sqliteTable(
   ],
 );
 
-/** Filter tags such as `homebrew` or `hack` (FR-LIB-6). */
+/**
+ * Filter tags such as `homebrew` or `hack` (FR-LIB-6). `own` ones are imported or set in Edit
+ * details; `folder` ones are worked out from the game's folders (FR-LIB-18) and replaced whenever
+ * those rules or the game's path change. A game can have the same filter from both.
+ */
 export const gameFilters = sqliteTable(
   'game_filters',
   {
@@ -107,8 +111,11 @@ export const gameFilters = sqliteTable(
       .notNull()
       .references(() => games.id, { onDelete: 'cascade' }),
     filter: text('filter').notNull(),
+    source: text('source', { enum: ['own', 'folder'] })
+      .notNull()
+      .default('own'),
   },
-  (table) => [primaryKey({ columns: [table.gameId, table.filter] })],
+  (table) => [primaryKey({ columns: [table.gameId, table.filter, table.source] })],
 );
 
 export const collections = sqliteTable('collections', {

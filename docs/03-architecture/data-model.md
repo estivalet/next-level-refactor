@@ -71,6 +71,14 @@ type Settings = {
     locations: StorageLocation[];             // ordered by priority (1 = first)
     managedLocationId: string | null;         // where catalog games are installed
     media: { mode: 'perRomFolder' } | { mode: 'central'; path: string };
+    // FR-LIB-18 (2026-11-23; defaults, no schema version change): folders that name filters.
+    folderFilters: {
+      prefixes: Array<'!' | '+' | '#'>;       // default ['!', '+']; none = no folder filters
+      outside: string;                        // filter of games in no such folder; default
+                                              // 'Official', '' = none (`notAFilterName`)
+      renames: Array<{ folder: string; filter: string }>; // ≤ 100; folder matched without
+                                              // prefixes, case ignored (`duplicateRename`)
+    };
     assetsPath: string | null;                // shared menu art
     themesPath: string | null;                // theme packs
   };
@@ -385,7 +393,7 @@ erDiagram
 |---|---|---|
 | `games` | `id` int PK, `system_id` text, `rel_path` text, `source` text (`local`/`catalog`), `catalog_item_id` text?, `location_id` text?, `size` int, `mtime` int, `missing` bool, `missing_since` text?, `disc_group` text?, `added_at` text, `collection_only` bool (0011) | UNIQUE(`system_id`,`rel_path`) |
 | `game_metadata` | `game_id` PK FK, `title`, `sort_title`, `year` int?, `developer`, `publisher`, `genre`, `players`, `description`, `region`, `rating` real?, `locked_fields` json, `updated_at` | `locked_fields` = fields edited by the user; scrapes don't overwrite them |
-| `game_filters` | `game_id` FK, `filter` text | PK(`game_id`,`filter`); values: `official`, `homebrew`, `hack`, `translation`, `prototype`, `unlicensed`, … |
+| `game_filters` | `game_id` FK, `filter` text, `source` text (`own` \| `folder`, default `own`) | PK(`game_id`,`filter`,`source`); values: `official`, `homebrew`, `hack`, `translation`, `prototype`, `unlicensed`, …. `own` = imported or set in Edit details; `folder` (FR-LIB-18, migration `0021`) = worked out from `rel_path` and the `storage.folderFilters` settings, replaced per system in the scan's transaction and for the whole library when the settings' fingerprint differs from `meta.folder_filters` (at start and after a settings save); collection-only games get none. Reads take both, each filter once per game |
 | `game_user_state` | `game_id` PK FK, `favorite` bool, `hidden` bool, `user_rating` int?, `play_count` int, `last_played_at` text?, `play_seconds` int, `playability` text? (`works`/`issues`/`broken`, FR-LIB-13, migration 0016), `playability_note` text (`''`), `playability_at` text? | |
 | `game_launch_override` | `game_id` PK FK, `profile_id` text?, `core` text?, `extra_args` json | Replaces gamelist `core`/`config`/`shader`/`emulator` fields |
 | `game_media` | `game_id` FK, `kind` text, `path` text, `size` int, `version` int (since M6b) | PK(`game_id`,`kind`); since M4a every scan rebuilds a system's rows from `media/<kind>/<rom stem>.<ext>` (png > jpg > jpeg > webp > gif; mp4 > webm); a scrape upserts the row of each kind it writes (M6b); `version` = file mtime in ms, carried by `nextlevel://media/<id>/<kind>?v=<version>` so a replaced file is never served from cache (FR-SCR-5); themes read only this |

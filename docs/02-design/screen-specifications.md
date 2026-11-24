@@ -277,7 +277,7 @@ Scope view (D62)
     alphabetical order (FR-LIB-8, owner request 2026-11-17), so a list kept by title stays that way.
   - **Edit details (FR-LIB-6, owner request 2026-11-02):** the game's title, **Info** and
     **Media** tabs, and **‹ n / total ›** for the shown list (stepping selects that row; off
-    with unsaved changes; the tab is kept). Info = the editable fields, then playability, then last the **File** block (FR-LIB-16: the full path, selectable, with **Copy path** ("Copied" for 2 s) and **Open folder**; a missing game's reads **Expected at**). Media is look-only:
+    with unsaved changes; the tab is kept). Info = the editable fields (under Filters, the game's folder filters as read-only chips "prototypes · from folder", FR-LIB-18), then playability, then last the **File** block (FR-LIB-16: the full path, selectable, with **Copy path** ("Copied" for 2 s) and **Open folder**; a missing game's reads **Expected at**). Media is look-only:
     a tile per standard art kind (found = image from the media index, missing = "Not
     found") plus any other indexed kind of the game, "N of M found", **Show found only**;
     a found tile opens full size over the Library (Esc or ✕ closes just that view).
@@ -418,6 +418,11 @@ Left navigation of sections (see IA §1), right form pane.
   reads the central folder first, then the per-ROM folders for kinds the central one lacks; a
   missing central folder is no art, not a failed scan. After a change: "Rescan to update art…" and
   **Scan all** (disabled until saved or while a scan runs).
+- **Storage → Folder filters** (FR-LIB-18, US-C12, 2026-11-23): **Folder name starts with**
+  `!` `+` `#` checkboxes (`!` and `+` on by default), **Filter for games in no such folder**
+  (default Official; empty for none) and **Renames** (Folder → Filter rows with a remove button,
+  **Add rename**; a repeated folder or a name with no letters or digits shows inline and blocks
+  Save). Saved changes apply from the library's paths at once: no rescan is offered.
 - **Storage → Scan for games** (M2b, FR-LIB-3): **Scan now** (disabled with a hint while the
   section has unsaved changes or no storage location), then a progress bar (systems done / total,
   current system, files found) with **Cancel scan**, then the last result: "N games in N systems ·

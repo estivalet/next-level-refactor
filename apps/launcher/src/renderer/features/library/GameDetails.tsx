@@ -49,6 +49,8 @@ export function GameDetails(props: GameDetailsProps) {
     ['players', game.players],
     ['region', game.region],
   ] as const;
+  // The game's own filters and its folders' (FR-LIB-18), each once.
+  const filters = [...new Set([...game.filters, ...game.folderFilters])].sort();
   return (
     <div className="flex flex-col gap-4 overflow-y-auto p-4 *:shrink-0">
       <DetailsArt game={game} />
@@ -163,9 +165,9 @@ export function GameDetails(props: GameDetailsProps) {
           ),
         )}
       </dl>
-      {game.filters.length > 0 && (
+      {filters.length > 0 && (
         <ul aria-label={t('library.fields.filters')} className="flex flex-wrap gap-1">
-          {game.filters.map((filter) => (
+          {filters.map((filter) => (
             <li
               key={filter}
               className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-slate-400"

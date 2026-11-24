@@ -1,4 +1,3 @@
-import { FILTER_SLUG } from '@nextlevel/shared';
 import { DISC_PATTERN, normalizeDiscName } from '../scan/discs.ts';
 
 // Field rules shared by the games and collections mappers (FR-IMP-1, data model §6).
@@ -67,19 +66,6 @@ export function parseYear(value: string | number | undefined): number | undefine
   const year = typeof value === 'number' ? value : /^\s*(\d{4})\s*$/.exec(value ?? '')?.[1];
   const number = Number(year);
   return Number.isInteger(number) && number >= 1950 && number <= 2100 ? number : undefined;
-}
-
-/** `msxdev_2003` → `msxdev-2003`; null when nothing slug-like is left. */
-export function filterSlug(tag: string): string | null {
-  const slug = tag
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_]+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 40);
-  return FILTER_SLUG.test(slug) ? slug : null;
 }
 
 /** Trimmed text, or undefined when empty or not text. */

@@ -13,6 +13,7 @@ import {
 import { path7za } from '7zip-bin';
 import { v7 as uuidv7 } from 'uuid';
 import { seedBuiltInSmartFilters } from './library/builtInSmartFilters.ts';
+import { syncFolderFilters } from './library/folderFilters.ts';
 import { SmartFilterRepository } from './library/SmartFilterRepository.ts';
 import { SystemInfoRepository } from './library/SystemInfoRepository.ts';
 import { SystemPersonalRepository } from './library/SystemPersonalRepository.ts';
@@ -103,13 +104,19 @@ export const currentSettings = (settings: SettingsService) => {
 export const currentSystems = (settings: SettingsService) =>
   withCustomSystems(systemCatalog(), currentSettings(settings).customSystems);
 
+/** What index.ts calls on the open library besides the handlers' dependencies. */
+interface StartedLibrary {
+  /** Applies changed folder filter settings (FR-LIB-18) from the library's paths; no rescan. */
+  syncFolderFilters: () => void;
+}
+
 /** Opens `library.db`; without it the app still runs and library channels fail (M2b). */
 export function startLibrary(
   settings: SettingsService,
   scraperClient: ScreenScraperClient,
   scraperQuota: Pick<QuotaGate, 'state'>,
   host: LibraryHost,
-): MainDeps['library'] {
+): (NonNullable<MainDeps['library']> & StartedLibrary) | null {
   const { dataDir, emit, menuWatch, launcherWindow, tempDir, baseEnv, moved } = host;
   let db: ReturnType<typeof openLibrary>;
   try {
@@ -122,6 +129,21 @@ export function startLibrary(
     return null;
   }
   const repo = new LibraryRepository(db);
+  const folderFilters = (emitChange: boolean) => {
+    try {
+      const changed = syncFolderFilters(
+        db.$client,
+        currentSettings(settings).storage.folderFilters,
+      );
+      if (changed && emitChange) {
+        emit('library.changed', { systems: repo.systemCounts().map((row) => row.systemId) });
+      }
+    } catch (error) {
+      log.error({ error }, 'folder filters could not be applied');
+    }
+  };
+  // Libraries from before FR-LIB-18 get their folder filters here, without a rescan.
+  folderFilters(false);
   const systems = () => currentSystems(settings);
   const systemById = (id: string) => findSystem(systems(), id);
   const media = new MediaRepository(db);
@@ -471,6 +493,9 @@ export function startLibrary(
     systemInfo,
     systemPersonal,
     importer,
+    syncFolderFilters: () => {
+      folderFilters(true);
+    },
   };
 }
 

@@ -24,7 +24,7 @@ const EXPORT_COLUMNS = `${ROW_COLUMNS}, m.developer as developer, m.publisher as
   m.description as description, m.region as region, m.rating as rating,
   u.play_count as playCount, u.last_played_at as lastPlayedAt, g.added_at as addedAt,
   u.playability as playability, u.playability_note as playabilityNote,
-  (select json_group_array(filter) from (select f.filter from game_filters f
+  (select json_group_array(filter) from (select distinct f.filter from game_filters f
     where f.game_id = g.id order by f.filter)) as filters`;
 
 /**
