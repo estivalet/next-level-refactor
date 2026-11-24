@@ -84,7 +84,7 @@ describe('ScanService', () => {
         )
         .pluck()
         .all();
-    expect(filters()).toEqual(['Demo:prototypes:folder', 'Other:official:folder']);
+    expect(filters()).toEqual(['Demo:prototype:folder', 'Other:official:folder']);
 
     client
       .prepare(

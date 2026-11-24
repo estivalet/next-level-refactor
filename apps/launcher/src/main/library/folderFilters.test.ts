@@ -37,7 +37,7 @@ describe('folder filters in the library (FR-LIB-18, US-C12)', () => {
     const [frogger, columns, kid] = seed();
     refreshFolderFilters(library.db.$client, settings());
     expect(rows()).toEqual([
-      { id: frogger, filter: 'prototypes', source: 'folder' },
+      { id: frogger, filter: 'prototype', source: 'folder' },
       { id: columns, filter: 'hack', source: 'own' },
       { id: columns, filter: 'official', source: 'folder' },
       { id: kid, filter: 'translated', source: 'folder' },
@@ -60,7 +60,7 @@ describe('folder filters in the library (FR-LIB-18, US-C12)', () => {
         .pluck()
         .all(id);
     expect(filtersOf(frogger)).toEqual(['official']);
-    expect(filtersOf(other)).toEqual(['hacks']);
+    expect(filtersOf(other)).toEqual(['hack']);
   });
 
   it('FR-LIB-3, FR-LIB-18: refreshing unchanged folder filters writes nothing', () => {
@@ -86,9 +86,29 @@ describe('folder filters in the library (FR-LIB-18, US-C12)', () => {
     expect(syncFolderFilters(library.db.$client, settings({ outside: '' }))).toBe(true);
     const folder = rows().filter((row) => (row as { source: string }).source === 'folder');
     expect(folder).toEqual([
-      { id: frogger, filter: 'prototypes', source: 'folder' },
+      { id: frogger, filter: 'prototype', source: 'folder' },
       { id: kid, filter: 'translated', source: 'folder' },
     ]);
+  });
+
+  it('FR-LIB-18: a library synced with older folder filter rules recomputes at start', () => {
+    const [frogger] = seed();
+    // What the first version stored: no rules version, `! Prototypes` gave `prototypes`.
+    library.db.$client
+      .prepare("insert into meta (key, value) values ('folder_filters', ?)")
+      .run(JSON.stringify({ prefixes: ['!', '+'], outside: 'official', renames: [] }));
+    library.db.$client
+      .prepare(
+        "insert into game_filters (game_id, filter, source) values (?, 'prototypes', 'folder')",
+      )
+      .run(frogger);
+    expect(syncFolderFilters(library.db.$client, settings())).toBe(true);
+    expect(
+      library.db.$client
+        .prepare("select filter from game_filters where game_id = ? and source = 'folder'")
+        .pluck()
+        .all(frogger),
+    ).toEqual(['prototype']);
   });
 
   it("US-C12: Edit details replaces only the game's own filters", () => {
@@ -105,7 +125,7 @@ describe('folder filters in the library (FR-LIB-18, US-C12)', () => {
     expect(games.facets(GG, 'all').filters).toEqual([
       { value: 'hack', count: 1 },
       { value: 'official', count: 1 },
-      { value: 'prototypes', count: 1 },
+      { value: 'prototype', count: 1 },
       { value: 'translated', count: 1 },
     ]);
     const list = games.list({ scope: GG, tab: 'all', offset: 0, limit: 10, filter: 'translated' });

@@ -116,9 +116,9 @@ As a collector, I want each Library home category to show how many games it hold
 
 ### US-C12 My folders become filters · FR-LIB-18
 As a collector who sorts ROMs into folders, I want a scan to turn those folders into filters so I don't tag games by hand.
-- Given `Sega Game Gear\! Prototypes\Frogger (USA) (Proto).zip`, when I scan, then Frogger has the filter Prototypes and the sidebar lists **Prototypes** with its count.
+- Given `Sega Game Gear\! Prototypes\Frogger (USA) (Proto).zip`, when I scan, then Frogger has the filter Prototypes (`prototype`) and the sidebar lists **Prototypes** with its count.
 - Given `Sega Game Gear\Columns (USA).zip` (in no `!` or `+` folder), when I scan, then it has the filter Official.
-- Given `! Hacks\! Hacks-SMW\Example Hack.zip`, then the game has both filters.
+- Given `! Hacks\! Hacks-SMW\Example Hack.zip`, then the game has both filters, and Hacks is the same filter (`hack`) as imported Hacks: the sidebar lists **Hacks** once.
 - Given `! Translated\Example (Japan) (Translated En).zip` also has `translated` from the NextLevelOS import, then the sidebar counts it once under Translated.
 - When I move a game's file from `! Prototypes` to the system folder and rescan, then it loses Prototypes and gains Official; filters I set in Edit details stay.
 - Given a library scanned before folder filters existed, when I start the launcher, then its games have their folder filters without a rescan.

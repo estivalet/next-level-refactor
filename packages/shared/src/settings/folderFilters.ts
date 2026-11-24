@@ -8,6 +8,27 @@ import { filterSlug } from '../library/games.ts';
 export const FOLDER_FILTER_PREFIXES = ['!', '+', '#'] as const;
 export type FolderFilterPrefix = (typeof FOLDER_FILTER_PREFIXES)[number];
 export const FOLDER_FILTER_RENAMES_MAX = 100;
+/**
+ * Filters with a label of their own (`frontend.filters.*`, e.g. `hack` → "Hacks"). A folder
+ * named like one, singular or plural (`! Hacks`), gives that filter, so it merges with imported
+ * ones instead of showing a second "Hacks" (owner correction 2026-11-23).
+ */
+export const KNOWN_FILTERS = [
+  'official',
+  'homebrew',
+  'hack',
+  'translation',
+  'prototype',
+  'unlicensed',
+] as const;
+const KNOWN_BY_PLURAL = new Map<string, string>(
+  KNOWN_FILTERS.flatMap((slug) => [
+    [slug, slug],
+    [`${slug}s`, slug],
+  ]),
+);
+/** Bumped when folderFiltersOf changes, so libraries recompute at the next start. */
+const RULES_VERSION = 2;
 /** Prefixed folders a game can sit in: the scan walks group folders 10 levels deep. */
 const FOLDER_FILTERS_MAX = 10;
 
@@ -95,7 +116,8 @@ export function folderFiltersOf(relPath: string, rules: FolderFilterRules): stri
     const name = folder.trim();
     if (!rules.prefixes.has(name.charAt(0))) continue;
     const key = folderKey(name);
-    const slug = rules.renames.get(key) ?? filterSlug(key);
+    const own = filterSlug(key);
+    const slug = rules.renames.get(key) ?? (own && (KNOWN_BY_PLURAL.get(own) ?? own));
     if (slug && !filters.includes(slug)) filters.push(slug);
     if (filters.length === FOLDER_FILTERS_MAX) break;
   }
@@ -107,6 +129,7 @@ export function folderFiltersOf(relPath: string, rules: FolderFilterRules): stri
 export function folderFiltersFingerprint(settings: FolderFilters): string {
   const rules = folderFilterRules(settings);
   return JSON.stringify({
+    version: RULES_VERSION,
     prefixes: [...rules.prefixes].sort(),
     outside: rules.outside,
     renames: [...rules.renames].sort(([a], [b]) => a.localeCompare(b)),
