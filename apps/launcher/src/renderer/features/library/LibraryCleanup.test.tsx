@@ -71,9 +71,7 @@ describe('library cleanup (FR-LIB-19, US-C13)', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Duplicates' })).toHaveTextContent('Duplicates2');
     });
-    expect(screen.getByRole('button', { name: 'Delete later' })).toHaveTextContent(
-      'Delete later1',
-    );
+    expect(screen.getByRole('button', { name: 'Delete later' })).toHaveTextContent('Delete later1');
   });
 
   it('FR-LIB-19: no Duplicates entry in a collection', async () => {

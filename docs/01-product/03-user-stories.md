@@ -126,6 +126,14 @@ As a collector who sorts ROMs into folders, I want a scan to turn those folders 
 - When I clear the outside filter and untick every prefix and save, then games lose their folder filters; their own filters stay.
 - In Edit details, folder filters show as read-only chips marked "From folder"; no file on disk is changed.
 
+### US-C13 Clean up versions of the same game · FR-LIB-19
+As a collector with messy ROM folders, I want to find games I have in several versions and mark the ones to delete, so I can clean my folders by hand.
+- Given `Sega Game Gear\! Translated` holds `Coca-Cola Kid [T-En by A].gg` and `Coca-Cola Kid [T-En by B].gg`, when I open Sega Game Gear in the list view, then each row shows its file under the title.
+- When I open **Duplicates**, then both are listed, and so is `Coca-Cola Kid (Japan).gg` in the system folder even if its scraped title differs; a game with one version is not.
+- When I mark one **Delete later** (details panel or right-click, also for a selection), then it shows a trash mark and is listed under **Delete later**; hiding it keeps it there.
+- When I delete that file in Explorer and rescan, then the game moves to Missing, leaves Delete later, and its twin leaves Duplicates.
+- In a collection or smart filter there is no Duplicates entry. Nothing in the launcher deletes, moves or renames a file.
+
 ### US-C8 See what a batch scrape is doing · FR-SCR-8
 As a collector, I want to see exactly what a batch scrape is doing, also one that carried on from an earlier session.
 - While a batch runs or is paused, the strip in the Library header names what it scrapes ("Scraping Nintendo Switch 24/753 · …", "2 systems", "selected games").
