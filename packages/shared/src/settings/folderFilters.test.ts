@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import en from '../i18n/en.json';
+import ptBR from '../i18n/pt-BR.json';
 import {
   FolderFiltersSchema,
+  KNOWN_FILTERS,
   folderFilterRules,
   folderFiltersOf,
   folderFiltersFingerprint,
@@ -25,7 +28,7 @@ describe('folder filters (FR-LIB-18, US-C12)', () => {
 
   it('US-C12: a game in `! Prototypes` gets prototypes', () => {
     expect(folderFiltersOf('! Prototypes/Frogger (USA) (Proto).zip', defaults)).toEqual([
-      'prototypes',
+      'prototype',
     ]);
   });
 
@@ -36,7 +39,7 @@ describe('folder filters (FR-LIB-18, US-C12)', () => {
 
   it('US-C12: nested prefixed folders each add a filter', () => {
     expect(folderFiltersOf('! Hacks/! Hacks-SMW/Example Hack.zip', defaults)).toEqual([
-      'hacks',
+      'hack',
       'hacks-smw',
     ]);
     expect(folderFiltersOf('+RPG/Plain/Example.zip', defaults)).toEqual(['rpg']);
@@ -44,6 +47,25 @@ describe('folder filters (FR-LIB-18, US-C12)', () => {
 
   it('FR-LIB-18: the file name itself never adds a filter', () => {
     expect(folderFiltersOf('! Odd name.zip', defaults)).toEqual(['official']);
+  });
+
+  it('US-C12: a folder named like a known filter, singular or plural, gives that filter', () => {
+    expect(folderFiltersOf('! Hacks/a.zip', defaults)).toEqual(['hack']);
+    expect(folderFiltersOf('! Homebrews/a.zip', defaults)).toEqual(['homebrew']);
+    expect(folderFiltersOf('! Translations/a.zip', defaults)).toEqual(['translation']);
+    expect(folderFiltersOf('! Unlicensed/a.zip', defaults)).toEqual(['unlicensed']);
+    expect(folderFiltersOf('! Translated/a.zip', defaults)).toEqual(['translated']);
+    const rules = folderFilterRules(
+      FolderFiltersSchema.parse({ renames: [{ folder: 'Hacks', filter: 'Mods' }] }),
+    );
+    expect(folderFiltersOf('! Hacks/a.zip', rules)).toEqual(['mods']);
+  });
+
+  it('FR-LIB-18: every known filter has a label in each language', () => {
+    for (const slug of KNOWN_FILTERS) {
+      expect(en.frontend.filters).toHaveProperty(slug);
+      expect(ptBR.frontend.filters).toHaveProperty(slug);
+    }
   });
 
   it('US-C12: a rename maps a folder to another filter, ignoring case', () => {
@@ -73,7 +95,7 @@ describe('folder filters (FR-LIB-18, US-C12)', () => {
 
   it('FR-LIB-18: a folder with nothing slug-like adds nothing; repeats count once', () => {
     expect(folderFiltersOf('! ***/Example.zip', defaults)).toEqual(['official']);
-    expect(folderFiltersOf('! Hacks/+Hacks/Example.zip', defaults)).toEqual(['hacks']);
+    expect(folderFiltersOf('! Hacks/+Hack/Example.zip', defaults)).toEqual(['hack']);
   });
 
   it('FR-LIB-18: empty or repeated rename folders and names with no filter are refused', () => {

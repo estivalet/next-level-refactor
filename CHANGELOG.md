@@ -28,7 +28,8 @@ M10-1 — polish before 1.0.
   fixed *Collections* card now reads "N collections".
 - **Folder filters** (FR-LIB-18, US-C12): folders whose name starts with `!` or `+` become
   filters for the games in them (`! Prototypes` → Prototypes; nested folders add one each), and
-  games in no such folder get Official, as NextLevelOS did. Settings → Storage → **Folder filters**
+  games in no such folder get Official, as NextLevelOS did. A folder named like a filter with its
+  own label (`! Hacks`, `! Prototypes`, `! Homebrews`) joins that filter, so Hacks shows once. Settings → Storage → **Folder filters**
   sets the prefixes, the filter outside them and renames (e.g. Homebrews → Homebrew). They are
   worked out from the library's paths, so your library gets them at start and setting changes
   apply at once, with no rescan. Filters you set in Edit details or imported stay as they are;
