@@ -185,7 +185,7 @@ test('Review Focus 4: the daily quota running out pauses the batch and says when
     await expect(library.getByText(/Daily quota reached — resumes at/)).toBeVisible({
       timeout: 60_000,
     });
-    await expect(library.getByRole('button', { name: 'Resume' })).toBeVisible();
+    await expect(library.getByRole('button', { name: 'Resume', exact: true })).toBeVisible();
     await app.close();
   } finally {
     await server.close();
