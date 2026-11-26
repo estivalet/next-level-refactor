@@ -22,6 +22,41 @@ async function setup() {
 
 const N64 = { kind: 'system', systemId: 'nintendo-64' } as const;
 
+describe('GameExportReader.deleteLaterGames', () => {
+  it('US-C14: deleteLaterGames lists the Delete later tab with system and disc group', async () => {
+    const { db, reader } = await setup();
+    const ids = seedGames(db, 'nintendo-64', [
+      { title: 'Saga', relPath: 'Saga (USA) (Disc 1).chd' },
+      { title: 'Adventure', hidden: true },
+      { title: 'Gone', missing: true },
+      { title: 'Kept' },
+    ]);
+    const mark = db.$client.prepare(
+      `insert into game_user_state (game_id, delete_later) values (?, 1)
+       on conflict (game_id) do update set delete_later = 1`,
+    );
+    for (const id of ids.slice(0, 3)) mark.run(id);
+    db.$client.prepare(`update games set disc_group = 'Saga (USA)' where id = ?`).run(ids[0]);
+
+    expect(reader.deleteLaterGames(N64)).toEqual([
+      {
+        title: 'Adventure',
+        systemId: 'nintendo-64',
+        system: 'Nintendo 64',
+        relPath: 'Adventure.zip',
+        discGroup: null,
+      },
+      {
+        title: 'Saga',
+        systemId: 'nintendo-64',
+        system: 'Nintendo 64',
+        relPath: 'Saga (USA) (Disc 1).chd',
+        discGroup: 'Saga (USA)',
+      },
+    ]);
+  });
+});
+
 describe('GameExportReader', () => {
   it('FR-LIB-11: every game of a system, hidden and missing ones too, by title', async () => {
     const { db, reader } = await setup();

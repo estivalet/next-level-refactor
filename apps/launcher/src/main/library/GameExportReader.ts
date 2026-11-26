@@ -27,6 +27,18 @@ const EXPORT_COLUMNS = `${ROW_COLUMNS}, m.developer as developer, m.publisher as
   (select json_group_array(filter) from (select distinct f.filter from game_filters f
     where f.game_id = g.id order by f.filter)) as filters`;
 
+/** A game the Delete later tab lists, as its cleanup script needs it (FR-LIB-20). */
+export interface DeleteLaterGame {
+  title: string;
+  systemId: string;
+  /** The system's name, as the Library shows it. */
+  system: string;
+  /** The file (or game folder) inside its system folder, `/`-separated. */
+  relPath: string;
+  /** Set when the game is a loose multi-disc set (FR-LIB-5): its name without the disc tag. */
+  discGroup: string | null;
+}
+
 /**
  * Reads a scope's games for an export (FR-LIB-11): every game (hidden and missing too), or the
  * list as shown (tab, sort, filter, genre), in the Library's order. One query; an export is rare,
@@ -69,6 +81,34 @@ export class GameExportReader {
         ...(view?.genre === undefined ? {} : { genre: view.genre }),
       }) as RawExportRow[];
     return rows.map((row) => this.toGame(row));
+  }
+
+  /** The games a scope's Delete later tab lists, for its cleanup script (FR-LIB-20). */
+  deleteLaterGames(scope: GameScope): DeleteLaterGame[] {
+    const client = this.db.$client;
+    const { collectionSort, smart, params } = resolveScope(
+      (sql) => client.prepare(sql),
+      scope,
+      this.clock(),
+    );
+    const shape = listShape(
+      { scope, tab: 'deleteLater' },
+      collectionSort,
+      false,
+      smart?.sql ?? null,
+    );
+    const rows = client
+      .prepare(
+        `select ${ROW_COLUMNS}, g.disc_group as discGroup ${shape.from} order by ${shape.order}`,
+      )
+      .all(params) as Array<RawRow & { discGroup: string | null }>;
+    return rows.map((row) => ({
+      title: row.title,
+      systemId: row.systemId,
+      system: this.systemName(row.systemId),
+      relPath: row.relPath,
+      discGroup: row.discGroup,
+    }));
   }
 
   private toGame(row: RawExportRow): ExportGame {
