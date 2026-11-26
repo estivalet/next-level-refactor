@@ -20,12 +20,13 @@ export interface CleanupGame {
   title: string;
   system: string;
   files: CleanupFile[];
-  /** Written as comments only: Catalog copies, playlist entries outside the system folder. */
+  /** Written as comments only: Catalog copies and playlist entries the script won't touch. */
   notes: CleanupNote[];
 }
 
 export interface CleanupNote {
-  kind: 'catalog' | 'outside';
+  /** Catalog install; playlist entry outside the system folder; folder a playlist names. */
+  kind: 'catalog' | 'outside' | 'folderRef';
   path: string;
 }
 
@@ -61,8 +62,11 @@ const stemOf = (name: string) => {
   return dot > 0 ? name.slice(0, dot) : name;
 };
 
-/** The other discs of a loose disc set in `dir`, by name (FR-LIB-5 rules). */
-async function discSiblings(dir: string, discGroup: string): Promise<string[]> {
+/**
+ * The other discs of a loose disc set in `dir`, by name (FR-LIB-5 rules) and with the game file's
+ * extension, so saves or images named like a disc stay.
+ */
+async function discSiblings(dir: string, discGroup: string, ext: string): Promise<string[]> {
   let names: string[];
   try {
     names = await readdir(dir);
@@ -73,7 +77,11 @@ async function discSiblings(dir: string, discGroup: string): Promise<string[]> {
   return names
     .filter((name) => {
       const stem = stemOf(name);
-      return DISC_PATTERN.test(stem) && normalizeDiscName(stem).toLowerCase() === group;
+      return (
+        extname(name).toLowerCase() === ext &&
+        DISC_PATTERN.test(stem) &&
+        normalizeDiscName(stem).toLowerCase() === group
+      );
     })
     .sort((a, b) => a.localeCompare(b))
     .map((name) => join(dir, name));
@@ -114,17 +122,24 @@ export async function collectCleanupFiles(
         if (found.kind !== 'file') return;
         if (!PLAYLIST_EXTENSIONS.has(extname(path).slice(1).toLowerCase())) return;
         for (const ref of await playlistReferences(path)) {
-          if (isInside(systemDir, ref)) await add(ref);
-          else if (!seen.has(pathKey(ref)) && (await lookup(ref))) {
-            seen.add(pathKey(ref));
-            entry.notes.push({ kind: 'outside', path: ref });
+          if (seen.has(pathKey(ref))) continue;
+          const target = await lookup(ref);
+          if (!target) continue;
+          // Only files a playlist names come along: a folder may hold other games.
+          if (target.kind === 'file' && isInside(systemDir, ref)) {
+            await add(ref);
+            continue;
           }
+          seen.add(pathKey(ref));
+          const kind = target.kind === 'folder' ? 'folderRef' : 'outside';
+          entry.notes.push({ kind, path: ref });
         }
       };
       await add(main);
       if (game.discGroup) {
         const dir = join(main, '..');
-        for (const disc of await discSiblings(dir, game.discGroup)) await add(disc);
+        const ext = extname(main).toLowerCase();
+        for (const disc of await discSiblings(dir, game.discGroup, ext)) await add(disc);
       }
     }
     result.push(entry);

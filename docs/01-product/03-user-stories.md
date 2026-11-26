@@ -139,7 +139,7 @@ As a collector cleaning my ROM folders, I want the launcher to write a script th
 - Given two marked games in Sega Game Gear, one of them also in a second storage location, when I press **Export cleanup script…** on the Delete later tab and save, then the script has one line per file (three lines), each naming its location.
 - A `.cue` game's `.bin` files, and the other discs of a disc set, are in the script.
 - Running it sends the files to the Recycle Bin; running it again reports them already gone; `-DryRun` only lists them.
-- A file on a drive without a Recycle Bin is skipped, not deleted. A Catalog install is only a comment.
+- A file on a drive without a Recycle Bin is skipped, not deleted; a file too big for the bin is only deleted for good if I answer Yes when Windows asks. A Catalog install is only a comment.
 
 ### US-C8 See what a batch scrape is doing · FR-SCR-8
 As a collector, I want to see exactly what a batch scrape is doing, also one that carried on from an earlier session.

@@ -86,10 +86,10 @@ describe('renderCleanupScript', () => {
   it('FR-LIB-20: no permanent delete', () => {
     const script = renderCleanupScript(games, meta);
     expect(script).not.toContain('Remove-Item');
-    for (const call of script.match(/::Delete(File|Directory)\([^)]*\)/g) ?? []) {
-      expect(call).toContain('SendToRecycleBin');
-    }
-    expect(script).toMatch(/::DeleteFile\(/);
+    // The VisualBasic call answers "delete for good?" with yes when Windows can't recycle.
+    expect(script).not.toContain('Microsoft.VisualBasic');
+    expect(script).toMatch(/FOF_ALLOWUNDO \| FOF_NOCONFIRMATION \| FOF_WANTNUKEWARNING/);
+    expect(script).toContain('fAnyOperationsAborted');
   });
 
   it('FR-LIB-20: the script is written in the launcher language', () => {

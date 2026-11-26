@@ -48,8 +48,10 @@ launcher still never deletes, moves or renames files (FR-LIB-19 unchanged).
   (`# Title · system`) followed by one line per file with a `# location name` comment. Paths are
   single-quoted with `'` doubled. The script is UTF-8 with BOM, so Windows PowerShell 5.1 reads
   accented names correctly.
-- **Helper:** `Test-Path -LiteralPath` → skip (print "already gone") when missing. It uses
-  `Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile/DeleteDirectory(..., SendToRecycleBin)`.
+- **Helper:** `Test-Path -LiteralPath` → skip (print "already gone") when missing. It calls the
+  shell's `SHFileOperation` with `FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_WANTNUKEWARNING`
+  (review fix 2026-11-25: the VisualBasic call silently deletes for good when Windows can't
+  recycle). Windows then asks before any permanent delete, and No is reported as skipped.
   When the drive has no Recycle Bin or the call fails, it prints a skip message and **does not
   delete**. It ends with a summary (recycled / already gone / skipped). A `-DryRun` switch only
   prints what would happen (my call: it lets the owner, and the tests, run the script safely).

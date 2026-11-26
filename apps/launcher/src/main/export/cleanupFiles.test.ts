@@ -102,6 +102,31 @@ describe('collectCleanupFiles', () => {
     expect(result?.notes).toEqual([{ kind: 'outside', path: join(root, 'elsewhere.bin') }]);
   });
 
+  it('FR-LIB-20: a folder a playlist names is a note, never a folder entry', async () => {
+    const { root, put, collect } = await setup();
+    const m3u = await put('A', 'g.m3u', '! Translated\r\n');
+    await put('A', '! Translated/other.gg');
+
+    const [result] = await collect([game('g.m3u')]);
+
+    expect(result?.files.map((file) => file.path)).toEqual([m3u]);
+    expect(result?.notes).toEqual([
+      { kind: 'folderRef', path: join(root, 'A', FOLDER, '! Translated') },
+    ]);
+  });
+
+  it('FR-LIB-20: disc siblings share the game file extension (no saves or images)', async () => {
+    const { put, collect } = await setup();
+    const disc1 = await put('A', 'Saga (USA) (Disc 1).chd');
+    const disc2 = await put('A', 'Saga (USA) (Disc 2).chd');
+    await put('A', 'Saga (USA) (Disc 2).srm');
+    await put('A', 'Saga (USA) (Disc 1).png');
+
+    const [result] = await collect([game('Saga (USA) (Disc 1).chd', { discGroup: 'Saga (USA)' })]);
+
+    expect(result?.files.map((file) => file.path)).toEqual([disc1, disc2]);
+  });
+
   it('FR-LIB-20: a file reached twice is listed once', async () => {
     const { put, collect } = await setup();
     await put('A', 'one.cue', 'FILE "shared.bin" BINARY\r\n');

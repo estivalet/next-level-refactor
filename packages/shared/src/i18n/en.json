@@ -1622,7 +1622,7 @@
       "script": {
         "title": "NextLevel cleanup script: {{scope}}, exported {{date}}",
         "summary": "{{games}} games, {{files}} files, {{size}}. Review before running: comment out (#) any line to keep a file.",
-        "how": "Files go to the Recycle Bin. Run with -DryRun to only list what would happen.",
+        "how": "Files go to the Recycle Bin. If Windows can't recycle one, it asks before deleting it for good: answer No to keep it. Run with -DryRun to only list what would happen.",
         "noFiles": "no files found",
         "catalog": "installed from Catalog, use Uninstall: {{path}}",
         "outside": "outside the system folder, not included: {{path}}",
@@ -1632,7 +1632,9 @@
         "skipped": "Skipped (not deleted): {0}: {1}",
         "noBin": "no Recycle Bin on this drive",
         "total": "Recycled {0} · already gone {1} · skipped {2}",
-        "dryRun": "Dry run: nothing was changed."
+        "dryRun": "Dry run: nothing was changed.",
+        "folderRef": "a playlist names this folder, not included: {{path}}",
+        "notRecycled": "Windows couldn't recycle it and you kept it"
       }
     }
   },

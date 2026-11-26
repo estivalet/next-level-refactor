@@ -1622,7 +1622,7 @@
       "script": {
         "title": "Script de limpeza do NextLevel: {{scope}}, exportado em {{date}}",
         "summary": "{{games}} jogos, {{files}} arquivos, {{size}}. Revise antes de executar: comente (#) qualquer linha para manter o arquivo.",
-        "how": "Os arquivos vão para a Lixeira. Execute com -DryRun para só listar o que aconteceria.",
+        "how": "Os arquivos vão para a Lixeira. Se o Windows não conseguir enviar algum, ele pergunta antes de excluí-lo de vez: responda Não para mantê-lo. Execute com -DryRun para só listar o que aconteceria.",
         "noFiles": "nenhum arquivo encontrado",
         "catalog": "instalado pelo Catálogo, use Desinstalar: {{path}}",
         "outside": "fora da pasta do sistema, não incluído: {{path}}",
@@ -1632,7 +1632,9 @@
         "skipped": "Ignorado (não excluído): {0}: {1}",
         "noBin": "esta unidade não tem Lixeira",
         "total": "Na Lixeira {0} · já não existiam {1} · ignorados {2}",
-        "dryRun": "Simulação: nada foi alterado."
+        "dryRun": "Simulação: nada foi alterado.",
+        "folderRef": "uma playlist indica esta pasta, não incluída: {{path}}",
+        "notRecycled": "o Windows não conseguiu enviá-lo para a Lixeira e você o manteve"
       }
     }
   },

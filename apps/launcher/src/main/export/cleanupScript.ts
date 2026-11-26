@@ -39,26 +39,64 @@ function formatSize(bytes: number): string {
 }
 
 /**
- * The helper every file line calls. Recycles only on local fixed drives: elsewhere (network,
- * USB sticks) the VisualBasic call would delete for good, so the file is skipped, before the
- * drive is even touched.
+ * The shell's own Recycle Bin call. FOF_WANTNUKEWARNING makes Windows ask before anything would
+ * be deleted for good (too big for the bin, bin turned off, subst drive, junction to a stick);
+ * answering No aborts, and the file is reported as skipped. (The VisualBasic FileSystem call
+ * answers that question with yes on its own.)
+ */
+const RECYCLER = [
+  "Add-Type -TypeDefinition @'",
+  'using System;',
+  'using System.Runtime.InteropServices;',
+  'public static class NextLevelRecycler {',
+  '  [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]',
+  '  struct SHFILEOPSTRUCT {',
+  '    public IntPtr hwnd; public uint wFunc; public string pFrom; public string pTo;',
+  '    public ushort fFlags; public bool fAnyOperationsAborted;',
+  '    public IntPtr hNameMappings; public string lpszProgressTitle;',
+  '  }',
+  '  [DllImport("shell32.dll", CharSet = CharSet.Unicode)]',
+  '  static extern int SHFileOperation(ref SHFILEOPSTRUCT op);',
+  '  const uint FO_DELETE = 3;',
+  '  const ushort FOF_NOCONFIRMATION = 0x10, FOF_ALLOWUNDO = 0x40, FOF_NOERRORUI = 0x400;',
+  '  const ushort FOF_WANTNUKEWARNING = 0x4000;',
+  '  /// 0 = recycled; -1 = aborted (nothing deleted for good); else the shell error code.',
+  '  public static int Recycle(string path) {',
+  '    var op = new SHFILEOPSTRUCT();',
+  '    op.wFunc = FO_DELETE;',
+  // The shell wants a double-NUL-terminated list; C# sees the escapes, not NUL characters.
+  '    op.pFrom = path + "\\0\\0";',
+  '    op.fFlags = (ushort)(FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_WANTNUKEWARNING | FOF_NOERRORUI);',
+  '    int result = SHFileOperation(ref op);',
+  '    if (result != 0) return result;',
+  '    return op.fAnyOperationsAborted ? -1 : 0;',
+  '  }',
+  '}',
+  "'@",
+];
+
+/**
+ * The helper every file line calls. Recycles only on local fixed drives (network shares and USB
+ * sticks have no Recycle Bin), checked before the drive is even touched; anywhere Windows still
+ * can't recycle, it asks first (see RECYCLER).
  */
 function helper(t: (name: string) => string): string[] {
   const msg = (name: string) => psQuote(t(name));
   return [
     'param([switch]$DryRun)',
     '',
-    'Add-Type -AssemblyName Microsoft.VisualBasic',
+    ...RECYCLER,
     '$script:recycled = 0; $script:gone = 0; $script:skipped = 0',
     '',
     'function Test-RecycleBin([string]$Path) {',
     '  try {',
     '    $root = [System.IO.Path]::GetPathRoot($Path)',
-    "    if (-not $root -or $root.StartsWith('\\\\')) { return $false }",
+    "    if (-not $root -or $root.StartsWith('\\')) { return $false }",
     '    return ([System.IO.DriveInfo]::new($root)).DriveType -eq [System.IO.DriveType]::Fixed',
     '  } catch { return $false }',
     '}',
     '',
+    '# -Folder only marks the line for the reader: files and folders are recycled the same way.',
     'function Remove-ToRecycleBin([string]$Path, [switch]$Folder) {',
     '  if (-not (Test-RecycleBin $Path)) {',
     `    Write-Host (${msg('skipped')} -f $Path, ${msg('noBin')}); $script:skipped++; return`,
@@ -67,13 +105,13 @@ function helper(t: (name: string) => string): string[] {
     `    Write-Host (${msg('gone')} -f $Path); $script:gone++; return`,
     '  }',
     `  if ($DryRun) { Write-Host (${msg('would')} -f $Path); return }`,
-    '  try {',
-    "    $ui = 'OnlyErrorDialogs'",
-    "    if ($Folder) { [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($Path, $ui, 'SendToRecycleBin') }",
-    "    else { [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($Path, $ui, 'SendToRecycleBin') }",
+    '  $result = [NextLevelRecycler]::Recycle($Path)',
+    '  if ($result -eq 0) {',
     `    Write-Host (${msg('recycled')} -f $Path); $script:recycled++`,
-    '  } catch {',
-    `    Write-Host (${msg('skipped')} -f $Path, $_.Exception.Message); $script:skipped++`,
+    '  } elseif ($result -eq -1) {',
+    `    Write-Host (${msg('skipped')} -f $Path, ${msg('notRecycled')}); $script:skipped++`,
+    '  } else {',
+    `    Write-Host (${msg('skipped')} -f $Path, ('0x{0:X}' -f $result)); $script:skipped++`,
     '  }',
     '}',
   ];
