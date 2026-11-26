@@ -98,6 +98,10 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
         { reader: library().exports, pickPath: deps.pickExportPath, clock: deps.clock },
         request,
       ),
+    // FR-LIB-20: wired in the export task of this branch.
+    'library.exportCleanupScript': () => {
+      throw new AppErrorException({ code: 'INTERNAL', message: ERROR_CODES.INTERNAL });
+    },
     'collections.list': () => library().collections.list(),
     // The generated menu lists every collection (FR-MENU-3).
     'collections.create': ({ name }) => menuChanged(library().collections.create(name)),

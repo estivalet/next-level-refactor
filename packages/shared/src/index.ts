@@ -15,6 +15,7 @@ export * from './library/schema.ts';
 export * from './library/games.ts';
 export * from './library/collections.ts';
 export * from './library/export.ts';
+export * from './library/cleanupScript.ts';
 export * from './library/smartFilters.ts';
 export * from './library/health.ts';
 export * from './library/homeTotals.ts';

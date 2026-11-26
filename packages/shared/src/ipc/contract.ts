@@ -13,6 +13,7 @@ import {
   CollectionNameSchema,
   CollectionSummarySchema,
 } from '../library/collections.ts';
+import { CleanupScriptRequestSchema, CleanupScriptResultSchema } from '../library/cleanupScript.ts';
 import { GameExportRequestSchema, GameExportResultSchema } from '../library/export.ts';
 import {
   GameDetailsSchema,
@@ -215,6 +216,11 @@ export const ipcContract = {
   },
   /** FR-LIB-11: writes a scope's games to a file the user picks (CSV, JSON or gamelist.xml). */
   'library.export': { input: GameExportRequestSchema, output: GameExportResultSchema },
+  /** FR-LIB-20: writes the Delete later tab's cleanup script to a file the user picks. */
+  'library.exportCleanupScript': {
+    input: CleanupScriptRequestSchema,
+    output: CleanupScriptResultSchema,
+  },
   'library.games.launchOverride': {
     input: z.strictObject({ gameId }),
     output: LaunchOverrideSchema,

@@ -134,6 +134,13 @@ As a collector with messy ROM folders, I want to find games I have in several ve
 - When I delete that file in Explorer and rescan, then the game moves to Missing, leaves Delete later, and its twin leaves Duplicates.
 - In a collection or smart filter there is no Duplicates entry. Nothing in the launcher deletes, moves or renames a file.
 
+### US-C14 Delete my marked games with a script I review · FR-LIB-20
+As a collector cleaning my ROM folders, I want the launcher to write a script that deletes the games I marked, so I don't switch to Explorer for every file, but still decide what goes.
+- Given two marked games in Sega Game Gear, one of them also in a second storage location, when I press **Export cleanup script…** on the Delete later tab and save, then the script has one line per file (three lines), each naming its location.
+- A `.cue` game's `.bin` files, and the other discs of a disc set, are in the script.
+- Running it sends the files to the Recycle Bin; running it again reports them already gone; `-DryRun` only lists them.
+- A file on a drive without a Recycle Bin is skipped, not deleted. A Catalog install is only a comment.
+
 ### US-C8 See what a batch scrape is doing · FR-SCR-8
 As a collector, I want to see exactly what a batch scrape is doing, also one that carried on from an earlier session.
 - While a batch runs or is paused, the strip in the Library header names what it scrapes ("Scraping Nintendo Switch 24/753 · …", "2 systems", "selected games").
