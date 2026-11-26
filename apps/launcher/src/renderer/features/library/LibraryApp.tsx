@@ -28,7 +28,7 @@ import { GameGrid } from './GameGrid.tsx';
 import { ScopeSidebar } from './ScopeSidebar.tsx';
 import { ViewToggle } from './ViewToggle.tsx';
 import { ScopeToolbar } from './ScopeToolbar.tsx';
-import { leavesTab, scopeFacts } from './scopeFacts.ts';
+import { leavesTab, scopeFacts, scopeTitle } from './scopeFacts.ts';
 import { useCollectionDrag } from './useCollectionDrag.ts';
 import { useLibraryView } from './useLibraryView.ts';
 import { PlayLayer } from './PlayLayer.tsx';
@@ -96,9 +96,7 @@ export function LibraryApp({
 
   const scope = view.scope;
   const facts = scopeFacts(view);
-  const scopeName = scope
-    ? (facts.name ?? systemName(scope.kind === 'system' ? scope.systemId : ''))
-    : '';
+  const scopeName = scopeTitle(view);
   // Without a readable menu the home still offers Not in menu and Collections.
   const tree = menu.data ?? { ...NO_MENU, title: t('library.home.title') };
   const level = levelAt(tree, path, {
@@ -286,7 +284,7 @@ export function LibraryApp({
                     </button>
                   </div>
                 )}
-                <ScopeToolbar view={view} overlays={overlays} missing={facets.data?.tabs.missing} />
+                <ScopeToolbar view={view} overlays={overlays} facets={facets.data} />
                 {scopeView === 'grid' ? (
                   <GameGrid
                     games={view.games}

@@ -83,6 +83,15 @@ describe('library cleanup (FR-LIB-19, US-C13)', () => {
     expect(screen.getByRole('button', { name: 'Delete later' })).toHaveTextContent('Delete later1');
   });
 
+  it('US-C14: the cleanup script bar shows only on a Delete later tab with games', async () => {
+    const { user } = setup();
+    await screen.findAllByRole('option', { name: /Coca-Cola Kid/ });
+    expect(screen.queryByRole('button', { name: 'Export cleanup script…' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Delete later' }));
+    expect(await screen.findByRole('button', { name: 'Export cleanup script…' })).toBeVisible();
+    expect(screen.getByText('1 game marked')).toBeInTheDocument();
+  });
+
   it('FR-LIB-19: no Duplicates entry in a collection', async () => {
     setup(PICKS_SCOPE);
     expect(await screen.findByRole('button', { name: 'Delete later' })).toBeVisible();

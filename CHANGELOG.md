@@ -14,6 +14,10 @@ M10-1 — polish before 1.0.
   the same file name without tags such as `(Japan)` or `[T-En by …]`); **Delete later** marks a
   game (details panel or right-click) and lists the marks in its own tab. The launcher never
   deletes files: delete them in Explorer, and the next scan moves them to Missing.
+- **Cleanup script** (FR-LIB-20, US-C14): the Delete later tab exports a PowerShell script that
+  sends the marked games' files to the Recycle Bin, in every storage location (with a `.cue`'s
+  or `.m3u`'s files and the other discs of a set), for you to review and run. Files on drives
+  without a Recycle Bin are skipped, never deleted; `-DryRun` only lists what would happen.
 - **Collections in game details** (FR-LIB-8, US-C10): the details panel lists the collections a
   game is in; remove it from one with its ×, or add it to more with **Add to collection…**.
 - **Remove all missing** (FR-LIB-14, US-C7): the Missing tab of a system, collection or smart

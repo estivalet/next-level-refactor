@@ -23,6 +23,14 @@ export function scopeFacts(view: LibraryView) {
   return { games: 0, missing: 0 };
 }
 
+/** The scope's name as the list header shows it: the system's (else its id), or the own name. */
+export function scopeTitle(view: LibraryView): string {
+  const { scope } = view;
+  if (!scope) return '';
+  if (scope.kind !== 'system') return scopeFacts(view).name ?? '';
+  return view.catalog.data?.find((system) => system.id === scope.systemId)?.name ?? scope.systemId;
+}
+
 /** Whether a flag change takes games out of the list shown on this tab. */
 export function leavesTab(tab: GameTab, flags: GameFlags): boolean {
   // Delete later is a to-do list: hidden games stay on it (FR-LIB-19).

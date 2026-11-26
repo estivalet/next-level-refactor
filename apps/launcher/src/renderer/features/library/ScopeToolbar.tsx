@@ -1,21 +1,27 @@
+import type { GameFacets } from '@nextlevel/shared';
 import { Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { CollectionToolbar } from './CollectionToolbar.tsx';
+import { DeleteLaterBar } from './DeleteLaterBar.tsx';
+import { scopeTitle } from './scopeFacts.ts';
 import type { Overlays } from './LibraryOverlays.tsx';
 import { SmartFilterToolbar } from './SmartFilterToolbar.tsx';
 import type { LibraryView } from './useLibraryView.ts';
 
 /**
  * The toolbars above the list: the collection's or smart filter's, then, on a Missing tab with
- * games, Remove all missing… (FR-LIB-14, US-C7).
+ * games, Remove all missing… (FR-LIB-14, US-C7), and on a Delete later tab with games, Export
+ * cleanup script… (FR-LIB-20, US-C14).
  */
 export function ScopeToolbar(props: {
   view: LibraryView;
   overlays: Overlays;
-  /** The scope's Missing tab count; undefined while loading. */
-  missing: number | undefined;
+  /** The scope's facets (tab counts); undefined while loading. */
+  facets: GameFacets | undefined;
 }) {
-  const { view, overlays, missing } = props;
+  const { view, overlays, facets } = props;
+  const missing = facets?.tabs.missing;
+  const deleteLater = facets?.tabs.deleteLater;
   const { t } = useTranslation();
   const scope = view.scope;
   return (
@@ -37,6 +43,9 @@ export function ScopeToolbar(props: {
             {t('library.remove.all')}
           </button>
         </div>
+      )}
+      {scope && view.tab === 'deleteLater' && deleteLater !== undefined && deleteLater > 0 && (
+        <DeleteLaterBar scope={scope} title={scopeTitle(view)} count={deleteLater} />
       )}
     </>
   );

@@ -272,6 +272,10 @@ Scope view (D62)
     On a Missing tab with games, a bar above the list reads "N games whose files are missing"
     with **Remove all missing…** (FR-LIB-14, US-C7, 2026-11-19), which asks "Remove N missing
     games from the library?" the same way and removes every game that tab lists.
+    On a Delete later tab with games, a bar reads "N games marked" with **Export cleanup
+    script…** (FR-LIB-20, US-C14, 2026-11-25): a Save dialog for `delete-later-<scope>.ps1`, then
+    the bar reads "Script saved: G games, F files. Review it before running." (or "Couldn't save
+    the script."). The script sends each file to the Recycle Bin when the owner runs it.
     **Play with… is left out** (owner decision 2026-10-21). Add to collection opens a dialog
     listing the collections under a **Find or create a collection…** box: typing narrows the
     list, and a name no collection has yet (in any case) offers **New collection “name”**

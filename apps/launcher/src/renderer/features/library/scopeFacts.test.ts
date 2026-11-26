@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { leavesTab } from './scopeFacts.ts';
+import { leavesTab, scopeTitle } from './scopeFacts.ts';
+import type { LibraryView } from './useLibraryView.ts';
+
+function viewOf(scope: LibraryView['scope']): LibraryView {
+  return {
+    scope,
+    systems: { data: [{ id: 'gamegear', enabled: true, games: 2, missing: 0, review: 0 }] },
+    catalog: { data: [{ id: 'gamegear', name: 'Sega Game Gear' }] },
+    collections: { data: [{ id: 1, name: 'Picks', sort: 'title', games: 2 }] },
+    smartFilters: { data: [] },
+  } as unknown as LibraryView;
+}
+
+describe('scopeTitle', () => {
+  it("FR-LIB-20: the scope's name as the list header shows it", () => {
+    expect(scopeTitle(viewOf({ kind: 'system', systemId: 'gamegear' }))).toBe('Sega Game Gear');
+    expect(scopeTitle(viewOf({ kind: 'system', systemId: 'custom-x' }))).toBe('custom-x');
+    expect(scopeTitle(viewOf({ kind: 'collection', collectionId: 1 }))).toBe('Picks');
+    expect(scopeTitle(viewOf({ kind: 'smartFilter', smartFilterId: 9 }))).toBe('');
+    expect(scopeTitle(viewOf(null))).toBe('');
+  });
+});
 
 describe('leavesTab', () => {
   it('D60: un-completing leaves the Completed tab; hiding leaves every tab but Hidden', () => {
