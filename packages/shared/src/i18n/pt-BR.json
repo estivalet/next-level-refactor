@@ -1612,6 +1612,28 @@
     "scopeSearch": {
       "placeholder": "Buscar em {{scope}}…",
       "clear": "Limpar busca"
+    },
+    "cleanup": {
+      "count_one": "{{count}} jogo marcado",
+      "count_other": "{{count}} jogos marcados",
+      "export": "Exportar script de limpeza…",
+      "saved": "Script salvo: {{games}} jogos, {{files}} arquivos. Revise antes de executar.",
+      "failed": "Não foi possível salvar o script.",
+      "script": {
+        "title": "Script de limpeza do NextLevel: {{scope}}, exportado em {{date}}",
+        "summary": "{{games}} jogos, {{files}} arquivos, {{size}}. Revise antes de executar: comente (#) qualquer linha para manter o arquivo.",
+        "how": "Os arquivos vão para a Lixeira. Execute com -DryRun para só listar o que aconteceria.",
+        "noFiles": "nenhum arquivo encontrado",
+        "catalog": "instalado pelo Catálogo, use Desinstalar: {{path}}",
+        "outside": "fora da pasta do sistema, não incluído: {{path}}",
+        "would": "Iria para a Lixeira: {0}",
+        "gone": "Já não existe: {0}",
+        "recycled": "Enviado para a Lixeira: {0}",
+        "skipped": "Ignorado (não excluído): {0}: {1}",
+        "noBin": "esta unidade não tem Lixeira",
+        "total": "Na Lixeira {0} · já não existiam {1} · ignorados {2}",
+        "dryRun": "Simulação: nada foi alterado."
+      }
     }
   },
   "frontend": {

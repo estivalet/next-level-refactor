@@ -1612,6 +1612,28 @@
     "scopeSearch": {
       "placeholder": "Search {{scope}}…",
       "clear": "Clear search"
+    },
+    "cleanup": {
+      "count_one": "{{count}} game marked",
+      "count_other": "{{count}} games marked",
+      "export": "Export cleanup script…",
+      "saved": "Script saved: {{games}} games, {{files}} files. Review it before running.",
+      "failed": "Couldn't save the script.",
+      "script": {
+        "title": "NextLevel cleanup script: {{scope}}, exported {{date}}",
+        "summary": "{{games}} games, {{files}} files, {{size}}. Review before running: comment out (#) any line to keep a file.",
+        "how": "Files go to the Recycle Bin. Run with -DryRun to only list what would happen.",
+        "noFiles": "no files found",
+        "catalog": "installed from Catalog, use Uninstall: {{path}}",
+        "outside": "outside the system folder, not included: {{path}}",
+        "would": "Would recycle: {0}",
+        "gone": "Already gone: {0}",
+        "recycled": "Recycled: {0}",
+        "skipped": "Skipped (not deleted): {0}: {1}",
+        "noBin": "no Recycle Bin on this drive",
+        "total": "Recycled {0} · already gone {1} · skipped {2}",
+        "dryRun": "Dry run: nothing was changed."
+      }
     }
   },
   "frontend": {

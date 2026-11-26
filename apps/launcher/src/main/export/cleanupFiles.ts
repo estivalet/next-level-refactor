@@ -20,8 +20,13 @@ export interface CleanupGame {
   title: string;
   system: string;
   files: CleanupFile[];
-  /** Comment lines (without `#`): Catalog copies, playlist entries outside the system folder. */
-  notes: string[];
+  /** Written as comments only: Catalog copies, playlist entries outside the system folder. */
+  notes: CleanupNote[];
+}
+
+export interface CleanupNote {
+  kind: 'catalog' | 'outside';
+  path: string;
 }
 
 export interface CleanupDeps {
@@ -92,7 +97,7 @@ export async function collectCleanupFiles(
       const systemDir = join(location.path, deps.folderName(game.systemId));
       const main = join(systemDir, ...game.relPath.split('/'));
       if (location.managed) {
-        if (await lookup(main)) entry.notes.push(`installed from Catalog, use Uninstall: ${main}`);
+        if (await lookup(main)) entry.notes.push({ kind: 'catalog', path: main });
         continue;
       }
       const add = async (path: string): Promise<void> => {
@@ -112,7 +117,7 @@ export async function collectCleanupFiles(
           if (isInside(systemDir, ref)) await add(ref);
           else if (!seen.has(pathKey(ref)) && (await lookup(ref))) {
             seen.add(pathKey(ref));
-            entry.notes.push(`outside the system folder, not included: ${ref}`);
+            entry.notes.push({ kind: 'outside', path: ref });
           }
         }
       };

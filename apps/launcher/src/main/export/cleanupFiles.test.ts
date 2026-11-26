@@ -99,8 +99,7 @@ describe('collectCleanupFiles', () => {
     const [result] = await collect([game('x.cue')]);
 
     expect(result?.files.map((file) => file.path)).toEqual([cue]);
-    expect(result?.notes).toHaveLength(1);
-    expect(result?.notes[0]).toContain(join(root, 'elsewhere.bin'));
+    expect(result?.notes).toEqual([{ kind: 'outside', path: join(root, 'elsewhere.bin') }]);
   });
 
   it('FR-LIB-20: a file reached twice is listed once', async () => {
@@ -124,7 +123,7 @@ describe('collectCleanupFiles', () => {
     const [result] = await collect([game('x.gg')]);
 
     expect(result?.files.map((file) => file.path)).toEqual([inA]);
-    expect(result?.notes).toEqual([`installed from Catalog, use Uninstall: ${inC}`]);
+    expect(result?.notes).toEqual([{ kind: 'catalog', path: inC }]);
   });
 
   it('FR-LIB-20: a game folder is one folder entry', async () => {
