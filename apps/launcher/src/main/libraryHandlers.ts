@@ -1,6 +1,11 @@
-import { AppErrorException, ERROR_CODES } from '@nextlevel/shared';
+import { AppErrorException, ERROR_CODES, defaultSettings } from '@nextlevel/shared';
+import { findSystem, withCustomSystems } from '@nextlevel/system-catalog';
 import { dirname } from 'node:path';
+import { collectCleanupFiles } from './export/cleanupFiles.ts';
+import { exportCleanupScript } from './export/exportCleanupScript.ts';
 import { exportGames } from './export/exportGames.ts';
+import { mainText } from './i18n/mainText.ts';
+import { systemFolderName } from './library/expectedPath.ts';
 import type { MainDeps } from './handlers.ts';
 import type { IpcHandlers } from './ipc/router.ts';
 import type { LaunchChannel } from './launchHandlers.ts';
@@ -98,9 +103,24 @@ export function createLibraryHandlers(deps: MainDeps): Pick<IpcHandlers, Library
         { reader: library().exports, pickPath: deps.pickExportPath, clock: deps.clock },
         request,
       ),
-    // FR-LIB-20: wired in the export task of this branch.
-    'library.exportCleanupScript': () => {
-      throw new AppErrorException({ code: 'INTERNAL', message: ERROR_CODES.INTERNAL });
+    'library.exportCleanupScript': (request) => {
+      const loaded = deps.settings.get();
+      const settings = loaded.kind === 'ok' ? loaded.snapshot.settings : defaultSettings();
+      const systems = withCustomSystems(deps.catalog(), settings.customSystems);
+      return exportCleanupScript(
+        {
+          reader: library().exports,
+          files: (games) =>
+            collectCleanupFiles(games, {
+              locations: settings.storage.locations,
+              folderName: (id) => systemFolderName(settings, findSystem(systems, id), id),
+            }),
+          pickPath: deps.pickScriptPath,
+          clock: deps.clock,
+          text: (key) => mainText(settings.general.language, key),
+        },
+        request,
+      );
     },
     'collections.list': () => library().collections.list(),
     // The generated menu lists every collection (FR-MENU-3).

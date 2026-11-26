@@ -18,9 +18,15 @@ export function expectedGamePath(input: ExpectedPathInput): string {
   const locations = orderedLocations(input.settings.storage.locations);
   const location = locations.find((candidate) => candidate.id === input.locationId) ?? locations[0];
   if (!location) return input.relPath;
-  const folder =
-    input.settings.systems[input.systemId]?.folderName ??
-    input.system?.defaultFolderName ??
-    input.systemId;
+  const folder = systemFolderName(input.settings, input.system, input.systemId);
   return join(location.path, folder, ...input.relPath.split('/'));
+}
+
+/** A system's folder inside every storage location (FR-LIB-2): the user's name, the catalog's, its id. */
+export function systemFolderName(
+  settings: Settings,
+  system: SystemDefinition | undefined,
+  systemId: string,
+): string {
+  return settings.systems[systemId]?.folderName ?? system?.defaultFolderName ?? systemId;
 }

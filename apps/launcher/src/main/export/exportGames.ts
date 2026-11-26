@@ -5,15 +5,21 @@ import { renderExport } from './formats.ts';
 
 const EXTENSIONS: Record<ExportFormat, string> = { csv: 'csv', json: 'json', gamelistXml: 'xml' };
 
+/** A name made safe as a Windows file name; empty when nothing is left. */
+export function safeFileName(title: string): string {
+  return (
+    title
+      // eslint-disable-next-line no-control-regex -- control characters aren't allowed in names
+      .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
+      .replace(/[. ]+$/, '')
+      .trim()
+  );
+}
+
 /** The Save dialog's suggestion: the scope's name made safe for Windows; ES wants gamelist.xml. */
 export function exportFileName(title: string, format: ExportFormat): string {
   if (format === 'gamelistXml') return 'gamelist.xml';
-  const safe = title
-    // eslint-disable-next-line no-control-regex -- control characters aren't allowed in names
-    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
-    .replace(/[. ]+$/, '')
-    .trim();
-  return `${safe || 'games'}.${EXTENSIONS[format]}`;
+  return `${safeFileName(title) || 'games'}.${EXTENSIONS[format]}`;
 }
 
 export interface ExportDeps {

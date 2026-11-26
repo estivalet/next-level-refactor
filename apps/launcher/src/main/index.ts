@@ -186,6 +186,19 @@ async function pickExportPath(defaultName: string, format: ExportFormat): Promis
   return result.canceled || !result.filePath ? null : result.filePath;
 }
 
+/** A Save dialog for the Delete later cleanup script (FR-LIB-20); null when cancelled. */
+async function pickScriptPath(defaultName: string): Promise<string | null> {
+  const window = BrowserWindow.getFocusedWindow();
+  const options = {
+    defaultPath: defaultName,
+    filters: [{ name: 'PowerShell', extensions: ['ps1'] }],
+  };
+  const result = await (window
+    ? dialog.showSaveDialog(window, options)
+    : dialog.showSaveDialog(options));
+  return result.canceled || !result.filePath ? null : result.filePath;
+}
+
 /** Set in start(); settings changes reach it once it exists. */
 let updates: UpdateService | undefined;
 /** Set in start() once the library is open: settings changes may change folder filters. */
@@ -459,6 +472,7 @@ async function start(): Promise<void> {
       return result.canceled ? [] : result.filePaths;
     },
     pickExportPath,
+    pickScriptPath,
     pickFolder: async (title, defaultPath) => {
       // End-to-end tests can't drive the native dialog; development builds only.
       const e2eFolder = app.isPackaged ? undefined : process.env['NEXTLEVEL_E2E_PICK_FOLDER'];

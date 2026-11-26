@@ -95,6 +95,8 @@ export interface MainDeps {
   museumImages: Pick<MuseumImageStore, 'add' | 'keepOnly'>;
   /** Native Save dialog for a game list export (FR-LIB-11); null when cancelled. */
   pickExportPath: (defaultName: string, format: ExportFormat) => Promise<string | null>;
+  /** Native Save dialog for the Delete later cleanup script (FR-LIB-20); null when cancelled. */
+  pickScriptPath: (defaultName: string) => Promise<string | null>;
   presets: () => readonly EmulatorPreset[];
   /** null when `library.db` could not be opened; library channels then fail. */
   library: {

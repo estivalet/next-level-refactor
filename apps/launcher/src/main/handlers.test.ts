@@ -43,6 +43,7 @@ async function setup(extra: Partial<MainDeps> = {}) {
       keepOnly: vi.fn(() => Promise.resolve()),
     },
     pickExportPath: vi.fn(() => Promise.resolve(null)),
+    pickScriptPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library: null,
     clock: () => new Date(Date.UTC(2026, 9, 21)),

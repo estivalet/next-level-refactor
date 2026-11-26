@@ -151,6 +151,7 @@ async function setup(withLibrary: boolean) {
       keepOnly: vi.fn(() => Promise.resolve()),
     },
     pickExportPath: vi.fn(() => Promise.resolve(null)),
+    pickScriptPath: vi.fn(() => Promise.resolve(null)),
     presets: () => [],
     library,
     clock: () => new Date(Date.UTC(2026, 9, 21)),
@@ -204,6 +205,22 @@ describe('library handlers', () => {
     });
     expect(
       await router.handle('library.export', {
+        ...request,
+        scope: { kind: 'collection', collectionId: 99 },
+      }),
+    ).toMatchObject({ ok: false, error: { code: 'NOT_FOUND' } });
+  });
+
+  it('FR-LIB-20: library.exportCleanupScript reads the Delete later tab before the Save dialog', async () => {
+    const { router } = await setup(true);
+    const request = { scope: { kind: 'system', systemId: 'nintendo-64' }, title: 'Nintendo 64' };
+    // The test's Save dialog is cancelled.
+    expect(await router.handle('library.exportCleanupScript', request)).toEqual({
+      ok: true,
+      value: { status: 'cancelled' },
+    });
+    expect(
+      await router.handle('library.exportCleanupScript', {
         ...request,
         scope: { kind: 'collection', collectionId: 99 },
       }),
